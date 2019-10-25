@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ledgerwriter
+spec:
+  selector:
+    matchLabels:
+      app: ledgerwriter
+  template:
+    metadata:
+      labels:
+        app: ledgerwriter
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+      - name: writer
+        image: ledgerwriter
+        env:
+        - name: REDIS_ADDR
+          value: "redis-ledger"
+        - name: REDIS_PORT
+          value: "6379"
+        resources:
+          requests:
+            cpu: 200m
+            memory: 64Mi
+          limits:
+            cpu: 300m
+            memory: 128Mi
