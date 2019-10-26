@@ -6,6 +6,7 @@ cluster:
 	gcloud container clusters create financial-app --project ${PROJECT_ID} --zone=us-central1-a
 
 deploy:
+	#kubectl delete deployment ledgerwriter 2> /dev/null
 	gcloud container clusters get-credentials --project ${PROJECT_ID} financial-app --zone us-central1-a
 	skaffold run --default-repo=gcr.io/${PROJECT_ID}
 

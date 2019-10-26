@@ -13,8 +13,5 @@ RUN pip install -r requirements.txt
 # add files into working directory
 COPY . .
 
-# set listen port
-ENV PORT "8080"
-EXPOSE 8080
 
 ENTRYPOINT ["python", "/ledgerwriter/ledger_writer.py"]
