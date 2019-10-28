@@ -6,7 +6,7 @@ import json
 
 redis_host = os.getenv('REDIS_ADDR')
 redis_port = os.getenv("REDIS_PORT")
-stream_name = str(uuid.uuid4())
+stream_name = 'unconfirmed' #str(uuid.uuid4())
 
 def add_transaction(from_id, to_id, amount):
     transaction_id = str(uuid.uuid4())
@@ -34,4 +34,4 @@ if __name__ == '__main__':
     while True:
         add_transaction('dan', 'sanche', 10)
         print('added transaction to stream')
-        sleep(5)
+        sleep(10)
