@@ -15,12 +15,14 @@ def add_transaction(from_id, to_id, amount):
                  'account':from_id,
                  'amount':amount,
                  'time':timestamp,
-                 'transaction_id':transaction_id}
+                 'transaction_id':transaction_id,
+                 'entry_id':transaction_id+"-d"}
     credit_obj = {'kind':'credit',
                  'account':to_id,
                  'amount':amount,
                  'time':timestamp,
-                 'transaction_id':transaction_id}
+                 'transaction_id':transaction_id,
+                 'entry_id':transaction_id+"-c"}
     r.xadd(stream_name, debit_obj)
     r.xadd(stream_name, credit_obj)
 
