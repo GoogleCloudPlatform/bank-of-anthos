@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: transactionvalidator
+spec:
+  selector:
+    matchLabels:
+      app: transactionvalidator
+  template:
+    metadata:
+      labels:
+        app: transactionvalidator
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+      - name: writer
+        image: transactionvalidator
+        env:
+        - name: REDIS_ADDR
+          value: "redis-unconfirmed"
+        - name: REDIS_PORT
+          value: "6379"
+        resources:
+          requests:
+            cpu: 200m
+            memory: 64Mi
+          limits:
+            cpu: 300m
+            memory: 128Mi
