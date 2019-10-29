@@ -4,14 +4,15 @@ import os
 import uuid
 import json
 
-ledger_redis_host = os.getenv('REDIS_ADDR_LEDGER')
-ledger_redis_port = os.getenv("REDIS_PORT_LEDGER")
-ledger_stream = 'ledger'#str(uuid.uuid4())
 branch_id = os.getenv("BRANCH_ID")
 
-unconf_redis_host = os.getenv('REDIS_ADDR_UNCONFIRMED')
-unconf_redis_port = os.getenv("REDIS_PORT_UNCONFIRMED")
-unconf_stream = 'unconfirmed'#str(uuid.uuid4())
+ledger_host = os.getenv('LEDGER_ADDR')
+ledger_port = os.getenv("LEDGER_PORT")
+ledger_stream = os.getenv('LEDGER_STREAM')
+
+unconf_host = os.getenv('UNCONF_ADDR')
+unconf_port = os.getenv("UNCONF_PORT")
+unconf_stream = os.getenv('UNCONF_STREAM')
 
 balance_dict = {}
 transactions_processed = set([])
@@ -61,8 +62,8 @@ def query_unconfirmed():
 
 
 if __name__ == '__main__':
-    _ledger = redis.Redis(host=ledger_redis_host, port=ledger_redis_port, db=0)
-    _unconf = redis.Redis(host=unconf_redis_host, port=unconf_redis_port, db=0)
+    _ledger = redis.Redis(host=ledger_host, port=ledger_port, db=0)
+    _unconf = redis.Redis(host=unconf_host, port=unconf_port, db=0)
     build_balances()
 
     while True:

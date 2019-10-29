@@ -16,10 +16,12 @@ spec:
       - name: writer
         image: transactionvalidator
         env:
-        - name: REDIS_ADDR
+        - name: UNCONF_ADDR
           value: "redis-unconfirmed"
-        - name: REDIS_PORT
+        - name: UNCONF_PORT
           value: "6379"
+        - name: UNCONF_STREAM
+          value: "unconfirmed"
         resources:
           requests:
             cpu: 200m

@@ -4,9 +4,9 @@ import os
 import uuid
 import json
 
-redis_host = os.getenv('REDIS_ADDR')
-redis_port = os.getenv("REDIS_PORT")
-stream_name = 'unconfirmed' #str(uuid.uuid4())
+unconf_host = os.getenv('UNCONF_ADDR')
+unconf_port = os.getenv('UNCONF_PORT')
+stream_name = os.getenv("UNCONF_STREAM")
 
 def add_transaction(from_id, to_id, amount):
     transaction_id = str(uuid.uuid4())
@@ -22,15 +22,13 @@ def add_transaction(from_id, to_id, amount):
                  'transaction_id':transaction_id
                 }
     r.xadd(stream_name, trans_obj)
-
-
+    print('added transaction: {}'.format(trans_obj))
 
 if __name__ == '__main__':
-    print('host: {} port: {}'.format(redis_host, redis_port))
+    print('host: {} port: {}'.format(unconf_host, unconf_port))
 
-    r = redis.Redis(host=redis_host, port=redis_port, db=0)
+    r = redis.Redis(host=unconf_host, port=unconf_port, db=0)
 
     while True:
         add_transaction('dan', 'sanche', 10)
-        print('added transaction to stream')
         sleep(10)

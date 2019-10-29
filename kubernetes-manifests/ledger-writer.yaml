@@ -19,13 +19,18 @@ spec:
         # possible securiddty issue?
         - name: BRANCH_ID
           value: '1234'
+        - name: LEDGER_ADDR
           value: "redis-ledger"
-        - name: REDIS_PORT_LEDGER
+        - name: LEDGER_PORT
           value: "6379"
-        - name: REDIS_ADDR_UNCONFIRMED
+        - name: LEDGER_STREAM
+          value: "ledger"
+        - name: UNCONF_ADDR
           value: "redis-unconfirmed"
-        - name: REDIS_PORT_UNCONFIRMED
+        - name: UNCONF_PORT
           value: "6379"
+        - name: UNCONF_STREAM
+          value: "unconfirmed"
         resources:
           requests:
             cpu: 200m
