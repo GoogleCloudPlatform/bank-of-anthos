@@ -8,6 +8,7 @@ unconf_host = os.getenv('UNCONF_ADDR')
 unconf_port = os.getenv('UNCONF_PORT')
 stream_name = os.getenv("UNCONF_STREAM")
 
+key_path = os.getenv("KEY_PATH")
 def add_transaction(from_id, to_id, amount):
     transaction_id = str(uuid.uuid4())
     timestamp = time()

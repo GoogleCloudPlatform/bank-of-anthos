@@ -12,16 +12,30 @@ spec:
         app: transactionvalidator
     spec:
       terminationGracePeriodSeconds: 5
+      volumes:
+      - name: google-cloud-sa
+        secret:
+          secretName: bank-0-service-account
       containers:
       - name: writer
         image: transactionvalidator
+        volumeMounts:
+        - name: google-cloud-sa
+          mountPath: /var/secrets/google
         env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /var/secrets/google/key.json
         - name: UNCONF_ADDR
           value: "redis-unconfirmed"
         - name: UNCONF_PORT
           value: "6379"
         - name: UNCONF_STREAM
           value: "unconfirmed"
+        - name: KEY_PATH
+          valueFrom:
+            secretKeyRef:
+              name: bank-0-key-path
+              key: bank-0-key-path.txt
         resources:
           requests:
             cpu: 200m
