@@ -11,20 +11,17 @@ stream_name = 'unconfirmed' #str(uuid.uuid4())
 def add_transaction(from_id, to_id, amount):
     transaction_id = str(uuid.uuid4())
     timestamp = time()
-    debit_obj = {'kind':'debit',
-                 'account':from_id,
+    trans_obj = {'send_account':from_id,
+                 'send_branch':'0',
+                 'send_branch_sig':'',
+                 'recv_account':to_id,
+                 'recv_branch':'0',
+                 'recv_branch_sig':'',
                  'amount':amount,
                  'time':timestamp,
-                 'transaction_id':transaction_id,
-                 'entry_id':transaction_id+"-d"}
-    credit_obj = {'kind':'credit',
-                 'account':to_id,
-                 'amount':amount,
-                 'time':timestamp,
-                 'transaction_id':transaction_id,
-                 'entry_id':transaction_id+"-c"}
-    r.xadd(stream_name, debit_obj)
-    r.xadd(stream_name, credit_obj)
+                 'transaction_id':transaction_id
+                }
+    r.xadd(stream_name, trans_obj)
 
 
 
