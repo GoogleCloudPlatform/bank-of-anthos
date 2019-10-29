@@ -24,7 +24,7 @@ spec:
           mountPath: /var/secrets/google
         env:
         - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /var/secrets/google/key.json
+          value: /var/secrets/google/bank-0.json
         - name: UNCONF_ADDR
           value: "redis-unconfirmed"
         - name: UNCONF_PORT
