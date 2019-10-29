@@ -12,10 +12,10 @@ def add_transaction(from_id, to_id, amount):
     transaction_id = str(uuid.uuid4())
     timestamp = time()
     trans_obj = {'send_account':from_id,
-                 'send_branch':'0',
+                 'send_branch':'1234',
                  'send_branch_sig':'',
                  'recv_account':to_id,
-                 'recv_branch':'0',
+                 'recv_branch':'1234',
                  'recv_branch_sig':'',
                  'amount':amount,
                  'time':timestamp,

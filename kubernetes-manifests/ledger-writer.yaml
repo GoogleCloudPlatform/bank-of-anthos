@@ -16,7 +16,9 @@ spec:
       - name: writer
         image: ledgerwriter
         env:
-        - name: REDIS_ADDR_LEDGER
+        # possible securiddty issue?
+        - name: BRANCH_ID
+          value: '1234'
           value: "redis-ledger"
         - name: REDIS_PORT_LEDGER
           value: "6379"
