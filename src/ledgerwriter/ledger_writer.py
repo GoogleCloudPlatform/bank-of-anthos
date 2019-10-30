@@ -29,7 +29,8 @@ def verify_signatures(transaction):
     t = transaction.copy()
     send_sig = t.pop('send_branch_sig')
     recv_sig = t.pop('recv_branch_sig')
-    digest_bytes = hashlib.sha256(str(t)).digest()
+    t_str =  '|'.join('{}:{}'.format(k, v) for k, v in sorted(t.items()))
+    digest_bytes = hashlib.sha256(t_str).digest()
     try:
         # Attempt verification
         for signature in [send_sig, recv_sig]:

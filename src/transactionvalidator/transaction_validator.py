@@ -18,14 +18,15 @@ def sign_transaction(transaction):
     t = transaction.copy()
     del t['send_branch_sig']
     del t['recv_branch_sig']
-    digest_bytes = hashlib.sha256(str(t)).digest()
+    t_str =  '|'.join('{}:{}'.format(k, v) for k, v in sorted(t.items()))
+    digest_bytes = hashlib.sha256(t_str).digest()
     digest_json = {'sha256': digest_bytes}
     response = client.asymmetric_sign(key_path, digest_json)
     return response.signature
 
 def add_transaction(from_id, to_id, amount):
     transaction_id = str(uuid.uuid4())
-    timestamp = time()
+    timestamp = int(time())
     trans_obj = {'send_account':from_id,
                  'send_branch':'1234',
                  'send_branch_sig':'',
