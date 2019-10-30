@@ -12,11 +12,20 @@ spec:
         app: ledgerwriter
     spec:
       terminationGracePeriodSeconds: 5
+      volumes:
+      - name: pub-key
+        secret:
+          secretName: bank-0-public-key
       containers:
       - name: writer
         image: ledgerwriter
+        volumeMounts:
+        - name: pub-key
+          mountPath: /var/secrets/keys
         env:
-        # possible securiddty issue?
+        - name: PUB_KEY_PATH
+          value: /var/secrets/keys/bank-0.pub
+        # possible security issue?
         - name: BRANCH_ID
           value: '1234'
         - name: LEDGER_ADDR

@@ -3,8 +3,15 @@ import redis
 import os
 import uuid
 import json
+import hashlib
+
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import ec, utils
+from cryptography.exceptions import InvalidSignature
 
 branch_id = os.getenv("BRANCH_ID")
+key_path = os.getenv("PUB_KEY_PATH")
 
 ledger_host = os.getenv('LEDGER_ADDR')
 ledger_port = os.getenv("LEDGER_PORT")
@@ -16,6 +23,23 @@ unconf_stream = os.getenv('UNCONF_STREAM')
 
 balance_dict = {}
 transactions_processed = set([])
+
+def verify_signatures(transaction):
+    # create hash of transaction
+    t = transaction.copy()
+    send_sig = t.pop('send_branch_sig')
+    recv_sig = t.pop('recv_branch_sig')
+    digest_bytes = hashlib.sha256(str(t)).digest()
+    try:
+        # Attempt verification
+        for signature in [send_sig, recv_sig]:
+            _public_key.verify(signature,
+                               digest_bytes,
+                               ec.ECDSA(utils.Prehashed(hashes.SHA256())))
+        # No errors were thrown. Verification was successful
+        return True
+    except InvalidSignature:
+        return False
 
 def _local_cache_transaction(transaction):
     sender_id = transaction['send_account']
@@ -30,7 +54,7 @@ def _local_cache_transaction(transaction):
         balance_dict[receiver_id] = balance_dict.get(receiver_id, 0) + amount
     transactions_processed.add(transaction_id)
 
-def build_balances():
+def restore_balances():
     history = _ledger.xread({ledger_stream:b"0-0"})
     if len(history) == 0:
         return
@@ -54,6 +78,8 @@ def query_unconfirmed():
         elif not (transaction['send_branch'] == branch_id or 
                 transaction['recv_branch'] == branch_id):
             print('error: skipping transaction with no matching branch')
+        elif not verify_signatures(transaction):
+            print('error: signatures don\'t match')
         else:
             print('adding: {}'.format(transaction))
             _ledger.xadd(ledger_stream, transaction)
@@ -64,7 +90,11 @@ def query_unconfirmed():
 if __name__ == '__main__':
     _ledger = redis.Redis(host=ledger_host, port=ledger_port, db=0)
     _unconf = redis.Redis(host=unconf_host, port=unconf_port, db=0)
-    build_balances()
+
+    key_str = open(key_path, "r").read()
+    _public_key = serialization.load_pem_public_key(key_str, default_backend())
+
+    restore_balances()
 
     while True:
         query_unconfirmed()

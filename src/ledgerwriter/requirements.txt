@@ -1,1 +1,2 @@
 redis
+cryptography==2.7
