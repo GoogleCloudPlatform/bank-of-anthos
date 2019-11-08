@@ -1,5 +1,5 @@
 KEYRING_NAME=financial-app
-PROJECT=sanche-testing-project
+PROJECT=hybwksp34
 
 gcloud kms keyrings create $KEYRING_NAME  --location global --project $PROJECT
 
