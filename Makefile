@@ -45,4 +45,4 @@ deploy:
 	skaffold run --default-repo=gcr.io/${PROJECT_ID}
 
 logs:
-	 kubectl logs -l app=ledgerwriter -f
+	 kubectl logs -l app=ledgerwriter -c writer -f
