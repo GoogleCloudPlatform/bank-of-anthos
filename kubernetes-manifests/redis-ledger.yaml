@@ -61,6 +61,6 @@ spec:
   selector:
     app: redis-ledger
   ports:
-  - name: redis
+  - name: http
     port: 6379
     targetPort: 6379

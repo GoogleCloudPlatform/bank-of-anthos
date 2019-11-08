@@ -61,6 +61,6 @@ spec:
   selector:
     app: redis-unconfirmed
   ports:
-  - name: redis
+  - name: http
     port: 6379
     targetPort: 6379
