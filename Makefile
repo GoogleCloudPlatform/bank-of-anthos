@@ -1,4 +1,4 @@
-.PHONY: cluster deploy logs
+.PHONY: cluster deploy secrets logs
 
 PROJECT_ID=hybwksp34
 ZONE=us-central1-a
@@ -33,6 +33,11 @@ cluster:
 	kubectl annotate serviceaccount --namespace istio-system istio-mixer-service-account iam.gke.io/gcp-service-account=istio-mixer@${PROJECT_ID}.iam.gserviceaccount.com
 	# enable sidecars in default namespace
 	kubectl label namespace default istio-injection=enabled
+	# add secrets
+	./secrets/create_keys.sh | true
+
+secrets:
+	./secrets/create_keys.sh | true
 
 deploy:
 	#kubectl delete deployment ledgerwriter 2> /dev/null

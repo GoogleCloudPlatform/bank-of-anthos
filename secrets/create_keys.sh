@@ -1,6 +1,8 @@
 KEYRING_NAME=financial-app
 PROJECT=hybwksp34
 
+cd $(dirname $0)
+
 gcloud kms keyrings create $KEYRING_NAME  --location global --project $PROJECT
 
 for BANK_NAME in "bank-0"; do
