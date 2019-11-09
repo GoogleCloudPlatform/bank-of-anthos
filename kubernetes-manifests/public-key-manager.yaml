@@ -11,10 +11,16 @@ spec:
       labels:
         app: publickeymanager
     spec:
+      serviceAccountName: bank-0-keys
       terminationGracePeriodSeconds: 5
       containers:
       - name: manager
         image: publickeymanager
+        env:
+        - name: KEY_PROJECT_ID
+          value: "hybwksp34"
+        - name: RING_ID
+          value: "financial-app"
         resources:
           requests:
             cpu: 200m
