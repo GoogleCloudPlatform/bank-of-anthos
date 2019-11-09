@@ -46,6 +46,8 @@ build:
     context: src/ledgerwriter
   - image: transactionvalidator
     context: src/transactionvalidator
+  - image: publickeymanager
+    context: src/publickeymanager
   tagPolicy:
     gitCommit: {}
 deploy:
