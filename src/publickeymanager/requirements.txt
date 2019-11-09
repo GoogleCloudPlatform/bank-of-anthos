@@ -1,2 +1,2 @@
 google-cloud-kms==1.2.1
-cryptography==2.7
+Flask==1.1.1
