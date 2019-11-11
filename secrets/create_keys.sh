@@ -38,12 +38,6 @@ for BANK_NAME in "bank-0"; do
         --namespace $K8S_NAMESPACE \
         $K8S_SA \
         iam.gke.io/gcp-service-account=$BANK_NAME@$PROJECT.iam.gserviceaccount.com
-
-    gcloud kms keys versions get-public-key --project $PROJECT --key $BANK_NAME --keyring $KEYRING_NAME --location global 1 > $BANK_NAME.pub
-    echo -n "projects/$PROJECT/locations/global/keyRings/$KEYRING_NAME/cryptoKeys/$BANK_NAME/cryptoKeyVersions/1" > $BANK_NAME-key-path.txt
-
-    kubectl create secret generic $BANK_NAME-public-key --from-file=./$BANK_NAME.pub
-    kubectl create secret generic $BANK_NAME-key-path --from-file=./$BANK_NAME-key-path.txt
 done
 
 
