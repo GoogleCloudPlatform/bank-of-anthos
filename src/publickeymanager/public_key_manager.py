@@ -6,7 +6,7 @@ import os
 
 from google.cloud import kms_v1
 
-from flask import Flask
+from flask import Flask, request
 
 _project_id = os.getenv('KEY_PROJECT_ID')
 _keyring = os.getenv('RING_ID')
@@ -16,15 +16,15 @@ app = Flask(__name__)
 
 @app.route('/key', methods=['GET'])
 def get_public_key():
-    branch_id='bank-0'
-    key_version='1'
+    branch_id = request.args.get('branch-id')
+    key_version = request.args.get('key_version')
+
     key_path = ("projects/{}/locations/global/keyRings/{}/cryptoKeys"
               "/{}/cryptoKeyVersions/{}".format(_project_id, _keyring,\
               branch_id, key_version))
     response = _client.get_public_key(key_path)
     key_txt = response.pem.encode('ascii')
     print(key_txt)
-    #key = serialization.load_pem_public_key(key_txt, default_backend())
     return key_txt, 201
 
 if __name__ == '__main__':
