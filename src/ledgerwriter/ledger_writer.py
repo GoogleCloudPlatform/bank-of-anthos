@@ -32,17 +32,19 @@ def verify_signatures(transaction):
     t = transaction.copy()
     send_sig = t.pop('send_branch_sig')
     recv_sig = t.pop('recv_branch_sig')
+    send_info = (t['send_branch'], t['send_branch_key_version'], send_sig)
+    recv_info = (t['recv_branch'], t['recv_branch_key_version'], recv_sig)
     t_str =  '|'.join('{}:{}'.format(k, v) for k, v in sorted(t.items()))
     digest_bytes = hashlib.sha256(t_str).digest()
     try:
         # Attempt verification
-        for signature in [send_sig, recv_sig]:
-            response = requests.get(backend_uri, timeout=3)
+        for (branch, key_ver, sig) in [send_info, recv_info]:
+            params = {'branch_id': branch, 'key_version':key_ver}
+            response = requests.get(backend_uri, params=params, timeout=3)
             key_txt = response.text.encode('ascii')
-            print(key_txt)
             pub_key = serialization.load_pem_public_key(key_txt,
                                                         default_backend())
-            pub_key.verify(signature,
+            pub_key.verify(sig,
                            digest_bytes,
                            ec.ECDSA(utils.Prehashed(hashes.SHA256())))
         # No errors were thrown. Verification was successful

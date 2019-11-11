@@ -13,12 +13,14 @@ unconf_port = os.getenv('UNCONF_PORT')
 stream_name = os.getenv("UNCONF_STREAM")
 
 key_path = os.getenv("KEY_PATH").strip()
+key_version = key_path.split('/')[-1]
 
 def sign_transaction(transaction):
     t = transaction.copy()
     del t['send_branch_sig']
     del t['recv_branch_sig']
     t_str =  '|'.join('{}:{}'.format(k, v) for k, v in sorted(t.items()))
+    print(t_str)
     digest_bytes = hashlib.sha256(t_str).digest()
     digest_json = {'sha256': digest_bytes}
     response = client.asymmetric_sign(key_path, digest_json)
@@ -30,9 +32,11 @@ def add_transaction(from_id, to_id, amount):
     trans_obj = {'send_account':from_id,
                  'send_branch':'1234',
                  'send_branch_sig':'',
+                 'send_branch_key_version':key_version,
                  'recv_account':to_id,
                  'recv_branch':'1234',
                  'recv_branch_sig':'',
+                 'recv_branch_key_version':key_version,
                  'amount':amount,
                  'time':timestamp,
                  'transaction_id':transaction_id
