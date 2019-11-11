@@ -14,7 +14,7 @@ _client = kms_v1.KeyManagementServiceClient()
 
 app = Flask(__name__)
 
-@app.route('/messages', methods=['GET'])
+@app.route('/key', methods=['GET'])
 def get_public_key():
     branch_id='bank-0'
     key_version='1'
@@ -23,6 +23,7 @@ def get_public_key():
               branch_id, key_version))
     response = _client.get_public_key(key_path)
     key_txt = response.pem.encode('ascii')
+    print(key_txt)
     #key = serialization.load_pem_public_key(key_txt, default_backend())
     return key_txt, 201
 

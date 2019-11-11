@@ -5,13 +5,14 @@ import uuid
 import json
 import hashlib
 
+import requests
+
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import ec, utils
 from cryptography.exceptions import InvalidSignature
 
 branch_id = os.getenv("BRANCH_ID")
-key_path = os.getenv("PUB_KEY_PATH")
 
 ledger_host = os.getenv('LEDGER_ADDR')
 ledger_port = os.getenv("LEDGER_PORT")
@@ -24,6 +25,8 @@ unconf_stream = os.getenv('UNCONF_STREAM')
 balance_dict = {}
 transactions_processed = set([])
 
+backend_uri = "http://{}/key".format(os.getenv("PUBLIC_KEY_MANAGER_URI"))
+
 def verify_signatures(transaction):
     # create hash of transaction
     t = transaction.copy()
@@ -34,9 +37,14 @@ def verify_signatures(transaction):
     try:
         # Attempt verification
         for signature in [send_sig, recv_sig]:
-            _public_key.verify(signature,
-                               digest_bytes,
-                               ec.ECDSA(utils.Prehashed(hashes.SHA256())))
+            response = requests.get(backend_uri, timeout=3)
+            key_txt = response.text.encode('ascii')
+            print(key_txt)
+            pub_key = serialization.load_pem_public_key(key_txt,
+                                                        default_backend())
+            pub_key.verify(signature,
+                           digest_bytes,
+                           ec.ECDSA(utils.Prehashed(hashes.SHA256())))
         # No errors were thrown. Verification was successful
         return True
     except InvalidSignature:
@@ -91,9 +99,6 @@ def query_unconfirmed():
 if __name__ == '__main__':
     _ledger = redis.Redis(host=ledger_host, port=ledger_port, db=0)
     _unconf = redis.Redis(host=unconf_host, port=unconf_port, db=0)
-
-    key_str = open(key_path, "r").read()
-    _public_key = serialization.load_pem_public_key(key_str, default_backend())
 
     restore_balances()
 
