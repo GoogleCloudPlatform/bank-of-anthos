@@ -16,7 +16,7 @@ app = Flask(__name__)
 
 @app.route('/key', methods=['GET'])
 def get_public_key():
-    branch_id = request.args.get('branch-id')
+    branch_id = request.args.get('branch_id')
     key_version = request.args.get('key_version')
 
     key_path = ("projects/{}/locations/global/keyRings/{}/cryptoKeys"

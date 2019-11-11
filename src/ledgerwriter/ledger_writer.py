@@ -40,13 +40,18 @@ def verify_signatures(transaction):
         # Attempt verification
         for (branch, key_ver, sig) in [send_info, recv_info]:
             params = {'branch_id': branch, 'key_version':key_ver}
+            print(params)
             response = requests.get(backend_uri, params=params, timeout=3)
-            key_txt = response.text.encode('ascii')
-            pub_key = serialization.load_pem_public_key(key_txt,
-                                                        default_backend())
-            pub_key.verify(sig,
-                           digest_bytes,
-                           ec.ECDSA(utils.Prehashed(hashes.SHA256())))
+            if response.ok:
+                key_txt = response.text.encode('ascii')
+                pub_key = serialization.load_pem_public_key(key_txt,
+                                                            default_backend())
+                pub_key.verify(sig,
+                               digest_bytes,
+                               ec.ECDSA(utils.Prehashed(hashes.SHA256())))
+            else:
+                print('error: {}'.format(response.text))
+                return False
         # No errors were thrown. Verification was successful
         return True
     except InvalidSignature:
@@ -90,7 +95,9 @@ def query_unconfirmed():
                 transaction['recv_branch'] == branch_id):
             print('error: skipping transaction with no matching branch')
         elif not verify_signatures(transaction):
-            print('error: signatures don\'t match')
+            # todo: how to handle broken connection to key service?
+            # we shouldn't just drop the transaction
+            print('error: could not verify signatures')
         else:
             print('adding: {}'.format(transaction))
             _ledger.xadd(ledger_stream, transaction)
