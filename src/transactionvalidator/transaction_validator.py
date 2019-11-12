@@ -12,8 +12,11 @@ unconf_host = os.getenv('UNCONF_ADDR')
 unconf_port = os.getenv('UNCONF_PORT')
 stream_name = os.getenv("UNCONF_STREAM")
 
-key_path = os.getenv("KEY_PATH").strip()
-key_version = key_path.split('/')[-1]
+ring_path = os.getenv("KEYRING").strip()
+branch_id = os.getenv("BRANCH_ID").strip()
+key_version = os.getenv("KEY_VERSION").strip()
+key_path = "{}/cryptoKeys/{}/cryptoKeyVersions/{}".format(
+        ring_path, branch_id, key_version)
 
 def sign_transaction(transaction):
     t = transaction.copy()
@@ -30,11 +33,11 @@ def add_transaction(from_id, to_id, amount):
     transaction_id = str(uuid.uuid4())
     timestamp = int(time())
     trans_obj = {'send_account':from_id,
-                 'send_branch':'bank-0',
+                 'send_branch':branch_id,
                  'send_branch_sig':'',
                  'send_branch_key_version':key_version,
                  'recv_account':to_id,
-                 'recv_branch':'bank-0',
+                 'recv_branch':branch_id,
                  'recv_branch_sig':'',
                  'recv_branch_key_version':key_version,
                  'amount':amount,

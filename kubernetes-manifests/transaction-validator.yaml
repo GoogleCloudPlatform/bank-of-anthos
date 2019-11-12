@@ -11,7 +11,7 @@ spec:
       labels:
         app: transactionvalidator
     spec:
-      serviceAccountName: bank-0-keys
+      serviceAccountName: key-signer
       terminationGracePeriodSeconds: 5
       containers:
       - name: writer
@@ -23,11 +23,21 @@ spec:
           value: "6379"
         - name: UNCONF_STREAM
           value: "unconfirmed"
-        - name: KEY_PATH
+        - name: KEYRING
           valueFrom:
-            secretKeyRef:
-              name: bank-0-key-path
-              key: bank-0-key-path.txt
+            configMapKeyRef:
+              name: branch-info
+              key: keyring
+        - name: BRANCH_ID
+          valueFrom:
+            configMapKeyRef:
+              name: branch-info
+              key: branch_id
+        - name: KEY_VERSION
+          valueFrom:
+            configMapKeyRef:
+              name: branch-info
+              key: key_version
         resources:
           requests:
             cpu: 200m

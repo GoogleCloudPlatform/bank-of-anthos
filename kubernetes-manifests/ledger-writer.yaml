@@ -17,7 +17,10 @@ spec:
         image: ledgerwriter
         env:
         - name: BRANCH_ID
-          value: 'bank-0'
+          valueFrom:
+            configMapKeyRef:
+              name: branch-info
+              key: branch_id
         - name: LEDGER_ADDR
           value: "redis-ledger"
         - name: LEDGER_PORT

@@ -68,7 +68,7 @@ kubectl label namespace default istio-injection=enabled
 kubectl create configmap branch-info \
     --from-literal branch_id=$CLUSTER \
     --from-literal key_version=1 \
-    --from-literal keyring=$KEYRING_NAME
+    --from-literal keyring="projects/$PROJECT/locations/global/keyRings/$KEYRING_NAME"
 
 #########################################################################
 # KMS

@@ -2,11 +2,11 @@
 
 PROJECT_ID=hybwksp34
 ZONE=us-central1-a
-CLUSTER=financial-app-istio
+CLUSTER=seattle
 ACCOUNT=hybwksp34@anthosworkshop.com
 
 cluster:
-	./create_cluster.sh ${PROJECT_ID} "seattle" ${ZONE}
+	./create_cluster.sh ${PROJECT_ID} ${CLUSTER} ${ZONE}
 	skaffold run --default-repo=gcr.io/${PROJECT_ID}
 
 deploy:
