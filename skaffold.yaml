@@ -36,18 +36,18 @@ build:
   #  context: src/currencyservice
   #- image: cartservice
   #  context: src/cartservice
-  #- image: frontend
-  #  context: src/frontend
+  - image: frontend
+    context: src/frontend
   #- image: loadgenerator
   #  context: src/loadgenerator
   #- image: adservice
   #  context: src/adservice
-  - image: ledgerwriter
-    context: src/ledgerwriter
-  - image: transactionvalidator
-    context: src/transactionvalidator
-  - image: publickeymanager
-    context: src/publickeymanager
+  #- image: ledgerwriter
+  #  context: src/ledgerwriter
+  #- image: transactionvalidator
+  #  context: src/transactionvalidator
+  #- image: publickeymanager
+  #  context: src/publickeymanager
   tagPolicy:
     gitCommit: {}
 deploy:
