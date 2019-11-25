@@ -1,0 +1,234 @@
+<!--
+Copyright 2018 Google LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<html lang="en">
+   <head>
+      <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+      <title>Cloud Bank</title>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en">
+      <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+      <link rel="stylesheet" href="static/styles/material.indigo-green.min.css">
+      <link rel="stylesheet" href="static/styles/demo.css">
+      <script src="static/scripts/material.min.js"></script>
+   </head>
+   <body class="mdl-demo mdl-color--grey-100 mdl-color-text--grey-700 mdl-base">
+    <!-- Toast Box -->
+    <div aria-live="assertive" aria-atomic="true" aria-relevant="text" class="mdl-snackbar mdl-js-snackbar">
+        <div class="mdl-snackbar__text"></div>
+        <button type="button" class="mdl-snackbar__action"></button>
+    </div>
+    <!-- Header -->
+      <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+         <header class="mdl-layout__header mdl-layout__header--scroll mdl-color--primary">
+            <div class="mdl-layout--large-screen-only mdl-layout__header-row"></div>
+            <div class="mdl-layout__header-row">
+               <h3>Cloud Bank</h3>
+               <div class = "mdl-layout-spacer"></div>
+                <button type="button"
+                   class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--accent mdl-color-text--accent-contrast"
+                   onClick="window.location.reload()" style="margin:auto;display:block">Log Out</button>
+            </div>
+         </header>
+         <main class="mdl-layout__content">
+            <!-- empty section for spacing --!>
+            <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
+            </section>
+            <!-- balance section --!>
+            <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
+                <div class="mdl-card mdl-cell mdl-cell--12-col">
+                    <div class="mdl-card__supporting-text">
+                        <h4>Welcome {{ name }}</h4>
+                        <table style="margin:auto;width:100%">
+                        <tbody>
+                           <tr>
+                           <td class="mdl-data-table__cell--non-numeric"><h3> {{ balance }} </h3></td>
+                              <td class="mdl-card__menu"><button type="button"
+                            class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--accent mdl-color-text--accent-contrast deposit-modal-btn"
+                            style="margin:auto;display:block">⬇ Deposit Funds</button><br>
+                            <button type="button"
+                            class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--accent mdl-color-text--accent-contrast payment-modal-btn"
+                            style="margin:auto;display:block">⬆ Send Payment</button></td>
+                           </tr>
+                        </tbody>
+                     </table>
+
+                    </div>
+                </div>
+            </section>
+            <!-- if connected to server, render testing results -->
+            <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
+               <div class="mdl-card mdl-cell mdl-cell--12-col">
+                  <div class="mdl-card__supporting-text">
+                     <h4>Transaction History</h4>
+                     <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp" style="margin:auto;width:100%">
+                     <thead>
+                        <tr>
+                            <th class="mdl-data-table__cell--non-numeric">Date</th><th class="mdl-data-table__cell--non-numeric">Account</th><th>Amount</th>
+                        </tr>
+                     </thead>
+                        <tbody>
+                           {% for t in history %}
+                           <tr>
+                               <td class="mdl-data-table__cell--non-numeric"> {{ t.date }} </td>
+                               <td class="mdl-data-table__cell--non-numeric"> {{ t.account }}</td>
+                               <td>{{ t.amount }}</td>
+                           </tr>
+                           {% endfor %}
+                        </tbody>
+                     </table>
+                  </div>
+               </div>
+            </section>
+         </main>
+      </div>
+    <!-- Deposit Modal -->
+    <dialog class="mdl-dialog deposit-modal-dialog">
+
+    <h4 class="mdl-dialog__title">Deposit Funds</h4>
+    <div class="mdl-dialog__content">
+        <form id=deposit-form method="POST" action="/deposit">
+         <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            <select class="mdl-textfield__input" id="accounts" name="account">
+               <option disabled value="title">External Bank Accounts</option>
+               {% for account in external_accounts %}
+                    <option value="{{ account.number }}">{{ account.label }} - {{ account.number }}</option>
+               {% endfor %}
+               <option disabled value="add">Add new account</option>
+            </select>
+            <label class="mdl-textfield__label" for="accounts">🏦 Select Account</label>
+          </div>
+
+          <div class="mdl-textfield mdl-js-textfield  mdl-textfield--floating-label">
+            <input class="mdl-textfield__input" type="number" step='0.01' id="payment-amount" name="amount" value=0 min=0>
+            <label class="mdl-textfield__label" for="payment-amount">💲 Deposit Amount</label>
+          </div>
+        </form>
+    </div>
+    <div class="mdl-dialog__actions">
+      <button type="button" class="mdl-button deposit mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--accent mdl-color-text--accent-contrast">Deposit</button>
+      <button type="button" class="mdl-button close">Cancel</button>
+    </div>
+    </dialog>
+    <script>
+        var depositDialog = document.querySelector('.deposit-modal-dialog');
+        var notification = document.querySelector('.mdl-js-snackbar');
+        var depositButton = document.querySelector('.deposit-modal-btn');
+        var depositForm = document.getElementById("deposit-form");
+        if (! depositDialog.showModal) {
+          dialogPolyfill.registerDialog(depositDialog);
+        }
+        depositButton.addEventListener('click', function() {
+          depositDialog.showModal();
+        });
+        depositDialog.querySelector('.close').addEventListener('click', function() {
+          depositDialog.close();
+        });
+        depositDialog.querySelector('.deposit').addEventListener('click', function() {
+          if (depositForm.amount.value=="" || depositForm.amount.value <= 0) {
+              notification.MaterialSnackbar.showSnackbar({ message: 'Error: Invalid Amount'});
+              // TODO: more checks
+          } else {
+              depositForm.submit();
+              notification.MaterialSnackbar.showSnackbar({ message: 'Initiating deposit'});
+          }
+          depositDialog.close();
+        });
+        depositDialog.addEventListener('click', function (event) {
+            var rect = depositDialog.getBoundingClientRect();
+            var isInDialog=(rect.top <= event.clientY && event.clientY <= rect.top + rect.height && rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
+            if (!isInDialog) {
+                depositDialog.close();
+            }
+        });
+   </script>
+    <!-- Payment Modal -->
+    <dialog class="mdl-dialog payment-modal-dialog">
+
+    <h4 class="mdl-dialog__title">Send Payment</h4>
+    <div class="mdl-dialog__content">
+        <form id=payment-form method="POST" action="/payment">
+         <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            <select class="mdl-textfield__input" id="recipients" name="recipient" onchange='CheckChoice(this.value);'>
+               <option disabled>Favorites</option>
+               {% for account in favorite_accounts %}
+                    <option value="{{ account.number }}">{{ account.label }} - {{ account.number }}</option>
+               {% endfor %}
+               <option disabled>──────────</option>
+               <option value="other">Other account</option>
+            </select>
+            <input class="mdl-textfield__input" type="number" step='1' id="other-recipient" name="other-recipient" min=1000000000 max=9999999999  placeholder="Account #" style='display:none;'/>
+            <label class="mdl-textfield__label" for="recipients">🏦 Recipient</label>
+          </div>
+
+          <div class="mdl-textfield mdl-js-textfield  mdl-textfield--floating-label">
+            <input class="mdl-textfield__input" type="number" step='0.01' id="amount" name="amount" min=0>
+            <label class="mdl-textfield__label" for="amount">💲 Transaction Amount</label>
+          </div>
+          <div class="mdl-textfield mdl-js-textfield  mdl-textfield--floating-label">
+            <input class="mdl-textfield__input" type="password" id="pass" name=password>
+            <label class="mdl-textfield__label" for="pass">🔒 Verify Password</label>
+          </div>
+        </form>
+    </div>
+    <div class="mdl-dialog__actions">
+      <button type="button" class="mdl-button send-payment mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--accent mdl-color-text--accent-contrast">Send</button>
+      <button type="button" class="mdl-button close">Cancel</button>
+    </div>
+    </dialog>
+    <script>
+        var paymentDialog = document.querySelector('.payment-modal-dialog');
+        var notification = document.querySelector('.mdl-js-snackbar');
+        var paymentButton = document.querySelector('.payment-modal-btn');
+        var paymentForm = document.getElementById("payment-form");
+        if (! paymentDialog.showModal) {
+          dialogPolyfill.registerDialog(paymentDialog);
+        }
+        paymentButton.addEventListener('click', function() {
+          paymentDialog.showModal();
+        });
+        paymentDialog.querySelector('.close').addEventListener('click', function() {
+          paymentDialog.close();
+        });
+        paymentDialog.querySelector('.send-payment').addEventListener('click', function() {
+          console.log(paymentForm.amount.value)
+          if (paymentForm.amount.value=="" || paymentForm.amount.value <= 0) {
+              notification.MaterialSnackbar.showSnackbar({ message: 'Error: Invalid Amount'});
+              // TODO: more checks
+          } else {
+              paymentForm.submit();
+              notification.MaterialSnackbar.showSnackbar({ message: 'Transaction Initiated'});
+          }
+          paymentDialog.close();
+        });
+        paymentDialog.addEventListener('click', function (event) {
+            var rect = paymentDialog.getBoundingClientRect();
+            var isInDialog=(rect.top <= event.clientY && event.clientY <= rect.top + rect.height && rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
+            if (!isInDialog) {
+                paymentDialog.close();
+            }
+        });
+    function CheckChoice(val){
+     var element=document.getElementById('otheraccount');
+     if(val=='other')
+       element.style.display='block';
+     else  
+       element.style.display='none';
+    }
+   </script>
+   </body>
+</html>
