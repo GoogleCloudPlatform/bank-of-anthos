@@ -39,9 +39,12 @@ limitations under the License.
             <div class="mdl-layout__header-row">
                <h3>Cloud Bank</h3>
                <div class = "mdl-layout-spacer"></div>
-                <button type="button"
-                   class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--accent mdl-color-text--accent-contrast"
-                   onClick="window.location.reload()" style="margin:auto;display:block">Log Out</button>
+
+                <form id=logout-form method="POST" action="/logout">
+                  <button type="button"
+                     class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--accent mdl-color-text--accent-contrast"
+                     onClick="document.getElementById('logout-form').submit();" style="margin:auto;display:block">Log Out</button>
+                </form>
             </div>
          </header>
          <main class="mdl-layout__content">
@@ -178,10 +181,6 @@ limitations under the License.
           <div class="mdl-textfield mdl-js-textfield  mdl-textfield--floating-label">
             <input class="mdl-textfield__input" type="number" step='0.01' id="amount" name="amount" min=0>
             <label class="mdl-textfield__label" for="amount">💲 Transaction Amount</label>
-          </div>
-          <div class="mdl-textfield mdl-js-textfield  mdl-textfield--floating-label">
-            <input class="mdl-textfield__input" type="password" id="pass" name=password>
-            <label class="mdl-textfield__label" for="pass">🔒 Verify Password</label>
           </div>
         </form>
     </div>

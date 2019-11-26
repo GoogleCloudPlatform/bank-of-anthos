@@ -16,14 +16,22 @@ limitations under the License.
 
 import logging
 
-from flask import Flask, render_template, redirect, url_for, request
+from flask import Flask, abort, make_response, redirect, render_template, \
+    request, url_for
 
 app = Flask(__name__)
 
+TOKEN_NAME = 'token'
+
 
 # handle requests to the server
-@app.route("/")
+@app.route("/home")
 def main():
+    token = request.cookies.get(TOKEN_NAME)
+    if not verify_token(token):
+        # user isn't authenticated
+        return redirect(url_for('login_page'))
+
     transaction_list = []
     for i in range(0, 10):
         transaction_list += [{"date": "Oct 31, 2019",
@@ -47,21 +55,62 @@ def main():
 
 @app.route('/payment', methods=['POST'])
 def payment():
+    token = request.cookies.get(TOKEN_NAME)
+    if not verify_token(token):
+        # user isn't authenticated
+        return abort(401)
+
     recipient = request.form['recipient']
     if recipient == 'other':
         recipient = request.form['other-recipient']
     amount = request.form['amount']
-    password = request.form['password']
-    print((recipient, amount, password))
+    print((recipient, amount))
     return redirect(url_for('main'))
 
 
 @app.route('/deposit', methods=['POST'])
 def deposit():
+    token = request.cookies.get(TOKEN_NAME)
+    if not verify_token(token):
+        # user isn't authenticated
+        return abort(401)
+
     account = request.form['account']
     amount = request.form['amount']
     print(account, amount)
     return redirect(url_for('main'))
+
+
+@app.route("/", methods=['GET'])
+def login_page():
+    token = request.cookies.get(TOKEN_NAME)
+    if verify_token(token):
+        # already authenticated
+        return redirect(url_for('main'))
+
+    return render_template('login.html')
+
+
+@app.route('/login', methods=['POST'])
+def login():
+    # username = request.form['username']
+    # password = request.form['password']
+
+    resp = make_response(redirect(url_for('main')))
+    # set sign in token for 10 seconds
+    resp.set_cookie(TOKEN_NAME, '12345', max_age=300)
+    return resp
+
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    resp = make_response(redirect(url_for('login_page')))
+    resp.delete_cookie(TOKEN_NAME)
+    return resp
+
+
+def verify_token(token):
+    return token == '12345'
 
 
 if __name__ == '__main__':
