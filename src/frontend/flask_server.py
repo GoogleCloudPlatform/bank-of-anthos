@@ -69,9 +69,11 @@ def payment():
         recipient = request.form['other-recipient']
     amount = request.form['amount']
     print((recipient, amount))
-    transaction_obj = { 'sender':   {'routing': 1234, 'account': 9999},
-                        'receiver': {'routing': 1234, 'account': recipient},
-                        'amount': amount}
+    transaction_obj = {'from_routing_num':  1234,
+                       'from_account_num': 9999,
+                       'to_routing_num': 1234,
+                       'to_account_num': recipient,
+                       'amount': amount}
     requests.post(url=app.config["TRANSACTIONS_URI"],
                   data=jsonify(transaction_obj).data,
                   headers={'content-type': 'application/json'},
