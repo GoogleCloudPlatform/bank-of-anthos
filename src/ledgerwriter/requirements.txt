@@ -1,3 +1,2 @@
-requests
 redis
-cryptography==2.7
+flask

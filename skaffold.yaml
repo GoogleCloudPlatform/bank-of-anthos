@@ -42,8 +42,8 @@ build:
   #  context: src/loadgenerator
   #- image: adservice
   #  context: src/adservice
-  #- image: ledgerwriter
-  #  context: src/ledgerwriter
+  - image: ledgerwriter
+    context: src/ledgerwriter
   #- image: transactionvalidator
   #  context: src/transactionvalidator
   #- image: publickeymanager

@@ -15,6 +15,7 @@ limitations under the License.
 '''
 
 import logging
+import os
 
 from flask import Flask, abort, make_response, redirect, render_template, \
     request, url_for
@@ -114,6 +115,10 @@ def verify_token(token):
 
 
 if __name__ == '__main__':
+    for v in ['PORT']:
+        if os.environ.get(v) is None:
+            print("error: {} environment variable not set".format(v))
+            exit(1)
     logging.basicConfig(level=logging.INFO,
                         format=('%(levelname)s|%(asctime)s'
                                 '|%(pathname)s|%(lineno)d| %(message)s'),
@@ -121,4 +126,4 @@ if __name__ == '__main__':
                         )
     logging.getLogger().setLevel(logging.INFO)
     logging.info("Starting flask.")
-    app.run(debug=True, host='0.0.0.0')
+    app.run(debug=False, port=os.environ.get('PORT'), host='0.0.0.0')

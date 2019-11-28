@@ -2,7 +2,7 @@
 
 PROJECT_ID=hybwksp34
 ZONE=us-west1-a
-CLUSTER=seattle
+CLUSTER=financial-demo
 ACCOUNT=hybwksp34@anthosworkshop.com
 
 cluster:
