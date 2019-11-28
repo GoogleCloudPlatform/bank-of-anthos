@@ -23,7 +23,7 @@ spec:
         - name: LEDGER_STREAM
           value: "ledger"
         - name: PORT
-          value: "5000"
+          value: "8080"
         resources:
           requests:
             cpu: 200m
@@ -42,5 +42,5 @@ spec:
     app: ledgerwriter
   ports:
   - name: http
-    port: 5000
-    targetPort: 5000
+    port: 8080
+    targetPort: 8080

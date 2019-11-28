@@ -17,7 +17,9 @@ spec:
         image: frontend
         env:
         - name: PORT
-          value: "5000"
+          value: "8080"
+        - name: TRANSACTIONS_API_ADDR
+          value: "ledgerwriter:8080"
 ---
 apiVersion: v1
 kind: Service
@@ -30,4 +32,4 @@ spec:
   ports:
   - name: http
     port: 8080
-    targetPort: 5000
+    targetPort: 8080

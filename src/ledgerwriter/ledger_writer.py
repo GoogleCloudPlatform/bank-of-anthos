@@ -3,7 +3,7 @@ import os
 
 import redis
 
-from flask import Flask, request
+from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 
@@ -12,9 +12,10 @@ ledger_port = os.getenv("LEDGER_PORT")
 ledger_stream = os.getenv('LEDGER_STREAM')
 
 
-@app.route('/add_transaction', methods=['POST'])
+@app.route('/new_transaction', methods=['POST'])
 def add_transaction():
     print(request.form)
+    return jsonify({}), 201
 
 
 if __name__ == '__main__':

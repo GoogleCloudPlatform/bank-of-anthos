@@ -17,10 +17,13 @@ limitations under the License.
 import logging
 import os
 
-from flask import Flask, abort, make_response, redirect, render_template, \
+from flask import Flask, abort, jsonify, make_response, redirect, render_template, \
     request, url_for
+import requests
 
 app = Flask(__name__)
+app.config["TRANSACTIONS_URI"] = 'http://{}/new_transaction'.format(
+    os.environ.get('TRANSACTIONS_API_ADDR'))
 
 TOKEN_NAME = 'token'
 
@@ -66,6 +69,10 @@ def payment():
         recipient = request.form['other-recipient']
     amount = request.form['amount']
     print((recipient, amount))
+    requests.post(url=app.config["TRANSACTIONS_URI"],
+                  data=jsonify(amount).data,
+                  headers={'content-type': 'application/json'},
+                  timeout=3)
     return redirect(url_for('main'))
 
 
@@ -115,7 +122,7 @@ def verify_token(token):
 
 
 if __name__ == '__main__':
-    for v in ['PORT']:
+    for v in ['PORT', 'TRANSACTIONS_API_ADDR']:
         if os.environ.get(v) is None:
             print("error: {} environment variable not set".format(v))
             exit(1)
