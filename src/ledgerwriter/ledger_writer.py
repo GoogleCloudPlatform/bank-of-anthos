@@ -14,7 +14,7 @@ ledger_stream = os.getenv('LEDGER_STREAM')
 
 @app.route('/new_transaction', methods=['POST'])
 def add_transaction():
-    print(request.form)
+    print(request.get_json())
     return jsonify({}), 201
 
 
