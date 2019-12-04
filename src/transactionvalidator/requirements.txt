@@ -1,2 +1,0 @@
-redis
-google-cloud-kms==1.2.1
