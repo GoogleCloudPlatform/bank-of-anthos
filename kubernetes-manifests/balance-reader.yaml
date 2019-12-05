@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: balancereader
+spec:
+  selector:
+    matchLabels:
+      app: balancereader
+  template:
+    metadata:
+      labels:
+        app: balancereader
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+      - name: reader
+        image: balancereader
+        env:
+        - name: LEDGER_ADDR
+          value: "redis-ledger"
+        - name: LEDGER_PORT
+          value: "6379"
+        - name: LEDGER_STREAM
+          value: "ledger"
+        - name: PORT
+          value: "8080"
+        - name: LOCAL_ROUTING_NUM
+          value: "1234"
+        resources:
+          requests:
+            cpu: 200m
+            memory: 64Mi
+          limits:
+            cpu: 300m
+            memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: balancereader
+spec:
+  type: ClusterIP
+  selector:
+    app: balancereader
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080

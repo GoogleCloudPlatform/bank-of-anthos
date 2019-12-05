@@ -20,6 +20,8 @@ build:
     context: src/frontend
   - image: ledgerwriter
     context: src/ledgerwriter
+  - image: balancereader
+    context: src/balancereader
   tagPolicy:
     gitCommit: {}
 deploy:
