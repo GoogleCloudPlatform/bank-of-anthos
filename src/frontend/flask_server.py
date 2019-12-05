@@ -27,6 +27,8 @@ app.config["TRANSACTIONS_URI"] = 'http://{}/new_transaction'.format(
 
 TOKEN_NAME = 'token'
 
+local_routing_num = os.getenv('LOCAL_ROUTING_NUM')
+
 
 # handle requests to the server
 @app.route("/home")
@@ -69,9 +71,9 @@ def payment():
         recipient = request.form['other-recipient']
     amount = request.form['amount']
     print((recipient, amount))
-    transaction_obj = {'from_routing_num':  1234,
+    transaction_obj = {'from_routing_num':  local_routing_num,
                        'from_account_num': 9999,
-                       'to_routing_num': 1234,
+                       'to_routing_num': local_routing_num,
                        'to_account_num': recipient,
                        'amount': amount}
     requests.post(url=app.config["TRANSACTIONS_URI"],
@@ -127,7 +129,7 @@ def verify_token(token):
 
 
 if __name__ == '__main__':
-    for v in ['PORT', 'TRANSACTIONS_API_ADDR']:
+    for v in ['PORT', 'TRANSACTIONS_API_ADDR', 'LOCAL_ROUTING_NUM']:
         if os.environ.get(v) is None:
             print("error: {} environment variable not set".format(v))
             exit(1)
