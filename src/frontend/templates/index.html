@@ -109,7 +109,9 @@ limitations under the License.
             <select class="mdl-textfield__input" id="accounts" name="account">
                <option disabled value="title">External Bank Accounts</option>
                {% for account in external_accounts %}
-                    <option value="{{ account.number }}">{{ account.label }} - {{ account.number }}</option>
+               <option value='{"account_num": "{{ account.number }}", "routing_num": "{{ account.routing }}" }'>
+                    {{ account.label }} - {{ account.number }} - {{ account.route }}
+               </option>
                {% endfor %}
                <option disabled value="add">Add new account</option>
             </select>

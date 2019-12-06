@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 '''
 
+import json
 import logging
 import os
 
@@ -56,9 +57,9 @@ def main():
                               "account": "McDonalds",
                               "amount": "-$25.00"}]
     external_list = []
-    for label, number in [('External Checking', '012345654321'),
-                          ('External Savings', '991235345434')]:
-        external_list += [{'label': label, 'number': number}]
+    for label, acct, route in [('External Checking', '012345654321', '45678'),
+                               ('External Savings', '991235345434', '00101')]:
+        external_list += [{'label': label, 'number': acct, 'routing': route}]
     internal_list = []
     for label, number in [('Friend 1', '1111111111'),
                           ('Friend 2', '2222222222')]:
@@ -101,10 +102,24 @@ def deposit():
     if not verify_token(token):
         # user isn't authenticated
         return abort(401)
+    account_id = token  # TODO: placeholder
 
-    account = request.form['account']
+    # get data from form
     amount = request.form['amount']
-    print(account, amount)
+    account_details = json.loads(request.form['account'])
+    external_account_num = account_details['account_num']
+    external_routing_num = account_details['routing_num']
+
+    # simulate transaction from external bank into user's account
+    transaction_obj = {'from_routing_num':  external_routing_num,
+                       'from_account_num': external_account_num,
+                       'to_routing_num': local_routing_num,
+                       'to_account_num': account_id,
+                       'amount': amount}
+    requests.post(url=app.config["TRANSACTIONS_URI"],
+                  data=jsonify(transaction_obj).data,
+                  headers={'content-type': 'application/json'},
+                  timeout=3)
     return redirect(url_for('main'))
 
 
