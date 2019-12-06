@@ -12,6 +12,12 @@ spec:
         app: balancereader
     spec:
       terminationGracePeriodSeconds: 5
+      initContainers:
+      - name: init-db-ready
+        image:  redis:alpine
+        command: ['/bin/sh', '-c']
+        args:
+          - for i in {1..100}; do sleep 1; if redis-cli -h redis-ledger -p 6379 ping; then exit 0; fi; done; exit 1
       containers:
       - name: reader
         image: balancereader
