@@ -19,6 +19,11 @@ _local_routing_num = os.getenv('LOCAL_ROUTING_NUM')
 balance_dict = defaultdict(int)
 
 
+@app.route('/healthz', methods=['GET'])
+def readiness():
+    return 'ok', 200
+
+
 @app.route('/get_balance', methods=['GET'])
 def get_balance():
     account_id = request.args.get('account_id')
