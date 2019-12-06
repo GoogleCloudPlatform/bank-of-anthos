@@ -22,6 +22,8 @@ spec:
           value: "ledgerwriter:8080"
         - name: BALANCES_API_ADDR
           value: "balancereader:8080"
+        - name: HISTORY_API_ADDR
+          value: "transactionhistory:8080"
         - name: LOCAL_ROUTING_NUM
           value: "1234"
 ---

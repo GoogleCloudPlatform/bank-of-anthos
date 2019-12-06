@@ -28,6 +28,8 @@ app.config["TRANSACTIONS_URI"] = 'http://{}/new_transaction'.format(
     os.environ.get('TRANSACTIONS_API_ADDR'))
 app.config["BALANCES_URI"] = 'http://{}/get_balance'.format(
     os.environ.get('BALANCES_API_ADDR'))
+app.config["HISTORY_URI"] = 'http://{}/get_history'.format(
+    os.environ.get('HISTORY_API_ADDR'))
 
 TOKEN_NAME = 'token'
 
@@ -44,18 +46,18 @@ def main():
 
     # get balance
     account_id = token  # TODO: placeholder
-    # sending get request and saving the response as response object
     req = requests.get(url=app.config["BALANCES_URI"],
                        params={'account_id': account_id})
     resp = req.json()
     balance = resp['balance']
 
-    # simulate data
-    transaction_list = []
-    for i in range(0, 10):
-        transaction_list += [{"date": "Oct 31, 2019",
-                              "account": "McDonalds",
-                              "amount": "-$25.00"}]
+    # get history
+    req = requests.get(url=app.config["HISTORY_URI"],
+                       params={'account_id': account_id})
+    resp = req.json()
+    transaction_list = resp['history']
+
+    # simulate external account data
     external_list = []
     for label, acct, route in [('External Checking', '012345654321', '45678'),
                                ('External Savings', '991235345434', '00101')]:

@@ -22,6 +22,8 @@ build:
     context: src/ledgerwriter
   - image: balancereader
     context: src/balancereader
+  - image: transactionhistory
+    context: src/transactionhistory
   tagPolicy:
     gitCommit: {}
 deploy:

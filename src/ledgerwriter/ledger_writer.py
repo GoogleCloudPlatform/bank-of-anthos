@@ -1,5 +1,6 @@
 import logging
 import os
+import time
 
 import redis
 
@@ -15,6 +16,7 @@ ledger_stream = os.getenv('LEDGER_STREAM')
 @app.route('/new_transaction', methods=['POST'])
 def add_transaction():
     trans_obj = request.get_json()
+    trans_obj['date'] = time.time()
     logging.info('adding transaction: %s' % str(trans_obj))
     _ledger.xadd(ledger_stream, trans_obj)
     return jsonify({}), 201
