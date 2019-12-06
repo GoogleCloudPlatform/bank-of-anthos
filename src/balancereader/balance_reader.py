@@ -1,5 +1,6 @@
 import logging
 import os
+import threading
 from collections import defaultdict
 
 from flask import Flask, jsonify, request
@@ -61,6 +62,14 @@ def _query_transactions(last_transaction_id=b'0-0', block=True):
     return last_transaction_id
 
 
+def transaction_listener(last_transaction_id):
+    while True:
+        last_transaction_id = _query_transactions(
+            last_transaction_id=last_transaction_id,
+            block=True
+        )
+
+
 if __name__ == '__main__':
     for v in ['PORT', 'LEDGER_ADDR', 'LEDGER_STREAM', 'LEDGER_PORT',
               'LOCAL_ROUTING_NUM']:
@@ -71,15 +80,12 @@ if __name__ == '__main__':
 
     logging.info('restoring balances...')
     last_transaction_id = _query_transactions(block=False)
-    print(balance_dict)
 
-    logging.info("Starting flask...")
+    logging.info('starting transaction listener thread...')
+    thread = threading.Thread(target=transaction_listener,
+                              args=[last_transaction_id])
+    thread.daemon = True
+    thread.start()
+
+    logging.info("starting flask...")
     app.run(debug=False, port=os.environ.get('PORT'), host='0.0.0.0')
-
-    logging.info("Listening for new transactions...")
-    while True:
-        last_transaction_id = _query_transactions(
-            last_transaction_id=last_transaction_id,
-            block=True
-        )
-        print('balances: {}'.format(balance_dict))
