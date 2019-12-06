@@ -21,15 +21,11 @@ balance_dict = defaultdict(int)
 
 @app.route('/get_balance', methods=['GET'])
 def get_balance():
-    req_obj = request.get_json()
-    account_id = req_obj.get('account_id', None)
-    if account_id is not None:
+    account_id = request.args.get('account_id')
+    if account_id is None:
         return jsonify({'error': 'account %s not found' % account_id}), 500
-    balance = balance_dict.get(account_id, None)
-    if balance is not None:
-        return jsonify({'balance': balance}), 201
-    else:
-        return jsonify({'error': 'account %s not found' % account_id}), 500
+    balance = balance_dict[account_id]
+    return jsonify({'balance': balance}), 201
 
 
 def _process_transaction(transaction):
@@ -54,11 +50,12 @@ def _query_transactions(last_transaction_id=b'0-0', block=True):
 
     new_set = _ledger.xread({ledger_stream: last_transaction_id},
                             block=block_time)
-    for entry in new_set[0][1]:
-        last_transaction_id = entry[0]
-        transaction = entry[1]
-        logging.info('processing transaction: {}'.format(transaction))
-        _process_transaction(transaction)
+    if len(new_set) > 0:
+        for entry in new_set[0][1]:
+            last_transaction_id = entry[0]
+            transaction = entry[1]
+            logging.info('processing transaction: {}'.format(transaction))
+            _process_transaction(transaction)
     return last_transaction_id
 
 

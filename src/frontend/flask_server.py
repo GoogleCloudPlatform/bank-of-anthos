@@ -17,13 +17,16 @@ limitations under the License.
 import logging
 import os
 
-from flask import Flask, abort, jsonify, make_response, redirect, render_template, \
-    request, url_for
+from flask import Flask, abort, jsonify, make_response, redirect, \
+    render_template, request, url_for
+
 import requests
 
 app = Flask(__name__)
 app.config["TRANSACTIONS_URI"] = 'http://{}/new_transaction'.format(
     os.environ.get('TRANSACTIONS_API_ADDR'))
+app.config["BALANCES_URI"] = 'http://{}/get_balance'.format(
+    os.environ.get('BALANCES_API_ADDR'))
 
 TOKEN_NAME = 'token'
 
@@ -38,6 +41,15 @@ def main():
         # user isn't authenticated
         return redirect(url_for('login_page'))
 
+    # get balance
+    account_id = token  # TODO: placeholder
+    # sending get request and saving the response as response object
+    req = requests.get(url=app.config["BALANCES_URI"],
+                       params={'account_id': account_id})
+    resp = req.json()
+    balance = resp['balance']
+
+    # simulate data
     transaction_list = []
     for i in range(0, 10):
         transaction_list += [{"date": "Oct 31, 2019",
@@ -53,7 +65,7 @@ def main():
         internal_list += [{'label': label, 'number': number}]
     return render_template('index.html',
                            history=transaction_list,
-                           balance="$2.50",
+                           balance=balance,
                            name='Daniel',
                            external_accounts=external_list,
                            favorite_accounts=internal_list)
@@ -66,13 +78,13 @@ def payment():
         # user isn't authenticated
         return abort(401)
 
+    account_id = token  # TODO: placeholder
     recipient = request.form['recipient']
     if recipient == 'other':
         recipient = request.form['other-recipient']
     amount = request.form['amount']
-    print((recipient, amount))
     transaction_obj = {'from_routing_num':  local_routing_num,
-                       'from_account_num': 9999,
+                       'from_account_num': account_id,
                        'to_routing_num': local_routing_num,
                        'to_account_num': recipient,
                        'amount': amount}
@@ -129,7 +141,8 @@ def verify_token(token):
 
 
 if __name__ == '__main__':
-    for v in ['PORT', 'TRANSACTIONS_API_ADDR', 'LOCAL_ROUTING_NUM']:
+    for v in ['PORT', 'TRANSACTIONS_API_ADDR', 'BALANCES_API_ADDR',
+              'LOCAL_ROUTING_NUM']:
         if os.environ.get(v) is None:
             print("error: {} environment variable not set".format(v))
             exit(1)
