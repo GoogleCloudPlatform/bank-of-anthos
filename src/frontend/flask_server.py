@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 '''
 
+import datetime
 import json
 import logging
 import os
@@ -22,6 +23,7 @@ from flask import Flask, abort, jsonify, make_response, redirect, \
     render_template, request, url_for
 
 import requests
+
 
 app = Flask(__name__)
 app.config["TRANSACTIONS_URI"] = 'http://{}/new_transaction'.format(
@@ -139,7 +141,6 @@ def login_page():
 def login():
     # username = request.form['username']
     # password = request.form['password']
-
     resp = make_response(redirect(url_for('main')))
     # set sign in token for 10 seconds
     resp.set_cookie(TOKEN_NAME, '12345', max_age=300)
@@ -157,6 +158,13 @@ def verify_token(token):
     return token == '12345'
 
 
+def format_timestamp(timestamp):
+    """ Format the input timestamp in a human readable way """
+    # TODO: time zones?
+    date = datetime.datetime.fromtimestamp(float(timestamp))
+    return date.strftime('%b %d, %Y')
+
+
 if __name__ == '__main__':
     for v in ['PORT', 'TRANSACTIONS_API_ADDR', 'BALANCES_API_ADDR',
               'LOCAL_ROUTING_NUM']:
@@ -169,5 +177,9 @@ if __name__ == '__main__':
                         datefmt='%Y-%m-%dT%H:%M:%S',
                         )
     logging.getLogger().setLevel(logging.INFO)
+
+    # register format_duration for use in html template
+    app.jinja_env.globals.update(format_timestamp=format_timestamp)
+
     logging.info("Starting flask.")
     app.run(debug=False, port=os.environ.get('PORT'), host='0.0.0.0')

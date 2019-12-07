@@ -87,7 +87,7 @@ limitations under the License.
                         <tbody>
                            {% for t in history %}
                            <tr>
-                               <td class="mdl-data-table__cell--non-numeric"> {{ t.date }} </td>
+                               <td class="mdl-data-table__cell--non-numeric"> {{ format_timestamp(t.date) }} </td>
                                <td class="mdl-data-table__cell--non-numeric"> {{ t.account }}</td>
                                <td>{{ t.amount }}</td>
                            </tr>
