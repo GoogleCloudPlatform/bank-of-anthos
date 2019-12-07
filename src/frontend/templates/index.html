@@ -89,7 +89,11 @@ limitations under the License.
                            <tr>
                                <td class="mdl-data-table__cell--non-numeric"> {{ format_timestamp(t.date) }} </td>
                                <td class="mdl-data-table__cell--non-numeric"> {{ t.account }}</td>
-                               <td>{{ t.amount }}</td>
+                                {% if t.type == "DEBIT" %}
+                                   <td style="color: green;">{{ t.amount }}</td>
+                                {% else %}
+                                   <td>-{{ t.amount }}</td>
+                                {% endif %}
                            </tr>
                            {% endfor %}
                         </tbody>
