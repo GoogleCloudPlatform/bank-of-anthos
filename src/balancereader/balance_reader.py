@@ -32,10 +32,20 @@ _local_routing_num = os.getenv('LOCAL_ROUTING_NUM')
 
 balance_dict = defaultdict(int)
 
+_bg_thread = None
 
-@app.route('/healthz', methods=['GET'])
+
+@app.route('/ready', methods=['GET'])
 def readiness():
     return 'ok', 200
+
+
+@app.route('/healthy', methods=['GET'])
+def liveness():
+    if _bg_thread is not None and _bg_thread.is_alive():
+        return 'ok', 200
+    else:
+        return 'error', 500
 
 
 @app.route('/get_balance', methods=['GET'])
@@ -98,10 +108,10 @@ if __name__ == '__main__':
     last_transaction_id = _query_transactions(block=False)
 
     logging.info('starting transaction listener thread...')
-    thread = threading.Thread(target=transaction_listener,
-                              args=[last_transaction_id])
-    thread.daemon = True
-    thread.start()
+    _bg_thread = threading.Thread(target=transaction_listener,
+                                  args=[last_transaction_id])
+    _bg_thread.daemon = True
+    _bg_thread.start()
 
     logging.info("starting flask...")
     app.run(debug=False, port=os.environ.get('PORT'), host='0.0.0.0')
