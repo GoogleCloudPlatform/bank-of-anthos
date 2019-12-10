@@ -59,7 +59,7 @@ limitations under the License.
                         <table style="margin:auto;width:100%">
                         <tbody>
                            <tr>
-                           <td class="mdl-data-table__cell--non-numeric"><h3> {{ balance }} </h3></td>
+                           <td class="mdl-data-table__cell--non-numeric"><h3> {{ format_currency(balance) }} </h3></td>
                               <td class="mdl-card__menu"><button type="button"
                             class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--accent mdl-color-text--accent-contrast deposit-modal-btn"
                             style="margin:auto;display:block">⬇ Deposit Funds</button><br>
@@ -90,9 +90,9 @@ limitations under the License.
                                <td class="mdl-data-table__cell--non-numeric"> {{ format_timestamp(t.date) }} </td>
                                <td class="mdl-data-table__cell--non-numeric"> {{ t.account }}</td>
                                 {% if t.type == "DEBIT" %}
-                                   <td style="color: green;">{{ t.amount }}</td>
+                                   <td style="color: green;">{{ format_currency(t.amount) }}</td>
                                 {% else %}
-                                   <td>-{{ t.amount }}</td>
+                                   <td>-{{ format_currency(t.amount) }}</td>
                                 {% endif %}
                            </tr>
                            {% endfor %}

@@ -29,6 +29,7 @@ ledger_stream = os.getenv('LEDGER_STREAM')
 
 @app.route('/new_transaction', methods=['POST'])
 def add_transaction():
+    # TODO: validate
     trans_obj = request.get_json()
     trans_obj['date'] = time.time()
     logging.info('adding transaction: %s' % str(trans_obj))

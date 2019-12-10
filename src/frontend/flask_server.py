@@ -87,7 +87,8 @@ def payment():
     recipient = request.form['recipient']
     if recipient == 'other':
         recipient = request.form['other-recipient']
-    amount = request.form['amount']
+    # convert amount to integer
+    amount = int(float(request.form['amount']) * 100)
     transaction_obj = {'from_routing_num':  local_routing_num,
                        'from_account_num': account_id,
                        'to_routing_num': local_routing_num,
@@ -109,10 +110,11 @@ def deposit():
     account_id = token  # TODO: placeholder
 
     # get data from form
-    amount = request.form['amount']
     account_details = json.loads(request.form['account'])
     external_account_num = account_details['account_num']
     external_routing_num = account_details['routing_num']
+    # convert amount to integer
+    amount = int(float(request.form['amount']) * 100)
 
     # simulate transaction from external bank into user's account
     transaction_obj = {'from_routing_num':  external_routing_num,
@@ -165,6 +167,14 @@ def format_timestamp(timestamp):
     return date.strftime('%b %d, %Y')
 
 
+def format_currency(int_amount):
+    """ Format the input currency in a human readable way """
+    amount_str = '${:0,.2f}'.format(abs(float(int_amount)/100))
+    if int_amount < 0:
+        amount_str = '-' + amount_str
+    return amount_str
+
+
 if __name__ == '__main__':
     for v in ['PORT', 'TRANSACTIONS_API_ADDR', 'BALANCES_API_ADDR',
               'LOCAL_ROUTING_NUM']:
@@ -180,6 +190,7 @@ if __name__ == '__main__':
 
     # register format_duration for use in html template
     app.jinja_env.globals.update(format_timestamp=format_timestamp)
+    app.jinja_env.globals.update(format_currency=format_currency)
 
     logging.info("Starting flask.")
     app.run(debug=False, port=os.environ.get('PORT'), host='0.0.0.0')
