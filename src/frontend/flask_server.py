@@ -89,15 +89,21 @@ def payment():
         recipient = request.form['other-recipient']
     # convert amount to integer
     amount = int(float(request.form['amount']) * 100)
-    transaction_obj = {'from_routing_num':  local_routing_num,
-                       'from_account_num': account_id,
-                       'to_routing_num': local_routing_num,
-                       'to_account_num': recipient,
-                       'amount': amount}
-    requests.post(url=app.config["TRANSACTIONS_URI"],
-                  data=jsonify(transaction_obj).data,
-                  headers={'content-type': 'application/json'},
-                  timeout=3)
+    # verify balance is sufficient
+    req = requests.get(url=app.config["BALANCES_URI"],
+                       params={'account_id': account_id})
+    resp = req.json()
+    balance = resp['balance']
+    if balance > amount:
+        transaction_obj = {'from_routing_num':  local_routing_num,
+                           'from_account_num': account_id,
+                           'to_routing_num': local_routing_num,
+                           'to_account_num': recipient,
+                           'amount': amount}
+        requests.post(url=app.config["TRANSACTIONS_URI"],
+                      data=jsonify(transaction_obj).data,
+                      headers={'content-type': 'application/json'},
+                      timeout=3)
     return redirect(url_for('main'))
 
 

@@ -16,9 +16,12 @@ import logging
 import os
 import time
 
+from flask import Flask, jsonify, request
+
 import redis
 
-from flask import Flask, jsonify, request
+import requests
+
 
 app = Flask(__name__)
 
@@ -26,19 +29,43 @@ ledger_host = os.getenv('LEDGER_ADDR')
 ledger_port = os.getenv("LEDGER_PORT")
 ledger_stream = os.getenv('LEDGER_STREAM')
 
+_local_routing_num = os.getenv('LOCAL_ROUTING_NUM')
+_balance_service_uri = 'http://{}/get_balance'.format(
+    os.environ.get('BALANCES_API_ADDR'))
+
 
 @app.route('/new_transaction', methods=['POST'])
 def add_transaction():
-    # TODO: validate
-    trans_obj = request.get_json()
-    trans_obj['date'] = time.time()
-    logging.info('adding transaction: %s' % str(trans_obj))
-    _ledger.xadd(ledger_stream, trans_obj)
+    transaction = request.get_json()
+    sender_acct = transaction['from_account_num']
+    sender_route = transaction['from_routing_num']
+    recv_route = transaction['to_routing_num']
+    amount = int(transaction['amount'])
+
+    # ensure sender or reciever belongs to this bank
+    if sender_route != _local_routing_num and recv_route != _local_routing_num:
+        return 'expected routing number not found', 500
+    # ensure amount is proper value
+    if amount <= 0:
+        return 'invalid transaction amount', 500
+    # ensure sender balance can cover transaction
+    if sender_route == _local_routing_num:
+        req = requests.get(url=_balance_service_uri,
+                           params={'account_id': sender_acct})
+        resp = req.json()
+        sender_balance = resp['balance']
+        if sender_balance < amount:
+            return 'insufficient balance', 500
+
+    transaction['date'] = time.time()
+    logging.info('adding transaction: %s' % str(transaction))
+    _ledger.xadd(ledger_stream, transaction)
     return jsonify({}), 201
 
 
 if __name__ == '__main__':
-    for v in ['PORT', 'LEDGER_ADDR', 'LEDGER_STREAM', 'LEDGER_PORT']:
+    for v in ['PORT', 'LEDGER_ADDR', 'LEDGER_STREAM', 'LEDGER_PORT',
+            'LOCAL_ROUTING_NUM', 'BALANCES_API_ADDR']:
         if os.environ.get(v) is None:
             print("error: {} environment variable not set".format(v))
             exit(1)
