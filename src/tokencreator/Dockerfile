@@ -12,23 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-apiVersion: skaffold/v1beta2
-kind: Config
-build:
-  artifacts:
-  - image: frontend
-    context: src/frontend
-  - image: ledgerwriter
-    context: src/ledgerwriter
-  - image: balancereader
-    context: src/balancereader
-  - image: transactionhistory
-    context: src/transactionhistory
-  - image: tokencreator
-    context: src/tokencreator
-  tagPolicy:
-    gitCommit: {}
-deploy:
-  kubectl:
-    manifests:
-    - ./kubernetes-manifests/**.yaml
+FROM python:2.7-slim
+RUN apt-get update -qqy && \
+	apt-get -qqy install wget g++ && \
+	rm -rf /var/lib/apt/lists/*
+# show python logs as they occur
+ENV PYTHONUNBUFFERED=0
+
+# get packages
+WORKDIR /tokencreator
+COPY requirements.txt requirements.txt
+RUN pip install -r requirements.txt
+
+# add files into working directory
+COPY . .
+
+
+ENTRYPOINT ["python", "/tokencreator/token_creator.py"]

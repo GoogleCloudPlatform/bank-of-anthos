@@ -29,3 +29,8 @@ deploy:
 
 logs:
 	 kubectl logs -l app=frontend -c front
+
+secrets:
+	ssh-keygen -t rsa -b 4096 -m PEM -f jwtRS256.key
+	kubectl create secret generic jwt-key --from-file=./jwtRS256.key --from-file=./jwtRS256.key.pub
+
