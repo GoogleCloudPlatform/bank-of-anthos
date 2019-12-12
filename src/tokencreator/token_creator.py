@@ -30,7 +30,7 @@ def get_token():
     payload = {'username':username, 'account-number':'1234'}
     encoded = jwt.encode(payload, _private_key, algorithm='RS256')
 
-    return jsonify({'token':encoded}), 201
+    return jsonify({'token':encoded}), 200
 
 
 if __name__ == '__main__':

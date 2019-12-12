@@ -38,6 +38,8 @@ spec:
           value: "balancereader:8080"
         - name: HISTORY_API_ADDR
           value: "transactionhistory:8080"
+        - name: TOKEN_CREATOR_API_ADDR
+          value: "tokencreator:8080"
         - name: LOCAL_ROUTING_NUM
           value: "1234"
 ---

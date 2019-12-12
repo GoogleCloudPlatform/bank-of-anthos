@@ -32,6 +32,8 @@ app.config["BALANCES_URI"] = 'http://{}/get_balance'.format(
     os.environ.get('BALANCES_API_ADDR'))
 app.config["HISTORY_URI"] = 'http://{}/get_history'.format(
     os.environ.get('HISTORY_API_ADDR'))
+app.config["TOKEN_CREATOR_URI"] = 'http://{}/get_token'.format(
+    os.environ.get('TOKEN_CREATOR_API_ADDR'))
 
 TOKEN_NAME = 'token'
 
@@ -47,7 +49,7 @@ def main():
         return redirect(url_for('login_page'))
 
     # get balance
-    account_id = token  # TODO: placeholder
+    account_id = '1234'  # TODO: placeholder
     req = requests.get(url=app.config["BALANCES_URI"],
                        params={'account_id': account_id})
     resp = req.json()
@@ -83,7 +85,7 @@ def payment():
         # user isn't authenticated
         return abort(401)
 
-    account_id = token  # TODO: placeholder
+    account_id = '1234'  # TODO: placeholder
     recipient = request.form['recipient']
     if recipient == 'other':
         recipient = request.form['other-recipient']
@@ -113,7 +115,7 @@ def deposit():
     if not verify_token(token):
         # user isn't authenticated
         return abort(401)
-    account_id = token  # TODO: placeholder
+    account_id = '1234'  # TODO: placeholder
 
     # get data from form
     account_details = json.loads(request.form['account'])
@@ -147,11 +149,16 @@ def login_page():
 
 @app.route('/login', methods=['POST'])
 def login():
-    # username = request.form['username']
-    # password = request.form['password']
+    username = request.form['username']
+    password = request.form['password']
+
+    req = requests.get(url=app.config["TOKEN_CREATOR_URI"],
+                       params={'username': username, 'password':password})
     resp = make_response(redirect(url_for('main')))
-    # set sign in token for 10 seconds
-    resp.set_cookie(TOKEN_NAME, '12345', max_age=300)
+    if req.status_code == 200:
+        # login success
+        jwt = req.json()['token']
+        resp.set_cookie(TOKEN_NAME, jwt, max_age=300)
     return resp
 
 
@@ -163,7 +170,7 @@ def logout():
 
 
 def verify_token(token):
-    return token == '12345'
+    return token is not None
 
 
 def format_timestamp(timestamp):
@@ -183,7 +190,7 @@ def format_currency(int_amount):
 
 if __name__ == '__main__':
     for v in ['PORT', 'TRANSACTIONS_API_ADDR', 'BALANCES_API_ADDR',
-              'LOCAL_ROUTING_NUM']:
+              'LOCAL_ROUTING_NUM', 'TOKEN_CREATOR_API_ADDR']:
         if os.environ.get(v) is None:
             print("error: {} environment variable not set".format(v))
             exit(1)
