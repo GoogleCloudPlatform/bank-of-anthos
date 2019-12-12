@@ -14,7 +14,8 @@
 
 import logging
 import os
-import time
+
+from datetime import datetime, timedelta
 
 from flask import Flask, jsonify, request
 
@@ -27,17 +28,22 @@ def get_token():
     username = request.args.get('username')
     password = request.args.get('password')
     # TODO: verify password hash against database
-    payload = {'username':username, 'account-number':'1234'}
+    payload = {'username':username,
+               'account-number':'1234',
+               'iat': datetime.utcnow(),
+               'exp': datetime.utcnow() + timedelta(seconds=_expiry_seconds)
+               }
     encoded = jwt.encode(payload, _private_key, algorithm='RS256')
 
     return jsonify({'token':encoded}), 200
 
 
 if __name__ == '__main__':
-    for v in ['PORT', 'KEY_PATH']:
+    for v in ['PORT', 'KEY_PATH', 'EXPIRY_SECONDS']:
         if os.environ.get(v) is None:
             print("error: {} environment variable not set".format(v))
             exit(1)
+    _expiry_seconds = int(os.environ.get('EXPIRY_SECONDS'))
     _private_key = open(os.environ.get('KEY_PATH'), 'r').read()
     logging.info("Starting flask.")
     app.run(debug=False, port=os.environ.get('PORT'), host='0.0.0.0')

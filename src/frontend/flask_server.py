@@ -22,6 +22,8 @@ import os
 from flask import Flask, abort, jsonify, make_response, redirect, \
     render_template, request, url_for
 
+import jwt
+
 import requests
 
 
@@ -157,8 +159,10 @@ def login():
     resp = make_response(redirect(url_for('main')))
     if req.status_code == 200:
         # login success
-        jwt = req.json()['token']
-        resp.set_cookie(TOKEN_NAME, jwt, max_age=300)
+        token = req.json()['token']
+        claims = jwt.decode(token, verify=False)
+        max_age = claims['exp'] - claims ['iat']
+        resp.set_cookie(TOKEN_NAME, token, max_age=max_age)
     return resp
 
 
