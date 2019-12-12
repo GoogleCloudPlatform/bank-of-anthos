@@ -29,6 +29,10 @@ spec:
       containers:
       - name: front
         image: frontend
+        volumeMounts:
+        - name: publickey
+          mountPath: "/root/.ssh"
+          readOnly: true
         env:
         - name: PORT
           value: "8080"
@@ -42,6 +46,15 @@ spec:
           value: "tokencreator:8080"
         - name: LOCAL_ROUTING_NUM
           value: "1234"
+        - name: PUB_KEY_PATH
+          value: "/root/.ssh/publickey"
+      volumes:
+      - name: publickey
+        secret:
+          secretName: jwt-key
+          items:
+          - key: jwtRS256.key.pub
+            path: publickey
 ---
 apiVersion: v1
 kind: Service

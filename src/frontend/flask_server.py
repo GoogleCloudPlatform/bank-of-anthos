@@ -155,13 +155,13 @@ def login():
     password = request.form['password']
 
     req = requests.get(url=app.config["TOKEN_CREATOR_URI"],
-                       params={'username': username, 'password':password})
+                       params={'username': username, 'password': password})
     resp = make_response(redirect(url_for('main')))
     if req.status_code == 200:
         # login success
         token = req.json()['token']
         claims = jwt.decode(token, verify=False)
-        max_age = claims['exp'] - claims ['iat']
+        max_age = claims['exp'] - claims['iat']
         resp.set_cookie(TOKEN_NAME, token, max_age=max_age)
     return resp
 
@@ -174,7 +174,15 @@ def logout():
 
 
 def verify_token(token):
-    return token is not None
+    if token is None:
+        return False
+    try:
+        token_str = token.decode('utf-8')
+        jwt.decode(token, key=_public_key,  algorithms='RS256', verify=True)
+        return True
+    except jwt.exceptions.InvalidTokenError as e:
+        logging.error(e)
+        return False
 
 
 def format_timestamp(timestamp):
@@ -194,10 +202,12 @@ def format_currency(int_amount):
 
 if __name__ == '__main__':
     for v in ['PORT', 'TRANSACTIONS_API_ADDR', 'BALANCES_API_ADDR',
-              'LOCAL_ROUTING_NUM', 'TOKEN_CREATOR_API_ADDR']:
+              'LOCAL_ROUTING_NUM', 'TOKEN_CREATOR_API_ADDR', 'PUB_KEY_PATH']:
         if os.environ.get(v) is None:
             print("error: {} environment variable not set".format(v))
             exit(1)
+    _public_key = open(os.environ.get('PUB_KEY_PATH'), 'r').read()
+
     logging.basicConfig(level=logging.INFO,
                         format=('%(levelname)s|%(asctime)s'
                                 '|%(pathname)s|%(lineno)d| %(message)s'),

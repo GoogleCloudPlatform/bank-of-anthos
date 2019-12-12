@@ -1,3 +1,4 @@
 flask
 requests
 pyjwt
+cryptography
