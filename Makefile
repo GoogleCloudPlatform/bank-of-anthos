@@ -27,6 +27,10 @@ deploy:
 	gcloud container clusters get-credentials --project ${PROJECT_ID} ${CLUSTER} --zone ${ZONE}
 	skaffold run --default-repo=gcr.io/${PROJECT_ID}
 
+deploy-continuous:
+	gcloud container clusters get-credentials --project ${PROJECT_ID} ${CLUSTER} --zone ${ZONE}
+	skaffold dev --default-repo=gcr.io/${PROJECT_ID}
+
 logs:
 	 kubectl logs -l app=frontend -c front
 

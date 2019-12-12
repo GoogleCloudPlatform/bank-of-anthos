@@ -25,7 +25,7 @@ COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 
 # add files into working directory
-COPY . .
+COPY *.py .
 
 
 ENTRYPOINT ["python", "/ledgerwriter/ledger_writer.py"]

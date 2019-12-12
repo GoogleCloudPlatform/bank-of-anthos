@@ -22,7 +22,9 @@ COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 
 # add files into working directory
-COPY . .
+COPY static static
+COPY templates templates
+COPY *.py .
 
 EXPOSE 5000
 ENTRYPOINT ["python", "/frontend/flask_server.py"]
