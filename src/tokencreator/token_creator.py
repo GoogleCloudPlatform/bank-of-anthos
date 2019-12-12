@@ -18,18 +18,19 @@ import time
 
 from flask import Flask, jsonify, request
 
+import jwt
+
 app = Flask(__name__)
 
-@app.route('/get_token', methods=['POST'])
+@app.route('/get_token', methods=['GET'])
 def get_token():
-    trans_obj = request.get_json()
-    username = trans_obj['username']
-    password = trans_obj['password']
+    username = request.args.get('username')
+    password = request.args.get('password')
     # TODO: verify password hash against database
     payload = {'username':username, 'account-number':'1234'}
     encoded = jwt.encode(payload, _private_key, algorithm='RS256')
 
-    return encoded, 201
+    return jsonify({'token':encoded}), 201
 
 
 if __name__ == '__main__':
@@ -38,6 +39,5 @@ if __name__ == '__main__':
             print("error: {} environment variable not set".format(v))
             exit(1)
     _private_key = open(os.environ.get('KEY_PATH'), 'r').read()
-    print(_private_key)
     logging.info("Starting flask.")
     app.run(debug=False, port=os.environ.get('PORT'), host='0.0.0.0')
