@@ -28,8 +28,8 @@ def get_token():
     username = request.args.get('username')
     password = request.args.get('password')
     # TODO: verify password hash against database
-    payload = {'username':username,
-               'account-number':'1234',
+    payload = {'user':username,
+               'acct':'1234',
                'iat': datetime.utcnow(),
                'exp': datetime.utcnow() + timedelta(seconds=_expiry_seconds)
                }
