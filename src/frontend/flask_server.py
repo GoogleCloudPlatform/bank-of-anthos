@@ -51,6 +51,8 @@ def main():
         # user isn't authenticated
         return redirect(url_for('login_page'))
 
+    display_name = jwt.decode(token, verify=False)['name']
+
     # get balance
     hed = {'Authorization': 'Bearer ' + token}
     req = requests.get(url=app.config["BALANCES_URI"], headers=hed)
@@ -74,7 +76,7 @@ def main():
     return render_template('index.html',
                            history=transaction_list,
                            balance=balance,
-                           name='Daniel',
+                           name=display_name,
                            external_accounts=external_list,
                            favorite_accounts=internal_list)
 

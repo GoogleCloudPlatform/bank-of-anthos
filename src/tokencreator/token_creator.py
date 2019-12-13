@@ -14,7 +14,6 @@
 
 import logging
 import os
-
 from datetime import datetime, timedelta
 
 from flask import Flask, jsonify, request
@@ -23,19 +22,21 @@ import jwt
 
 app = Flask(__name__)
 
+
 @app.route('/get_token', methods=['GET'])
 def get_token():
     username = request.args.get('username')
-    password = request.args.get('password')
+    # password = request.args.get('password')
     # TODO: verify password hash against database
-    payload = {'user':username,
-               'acct':'1234',
+    payload = {'user': username,
+               'acct': username,
+               'name': username,
                'iat': datetime.utcnow(),
                'exp': datetime.utcnow() + timedelta(seconds=_expiry_seconds)
                }
     encoded = jwt.encode(payload, _private_key, algorithm='RS256')
 
-    return jsonify({'token':encoded}), 200
+    return jsonify({'token': encoded}), 200
 
 
 if __name__ == '__main__':
