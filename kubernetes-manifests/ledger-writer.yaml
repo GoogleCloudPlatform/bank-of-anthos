@@ -35,6 +35,10 @@ spec:
       containers:
       - name: writer
         image: ledgerwriter
+        volumeMounts:
+        - name: publickey
+          mountPath: "/root/.ssh"
+          readOnly: true
         env:
         - name: LEDGER_ADDR
           value: "redis-ledger"
@@ -48,6 +52,8 @@ spec:
           value: "1234"
         - name: BALANCES_API_ADDR
           value: "balancereader:8080"
+        - name: PUB_KEY_PATH
+          value: "/root/.ssh/publickey"
         resources:
           requests:
             cpu: 200m
@@ -55,6 +61,13 @@ spec:
           limits:
             cpu: 300m
             memory: 128Mi
+      volumes:
+      - name: publickey
+        secret:
+          secretName: jwt-key
+          items:
+          - key: jwtRS256.key.pub
+            path: publickey
 ---
 apiVersion: v1
 kind: Service

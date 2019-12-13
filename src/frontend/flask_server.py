@@ -105,9 +105,11 @@ def payment():
                            'to_routing_num': local_routing_num,
                            'to_account_num': recipient,
                            'amount': amount}
+        hed = {'Authorization': 'Bearer ' + token,
+               'content-type': 'application/json'}
         requests.post(url=app.config["TRANSACTIONS_URI"],
                       data=jsonify(transaction_obj).data,
-                      headers={'content-type': 'application/json'},
+                      headers=hed,
                       timeout=3)
     return redirect(url_for('main'))
 
@@ -135,9 +137,11 @@ def deposit():
                        'to_routing_num': local_routing_num,
                        'to_account_num': account_id,
                        'amount': amount}
+    hed = {'Authorization': 'Bearer ' + token,
+           'content-type': 'application/json'}
     requests.post(url=app.config["TRANSACTIONS_URI"],
                   data=jsonify(transaction_obj).data,
-                  headers={'content-type': 'application/json'},
+                  headers=hed,
                   timeout=3)
     return redirect(url_for('main'))
 

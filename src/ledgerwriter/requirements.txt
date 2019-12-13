@@ -1,3 +1,5 @@
 redis
 flask
 requests
+pyjwt
+cryptography
