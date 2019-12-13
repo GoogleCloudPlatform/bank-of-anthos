@@ -28,7 +28,7 @@ build:
     context: src/tokencreator
   - image: contacts
     context: src/contacts
-  - image: userserivce
+  - image: userservice
     context: src/userservice
   tagPolicy:
     gitCommit: {}
