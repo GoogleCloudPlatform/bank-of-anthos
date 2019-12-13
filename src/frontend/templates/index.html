@@ -111,7 +111,6 @@ limitations under the License.
         <form id=deposit-form method="POST" action="/deposit">
          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
             <select class="mdl-textfield__input" id="accounts" name="account">
-               <option disabled value="title">External Bank Accounts</option>
                {% for account in external_accounts %}
                <option value='{"account_num": "{{ account.account_number }}", "routing_num": "{{ account.routing_number }}" }'>
                     {{ account.label }} - {{ account.account_number }} - {{ account.routing_number }}
@@ -166,7 +165,6 @@ limitations under the License.
         <form id=payment-form method="POST" action="/payment">
          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
             <select class="mdl-textfield__input" id="recipients" name="recipient" onchange='CheckChoice(this.value);'>
-               <option disabled>Favorites</option>
                {% for account in favorite_accounts %}
                     <option value="{{ account.account_number }}">{{ account.label }} - {{ account.account_number }}</option>
                {% endfor %}
@@ -214,7 +212,7 @@ limitations under the License.
           paymentDialog.close();
         });
     function CheckChoice(val){
-     var element=document.getElementById('otheraccount');
+     var element=document.getElementById('other-recipient');
      if(val=='other')
        element.style.display='block';
      else  
