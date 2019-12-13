@@ -1,0 +1,93 @@
+# Copyright 2019 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: transactionhistory
+spec:
+  selector:
+    matchLabels:
+      app: transactionhistory
+  template:
+    metadata:
+      labels:
+        app: transactionhistory
+    spec:
+      terminationGracePeriodSeconds: 5
+      initContainers:
+      - name: init-db-ready
+        image:  redis:alpine
+        command: ['/bin/sh', '-c']
+        args:
+          - for i in {1..100}; do sleep 1; if redis-cli -h redis-ledger -p 6379 ping; then exit 0; fi; done; exit 1
+      containers:
+      - name: history
+        image: transactionhistory
+        volumeMounts:
+        - name: publickey
+          mountPath: "/root/.ssh"
+          readOnly: true
+        env:
+        - name: LEDGER_ADDR
+          value: "redis-ledger"
+        - name: LEDGER_PORT
+          value: "6379"
+        - name: LEDGER_STREAM
+          value: "ledger"
+        - name: PORT
+          value: "8080"
+        - name: LOCAL_ROUTING_NUM
+          value: "1234"
+        - name: PUB_KEY_PATH
+          value: "/root/.ssh/publickey"
+        resources:
+          requests:
+            cpu: 200m
+            memory: 64Mi
+          limits:
+            cpu: 300m
+            memory: 128Mi
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /healthy
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: publickey
+        secret:
+          secretName: jwt-key
+          items:
+          - key: jwtRS256.key.pub
+            path: publickey
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: transactionhistory
+spec:
+  type: ClusterIP
+  selector:
+    app: transactionhistory
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
