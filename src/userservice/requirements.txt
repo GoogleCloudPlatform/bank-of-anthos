@@ -1,2 +1,4 @@
+bleach
+Flask
+Flask-PyMongo
 pymongo
-flask
