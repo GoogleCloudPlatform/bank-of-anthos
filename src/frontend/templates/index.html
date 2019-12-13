@@ -157,13 +157,6 @@ limitations under the License.
           }
           depositDialog.close();
         });
-        depositDialog.addEventListener('click', function (event) {
-            var rect = depositDialog.getBoundingClientRect();
-            var isInDialog=(rect.top <= event.clientY && event.clientY <= rect.top + rect.height && rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
-            if (!isInDialog) {
-                depositDialog.close();
-            }
-        });
    </script>
     <!-- Payment Modal -->
     <dialog class="mdl-dialog payment-modal-dialog">
@@ -219,13 +212,6 @@ limitations under the License.
               notification.MaterialSnackbar.showSnackbar({ message: 'Transaction Initiated'});
           }
           paymentDialog.close();
-        });
-        paymentDialog.addEventListener('click', function (event) {
-            var rect = paymentDialog.getBoundingClientRect();
-            var isInDialog=(rect.top <= event.clientY && event.clientY <= rect.top + rect.height && rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
-            if (!isInDialog) {
-                paymentDialog.close();
-            }
         });
     function CheckChoice(val){
      var element=document.getElementById('otheraccount');
