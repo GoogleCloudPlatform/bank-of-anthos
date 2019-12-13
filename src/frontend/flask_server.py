@@ -28,6 +28,7 @@ import requests
 
 
 app = Flask(__name__)
+# TODO: clean naming?
 app.config["TRANSACTIONS_URI"] = 'http://{}/new_transaction'.format(
     os.environ.get('TRANSACTIONS_API_ADDR'))
 app.config["BALANCES_URI"] = 'http://{}/get_balance'.format(
@@ -36,6 +37,11 @@ app.config["HISTORY_URI"] = 'http://{}/get_history'.format(
     os.environ.get('HISTORY_API_ADDR'))
 app.config["TOKEN_CREATOR_URI"] = 'http://{}/get_token'.format(
     os.environ.get('TOKEN_CREATOR_API_ADDR'))
+app.config["INTERNAL_CONTACTS_URI"] = 'http://{}/contacts'.format(
+    os.environ.get('CONTACTS_API_ADDR'))
+app.config["EXTERNAL_ACCOUNTS_URI"] = 'http://{}/external'.format(
+    os.environ.get('CONTACTS_API_ADDR'))
+
 
 TOKEN_NAME = 'token'
 
@@ -56,23 +62,20 @@ def main():
     # get balance
     hed = {'Authorization': 'Bearer ' + token}
     req = requests.get(url=app.config["BALANCES_URI"], headers=hed)
-    resp = req.json()
-    balance = resp['balance']
+    balance = req.json()['balance']
 
     # get history
     req = requests.get(url=app.config["HISTORY_URI"], headers=hed)
-    resp = req.json()
-    transaction_list = resp['history']
+    transaction_list = req.json()['history']
 
-    # simulate external account data
-    external_list = []
-    for label, acct, route in [('External Checking', '012345654321', '45678'),
-                               ('External Savings', '991235345434', '00101')]:
-        external_list += [{'label': label, 'number': acct, 'routing': route}]
-    internal_list = []
-    for label, number in [('Friend 1', '1111111111'),
-                          ('Friend 2', '2222222222')]:
-        internal_list += [{'label': label, 'number': number}]
+    # get contacts
+    req = requests.get(url=app.config["INTERNAL_CONTACTS_URI"], headers=hed)
+    internal_list = req.json()['account_list']
+
+    # get external accounts
+    req = requests.get(url=app.config["EXTERNAL_ACCOUNTS_URI"], headers=hed)
+    external_list = req.json()['account_list']
+
     return render_template('index.html',
                            history=transaction_list,
                            balance=balance,
@@ -97,8 +100,7 @@ def payment():
     # verify balance is sufficient
     hed = {'Authorization': 'Bearer ' + token}
     req = requests.get(url=app.config["BALANCES_URI"], headers=hed)
-    resp = req.json()
-    balance = resp['balance']
+    balance = req.json()['balance']
     if balance > amount:
         transaction_obj = {'from_routing_num':  local_routing_num,
                            'from_account_num': account_id,
@@ -208,7 +210,8 @@ def format_currency(int_amount):
 
 if __name__ == '__main__':
     for v in ['PORT', 'TRANSACTIONS_API_ADDR', 'BALANCES_API_ADDR',
-              'LOCAL_ROUTING_NUM', 'TOKEN_CREATOR_API_ADDR', 'PUB_KEY_PATH']:
+              'LOCAL_ROUTING_NUM', 'TOKEN_CREATOR_API_ADDR', 'PUB_KEY_PATH',
+              'CONTACTS_API_ADDR']:
         if os.environ.get(v) is None:
             print("error: {} environment variable not set".format(v))
             exit(1)

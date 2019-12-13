@@ -26,18 +26,13 @@ app = Flask(__name__)
 def add_contact():
     return 'ok', 200
 
-@app.route('/contact', methods=['PUSH'])
-def add_contact():
-    logging.info('adding contacts not implemented')
-    return jsonify({}), 501
 
-@app.route('/external', methods=['PUSH'])
-def add_external():
-    logging.info('adding external accounts not implemented')
-    return jsonify({}), 501
-
-@app.route('/contacts', methods=['GET'])
+@app.route('/external', methods=['GET', 'POST'])
 def get_contact():
+    if request.method == 'POST':
+        logging.info('adding contacts not implemented')
+        return jsonify({}), 501
+
     auth_header = request.headers.get('Authorization')
     if auth_header:
         token = auth_header.split(" ")[-1]
@@ -52,13 +47,17 @@ def get_contact():
                      {'label': 'External Savings',
                       'account_number': '9876543210',
                       'routing_number': '98765'}]
-        return jsonify(acct_list), 200
+        return jsonify({'account_list':acct_list}), 200
     except jwt.exceptions.InvalidTokenError as e:
         logging.error(e)
         return jsonify({'error': str(e)}), 401
 
-@app.route('/external', methods=['GET'])
+@app.route('/contacts', methods=['GET', 'POST'])
 def get_external():
+    if request.method == 'POST':
+        logging.info('adding contacts not implemented')
+        return jsonify({}), 501
+
     auth_header = request.headers.get('Authorization')
     if auth_header:
         token = auth_header.split(" ")[-1]
@@ -73,7 +72,7 @@ def get_external():
                      {'label': 'Mom',
                       'account_number': '6677889900',
                       'routing_number': _local_routing}]
-        return jsonify(acct_list), 200
+        return jsonify({'account_list':acct_list}), 200
     except jwt.exceptions.InvalidTokenError as e:
         logging.error(e)
         return jsonify({'error': str(e)}), 401
@@ -85,6 +84,6 @@ if __name__ == '__main__':
             print("error: {} environment variable not set".format(v))
             exit(1)
     _local_routing = os.environ.get('LOCAL_ROUTING_NUM')
-    _private_key = open(os.environ.get('KEY_PATH'), 'r').read()
+    _public_key = open(os.environ.get('PUB_KEY_PATH'), 'r').read()
     logging.info("Starting flask.")
     app.run(debug=False, port=os.environ.get('PORT'), host='0.0.0.0')

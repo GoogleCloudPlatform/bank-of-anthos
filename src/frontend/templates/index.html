@@ -113,8 +113,8 @@ limitations under the License.
             <select class="mdl-textfield__input" id="accounts" name="account">
                <option disabled value="title">External Bank Accounts</option>
                {% for account in external_accounts %}
-               <option value='{"account_num": "{{ account.number }}", "routing_num": "{{ account.routing }}" }'>
-                    {{ account.label }} - {{ account.number }} - {{ account.route }}
+               <option value='{"account_num": "{{ account.account_number }}", "routing_num": "{{ account.routing_number }}" }'>
+                    {{ account.label }} - {{ account.account_number }} - {{ account.routing_number }}
                </option>
                {% endfor %}
                <option disabled value="add">Add new account</option>
@@ -175,7 +175,7 @@ limitations under the License.
             <select class="mdl-textfield__input" id="recipients" name="recipient" onchange='CheckChoice(this.value);'>
                <option disabled>Favorites</option>
                {% for account in favorite_accounts %}
-                    <option value="{{ account.number }}">{{ account.label }} - {{ account.number }}</option>
+                    <option value="{{ account.account_number }}">{{ account.label }} - {{ account.account_number }}</option>
                {% endfor %}
                <option disabled>──────────</option>
                <option value="other">Other account</option>

@@ -15,37 +15,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: transactionhistory
+  name: contacts
 spec:
   selector:
     matchLabels:
-      app: transactionhistory
+      app: contacts
   template:
     metadata:
       labels:
-        app: transactionhistory
+        app: contacts
     spec:
       terminationGracePeriodSeconds: 5
-      initContainers:
-      - name: init-db-ready
-        image:  redis:alpine
-        command: ['/bin/sh', '-c']
-        args:
-          - for i in {1..100}; do sleep 1; if redis-cli -h redis-ledger -p 6379 ping; then exit 0; fi; done; exit 1
       containers:
-      - name: history
-        image: transactionhistory
+      - name: contacts
+        image: contacts
         volumeMounts:
         - name: publickey
           mountPath: "/root/.ssh"
           readOnly: true
         env:
-        - name: LEDGER_ADDR
-          value: "redis-ledger"
-        - name: LEDGER_PORT
-          value: "6379"
-        - name: LEDGER_STREAM
-          value: "ledger"
         - name: PORT
           value: "8080"
         - name: LOCAL_ROUTING_NUM
@@ -65,12 +53,6 @@ spec:
             port: 8080
           initialDelaySeconds: 5
           periodSeconds: 5
-        livenessProbe:
-          httpGet:
-            path: /healthy
-            port: 8080
-          initialDelaySeconds: 5
-          periodSeconds: 5
       volumes:
       - name: publickey
         secret:
@@ -82,11 +64,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: transactionhistory
+  name: contacts
 spec:
   type: ClusterIP
   selector:
-    app: transactionhistory
+    app: contacts
   ports:
   - name: http
     port: 8080

@@ -20,7 +20,7 @@ RUN apt-get update -qqy && \
 ENV PYTHONUNBUFFERED=0
 
 # get packages
-WORKDIR /tokencreator
+WORKDIR /contacts
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 
@@ -28,4 +28,4 @@ RUN pip install -r requirements.txt
 COPY *.py .
 
 
-ENTRYPOINT ["python", "/tokencreator/token_creator.py"]
+ENTRYPOINT ["python", "/contacts/contacts.py"]
