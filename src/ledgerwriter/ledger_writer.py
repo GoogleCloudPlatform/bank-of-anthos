@@ -73,10 +73,9 @@ def add_transaction():
         logging.info('adding transaction: %s' % str(transaction))
         _ledger.xadd(ledger_stream, transaction)
         return jsonify({}), 201
-
     except jwt.exceptions.InvalidTokenError as e:
         logging.error(e)
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': str(e)}), 401
 
 
 if __name__ == '__main__':

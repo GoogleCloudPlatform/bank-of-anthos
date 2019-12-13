@@ -64,7 +64,7 @@ def get_balance():
         return jsonify({'history': history}), 200
     except jwt.exceptions.InvalidTokenError as e:
         logging.error(e)
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': str(e)}), 401
 
 
 def _process_transaction(transaction):
