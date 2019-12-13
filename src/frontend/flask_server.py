@@ -59,23 +59,35 @@ def main():
 
     display_name = jwt.decode(token, verify=False)['name']
 
-    # get balance
     hed = {'Authorization': 'Bearer ' + token}
-    req = requests.get(url=app.config["BALANCES_URI"], headers=hed)
-    balance = req.json()['balance']
-
+    # get balance
+    balance = None
+    try:
+        req = requests.get(url=app.config["BALANCES_URI"], headers=hed)
+        balance = req.json()['balance']
+    except requests.exceptions.RequestException as e:
+        logging.error(str(e))
     # get history
-    req = requests.get(url=app.config["HISTORY_URI"], headers=hed)
-    transaction_list = req.json()['history']
-
+    transaction_list = []
+    try:
+        req = requests.get(url=app.config["HISTORY_URI"], headers=hed)
+        transaction_list = req.json()['history']
+    except requests.exceptions.RequestException as e:
+        logging.error(str(e))
     # get contacts
-    req = requests.get(url=app.config["INTERNAL_CONTACTS_URI"], headers=hed)
-    internal_list = req.json()['account_list']
-
+    internal_list = []
+    try:
+        req = requests.get(url=app.config["INTERNAL_CONTACTS_URI"], headers=hed)
+        internal_list = req.json()['account_list']
+    except requests.exceptions.RequestException as e:
+        logging.error(str(e))
     # get external accounts
-    req = requests.get(url=app.config["EXTERNAL_ACCOUNTS_URI"], headers=hed)
-    external_list = req.json()['account_list']
-
+    external_list = []
+    try:
+        req = requests.get(url=app.config["EXTERNAL_ACCOUNTS_URI"], headers=hed)
+        external_list = req.json()['account_list']
+    except requests.exceptions.RequestException as e:
+        logging.error(str(e))
     return render_template('index.html',
                            history=transaction_list,
                            balance=balance,
@@ -202,6 +214,8 @@ def format_timestamp(timestamp):
 
 def format_currency(int_amount):
     """ Format the input currency in a human readable way """
+    if int_amount is None:
+        return '$---'
     amount_str = '${:0,.2f}'.format(abs(float(int_amount)/100))
     if int_amount < 0:
         amount_str = '-' + amount_str
