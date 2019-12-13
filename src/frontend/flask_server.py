@@ -58,9 +58,7 @@ def main():
     balance = resp['balance']
 
     # get history
-    account_id = jwt.decode(token, verify=False)['acct']
-    req = requests.get(url=app.config["HISTORY_URI"],
-                       params={'account_id': account_id})
+    req = requests.get(url=app.config["HISTORY_URI"], headers=hed)
     resp = req.json()
     transaction_list = resp['history']
 

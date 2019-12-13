@@ -1,2 +1,4 @@
 redis
 flask
+pyjwt
+cryptography

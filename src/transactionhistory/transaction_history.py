@@ -19,6 +19,8 @@ from collections import defaultdict
 
 from flask import Flask, jsonify, request
 
+import jwt
+
 import redis
 
 
@@ -50,11 +52,19 @@ def liveness():
 
 @app.route('/get_history', methods=['GET'])
 def get_balance():
-    account_id = request.args.get('account_id')
-    if account_id is None:
-        return jsonify({'error': 'account %s not found' % account_id}), 500
-    history = history_dict[account_id]
-    return jsonify({'history': history}), 201
+    auth_header = request.headers.get('Authorization')
+    if auth_header:
+        token = auth_header.split(" ")[-1]
+    else:
+        token = ''
+    try:
+        payload = jwt.decode(token, key=_public_key, algorithms='RS256')
+        account_id = payload['acct']
+        history = history_dict[account_id]
+        return jsonify({'history': history}), 200
+    except jwt.exceptions.InvalidTokenError as e:
+        logging.error(e)
+        return jsonify({'error': str(e)}), 500
 
 
 def _process_transaction(transaction):
@@ -108,10 +118,11 @@ def transaction_listener(last_transaction_id):
 
 if __name__ == '__main__':
     for v in ['PORT', 'LEDGER_ADDR', 'LEDGER_STREAM', 'LEDGER_PORT',
-              'LOCAL_ROUTING_NUM']:
+              'LOCAL_ROUTING_NUM', 'PUB_KEY_PATH']:
         if os.environ.get(v) is None:
             print("error: {} environment variable not set".format(v))
             exit(1)
+    _public_key = open(os.environ.get('PUB_KEY_PATH'), 'r').read()
     _ledger = redis.Redis(host=ledger_host, port=ledger_port, db=0)
 
     logging.info('restoring cache...')
