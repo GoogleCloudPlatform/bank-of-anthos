@@ -35,6 +35,10 @@ spec:
       containers:
       - name: reader
         image: balancereader
+        volumeMounts:
+        - name: publickey
+          mountPath: "/root/.ssh"
+          readOnly: true
         env:
         - name: LEDGER_ADDR
           value: "redis-ledger"
@@ -46,6 +50,8 @@ spec:
           value: "8080"
         - name: LOCAL_ROUTING_NUM
           value: "1234"
+        - name: PUB_KEY_PATH
+          value: "/root/.ssh/publickey"
         resources:
           requests:
             cpu: 200m
@@ -65,6 +71,13 @@ spec:
             port: 8080
           initialDelaySeconds: 5
           periodSeconds: 5
+      volumes:
+      - name: publickey
+        secret:
+          secretName: jwt-key
+          items:
+          - key: jwtRS256.key.pub
+            path: publickey
 ---
 apiVersion: v1
 kind: Service

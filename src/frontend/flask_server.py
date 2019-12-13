@@ -45,19 +45,20 @@ local_routing_num = os.getenv('LOCAL_ROUTING_NUM')
 # handle requests to the server
 @app.route("/home")
 def main():
+    # TODO: properly handle erros from other services
     token = request.cookies.get(TOKEN_NAME)
     if not verify_token(token):
         # user isn't authenticated
         return redirect(url_for('login_page'))
 
     # get balance
-    account_id = '1234'  # TODO: placeholder
-    req = requests.get(url=app.config["BALANCES_URI"],
-                       params={'account_id': account_id})
+    hed = {'Authorization': 'Bearer ' + token}
+    req = requests.get(url=app.config["BALANCES_URI"], headers=hed)
     resp = req.json()
     balance = resp['balance']
 
     # get history
+    account_id = jwt.decode(token, verify=False)['acct']
     req = requests.get(url=app.config["HISTORY_URI"],
                        params={'account_id': account_id})
     resp = req.json()
@@ -87,15 +88,15 @@ def payment():
         # user isn't authenticated
         return abort(401)
 
-    account_id = '1234'  # TODO: placeholder
+    account_id = jwt.decode(token, verify=False)['acct']
     recipient = request.form['recipient']
     if recipient == 'other':
         recipient = request.form['other-recipient']
     # convert amount to integer
     amount = int(float(request.form['amount']) * 100)
     # verify balance is sufficient
-    req = requests.get(url=app.config["BALANCES_URI"],
-                       params={'account_id': account_id})
+    hed = {'Authorization': 'Bearer ' + token}
+    req = requests.get(url=app.config["BALANCES_URI"], headers=hed)
     resp = req.json()
     balance = resp['balance']
     if balance > amount:
@@ -117,7 +118,9 @@ def deposit():
     if not verify_token(token):
         # user isn't authenticated
         return abort(401)
-    account_id = '1234'  # TODO: placeholder
+
+    # get account id from token
+    account_id = jwt.decode(token, verify=False)['acct']
 
     # get data from form
     account_details = json.loads(request.form['account'])
@@ -177,7 +180,6 @@ def verify_token(token):
     if token is None:
         return False
     try:
-        token_str = token.decode('utf-8')
         jwt.decode(token, key=_public_key,  algorithms='RS256', verify=True)
         return True
     except jwt.exceptions.InvalidTokenError as e:
