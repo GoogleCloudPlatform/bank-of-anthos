@@ -13,11 +13,11 @@
 # limitations under the License.
 
 import bleach
+from bson.objectid import ObjectId
 from flask import Flask, jsonify, request
 from flask_pymongo import PyMongo
 import logging
 import os
-from pymongo import ObjectId
 
 app = Flask(__name__)
 app.config["MONGO_URI"] = 'mongodb://{}/users'.format(os.environ.get('USER_DB_ADDR'))
@@ -25,26 +25,28 @@ mongo = PyMongo(app)
 
 @app.route('/create_user', methods=['POST'])
 def create_user():
-    """Create a new user.
+    """Create a user record.
     
     Generates an accountid. Fails if that username already exists.
     
     request:
       - username
-      - password
+      - salt
+      - hash
     """
     req = request.get_json()
     logging.info('creating user: %s' % str(req))
 
     # check if user exists
-    query = {'username':bleach.clean(req['username']}
+    query = {'username':bleach.clean(req['username'])}
     if mongo.db.users.find_one(query) is not None:
         return jsonify({'msg':'user already exists'}), 400
 
     # insert user in MongoDB
     accountid = generate_accountid()
     data = {'username':bleach.clean(req['username']),
-            'password':bleach.clean(req['password']),
+            'salt':bleach.clean(req['salt']),
+            'hash':bleach.clean(req['hash']),
             'accountid':accountid}
     result = mongo.db.users.insert_one(data)
     if 'writeConcernError' in result:
@@ -54,7 +56,7 @@ def create_user():
 
 @app.route('/get_user', methods=['GET'])
 def get_user():
-    """Get a user.
+    """Get a user record.
 
     Fails if there is no such user.
     
@@ -64,40 +66,18 @@ def get_user():
     response:
       - accountid
       - username
+      - salt
+      - hash
     """
     req = request.get_json()
     logging.info('getting user: %s' % str(req))
 
     # get user from MongoDB
     query = {'username':bleach.clean(req['username'])}
-    fields = {'password':False}  # Omit the user password.
-    result = mongo.db.users.find_one(query, fields)
+    result = mongo.db.users.find_one(query)
     if result is None:
         return jsonify({'msg':'user not found'}), 400
     return jsonify(result), 201
-
-
-@app.route('/delete_user', methods=['POST'])
-def delete_user():
-    """Delete a user.
-
-    Fails if there is no such user.
-    
-    request:
-      - username
-    """
-    req = request.get_json()
-    logging.info('deleting user: %s' % str(req))
-
-    # check if user exists
-    query = {'username':bleach.clean(req['username']}
-    if mongo.db.users.find_one(query) is not None:
-        return jsonify({'msg':'user not found'}), 400
-
-    # delete user from MongoDB
-    data = {'username':bleach.clean(req['username'])}
-    result = mongo.db.users.delete_one(data)
-    return jsonify({}), 201
 
 
 def generate_accountid():

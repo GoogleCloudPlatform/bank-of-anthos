@@ -1,4 +1,4 @@
 bleach
 Flask
 Flask-PyMongo
-pymongo
+pymongo>=3.7.2
