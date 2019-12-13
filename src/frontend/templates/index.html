@@ -78,26 +78,30 @@ limitations under the License.
                <div class="mdl-card mdl-cell mdl-cell--12-col">
                   <div class="mdl-card__supporting-text">
                      <h4>Transaction History</h4>
-                     <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp" style="margin:auto;width:100%">
-                     <thead>
-                        <tr>
-                            <th class="mdl-data-table__cell--non-numeric">Date</th><th class="mdl-data-table__cell--non-numeric">Account</th><th>Amount</th>
-                        </tr>
-                     </thead>
-                        <tbody>
-                           {% for t in history %}
-                           <tr>
-                               <td class="mdl-data-table__cell--non-numeric"> {{ format_timestamp(t.date) }} </td>
-                               <td class="mdl-data-table__cell--non-numeric"> {{ t.account }}</td>
-                                {% if t.type == "DEBIT" %}
-                                   <td style="color: green;">{{ format_currency(t.amount) }}</td>
-                                {% else %}
-                                   <td>-{{ format_currency(t.amount) }}</td>
-                                {% endif %}
-                           </tr>
-                           {% endfor %}
-                        </tbody>
-                     </table>
+                     {% if history|length == 0 %}
+                         <p>No transactions found</p>
+                     {% else %}
+                         <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp" style="margin:auto;width:100%">
+                         <thead>
+                            <tr>
+                                <th class="mdl-data-table__cell--non-numeric">Date</th><th class="mdl-data-table__cell--non-numeric">Account</th><th>Amount</th>
+                            </tr>
+                         </thead>
+                            <tbody>
+                               {% for t in history %}
+                               <tr>
+                                   <td class="mdl-data-table__cell--non-numeric"> {{ format_timestamp(t.date) }} </td>
+                                   <td class="mdl-data-table__cell--non-numeric"> {{ t.account }}</td>
+                                    {% if t.type == "DEBIT" %}
+                                       <td style="color: green;">{{ format_currency(t.amount) }}</td>
+                                    {% else %}
+                                       <td>-{{ format_currency(t.amount) }}</td>
+                                    {% endif %}
+                               </tr>
+                               {% endfor %}
+                            </tbody>
+                         </table>
+                      {% endif %}
                   </div>
                </div>
             </section>
