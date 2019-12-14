@@ -51,7 +51,6 @@ local_routing_num = os.getenv('LOCAL_ROUTING_NUM')
 # handle requests to the server
 @app.route("/home")
 def main():
-    # TODO: properly handle erros from other services
     token = request.cookies.get(TOKEN_NAME)
     if not verify_token(token):
         # user isn't authenticated
@@ -88,12 +87,14 @@ def main():
         external_list = req.json()['account_list']
     except requests.exceptions.RequestException as e:
         logging.error(str(e))
+
     return render_template('index.html',
                            history=transaction_list,
                            balance=balance,
                            name=display_name,
                            external_accounts=external_list,
-                           favorite_accounts=internal_list)
+                           favorite_accounts=internal_list,
+                           message=request.args.get('msg', None))
 
 
 @app.route('/payment', methods=['POST'])
@@ -121,11 +122,13 @@ def payment():
                            'amount': amount}
         hed = {'Authorization': 'Bearer ' + token,
                'content-type': 'application/json'}
-        requests.post(url=app.config["TRANSACTIONS_URI"],
+        req = requests.post(url=app.config["TRANSACTIONS_URI"],
                       data=jsonify(transaction_obj).data,
                       headers=hed,
                       timeout=3)
-    return redirect(url_for('main'))
+        if req.status_code == 201:
+            return redirect(url_for('main', msg='Transaction initiated'))
+    return redirect(url_for('main', msg='Transaction failed'))
 
 
 @app.route('/deposit', methods=['POST'])
@@ -153,11 +156,13 @@ def deposit():
                        'amount': amount}
     hed = {'Authorization': 'Bearer ' + token,
            'content-type': 'application/json'}
-    requests.post(url=app.config["TRANSACTIONS_URI"],
-                  data=jsonify(transaction_obj).data,
-                  headers=hed,
-                  timeout=3)
-    return redirect(url_for('main'))
+    req = requests.post(url=app.config["TRANSACTIONS_URI"],
+                        data=jsonify(transaction_obj).data,
+                        headers=hed,
+                        timeout=3)
+    if req.status_code == 201:
+        return redirect(url_for('main', msg='Deposit accepted'))
+    return redirect(url_for('main', msg='Deposit failed'))
 
 
 @app.route("/", methods=['GET'])

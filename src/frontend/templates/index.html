@@ -156,7 +156,6 @@ limitations under the License.
               // TODO: more checks
           } else {
               depositForm.submit();
-              notification.MaterialSnackbar.showSnackbar({ message: 'Initiating deposit'});
           }
           depositDialog.close();
         });
@@ -211,7 +210,6 @@ limitations under the License.
               // TODO: more checks
           } else {
               paymentForm.submit();
-              notification.MaterialSnackbar.showSnackbar({ message: 'Transaction Initiated'});
           }
           paymentDialog.close();
         });
@@ -224,4 +222,22 @@ limitations under the License.
     }
    </script>
    </body>
-</html>
+
+<!--toast message on load-->
+
+{% if message != None %}
+    <script>
+        r(function(){
+            var notification = document.querySelector('.mdl-js-snackbar');
+            notification.MaterialSnackbar.showSnackbar(
+              {
+                  message: '{{ message }}'
+              }
+            );
+        window.history.pushState({}, document.title, "/");
+        });
+
+        function r(f){/in/.test(document.readyState)?setTimeout('r('+f+')',9):f()}
+    </script>
+    </html>
+{% endif %}
