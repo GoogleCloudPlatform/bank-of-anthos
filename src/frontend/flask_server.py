@@ -103,31 +103,33 @@ def payment():
     if not verify_token(token):
         # user isn't authenticated
         return abort(401)
-
-    account_id = jwt.decode(token, verify=False)['acct']
-    recipient = request.form['recipient']
-    if recipient == 'other':
-        recipient = request.form['other-recipient']
-    # convert amount to integer
-    amount = int(float(request.form['amount']) * 100)
-    # verify balance is sufficient
-    hed = {'Authorization': 'Bearer ' + token}
-    req = requests.get(url=app.config["BALANCES_URI"], headers=hed)
-    balance = req.json()['balance']
-    if balance > amount:
-        transaction_obj = {'from_routing_num':  local_routing_num,
-                           'from_account_num': account_id,
-                           'to_routing_num': local_routing_num,
-                           'to_account_num': recipient,
-                           'amount': amount}
-        hed = {'Authorization': 'Bearer ' + token,
-               'content-type': 'application/json'}
-        req = requests.post(url=app.config["TRANSACTIONS_URI"],
-                      data=jsonify(transaction_obj).data,
-                      headers=hed,
-                      timeout=3)
-        if req.status_code == 201:
-            return redirect(url_for('main', msg='Transaction initiated'))
+    try:
+        account_id = jwt.decode(token, verify=False)['acct']
+        recipient = request.form['recipient']
+        if recipient == 'other':
+            recipient = request.form['other-recipient']
+        # convert amount to integer
+        amount = int(float(request.form['amount']) * 100)
+        # verify balance is sufficient
+        hed = {'Authorization': 'Bearer ' + token}
+        req = requests.get(url=app.config["BALANCES_URI"], headers=hed)
+        balance = req.json()['balance']
+        if balance > amount:
+            transaction_obj = {'from_routing_num':  local_routing_num,
+                               'from_account_num': account_id,
+                               'to_routing_num': local_routing_num,
+                               'to_account_num': recipient,
+                               'amount': amount}
+            hed = {'Authorization': 'Bearer ' + token,
+                   'content-type': 'application/json'}
+            req = requests.post(url=app.config["TRANSACTIONS_URI"],
+                          data=jsonify(transaction_obj).data,
+                          headers=hed,
+                          timeout=3)
+            if req.status_code == 201:
+                return redirect(url_for('main', msg='Transaction initiated'))
+    except requests.exceptions.RequestException as e:
+        logging.error(str(e))
     return redirect(url_for('main', msg='Transaction failed'))
 
 
@@ -137,31 +139,33 @@ def deposit():
     if not verify_token(token):
         # user isn't authenticated
         return abort(401)
+    try:
+        # get account id from token
+        account_id = jwt.decode(token, verify=False)['acct']
 
-    # get account id from token
-    account_id = jwt.decode(token, verify=False)['acct']
+        # get data from form
+        account_details = json.loads(request.form['account'])
+        external_account_num = account_details['account_num']
+        external_routing_num = account_details['routing_num']
+        # convert amount to integer
+        amount = int(float(request.form['amount']) * 100)
 
-    # get data from form
-    account_details = json.loads(request.form['account'])
-    external_account_num = account_details['account_num']
-    external_routing_num = account_details['routing_num']
-    # convert amount to integer
-    amount = int(float(request.form['amount']) * 100)
-
-    # simulate transaction from external bank into user's account
-    transaction_obj = {'from_routing_num':  external_routing_num,
-                       'from_account_num': external_account_num,
-                       'to_routing_num': local_routing_num,
-                       'to_account_num': account_id,
-                       'amount': amount}
-    hed = {'Authorization': 'Bearer ' + token,
-           'content-type': 'application/json'}
-    req = requests.post(url=app.config["TRANSACTIONS_URI"],
-                        data=jsonify(transaction_obj).data,
-                        headers=hed,
-                        timeout=3)
-    if req.status_code == 201:
-        return redirect(url_for('main', msg='Deposit accepted'))
+        # simulate transaction from external bank into user's account
+        transaction_obj = {'from_routing_num':  external_routing_num,
+                           'from_account_num': external_account_num,
+                           'to_routing_num': local_routing_num,
+                           'to_account_num': account_id,
+                           'amount': amount}
+        hed = {'Authorization': 'Bearer ' + token,
+               'content-type': 'application/json'}
+        req = requests.post(url=app.config["TRANSACTIONS_URI"],
+                            data=jsonify(transaction_obj).data,
+                            headers=hed,
+                            timeout=3)
+        if req.status_code == 201:
+            return redirect(url_for('main', msg='Deposit accepted'))
+    except requests.exceptions.RequestException as e:
+        logging.error(str(e))
     return redirect(url_for('main', msg='Deposit failed'))
 
 
