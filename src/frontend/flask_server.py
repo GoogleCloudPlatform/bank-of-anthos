@@ -158,6 +158,16 @@ def login_page():
     return render_template('login.html')
 
 
+@app.route("/signup", methods=['GET'])
+def signup_page():
+    token = request.cookies.get(TOKEN_NAME)
+    if verify_token(token):
+        # already authenticated
+        return redirect(url_for('main'))
+
+    return render_template('signup.html')
+
+
 @app.route('/login', methods=['POST'])
 def login():
     username = request.form['username']
