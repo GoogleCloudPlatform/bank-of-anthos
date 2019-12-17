@@ -1,4 +1,6 @@
+bcrypt
 bleach
 Flask
 Flask-PyMongo
 pymongo>=3.7.2
+uuid

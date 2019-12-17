@@ -12,10 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import bcrypt
 import bleach
-from bson.objectid import ObjectId
 from flask import Flask, jsonify, request
 from flask_pymongo import PyMongo
+import uuid
 import logging
 import os
 
@@ -33,8 +34,7 @@ def create_user():
     
     request:
       - username
-      - salt
-      - hash
+      - password
       - firstname
       - lastname
       - birthday
@@ -44,7 +44,8 @@ def create_user():
       - zip
       - ssn
     """
-    req = request.get_json()
+    req = request.form
+    print(req)
     logging.info('creating user: %s' % str(req))
 
     # check if user exists
@@ -52,11 +53,16 @@ def create_user():
     if mongo.db.users.find_one(query) is not None:
         return jsonify({'msg':'user already exists'}), 400
 
+    # create password hash with salt
+    password = bleach.clean(req['password'])
+    salt = bcrypt.gensalt()
+    passhash = bcrypt.hashpw(password.encode(), salt)
+
     # insert user in MongoDB
     accountid = generate_accountid()
     data = {'username':bleach.clean(req['username']),
-            'salt':bleach.clean(req['salt']),
-            'hash':bleach.clean(req['hash']),
+            'accountid':accountid,
+            'passhash':passhash,
             'firstname':bleach.clean(req['firstname']),
             'lastname':bleach.clean(req['lastname']),
             'birthday':bleach.clean(req['birthday']),
@@ -64,8 +70,7 @@ def create_user():
             'address':bleach.clean(req['address']),
             'state':bleach.clean(req['state']),
             'zip':bleach.clean(req['zip']),
-            'ssn':bleach.clean(req['ssn']),
-            'accountid':accountid}
+            'ssn':bleach.clean(req['ssn'])}
     result = mongo.db.users.insert_one(data)
 
     if 'writeConcernError' in result:
@@ -110,10 +115,10 @@ def get_user():
 
 def generate_accountid():
     """Generates a globally unique alphanumerical accountid."""
-    uuid = ObjectId()
-    while mongo.db.users.find_one({'accountid':uuid.str}) is not None:
-        uuid = ObjectId()
-    return uuid.str
+    accountid = str(uuid.uuid4())
+    while mongo.db.users.find_one({'accountid':accountid}) is not None:
+        accountid = str(uuid.uuid4())
+    return accountid
 
 
 if __name__ == '__main__':
