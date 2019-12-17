@@ -105,7 +105,7 @@ def get_user():
 
     # get user from MongoDB
     query = {'username':req['username']}
-    fields = {'_id': false}
+    fields = {'_id': False}
     result = mongo.db.users.find_one(query, fields)
 
     if result is None:
