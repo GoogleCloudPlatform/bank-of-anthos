@@ -26,13 +26,23 @@ mongo = PyMongo(app)
 @app.route('/create_user', methods=['POST'])
 def create_user():
     """Create a user record.
+
+    Fails if that username already exists.
     
-    Generates an accountid. Fails if that username already exists.
+    Generates a unique accountid.
     
     request:
       - username
       - salt
       - hash
+      - firstname
+      - lastname
+      - birthday
+      - timezone
+      - address
+      - state
+      - zip
+      - ssn
     """
     req = request.get_json()
     logging.info('creating user: %s' % str(req))
@@ -47,8 +57,17 @@ def create_user():
     data = {'username':bleach.clean(req['username']),
             'salt':bleach.clean(req['salt']),
             'hash':bleach.clean(req['hash']),
+            'firstname':bleach.clean(req['firstname']),
+            'lastname':bleach.clean(req['lastname']),
+            'birthday':bleach.clean(req['birthday']),
+            'timezone':bleach.clean(req['timezone']),
+            'address':bleach.clean(req['address']),
+            'state':bleach.clean(req['state']),
+            'zip':bleach.clean(req['zip']),
+            'ssn':bleach.clean(req['ssn']),
             'accountid':accountid}
     result = mongo.db.users.insert_one(data)
+
     if 'writeConcernError' in result:
         return jsonify(result['writeConcernError']), 500
     return jsonify({}), 201
@@ -68,6 +87,14 @@ def get_user():
       - username
       - salt
       - hash
+      - firstname
+      - lastname
+      - birthday
+      - timezone
+      - address
+      - state
+      - zip
+      - ssn
     """
     req = request.get_json()
     logging.info('getting user: %s' % str(req))
@@ -75,6 +102,7 @@ def get_user():
     # get user from MongoDB
     query = {'username':bleach.clean(req['username'])}
     result = mongo.db.users.find_one(query)
+
     if result is None:
         return jsonify({'msg':'user not found'}), 400
     return jsonify(result), 201
