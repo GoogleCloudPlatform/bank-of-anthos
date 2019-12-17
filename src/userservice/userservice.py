@@ -44,37 +44,37 @@ def create_user():
       - zip
       - ssn
     """
-    req = request.form
+    req = {k: bleach.clean(v) for k, v in request.form.items()}
     print(req)
     logging.info('creating user: %s' % str(req))
 
     # check if user exists
-    query = {'username':bleach.clean(req['username'])}
+    query = {'username':req['username']}
     if mongo.db.users.find_one(query) is not None:
         return jsonify({'msg':'user already exists'}), 400
 
     # create password hash with salt
-    password = bleach.clean(req['password'])
+    password = req['password']
     salt = bcrypt.gensalt()
     passhash = bcrypt.hashpw(password.encode(), salt)
 
     # insert user in MongoDB
     accountid = generate_accountid()
-    data = {'username':bleach.clean(req['username']),
+    data = {'username':req['username'],
             'accountid':accountid,
             'passhash':passhash,
-            'firstname':bleach.clean(req['firstname']),
-            'lastname':bleach.clean(req['lastname']),
-            'birthday':bleach.clean(req['birthday']),
-            'timezone':bleach.clean(req['timezone']),
-            'address':bleach.clean(req['address']),
-            'state':bleach.clean(req['state']),
-            'zip':bleach.clean(req['zip']),
-            'ssn':bleach.clean(req['ssn'])}
+            'firstname':req['firstname'],
+            'lastname':req['lastname'],
+            'birthday':req['birthday'],
+            'timezone':req['timezone'],
+            'address':req['address'],
+            'state':req['state'],
+            'zip':req['zip'],
+            'ssn':req['ssn']}
     result = mongo.db.users.insert_one(data)
 
-    if 'writeConcernError' in result:
-        return jsonify(result['writeConcernError']), 500
+    if not result.acknowledged:
+        return jsonify({'msg':'create user failed'}), 500
     return jsonify({}), 201
 
 
@@ -101,11 +101,11 @@ def get_user():
       - zip
       - ssn
     """
-    req = request.get_json()
+    req = {k: bleach.clean(v) for k, v in request.get_json().items()}
     logging.info('getting user: %s' % str(req))
 
     # get user from MongoDB
-    query = {'username':bleach.clean(req['username'])}
+    query = {'username':req['username']}
     result = mongo.db.users.find_one(query)
 
     if result is None:
