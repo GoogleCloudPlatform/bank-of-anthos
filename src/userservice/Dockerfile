@@ -26,4 +26,4 @@ RUN pip install --trusted-host pypi.python.org -r requirements.txt
 COPY . .
 
 
-ENTRYPOINT ["python", "--port", "8080", "--host", "0.0.0.0", "/userservice/userservice.py"]
+ENTRYPOINT ["python", "/userservice/userservice.py"]
