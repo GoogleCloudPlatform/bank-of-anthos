@@ -90,8 +90,7 @@ def get_user():
     response:
       - accountid
       - username
-      - salt
-      - hash
+      - passhash
       - firstname
       - lastname
       - birthday
@@ -106,7 +105,8 @@ def get_user():
 
     # get user from MongoDB
     query = {'username':req['username']}
-    result = mongo.db.users.find_one(query)
+    fields = {'_id': false}
+    result = mongo.db.users.find_one(query, fields)
 
     if result is None:
         return jsonify({'msg':'user not found'}), 400
