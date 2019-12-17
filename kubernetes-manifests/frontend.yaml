@@ -46,6 +46,8 @@ spec:
           value: "contacts:8080"
         - name: TOKEN_CREATOR_API_ADDR
           value: "tokencreator:8080"
+        - name: USERSERVICE_API_ADDR
+          value: "userservice:8080"
         - name: LOCAL_ROUTING_NUM
           value: "1234"
         - name: PUB_KEY_PATH

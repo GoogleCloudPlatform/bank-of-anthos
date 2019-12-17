@@ -31,6 +31,8 @@ app = Flask(__name__)
 # TODO: clean naming?
 app.config["TRANSACTIONS_URI"] = 'http://{}/new_transaction'.format(
     os.environ.get('TRANSACTIONS_API_ADDR'))
+app.config["USERSERVICE_URI"] = 'http://{}/create_user'.format(
+    os.environ.get('TRANSACTIONS_API_ADDR'))
 app.config["BALANCES_URI"] = 'http://{}/get_balance'.format(
     os.environ.get('BALANCES_API_ADDR'))
 app.config["HISTORY_URI"] = 'http://{}/get_history'.format(
@@ -158,16 +160,6 @@ def login_page():
     return render_template('login.html')
 
 
-@app.route("/signup", methods=['GET'])
-def signup_page():
-    token = request.cookies.get(TOKEN_NAME)
-    if verify_token(token):
-        # already authenticated
-        return redirect(url_for('main'))
-
-    return render_template('signup.html')
-
-
 @app.route('/login', methods=['POST'])
 def login():
     username = request.form['username']
@@ -183,6 +175,28 @@ def login():
         max_age = claims['exp'] - claims['iat']
         resp.set_cookie(TOKEN_NAME, token, max_age=max_age)
     return resp
+
+
+@app.route("/signup", methods=['GET'])
+def signup_page():
+    token = request.cookies.get(TOKEN_NAME)
+    if verify_token(token):
+        # already authenticated
+        return redirect(url_for('main'))
+
+    return render_template('signup.html')
+
+
+@app.route("/signup", methods=['POST'])
+def signup():
+    # create user
+    req = requests.post(url=app.config["USERSERVICE_URI"],
+                        data=request.form,
+                        timeout=3)
+    if req.status_code == 201:
+        # user created
+        return make_response(redirect(url_for('main')))
+    return req.text, req.status_code
 
 
 @app.route('/logout', methods=['POST'])
@@ -221,7 +235,7 @@ def format_currency(int_amount):
 if __name__ == '__main__':
     for v in ['PORT', 'TRANSACTIONS_API_ADDR', 'BALANCES_API_ADDR',
               'LOCAL_ROUTING_NUM', 'TOKEN_CREATOR_API_ADDR', 'PUB_KEY_PATH',
-              'CONTACTS_API_ADDR']:
+              'CONTACTS_API_ADDR', 'USERSERVICE_API_ADDR']:
         if os.environ.get(v) is None:
             print("error: {} environment variable not set".format(v))
             exit(1)
