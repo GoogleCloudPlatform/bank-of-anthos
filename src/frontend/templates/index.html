@@ -78,26 +78,30 @@ limitations under the License.
                <div class="mdl-card mdl-cell mdl-cell--12-col">
                   <div class="mdl-card__supporting-text">
                      <h4>Transaction History</h4>
-                     <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp" style="margin:auto;width:100%">
-                     <thead>
-                        <tr>
-                            <th class="mdl-data-table__cell--non-numeric">Date</th><th class="mdl-data-table__cell--non-numeric">Account</th><th>Amount</th>
-                        </tr>
-                     </thead>
-                        <tbody>
-                           {% for t in history %}
-                           <tr>
-                               <td class="mdl-data-table__cell--non-numeric"> {{ format_timestamp(t.date) }} </td>
-                               <td class="mdl-data-table__cell--non-numeric"> {{ t.account }}</td>
-                                {% if t.type == "DEBIT" %}
-                                   <td style="color: green;">{{ format_currency(t.amount) }}</td>
-                                {% else %}
-                                   <td>-{{ format_currency(t.amount) }}</td>
-                                {% endif %}
-                           </tr>
-                           {% endfor %}
-                        </tbody>
-                     </table>
+                     {% if history|length == 0 %}
+                         <p>No transactions found</p>
+                     {% else %}
+                         <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp" style="margin:auto;width:100%">
+                         <thead>
+                            <tr>
+                                <th class="mdl-data-table__cell--non-numeric">Date</th><th class="mdl-data-table__cell--non-numeric">Account</th><th>Amount</th>
+                            </tr>
+                         </thead>
+                            <tbody>
+                               {% for t in history %}
+                               <tr>
+                                   <td class="mdl-data-table__cell--non-numeric"> {{ format_timestamp(t.date) }} </td>
+                                   <td class="mdl-data-table__cell--non-numeric"> {{ t.account }}</td>
+                                    {% if t.type == "DEBIT" %}
+                                       <td style="color: green;">{{ format_currency(t.amount) }}</td>
+                                    {% else %}
+                                       <td>-{{ format_currency(t.amount) }}</td>
+                                    {% endif %}
+                               </tr>
+                               {% endfor %}
+                            </tbody>
+                         </table>
+                      {% endif %}
                   </div>
                </div>
             </section>
@@ -111,7 +115,6 @@ limitations under the License.
         <form id=deposit-form method="POST" action="/deposit">
          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
             <select class="mdl-textfield__input" id="accounts" name="account">
-               <option disabled value="title">External Bank Accounts</option>
                {% for account in external_accounts %}
                <option value='{"account_num": "{{ account.account_number }}", "routing_num": "{{ account.routing_number }}" }'>
                     {{ account.label }} - {{ account.account_number }} - {{ account.routing_number }}
@@ -153,16 +156,8 @@ limitations under the License.
               // TODO: more checks
           } else {
               depositForm.submit();
-              notification.MaterialSnackbar.showSnackbar({ message: 'Initiating deposit'});
           }
           depositDialog.close();
-        });
-        depositDialog.addEventListener('click', function (event) {
-            var rect = depositDialog.getBoundingClientRect();
-            var isInDialog=(rect.top <= event.clientY && event.clientY <= rect.top + rect.height && rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
-            if (!isInDialog) {
-                depositDialog.close();
-            }
         });
    </script>
     <!-- Payment Modal -->
@@ -173,7 +168,6 @@ limitations under the License.
         <form id=payment-form method="POST" action="/payment">
          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
             <select class="mdl-textfield__input" id="recipients" name="recipient" onchange='CheckChoice(this.value);'>
-               <option disabled>Favorites</option>
                {% for account in favorite_accounts %}
                     <option value="{{ account.account_number }}">{{ account.label }} - {{ account.account_number }}</option>
                {% endfor %}
@@ -216,19 +210,11 @@ limitations under the License.
               // TODO: more checks
           } else {
               paymentForm.submit();
-              notification.MaterialSnackbar.showSnackbar({ message: 'Transaction Initiated'});
           }
           paymentDialog.close();
         });
-        paymentDialog.addEventListener('click', function (event) {
-            var rect = paymentDialog.getBoundingClientRect();
-            var isInDialog=(rect.top <= event.clientY && event.clientY <= rect.top + rect.height && rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
-            if (!isInDialog) {
-                paymentDialog.close();
-            }
-        });
     function CheckChoice(val){
-     var element=document.getElementById('otheraccount');
+     var element=document.getElementById('other-recipient');
      if(val=='other')
        element.style.display='block';
      else  
@@ -236,4 +222,22 @@ limitations under the License.
     }
    </script>
    </body>
-</html>
+
+<!--toast message on load-->
+
+{% if message != None %}
+    <script>
+        r(function(){
+            var notification = document.querySelector('.mdl-js-snackbar');
+            notification.MaterialSnackbar.showSnackbar(
+              {
+                  message: '{{ message }}'
+              }
+            );
+        window.history.pushState({}, document.title, "/");
+        });
+
+        function r(f){/in/.test(document.readyState)?setTimeout('r('+f+')',9):f()}
+    </script>
+    </html>
+{% endif %}
