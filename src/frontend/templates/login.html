@@ -84,4 +84,19 @@ limitations under the License.
          </main>
       </div>
    </body>
+{% if message != None %}
+    <script>
+        r(function(){
+            var notification = document.querySelector('.mdl-js-snackbar');
+            notification.MaterialSnackbar.showSnackbar(
+              {
+                  message: '{{ message }}'
+              }
+            );
+        window.history.pushState({}, document.title, "/login");
+        });
+
+        function r(f){/in/.test(document.readyState)?setTimeout('r('+f+')',9):f()}
+    </script>
+{% endif %}
 </html>

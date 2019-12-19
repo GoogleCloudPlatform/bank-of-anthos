@@ -179,7 +179,8 @@ def login_page():
         # already authenticated
         return redirect(url_for('main'))
 
-    return render_template('login.html')
+    return render_template('login.html',
+                           message=request.args.get('msg', None))
 
 
 @app.route('/login', methods=['POST'])
@@ -189,14 +190,16 @@ def login():
 
     req = requests.get(url=app.config["LOGIN_URI"],
                        params={'username': username, 'password': password})
-    resp = make_response(redirect(url_for('main')))
     if req.status_code == 200:
         # login success
         token = req.json()['token'].encode('utf-8')
         claims = jwt.decode(token, verify=False)
         max_age = claims['exp'] - claims['iat']
+        resp = make_response(redirect(url_for('home')))
         resp.set_cookie(TOKEN_NAME, token, max_age=max_age)
-    return resp
+        return resp
+    else:
+        return redirect(url_for('login', msg='Login Failed'))
 
 
 @app.route("/signup", methods=['GET'])
