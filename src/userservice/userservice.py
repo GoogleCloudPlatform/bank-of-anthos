@@ -62,9 +62,9 @@ def create_user():
               'state',
               'zip',
               'ssn')
-    if any(field not in req for field in fields)
+    if any(field not in req for field in fields):
         return jsonify({'msg':'missing required field(s)'}), 400
-    if any(not (value or value.strip()) for value in req.values()):
+    if any(not bool(req[field] or req[field].strip()) for field in fields):
         return jsonify({'msg':'missing value for input field(s)'}), 400
 
     # check if user exists
