@@ -59,7 +59,9 @@ def home():
         # user isn't authenticated
         return redirect(url_for('login_page'))
 
-    display_name = jwt.decode(token, verify=False)['name']
+    token_data = jwt.decode(token, verify=False)
+    display_name = token_data['name']
+    account_id = token_data['acct']
 
     hed = {'Authorization': 'Bearer ' + token}
     # get balance
@@ -95,6 +97,7 @@ def home():
                            history=transaction_list,
                            balance=balance,
                            name=display_name,
+                           account_id=account_id,
                            external_accounts=external_list,
                            favorite_accounts=internal_list,
                            message=request.args.get('msg', None))

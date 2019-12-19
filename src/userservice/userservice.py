@@ -138,7 +138,7 @@ def get_token():
             print("match")
             payload = {'user': username,
                        'acct': result['accountid'],
-                       'name': result['firstname'],
+                       'name': '{} {}'.format(result['firstname'], result['lastname']),
                        'iat': datetime.utcnow(),
                        'exp': datetime.utcnow() + timedelta(seconds=_expiry_seconds)
                        }

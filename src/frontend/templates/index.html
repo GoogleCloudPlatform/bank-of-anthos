@@ -39,6 +39,8 @@ limitations under the License.
             <div class="mdl-layout__header-row">
                <h3>Cloud Bank</h3>
                <div class = "mdl-layout-spacer"></div>
+               <h3>{{ name }} </h3>
+               <div class = "mdl-layout-spacer"></div>
 
                 <form id=logout-form method="POST" action="/logout">
                   <button type="button"
@@ -55,7 +57,7 @@ limitations under the License.
             <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
                 <div class="mdl-card mdl-cell mdl-cell--12-col">
                     <div class="mdl-card__supporting-text">
-                        <h4>Welcome {{ name }}</h4>
+                        <h4>Account: {{account_id}}</h4>
                         <table style="margin:auto;width:100%">
                         <tbody>
                            <tr>
