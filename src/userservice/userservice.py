@@ -48,7 +48,6 @@ def create_user():
       - ssn
     """
     req = {k: bleach.clean(v) for k, v in request.form.items()}
-    print(req)
     logging.info('creating user: %s' % str(req))
 
     # check if required fields are filled
@@ -155,7 +154,6 @@ def get_token():
 
     if result is not None:
         if bcrypt.checkpw(password.encode('utf-8'), result['passhash']):
-            print("match")
             payload = {'user': username,
                        'acct': result['accountid'],
                        'name': result['firstname'],
