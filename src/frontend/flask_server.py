@@ -37,8 +37,8 @@ app.config["BALANCES_URI"] = 'http://{}/get_balance'.format(
     os.environ.get('BALANCES_API_ADDR'))
 app.config["HISTORY_URI"] = 'http://{}/get_history'.format(
     os.environ.get('HISTORY_API_ADDR'))
-app.config["TOKEN_CREATOR_URI"] = 'http://{}/get_token'.format(
-    os.environ.get('TOKEN_CREATOR_API_ADDR'))
+app.config["LOGIN_URI"] = 'http://{}/login'.format(
+    os.environ.get('USERSERVICE_API_ADDR'))
 app.config["INTERNAL_CONTACTS_URI"] = 'http://{}/contacts'.format(
     os.environ.get('CONTACTS_API_ADDR'))
 app.config["EXTERNAL_ACCOUNTS_URI"] = 'http://{}/external'.format(
@@ -165,12 +165,12 @@ def login():
     username = request.form['username']
     password = request.form['password']
 
-    req = requests.get(url=app.config["TOKEN_CREATOR_URI"],
+    req = requests.get(url=app.config["LOGIN_URI"],
                        params={'username': username, 'password': password})
     resp = make_response(redirect(url_for('main')))
     if req.status_code == 200:
         # login success
-        token = req.json()['token']
+        token = req.json()['token'].encode('utf-8')
         claims = jwt.decode(token, verify=False)
         max_age = claims['exp'] - claims['iat']
         resp.set_cookie(TOKEN_NAME, token, max_age=max_age)
@@ -234,8 +234,8 @@ def format_currency(int_amount):
 
 if __name__ == '__main__':
     for v in ['PORT', 'TRANSACTIONS_API_ADDR', 'BALANCES_API_ADDR',
-              'LOCAL_ROUTING_NUM', 'TOKEN_CREATOR_API_ADDR', 'PUB_KEY_PATH',
-              'CONTACTS_API_ADDR', 'USERSERVICE_API_ADDR']:
+              'LOCAL_ROUTING_NUM', 'PUB_KEY_PATH', 'CONTACTS_API_ADDR',
+              'USERSERVICE_API_ADDR']:
         if os.environ.get(v) is None:
             print("error: {} environment variable not set".format(v))
             exit(1)

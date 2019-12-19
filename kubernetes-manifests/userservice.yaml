@@ -34,6 +34,10 @@ spec:
       containers:
       - name: userservice
         image: userservice
+        volumeMounts:
+        - name: keys
+          mountPath: "/root/.ssh"
+          readOnly: true
         ports:
         - name: http-server
           containerPort: 8080
@@ -42,6 +46,23 @@ spec:
           value: "8080"
         - name: USER_DB_ADDR
           value: "mongodb-users:27017"
+        - name: TOKEN_EXPIRY_SECONDS
+          value: "3600"
+        - name: PRIV_KEY_PATH
+          value: "/root/.ssh/privatekey"
+        - name: PUB_KEY_PATH
+          value: "/root/.ssh/privatekey"
+      volumes:
+      - name: keys
+        secret:
+          secretName: jwt-key
+          items:
+          - key: jwtRS256.key
+            path: privatekey
+          - key: jwtRS256.key.pub
+            path: publickey
+
+
 ---
 apiVersion: v1
 kind: Service

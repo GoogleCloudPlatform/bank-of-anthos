@@ -19,6 +19,8 @@ from flask_pymongo import PyMongo
 import uuid
 import logging
 import os
+import jwt
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 app.config["MONGO_URI"] = 'mongodb://{}/users'.format(os.environ.get('USER_DB_ADDR'))
@@ -56,7 +58,7 @@ def create_user():
     # create password hash with salt
     password = req['password']
     salt = bcrypt.gensalt()
-    passhash = bcrypt.hashpw(password.encode(), salt)
+    passhash = bcrypt.hashpw(password.encode('utf-8'), salt)
 
     # insert user in MongoDB
     accountid = generate_accountid()
@@ -114,6 +116,29 @@ def get_user():
     return jsonify(result), 201
 
 
+@app.route('/login', methods=['GET'])
+def get_token():
+    username = bleach.clean(request.args.get('username'))
+    password = bleach.clean(request.args.get('password'))
+
+    # get user from MongoDB
+    query = {'username': username}
+    result = mongo.db.users.find_one(query)
+
+    if result is not None:
+        if bcrypt.checkpw(password.encode('utf-8'), result['passhash']):
+            print("match")
+            payload = {'user': username,
+                       'acct': result['accountid'],
+                       'name': result['firstname'],
+                       'iat': datetime.utcnow(),
+                       'exp': datetime.utcnow() + timedelta(seconds=_expiry_seconds)
+                       }
+            token = jwt.encode(payload, _private_key, algorithm='RS256')
+            return jsonify({'token': token.decode("utf-8")}), 200
+    return jsonify({'msg':'invalid login'}), 400
+
+
 def generate_accountid():
     """Generates a globally unique alphanumerical accountid."""
     accountid = str(uuid.uuid4())
@@ -123,10 +148,13 @@ def generate_accountid():
 
 
 if __name__ == '__main__':
-    for v in ['PORT', 'USER_DB_ADDR']:
+    for v in ['PORT', 'USER_DB_ADDR', 'TOKEN_EXPIRY_SECONDS', 'PRIV_KEY_PATH',
+            'PUB_KEY_PATH']:
         if os.environ.get(v) is None:
             print("error: {} environment variable not set".format(v))
             exit(1)
-
+    _expiry_seconds = int(os.environ.get('TOKEN_EXPIRY_SECONDS'))
+    _private_key = open(os.environ.get('PRIV_KEY_PATH'), 'r').read()
+    _public_key = open(os.environ.get('PUB_KEY_PATH'), 'r').read()
     logging.info("Starting flask.")
     app.run(debug=False, port=os.environ.get('PORT'), host='0.0.0.0')
