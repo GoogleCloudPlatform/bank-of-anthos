@@ -1,4 +1,5 @@
 istio-*
 *.swo
+*.swp
 *.key
 *.pub
