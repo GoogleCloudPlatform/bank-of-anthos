@@ -220,8 +220,10 @@ def signup():
                         timeout=3)
     if req.status_code == 201:
         # user created
-        return make_response(redirect(url_for('home')))
-    return req.text, req.status_code
+        return redirect(url_for('login', msg='Account created successfully'))
+    else:
+        logging.error(req.text)
+        return redirect(url_for('login', msg='Error: Account creation failed'))
 
 
 @app.route('/logout', methods=['POST'])
