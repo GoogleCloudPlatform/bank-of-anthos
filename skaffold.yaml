@@ -24,8 +24,6 @@ build:
     context: src/balancereader
   - image: transactionhistory
     context: src/transactionhistory
-  - image: tokencreator
-    context: src/tokencreator
   - image: contacts
     context: src/contacts
   - image: userservice

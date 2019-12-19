@@ -23,7 +23,7 @@ COPY requirements.txt .
 RUN pip install --trusted-host pypi.python.org -r requirements.txt
 
 # add files into working directory
-COPY . .
+COPY *.py .
 
 
 ENTRYPOINT ["python", "/userservice/userservice.py"]
