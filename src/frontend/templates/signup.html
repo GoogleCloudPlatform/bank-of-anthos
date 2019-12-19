@@ -199,16 +199,57 @@ limitations under the License.
 
                             <div class="mdl-dialog__actions">
                                 <button type="button" class="mdl-button signin-btn mdl-js-button mdl-button--raised 
-                                mdl-js-ripple-effect mdl-color--accent mdl-color-text--accent-contrast"
-                                onClick="document.getElementById('signup-form').submit();">Sign Up</button>
+                                mdl-js-ripple-effect mdl-color--accent mdl-color-text--accent-contrast submit-btn"
+                                >Sign Up</button>
                             </div>
                     </div>
                 </div>
             </section>
-
-
         </form>
          </main>
       </div>
    </body>
+    <script>
+        var notification = document.querySelector('.mdl-js-snackbar');
+        var submitButton = document.querySelector('.submit-btn');
+        var signupForm = document.getElementById("signup-form");
+
+        submitButton.addEventListener('click', function() {
+            // reset colors
+            for (var i = 0, element; element = signupForm.elements[i++];) { 
+                element.style.borderColor = "";
+            }
+
+            errMsg = "";
+            err = false;
+
+            // check passwords
+            if (signupForm["password"].value !== signupForm["password-repeat"].value) {
+                err = true;
+                errMsg = "passwords don't match"
+                signupForm["password"].style.color = "red";
+                signupForm["password-repeat"].style.color = "red";
+            }
+
+            // check for empty fields
+            for (var i = 0, element; element = signupForm.elements[i++];) {
+                if ((element.type==="text" || element.type==="password") &&
+                     element.value === "") {
+                    console.log(element.name)
+                    console.log(element.type)
+                    err = true;
+                    errMsg = "incomplete form"
+                    element.style.borderColor = "red";
+                }
+            }
+
+            if (err){
+                notification.MaterialSnackbar.showSnackbar(
+                    { message: errMsg}
+                );
+            } else {
+                signupForm.submit();
+            }
+        });
+    </script>
 </html>
