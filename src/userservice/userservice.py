@@ -37,6 +37,7 @@ def create_user():
     request:
       - username
       - password
+      - password-repeat
       - firstname
       - lastname
       - birthday
@@ -47,14 +48,35 @@ def create_user():
       - ssn
     """
     req = {k: bleach.clean(v) for k, v in request.form.items()}
-    print(req)
-    logging.info('creating user: %s' % str(req))
+    logging.info('validating new user request: %s' % str(req))
+
+    # check if required fields are filled
+    fields = ('username',
+              'password',
+              'password-repeat',
+              'firstname',
+              'lastname',
+              'birthday',
+              'timezone',
+              'address',
+              'state',
+              'zip',
+              'ssn')
+    if any(field not in req for field in fields)
+        return jsonify({'msg':'missing required field(s)'}), 400
+    if any(not (value or value.strip()) for value in req.values()):
+        return jsonify({'msg':'missing value for input field(s)'}), 400
 
     # check if user exists
     query = {'username':req['username']}
     if mongo.db.users.find_one(query) is not None:
         return jsonify({'msg':'user already exists'}), 400
 
+    # check if passwords match
+    if not req['password'] == req['password-repeat']:
+        return jsonify({'msg':'passwords don\'t match'}), 400
+
+    logging.info('creating user: %s' % str(req))
     # create password hash with salt
     password = req['password']
     salt = bcrypt.gensalt()
@@ -135,7 +157,6 @@ def get_token():
 
     if result is not None:
         if bcrypt.checkpw(password.encode('utf-8'), result['passhash']):
-            print("match")
             payload = {'user': username,
                        'acct': result['accountid'],
                        'name': '{} {}'.format(result['firstname'], result['lastname']),
