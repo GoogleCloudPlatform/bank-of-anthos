@@ -52,6 +52,7 @@ local_routing_num = os.getenv('LOCAL_ROUTING_NUM')
 
 # handle requests to the server
 @app.route("/home")
+@app.route("/")
 def main():
     token = request.cookies.get(TOKEN_NAME)
     if not verify_token(token):
@@ -171,7 +172,7 @@ def deposit():
     return redirect(url_for('main', msg='Deposit failed'))
 
 
-@app.route("/", methods=['GET'])
+@app.route("/login", methods=['GET'])
 def login_page():
     token = request.cookies.get(TOKEN_NAME)
     if verify_token(token):
