@@ -102,18 +102,26 @@ def get_user():
       - zip
       - ssn
     """
-    req = {k: bleach.clean(v) for k, v in request.get_json().items()}
-    logging.info('getting user: %s' % str(req))
-
-    # get user from MongoDB
-    query = {'username':req['username']}
-    fields = {'_id': False,
-              'passhash': False}
-    result = mongo.db.users.find_one(query, fields)
-
-    if result is None:
-        return jsonify({'msg':'user not found'}), 400
-    return jsonify(result), 201
+    auth_header = request.headers.get('Authorization')
+    if auth_header:
+        token = auth_header.split(" ")[-1]
+    else:
+        token = ''
+    try:
+        payload = jwt.decode(token, key=_public_key, algorithms='RS256')
+        user = payload['user']
+        logging.info('getting user: %s' % str(user))
+        # get user from MongoDB
+        query = {'username': user}
+        fields = {'_id': False,
+                  'passhash': False}
+        result = mongo.db.users.find_one(query, fields)
+        if result is None:
+            return jsonify({'msg': 'user not found'}), 400
+        return jsonify(result), 201
+    except jwt.exceptions.InvalidTokenError as e:
+        logging.error(e)
+        return jsonify({'error': str(e)}), 401
 
 
 @app.route('/login', methods=['GET'])
