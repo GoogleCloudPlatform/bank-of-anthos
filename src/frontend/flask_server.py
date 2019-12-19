@@ -53,7 +53,7 @@ local_routing_num = os.getenv('LOCAL_ROUTING_NUM')
 # handle requests to the server
 @app.route("/home")
 @app.route("/")
-def main():
+def home():
     token = request.cookies.get(TOKEN_NAME)
     if not verify_token(token):
         # user isn't authenticated
@@ -130,10 +130,10 @@ def payment():
                           headers=hed,
                           timeout=3)
             if req.status_code == 201:
-                return redirect(url_for('main', msg='Transaction initiated'))
+                return redirect(url_for('home', msg='Transaction initiated'))
     except requests.exceptions.RequestException as e:
         logging.error(str(e))
-    return redirect(url_for('main', msg='Transaction failed'))
+    return redirect(url_for('home', msg='Transaction failed'))
 
 
 @app.route('/deposit', methods=['POST'])
@@ -166,10 +166,10 @@ def deposit():
                             headers=hed,
                             timeout=3)
         if req.status_code == 201:
-            return redirect(url_for('main', msg='Deposit accepted'))
+            return redirect(url_for('home', msg='Deposit accepted'))
     except requests.exceptions.RequestException as e:
         logging.error(str(e))
-    return redirect(url_for('main', msg='Deposit failed'))
+    return redirect(url_for('home', msg='Deposit failed'))
 
 
 @app.route("/login", methods=['GET'])
@@ -177,7 +177,7 @@ def login_page():
     token = request.cookies.get(TOKEN_NAME)
     if verify_token(token):
         # already authenticated
-        return redirect(url_for('main'))
+        return redirect(url_for('home'))
 
     return render_template('login.html',
                            message=request.args.get('msg', None))
@@ -207,7 +207,7 @@ def signup_page():
     token = request.cookies.get(TOKEN_NAME)
     if verify_token(token):
         # already authenticated
-        return redirect(url_for('main'))
+        return redirect(url_for('home'))
 
     return render_template('signup.html')
 
@@ -220,7 +220,7 @@ def signup():
                         timeout=3)
     if req.status_code == 201:
         # user created
-        return make_response(redirect(url_for('main')))
+        return make_response(redirect(url_for('home')))
     return req.text, req.status_code
 
 
