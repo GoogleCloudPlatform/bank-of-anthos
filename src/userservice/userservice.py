@@ -35,6 +35,7 @@ def create_user():
     request:
       - username
       - password
+      - password-repeat
       - firstname
       - lastname
       - birthday
@@ -48,10 +49,29 @@ def create_user():
     print(req)
     logging.info('creating user: %s' % str(req))
 
+    # check if required fields are filled
+    fields = ('username',
+              'password',
+              'password-repeat',
+              'firstname',
+              'lastname',
+              'birthday',
+              'timezone',
+              'address',
+              'state',
+              'zip',
+              'ssn')
+    if not fields.issubset(set(req)):
+        return jsonify({'msg':'missing required fields'}), 400
+
     # check if user exists
     query = {'username':req['username']}
     if mongo.db.users.find_one(query) is not None:
         return jsonify({'msg':'user already exists'}), 400
+
+    # check if passwords match
+    if not req['password'] == req['password-repeat']:
+        return jsonify({'msg':'passwords don\'t match'}), 400
 
     # create password hash with salt
     password = req['password']
