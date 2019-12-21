@@ -29,11 +29,17 @@ app = Flask(__name__)
 
 @app.route('/ready', methods=['GET'])
 def readiness():
+    """
+    Readiness probe
+    """
     return 'ok', 200
 
 
 @app.route('/healthy', methods=['GET'])
 def liveness():
+    """
+    Liveness probe. Fail if background thread dies
+    """
     if _bg_thread is not None and _bg_thread.is_alive():
         return 'ok', 200
     else:
@@ -42,6 +48,11 @@ def liveness():
 
 @app.route('/get_balance', methods=['GET'])
 def get_balance():
+    """
+    Returns snapshot of user's balance
+
+    Fails if token is not valid
+    """
     auth_header = request.headers.get('Authorization')
     if auth_header:
         token = auth_header.split(" ")[-1]
@@ -58,6 +69,9 @@ def get_balance():
 
 
 def _process_transaction(transaction):
+    """
+    Process a new incoming transaction. Update cached account balances
+    """
     sender_acct = transaction['from_account_num']
     sender_route = transaction['from_routing_num']
     receiver_acct = transaction['to_account_num']
@@ -70,6 +84,9 @@ def _process_transaction(transaction):
 
 
 def _query_transactions(last_transaction_id=b'0-0', block=True):
+    """
+    Query ledger for new incoming transactions to process
+    """
     if block:
         # block until new transactions arrive
         block_time = 0
@@ -89,6 +106,9 @@ def _query_transactions(last_transaction_id=b'0-0', block=True):
 
 
 def transaction_listener(last_transaction_id):
+    """
+    Continuously query ledger for incoming transactions
+    """
     while True:
         last_transaction_id = _query_transactions(
             last_transaction_id=last_transaction_id,

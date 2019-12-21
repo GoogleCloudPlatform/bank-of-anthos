@@ -29,6 +29,12 @@ def add_contact():
 
 @app.route('/external', methods=['GET', 'POST'])
 def get_contact():
+    """
+    Returns the list of the user's linked external accounts
+    Currently returns hardcoded values
+
+    Fails if token is not valid
+    """
     if request.method == 'POST':
         logging.info('adding contacts not implemented')
         return jsonify({}), 501
@@ -55,6 +61,12 @@ def get_contact():
 
 @app.route('/contacts', methods=['GET', 'POST'])
 def get_external():
+    """
+    Returns the list of the user's linked contacts
+    Currently returns hardcoded values
+
+    Fails if token is not valid
+    """
     if request.method == 'POST':
         logging.info('adding contacts not implemented')
         return jsonify({}), 501

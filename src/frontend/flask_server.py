@@ -28,7 +28,7 @@ import requests
 
 
 app = Flask(__name__)
-# TODO: clean naming?
+
 app.config["TRANSACTIONS_URI"] = 'http://{}/new_transaction'.format(
     os.environ.get('TRANSACTIONS_API_ADDR'))
 app.config["USERSERVICE_URI"] = 'http://{}/create_user'.format(
@@ -48,10 +48,12 @@ app.config["EXTERNAL_ACCOUNTS_URI"] = 'http://{}/external'.format(
 TOKEN_NAME = 'token'
 
 
-# handle requests to the server
 @app.route("/home")
 @app.route("/")
 def home():
+    """
+    Renders homapage. Redirects to /login if token is not valid
+    """
     token = request.cookies.get(TOKEN_NAME)
     if not verify_token(token):
         # user isn't authenticated
@@ -105,6 +107,14 @@ def home():
 
 @app.route('/payment', methods=['POST'])
 def payment():
+    """
+    Submits payment request to ledgerwriter service
+
+    Fails if:
+    - token is not valid
+    - basic validation checks fail
+    - response code from ledgerwriter is not 201
+    """
     token = request.cookies.get(TOKEN_NAME)
     if not verify_token(token):
         # user isn't authenticated
@@ -141,6 +151,14 @@ def payment():
 
 @app.route('/deposit', methods=['POST'])
 def deposit():
+    """
+    Submits deposit request to ledgerwriter service
+
+    Fails if:
+    - token is not valid
+    - basic validation checks fail
+    - response code from ledgerwriter is not 201
+    """
     token = request.cookies.get(TOKEN_NAME)
     if not verify_token(token):
         # user isn't authenticated
@@ -177,6 +195,9 @@ def deposit():
 
 @app.route("/login", methods=['GET'])
 def login_page():
+    """
+    Renders login page. Redirects to /home if user already has a valid token
+    """
     token = request.cookies.get(TOKEN_NAME)
     if verify_token(token):
         # already authenticated
@@ -188,6 +209,11 @@ def login_page():
 
 @app.route('/login', methods=['POST'])
 def login():
+    """
+    Submits login request to userservice and saves resulting token
+
+    Fails if userservice does not accept input username and password
+    """
     username = request.form['username']
     password = request.form['password']
 
@@ -207,6 +233,9 @@ def login():
 
 @app.route("/signup", methods=['GET'])
 def signup_page():
+    """
+    Renders signup page. Redirects to /login if token is not valid
+    """
     token = request.cookies.get(TOKEN_NAME)
     if verify_token(token):
         # already authenticated
@@ -217,6 +246,12 @@ def signup_page():
 
 @app.route("/signup", methods=['POST'])
 def signup():
+    """
+    Submits signup request to userservice
+
+    Fails if userservice does not accept input form data
+    """
+
     # create user
     req = requests.post(url=app.config["USERSERVICE_URI"],
                         data=request.form,
@@ -231,12 +266,19 @@ def signup():
 
 @app.route('/logout', methods=['POST'])
 def logout():
+    """
+    Logs out user by deleting token cookie and redirecting to login page
+    """
+
     resp = make_response(redirect(url_for('login_page')))
     resp.delete_cookie(TOKEN_NAME)
     return resp
 
 
 def verify_token(token):
+    """
+    Validates token using userservice public key
+    """
     if token is None:
         return False
     try:

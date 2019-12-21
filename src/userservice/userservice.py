@@ -161,6 +161,16 @@ def get_user():
 
 @app.route('/login', methods=['GET'])
 def get_token():
+    """Login a user and return a JWT token
+
+    Fails if username doesn't exist or password doesn't match hash
+
+    token expiry time determined by environment variable
+
+    request:
+      - username
+      - password
+    """
     username = bleach.clean(request.args.get('username'))
     password = bleach.clean(request.args.get('password'))
 

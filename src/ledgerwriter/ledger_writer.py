@@ -34,6 +34,15 @@ _balance_service_uri = 'http://{}/get_balance'.format(
 
 @app.route('/new_transaction', methods=['POST'])
 def add_transaction():
+    """
+    Adds a new transaction to the internal ledger
+
+    Fails if:
+    - token is not valid
+    - token does not belong to the sender (unless external deposit)
+    - amount is <= 0
+    - sender doesn't have sufficient balance
+    """
     auth_header = request.headers.get('Authorization')
     if auth_header:
         token = auth_header.split(" ")[-1]
