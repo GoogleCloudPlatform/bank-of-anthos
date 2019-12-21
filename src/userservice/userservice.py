@@ -26,6 +26,12 @@ app = Flask(__name__)
 app.config["MONGO_URI"] = 'mongodb://{}/users'.format(os.environ.get('USER_DB_ADDR'))
 mongo = PyMongo(app)
 
+
+@app.route('/ready', methods=['GET'])
+def readiness():
+    return 'ok', 200
+
+
 @app.route('/create_user', methods=['POST'])
 def create_user():
     """Create a user record.

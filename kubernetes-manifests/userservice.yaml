@@ -52,6 +52,12 @@ spec:
           value: "/root/.ssh/privatekey"
         - name: PUB_KEY_PATH
           value: "/root/.ssh/privatekey"
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
       volumes:
       - name: keys
         secret:
