@@ -16,11 +16,11 @@ import bcrypt
 import bleach
 from flask import Flask, jsonify, request
 from flask_pymongo import PyMongo
-import uuid
 import logging
 import os
 import jwt
 from datetime import datetime, timedelta
+import random
 
 app = Flask(__name__)
 app.config["MONGO_URI"] = 'mongodb://{}/users'.format(os.environ.get('USER_DB_ADDR'))
@@ -176,9 +176,10 @@ def get_token():
 
 def generate_accountid():
     """Generates a globally unique alphanumerical accountid."""
-    accountid = str(uuid.uuid4())
-    while mongo.db.users.find_one({'accountid':accountid}) is not None:
-        accountid = str(uuid.uuid4())
+    accountid = None
+    while (accountid is None or
+           mongo.db.users.find_one({'accountid': accountid}) is not None):
+        accountid = str(random.randint(1e9, (1e10-1)))
     return accountid
 
 
