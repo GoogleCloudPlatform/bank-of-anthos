@@ -26,16 +26,6 @@ import redis
 
 app = Flask(__name__)
 
-ledger_host = os.getenv('LEDGER_ADDR')
-ledger_port = os.getenv("LEDGER_PORT")
-ledger_stream = os.getenv('LEDGER_STREAM')
-
-_local_routing_num = os.getenv('LOCAL_ROUTING_NUM')
-
-history_dict = defaultdict(list)
-
-_bg_thread = None
-
 
 @app.route('/ready', methods=['GET'])
 def readiness():
@@ -60,7 +50,7 @@ def get_balance():
     try:
         payload = jwt.decode(token, key=_public_key, algorithms='RS256')
         account_id = payload['acct']
-        history = history_dict[account_id]
+        history = _history_dict[account_id]
         return jsonify({'history': history}), 200
     except jwt.exceptions.InvalidTokenError as e:
         logging.error(e)
@@ -80,13 +70,13 @@ def _process_transaction(transaction):
                        'amount': amount,
                        'account': receiver_acct,
                        'date': date}
-        history_dict[sender_acct].insert(0, transaction)
+        _history_dict[sender_acct].insert(0, transaction)
     if receiver_route == _local_routing_num:
         transaction = {'type': 'DEBIT',
                        'amount': amount,
                        'account': sender_acct,
                        'date': date}
-        history_dict[receiver_acct].insert(0, transaction)
+        _history_dict[receiver_acct].insert(0, transaction)
 
 
 def _query_transactions(last_transaction_id=b'0-0', block=True):
@@ -97,7 +87,7 @@ def _query_transactions(last_transaction_id=b'0-0', block=True):
         # don't block
         block_time = None
 
-    new_set = _ledger.xread({ledger_stream: last_transaction_id},
+    new_set = _ledger.xread({_ledger_stream: last_transaction_id},
                             block=block_time)
     if len(new_set) > 0:
         for entry in new_set[0][1]:
@@ -122,17 +112,26 @@ if __name__ == '__main__':
         if os.environ.get(v) is None:
             print("error: {} environment variable not set".format(v))
             exit(1)
-    _public_key = open(os.environ.get('PUB_KEY_PATH'), 'r').read()
-    _ledger = redis.Redis(host=ledger_host, port=ledger_port, db=0)
 
+    # setup global variables
+    _history_dict = defaultdict(list)
+    _public_key = open(os.environ.get('PUB_KEY_PATH'), 'r').read()
+    _ledger_stream = os.getenv('LEDGER_STREAM')
+    _ledger = redis.Redis(host=os.getenv("LEDGER_ADDR"),
+                          port=os.getenv("LEDGER_PORT"), db=0)
+    _local_routing_num = os.getenv('LOCAL_ROUTING_NUM')
+
+    # build history cache
     logging.info('restoring cache...')
     last_transaction_id = _query_transactions(block=False)
 
+    # start background transaction listener thread
     logging.info('starting transaction listener thread...')
     _bg_thread = threading.Thread(target=transaction_listener,
                                   args=[last_transaction_id])
     _bg_thread.daemon = True
     _bg_thread.start()
 
+    # start serving requests
     logging.info("starting flask...")
     app.run(debug=False, port=os.environ.get('PORT'), host='0.0.0.0')

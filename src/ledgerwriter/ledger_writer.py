@@ -27,11 +27,7 @@ import requests
 
 app = Flask(__name__)
 
-ledger_host = os.getenv('LEDGER_ADDR')
-ledger_port = os.getenv("LEDGER_PORT")
-ledger_stream = os.getenv('LEDGER_STREAM')
 
-_local_routing = os.getenv('LOCAL_ROUTING_NUM')
 _balance_service_uri = 'http://{}/get_balance'.format(
     os.environ.get('BALANCES_API_ADDR'))
 
@@ -71,7 +67,7 @@ def add_transaction():
         # transaction looks valid
         transaction['date'] = time.time()
         logging.info('adding transaction: %s' % str(transaction))
-        _ledger.xadd(ledger_stream, transaction)
+        _ledger.xadd(_ledger_stream, transaction)
         return jsonify({}), 201
     except jwt.exceptions.InvalidTokenError as e:
         logging.error(e)
@@ -85,7 +81,10 @@ if __name__ == '__main__':
             print("error: {} environment variable not set".format(v))
             exit(1)
     _public_key = open(os.environ.get('PUB_KEY_PATH'), 'r').read()
-    _ledger = redis.Redis(host=ledger_host, port=ledger_port, db=0)
+    _ledger_stream = os.getenv('LEDGER_STREAM')
+    _ledger = redis.Redis(host=os.getenv("LEDGER_ADDR"),
+                          port=os.getenv("LEDGER_PORT"), db=0)
+    _local_routing = os.getenv('LOCAL_ROUTING_NUM')
 
     logging.info("Starting flask.")
     app.run(debug=False, port=os.environ.get('PORT'), host='0.0.0.0')

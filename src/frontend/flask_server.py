@@ -47,8 +47,6 @@ app.config["EXTERNAL_ACCOUNTS_URI"] = 'http://{}/external'.format(
 
 TOKEN_NAME = 'token'
 
-local_routing_num = os.getenv('LOCAL_ROUTING_NUM')
-
 
 # handle requests to the server
 @app.route("/home")
@@ -81,14 +79,16 @@ def home():
     # get contacts
     internal_list = []
     try:
-        req = requests.get(url=app.config["INTERNAL_CONTACTS_URI"], headers=hed)
+        req = requests.get(url=app.config["INTERNAL_CONTACTS_URI"],
+                           headers=hed)
         internal_list = req.json()['account_list']
     except requests.exceptions.RequestException as e:
         logging.error(str(e))
     # get external accounts
     external_list = []
     try:
-        req = requests.get(url=app.config["EXTERNAL_ACCOUNTS_URI"], headers=hed)
+        req = requests.get(url=app.config["EXTERNAL_ACCOUNTS_URI"],
+                           headers=hed)
         external_list = req.json()['account_list']
     except requests.exceptions.RequestException as e:
         logging.error(str(e))
@@ -121,17 +121,17 @@ def payment():
         req = requests.get(url=app.config["BALANCES_URI"], headers=hed)
         balance = req.json()['balance']
         if balance > amount:
-            transaction_obj = {'from_routing_num':  local_routing_num,
+            transaction_obj = {'from_routing_num':  _local_routing_num,
                                'from_account_num': account_id,
-                               'to_routing_num': local_routing_num,
+                               'to_routing_num': _local_routing_num,
                                'to_account_num': recipient,
                                'amount': amount}
             hed = {'Authorization': 'Bearer ' + token,
                    'content-type': 'application/json'}
             req = requests.post(url=app.config["TRANSACTIONS_URI"],
-                          data=jsonify(transaction_obj).data,
-                          headers=hed,
-                          timeout=3)
+                                data=jsonify(transaction_obj).data,
+                                headers=hed,
+                                timeout=3)
             if req.status_code == 201:
                 return redirect(url_for('home', msg='Transaction initiated'))
     except requests.exceptions.RequestException as e:
@@ -159,7 +159,7 @@ def deposit():
         # simulate transaction from external bank into user's account
         transaction_obj = {'from_routing_num':  external_routing_num,
                            'from_account_num': external_account_num,
-                           'to_routing_num': local_routing_num,
+                           'to_routing_num': _local_routing_num,
                            'to_account_num': account_id,
                            'amount': amount}
         hed = {'Authorization': 'Bearer ' + token,
@@ -271,8 +271,12 @@ if __name__ == '__main__':
         if os.environ.get(v) is None:
             print("error: {} environment variable not set".format(v))
             exit(1)
-    _public_key = open(os.environ.get('PUB_KEY_PATH'), 'r').read()
 
+    # setup global variables
+    _public_key = open(os.environ.get('PUB_KEY_PATH'), 'r').read()
+    _local_routing_num = os.getenv('LOCAL_ROUTING_NUM')
+
+    # setup logger
     logging.basicConfig(level=logging.INFO,
                         format=('%(levelname)s|%(asctime)s'
                                 '|%(pathname)s|%(lineno)d| %(message)s'),
@@ -280,9 +284,10 @@ if __name__ == '__main__':
                         )
     logging.getLogger().setLevel(logging.INFO)
 
-    # register format_duration for use in html template
+    # register html template formatters
     app.jinja_env.globals.update(format_timestamp=format_timestamp)
     app.jinja_env.globals.update(format_currency=format_currency)
 
+    # start serving requests
     logging.info("Starting flask.")
     app.run(debug=False, port=os.environ.get('PORT'), host='0.0.0.0')
