@@ -36,6 +36,9 @@ mongo = PyMongo(app)
 
 @app.route('/ready', methods=['GET'])
 def readiness():
+    """
+    Readiness probe
+    """
     return 'ok', 200
 
 

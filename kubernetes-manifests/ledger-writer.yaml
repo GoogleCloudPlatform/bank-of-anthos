@@ -61,6 +61,12 @@ spec:
           limits:
             cpu: 300m
             memory: 128Mi
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
       volumes:
       - name: publickey
         secret:

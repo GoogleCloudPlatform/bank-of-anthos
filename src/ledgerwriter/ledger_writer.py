@@ -32,6 +32,14 @@ _balance_service_uri = 'http://{}/get_balance'.format(
     os.environ.get('BALANCES_API_ADDR'))
 
 
+@app.route('/ready', methods=['GET'])
+def readiness():
+    """
+    Readiness probe
+    """
+    return 'ok', 200
+
+
 @app.route('/new_transaction', methods=['POST'])
 def add_transaction():
     """
