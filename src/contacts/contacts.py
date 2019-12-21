@@ -43,10 +43,10 @@ def get_contact():
         # TODO: implement database. Hardcode for now
         acct_list = [{'label': 'External Checking',
                       'account_number': '0123456789',
-                      'routing_number': '012345'},
+                      'routing_number': '111111111'},
                      {'label': 'External Savings',
                       'account_number': '9876543210',
-                      'routing_number': '98765'}]
+                      'routing_number': '222222222'}]
         return jsonify({'account_list':acct_list}), 200
     except jwt.exceptions.InvalidTokenError as e:
         logging.error(e)

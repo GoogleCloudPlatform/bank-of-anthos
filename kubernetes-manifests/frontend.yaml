@@ -49,7 +49,7 @@ spec:
         - name: USERSERVICE_API_ADDR
           value: "userservice:8080"
         - name: LOCAL_ROUTING_NUM
-          value: "1234"
+          value: "123456789"
         - name: PUB_KEY_PATH
           value: "/root/.ssh/publickey"
       volumes:
