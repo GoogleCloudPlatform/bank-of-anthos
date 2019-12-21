@@ -14,13 +14,13 @@
 
 import logging
 import os
-from datetime import datetime, timedelta
 
 from flask import Flask, jsonify, request
 
 import jwt
 
 app = Flask(__name__)
+
 
 @app.route('/ready', methods=['GET'])
 def add_contact():
@@ -47,10 +47,11 @@ def get_contact():
                      {'label': 'External Savings',
                       'account_number': '9876543210',
                       'routing_number': '222222222'}]
-        return jsonify({'account_list':acct_list}), 200
+        return jsonify({'account_list': acct_list}), 200
     except jwt.exceptions.InvalidTokenError as e:
         logging.error(e)
         return jsonify({'error': str(e)}), 401
+
 
 @app.route('/contacts', methods=['GET', 'POST'])
 def get_external():
@@ -72,7 +73,7 @@ def get_external():
                      {'label': 'Mom',
                       'account_number': '6677889900',
                       'routing_number': _local_routing}]
-        return jsonify({'account_list':acct_list}), 200
+        return jsonify({'account_list': acct_list}), 200
     except jwt.exceptions.InvalidTokenError as e:
         logging.error(e)
         return jsonify({'error': str(e)}), 401

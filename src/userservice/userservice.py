@@ -12,18 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import bcrypt
-import bleach
-from flask import Flask, jsonify, request
-from flask_pymongo import PyMongo
 import logging
 import os
-import jwt
-from datetime import datetime, timedelta
 import random
+from datetime import datetime, timedelta
+
+import bcrypt
+
+import bleach
+
+from flask import Flask, jsonify, request
+
+from flask_pymongo import PyMongo
+
+import jwt
+
 
 app = Flask(__name__)
-app.config["MONGO_URI"] = 'mongodb://{}/users'.format(os.environ.get('USER_DB_ADDR'))
+app.config["MONGO_URI"] = 'mongodb://{}/users'.format(
+        os.environ.get('USER_DB_ADDR'))
 mongo = PyMongo(app)
 
 
@@ -37,9 +44,9 @@ def create_user():
     """Create a user record.
 
     Fails if that username already exists.
-    
+
     Generates a unique accountid.
-    
+
     request:
       - username
       - password
@@ -69,18 +76,18 @@ def create_user():
               'zip',
               'ssn')
     if any(field not in req for field in fields):
-        return jsonify({'msg':'missing required field(s)'}), 400
+        return jsonify({'msg': 'missing required field(s)'}), 400
     if any(not bool(req[field] or req[field].strip()) for field in fields):
-        return jsonify({'msg':'missing value for input field(s)'}), 400
+        return jsonify({'msg': 'missing value for input field(s)'}), 400
 
     # check if user exists
-    query = {'username':req['username']}
+    query = {'username': req['username']}
     if mongo.db.users.find_one(query) is not None:
-        return jsonify({'msg':'user already exists'}), 400
+        return jsonify({'msg': 'user already exists'}), 400
 
     # check if passwords match
     if not req['password'] == req['password-repeat']:
-        return jsonify({'msg':'passwords don\'t match'}), 400
+        return jsonify({'msg': 'passwords don\'t match'}), 400
 
     logging.info('creating user: %s' % str(req))
     # create password hash with salt
@@ -90,21 +97,21 @@ def create_user():
 
     # insert user in MongoDB
     accountid = generate_accountid()
-    data = {'username':req['username'],
-            'accountid':accountid,
-            'passhash':passhash,
-            'firstname':req['firstname'],
-            'lastname':req['lastname'],
-            'birthday':req['birthday'],
-            'timezone':req['timezone'],
-            'address':req['address'],
-            'state':req['state'],
-            'zip':req['zip'],
-            'ssn':req['ssn']}
+    data = {'username': req['username'],
+            'accountid': accountid,
+            'passhash': passhash,
+            'firstname': req['firstname'],
+            'lastname': req['lastname'],
+            'birthday': req['birthday'],
+            'timezone': req['timezone'],
+            'address': req['address'],
+            'state': req['state'],
+            'zip': req['zip'],
+            'ssn': req['ssn']}
     result = mongo.db.users.insert_one(data)
 
     if not result.acknowledged:
-        return jsonify({'msg':'create user failed'}), 500
+        return jsonify({'msg': 'create user failed'}), 500
     return jsonify({}), 201
 
 
@@ -113,7 +120,7 @@ def get_user():
     """Get a user record.
 
     Fails if there is no such user.
-    
+
     request:
       - username
 
@@ -163,15 +170,17 @@ def get_token():
 
     if result is not None:
         if bcrypt.checkpw(password.encode('utf-8'), result['passhash']):
+            full_name = '{} {}'.format(result['firstname'], result['lastname'])
+            exp_time = datetime.utcnow() + timedelta(seconds=_expiry_seconds)
             payload = {'user': username,
                        'acct': result['accountid'],
-                       'name': '{} {}'.format(result['firstname'], result['lastname']),
+                       'name': full_name,
                        'iat': datetime.utcnow(),
-                       'exp': datetime.utcnow() + timedelta(seconds=_expiry_seconds)
+                       'exp': exp_time
                        }
             token = jwt.encode(payload, _private_key, algorithm='RS256')
             return jsonify({'token': token.decode("utf-8")}), 200
-    return jsonify({'msg':'invalid login'}), 400
+    return jsonify({'msg': 'invalid login'}), 400
 
 
 def generate_accountid():
@@ -185,7 +194,7 @@ def generate_accountid():
 
 if __name__ == '__main__':
     for v in ['PORT', 'USER_DB_ADDR', 'TOKEN_EXPIRY_SECONDS', 'PRIV_KEY_PATH',
-            'PUB_KEY_PATH']:
+              'PUB_KEY_PATH']:
         if os.environ.get(v) is None:
             print("error: {} environment variable not set".format(v))
             exit(1)
