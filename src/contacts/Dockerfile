@@ -12,17 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM python:2.7-slim
-RUN apt-get update -qqy && \
-	apt-get -qqy install wget g++ && \
-	rm -rf /var/lib/apt/lists/*
+FROM python:3.8
+ 
 # show python logs as they occur
 ENV PYTHONUNBUFFERED=0
 
 # get packages
 WORKDIR /contacts
-COPY requirements.txt requirements.txt
-RUN pip install -r requirements.txt
+COPY requirements.txt .
+RUN pip install --trusted-host pypi.python.org -r requirements.txt
 
 # add files into working directory
 COPY *.py .
