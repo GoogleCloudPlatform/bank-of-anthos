@@ -26,6 +26,11 @@ spec:
         app: contacts
     spec:
       terminationGracePeriodSeconds: 5
+      initContainers:
+      - name: init-db-ready
+        image: mongo:4
+        command: ['/bin/sh', '-c']
+        args: ["until (mongo --host accounts-db:27017 >/dev/null) do echo 'Waiting for connection for 2 sec.'; sleep 2; done"]
       containers:
       - name: contacts
         image: contacts
@@ -36,6 +41,8 @@ spec:
         env:
         - name: PORT
           value: "8080"
+        - name: ACCOUNTS_DB_ADDR
+          value: "accounts-db:27017"
         - name: LOCAL_ROUTING_NUM
           value: "123456789"
         - name: PUB_KEY_PATH
