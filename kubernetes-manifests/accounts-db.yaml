@@ -15,20 +15,20 @@
 kind: Deployment
 apiVersion: apps/v1
 metadata:
-  name: mongodb-users
+  name: accounts-db
   labels:
-    app: mongodb-users
+    app: accounts-db
     tier: db
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: mongodb-users
+      app: accounts-db
       tier: db
   template:
     metadata:
       labels:
-        app: mongodb-users
+        app: accounts-db
         tier: db
     spec:
       containers:
@@ -40,14 +40,14 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: mongodb-users
+  name: accounts-db
   labels:
-    app: mongodb-users
+    app: accounts-db
     tier: db
 spec:
   ports:
     - port: 27017
       targetPort: 27017
   selector:
-    app: mongodb-users
+    app: accounts-db
     tier: db

@@ -30,7 +30,7 @@ spec:
       - name: init-db-ready
         image: mongo:4
         command: ['/bin/sh', '-c']
-        args: ["until (mongo --host mongodb-users:27017 >/dev/null) do echo 'Waiting for connection for 2 sec.'; sleep 2; done"]
+        args: ["until (mongo --host accounts-db:27017 >/dev/null) do echo 'Waiting for connection for 2 sec.'; sleep 2; done"]
       containers:
       - name: userservice
         image: userservice
@@ -44,8 +44,8 @@ spec:
         env:
         - name: PORT
           value: "8080"
-        - name: USER_DB_ADDR
-          value: "mongodb-users:27017"
+        - name: ACCOUNTS_DB_ADDR
+          value: "accounts-db:27017"
         - name: TOKEN_EXPIRY_SECONDS
           value: "3600"
         - name: PRIV_KEY_PATH

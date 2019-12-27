@@ -29,7 +29,7 @@ import jwt
 
 app = Flask(__name__)
 app.config["MONGO_URI"] = 'mongodb://{}/users'.format(
-        os.environ.get('USER_DB_ADDR'))
+        os.environ.get('ACCOUNTS_DB_ADDR'))
 mongo = PyMongo(app)
 
 
@@ -253,7 +253,7 @@ def _add_contact(accountid, contact):
 
 
 if __name__ == '__main__':
-    for v in ['PORT', 'USER_DB_ADDR', 'PUB_KEY_PATH', 'LOCAL_ROUTING_NUM']:
+    for v in ['PORT', 'ACCOUNTS_DB_ADDR', 'PUB_KEY_PATH', 'LOCAL_ROUTING_NUM']:
         if os.environ.get(v) is None:
             print("error: {} environment variable not set".format(v))
             sys.exit(1)
