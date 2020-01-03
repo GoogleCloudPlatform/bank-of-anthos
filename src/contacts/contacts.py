@@ -32,6 +32,17 @@ app.config["MONGO_URI"] = 'mongodb://{}/users'.format(
         os.environ.get('ACCOUNTS_DB_ADDR'))
 mongo = PyMongo(app)
 
+DEFAULT_EXT_ACCTS = [{'label': 'External Checking',
+                      'account_number': '0123456789',
+                      'routing_number': '111111111'},
+                     {'label': 'External Savings',
+                      'account_number': '9876543210',
+                      'routing_number': '222222222'}]
+
+DEFAULT_CONTACTS = [{'label': 'Friend',
+                     'account_number': '1122334455'},
+                    {'label': 'Mom',
+                     'account_number': '6677889900'}]
 
 @app.route('/ready', methods=['GET'])
 def ready():
@@ -69,15 +80,7 @@ def external():
         accountid = payload['acct']
 
         if request.method == 'GET':
-            # (fixme): implement frontend to add accounts. Hardcode existing accounts for now
-            # return _get_ext_accounts(accountid)
-            acct_list = [{'label': 'External Checking',
-                          'account_number': '0123456789',
-                          'routing_number': '111111111'},
-                         {'label': 'External Savings',
-                          'account_number': '9876543210',
-                          'routing_number': '222222222'}]
-            return jsonify({'account_list': acct_list}), 200
+            return _get_ext_accts(accountid)
 
         if request.method == 'POST':
             req = {k: bleach.clean(v) for k, v in request.form.items()}
@@ -122,6 +125,10 @@ def _get_ext_accts(accountid):
     acct_list = []
     if result is not None:
         acct_list = result['ext_accounts']
+
+    # (fixme): Remove DEFAULT_EXT_ACCTS when frontend implemented to add external accounts.
+    acct_list = acct_list + DEFAULT_EXT_ACCTS
+
     return jsonify({'account_list': acct_list}), 200
 
 
@@ -172,15 +179,7 @@ def get_contacts():
         accountid = payload['acct']
 
         if request.method == 'GET':
-            # (fixme): implement frontend to add contacts. Hardcode existing contacts for now
-            # return _get_contacts(accountid)
-            acct_list = [{'label': 'Friend',
-                          'account_number': '1122334455',
-                          'routing_number': _local_routing},
-                         {'label': 'Mom',
-                          'account_number': '6677889900',
-                          'routing_number': _local_routing}]
-            return jsonify({'account_list': acct_list}), 200
+            return _get_contacts(accountid)
 
         if request.method == 'POST':
             req = {k: bleach.clean(v) for k, v in request.form.items()}
@@ -191,8 +190,7 @@ def get_contacts():
                 return jsonify({'error': 'missing required field(s)'}), 400
 
             contact = {'label': req['label'],
-                       'account_number': req['account_number'],
-                       'routing_number': _local_routing}
+                       'account_number': req['account_number']}
 
             return _add_contact(accountid, contact)
 
@@ -225,6 +223,13 @@ def _get_contacts(accountid):
     acct_list = []
     if result is not None:
         acct_list = result['contact_accts']
+
+    # (fixme): Remove DEFAULT_CONTACTS when frontend implemented to add contacts.
+    acct_list = acct_list + DEFAULT_CONTACTS
+
+    # Add the banking routing number for this banking application
+    for contact in acct_list:
+        contact['routing_number'] = _local_routing
     return jsonify({'account_list': acct_list}), 200
 
 
