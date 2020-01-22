@@ -26,7 +26,7 @@ public class Transaction {
     }
 
     public final int getAmount() {
-        return this.date;
+        return this.amount;
     }
 
     public final long getDate() {
