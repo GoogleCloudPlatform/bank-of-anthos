@@ -12,20 +12,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM python:2.7-slim
-RUN apt-get update -qqy && \
-	apt-get -qqy install wget g++ && \
-	rm -rf /var/lib/apt/lists/*
-# show python logs as they occur
-ENV PYTHONUNBUFFERED=0
+# Use maven to compile the java application.
+FROM docker.io/maven AS build-env
 
-# get packages
-WORKDIR /ledgerwriter
-COPY requirements.txt requirements.txt
-RUN pip install -r requirements.txt
+WORKDIR /app
 
-# add files into working directory
-COPY *.py .
+# copy the pom.xml file to download dependencies
+COPY pom.xml ./
 
+# download dependencies as specified in pom.xml
+RUN mvn verify --fail-never
 
-ENTRYPOINT ["python", "/ledgerwriter/ledger_writer.py"]
+# Copy the rest of the working directory contents into the container.
+COPY . ./
+
+# Compile the application.
+RUN mvn -Dmaven.test.skip=true package
+
+# Build runtime image.
+FROM docker.io/openjdk:8-jdk-alpine
+
+# Copy the compiled files over.
+COPY --from=build-env /app/target /app/
+
+# Starts java app with debugging server at port 5005.
+ENTRYPOINT ["java", "-jar", "/app/ledgerwriter-1.0.jar"]
