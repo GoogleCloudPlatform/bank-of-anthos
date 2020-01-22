@@ -10,12 +10,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>ledgerwriter</module>
-        <module>userservice</module>
-        <module>balancereader</module>
-        <module>contacts</module>
-        <module>frontend</module>
-        <module>transactionhistory</module>
+        <module>src/ledgerwriter</module>
     </modules>
 
     <build>
