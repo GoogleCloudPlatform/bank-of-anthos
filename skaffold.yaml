@@ -12,14 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-apiVersion: skaffold/v1beta2
+apiVersion: skaffold/v1beta15
 kind: Config
 build:
   artifacts:
   - image: frontend
     context: src/frontend
   - image: ledgerwriter
-    context: src/ledgerwriter
+    jib:
+      project: src/ledgerwriter
   - image: balancereader
     context: src/balancereader
   - image: transactionhistory
