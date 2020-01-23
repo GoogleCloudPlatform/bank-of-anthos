@@ -1,35 +1,39 @@
 package anthos.samples.financedemo.ledgerwriter;
 
+import java.io.Serializable;
+
 /**
  * Defines a banking transaction.
  */
-public class Transaction {
+public class Transaction implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private final String fromAccountNum;
     private final String fromRoutingNum;
     private final int amount;
-    private final long date;
+    private final long timestamp;
 
-    public Transaction(String fromAccountNum, String fromRoutingNum, int amount, long date) {
+    public Transaction(String fromAccountNum, String fromRoutingNum, int amount) {
         this.fromAccountNum = fromAccountNum;
         this.fromRoutingNum = fromRoutingNum;
         this.amount = amount;
-        this.date = date;
+        this.timestamp = System.currentTimeMillis();
     }
 
-    public final String getFromAccountNum () {
+    public String getFromAccountNum () {
         return this.fromAccountNum;
     }
 
-    public final String getFromRountingNum () {
+    public String getFromRountingNum () {
         return this.fromRoutingNum;
     }
 
-    public final int getAmount() {
+    public int getAmount() {
         return this.amount;
     }
 
-    public final long getDate() {
-        return this.date;
+    public long getTimestamp() {
+        return this.timestamp;
     }
 }
