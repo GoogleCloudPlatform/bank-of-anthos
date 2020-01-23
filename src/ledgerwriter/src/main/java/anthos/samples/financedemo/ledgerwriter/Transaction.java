@@ -1,4 +1,4 @@
-package anthosfinancedemo.ledgerwriter;
+package anthos.samples.financedemo.ledgerwriter;
 
 /**
  * Defines a banking transaction.
