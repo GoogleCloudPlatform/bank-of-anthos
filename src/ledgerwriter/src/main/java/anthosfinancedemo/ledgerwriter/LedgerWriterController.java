@@ -10,6 +10,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @RestController
 public class LedgerWriterController {
 
+  /**
+   * returns 200 when service is alive
+   * used for readiness probe.
+   */
   @GetMapping("/ready")
   @ResponseStatus(HttpStatus.OK)
   public final String readiness() {
