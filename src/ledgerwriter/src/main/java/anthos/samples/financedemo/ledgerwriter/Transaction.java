@@ -4,6 +4,8 @@ import java.io.Serializable;
 
 /**
  * Defines a banking transaction.
+ *
+ * Timestamped at object creation time.
  */
 public class Transaction implements Serializable {
 
@@ -12,13 +14,13 @@ public class Transaction implements Serializable {
     private final String fromAccountNum;
     private final String fromRoutingNum;
     private final int amount;
-    private final long timestamp;
+    private final long timestampMillis;
 
     public Transaction(String fromAccountNum, String fromRoutingNum, int amount) {
         this.fromAccountNum = fromAccountNum;
         this.fromRoutingNum = fromRoutingNum;
         this.amount = amount;
-        this.timestamp = System.currentTimeMillis();
+        this.timestampMillis = System.currentTimeMillis();
     }
 
     public String getFromAccountNum () {
@@ -33,7 +35,7 @@ public class Transaction implements Serializable {
         return this.amount;
     }
 
-    public long getTimestamp() {
-        return this.timestamp;
+    public long getTimestampMillis() {
+        return this.timestampMillis;
     }
 }
