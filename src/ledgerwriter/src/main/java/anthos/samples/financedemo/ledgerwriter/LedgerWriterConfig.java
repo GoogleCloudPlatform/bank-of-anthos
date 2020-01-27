@@ -1,45 +1,45 @@
 package anthos.samples.financedemo.ledgerwriter;
 
+import io.lettuce.core.RedisClient;
+import io.lettuce.core.RedisURI;
+import io.lettuce.core.resource.ClientResources;
+import io.lettuce.core.resource.DefaultClientResources;
+import io.lettuce.core.api.StatefulRedisConnection;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
-
-import javax.annotation.PostConstruct;
 
 @Configuration
 public class LedgerWriterConfig {
 
-    private String redisHostName;
-    private String redisPort;
+    private final String redisHostName;
+    private final int redisPort;
 
-    @PostConstruct
-    private void loadEnvironmentVariables() {
-        redisHostName = System.getenv("LEDGER_ADDR");
-        if (redisHostName == null || redisHostName.isEmpty()) {
+    public LedgerWriterConfig() {
+        String ledgerAddr = System.getenv("LEDGER_ADDR");
+        if (ledgerAddr == null || ledgerAddr.isEmpty()) {
             throw new RuntimeException("No address provided for Redis backend");
         }
+        this.redisHostName = ledgerAddr;
 
-        redisPort = System.getenv("LEDGER_PORT");
-        if (redisPort == null || redisPort.isEmpty()) {
+        String ledgerPort = System.getenv("LEDGER_PORT");
+        if (ledgerPort == null || ledgerPort.isEmpty()) {
             throw new RuntimeException("No port provided for Redis backend");
         }
+        this.redisPort = Integer.valueOf(ledgerPort);
     }
 
-    @Bean
-    public JedisConnectionFactory connectionFactory() {
-        JedisConnectionFactory connectionFactory = new JedisConnectionFactory();
-        connectionFactory.setHostName(redisHostName);
-        connectionFactory.setPort(Integer.parseInt(redisPort));
-        return connectionFactory;
+    @Bean(destroyMethod = "shutdown")
+    ClientResources clientResources() {
+        return DefaultClientResources.create();
     }
 
-    @Bean
-    public RedisTemplate<String, Object> redisTemplate() {
-        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<String, Object>();
-        redisTemplate.setConnectionFactory(connectionFactory());
-                redisTemplate.setKeySerializer(new StringRedisSerializer());
-        return redisTemplate;
+    @Bean(destroyMethod = "shutdown")
+    RedisClient redisClient(ClientResources clientResources) {
+        return RedisClient.create(clientResources, RedisURI.create(redisHostName, redisPort));
+    }
+
+    @Bean(destroyMethod = "close")
+    StatefulRedisConnection<String, String> connection(RedisClient redisClient) {
+        return redisClient.connect();
     }
 }

@@ -1,35 +1,35 @@
 package anthos.samples.financedemo.ledgerwriter;
 
+import io.lettuce.core.api.StatefulRedisConnection;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.data.redis.connection.stream.Record;
-import org.springframework.data.redis.connection.stream.RecordId;
-import org.springframework.data.redis.connection.stream.StreamRecords;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StreamOperations;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestBody;
-
-import javax.annotation.PostConstruct;
 
 @RestController
 public class LedgerWriterController {
 
     ApplicationContext ctx = new AnnotationConfigApplicationContext(LedgerWriterConfig.class);
 
-    private String ledgerStreamKey;
+    private final String ledgerStreamKey;
 
-    @PostConstruct
-    private void loadEnvironmentVariables() {
+    public LedgerWriterController() {
         ledgerStreamKey = System.getenv("LEDGER_STREAM");
         if (ledgerStreamKey == null || ledgerStreamKey.isEmpty()) {
             throw new RuntimeException("No stream key provided for Redis backend");
         }
     }
 
+    @GetMapping("/ready")
+    public ResponseEntity<String> readiness() {
+        return ResponseEntity.ok("Server ready");
+    }
+
     @PostMapping("/new_transaction")
-    public final void addTransaction(@RequestBody Transaction transaction) {
+    public ResponseEntity<String> addTransaction(@RequestBody Transaction transaction) {
         // TODO: Authenticate the jwt.
         
         // TODO: Extract the account id from the jwt.
@@ -39,15 +39,13 @@ public class LedgerWriterController {
         // TODO: Get current balance, check against request
 
         // Submit Transaction to repository
-        RedisTemplate redisTemplate = ctx.getBean(RedisTemplate.class);
-        StreamOperations redisStream = redisTemplate.opsForStream();
-        redisStream.add(createTransactionRecord(transaction));
+        submitTransaction(transaction);
+
+        return ResponseEntity.accepted().body("Transaction submitted");
     }
 
-    private Record createTransactionRecord(Transaction transaction) {
-        return StreamRecords.newRecord()
-                .in(ledgerStreamKey)
-                .withId(RecordId.autoGenerate())
-                .ofObject(transaction);
+    private void submitTransaction(Transaction transaction) {
+        StatefulRedisConnection redisConnection = ctx.getBean(StatefulRedisConnection.class);
+        redisConnection.async().xadd(ledgerStreamKey, transaction);
     }
 }
