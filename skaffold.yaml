@@ -19,7 +19,8 @@ build:
   - image: frontend
     context: src/frontend
   - image: ledgerwriter
-    context: src/ledgerwriter
+    jib:
+      project: src/ledgerwriter
   - image: balancereader
     context: src/balancereader
   - image: transactionhistory
