@@ -15,17 +15,8 @@ public class LedgerWriterConfig {
     private final int redisPort;
 
     public LedgerWriterConfig() {
-        String ledgerAddr = System.getenv("LEDGER_ADDR");
-        if (ledgerAddr == null || ledgerAddr.isEmpty()) {
-            throw new RuntimeException("No address provided for Redis backend");
-        }
-        this.redisHostName = ledgerAddr;
-
-        String ledgerPort = System.getenv("LEDGER_PORT");
-        if (ledgerPort == null || ledgerPort.isEmpty()) {
-            throw new RuntimeException("No port provided for Redis backend");
-        }
-        this.redisPort = Integer.valueOf(ledgerPort);
+        this.redisHostName = System.getenv("LEDGER_ADDR");
+        this.redisPort = Integer.valueOf(System.getenv("LEDGER_PORT"));
     }
 
     @Bean(destroyMethod = "shutdown")

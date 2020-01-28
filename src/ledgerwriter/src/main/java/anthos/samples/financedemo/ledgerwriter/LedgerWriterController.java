@@ -3,11 +3,13 @@ package anthos.samples.financedemo.ledgerwriter;
 import io.lettuce.core.api.StatefulRedisConnection;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 @RestController
 public class LedgerWriterController {
@@ -18,14 +20,12 @@ public class LedgerWriterController {
 
     public LedgerWriterController() {
         ledgerStreamKey = System.getenv("LEDGER_STREAM");
-        if (ledgerStreamKey == null || ledgerStreamKey.isEmpty()) {
-            throw new RuntimeException("No stream key provided for Redis backend");
-        }
     }
 
     @GetMapping("/ready")
-    public ResponseEntity<String> readiness() {
-        return ResponseEntity.ok("Server ready");
+    @ResponseStatus(HttpStatus.OK)
+    public final String readiness() {
+        return "ok";
     }
 
     @PostMapping(value = "/new_transaction", consumes = "application/json")

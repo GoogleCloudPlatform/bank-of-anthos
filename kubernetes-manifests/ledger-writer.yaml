@@ -46,6 +46,8 @@ spec:
           value: "6379"
         - name: LEDGER_STREAM
           value: "ledger"
+        - name: PORT
+          value: "8080"
         - name: LOCAL_ROUTING_NUM
           value: "123456789"
         - name: BALANCES_API_ADDR
