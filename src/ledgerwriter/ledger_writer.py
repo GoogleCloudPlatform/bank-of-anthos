@@ -59,8 +59,8 @@ def add_transaction():
     try:
         payload = jwt.decode(token, key=_public_key, algorithms='RS256')
         transaction = request.get_json()
-        send_acct = transaction['from_account_num']
-        send_route = transaction['from_routing_num']
+        send_acct = transaction['fromAccountNum']
+        send_route = transaction['fromRoutingNum']
         amount = int(transaction['amount'])
 
         initiator_acct = payload['acct']

@@ -11,28 +11,41 @@ public class Transaction implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private final String fromAccountNum;
-    private final String fromRoutingNum;
-    private final int amount;
     private final long timestampMillis;
 
-    public Transaction(String fromAccountNum, String fromRoutingNum, int amount) {
+    private int fromAccountNum;
+    private int fromRoutingNum;
+    private int amount;
+
+    public Transaction(int fromAccountNum, int fromRoutingNum, int amount) {
         this.fromAccountNum = fromAccountNum;
         this.fromRoutingNum = fromRoutingNum;
         this.amount = amount;
         this.timestampMillis = System.currentTimeMillis();
     }
 
-    public String getFromAccountNum () {
+    public int getFromAccountNum () {
         return this.fromAccountNum;
     }
 
-    public String getFromRountingNum () {
+    public void setFromAccountNum (Integer fromAccountNum) {
+        this.fromAccountNum = fromAccountNum;
+    }
+
+    public int getFromRountingNum () {
         return this.fromRoutingNum;
+    }
+
+    public void setFromRoutingNum (Integer fromRoutingNum) {
+        this.fromRoutingNum = fromRoutingNum;
     }
 
     public int getAmount() {
         return this.amount;
+    }
+
+    public void setAmount(Integer amount) {
+        this.amount = amount;
     }
 
     public long getTimestampMillis() {

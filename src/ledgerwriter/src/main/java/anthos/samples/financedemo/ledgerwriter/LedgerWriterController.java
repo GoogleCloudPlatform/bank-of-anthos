@@ -28,7 +28,7 @@ public class LedgerWriterController {
         return ResponseEntity.ok("Server ready");
     }
 
-    @PostMapping("/new_transaction")
+    @PostMapping(value = "/new_transaction", consumes = "application/json")
     public ResponseEntity<String> addTransaction(@RequestBody Transaction transaction) {
         // TODO: Authenticate the jwt.
         

@@ -72,10 +72,10 @@ def _process_transaction(transaction):
     """
     Process a new incoming transaction. Update cached account transaction lists
     """
-    sender_acct = transaction['from_account_num']
-    sender_route = transaction['from_routing_num']
-    receiver_acct = transaction['to_account_num']
-    receiver_route = transaction['to_routing_num']
+    sender_acct = transaction['fromAccountNum']
+    sender_route = transaction['fromRoutingNum']
+    receiver_acct = transaction['toAccountNum']
+    receiver_route = transaction['toRoutingNum']
     amount = transaction['amount']
     date = transaction['date']
 
