@@ -52,7 +52,7 @@ public class LedgerWriterController {
     DecodedJWT jwt = verifyToken(bearerToken);
     String initiatorAcct = jwt.getClaim("acct").asString();
     System.out.println("transaction: " + transaction);
-    return new ResponseEntity<>("ok", HttpStatus.OK);
+    return new ResponseEntity<String>("ok", HttpStatus.CREATED);
   }
 
   private final DecodedJWT verifyToken(String token)  throws IOException, NoSuchAlgorithmException,
