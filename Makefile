@@ -36,7 +36,8 @@ logs:
 	 kubectl logs -l app=frontend -c front
 
 jwtRS256.key:
-	ssh-keygen -t rsa -b 4096 -m PEM -f jwtRS256.key -q -N ""
+	openssl genrsa -out jwtRS256.key 4096
+	openssl rsa -in jwtRS256.key -outform PEM -pubout -out jwtRS256.key.pub
 
 clean:
 	rm -f jwtRS256*
