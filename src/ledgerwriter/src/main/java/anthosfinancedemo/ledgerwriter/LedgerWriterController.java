@@ -31,6 +31,25 @@ import com.auth0.jwt.JWTVerifier;
 @RestController
 public class LedgerWriterController {
 
+  private final JWTVerifier verifier;
+
+  public LedgerWriterController() 
+      throws IOException, NoSuchAlgorithmException, InvalidKeySpecException  {
+    // load public key from file
+    String pubKeyPath = System.getenv("PUB_KEY_PATH");
+    String pubKeyStr  = new String(Files.readAllBytes(Paths.get(pubKeyPath)));
+    pubKeyStr = pubKeyStr.replaceFirst("-----BEGIN PUBLIC KEY-----", "");
+    pubKeyStr = pubKeyStr.replaceFirst("-----END PUBLIC KEY-----", "");
+    pubKeyStr = pubKeyStr.replaceAll("\\s", "");
+    byte[] pubKeyBytes = Base64.getDecoder().decode(pubKeyStr);
+    KeyFactory kf = KeyFactory.getInstance("RSA");
+    X509EncodedKeySpec keySpecX509 = new X509EncodedKeySpec(pubKeyBytes);
+    RSAPublicKey publicKey = (RSAPublicKey) kf.generatePublic(keySpecX509);
+    // set up verifier
+    Algorithm algorithm = Algorithm.RSA256(publicKey, null);
+    this.verifier = JWT.require(algorithm).build();
+  }
+
   /**
    * returns 200 when service is alive
    * used for readiness probe.
@@ -43,35 +62,18 @@ public class LedgerWriterController {
 
   @PostMapping("/new_transaction")
   public final ResponseEntity<?> addTransaction(@RequestHeader("Authorization") String bearerToken,
-        @RequestBody Transaction transaction) throws IOException, NoSuchAlgorithmException,
-        InvalidKeySpecException, JWTVerificationException{
+        @RequestBody Transaction transaction) {
     if (bearerToken != null && bearerToken.startsWith("Bearer ")){
       bearerToken = bearerToken.split("Bearer ")[1];
     }
+    try {
+      DecodedJWT jwt = this.verifier.verify(bearerToken);
+      String initiatorAcct = jwt.getClaim("acct").asString();
+      System.out.println("transaction: " + transaction);
+      return new ResponseEntity<String>("ok", HttpStatus.CREATED);
+    } catch (JWTVerificationException e){
+      return new ResponseEntity<String>("", HttpStatus.UNAUTHORIZED);
+    }
 
-    DecodedJWT jwt = verifyToken(bearerToken);
-    String initiatorAcct = jwt.getClaim("acct").asString();
-    System.out.println("transaction: " + transaction);
-    return new ResponseEntity<String>("ok", HttpStatus.CREATED);
   }
-
-  private final DecodedJWT verifyToken(String token)  throws IOException, NoSuchAlgorithmException,
-        InvalidKeySpecException, JWTVerificationException{
-    String pubKeyPath = System.getenv("PUB_KEY_PATH");
-    byte[] pubKeyBytes  = Files.readAllBytes(Paths.get(pubKeyPath));
-    String pubKeyStr = new String (pubKeyBytes);
-    pubKeyStr = pubKeyStr.replaceFirst("-----BEGIN PUBLIC KEY-----", "");
-    pubKeyStr = pubKeyStr.replaceFirst("-----END PUBLIC KEY-----", "");
-    pubKeyStr = pubKeyStr.replaceAll("\\s", "");
-    pubKeyBytes = Base64.getDecoder().decode(pubKeyStr);
-
-    KeyFactory kf = KeyFactory.getInstance("RSA");
-    X509EncodedKeySpec keySpecX509 = new X509EncodedKeySpec(pubKeyBytes);
-    RSAPublicKey pubKey = (RSAPublicKey) kf.generatePublic(keySpecX509);
-
-    Algorithm algorithm = Algorithm.RSA256(pubKey, null);
-    JWTVerifier verifier = JWT.require(algorithm).build();
-    return verifier.verify(token);
-  }
-
 }
