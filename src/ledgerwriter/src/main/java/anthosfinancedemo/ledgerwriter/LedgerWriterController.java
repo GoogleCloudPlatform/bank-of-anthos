@@ -30,14 +30,12 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 
@@ -49,18 +47,19 @@ import com.auth0.jwt.JWTVerifier;
 
 
 @RestController
-public class LedgerWriterController {
+public final class LedgerWriterController {
 
     private final JWTVerifier verifier;
     private final String routingNum =  System.getenv("LOCAL_ROUTING_NUM");
     private final String balancesUri = String.format("http://%s/get_balance",
         System.getenv("BALANCES_API_ADDR"));
 
-    public LedgerWriterController() 
-            throws IOException, NoSuchAlgorithmException, InvalidKeySpecException  {
+    public LedgerWriterController() throws IOException,
+                                           NoSuchAlgorithmException,
+                                           InvalidKeySpecException {
         // load public key from file
-        String pubKeyPath = System.getenv("PUB_KEY_PATH");
-        String pubKeyStr  = new String(Files.readAllBytes(Paths.get(pubKeyPath)));
+        String fPath = System.getenv("PUB_KEY_PATH");
+        String pubKeyStr  = new String(Files.readAllBytes(Paths.get(fPath)));
         pubKeyStr = pubKeyStr.replaceFirst("-----BEGIN PUBLIC KEY-----", "");
         pubKeyStr = pubKeyStr.replaceFirst("-----END PUBLIC KEY-----", "");
         pubKeyStr = pubKeyStr.replaceAll("\\s", "");
@@ -79,31 +78,35 @@ public class LedgerWriterController {
     */
     @GetMapping("/ready")
     @ResponseStatus(HttpStatus.OK)
-    public final String readiness() {
+    public String readiness() {
         return "ok";
     }
 
     @PostMapping("/new_transaction")
-    public ResponseEntity<?> addTransaction(@RequestHeader("Authorization") String bearerToken,
-                                            @RequestBody Transaction transaction) {
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")){
+    public ResponseEntity<?> addTransaction(
+            @RequestHeader("Authorization") String bearerToken,
+            @RequestBody Transaction transaction) {
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             bearerToken = bearerToken.split("Bearer ")[1];
         }
         try {
             DecodedJWT jwt = this.verifier.verify(bearerToken);
             String initiatorAcct = jwt.getClaim("acct").asString();
-            // ensure sender is the one who initiated this transaction, or is external deposit
-            // TODO: check if external account belongs to initiator if doing deposit
-            if (!(transaction.fromAccountNum == initiatorAcct ||
-                    transaction.fromRoutingNum != this.routingNum)) {
-                return new ResponseEntity<String>("not authorized", HttpStatus.UNAUTHORIZED);
+            // ensure sender is the one who initiated this transaction,
+            // or is external deposit
+            // TODO: check if external account belongs to initiator if deposit
+            if (!(transaction.fromAccountNum == initiatorAcct
+                  || transaction.fromRoutingNum != this.routingNum)) {
+                return new ResponseEntity<String>("not authorized",
+                                                  HttpStatus.UNAUTHORIZED);
             }
             // ensure amount is valid value
-            if (transaction.amount <= 0){
-                return new ResponseEntity<String>("invalid amount", HttpStatus.BAD_REQUEST);
+            if (transaction.amount <= 0) {
+                return new ResponseEntity<String>("invalid amount",
+                                                  HttpStatus.BAD_REQUEST);
             }
             // ensure sender balance can cover transaction
-            if (transaction.fromRoutingNum == this.routingNum){
+            if (transaction.fromRoutingNum == this.routingNum) {
                 HttpHeaders headers = new HttpHeaders();
                 headers.set("Authorization", "Bearer " + bearerToken);
                 HttpEntity entity = new HttpEntity(headers);
@@ -111,8 +114,9 @@ public class LedgerWriterController {
                 ResponseEntity<Balance> response = restTemplate.exchange(
                     balancesUri, HttpMethod.GET, entity, Balance.class);
                 Balance senderBalance = response.getBody();
-                if (senderBalance.amount < transaction.amount){
-                    return new ResponseEntity<String>("insufficient balance", HttpStatus.BAD_REQUEST);
+                if (senderBalance.amount < transaction.amount) {
+                    return new ResponseEntity<String>("insufficient balance",
+                                                      HttpStatus.BAD_REQUEST);
                 }
             }
             // transaction looks valid. Add to ledger
@@ -120,8 +124,9 @@ public class LedgerWriterController {
             System.out.println("adding transaction: " + transaction);
             // TODO: add transaction
             return new ResponseEntity<String>("ok", HttpStatus.CREATED);
-        } catch (JWTVerificationException e){
-            return new ResponseEntity<String>("not authorized", HttpStatus.UNAUTHORIZED);
+        } catch (JWTVerificationException e) {
+            return new ResponseEntity<String>("not authorized",
+                                              HttpStatus.UNAUTHORIZED);
         }
     }
 }

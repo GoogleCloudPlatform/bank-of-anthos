@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * Defines a banking transaction.
  */
-public class Transaction {
+public final class Transaction {
 
     @JsonProperty("from_account_num")
     public String fromAccountNum;
@@ -36,6 +36,7 @@ public class Transaction {
     public long date;
 
     public String toString() {
-        return String.format("$%d: %s->%s", amount/100, fromAccountNum, toAccountNum);
+        return String.format("%d: %s->%s",
+            amount, fromAccountNum, toAccountNum);
     }
 }

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-.-PHONY: cluster deploy deploy-continuous logs clean
+.-PHONY: cluster deploy deploy-continuous logs checkstyle clean
 
 PROJECT_ID=hybwksp34
 ZONE=us-west1-a
@@ -38,6 +38,9 @@ logs:
 jwtRS256.key:
 	openssl genrsa -out jwtRS256.key 4096
 	openssl rsa -in jwtRS256.key -outform PEM -pubout -out jwtRS256.key.pub
+
+checkstyle:
+	mvn checkstyle:check -f ./src/ledgerwriter/pom.xml
 
 clean:
 	rm -f jwtRS256*
