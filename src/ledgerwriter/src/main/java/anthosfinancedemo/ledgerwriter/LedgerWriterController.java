@@ -8,6 +8,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -32,6 +36,9 @@ import com.auth0.jwt.JWTVerifier;
 public class LedgerWriterController {
 
   private final JWTVerifier verifier;
+  private final String routingNum =  System.getenv("LOCAL_ROUTING_NUM");
+  private final String balancesUri = String.format("http://%s/get_balance",
+    System.getenv("BALANCES_API_ADDR"));
 
   public LedgerWriterController() 
       throws IOException, NoSuchAlgorithmException, InvalidKeySpecException  {
@@ -69,10 +76,36 @@ public class LedgerWriterController {
     try {
       DecodedJWT jwt = this.verifier.verify(bearerToken);
       String initiatorAcct = jwt.getClaim("acct").asString();
-      System.out.println("transaction: " + transaction);
+      // ensure sender is the one who initiated this transaction, or is external deposit
+      // TODO: check if external account belongs to initiator if doing deposit
+      if (!(transaction.fromAccountNum == initiatorAcct || 
+            transaction.fromRoutingNum != this.routingNum)) {
+        return new ResponseEntity<String>("not authorized", HttpStatus.UNAUTHORIZED);
+      }
+      // ensure amount is valid value
+      if (transaction.amount <= 0){
+        return new ResponseEntity<String>("invalid amount", HttpStatus.BAD_REQUEST);
+      }
+      // ensure sender balance can cover transaction
+      if (transaction.fromRoutingNum == this.routingNum){
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + bearerToken);
+        HttpEntity entity = new HttpEntity(headers);
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<Balance> response = restTemplate.exchange(
+            balancesUri, HttpMethod.GET, entity, Balance.class);
+        Balance senderBalance = response.getBody();
+        if (senderBalance.amount < transaction.amount){
+          return new ResponseEntity<String>("insufficient balance", HttpStatus.BAD_REQUEST);
+        }
+      }
+      // transaction looks valid. Add to ledger
+      transaction.date = System.currentTimeMillis();
+      System.out.println("adding transaction: " + transaction);
+      // TODO: add transaction
       return new ResponseEntity<String>("ok", HttpStatus.CREATED);
     } catch (JWTVerificationException e){
-      return new ResponseEntity<String>("", HttpStatus.UNAUTHORIZED);
+      return new ResponseEntity<String>("not authorized", HttpStatus.UNAUTHORIZED);
     }
 
   }
