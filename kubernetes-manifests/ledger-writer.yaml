@@ -54,13 +54,15 @@ spec:
           value: "balancereader:8080"
         - name: PUB_KEY_PATH
           value: "/root/.ssh/publickey"
+        - name: JVM_OPTS
+          value: "-Xms1G -Xmx3G"
         resources:
           requests:
             cpu: 200m
-            memory: 64Mi
+            memory: 1Gi
           limits:
             cpu: 300m
-            memory: 128Mi
+            memory: 4Gi
         readinessProbe:
           httpGet:
             path: /ready
