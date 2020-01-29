@@ -82,6 +82,9 @@ public final class LedgerWriterController {
         return "ok";
     }
 
+    /**
+     * add a new transaction to the ledger
+     */
     @PostMapping("/new_transaction")
     public ResponseEntity<?> addTransaction(
             @RequestHeader("Authorization") String bearerToken,
