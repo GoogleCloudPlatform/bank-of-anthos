@@ -26,6 +26,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public final class Transaction {
 
     private final double timestamp;
+    private static final float SECONDS_TO_MILLIS = 1000.0;
 
     @JsonProperty("fromAccountNum")
     private String fromAccountNum;
@@ -39,7 +40,7 @@ public final class Transaction {
     private Integer amount;
 
     public Transaction() {
-        this.timestamp = System.currentTimeMillis() / 1000.0;
+        this.timestamp = System.currentTimeMillis() / SECONDS_TO_MILLIS;
     }
 
     public String getFromAccountNum() {
@@ -87,6 +88,7 @@ public final class Transaction {
     }
 
     public String toString() {
-        return String.format("%d: %s->%s", amount, fromAccountNum, toAccountNum);
+        return String.format("%d: %s->%s",
+                amount, fromAccountNum, toAccountNum);
     }
 }

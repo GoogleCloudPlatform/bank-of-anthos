@@ -51,7 +51,8 @@ import com.auth0.jwt.JWTVerifier;
 @RestController
 public final class LedgerWriterController {
 
-    ApplicationContext ctx = new AnnotationConfigApplicationContext(LedgerWriterConfig.class);
+    ApplicationContext ctx = new AnnotationConfigApplicationContext(
+        LedgerWriterConfig.class);
 
     private final String ledgerStreamKey = System.getenv("LEDGER_STREAM");
     private final String routingNum =  System.getenv("LOCAL_ROUTING_NUM");
@@ -84,7 +85,7 @@ public final class LedgerWriterController {
      */
     @GetMapping("/ready")
     @ResponseStatus(HttpStatus.OK)
-    public final String readiness() {
+    public String readiness() {
         return "ok";
     }
 
@@ -105,7 +106,8 @@ public final class LedgerWriterController {
         try {
             DecodedJWT jwt = this.verifier.verify(bearerToken);
             String initiatorAcct = jwt.getClaim("acct").asString();
-            // Ensure sender is the one who initiated this transaction, or is external deposit.
+            // Ensure sender is the one who initiated this transaction,
+            // or is external deposit.
             // TODO: Check if external account belongs to initiator of deposit.
             if (!(transaction.getFromAccountNum() == initiatorAcct
                   || transaction.getFromRoutingNum() != this.routingNum)) {
@@ -143,8 +145,10 @@ public final class LedgerWriterController {
     }
 
     private void submitTransaction(Transaction transaction) {
-        StatefulRedisConnection redisConnection = ctx.getBean(StatefulRedisConnection.class);
-        // Use String key/values so Redis data can be read by non-Java implementations.
+        StatefulRedisConnection redisConnection = ctx.getBean(
+                StatefulRedisConnection.class);
+        // Use String key/values so Redis data can be read by
+        // non-Java implementations.
         redisConnection.async().xadd(ledgerStreamKey,
                 "fromAccountNum", transaction.getFromAccountNum(),
                 "fromRoutingNum", transaction.getFromRoutingNum(),

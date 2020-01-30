@@ -28,7 +28,8 @@ public class LedgerWriterApplication {
     public static void main(String[] args) {
         // Check that all required environment variables are set.
         final String[] expectedVars = {"PORT", "LEDGER_ADDR", "LEDGER_STREAM",
-            "LEDGER_PORT", "LOCAL_ROUTING_NUM", "BALANCES_API_ADDR", "PUB_KEY_PATH"};
+            "LEDGER_PORT", "LOCAL_ROUTING_NUM", "BALANCES_API_ADDR",
+            "PUB_KEY_PATH"};
         for (String v : expectedVars) {
             String value = System.getenv(v);
             if (value == null) {
