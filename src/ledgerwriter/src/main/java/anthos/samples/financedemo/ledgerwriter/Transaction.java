@@ -1,30 +1,44 @@
+/*
+ * Copyright 2020, Google LLC.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package anthos.samples.financedemo.ledgerwriter;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Defines a banking transaction.
  *
  * Timestamped at object creation time.
  */
-public class Transaction {
-
-    private static final long serialVersionUID = 1L;
+public final class Transaction {
 
     private final long timestampMillis;
 
-    // Use Strings so Spring and Redis data conversions are way easier.
+    @JsonProperty("fromAccountNum")
     private String fromAccountNum;
+    @JsonProperty("fromRoutingNum")
     private String fromRoutingNum;
+    @JsonProperty("toAccountNum")
     private String toAccountNum;
+    @JsonProperty("toRoutingNum")
     private String toRoutingNum;
-    private String amount;
+    @JsonProperty("amount")
+    private Integer amount;
 
-    public Transaction(String fromAccountNum, String fromRoutingNum, String toAccountNum,
-            String toRoutingNum, String amount) {
-        this.fromAccountNum = fromAccountNum;
-        this.fromRoutingNum = fromRoutingNum;
-        this.toAccountNum = toAccountNum;
-        this.toRoutingNum = toRoutingNum;
-        this.amount = amount;
+    public Transaction() {
         this.timestampMillis = System.currentTimeMillis();
     }
 
@@ -60,15 +74,19 @@ public class Transaction {
         this.toRoutingNum = toRoutingNum;
     }
 
-    public String getAmount() {
+    public Integer getAmount() {
         return this.amount;
     }
 
-    public void setAmount(String amount) {
+    public void setAmount(Integer amount) {
         this.amount = amount;
     }
 
     public long getTimestampMillis() {
         return this.timestampMillis;
+    }
+
+    public String toString() {
+        return String.format("%d: %s->%s", amount, fromAccountNum, toAccountNum);
     }
 }

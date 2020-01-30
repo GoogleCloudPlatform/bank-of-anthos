@@ -40,6 +40,11 @@
             <artifactId>lettuce-core</artifactId>
             <version>5.2.1.RELEASE</version>
         </dependency>
+        <dependency>
+            <groupId>com.auth0</groupId>
+            <artifactId>java-jwt</artifactId>
+            <version>3.9.0</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
