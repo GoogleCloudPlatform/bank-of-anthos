@@ -2,6 +2,7 @@ package anthos.samples.financedemo.ledgerwriter;
 
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
+import io.lettuce.core.codec.StringCodec;
 import io.lettuce.core.resource.ClientResources;
 import io.lettuce.core.resource.DefaultClientResources;
 import io.lettuce.core.api.StatefulRedisConnection;
@@ -31,6 +32,6 @@ public class LedgerWriterConfig {
 
     @Bean(destroyMethod = "close")
     StatefulRedisConnection<String, String> connection(RedisClient redisClient) {
-        return redisClient.connect();
+        return redisClient.connect(new StringCodec());
     }
 }

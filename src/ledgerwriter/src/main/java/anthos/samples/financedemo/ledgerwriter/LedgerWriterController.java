@@ -4,7 +4,6 @@ import io.lettuce.core.api.StatefulRedisConnection;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,7 +28,8 @@ public class LedgerWriterController {
     }
 
     @PostMapping(value = "/new_transaction", consumes = "application/json")
-    public ResponseEntity<String> addTransaction(@RequestBody Transaction transaction) {
+    @ResponseStatus(HttpStatus.OK)
+    public final String addTransaction(@RequestBody Transaction transaction) {
         // TODO: Authenticate the jwt.
         
         // TODO: Extract the account id from the jwt.
@@ -41,11 +41,17 @@ public class LedgerWriterController {
         // Submit Transaction to repository
         submitTransaction(transaction);
 
-        return ResponseEntity.accepted().body("Transaction submitted");
+        return "Transaction submitted";
     }
 
     private void submitTransaction(Transaction transaction) {
         StatefulRedisConnection redisConnection = ctx.getBean(StatefulRedisConnection.class);
-        redisConnection.async().xadd(ledgerStreamKey, transaction);
+        // Use String key/values so Redis data can be read by non-Java implementations.
+        redisConnection.async().xadd(ledgerStreamKey,
+                "fromAccountNum", transaction.getFromAccountNum(),
+                "fromRoutingNum", transaction.getFromRoutingNum(),
+                "toAccountNum", transaction.getToAccountNum(),
+                "toRoutingNum", transaction.getToRoutingNum(),
+                "amount", transaction.getAmount());
     }
 }
