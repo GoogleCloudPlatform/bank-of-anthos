@@ -77,19 +77,19 @@ def _process_transaction(transaction):
     receiver_acct = transaction['toAccountNum']
     receiver_route = transaction['toRoutingNum']
     amount = transaction['amount']
-    date = transaction['date']
+    timestamp = transaction['timestamp']
 
     if sender_route == _local_routing_num:
         transaction = {'type': 'CREDIT',
                        'amount': amount,
                        'account': receiver_acct,
-                       'date': date}
+                       'timestamp': timestamp}
         _history_dict[sender_acct].insert(0, transaction)
     if receiver_route == _local_routing_num:
         transaction = {'type': 'DEBIT',
                        'amount': amount,
                        'account': sender_acct,
-                       'date': date}
+                       'timestamp': timestamp}
         _history_dict[receiver_acct].insert(0, transaction)
 
 

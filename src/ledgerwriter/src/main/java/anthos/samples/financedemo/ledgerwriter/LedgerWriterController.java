@@ -151,6 +151,6 @@ public final class LedgerWriterController {
                 "toAccountNum", transaction.getToAccountNum(),
                 "toRoutingNum", transaction.getToRoutingNum(),
                 "amount", transaction.getAmount().toString(),
-                "date", Long.toString(transaction.getTimestampMillis()));
+                "timestamp", Double.toString(transaction.getTimestamp()));
     }
 }
