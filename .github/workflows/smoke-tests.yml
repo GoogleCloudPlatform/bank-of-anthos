@@ -5,7 +5,6 @@ on:
     branches:
       - master
       - release/*
-      - actions 
   pull_request:
     # run on pull requests targeting master
     branches:
