@@ -106,8 +106,8 @@ public final class LedgerWriterController {
         try {
             DecodedJWT jwt = this.verifier.verify(bearerToken);
             String initiatorAcct = jwt.getClaim("acct").asString();
-            // Ensure sender is the one who initiated this transaction, or it is
-            // an external deposit.
+            // Ensure sender is the one who initiated this transaction,
+            // or is external deposit.
             // TODO: Check if external account belongs to initiator of deposit.
             if (!(transaction.getFromAccountNum() == initiatorAcct
                   || transaction.getFromRoutingNum() != this.routingNum)) {

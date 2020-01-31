@@ -39,12 +39,11 @@ public final class LedgerWriterConfig {
     @Bean(destroyMethod = "shutdown")
     RedisClient redisClient(ClientResources clientResources) {
         return RedisClient.create(clientResources,
-                RedisURI.create(redisHostName, redisPort));
+                                  RedisURI.create(redisHostName, redisPort));
     }
 
     @Bean(destroyMethod = "close")
-    StatefulRedisConnection<String, String>
-                connection(RedisClient redisClient) {
-        return redisClient.connect(new StringCodec());
+    StatefulRedisConnection<String, String> connection(RedisClient client) {
+        return client.connect(new StringCodec());
     }
 }

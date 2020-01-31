@@ -32,7 +32,8 @@ public class LedgerWriterApplication {
         "LEDGER_PORT",
         "LOCAL_ROUTING_NUM",
         "BALANCES_API_ADDR",
-        "PUB_KEY_PATH"};
+        "PUB_KEY_PATH"
+    };
 
     public static void main(String[] args) {
         // Check that all required environment variables are set.
