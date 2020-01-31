@@ -14,6 +14,10 @@ jobs:
   run-tests:
     runs-on: self-hosted
     steps:
+    - name: Checkstyle
+      timeout-minutes: 20
+      run: |
+        mvn  checkstyle:check -f ./src/*/pom.xml
     - uses: actions/checkout@v2
     - name: Setup Cluster
       run: |

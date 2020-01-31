@@ -40,7 +40,7 @@ jwtRS256.key:
 	openssl rsa -in jwtRS256.key -outform PEM -pubout -out jwtRS256.key.pub
 
 checkstyle:
-	mvn checkstyle:check -f ./src/ledgerwriter/pom.xml
+	mvn checkstyle:check -f ./src/*/pom.xml
 
 clean:
 	rm -f jwtRS256*
