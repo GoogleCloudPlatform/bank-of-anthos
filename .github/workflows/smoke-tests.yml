@@ -43,11 +43,11 @@ jobs:
       timeout-minutes: 5
       run: |
         RESULT=" "
-        while [[ "$RESULT" != "  HTTP/1.1 200 OK" ]]; do
+        while [[ "$RESULT" != "  HTTP/1.0 200 OK" ]]; do
           sleep 1
-          RESULT=$(kubectl exec deployments/frontend -- sh -c "wget --spider -S "http://frontend" 2>&1 | grep 'HTTP/'")
+          RESULT=$(kubectl run -i --tty busybox --image=busybox --restart=Never -- sh -c "wget --spider -S http://frontend/login 2>&1 | grep 'HTTP/'")
           echo "front end response: $RESULT"
         done
-        if [[ "$RESULT" != "  HTTP/1.1 200 OK" ]]; then 
+        if [[ "$RESULT" != "  HTTP/1.0 200 OK" ]]; then 
           exit 1
         fi
