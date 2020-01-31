@@ -26,7 +26,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public final class LedgerWriterConfig {
+public class LedgerWriterConfig {
 
     private final String redisHostName = System.getenv("LEDGER_ADDR");
     private final int redisPort = Integer.valueOf(System.getenv("LEDGER_PORT"));
