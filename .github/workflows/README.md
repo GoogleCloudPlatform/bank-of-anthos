@@ -10,8 +10,8 @@
     - An empty GCP project should be used for extra security
   - to set up dependencies, run the following commands:
     ```
-    # install kubectl
-    sudo apt-get install kubectl
+    # install kubectl, maven and jdk
+    sudo apt-get install kubectl maven default-jdk
 
     # install kind
     curl -Lo ./kind "https://github.com/kubernetes-sigs/kind/releases/download/v0.7.0/kind-$(uname)-amd64" && \
@@ -36,8 +36,8 @@
     ```
   - ensure GitHub Actions runs as background service:
     ```
-    sudo ∼/actions-runner/svc.sh install
-    sudo ∼/actions-runner/svc.sh start
+    sudo ~/actions-runner/svc.sh install
+    sudo ~/actions-runner/svc.sh start
     ```
 
 
