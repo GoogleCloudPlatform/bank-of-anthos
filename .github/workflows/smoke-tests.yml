@@ -20,6 +20,10 @@ jobs:
         kind delete cluster 2>/dev/null
         kind create cluster
         kubectl get nodes
+    - name: Setup Secrets
+      run: |
+        make jwtRSr56.key
+        kubectl create secret generic jwt-key --from-file=./jwtRS256.key --from-file=./jwtRS256.key.pub
     - name: Deploy From Source
       run: |
         skaffold run
