@@ -55,14 +55,14 @@ spec:
         - name: PUB_KEY_PATH
           value: "/root/.ssh/publickey"
         - name: JVM_OPTS
-          value: "-Xms1G -Xmx3G"
+          value: "-Xms1G -Xmx1G"
         resources:
           requests:
             cpu: 200m
             memory: 1Gi
           limits:
             cpu: 300m
-            memory: 4Gi
+            memory: 2Gi
         readinessProbe:
           httpGet:
             path: /ready
