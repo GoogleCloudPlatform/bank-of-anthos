@@ -25,11 +25,18 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class LedgerWriterApplication {
 
+    private static final String[] EXPECTED_ENV_VARS = {
+        "PORT",
+        "LEDGER_ADDR",
+        "LEDGER_STREAM",
+        "LEDGER_PORT",
+        "LOCAL_ROUTING_NUM",
+        "BALANCES_API_ADDR",
+        "PUB_KEY_PATH"};
+
     public static void main(String[] args) {
         // Check that all required environment variables are set.
-        final String[] expectedVars = {"PORT", "LEDGER_ADDR", "LEDGER_STREAM",
-            "LEDGER_PORT", "LOCAL_ROUTING_NUM", "BALANCES_API_ADDR", "PUB_KEY_PATH"};
-        for (String v : expectedVars) {
+        for (String v : EXPECTED_ENV_VARS) {
             String value = System.getenv(v);
             if (value == null) {
                 System.out.format("error: %s environment variable not set", v);
