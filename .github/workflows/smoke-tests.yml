@@ -13,9 +13,6 @@ jobs:
   run-tests:
     runs-on: self-hosted
     steps:
-    - name: GitHub Action for Maven
-      uses: LucaFeger/action-maven-cli@1.1.0
-      args: " checkstyle:check -f ./src/ledgerwriter/pom.xml"
     - uses: actions/checkout@v2
     - name: Setup Cluster
       run: |
