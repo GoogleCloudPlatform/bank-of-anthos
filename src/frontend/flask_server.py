@@ -131,10 +131,10 @@ def payment():
         req = requests.get(url=app.config["BALANCES_URI"], headers=hed)
         balance = req.json()['balance']
         if balance > amount:
-            transaction_obj = {'from_routing_num':  _local_routing_num,
-                               'from_account_num': account_id,
-                               'to_routing_num': _local_routing_num,
-                               'to_account_num': recipient,
+            transaction_obj = {'fromRoutingNum':  _local_routing_num,
+                               'fromAccountNum': account_id,
+                               'toRoutingNum': _local_routing_num,
+                               'toAccountNum': recipient,
                                'amount': amount}
             hed = {'Authorization': 'Bearer ' + token,
                    'content-type': 'application/json'}
@@ -175,10 +175,10 @@ def deposit():
         amount = int(float(request.form['amount']) * 100)
 
         # simulate transaction from external bank into user's account
-        transaction_obj = {'from_routing_num':  external_routing_num,
-                           'from_account_num': external_account_num,
-                           'to_routing_num': _local_routing_num,
-                           'to_account_num': account_id,
+        transaction_obj = {'fromRoutingNum':  external_routing_num,
+                           'fromAccountNum': external_account_num,
+                           'toRoutingNum': _local_routing_num,
+                           'toAccountNum': account_id,
                            'amount': amount}
         hed = {'Authorization': 'Bearer ' + token,
                'content-type': 'application/json'}
