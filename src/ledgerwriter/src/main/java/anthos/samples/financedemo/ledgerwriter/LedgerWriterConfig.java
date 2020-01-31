@@ -29,7 +29,7 @@ import org.springframework.context.annotation.Configuration;
 public final class LedgerWriterConfig {
 
     private final String redisHostName = System.getenv("LEDGER_ADDR");
-    private final int redisPort = System.getenv("LEDGER_PORT");
+    private final int redisPort = Integer.valueOf(System.getenv("LEDGER_PORT"));
 
     @Bean(destroyMethod = "shutdown")
     ClientResources clientResources() {
