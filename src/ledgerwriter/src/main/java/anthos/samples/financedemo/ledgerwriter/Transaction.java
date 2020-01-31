@@ -26,7 +26,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public final class Transaction {
 
     private final double timestamp;
-    private static final float SECONDS_TO_MILLIS = 1000.0;
+    private static final double SECONDS_TO_MILLIS = 1000.0;
 
     @JsonProperty("fromAccountNum")
     private String fromAccountNum;
