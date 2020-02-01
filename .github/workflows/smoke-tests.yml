@@ -5,7 +5,6 @@ on:
     branches:
       - master
       - release/*
-      - actions
   pull_request:
     # run on pull requests targeting master
     branches:
@@ -22,8 +21,8 @@ jobs:
     - name: Python Checkstyle
       timeout-minutes: 20
       run: |
-        # disable warnings: import loading, todos, function members, duplicate code
         pylint --disable=F0401 --disable=W0511 --disable=E1101 --disable=R0801  ./src/*/*.py
+        # disabled warnings: import loading, todos, function members, duplicate code
     - name: Setup Cluster
       run: |
         kind delete cluster 2>/dev/null

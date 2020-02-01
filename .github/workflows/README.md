@@ -55,6 +55,7 @@
 - PRs to release/ branches
 
 #### Actions
+- runs java and python linters
 - ensures kind cluster is running
 - builds all containers in src/
 - deploys local containers to kind
