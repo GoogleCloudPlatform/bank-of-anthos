@@ -25,8 +25,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public final class Transaction {
 
+    private static final double MILLISECONDS_PER_SECOND = 1000.0;
+
+    // Timestamp in seconds with decimal precision.
     private final double timestamp;
-    private static final double SECONDS_TO_MILLIS = 1000.0;
 
     @JsonProperty("fromAccountNum")
     private String fromAccountNum;
@@ -40,7 +42,7 @@ public final class Transaction {
     private Integer amount;
 
     public Transaction() {
-        this.timestamp = System.currentTimeMillis() / SECONDS_TO_MILLIS;
+        this.timestamp = System.currentTimeMillis() / MILLISECONDS_PER_SECOND;
     }
 
     public String getFromAccountNum() {

@@ -51,8 +51,8 @@ import com.auth0.jwt.JWTVerifier;
 @RestController
 public final class LedgerWriterController {
 
-    ApplicationContext ctx = new AnnotationConfigApplicationContext(
-        LedgerWriterConfig.class);
+    ApplicationContext ctx =
+            new AnnotationConfigApplicationContext(LedgerWriterConfig.class);
 
     private final String ledgerStreamKey = System.getenv("LEDGER_STREAM");
     private final String routingNum =  System.getenv("LOCAL_ROUTING_NUM");
@@ -145,10 +145,9 @@ public final class LedgerWriterController {
     }
 
     private void submitTransaction(Transaction transaction) {
-        StatefulRedisConnection redisConnection = ctx.getBean(
-                StatefulRedisConnection.class);
-        // Use String key/values so Redis data can be read by
-        // non-Java implementations.
+        StatefulRedisConnection redisConnection =
+                ctx.getBean(StatefulRedisConnection.class);
+        // Use String key/values so Redis data can be read by non-Java clients.
         redisConnection.async().xadd(ledgerStreamKey,
                 "fromAccountNum", transaction.getFromAccountNum(),
                 "fromRoutingNum", transaction.getFromRoutingNum(),

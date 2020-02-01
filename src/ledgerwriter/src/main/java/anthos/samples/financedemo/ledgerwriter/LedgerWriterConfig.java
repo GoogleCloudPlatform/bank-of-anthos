@@ -28,13 +28,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class LedgerWriterConfig {
 
-    private final String redisHostName;
-    private final int redisPort;
-
-    public LedgerWriterConfig() {
-        this.redisHostName = System.getenv("LEDGER_ADDR");
-        this.redisPort = Integer.valueOf(System.getenv("LEDGER_PORT"));
-    }
+    private final String redisHostName = System.getenv("LEDGER_ADDR");
+    private final int redisPort = Integer.valueOf(System.getenv("LEDGER_PORT"));
 
     @Bean(destroyMethod = "shutdown")
     ClientResources clientResources() {
