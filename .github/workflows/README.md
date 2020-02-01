@@ -10,8 +10,11 @@
     - An empty GCP project should be used for extra security
   - to set up dependencies, run the following commands:
     ```
-    # install kubectl, maven and jdk
-    sudo apt-get install kubectl maven default-jdk
+    # install kubectl, maven, jdk, pip
+    sudo apt-get install kubectl maven default-jdk python3-pip
+
+    # install pylint
+    sudo pip3 install pylint
 
     # install kind
     curl -Lo ./kind "https://github.com/kubernetes-sigs/kind/releases/download/v0.7.0/kind-$(uname)-amd64" && \

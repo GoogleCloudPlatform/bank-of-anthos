@@ -17,6 +17,8 @@ jobs:
       timeout-minutes: 20
       run: |
         mvn  checkstyle:check -f ./src/*/pom.xml
+        # disable warnings: import loading, todos, function members, duplicate code
+        pylint --disable=F0401 --disable=W0511 --disable=E1101 --disable=R0801  ./src/*/*.py
     - uses: actions/checkout@v2
     - name: Setup Cluster
       run: |
