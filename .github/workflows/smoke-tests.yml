@@ -1,0 +1,61 @@
+name: "Continuous Integration"
+on:
+  push:
+    # run on pushes to master or release/*
+    branches:
+      - master
+      - release/*
+  pull_request:
+    # run on pull requests targeting master
+    branches:
+      - master
+jobs:
+  run-tests:
+    runs-on: self-hosted
+    steps:
+    - uses: actions/checkout@v2
+    - name: Java Checkstyle
+      timeout-minutes: 20
+      run: |
+        mvn  checkstyle:check -f ./src/*/pom.xml
+    - name: Python Checkstyle
+      timeout-minutes: 20
+      run: |
+        pylint --disable=F0401 --disable=W0511 --disable=E1101 --disable=R0801  ./src/*/*.py
+        # disabled warnings: import loading, todos, function members, duplicate code
+    - name: Setup Cluster
+      run: |
+        kind delete cluster 2>/dev/null
+        kind create cluster
+        kubectl get nodes
+    - name: Setup Secrets
+      run: |
+        make jwtRS256.key
+        kubectl create secret generic jwt-key --from-file=./jwtRS256.key --from-file=./jwtRS256.key.pub
+    - name: Deploy From Source
+      run: |
+        skaffold run
+    - name: Wait For Pods
+      timeout-minutes: 20
+      run: |
+        set -x
+        kubectl wait --for=condition=available --timeout=500s deployment/accounts-db
+        kubectl wait --for=condition=available --timeout=500s deployment/balancereader
+        kubectl wait --for=condition=available --timeout=500s deployment/contacts
+        kubectl wait --for=condition=available --timeout=500s deployment/frontend
+        kubectl wait --for=condition=available --timeout=500s deployment/ledgerwriter
+        kubectl wait --for=condition=available --timeout=500s deployment/redis-ledger
+        kubectl wait --for=condition=available --timeout=500s deployment/transactionhistory
+        kubectl wait --for=condition=available --timeout=500s deployment/userservice
+    - name: Smoke Test
+      timeout-minutes: 5
+      run: |
+        RESULT=" "
+        while [[ "$RESULT" != "  HTTP/1.0 200 OK" ]]; do
+          sleep 1
+          RESULT=$(kubectl run -i --tty busybox --image=busybox --restart=Never -- sh -c "wget --spider -S http://frontend/login 2>&1 | grep 'HTTP/'")
+          echo "front end response: $RESULT"
+        done
+        if [[ "$RESULT" != "  HTTP/1.0 200 OK" ]]; then 
+          exit 1
+        fi

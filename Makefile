@@ -40,7 +40,9 @@ jwtRS256.key:
 	openssl rsa -in jwtRS256.key -outform PEM -pubout -out jwtRS256.key.pub
 
 checkstyle:
-	mvn checkstyle:check -f ./src/ledgerwriter/pom.xml
+	mvn checkstyle:check -f ./src/*/pom.xml
+	# disable warnings: import loading, todos, function members, duplicate code
+	pylint --disable=F0401 --disable=W0511 --disable=E1101 --disable=R0801  ./src/*/*.py
 
 clean:
 	rm -f jwtRS256*

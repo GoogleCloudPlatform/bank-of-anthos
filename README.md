@@ -1,3 +1,5 @@
+![Continuous Integration](https://github.com/GoogleCloudPlatform/anthos-finance-demo/workflows/Continuous%20Integration/badge.svg)
+
 # Cloud Bank - Anthos Sample Application
 
 This project simulates a bank's payment processing network using [Anthos](https://cloud.google.com/anthos/).

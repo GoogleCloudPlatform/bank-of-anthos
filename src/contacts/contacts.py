@@ -21,16 +21,17 @@ import logging
 import os
 import sys
 
-import bleach
 from flask import Flask, jsonify, request
 from flask_pymongo import PyMongo
+
+import bleach
 import jwt
 
 
-app = Flask(__name__)
-app.config["MONGO_URI"] = 'mongodb://{}/users'.format(
+APP = Flask(__name__)
+APP.config["MONGO_URI"] = 'mongodb://{}/users'.format(
         os.environ.get('ACCOUNTS_DB_ADDR'))
-mongo = PyMongo(app)
+MONGO = PyMongo(APP)
 
 DEFAULT_EXT_ACCTS = [{'label': 'External Checking',
                       'account_number': '0123456789',
@@ -44,13 +45,13 @@ DEFAULT_CONTACTS = [{'label': 'Friend',
                     {'label': 'Mom',
                      'account_number': '6677889900'}]
 
-@app.route('/ready', methods=['GET'])
+@APP.route('/ready', methods=['GET'])
 def ready():
     """Readiness probe."""
     return 'ok', 200
 
 
-@app.route('/external', methods=['GET', 'POST'])
+@APP.route('/external', methods=['GET', 'POST'])
 def external():
     """Add or retrieve linked external accounts for the currently authorized user.
 
@@ -76,7 +77,7 @@ def external():
     else:
         token = ''
     try:
-        payload = jwt.decode(token, key=_public_key, algorithms='RS256')
+        payload = jwt.decode(token, key=PUBLIC_KEY, algorithms='RS256')
         accountid = payload['acct']
 
         if request.method == 'GET':
@@ -120,7 +121,7 @@ def _get_ext_accts(accountid):
     """
     query = {'accountid': accountid}
     projection = {'external_accts': True}
-    result = mongo.db.accounts.find_one(query, projection)
+    result = MONGO.db.accounts.find_one(query, projection)
 
     acct_list = []
     if result is not None:
@@ -143,14 +144,14 @@ def _add_ext_acct(accountid, ext_acct):
     query = {'accountid': accountid}
     update = {'$push': {'external_accts': ext_acct}}
     params = {'upsert': True}
-    result = mongo.db.accounts.update(query, update, params)
+    result = MONGO.db.accounts.update(query, update, params)
 
     if not result.acknowledged:
         return jsonify({'error': 'add external account failed'}), 500
     return jsonify({}), 201
 
 
-@app.route('/contacts', methods=['GET', 'POST'])
+@APP.route('/contacts', methods=['GET', 'POST'])
 def get_contacts():
     """Add or retrieve linked contacts for the currently authorized user.
 
@@ -175,7 +176,7 @@ def get_contacts():
     else:
         token = ''
     try:
-        payload = jwt.decode(token, key=_public_key, algorithms='RS256')
+        payload = jwt.decode(token, key=PUBLIC_KEY, algorithms='RS256')
         accountid = payload['acct']
 
         if request.method == 'GET':
@@ -218,7 +219,7 @@ def _get_contacts(accountid):
     """
     query = {'accountid': accountid}
     projection = {'contact_accts': True}
-    result = mongo.db.contacts.find_one(query, projection)
+    result = MONGO.db.contacts.find_one(query, projection)
 
     acct_list = []
     if result is not None:
@@ -229,7 +230,7 @@ def _get_contacts(accountid):
 
     # Add the banking routing number for this banking application
     for contact in acct_list:
-        contact['routing_number'] = _local_routing
+        contact['routing_number'] = LOCAL_ROUTING
     return jsonify({'account_list': acct_list}), 200
 
 
@@ -243,14 +244,14 @@ def _add_contact(accountid, contact):
     """
     # check if the contact account number exists
     query = {'accountid': contact['account_number']}
-    if mongo.db.users.find_one(query) is None:
+    if MONGO.db.users.find_one(query) is None:
         return jsonify({'error': 'contact account number does not exist'}), 400
 
     # add the contact
     query = {'accountid': accountid}
     update = {'$push': {'contact_accts': contact}}
     params = {'upsert': True}
-    result = mongo.db.accounts.update(query, update, params)
+    result = MONGO.db.accounts.update(query, update, params)
 
     if not result.acknowledged:
         return jsonify({'error': 'add contact failed'}), 500
@@ -262,7 +263,7 @@ if __name__ == '__main__':
         if os.environ.get(v) is None:
             print("error: {} environment variable not set".format(v))
             sys.exit(1)
-    _local_routing = os.environ.get('LOCAL_ROUTING_NUM')
-    _public_key = open(os.environ.get('PUB_KEY_PATH'), 'r').read()
+    LOCAL_ROUTING = os.environ.get('LOCAL_ROUTING_NUM')
+    PUBLIC_KEY = open(os.environ.get('PUB_KEY_PATH'), 'r').read()
     logging.info("Starting flask.")
-    app.run(debug=False, port=os.environ.get('PORT'), host='0.0.0.0')
+    APP.run(debug=False, port=os.environ.get('PORT'), host='0.0.0.0')
