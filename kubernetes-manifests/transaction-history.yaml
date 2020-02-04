@@ -53,14 +53,14 @@ spec:
         - name: PUB_KEY_PATH
           value: "/root/.ssh/publickey"
         - name: JVM_OPTS
-          value: "-Xms1G -Xmx1G"
+          value: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
         resources:
           requests:
             cpu: 200m
-            memory: 1Gi
+            memory: 256Mi
           limits:
             cpu: 300m
-            memory: 2Gi
+            memory: 256Mi
         readinessProbe:
           httpGet:
             path: /ready
@@ -71,7 +71,7 @@ spec:
           httpGet:
             path: /healthy
             port: 8080
-          initialDelaySeconds: 30
+          initialDelaySeconds: 60
           periodSeconds: 5
       volumes:
       - name: publickey
