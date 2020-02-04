@@ -24,7 +24,8 @@ build:
   - image: balancereader
     context: src/balancereader
   - image: transactionhistory
-    context: src/transactionhistory
+    jib:
+      project: src/transactionhistory
   - image: contacts
     context: src/contacts
   - image: userservice

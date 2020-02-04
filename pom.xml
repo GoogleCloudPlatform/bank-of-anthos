@@ -11,6 +11,7 @@
 
     <modules>
         <module>src/ledgerwriter</module>
+        <module>src/transactionhistory</module>
     </modules>
 
     <build>
