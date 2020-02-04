@@ -98,4 +98,23 @@ public final class TransactionHistoryController {
         return "ok";
     }
 
+    /**
+     * Return a list of the user's past transactions.
+     */
+    @GetMapping("/get_history")
+    public ResponseEntity<?> getHistory(
+            @RequestHeader("Authorization") String bearerToken ) {
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            bearerToken = bearerToken.split("Bearer ")[1];
+        }
+        try {
+            DecodedJWT jwt = this.verifier.verify(bearerToken);
+
+            return new ResponseEntity<String>("{\"history\": [{\"type\": \"CREDIT\", \"amount\": 100, \"account\": \"123\", \"timestamp\": \"123\"}]}", HttpStatus.OK);
+        } catch (JWTVerificationException e) {
+            return new ResponseEntity<String>("not authorized",
+                                              HttpStatus.UNAUTHORIZED);
+        }
+    }
+
 }
