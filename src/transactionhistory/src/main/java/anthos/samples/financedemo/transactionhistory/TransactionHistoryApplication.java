@@ -25,6 +25,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class TransactionHistoryApplication {
 
+    private static LedgerReader reader = new LedgerReader();
+
     private static final String[] EXPECTED_ENV_VARS = {
         "PORT",
         "LEDGER_ADDR",
@@ -43,6 +45,7 @@ public class TransactionHistoryApplication {
                 System.exit(1);
             }
         }
+        reader.start();
         SpringApplication.run(TransactionHistoryApplication.class, args);
     }
 }
