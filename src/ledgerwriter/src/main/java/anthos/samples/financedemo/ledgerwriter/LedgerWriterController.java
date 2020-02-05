@@ -32,22 +32,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.interfaces.RSAPublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.Base64;
-
-import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 
+import anthos.samples.financedemo.common.AuthTools;
 import anthos.samples.financedemo.common.Balance;
 import anthos.samples.financedemo.common.Transaction;
 
@@ -63,22 +52,8 @@ public final class LedgerWriterController {
         System.getenv("BALANCES_API_ADDR"));
     private final JWTVerifier verifier;
 
-    public LedgerWriterController() throws IOException,
-                                           NoSuchAlgorithmException,
-                                           InvalidKeySpecException {
-        // load public key from file
-        String fPath = System.getenv("PUB_KEY_PATH");
-        String pubKeyStr  = new String(Files.readAllBytes(Paths.get(fPath)));
-        pubKeyStr = pubKeyStr.replaceFirst("-----BEGIN PUBLIC KEY-----", "");
-        pubKeyStr = pubKeyStr.replaceFirst("-----END PUBLIC KEY-----", "");
-        pubKeyStr = pubKeyStr.replaceAll("\\s", "");
-        byte[] pubKeyBytes = Base64.getDecoder().decode(pubKeyStr);
-        KeyFactory kf = KeyFactory.getInstance("RSA");
-        X509EncodedKeySpec keySpecX509 = new X509EncodedKeySpec(pubKeyBytes);
-        RSAPublicKey publicKey = (RSAPublicKey) kf.generatePublic(keySpecX509);
-        // set up verifier
-        Algorithm algorithm = Algorithm.RSA256(publicKey, null);
-        this.verifier = JWT.require(algorithm).build();
+    public LedgerWriterController() {
+        this.verifier = AuthTools.newJWTVerifierFromFile(System.getenv("PUB_KEY_PATH"));
     }
 
     /**
