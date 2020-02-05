@@ -48,6 +48,9 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 
+import anthos.samples.financedemo.common.Balance;
+import anthos.samples.financedemo.common.Transaction;
+
 @RestController
 public final class LedgerWriterController {
 

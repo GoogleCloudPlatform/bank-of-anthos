@@ -4,13 +4,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.anthos.financial-app</groupId>
-    <artifactId>financial-app</artifactId>
+    <groupId>com.google.cloud.anthos.samples</groupId>
+    <artifactId>financial-demo</artifactId>
     <version>1.0</version>
     <packaging>pom</packaging>
 
     <modules>
         <module>src/ledgerwriter</module>
+        <module>src/common</module>
     </modules>
 
     <build>
@@ -34,5 +35,13 @@
             </plugins>
         </pluginManagement>
     </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>financial-demo-common</artifactId>
+            <version>1.0</version>
+        </dependency>
+    </dependencies>
 
 </project>

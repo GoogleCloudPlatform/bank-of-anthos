@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package anthos.samples.financedemo.ledgerwriter;
+package anthos.samples.financedemo.common;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
