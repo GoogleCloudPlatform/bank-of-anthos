@@ -19,12 +19,14 @@ import uuid
 from time import sleep
 from locust import HttpLocust, TaskSet
 
-userlist = ["testuser-%i".format(i) for i in range(100)]
+MASTER_PASSWORD="password"
 
-def create_account(l, username, password="password"):
+userlist = ["testuser-{}".format(i) for i in range(10)]
+
+def create_account(l, username):
     userdata = { "username":username,
-                 "password":password,
-                 "password-repeat":password,
+                 "password":MASTER_PASSWORD,
+                 "password-repeat":MASTER_PASSWORD,
                  "firstname": username,
                  "lastname":"TestAccount",
                  "birthday":"01/01/2000",
@@ -35,8 +37,8 @@ def create_account(l, username, password="password"):
                  "zip":"98103",
                  "ssn":"111-22-3333"
     }
-    print("creating user: {}".format(userdata))
     l.client.post("/signup", data=userdata)
+    print("created user: {}".format(username))
 
 def view_index(l):
     l.client.get("/")
@@ -50,11 +52,14 @@ def view_login(l):
 def view_signup(l):
     l.client.get("/signup")
 
-def login(l):
-    l.client.post("/login", {"username":l.locust.username, "password":l.locust.password})
+def login(l, username):
+    l.locust.username = username
+    l.client.post("/login", {"username":username,
+                             "password":MASTER_PASSWORD})
 
 def logout(l):
     l.client.post("/logout")
+    l.locust.username = None
 
 def relogin(l):
     logout(l)
@@ -63,27 +68,29 @@ def relogin(l):
     sleep(1)
     view_signup(l)
     sleep(1)
-    login(l)
+    new_username = random.choice(userlist)
+    login(l, new_username)
 
 
 class UserBehavior(TaskSet):
     def setup(self):
         # create user account
-        create_account(self, "user", "password")
+        create_account(self, "user")
+        # create test accounts
+        for username in userlist:
+            create_account(self, username)
 
     def on_start(self):
-        self.locust.username = str(uuid.uuid4())
-        self.locust.password = "password"
-        create_account(self, self.locust.username, self.locust.password)
-        print("created user: {}".format(self.locust.username))
+        username = random.choice(userlist)
+        login(self, username)
 
-    # tasks = {
-    #     view_index: 1,
-    #     view_home: 1,
-    #     view_login: 1,
-    #     view_signup: 1
-    # }
-    tasks = [relogin]
+    tasks = {
+        # view_index: 3,
+        # view_home: 3,
+        # view_login: 3,
+        # view_signup: 3,
+        relogin:1
+    }
 
 class WebsiteUser(HttpLocust):
     task_set = UserBehavior
