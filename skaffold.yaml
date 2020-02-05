@@ -29,6 +29,8 @@ build:
     context: src/contacts
   - image: userservice
     context: src/userservice
+  - image: loadgenerator
+    context: src/loadgenerator
   tagPolicy:
     gitCommit: {}
 deploy:
