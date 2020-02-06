@@ -23,7 +23,7 @@ MASTER_PASSWORD="password"
 
 userlist = ["testuser-{}".format(i) for i in range(10)]
 
-def create_account(l, username):
+def _signup_helper(l, username, report_failures=True):
     """
     create a new user account in the system
     """
@@ -40,7 +40,11 @@ def create_account(l, username):
                  "zip":"98103",
                  "ssn":"111-22-3333"
     }
-    l.client.post("/signup", data=userdata)
+    with l.client.post("/signup", data=userdata, catch_response=True) as response:
+        if not report_failures:
+            response.success()
+        elif "Error" in response.url:
+            response.failure("signup failed")
     print("created user: {}".format(username))
 
 def view_index(l):
@@ -83,6 +87,9 @@ def view_signup(l):
             if h.status_code > 200 and h.status_code < 400:
                 response.failure("Got redirect")
 
+def signup(l):
+    _signup_helper(l, uuid.uuid4(), report_failures=True)
+
 def login(l, username):
     """
     sends a /login POST request
@@ -119,10 +126,10 @@ def relogin(l):
 class UserBehavior(TaskSet):
     def setup(self):
         # create user account
-        create_account(self, "user")
+        _signup_helper(self, "user", report_failures=False)
         # create test accounts
         for username in userlist:
-            create_account(self, username)
+            _signup_helper(self, username, report_failures=False)
 
     def on_start(self):
         username = random.choice(userlist)
@@ -131,7 +138,8 @@ class UserBehavior(TaskSet):
     tasks = {
         view_index:1,
         view_home:1,
-        relogin:1
+        relogin:1,
+        signup:1
     }
 
 class WebsiteUser(HttpLocust):
