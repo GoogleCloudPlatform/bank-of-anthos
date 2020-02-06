@@ -142,7 +142,7 @@ def payment():
                                 headers=hed,
                                 timeout=3)
             if req.status_code == 201:
-                return redirect(url_for('home', msg='Transaction initiated'))
+                return redirect(url_for('home', msg='Transaction initiated'), code=201)
     except requests.exceptions.RequestException as err:
         logging.error(str(err))
     return redirect(url_for('home', msg='Transaction failed'))
@@ -186,7 +186,7 @@ def deposit():
                             headers=hed,
                             timeout=3)
         if req.status_code == 201:
-            return redirect(url_for('home', msg='Deposit accepted'))
+            return redirect(url_for('home', msg='Deposit accepted'), code=201)
     except requests.exceptions.RequestException as err:
         logging.error(str(err))
     return redirect(url_for('home', msg='Deposit failed'))
@@ -238,7 +238,6 @@ def signup_page():
     if verify_token(token):
         # already authenticated
         return redirect(url_for('home'))
-
     return render_template('signup.html')
 
 
@@ -266,7 +265,11 @@ def logout():
     """
     Logs out user by deleting token cookie and redirecting to login page
     """
-
+    token = request.cookies.get(TOKEN_NAME)
+    if not verify_token(token):
+        # not logged in
+        abort(400)
+    # authenticated
     resp = make_response(redirect(url_for('login_page')))
     resp.delete_cookie(TOKEN_NAME)
     return resp
