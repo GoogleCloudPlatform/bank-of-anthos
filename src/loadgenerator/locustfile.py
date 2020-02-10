@@ -18,10 +18,11 @@ import random
 import uuid
 from time import sleep
 from locust import HttpLocust, TaskSet
+import sys
 
 MASTER_PASSWORD="password"
 
-userlist = ["testuser-{}".format(i) for i in range(10)]
+userlist = []
 
 def _signup_helper(l, username, report_failures=True):
     """
@@ -43,7 +44,7 @@ def _signup_helper(l, username, report_failures=True):
     with l.client.post("/signup", data=userdata, catch_response=True) as response:
         if not report_failures:
             response.success()
-        elif "Error" in response.url:
+        elif response.url is None or  "Error" in response.url:
             response.failure("signup failed")
     print("created user: {}".format(username))
 
@@ -88,7 +89,10 @@ def view_signup(l):
                 response.failure("Got redirect")
 
 def signup(l):
-    _signup_helper(l, uuid.uuid4(), report_failures=True)
+    new_username = str(uuid.uuid4())
+    _signup_helper(l, new_username, report_failures=True)
+    userlist.append(new_username)
+
 
 def login(l, username):
     """
@@ -97,8 +101,11 @@ def login(l, username):
     """
     l.locust.username = username
     with l.client.post("/login", {"username":username, "password":MASTER_PASSWORD}, catch_response=True) as response:
-        if "login" in response.url:
+        if response.url is not None and "login" in response.url:
             response.failure("login failed")
+            return False
+        else:
+            return True
 
 def logout(l):
     """
@@ -125,11 +132,16 @@ def relogin(l):
 
 class UserBehavior(TaskSet):
     def setup(self):
-        # create user account
-        _signup_helper(self, "user", report_failures=False)
-        # create test accounts
-        for username in userlist:
-            _signup_helper(self, username, report_failures=False)
+        # set up test accounts
+        for i in range(10):
+            new_username = str(uuid.uuid4())
+            _signup_helper(self, new_username, report_failures=False)
+            success = login(self, new_username)
+            if success:
+                userlist.append(new_username)
+            else:
+               print("User creation failed. Aborting")
+               sys.exit(1)
 
     def on_start(self):
         username = random.choice(userlist)
