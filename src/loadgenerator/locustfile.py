@@ -17,14 +17,14 @@
 import random
 import uuid
 from time import sleep
-from locust import HttpLocust, TaskSet
+from locust import HttpLocust, TaskSet, TaskSequence, task
 import sys
 
 MASTER_PASSWORD="password"
 
 userlist = []
 
-def _signup_helper(l, username, report_failures=True):
+def _signup_helper(self, username):
     """
     create a new user account in the system
     """
@@ -41,120 +41,99 @@ def _signup_helper(l, username, report_failures=True):
                  "zip":"98103",
                  "ssn":"111-22-3333"
     }
-    with l.client.post("/signup", data=userdata, catch_response=True) as response:
-        if not report_failures:
-            response.success()
-        elif response.url is None or  "Error" in response.url:
+    with self.client.post("/signup", data=userdata, catch_response=True) as response:
+        if response.url is None or "Error" in response.url:
             response.failure("signup failed")
-    print("created user: {}".format(username))
-
-def view_index(l):
-    """
-    load the / page
-    fails if not logged on (redirets to /login)
-    """
-    with l.client.get("/", catch_response=True) as response:
-        for h in response.history:
-            if h.status_code > 200 and h.status_code < 400:
-                response.failure("Got redirect")
-
-def view_home(l):
-    """
-    load the /home page (identical to /)
-    fails if not logged on (redirets to /login)
-    """
-    with l.client.get("/home", catch_response=True) as response:
-        for h in response.history:
-            if h.status_code > 200 and h.status_code < 400:
-                response.failure("Got redirect")
-
-def view_login(l):
-    """
-    load the /login page
-    fails if already logged on (redirets to /home)
-    """
-    with l.client.get("/login", catch_response=True) as response:
-        for h in response.history:
-            if h.status_code > 200 and h.status_code < 400:
-                response.failure("Got redirect")
-
-def view_signup(l):
-    """
-    load the /signup page
-    fails if not logged on (redirets to /home)
-    """
-    with l.client.get("/signup", catch_response=True) as response:
-        for h in response.history:
-            if h.status_code > 200 and h.status_code < 400:
-                response.failure("Got redirect")
-
-def signup(l):
-    new_username = str(uuid.uuid4())
-    _signup_helper(l, new_username, report_failures=True)
-    userlist.append(new_username)
-
-
-def login(l, username):
-    """
-    sends a /login POST request
-    fails if credentials are invalid
-    """
-    l.locust.username = username
-    with l.client.post("/login", {"username":username, "password":MASTER_PASSWORD}, catch_response=True) as response:
-        if response.url is not None and "login" in response.url:
-            response.failure("login failed")
             return False
         else:
+            print("created user: {}".format(username))
             return True
 
-def logout(l):
-    """
-    sends a /logout POST request
-    fails if not logged in
-    """
-    l.client.post("/logout")
-    l.locust.username = None
 
-def relogin(l):
-    """
-    log out of current account and into a new one
-    also test loading pages only accessible when unauthenticated
-    """
-    logout(l)
-    sleep(1)
-    view_login(l)
-    sleep(1)
-    view_signup(l)
-    sleep(1)
-    new_username = random.choice(userlist)
-    login(l, new_username)
+class AuthenticatedTasks(TaskSet):
+
+    @task(5)
+    def view_index(self):
+        """
+        load the / page
+        fails if not logged on (redirets to /login)
+        """
+        with self.client.get("/", catch_response=True) as response:
+            for h in response.history:
+                if h.status_code > 200 and h.status_code < 400:
+                    response.failure("Got redirect")
+
+    @task(5)
+    def view_home(self):
+        """
+        load the /home page (identical to /)
+        fails if not logged on (redirets to /login)
+        """
+        with self.client.get("/home", catch_response=True) as response:
+            for h in response.history:
+                if h.status_code > 200 and h.status_code < 400:
+                    response.failure("Got redirect")
 
 
-class UserBehavior(TaskSet):
-    def setup(self):
-        # set up test accounts
-        for i in range(10):
-            new_username = str(uuid.uuid4())
-            _signup_helper(self, new_username, report_failures=False)
-            success = login(self, new_username)
-            if success:
-                userlist.append(new_username)
-            else:
-               print("User creation failed. Aborting")
-               sys.exit(1)
+    @task(1)
+    def logout(self):
+        """
+        sends a /logout POST request
+        fails if not logged in
+        """
+        self.client.post("/logout")
+        self.locust.username = None
+        # go to UnauthenticatedTasks
+        self.interrupt()
 
-    def on_start(self):
-        username = random.choice(userlist)
-        login(self, username)
+class UnauthenticatedTasks(TaskSet):
 
-    tasks = {
-        view_index:1,
-        view_home:1,
-        relogin:1,
-        signup:1
-    }
+    @task(5)
+    def view_login(self):
+        """
+        load the /login page
+        fails if already logged on (redirets to /home)
+        """
+        with self.client.get("/login", catch_response=True) as response:
+            for h in response.history:
+                if h.status_code > 200 and h.status_code < 400:
+                    response.failure("Got redirect")
+
+    @task(5)
+    def view_signup(self):
+        """
+        load the /signup page
+        self.locust.username = str(uuid.uuid4())
+        fails if not logged on (redirets to /home)
+        """
+        with self.client.get("/signup", catch_response=True) as response:
+            for h in response.history:
+                if h.status_code > 200 and h.status_code < 400:
+                    response.failure("Got redirect")
+
+    @task(1)
+    def signup_and_login(self):
+        # sign up
+        new_username = str(uuid.uuid4())
+        success = _signup_helper(self, new_username)
+        if success:
+            # login
+            with self.client.post("/login", {"username":new_username,
+                    "password":MASTER_PASSWORD}, catch_response=True) as response:
+                print(response.url)
+                if response.url is None or "login" in response.url:
+                    response.failure("login failed")
+                elif response.status_code == 200:
+                    # go to AuthenticatedTasks
+                    response.success()
+                    self.locust.username = new_username
+                    userlist.append(new_username)
+                    self.interrupt()
+
+class AllTasks(TaskSequence):
+    tasks = [UnauthenticatedTasks, AuthenticatedTasks]
 
 class WebsiteUser(HttpLocust):
-    task_set = UserBehavior
+    task_set = AllTasks
     min_wait = 1000
     max_wait = 10000
