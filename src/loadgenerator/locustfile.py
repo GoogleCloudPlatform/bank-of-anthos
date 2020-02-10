@@ -121,14 +121,16 @@ class UnauthenticatedTasks(TaskSet):
             with self.client.post("/login", {"username":new_username,
                     "password":MASTER_PASSWORD}, catch_response=True) as response:
                 print(response.url)
-                if response.url is None or "login" in response.url:
-                    response.failure("login failed")
-                elif response.status_code == 200:
+                if response.url is not None \
+                        and "login" not in response.url \
+                        and response.status_code == 200:
                     # go to AuthenticatedTasks
                     response.success()
                     self.locust.username = new_username
                     userlist.append(new_username)
                     self.interrupt()
+                else:
+                    response.failure("login failed")
 
 class AllTasks(TaskSequence):
     tasks = [UnauthenticatedTasks, AuthenticatedTasks]
