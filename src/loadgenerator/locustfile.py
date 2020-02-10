@@ -17,7 +17,7 @@
 import random
 import uuid
 from time import sleep
-from locust import HttpLocust, TaskSet, TaskSequence, task
+from locust import HttpLocust, TaskSet, TaskSequence, task, seq_task
 import sys
 
 MASTER_PASSWORD="password"
@@ -50,90 +50,88 @@ def _signup_helper(self, username):
             return True
 
 
-class AuthenticatedTasks(TaskSet):
-
-    @task(5)
-    def view_index(self):
-        """
-        load the / page
-        fails if not logged on (redirets to /login)
-        """
-        with self.client.get("/", catch_response=True) as response:
-            for h in response.history:
-                if h.status_code > 200 and h.status_code < 400:
-                    response.failure("Got redirect")
-
-    @task(5)
-    def view_home(self):
-        """
-        load the /home page (identical to /)
-        fails if not logged on (redirets to /login)
-        """
-        with self.client.get("/home", catch_response=True) as response:
-            for h in response.history:
-                if h.status_code > 200 and h.status_code < 400:
-                    response.failure("Got redirect")
-
-
-    @task(1)
-    def logout(self):
-        """
-        sends a /logout POST request
-        fails if not logged in
-        """
-        self.client.post("/logout")
-        self.locust.username = None
-        # go to UnauthenticatedTasks
-        self.interrupt()
-
-class UnauthenticatedTasks(TaskSet):
-
-    @task(5)
-    def view_login(self):
-        """
-        load the /login page
-        fails if already logged on (redirets to /home)
-        """
-        with self.client.get("/login", catch_response=True) as response:
-            for h in response.history:
-                if h.status_code > 200 and h.status_code < 400:
-                    response.failure("Got redirect")
-
-    @task(5)
-    def view_signup(self):
-        """
-        load the /signup page
-        self.locust.username = str(uuid.uuid4())
-        fails if not logged on (redirets to /home)
-        """
-        with self.client.get("/signup", catch_response=True) as response:
-            for h in response.history:
-                if h.status_code > 200 and h.status_code < 400:
-                    response.failure("Got redirect")
-
-    @task(1)
-    def signup_and_login(self):
-        # sign up
-        new_username = str(uuid.uuid4())
-        success = _signup_helper(self, new_username)
-        if success:
-            # login
-            with self.client.post("/login", {"username":new_username,
-                    "password":MASTER_PASSWORD}, catch_response=True) as response:
-                print(response.url)
-                if response.url is not None \
-                        and "login" not in response.url \
-                        and response.status_code == 200:
-                    # go to AuthenticatedTasks
-                    response.success()
-                    self.locust.username = new_username
-                    userlist.append(new_username)
-                    self.interrupt()
-                else:
-                    response.failure("login failed")
-
 class AllTasks(TaskSequence):
-    tasks = [UnauthenticatedTasks, AuthenticatedTasks]
+    @seq_task(1)
+    class UnauthenticatedTasks(TaskSet):
+        @task(5)
+        def view_login(self):
+            """
+            load the /login page
+            fails if already logged on (redirets to /home)
+            """
+            with self.client.get("/login", catch_response=True) as response:
+                for h in response.history:
+                    if h.status_code > 200 and h.status_code < 400:
+                        response.failure("Got redirect")
+
+        @task(5)
+        def view_signup(self):
+            """
+            load the /signup page
+            self.locust.username = str(uuid.uuid4())
+            fails if not logged on (redirets to /home)
+            """
+            with self.client.get("/signup", catch_response=True) as response:
+                for h in response.history:
+                    if h.status_code > 200 and h.status_code < 400:
+                        response.failure("Got redirect")
+
+        @task(1)
+        def signup_and_login(self):
+            # sign up
+            new_username = str(uuid.uuid4())
+            success = _signup_helper(self, new_username)
+            if success:
+                # login
+                with self.client.post("/login", {"username":new_username,
+                        "password":MASTER_PASSWORD}, catch_response=True) as response:
+                    print(response.url)
+                    if response.url is not None \
+                            and "login" not in response.url \
+                            and response.status_code == 200:
+                        # go to AuthenticatedTasks
+                        response.success()
+                        self.locust.username = new_username
+                        userlist.append(new_username)
+                        self.interrupt()
+                    else:
+                        response.failure("login failed")
+
+    @seq_task(2)
+    class AuthenticatedTasks(TaskSet):
+        @task(5)
+        def view_index(self):
+            """
+            load the / page
+            fails if not logged on (redirets to /login)
+            """
+            with self.client.get("/", catch_response=True) as response:
+                for h in response.history:
+                    if h.status_code > 200 and h.status_code < 400:
+                        response.failure("Got redirect")
+
+        @task(5)
+        def view_home(self):
+            """
+            load the /home page (identical to /)
+            fails if not logged on (redirets to /login)
+            """
+            with self.client.get("/home", catch_response=True) as response:
+                for h in response.history:
+                    if h.status_code > 200 and h.status_code < 400:
+                        response.failure("Got redirect")
+
+        @task(1)
+        def logout(self):
+            """
+            sends a /logout POST request
+            fails if not logged in
+            """
+            self.client.post("/logout")
+            self.locust.username = None
+            # go to UnauthenticatedTasks
+            self.interrupt()
+
 
 class WebsiteUser(HttpLocust):
     task_set = AllTasks
