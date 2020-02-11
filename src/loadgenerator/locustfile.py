@@ -19,10 +19,11 @@ import uuid
 from time import sleep
 from locust import HttpLocust, TaskSet, TaskSequence, task, seq_task
 import sys
+from random import randint
+import json
+
 
 MASTER_PASSWORD="password"
-
-userlist = []
 
 def signup_helper(l, username):
     """
@@ -103,7 +104,6 @@ class AllTasks(TaskSequence):
             if success:
                 # go to AuthenticatedTasks
                 self.locust.username = new_username
-                userlist.append(new_username)
                 self.interrupt()
 
     @seq_task(2)
@@ -129,6 +129,19 @@ class AllTasks(TaskSequence):
                 for h in response.history:
                     if h.status_code > 200 and h.status_code < 400:
                         response.failure("Got redirect")
+
+        @task(50)
+        def deposit(self):
+            """
+            POST to /deposit, depositing external money into account
+            """
+            account_info = {"account_num":str(randint(100000000, 999999999)),
+                            "routing_num":"111111111"
+                           }
+            transaction = { "account": json.dumps(account_info),
+                            "amount":randint(100, 1000)
+                          }
+            self.client.post("/deposit", data=transaction)
 
         @task(2)
         def login(self):
