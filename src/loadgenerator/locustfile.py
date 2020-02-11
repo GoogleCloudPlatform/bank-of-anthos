@@ -13,41 +13,44 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""
+Exercises the frontend endpoints for the system
+"""
+
 
 import random
 import uuid
-from time import sleep
-from locust import HttpLocust, TaskSet, TaskSequence, task, seq_task
-import sys
-from random import randint, random
 import json
-import os
+from random import randint, random
+import sys
+
+from locust import HttpLocust, TaskSet, TaskSequence, task, seq_task
 
 
-MASTER_PASSWORD="password"
 
-def signup_helper(l, username):
+MASTER_PASSWORD = "password"
+
+def signup_helper(locust, username):
     """
     create a new user account in the system
     succeeds if token was returned
     """
-    userdata = { "username":username,
-                 "password":MASTER_PASSWORD,
-                 "password-repeat":MASTER_PASSWORD,
-                 "firstname": username,
-                 "lastname":"TestAccount",
-                 "birthday":"01/01/2000",
-                 "timezone":"82",
-                 "address":"1021 Valley St",
-                 "city":"Seattle",
-                 "state":"WA",
-                 "zip":"98103",
-                 "ssn":"111-22-3333"
-    }
-    with l.client.post("/signup", data=userdata, catch_response=True) as response:
+    userdata = {"username":username,
+                "password":MASTER_PASSWORD,
+                "password-repeat":MASTER_PASSWORD,
+                "firstname": username,
+                "lastname":"TestAccount",
+                "birthday":"01/01/2000",
+                "timezone":"82",
+                "address":"1021 Valley St",
+                "city":"Seattle",
+                "state":"WA",
+                "zip":"98103",
+                "ssn":"111-22-3333"}
+    with locust.client.post("/signup", data=userdata, catch_response=True) as response:
         found_token = False
-        for r in response.history:
-            found_token |= r.cookies.get('token') is not None
+        for r_hist in response.history:
+            found_token |= r_hist.cookies.get('token') is not None
         if found_token:
             response.success()
             print("created user: {}".format(username))
@@ -56,6 +59,9 @@ def signup_helper(l, username):
         return found_token
 
 class AllTasks(TaskSequence):
+    """
+    wrapper for UnauthenticatedTasks and AuthenticatedTasks sets
+    """
     def setup(self):
         """
         Before starting, attempt to create one account
@@ -71,6 +77,9 @@ class AllTasks(TaskSequence):
 
     @seq_task(1)
     class UnauthenticatedTasks(TaskSet):
+        """
+        set of tasks to run before obtaining an auth token
+        """
         @task(5)
         def view_login(self):
             """
@@ -78,8 +87,8 @@ class AllTasks(TaskSequence):
             fails if already logged on (redirets to /home)
             """
             with self.client.get("/login", catch_response=True) as response:
-                for h in response.history:
-                    if h.status_code > 200 and h.status_code < 400:
+                for r_hist in response.history:
+                    if r_hist.status_code > 200 and r_hist.status_code < 400:
                         response.failure("Got redirect")
 
         @task(5)
@@ -89,8 +98,8 @@ class AllTasks(TaskSequence):
             fails if not logged on (redirets to /home)
             """
             with self.client.get("/signup", catch_response=True) as response:
-                for h in response.history:
-                    if h.status_code > 200 and h.status_code < 400:
+                for r_hist in response.history:
+                    if r_hist.status_code > 200 and r_hist.status_code < 400:
                         response.failure("Got redirect")
 
         @task(1)
@@ -109,7 +118,14 @@ class AllTasks(TaskSequence):
 
     @seq_task(2)
     class AuthenticatedTasks(TaskSet):
+        """
+        set of tasks to run after obtaining an auth token
+        """
         def on_start(self):
+            """
+            on start, deposit a large balance into each account
+            to ensure all payments are covered
+            """
             self.deposit(1000000)
 
         @task(5)
@@ -119,8 +135,8 @@ class AllTasks(TaskSequence):
             fails if not logged on (redirets to /login)
             """
             with self.client.get("/", catch_response=True) as response:
-                for h in response.history:
-                    if h.status_code > 200 and h.status_code < 400:
+                for r_hist in response.history:
+                    if r_hist.status_code > 200 and r_hist.status_code < 400:
                         response.failure("Got redirect")
 
         @task(5)
@@ -130,8 +146,8 @@ class AllTasks(TaskSequence):
             fails if not logged on (redirets to /login)
             """
             with self.client.get("/home", catch_response=True) as response:
-                for h in response.history:
-                    if h.status_code > 200 and h.status_code < 400:
+                for r_hist in response.history:
+                    if r_hist.status_code > 200 and r_hist.status_code < 400:
                         response.failure("Got redirect")
 
         @task(20)
@@ -141,9 +157,8 @@ class AllTasks(TaskSequence):
             """
             if amount is None:
                 amount = random() * 1000
-            transaction = { "account_num":str(randint(100000000, 999999999)),
-                            "amount":amount
-                          }
+            transaction = {"account_num":str(randint(100000000, 999999999)),
+                           "amount":amount}
             with self.client.post("/payment", data=transaction, catch_response=True) as response:
                 if "failed" in response.url:
                     response.failure("payment failed")
@@ -156,11 +171,9 @@ class AllTasks(TaskSequence):
             if amount is None:
                 amount = random() * 1000
             account_info = {"account_num":str(randint(100000000, 999999999)),
-                            "routing_num":"111111111"
-                           }
-            transaction = { "account": json.dumps(account_info),
-                            "amount":amount
-                          }
+                            "routing_num":"111111111"}
+            transaction = {"account": json.dumps(account_info),
+                           "amount":amount}
             with self.client.post("/deposit", data=transaction, catch_response=True) as response:
                 if "failed" in response.url:
                     response.failure("deposit failed")
@@ -173,10 +186,10 @@ class AllTasks(TaskSequence):
             """
             with self.client.post("/login", {"username":self.locust.username,
                                              "password":MASTER_PASSWORD},
-                                             catch_response=True) as response:
+                                  catch_response=True) as response:
                 found_token = False
-                for r in response.history:
-                    found_token |= r.cookies.get('token') is not None
+                for r_hist in response.history:
+                    found_token |= r_hist.cookies.get('token') is not None
                 if found_token:
                     response.success()
                 else:
@@ -196,6 +209,9 @@ class AllTasks(TaskSequence):
 
 
 class WebsiteUser(HttpLocust):
+    """
+    Locust class to simulate HTTP users
+    """
     task_set = AllTasks
     min_wait = 100
     max_wait = 1000

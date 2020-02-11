@@ -43,8 +43,6 @@ spec:
           value: "frontend:80"
         - name: USERS
           value: "20"
-        - name: LOCAL_ROUTING_NUM
-          value: "123456789"
         resources:
           requests:
             cpu: 300m
