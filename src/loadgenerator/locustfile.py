@@ -108,6 +108,9 @@ class AllTasks(TaskSequence):
 
     @seq_task(2)
     class AuthenticatedTasks(TaskSet):
+        def on_start(self):
+            self.deposit(1000000, 1000000)
+
         @task(5)
         def view_index(self):
             """
@@ -131,7 +134,7 @@ class AllTasks(TaskSequence):
                         response.failure("Got redirect")
 
         @task(50)
-        def deposit(self):
+        def deposit(self, min_val=1, max_val=10000):
             """
             POST to /deposit, depositing external money into account
             """
@@ -139,7 +142,7 @@ class AllTasks(TaskSequence):
                             "routing_num":"111111111"
                            }
             transaction = { "account": json.dumps(account_info),
-                            "amount":randint(100, 1000)
+                            "amount":randint(min_val, max_val)
                           }
             self.client.post("/deposit", data=transaction)
 
