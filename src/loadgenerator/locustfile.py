@@ -19,7 +19,7 @@ import uuid
 from time import sleep
 from locust import HttpLocust, TaskSet, TaskSequence, task, seq_task
 import sys
-from random import randint
+from random import randint, random
 import json
 import os
 
@@ -140,7 +140,7 @@ class AllTasks(TaskSequence):
             POST to /payment, sending money to other account
             """
             if amount is None:
-                amount = randint(1, 1000)
+                amount = random() * 1000
             transaction = { "account_num":str(randint(100000000, 999999999)),
                             "amount":amount
                           }
@@ -154,7 +154,7 @@ class AllTasks(TaskSequence):
             POST to /deposit, depositing external money into account
             """
             if amount is None:
-                amount = randint(1, 1000)
+                amount = random() * 1000
             account_info = {"account_num":str(randint(100000000, 999999999)),
                             "routing_num":"111111111"
                            }
