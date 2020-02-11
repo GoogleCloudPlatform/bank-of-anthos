@@ -27,6 +27,7 @@ userlist = []
 def signup_helper(l, username):
     """
     create a new user account in the system
+    succeeds if token was returned
     """
     userdata = { "username":username,
                  "password":MASTER_PASSWORD,
@@ -42,14 +43,15 @@ def signup_helper(l, username):
                  "ssn":"111-22-3333"
     }
     with l.client.post("/signup", data=userdata, catch_response=True) as response:
-        if response.url is not None \
-                and "login" not in response.url \
-                and response.status_code == 200:
+        found_token = False
+        for r in response.history:
+            found_token |= r.cookies.get('token') is not None
+        if found_token:
+            response.success()
             print("created user: {}".format(username))
-            return True
         else:
-            response.failure("signup failed")
-            return False
+            response.failure("login failed")
+        return found_token
 
 class AllTasks(TaskSequence):
     def setup(self):
@@ -132,13 +134,15 @@ class AllTasks(TaskSequence):
         def login(self):
             """
             sends POST request to /login with stored credentials
+            succeeds if a token was returned
             """
             with self.client.post("/login", {"username":self.locust.username,
                                              "password":MASTER_PASSWORD},
                                              catch_response=True) as response:
-                if response.url is not None \
-                        and "login" not in response.url \
-                        and response.status_code == 200:
+                found_token = False
+                for r in response.history:
+                    found_token |= r.cookies.get('token') is not None
+                if found_token:
                     response.success()
                 else:
                     response.failure("login failed")
