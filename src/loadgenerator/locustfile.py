@@ -24,35 +24,47 @@ MASTER_PASSWORD="password"
 
 userlist = []
 
+def signup_helper(l, username):
+    """
+    create a new user account in the system
+    """
+    userdata = { "username":username,
+                 "password":MASTER_PASSWORD,
+                 "password-repeat":MASTER_PASSWORD,
+                 "firstname": username,
+                 "lastname":"TestAccount",
+                 "birthday":"01/01/2000",
+                 "timezone":"82",
+                 "address":"1021 Valley St",
+                 "city":"Seattle",
+                 "state":"WA",
+                 "zip":"98103",
+                 "ssn":"111-22-3333"
+    }
+    with l.client.post("/signup", data=userdata, catch_response=True) as response:
+        if response.url is not None \
+                and "Error" not in response.url \
+                and response.status_code == 200:
+            print("created user: {}".format(username))
+            return True
+        else:
+            response.failure("signup failed")
+            return False
+
 class AllTasks(TaskSequence):
+    def setup(self):
+        """
+        Before starting, attempt to create one account
+        If it fails, the system isn't ready. Crash and try again
+        """
+        new_username = str(uuid.uuid4())
+        success = signup_helper(self, new_username)
+        if not success:
+            print("failed to create account. Abort")
+            sys.exit(1)
+
     @seq_task(1)
     class UnauthenticatedTasks(TaskSet):
-
-        def signup_helper(self, username):
-            """
-            create a new user account in the system
-            """
-            userdata = { "username":username,
-                         "password":MASTER_PASSWORD,
-                         "password-repeat":MASTER_PASSWORD,
-                         "firstname": username,
-                         "lastname":"TestAccount",
-                         "birthday":"01/01/2000",
-                         "timezone":"82",
-                         "address":"1021 Valley St",
-                         "city":"Seattle",
-                         "state":"WA",
-                         "zip":"98103",
-                         "ssn":"111-22-3333"
-            }
-            with self.client.post("/signup", data=userdata, catch_response=True) as response:
-                if response.url is None or "Error" in response.url:
-                    response.failure("signup failed")
-                    return False
-                else:
-                    print("created user: {}".format(username))
-                    return True
-
         @task(5)
         def view_login(self):
             """
@@ -83,7 +95,7 @@ class AllTasks(TaskSequence):
             """
             # sign up
             new_username = str(uuid.uuid4())
-            success = self.signup_helper(new_username)
+            success = signup_helper(self, new_username)
             if success:
                 # login
                 with self.client.post("/login", {"username":new_username,
