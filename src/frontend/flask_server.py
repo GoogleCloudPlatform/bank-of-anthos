@@ -213,8 +213,6 @@ def login():
 
     Fails if userservice does not accept input username and password
     """
-    username = request.form['username']
-    password = request.form['password']
     return _login_helper(request.form['username'],
                          request.form['password'])
 
