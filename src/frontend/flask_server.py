@@ -142,7 +142,7 @@ def payment():
                                 headers=hed,
                                 timeout=3)
             if req.status_code == 201:
-                return redirect(url_for('home', msg='Transaction initiated'), code=201)
+                return redirect(url_for('home', msg='Transaction initiated'))
     except requests.exceptions.RequestException as err:
         logging.error(str(err))
     return redirect(url_for('home', msg='Transaction failed'))
@@ -186,7 +186,7 @@ def deposit():
                             headers=hed,
                             timeout=3)
         if req.status_code == 201:
-            return redirect(url_for('home', msg='Deposit accepted'), code=201)
+            return redirect(url_for('home', msg='Deposit accepted'))
     except requests.exceptions.RequestException as err:
         logging.error(str(err))
     return redirect(url_for('home', msg='Deposit failed'))
