@@ -271,10 +271,6 @@ def logout():
     Logs out user by deleting token cookie and redirecting to login page
     """
     token = request.cookies.get(TOKEN_NAME)
-    if not verify_token(token):
-        # not logged in
-        abort(400)
-    # authenticated
     resp = make_response(redirect(url_for('login_page')))
     resp.delete_cookie(TOKEN_NAME)
     return resp
