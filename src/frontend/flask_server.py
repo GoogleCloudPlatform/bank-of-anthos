@@ -203,7 +203,9 @@ def login_page():
         return redirect(url_for('home'))
 
     return render_template('login.html',
-                           message=request.args.get('msg', None))
+                           message=request.args.get('msg', None),
+                           default_user=os.getenv('DEFAULT_USERNAME', ''),
+                           default_password=os.getenv('DEFAULT_PASSWORD', ''))
 
 
 @APP.route('/login', methods=['POST'])
