@@ -62,6 +62,8 @@ class AllTasks(TaskSequence):
         if not success:
             print("failed to create account. Abort")
             sys.exit(1)
+        else:
+            self.client.post("/logout")
 
     @seq_task(1)
     class UnauthenticatedTasks(TaskSet):
@@ -88,29 +90,19 @@ class AllTasks(TaskSequence):
                         response.failure("Got redirect")
 
         @task(1)
-        def signup_and_login(self):
+        def signup(self):
             """
-            sends POST requests to /signup and /login to create a new user
+            sends POST request to /signup to create a new user
             on success, exits UnauthenticatedTasks
             """
             # sign up
             new_username = str(uuid.uuid4())
             success = signup_helper(self, new_username)
             if success:
-                # login
-                with self.client.post("/login", {"username":new_username,
-                        "password":MASTER_PASSWORD}, catch_response=True) as response:
-                    print(response.url)
-                    if response.url is not None \
-                            and "login" not in response.url \
-                            and response.status_code == 200:
-                        # go to AuthenticatedTasks
-                        response.success()
-                        self.locust.username = new_username
-                        userlist.append(new_username)
-                        self.interrupt()
-                    else:
-                        response.failure("login failed")
+                # go to AuthenticatedTasks
+                self.locust.username = new_username
+                userlist.append(new_username)
+                self.interrupt()
 
     @seq_task(2)
     class AuthenticatedTasks(TaskSet):
@@ -135,6 +127,21 @@ class AllTasks(TaskSequence):
                 for h in response.history:
                     if h.status_code > 200 and h.status_code < 400:
                         response.failure("Got redirect")
+
+        @task(2)
+        def login(self):
+            """
+            sends POST request to /login with stored credentials
+            """
+            with self.client.post("/login", {"username":self.locust.username,
+                                             "password":MASTER_PASSWORD},
+                                             catch_response=True) as response:
+                if response.url is not None \
+                        and "login" not in response.url \
+                        and response.status_code == 200:
+                    response.success()
+                else:
+                    response.failure("login failed")
 
         @task(1)
         def logout(self):
