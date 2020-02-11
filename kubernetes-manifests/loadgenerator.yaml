@@ -42,7 +42,7 @@ spec:
         - name: FRONTEND_ADDR
           value: "frontend:80"
         - name: USERS
-          value: "10"
+          value: "20"
         - name: LOCAL_ROUTING_NUM
           value: "123456789"
         resources:
