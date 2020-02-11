@@ -134,7 +134,7 @@ class AllTasks(TaskSequence):
                     if h.status_code > 200 and h.status_code < 400:
                         response.failure("Got redirect")
 
-        @task(10)
+        @task(20)
         def payment(self, amount=None):
             """
             POST to /payment, sending money to other account
@@ -148,7 +148,7 @@ class AllTasks(TaskSequence):
                 if "failed" in response.url:
                     response.failure("payment failed")
 
-        @task(10)
+        @task(20)
         def deposit(self, amount=None):
             """
             POST to /deposit, depositing external money into account
@@ -197,5 +197,5 @@ class AllTasks(TaskSequence):
 
 class WebsiteUser(HttpLocust):
     task_set = AllTasks
-    min_wait = 1000
-    max_wait = 10000
+    min_wait = 100
+    max_wait = 1000
