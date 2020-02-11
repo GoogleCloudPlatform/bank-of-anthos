@@ -61,8 +61,8 @@ jobs:
             REQUEST_COUNT=$(kubectl logs -l app=loadgenerator | grep Total | awk '{print $2}')
         done
         # ensure there are no errors hitting endpoints
-        ERROR_COUNT=$(kubectl logs -l app=loadgenerator | grep Total | awk '{print $3}' | sed "s/[(][^)]*[)]//g" ")]")
-        if [[ "$ERROR_COUNT" -gt "0" ]]; then 
+        ERROR_COUNT=$(kubectl logs -l app=loadgenerator | grep Total | awk '{print $3}' | sed "s/[(][^)]*[)]//g")
+        if [[ "$ERROR_COUNT" -gt "0" ]]; then
           exit 1
         fi
 
