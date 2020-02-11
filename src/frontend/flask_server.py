@@ -120,9 +120,9 @@ def payment():
         return abort(401)
     try:
         account_id = jwt.decode(token, verify=False)['acct']
-        recipient = request.form['recipient']
+        recipient = request.form['account_num']
         if recipient == 'other':
-            recipient = request.form['other-recipient']
+            recipient = request.form['other_account_num']
         # convert amount to integer
         amount = int(float(request.form['amount']) * 100)
         # verify balance is sufficient

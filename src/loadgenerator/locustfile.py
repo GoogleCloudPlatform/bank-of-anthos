@@ -139,7 +139,7 @@ class AllTasks(TaskSequence):
             """
             POST to /payment, sending money to other account
             """
-            transaction = { "recipient":str(randint(100000000, 999999999)),
+            transaction = { "account_num":str(randint(100000000, 999999999)),
                             "amount":randint(min_val, max_val)
                           }
             with self.client.post("/payment", data=transaction, catch_response=True) as response:
