@@ -43,7 +43,7 @@ def signup_helper(l, username):
     }
     with l.client.post("/signup", data=userdata, catch_response=True) as response:
         if response.url is not None \
-                and "Error" not in response.url \
+                and "login" not in response.url \
                 and response.status_code == 200:
             print("created user: {}".format(username))
             return True

@@ -215,7 +215,11 @@ def login():
     """
     username = request.form['username']
     password = request.form['password']
+    return _login_helper(request.form['username'],
+                         request.form['password'])
 
+
+def _login_helper(username, password):
     req = requests.get(url=APP.config["LOGIN_URI"],
                        params={'username': username, 'password': password})
     if req.status_code == 200:
@@ -254,8 +258,9 @@ def signup():
                         data=request.form,
                         timeout=3)
     if req.status_code == 201:
-        # user created
-        return redirect(url_for('login', msg='Account created successfully'))
+        # user created. Attempt login
+        return _login_helper(request.form['username'],
+                             request.form['password'])
     logging.error(req.text)
     return redirect(url_for('login', msg='Error: Account creation failed'))
 
