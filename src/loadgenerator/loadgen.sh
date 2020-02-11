@@ -22,11 +22,6 @@ if [[ -z "${FRONTEND_ADDR}" ]]; then
     exit 1
 fi
 
-if [[ -z "${LOCAL_ROUTING_NUM}" ]]; then
-    echo >&2 "LOCAL_ROUTING_NUM not specified"
-    exit 1
-fi
-
 set -x
 
 # run loadgen
