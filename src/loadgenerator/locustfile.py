@@ -110,7 +110,7 @@ class AllTasks(TaskSequence):
     @seq_task(2)
     class AuthenticatedTasks(TaskSet):
         def on_start(self):
-            self.deposit(1e9, 1e9)
+            self.deposit(1000000)
 
         @task(5)
         def view_index(self):
@@ -134,30 +134,36 @@ class AllTasks(TaskSequence):
                     if h.status_code > 200 and h.status_code < 400:
                         response.failure("Got redirect")
 
-        @task(50)
-        def payment(self, min_val=1, max_val=1000):
+        @task(10)
+        def payment(self, amount=None):
             """
             POST to /payment, sending money to other account
             """
+            if amount is None:
+                amount = randint(1, 1000)
             transaction = { "account_num":str(randint(100000000, 999999999)),
-                            "amount":randint(min_val, max_val)
+                            "amount":amount
                           }
             with self.client.post("/payment", data=transaction, catch_response=True) as response:
-                print("payment: ", response)
+                if "failed" in response.url:
+                    response.failure("payment failed")
 
-        @task(5)
-        def deposit(self, min_val=1, max_val=1000):
+        @task(10)
+        def deposit(self, amount=None):
             """
             POST to /deposit, depositing external money into account
             """
+            if amount is None:
+                amount = randint(1, 1000)
             account_info = {"account_num":str(randint(100000000, 999999999)),
                             "routing_num":"111111111"
                            }
             transaction = { "account": json.dumps(account_info),
-                            "amount":randint(min_val, max_val)
+                            "amount":amount
                           }
             with self.client.post("/deposit", data=transaction, catch_response=True) as response:
-                print("deposit: ", response)
+                if "failed" in response.url:
+                    response.failure("deposit failed")
 
         @task(2)
         def login(self):
