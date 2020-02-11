@@ -30,11 +30,11 @@ spec:
       terminationGracePeriodSeconds: 5
       restartPolicy: Always
       initContainers:
-      - name: init-frontend-ready
+      - name: init-ledger-ready
         image: busybox:1.28
         command: ['/bin/sh', '-c']
         args:
-        - until  [[ "$(wget --spider -S http://frontend/login 2>&1 | grep HTTP/)" == "  HTTP/1.0 200 OK" ]]; do echo waiting for frontend; sleep 2; done
+        -  set -x; until  [[ "$(wget --spider -S http://ledgerwriter:8080/ready 2>&1 | grep HTTP/)" == "  HTTP/1.1 200 " ]]; do echo waiting for frontend; sleep 2; done
       containers:
       - name: main
         image: loadgenerator
