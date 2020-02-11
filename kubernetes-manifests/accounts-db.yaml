@@ -33,7 +33,7 @@ spec:
     spec:
       containers:
         - name: mongo
-          image: mongo:4
+          image: accounts-db
           ports:
             - containerPort: 27017
 ---
