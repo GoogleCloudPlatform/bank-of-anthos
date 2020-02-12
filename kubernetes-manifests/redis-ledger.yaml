@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
       - name: redis
-        image: redis:alpine
+        image: ledger-db
         ports:
         - containerPort: 6379
         readinessProbe:

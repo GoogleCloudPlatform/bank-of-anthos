@@ -1,0 +1,3 @@
+XADD ledger * fromAccountNum 0123456789 fromRoutingNum 111111111 toAccountNum 7673361018 toRoutingNum 123456789 amount 10000000 timestamp 1.581465400814E9
+XADD ledger * fromAccountNum 7673361018 fromRoutingNum 123456789 toAccountNum 239004328 toRoutingNum 123456789 amount 5321 timestamp 1.581465400819E9
+XADD ledger * fromAccountNum 7673361018 fromRoutingNum 123456789 toAccountNum 349203411 toRoutingNum 123456789 amount 10369 timestamp 1.581465400820E9
