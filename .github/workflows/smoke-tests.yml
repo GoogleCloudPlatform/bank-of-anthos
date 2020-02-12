@@ -21,7 +21,7 @@ jobs:
         git add --all
         git commit -m "initial state"
         addlicense ./
-        if [[ -n $(git status -s) ]];
+        if [[ -n $(git status -s) ]]; then
           exit 1
         fi
     - name: Java Checkstyle

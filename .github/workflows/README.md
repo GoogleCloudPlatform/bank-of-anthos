@@ -24,6 +24,7 @@
 
     # install addlicense
     go get -u github.com/google/addlicense
+    sudo ln -s $HOME/go/bin/addlicense /bin
 
     # install pylint
     sudo pip3 install pylint
