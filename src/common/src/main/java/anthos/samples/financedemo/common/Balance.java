@@ -24,7 +24,19 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public final class Balance {
 
     @JsonProperty("balance")
-    public int amount;
+    private Integer amount;
+
+    public Balance(Integer amount) {
+        this.amount = amount;
+    }
+
+    public Integer getAmount() {
+        return this.amount;
+    }
+
+    public void setAmount(Integer amount) {
+        this.amount = amount;
+    }
 
     public String toString() {
         return String.format("%d", amount);

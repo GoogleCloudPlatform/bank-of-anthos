@@ -39,6 +39,7 @@ import com.auth0.jwt.JWTVerifier;
 import anthos.samples.financedemo.common.AuthTools;
 import anthos.samples.financedemo.common.Balance;
 import anthos.samples.financedemo.common.Transaction;
+import anthos.samples.financedemo.common.TransactionUtils;
 
 @RestController
 public final class LedgerWriterController {
@@ -47,13 +48,13 @@ public final class LedgerWriterController {
             new AnnotationConfigApplicationContext(LedgerWriterConfig.class);
 
     private final String ledgerStreamKey = System.getenv("LEDGER_STREAM");
-    private final String routingNum =  System.getenv("LOCAL_ROUTING_NUM");
+    private final String localRoutingNum =  System.getenv("LOCAL_ROUTING_NUM");
     private final String balancesUri = String.format("http://%s/get_balance",
         System.getenv("BALANCES_API_ADDR"));
     private final JWTVerifier verifier;
 
     public LedgerWriterController() {
-        this.verifier = AuthTools.newJWTVerifierFromFile(System.getenv("PUB_KEY_PATH"));
+      this.verifier = AuthTools.newJWTVerifierFromFile(System.getenv("PUB_KEY_PATH"));
     }
 
     /**
@@ -64,7 +65,7 @@ public final class LedgerWriterController {
     @GetMapping("/ready")
     @ResponseStatus(HttpStatus.OK)
     public String readiness() {
-        return "ok";
+      return "ok";
     }
 
     /**
@@ -76,37 +77,37 @@ public final class LedgerWriterController {
     @PostMapping(value = "/new_transaction", consumes = "application/json")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> addTransaction(
-            @RequestHeader("Authorization") String bearerToken,
-            @RequestBody Transaction transaction) {
+        @RequestHeader("Authorization") String bearerToken,
+        @RequestBody Transaction transaction) {
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            bearerToken = bearerToken.split("Bearer ")[1];
+          bearerToken = bearerToken.split("Bearer ")[1];
         }
         try {
-            DecodedJWT jwt = this.verifier.verify(bearerToken);
-            String initiatorAcct = jwt.getClaim("acct").asString();
-            // Ensure sender is the one who initiated this transaction,
-            // or is external deposit.
-            // TODO: Check if external account belongs to initiator of deposit.
-            if (!(transaction.getFromAccountNum() == initiatorAcct
-                  || transaction.getFromRoutingNum() != this.routingNum)) {
-                return new ResponseEntity<String>("not authorized",
-                                                  HttpStatus.UNAUTHORIZED);
-            }
-            // Ensure amount is valid value.
-            if (transaction.getAmount() <= 0) {
-                return new ResponseEntity<String>("invalid amount",
-                                                  HttpStatus.BAD_REQUEST);
-            }
-            // Ensure sender balance can cover transaction.
-            if (transaction.getFromRoutingNum() == this.routingNum) {
-                HttpHeaders headers = new HttpHeaders();
-                headers.set("Authorization", "Bearer " + bearerToken);
-                HttpEntity entity = new HttpEntity(headers);
-                RestTemplate restTemplate = new RestTemplate();
-                ResponseEntity<Balance> response = restTemplate.exchange(
+          DecodedJWT jwt = this.verifier.verify(bearerToken);
+          String initiatorAcct = jwt.getClaim("acct").asString();
+          // Ensure sender is the one who initiated this transaction,
+          // or is external deposit.
+          // TODO: Check if external account belongs to initiator of deposit.
+          if (!(transaction.getFromAccountNum() == initiatorAcct
+                || transaction.getFromRoutingNum() != this.localRoutingNum)) {
+            return new ResponseEntity<String>("not authorized",
+                HttpStatus.UNAUTHORIZED);
+                }
+          // Ensure amount is valid value.
+          if (transaction.getAmount() <= 0) {
+            return new ResponseEntity<String>("invalid amount",
+                HttpStatus.BAD_REQUEST);
+          }
+          // Ensure sender balance can cover transaction.
+          if (transaction.getFromRoutingNum() == this.localRoutingNum) {
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Bearer " + bearerToken);
+            HttpEntity entity = new HttpEntity(headers);
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<Balance> response = restTemplate.exchange(
                     balancesUri, HttpMethod.GET, entity, Balance.class);
                 Balance senderBalance = response.getBody();
-                if (senderBalance.amount < transaction.getAmount()) {
+                if (senderBalance.getAmount() < transaction.getAmount()) {
                     return new ResponseEntity<String>("insufficient balance",
                                                       HttpStatus.BAD_REQUEST);
                 }
@@ -125,13 +126,8 @@ public final class LedgerWriterController {
     private void submitTransaction(Transaction transaction) {
         StatefulRedisConnection redisConnection =
                 ctx.getBean(StatefulRedisConnection.class);
-        // Use String key/values so Redis data can be read by non-Java clients.
+        TransactionUtils.timestampTransaction(transaction);
         redisConnection.async().xadd(ledgerStreamKey,
-                "fromAccountNum", transaction.getFromAccountNum(),
-                "fromRoutingNum", transaction.getFromRoutingNum(),
-                "toAccountNum", transaction.getToAccountNum(),
-                "toRoutingNum", transaction.getToRoutingNum(),
-                "amount", transaction.getAmount().toString(),
-                "timestamp", Double.toString(transaction.getTimestamp()));
+                TransactionUtils.serializeForRedis(transaction));
     }
 }
