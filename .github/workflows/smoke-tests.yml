@@ -33,7 +33,7 @@ jobs:
         set -x
         git init
         git add --all
-        git commit -m "initial state"  --author "CI <>"
+        git commit -c user.name="CI Bot" -c user.email="<>" -m "initial state"
         addlicense ./
         if [[ -n $(git status -s) ]]; then
           exit 1
