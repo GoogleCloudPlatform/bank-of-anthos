@@ -46,6 +46,10 @@
     sudo apt install docker-ce && \
     sudo usermod -aG docker ${USER}
 
+    # set up git
+    git config --global user.name "CI"
+    git config --global user.email CI@example.com
+
     # logout and back on
     exit
     ```
