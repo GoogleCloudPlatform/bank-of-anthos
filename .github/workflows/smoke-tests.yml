@@ -14,6 +14,15 @@ jobs:
     runs-on: self-hosted
     steps:
     - uses: actions/checkout@v2
+    - name: License Check
+      run: |
+        git init
+        git add --all
+        git commit -m "initial state"
+        addlicense ./
+        if [[ -n $(git status -s) ]];
+          exit 1
+        fi
     - name: Java Checkstyle
       timeout-minutes: 20
       run: |
