@@ -33,7 +33,7 @@ jobs:
         set -x
         git init
         git add --all
-        git commit -m "initial state"
+        git commit -m "initial state"  --author "CI <>"
         addlicense ./
         if [[ -n $(git status -s) ]]; then
           exit 1
