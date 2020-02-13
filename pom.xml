@@ -17,6 +17,7 @@
 
     <modules>
         <module>src/ledgerwriter</module>
+        <module>src/balancereader</module>
         <module>src/common</module>
     </modules>
 
