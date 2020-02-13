@@ -14,21 +14,17 @@
  * limitations under the License.
  */
 
-package anthos.samples.financedemo.common;
+package anthos.samples.financedemo.common.data;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Defines a banking transaction.
- *
- * Timestamped at object creation time.
  */
 public final class Transaction {
 
-    private static final double MILLISECONDS_PER_SECOND = 1000.0;
-
     // Timestamp in seconds with decimal precision.
-    private final double timestamp;
+    private Double timestamp;
 
     @JsonProperty("fromAccountNum")
     private String fromAccountNum;
@@ -40,10 +36,6 @@ public final class Transaction {
     private String toRoutingNum;
     @JsonProperty("amount")
     private Integer amount;
-
-    public Transaction() {
-        this.timestamp = System.currentTimeMillis() / MILLISECONDS_PER_SECOND;
-    }
 
     public String getFromAccountNum() {
         return this.fromAccountNum;
@@ -85,8 +77,20 @@ public final class Transaction {
         this.amount = amount;
     }
 
-    public double getTimestamp() {
+    /**
+     * Get the timestamp in seconds with decimal precision.
+     */
+    public Double getTimestamp() {
         return this.timestamp;
+    }
+
+    /**
+     * Set the timestamp.
+     *
+     * @param timestamp in seconds with decimal precision.
+     */
+    public void setTimestamp(Double timestamp) {
+        this.timestamp = timestamp;
     }
 
     public String toString() {

@@ -10,9 +10,10 @@
     <version>1.0</version>
 
     <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.1.2.RELEASE</version>
+        <groupId>com.google.cloud.anthos.samples</groupId>
+        <artifactId>financial-demo</artifactId>
+        <version>1.0</version>
+        <relativePath>../..</relativePath>
     </parent>
 
     <properties>
@@ -29,28 +30,25 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>2.9.4</version>
-	</dependency>
-        <dependency>
-            <groupId>io.lettuce</groupId>
-            <artifactId>lettuce-core</artifactId>
-            <version>5.2.1.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>com.auth0</groupId>
             <artifactId>java-jwt</artifactId>
             <version>3.9.0</version>
         </dependency>
+        <dependency>
+            <groupId>io.lettuce</groupId>
+            <artifactId>lettuce-core</artifactId>
+            <version>5.2.1.RELEASE</version>
+        </dependency>
     </dependencies>
+
     <build>
         <plugins>
             <plugin>
@@ -76,6 +74,5 @@
                 <version>3.1.0</version>
             </plugin>
         </plugins>
-
     </build>
 </project>

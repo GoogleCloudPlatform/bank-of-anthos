@@ -17,8 +17,6 @@
 package anthos.samples.financedemo.common;
 
 import java.io.IOException;
-import java.lang.IllegalStateException;
-import java.lang.IllegalArgumentException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyFactory;
@@ -46,30 +44,37 @@ public final class AuthTools {
     public static JWTVerifier newJWTVerifierFromFile(String filePath) {
         // load public key from file
         try {
-            String pubKeyStr  = new String(Files.readAllBytes(Paths.get(filePath)));
+            String pubKeyStr =
+                    new String(Files.readAllBytes(Paths.get(filePath)));
             // trim text
-            pubKeyStr = pubKeyStr.replaceFirst("-----BEGIN PUBLIC KEY-----", "");
+            pubKeyStr =
+                    pubKeyStr.replaceFirst("-----BEGIN PUBLIC KEY-----", "");
             pubKeyStr = pubKeyStr.replaceFirst("-----END PUBLIC KEY-----", "");
             pubKeyStr = pubKeyStr.replaceAll("\\s", "");
 
             // perform encoding
             byte[] pubKeyBytes = Base64.getDecoder().decode(pubKeyStr);
             KeyFactory kf = KeyFactory.getInstance("RSA");
-            X509EncodedKeySpec keySpecX509 = new X509EncodedKeySpec(pubKeyBytes);
-            RSAPublicKey publicKey = (RSAPublicKey) kf.generatePublic(keySpecX509);
+            X509EncodedKeySpec keySpecX509 =
+                    new X509EncodedKeySpec(pubKeyBytes);
+            RSAPublicKey publicKey =
+                    (RSAPublicKey) kf.generatePublic(keySpecX509);
 
             // set up verifier
             Algorithm algorithm = Algorithm.RSA256(publicKey, null);
             return JWT.require(algorithm).build();
         } catch (IOException e) {
-            throw new IllegalArgumentException(
-                    "Could not read public key from given file path: " + filePath, e);
+            String message =
+                    "Could not read public key from given file: " + filePath;
+            throw new IllegalArgumentException(message, e);
         } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException(
-                    "The RSA cryptographic algorithm is not available on this host.", e);
+            String message =
+                    "The RSA cryptosystem is not available on this host.";
+            throw new IllegalStateException(message, e);
         } catch (InvalidKeySpecException e) {
-            throw new IllegalArgumentException(
-                    "Public key file must use X.509 standard formatting.", e);
+            String message =
+                    "Public key file must use X.509 standard formatting.";
+            throw new IllegalArgumentException(message, e);
         }
     }
 }

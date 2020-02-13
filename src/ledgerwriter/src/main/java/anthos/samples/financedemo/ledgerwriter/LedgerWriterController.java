@@ -37,9 +37,9 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.JWTVerifier;
 
 import anthos.samples.financedemo.common.AuthTools;
-import anthos.samples.financedemo.common.Balance;
-import anthos.samples.financedemo.common.Transaction;
-import anthos.samples.financedemo.common.TransactionUtils;
+import anthos.samples.financedemo.common.data.Balance;
+import anthos.samples.financedemo.common.data.Transaction;
+import anthos.samples.financedemo.common.data.TransactionRepository;
 
 @RestController
 public final class LedgerWriterController {
@@ -47,14 +47,18 @@ public final class LedgerWriterController {
     ApplicationContext ctx =
             new AnnotationConfigApplicationContext(LedgerWriterConfig.class);
 
-    private final String ledgerStreamKey = System.getenv("LEDGER_STREAM");
     private final String localRoutingNum =  System.getenv("LOCAL_ROUTING_NUM");
     private final String balancesUri = String.format("http://%s/get_balance",
         System.getenv("BALANCES_API_ADDR"));
     private final JWTVerifier verifier;
+    private final TransactionRepository transactionRepository;
 
     public LedgerWriterController() {
-      this.verifier = AuthTools.newJWTVerifierFromFile(System.getenv("PUB_KEY_PATH"));
+        this.verifier =
+                AuthTools.newJWTVerifierFromFile(System.getenv("PUB_KEY_PATH"));
+        this.transactionRepository = new TransactionRepository(
+                ctx.getBean(StatefulRedisConnection.class),
+                System.getenv("LEDGER_STREAM"));
     }
 
     /**
@@ -113,21 +117,12 @@ public final class LedgerWriterController {
                 }
             }
             // Transaction looks valid. Add to ledger.
-            System.out.println("adding transaction: " + transaction);
-            submitTransaction(transaction);
+            transactionRepository.submitTransaction(transaction);
 
             return new ResponseEntity<String>("ok", HttpStatus.CREATED);
         } catch (JWTVerificationException e) {
             return new ResponseEntity<String>("not authorized",
                                               HttpStatus.UNAUTHORIZED);
         }
-    }
-
-    private void submitTransaction(Transaction transaction) {
-        StatefulRedisConnection redisConnection =
-                ctx.getBean(StatefulRedisConnection.class);
-        TransactionUtils.timestampTransaction(transaction);
-        redisConnection.async().xadd(ledgerStreamKey,
-                TransactionUtils.serializeForRedis(transaction));
     }
 }

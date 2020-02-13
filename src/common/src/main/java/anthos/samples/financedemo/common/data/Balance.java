@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package anthos.samples.financedemo.common;
+package anthos.samples.financedemo.common.data;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
