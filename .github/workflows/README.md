@@ -13,6 +13,19 @@
     # install kubectl, maven, jdk, pip
     sudo apt-get install kubectl maven default-jdk python3-pip
 
+    # install go
+    curl -O https://storage.googleapis.com/golang/go1.12.9.linux-amd64.tar.gz
+    tar -xvf go1.12.9.linux-amd64.tar.gz
+    sudo chown -R root:root ./go
+    sudo mv go /usr/local
+    echo 'export GOPATH=$HOME/go' >> ~/.profile
+    echo 'export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin' >> ~/.profile
+    source ~/.profile
+
+    # install addlicense
+    go get -u github.com/google/addlicense
+    sudo ln -s $HOME/go/bin/addlicense /bin
+
     # install pylint
     sudo pip3 install pylint
 
