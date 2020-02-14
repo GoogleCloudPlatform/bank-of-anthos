@@ -33,6 +33,7 @@ import com.auth0.jwt.JWTVerifier;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import anthos.samples.financedemo.common.AuthTools;
 import anthos.samples.financedemo.common.data.Balance;
@@ -41,6 +42,9 @@ import anthos.samples.financedemo.common.data.TransactionRepository;
 
 @RestController
 public final class BalanceReaderController {
+
+    private static final Logger logger =
+            Logger.getLogger(BalanceReaderController.class.getName());
 
     private final ApplicationContext ctx =
             new AnnotationConfigApplicationContext(BalanceReaderConfig.class);
@@ -74,6 +78,7 @@ public final class BalanceReaderController {
                 }
             }
         );
+        logger.info("Starting background thread to listen for transactions.");
         backgroundThread.start();
     }
 
@@ -100,15 +105,14 @@ public final class BalanceReaderController {
             return new ResponseEntity<String>("ok", HttpStatus.OK);
         } else {
             return new ResponseEntity<String>("unable to serve requests",
-                                              HttpStatus.SERVICE_UNAVAILABLE);
+                    HttpStatus.SERVICE_UNAVAILABLE);
         }
     }
 
     /**
-     * Submit a new transaction to the ledger.
+     * Get the account balance for the currently authorized account.
      *
-     * @param Transaction to be submitted.
-     * @return HTTP Status 200 if transaction was successfully submitted.
+     * @return Balance JSON object if balance was successfully retrieved.
      */
     @GetMapping("/get_balance")
     @ResponseStatus(HttpStatus.OK)
@@ -121,17 +125,13 @@ public final class BalanceReaderController {
             DecodedJWT jwt = this.verifier.verify(bearerToken);
             String initiatorAcct = jwt.getClaim("acct").asString();
 
-            if (balances.containsKey(initiatorAcct)) {
-                return new ResponseEntity<Balance>(
-                        balances.get(initiatorAcct), HttpStatus.OK);
-            } else {
-                // If account not found, return an empty balance.
-                return new ResponseEntity<Balance>(
-                        new Balance(0), HttpStatus.OK);
-            }
+            // If account not found, return an empty balance.
+            Balance balance = balances.containsKey(initiatorAcct) ?
+                    balances.get(initiatorAcct) : new Balance(0);
+            return new ResponseEntity<Balance>(balance, HttpStatus.OK);
         } catch (JWTVerificationException e) {
             return new ResponseEntity<String>("not authorized",
-                                              HttpStatus.UNAUTHORIZED);
+                    HttpStatus.UNAUTHORIZED);
         }
     }
 

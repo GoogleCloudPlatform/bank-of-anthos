@@ -26,11 +26,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.logging.Logger;
 
 /**
  * Client for backend transaction repository.
  */
 public final class TransactionRepository {
+
+    private static final Logger logger =
+            Logger.getLogger(TransactionRepository.class.getName());
 
     private static final double MILLISECONDS_PER_SECOND = 1000.0;
     private static final Duration READ_STREAM_TIMEOUT = Duration.ofSeconds(10);
@@ -48,11 +52,20 @@ public final class TransactionRepository {
         this.streamOffset = READ_STREAM_START_ID;
     }
 
+    /**
+     * Submit the given transaction to the repository.
+     */
     public void submitTransaction(Transaction transaction) {
+        logger.info("Transaction submitted to repository.");
         timestampTransaction(transaction);
         redisConnection.async().xadd(ledgerStreamKey, serialize(transaction));
     }
 
+    /**
+     * Poll the repository for new transactions since last called.
+     *
+     * Will return each transaction exactly once.
+     */
     public List<Transaction> pollTransactions() {
         StreamOffset offset =
                 StreamOffset.from(ledgerStreamKey, streamOffset);
@@ -60,6 +73,10 @@ public final class TransactionRepository {
         List<StreamMessage<String, String>> messages =
                 redisConnection.sync().xread(args, offset);
 
+        if (!messages.isEmpty()) {
+            logger.info(messages.size() +
+                    " new transaction(s) polled from repository.");
+        }
         List<Transaction> transactions = new ArrayList<Transaction>();
         for (StreamMessage<String, String> message : messages) {
             streamOffset = message.getId();
