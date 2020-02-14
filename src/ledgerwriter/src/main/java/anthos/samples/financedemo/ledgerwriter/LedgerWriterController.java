@@ -49,7 +49,7 @@ public final class LedgerWriterController {
 
     private final String localRoutingNum =  System.getenv("LOCAL_ROUTING_NUM");
     private final String balancesUri = String.format("http://%s/get_balance",
-        System.getenv("BALANCES_API_ADDR"));
+            System.getenv("BALANCES_API_ADDR"));
     private final JWTVerifier verifier;
     private final TransactionRepository transactionRepository;
 
@@ -69,7 +69,7 @@ public final class LedgerWriterController {
     @GetMapping("/ready")
     @ResponseStatus(HttpStatus.OK)
     public String readiness() {
-      return "ok";
+        return "ok";
     }
 
     /**
@@ -81,39 +81,46 @@ public final class LedgerWriterController {
     @PostMapping(value = "/new_transaction", consumes = "application/json")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> addTransaction(
-        @RequestHeader("Authorization") String bearerToken,
-        @RequestBody Transaction transaction) {
+            @RequestHeader("Authorization") String bearerToken,
+            @RequestBody Transaction transaction) {
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-          bearerToken = bearerToken.split("Bearer ")[1];
+            bearerToken = bearerToken.split("Bearer ")[1];
         }
         try {
-          DecodedJWT jwt = this.verifier.verify(bearerToken);
-          String initiatorAcct = jwt.getClaim("acct").asString();
-          // Ensure sender is the one who initiated this transaction,
-          // or is external deposit.
-          // TODO: Check if external account belongs to initiator of deposit.
-          if (!(transaction.getFromAccountNum() == initiatorAcct
-                || transaction.getFromRoutingNum() != this.localRoutingNum)) {
-            return new ResponseEntity<String>("not authorized",
-                HttpStatus.UNAUTHORIZED);
-                }
-          // Ensure amount is valid value.
-          if (transaction.getAmount() <= 0) {
-            return new ResponseEntity<String>("invalid amount",
-                HttpStatus.BAD_REQUEST);
-          }
-          // Ensure sender balance can cover transaction.
-          if (transaction.getFromRoutingNum() == this.localRoutingNum) {
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Authorization", "Bearer " + bearerToken);
-            HttpEntity entity = new HttpEntity(headers);
-            RestTemplate restTemplate = new RestTemplate();
-            ResponseEntity<Balance> response = restTemplate.exchange(
-                    balancesUri, HttpMethod.GET, entity, Balance.class);
+            DecodedJWT jwt = this.verifier.verify(bearerToken);
+            String initiatorAcct = jwt.getClaim("acct").asString();
+
+            // If a local account, check that it belongs to the initiator of
+            // this request.
+            if (transaction.getFromRoutingNum().equals(this.localRoutingNum)
+                    && !transaction.getFromAccountNum().equals(initiatorAcct)) {
+                return new ResponseEntity<String>("not authorized",
+                        HttpStatus.UNAUTHORIZED);
+            }
+            // If an external account, check that it belongs to the initiator
+            // of this request.
+            // TODO: Check if external account belongs to initiator of deposit.
+
+            // Ensure amount is valid value.
+            if (transaction.getAmount() <= 0) {
+                return new ResponseEntity<String>("invalid amount",
+                        HttpStatus.BAD_REQUEST);
+            }
+            // Ensure sender balance can cover transaction.
+            if (transaction.getFromRoutingNum().equals(this.localRoutingNum)) {
+                HttpHeaders headers = new HttpHeaders();
+                headers.set("Authorization", "Bearer " + bearerToken);
+                RestTemplate restTemplate = new RestTemplate();
+                ResponseEntity<Balance> response = restTemplate.exchange(
+                        balancesUri,
+                        HttpMethod.GET,
+                        new HttpEntity(headers),
+                        Balance.class);
+
                 Balance senderBalance = response.getBody();
                 if (senderBalance.getAmount() < transaction.getAmount()) {
                     return new ResponseEntity<String>("insufficient balance",
-                                                      HttpStatus.BAD_REQUEST);
+                            HttpStatus.BAD_REQUEST);
                 }
             }
             // Transaction looks valid. Add to ledger.
@@ -122,7 +129,7 @@ public final class LedgerWriterController {
             return new ResponseEntity<String>("ok", HttpStatus.CREATED);
         } catch (JWTVerificationException e) {
             return new ResponseEntity<String>("not authorized",
-                                              HttpStatus.UNAUTHORIZED);
+                            HttpStatus.UNAUTHORIZED);
         }
     }
 }
