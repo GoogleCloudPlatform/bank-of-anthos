@@ -42,16 +42,17 @@ import anthos.samples.financedemo.common.data.TransactionRepository;
 @RestController
 public final class BalanceReaderController {
 
-    ApplicationContext ctx =
+    private final ApplicationContext ctx =
             new AnnotationConfigApplicationContext(BalanceReaderConfig.class);
 
-    private final String localRoutingNum =  System.getenv("LOCAL_ROUTING_NUM");
+    private final String localRoutingNum;
     private final JWTVerifier verifier;
     private final Map<String, Balance> balances;
     private final TransactionRepository transactionRepository;
     private final Thread backgroundThread;
 
     public BalanceReaderController() {
+        this.localRoutingNum = System.getenv("LOCAL_ROUTING_NUM");
         this.verifier =
                 AuthTools.newJWTVerifierFromFile(System.getenv("PUB_KEY_PATH"));
         this.balances = new HashMap<String, Balance>();
@@ -59,7 +60,6 @@ public final class BalanceReaderController {
                 ctx.getBean(StatefulRedisConnection.class),
                 System.getenv("LEDGER_STREAM"));
 
-        // TODO: Create background thread to poll for new transactions.
         backgroundThread = new Thread(
             new Runnable() {
                 @Override
@@ -74,6 +74,7 @@ public final class BalanceReaderController {
                 }
             }
         );
+        backgroundThread.start();
     }
 
     /**
@@ -94,9 +95,13 @@ public final class BalanceReaderController {
      */
     @GetMapping("/healthy")
     @ResponseStatus(HttpStatus.OK)
-    public String liveness() {
-        // TODO: Check status of background thread.
-        return "ok";
+    public ResponseEntity<String> liveness() {
+        if (backgroundThread.isAlive()) {
+            return new ResponseEntity<String>("ok", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<String>("unable to serve requests",
+                                              HttpStatus.SERVICE_UNAVAILABLE);
+        }
     }
 
     /**
@@ -107,7 +112,7 @@ public final class BalanceReaderController {
      */
     @GetMapping("/get_balance")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<?> addTransaction(
+    public ResponseEntity<?> getBalance(
             @RequestHeader("Authorization") String bearerToken) {
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             bearerToken = bearerToken.split("Bearer ")[1];

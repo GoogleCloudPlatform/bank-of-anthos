@@ -21,6 +21,7 @@ import io.lettuce.core.StreamMessage;
 import io.lettuce.core.XReadArgs;
 import io.lettuce.core.XReadArgs.StreamOffset;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -32,14 +33,18 @@ import java.util.HashMap;
 public final class TransactionRepository {
 
     private static final double MILLISECONDS_PER_SECOND = 1000.0;
+    private static final String STREAM_START_ID = "0";
 
     private final String ledgerStreamKey;
     private final StatefulRedisConnection redisConnection;
+
+    private String streamOffset;
 
     public TransactionRepository(StatefulRedisConnection redisConnection,
             String ledgerStreamKey) {
         this.redisConnection = redisConnection;
         this.ledgerStreamKey = ledgerStreamKey;
+        this.streamOffset = STREAM_START_ID;
     }
 
     public void submitTransaction(Transaction transaction) {
@@ -48,12 +53,15 @@ public final class TransactionRepository {
     }
 
     public List<Transaction> pollTransactions() {
-        StreamOffset offset = StreamOffset.latest(ledgerStreamKey);
+        StreamOffset offset =
+                StreamOffset.from(ledgerStreamKey, streamOffset);
+        XReadArgs args = XReadArgs.Builder.block(Duration.ofSeconds(5));
         List<StreamMessage<String, String>> messages =
-                redisConnection.sync().xread(new XReadArgs(), offset);
+                redisConnection.sync().xread(args, offset);
 
         List<Transaction> transactions = new ArrayList<Transaction>();
         for (StreamMessage<String, String> message : messages) {
+            streamOffset = message.getId();
             transactions.add(deserialize(message.getBody()));
         }
         return transactions;
