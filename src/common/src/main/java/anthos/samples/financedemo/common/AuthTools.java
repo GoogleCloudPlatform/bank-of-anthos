@@ -16,6 +16,10 @@
 
 package anthos.samples.financedemo.common;
 
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -25,10 +29,6 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
-
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
 
 /**
  * Tools for authentication.

@@ -21,6 +21,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
  * Entry point for the LedgerWriter Spring Boot application.
+ *
+ * Microservice to accept new transactions for the bank ledger.
  */
 @SpringBootApplication
 public class LedgerWriterApplication {

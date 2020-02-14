@@ -29,15 +29,11 @@ import java.util.HashMap;
 import java.util.logging.Logger;
 
 /**
- * Client for backend transaction repository.
+ * Transaction repository for the bank ledger.
  */
 public final class TransactionRepository {
 
-    private static final Logger logger =
-            Logger.getLogger(TransactionRepository.class.getName());
-
     private static final double MILLISECONDS_PER_SECOND = 1000.0;
-    private static final Duration READ_STREAM_TIMEOUT = Duration.ofSeconds(10);
     private static final String READ_STREAM_START_ID = "0";
 
     private final String ledgerStreamKey;
@@ -45,6 +41,12 @@ public final class TransactionRepository {
 
     private String streamOffset;
 
+    /**
+     * Constructor.
+     *
+     * @param redisConnection a connection to the repository Redis database.
+     * @param ledgerStreamKey the Redis stream key for the bank ledger.
+     */
     public TransactionRepository(StatefulRedisConnection redisConnection,
             String ledgerStreamKey) {
         this.redisConnection = redisConnection;
@@ -56,7 +58,6 @@ public final class TransactionRepository {
      * Submit the given transaction to the repository.
      */
     public void submitTransaction(Transaction transaction) {
-        logger.info("Transaction submitted to repository.");
         timestampTransaction(transaction);
         redisConnection.async().xadd(ledgerStreamKey, serialize(transaction));
     }
@@ -64,19 +65,22 @@ public final class TransactionRepository {
     /**
      * Poll the repository for new transactions since last called.
      *
-     * Will return each transaction exactly once.
+     * Blocking operation.
+     * Will return each new transaction only once.
+     * 
+     * @param timeout number of seconds to block before request timeout.
      */
-    public List<Transaction> pollTransactions() {
+    public List<Transaction> pollTransactions(int timeout) {
+        if (timeout < 0) {
+            throw new IllegalArgumentException(
+                    "pollTransactions request timeout must be non-negative");
+        }
         StreamOffset offset =
                 StreamOffset.from(ledgerStreamKey, streamOffset);
-        XReadArgs args = XReadArgs.Builder.block(READ_STREAM_TIMEOUT);
+        XReadArgs args = XReadArgs.Builder.block(Duration.ofSeconds(timeout));
         List<StreamMessage<String, String>> messages =
                 redisConnection.sync().xread(args, offset);
 
-        if (!messages.isEmpty()) {
-            logger.info(messages.size() +
-                    " new transaction(s) polled from repository.");
-        }
         List<Transaction> transactions = new ArrayList<Transaction>();
         for (StreamMessage<String, String> message : messages) {
             streamOffset = message.getId();

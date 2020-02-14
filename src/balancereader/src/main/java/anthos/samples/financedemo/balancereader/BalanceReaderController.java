@@ -16,6 +16,9 @@
 
 package anthos.samples.financedemo.balancereader;
 
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.JWTVerifier;
 import io.lettuce.core.api.StatefulRedisConnection;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -25,10 +28,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.http.ResponseEntity;
-
-import com.auth0.jwt.interfaces.DecodedJWT;
-import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.JWTVerifier;
 
 import java.util.HashMap;
 import java.util.List;
@@ -40,11 +39,17 @@ import anthos.samples.financedemo.common.data.Balance;
 import anthos.samples.financedemo.common.data.Transaction;
 import anthos.samples.financedemo.common.data.TransactionRepository;
 
+/**
+ * Controller for the BalanceReader service.
+ *
+ * Functions to track the bank balance for each user account.
+ */
 @RestController
 public final class BalanceReaderController {
 
     private static final Logger logger =
             Logger.getLogger(BalanceReaderController.class.getName());
+    private static final int POLL_TRANSACTIONS_TIMEOUT = 10;
 
     private final ApplicationContext ctx =
             new AnnotationConfigApplicationContext(BalanceReaderConfig.class);
@@ -55,6 +60,12 @@ public final class BalanceReaderController {
     private final TransactionRepository transactionRepository;
     private final Thread backgroundThread;
 
+    /**
+     * Constructor.
+     *
+     * Opens a connection to the transaction repository for the bank ledger.
+     * Starts background thread to poll for new transactions.
+     */
     public BalanceReaderController() {
         this.localRoutingNum = System.getenv("LOCAL_ROUTING_NUM");
         this.verifier =
@@ -70,7 +81,13 @@ public final class BalanceReaderController {
                 public void run() {
                     while (true) {
                         List<Transaction> transactions =
-                                transactionRepository.pollTransactions();
+                                transactionRepository.pollTransactions(
+                                    POLL_TRANSACTIONS_TIMEOUT);
+
+                        if (!transactions.isEmpty()) {
+                            logger.info(transactions.size() +
+                                    " transaction(s) polled from repository.");
+                        }
                         for (Transaction transaction : transactions) {
                             processTransaction(transaction);
                         }

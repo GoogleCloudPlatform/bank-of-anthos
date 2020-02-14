@@ -21,6 +21,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
  * Entry point for the BalanceReader Spring Boot application.
+ *
+ * Microservice to track the bank balance for each user account.
  */
 @SpringBootApplication
 public class BalanceReaderApplication {

@@ -25,6 +25,11 @@ import io.lettuce.core.api.StatefulRedisConnection;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Configuration for the LedgerWriter service.
+ *
+ * Configures connections to the bank ledger database backend.
+ */
 @Configuration
 public class LedgerWriterConfig {
 

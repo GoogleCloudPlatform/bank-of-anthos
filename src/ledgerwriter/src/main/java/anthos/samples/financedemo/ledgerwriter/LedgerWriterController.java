@@ -16,6 +16,9 @@
 
 package anthos.samples.financedemo.ledgerwriter;
 
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.JWTVerifier;
 import io.lettuce.core.api.StatefulRedisConnection;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -32,19 +35,25 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 
-import com.auth0.jwt.interfaces.DecodedJWT;
-import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.JWTVerifier;
+import java.util.logging.Logger;
 
 import anthos.samples.financedemo.common.AuthTools;
 import anthos.samples.financedemo.common.data.Balance;
 import anthos.samples.financedemo.common.data.Transaction;
 import anthos.samples.financedemo.common.data.TransactionRepository;
 
+/**
+ * Controller for the LedgerWriter service.
+ *
+ * Functions to accept new transactions for the bank ledger.
+ */
 @RestController
 public final class LedgerWriterController {
 
-    ApplicationContext ctx =
+    private static final Logger logger =
+            Logger.getLogger(LedgerWriterController.class.getName());
+
+    private final ApplicationContext ctx =
             new AnnotationConfigApplicationContext(LedgerWriterConfig.class);
 
     private final String localRoutingNum =  System.getenv("LOCAL_ROUTING_NUM");
@@ -53,6 +62,11 @@ public final class LedgerWriterController {
     private final JWTVerifier verifier;
     private final TransactionRepository transactionRepository;
 
+    /**
+     * Constructor.
+     *
+     * Opens a connection to the transaction repository for the bank ledger.
+     */
     public LedgerWriterController() {
         this.verifier =
                 AuthTools.newJWTVerifierFromFile(System.getenv("PUB_KEY_PATH"));
@@ -124,6 +138,7 @@ public final class LedgerWriterController {
                 }
             }
             // Transaction looks valid. Add to ledger.
+            logger.info("Transaction submitted to repository.");
             transactionRepository.submitTransaction(transaction);
 
             return new ResponseEntity<String>("ok", HttpStatus.CREATED);
