@@ -50,11 +50,10 @@ import anthos.samples.financedemo.common.data.TransactionRepository;
 @RestController
 public final class LedgerWriterController {
 
-    private static final Logger logger =
-            Logger.getLogger(LedgerWriterController.class.getName());
-
     private final ApplicationContext ctx =
             new AnnotationConfigApplicationContext(LedgerWriterConfig.class);
+    private final Logger logger =
+            Logger.getLogger(LedgerWriterController.class.getName());
 
     private final String localRoutingNum =  System.getenv("LOCAL_ROUTING_NUM");
     private final String balancesUri = String.format("http://%s/get_balance",

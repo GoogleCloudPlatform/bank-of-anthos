@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.logging.Logger;
 
 /**
  * Transaction repository for the bank ledger.
@@ -67,7 +66,7 @@ public final class TransactionRepository {
      *
      * Blocking operation.
      * Will return each new transaction only once.
-     * 
+     *
      * @param timeout number of seconds to block before request timeout.
      */
     public List<Transaction> pollTransactions(int timeout) {

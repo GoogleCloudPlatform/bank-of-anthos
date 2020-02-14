@@ -47,12 +47,12 @@ import anthos.samples.financedemo.common.data.TransactionRepository;
 @RestController
 public final class BalanceReaderController {
 
-    private static final Logger logger =
-            Logger.getLogger(BalanceReaderController.class.getName());
     private static final int POLL_TRANSACTIONS_TIMEOUT = 10;
 
     private final ApplicationContext ctx =
             new AnnotationConfigApplicationContext(BalanceReaderConfig.class);
+    private final Logger logger =
+            Logger.getLogger(BalanceReaderController.class.getName());
 
     private final String localRoutingNum;
     private final JWTVerifier verifier;
@@ -85,8 +85,9 @@ public final class BalanceReaderController {
                                     POLL_TRANSACTIONS_TIMEOUT);
 
                         if (!transactions.isEmpty()) {
-                            logger.info(transactions.size() +
-                                    " transaction(s) polled from repository.");
+                            logger.info(String.format(
+                                    "%d transaction(s) polled from repository.",
+                                    transactions.size()));
                         }
                         for (Transaction transaction : transactions) {
                             processTransaction(transaction);
@@ -143,8 +144,8 @@ public final class BalanceReaderController {
             String initiatorAcct = jwt.getClaim("acct").asString();
 
             // If account not found, return an empty balance.
-            Balance balance = balances.containsKey(initiatorAcct) ?
-                    balances.get(initiatorAcct) : new Balance(0);
+            Balance balance = (balances.containsKey(initiatorAcct)
+                    ? balances.get(initiatorAcct) : new Balance(0));
             return new ResponseEntity<Balance>(balance, HttpStatus.OK);
         } catch (JWTVerificationException e) {
             return new ResponseEntity<String>("not authorized",
