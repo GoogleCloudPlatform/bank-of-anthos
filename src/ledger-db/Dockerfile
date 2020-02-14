@@ -14,5 +14,5 @@
 FROM redis:alpine
 
 COPY run.sh /home/redis/run.sh
-COPY init-data.txt /home/redis/init-data.txt
+COPY init_data.sh /home/redis/init_data.sh
 ENTRYPOINT /home/redis/run.sh

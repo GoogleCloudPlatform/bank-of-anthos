@@ -17,5 +17,5 @@
 
 redis-server > /home/redis/output &
 sleep 4
-cat /home/redis/init-data.txt | redis-cli
+/home/redis/init_data.sh | redis-cli
 tail -f /home/redis/output
