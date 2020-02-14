@@ -13,9 +13,11 @@
 # limitations under the License.
 
 #!/bin/sh
-
+set -x
 
 redis-server > /home/redis/output &
 sleep 4
-/home/redis/init_data.sh | redis-cli
+if [ "$USE_DEFAULT_DATA" = "True"  ]; then
+    /home/redis/init_data.sh | redis-cli
+fi
 tail -f /home/redis/output
