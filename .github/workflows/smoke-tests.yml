@@ -41,7 +41,7 @@ jobs:
     - name: Java Checkstyle
       timeout-minutes: 20
       run: |
-        mvn  checkstyle:check -f ./src/*/pom.xml
+        mvn checkstyle:check
     - name: Python Checkstyle
       timeout-minutes: 20
       run: |
