@@ -31,7 +31,7 @@ spec:
         image:  redis:alpine
         command: ['/bin/sh', '-c']
         args:
-          - for i in {1..100}; do sleep 1; if redis-cli -h redis-ledger -p 6379 ping; then exit 0; fi; done; exit 1
+          - for i in {1..100}; do sleep 1; if redis-cli -h ledger-db -p 6379 ping; then exit 0; fi; done; exit 1
       containers:
       - name: history
         image: transactionhistory
@@ -41,7 +41,7 @@ spec:
           readOnly: true
         env:
         - name: LEDGER_ADDR
-          value: "redis-ledger"
+          value: "ledger-db"
         - name: LEDGER_PORT
           value: "6379"
         - name: LEDGER_STREAM

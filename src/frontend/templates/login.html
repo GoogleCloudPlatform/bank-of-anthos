@@ -52,11 +52,11 @@ limitations under the License.
 
                         <form id=signin-form method="POST" action="/login">
                             <div class="mdl-textfield mdl-js-textfield  mdl-textfield--floating-label">
-                                <input class="mdl-textfield__input" type="text" id="username" name="username">
+                            <input class="mdl-textfield__input" type="text" id="username" name="username" value="{{ default_user }}">
                                 <label class="mdl-textfield__label" for="username">Username</label>
                             </div>
                             <div class="mdl-textfield mdl-js-textfield  mdl-textfield--floating-label">
-                                <input class="mdl-textfield__input" type="password" id="password" name="password">
+                            <input class="mdl-textfield__input" type="password" id="password" name="password" value="{{ default_password  }}">
                                 <label class="mdl-textfield__label" for="password">Password</label>
                             </div>
                             <div class="mdl-dialog__actions">
