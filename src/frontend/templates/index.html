@@ -169,14 +169,14 @@ limitations under the License.
     <div class="mdl-dialog__content">
         <form id=payment-form method="POST" action="/payment">
          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-            <select class="mdl-textfield__input" id="recipients" name="recipient" onchange='CheckChoice(this.value);'>
+            <select class="mdl-textfield__input" id="account_num" name="account_num" onchange='CheckChoice(this.value);'>
                {% for account in favorite_accounts %}
                     <option value="{{ account.account_number }}">{{ account.label }} - {{ account.account_number }}</option>
                {% endfor %}
                <option disabled>──────────</option>
                <option value="other">Other account</option>
             </select>
-            <input class="mdl-textfield__input" type="number" step='1' id="other-recipient" name="other-recipient" min=1000000000 max=9999999999  placeholder="Account #" style='display:none;'/>
+            <input class="mdl-textfield__input" type="number" step='1' id="other_account_num" name="other_account_num" min=1000000000 max=9999999999  placeholder="Account #" style='display:none;'/>
             <label class="mdl-textfield__label" for="recipients">🏦 Recipient</label>
           </div>
 
@@ -216,7 +216,7 @@ limitations under the License.
           paymentDialog.close();
         });
     function CheckChoice(val){
-     var element=document.getElementById('other-recipient');
+     var element=document.getElementById('other_account_num');
      if(val=='other')
        element.style.display='block';
      else  

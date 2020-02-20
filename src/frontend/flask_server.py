@@ -120,9 +120,9 @@ def payment():
         return abort(401)
     try:
         account_id = jwt.decode(token, verify=False)['acct']
-        recipient = request.form['recipient']
+        recipient = request.form['account_num']
         if recipient == 'other':
-            recipient = request.form['other-recipient']
+            recipient = request.form['other_account_num']
         # convert amount to integer
         amount = int(float(request.form['amount']) * 100)
         # verify balance is sufficient
@@ -215,9 +215,11 @@ def login():
 
     Fails if userservice does not accept input username and password
     """
-    username = request.form['username']
-    password = request.form['password']
+    return _login_helper(request.form['username'],
+                         request.form['password'])
 
+
+def _login_helper(username, password):
     req = requests.get(url=APP.config["LOGIN_URI"],
                        params={'username': username, 'password': password})
     if req.status_code == 200:
@@ -240,7 +242,6 @@ def signup_page():
     if verify_token(token):
         # already authenticated
         return redirect(url_for('home'))
-
     return render_template('signup.html')
 
 
@@ -257,8 +258,9 @@ def signup():
                         data=request.form,
                         timeout=3)
     if req.status_code == 201:
-        # user created
-        return redirect(url_for('login', msg='Account created successfully'))
+        # user created. Attempt login
+        return _login_helper(request.form['username'],
+                             request.form['password'])
     logging.error(req.text)
     return redirect(url_for('login', msg='Error: Account creation failed'))
 
@@ -268,7 +270,6 @@ def logout():
     """
     Logs out user by deleting token cookie and redirecting to login page
     """
-
     resp = make_response(redirect(url_for('login_page')))
     resp.delete_cookie(TOKEN_NAME)
     return resp
