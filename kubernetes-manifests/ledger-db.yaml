@@ -15,19 +15,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: redis-ledger
+  name: ledger-db
 spec:
   selector:
     matchLabels:
-      app: redis-ledger
+      app: ledger-db
   template:
     metadata:
       labels:
-        app: redis-ledger
+        app: ledger-db
     spec:
       containers:
       - name: redis
-        image: redis:alpine
+        image: ledger-db
         ports:
         - containerPort: 6379
         readinessProbe:
@@ -41,6 +41,17 @@ spec:
         volumeMounts:
         - mountPath: /data
           name: redis-data
+        env:
+        - name: USE_DEFAULT_DATA
+          value: "True"
+        - name: LOCAL_ROUTING_NUM
+          value: "123456789"
+        - name: DEFAULT_ACCOUNT
+          value: "7673361018"
+        - name: DEFAULT_DEPOSIT_ACCOUNT
+          value: "0123456789"
+        - name: DEFAULT_DEPOSIT_ROUTING
+          value: "111111111"
         resources:
           limits:
             memory: 256Mi
@@ -55,11 +66,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: redis-ledger
+  name: ledger-db
 spec:
   type: ClusterIP
   selector:
-    app: redis-ledger
+    app: ledger-db
   ports:
   - name: redis
     port: 6379

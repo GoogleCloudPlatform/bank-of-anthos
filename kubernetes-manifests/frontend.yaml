@@ -50,6 +50,10 @@ spec:
           value: "123456789"
         - name: PUB_KEY_PATH
           value: "/root/.ssh/publickey"
+        - name: DEFAULT_USERNAME
+          value: "testuser123"
+        - name: DEFAULT_PASSWORD
+          value: "password"
       volumes:
       - name: publickey
         secret:
