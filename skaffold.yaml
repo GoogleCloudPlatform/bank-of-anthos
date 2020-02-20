@@ -29,6 +29,10 @@ build:
     context: src/contacts
   - image: userservice
     context: src/userservice
+  - image: accounts-db
+    context: src/accounts-db
+  - image: ledger-db
+    context: src/ledger-db
   tagPolicy:
     gitCommit: {}
 deploy:

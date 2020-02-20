@@ -68,7 +68,7 @@ jobs:
         kubectl wait --for=condition=available --timeout=500s deployment/contacts
         kubectl wait --for=condition=available --timeout=500s deployment/frontend
         kubectl wait --for=condition=available --timeout=500s deployment/ledgerwriter
-        kubectl wait --for=condition=available --timeout=500s deployment/redis-ledger
+        kubectl wait --for=condition=available --timeout=500s deployment/ledger-db
         kubectl wait --for=condition=available --timeout=500s deployment/transactionhistory
         kubectl wait --for=condition=available --timeout=500s deployment/userservice
     - name: Smoke Test
