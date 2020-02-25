@@ -74,7 +74,7 @@ def home():
     transaction_list = []
     try:
         req = requests.get(url=APP.config["HISTORY_URI"], headers=hed)
-        transaction_list = req.json()['history']
+        transaction_list = req.json()
     except (requests.exceptions.RequestException, ValueError) as err:
         logging.error(str(err))
     # get contacts

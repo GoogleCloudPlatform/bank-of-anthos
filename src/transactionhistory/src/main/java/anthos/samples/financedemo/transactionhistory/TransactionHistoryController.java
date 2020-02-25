@@ -47,6 +47,10 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.ArrayList;
 
 @RestController
 public final class TransactionHistoryController implements LedgerReaderListener {
@@ -57,6 +61,7 @@ public final class TransactionHistoryController implements LedgerReaderListener 
     private final String ledgerStreamKey = System.getenv("LEDGER_STREAM");
     private final String routingNum =  System.getenv("LOCAL_ROUTING_NUM");
     private final JWTVerifier verifier;
+    private final Map<String, List<TransactionHistoryEntry>> historyMap = new HashMap<String, List<TransactionHistoryEntry>>();
 
     public TransactionHistoryController() throws IOException,
                                            NoSuchAlgorithmException,
@@ -82,6 +87,14 @@ public final class TransactionHistoryController implements LedgerReaderListener 
     public void processTransaction(String account, TransactionHistoryEntry entry) {
         System.out.println("New Transaction:");
         System.out.println(entry);
+        List<TransactionHistoryEntry> historyList;
+        if (!this.historyMap.containsKey(account)) {
+            historyList = new ArrayList<TransactionHistoryEntry>();
+            this.historyMap.put(account, historyList);
+        } else {
+            historyList = this.historyMap.get(account);
+        }
+        historyList.add(entry);
     }
 
     /**
@@ -117,8 +130,10 @@ public final class TransactionHistoryController implements LedgerReaderListener 
         }
         try {
             DecodedJWT jwt = this.verifier.verify(bearerToken);
+            String initiatorAcct = jwt.getClaim("acct").asString();
+            List<TransactionHistoryEntry> historyList = (this.historyMap.containsKey(initiatorAcct) ? this.historyMap.get(initiatorAcct) : new ArrayList<TransactionHistoryEntry>());
 
-            return new ResponseEntity<String>("{\"history\": [{\"type\": \"CREDIT\", \"amount\": 100, \"account\": \"123\", \"timestamp\": \"123\"}]}", HttpStatus.OK);
+            return new ResponseEntity<List<TransactionHistoryEntry>>(historyList, HttpStatus.OK);
         } catch (JWTVerificationException e) {
             return new ResponseEntity<String>("not authorized",
                                               HttpStatus.UNAUTHORIZED);
