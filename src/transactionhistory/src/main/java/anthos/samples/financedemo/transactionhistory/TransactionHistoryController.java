@@ -79,9 +79,9 @@ public final class TransactionHistoryController implements LedgerReaderListener 
         LedgerReader reader = new LedgerReader(this);
     }
 
-    public void processTransaction(Transaction transaction) {
+    public void processTransaction(String account, TransactionHistoryEntry entry) {
         System.out.println("New Transaction:");
-        System.out.println(transaction);
+        System.out.println(entry);
     }
 
     /**

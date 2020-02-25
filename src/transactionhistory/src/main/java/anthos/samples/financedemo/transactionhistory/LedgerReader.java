@@ -61,7 +61,7 @@ import java.util.Map;
 import java.util.HashMap;
 
 interface LedgerReaderListener {
-    void processTransaction(Transaction transaction);
+    void processTransaction(String account, TransactionHistoryEntry entry);
 }
 
 public final class LedgerReader {
@@ -84,9 +84,13 @@ public final class LedgerReader {
         String latestTransactionId = startingTransaction;
         for (StreamMessage<String, String> message : messages) {
             latestTransactionId = message.getId();
-            Transaction transaction = new Transaction(message.getBody());
             if (this.listener != null) {
-                this.listener.processTransaction(transaction);
+                String sender = message.getBody().get("fromAccountNum");
+                String receiver = message.getBody().get("toAccountNum");
+                TransactionHistoryEntry credit = new TransactionHistoryEntry(message.getBody(), TransactionType.CREDIT);
+                TransactionHistoryEntry debit = new TransactionHistoryEntry(message.getBody(), TransactionType.DEBIT);
+                this.listener.processTransaction(receiver, credit);
+                this.listener.processTransaction(sender, debit);
             } else {
                 System.out.println("Listener not set up");
             }

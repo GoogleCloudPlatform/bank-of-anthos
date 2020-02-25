@@ -20,37 +20,46 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Map;
 
 /**
- * Defines a banking transaction.
+ * Defines a banking transaction entry.
  *
  * Timestamped at object creation time.
  */
-public final class Transaction {
 
-    // Timestamp in seconds with decimal precision.
-    private final double timestamp;
+enum TransactionType
+{
+    DEBIT, CREDIT;
+}
 
-    @JsonProperty("fromAccountNum")
-    private String fromAccountNum;
-    @JsonProperty("fromRoutingNum")
-    private String fromRoutingNum;
-    @JsonProperty("toAccountNum")
-    private String toAccountNum;
-    @JsonProperty("toRoutingNum")
-    private String toRoutingNum;
+public final class TransactionHistoryEntry {
+
+    private final String localRoutingNum =  System.getenv("LOCAL_ROUTING_NUM");
+
+    @JsonProperty("type")
+    private TransactionType type;
+    @JsonProperty("routingNum")
+    private String routingNum;
+    @JsonProperty("accountNum")
+    private String accountNum;
     @JsonProperty("amount")
     private Integer amount;
+    @JsonProperty("timestamp")
+    private final double timestamp;
 
-    public Transaction(Map<String, String> map) {
-        this.fromAccountNum = map.get("fromAccountNum");
-        this.fromRoutingNum = map.get("fromRoutingNum");
-        this.toAccountNum = map.get("toAccountNum");
-        this.toRoutingNum = map.get("toRoutingNum");
+    public TransactionHistoryEntry(Map<String, String> map, TransactionType type) {
+        this.type = type;
         this.amount = Integer.valueOf(map.get("amount"));
         this.timestamp = Double.valueOf(map.get("timestamp"));
+        if (type == TransactionType.CREDIT) {
+            this.accountNum = map.get("fromAccountNum");
+            this.routingNum = map.get("fromRoutingNum");
+        } else if (type == TransactionType.DEBIT) {
+            this.accountNum = map.get("toAccountNum");
+            this.routingNum = map.get("toRoutingNum");
+        }
     }
 
     public String toString() {
-        return String.format("%d: %s->%s",
-                amount, fromAccountNum, toAccountNum);
+        return String.format("%d: %s",
+                amount, accountNum);
     }
 }
