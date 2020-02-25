@@ -19,13 +19,13 @@ Cloud Bank was developed to demonstrate how Anthos can be beneficial to financia
 Creating a cluster
 ```
   make cluster \
-    PROJECT_ID=my-project ZONE=us-west1-a ACCOUNT=$(gcloud config list account --format "value(core.account)")
+    PROJECT_ID=$(gcloud config get-value project) ZONE=us-west1-a ACCOUNT=$(gcloud config list account --format "value(core.account)")
 ```
 
 Deploying Cloud Bank
 ```
   make deploy \
-    PROJECT_ID=my-project ZONE=us-west1-a ACCOUNT=$(gcloud config list account --format "value(core.account)")
+    PROJECT_ID=$(gcloud config get-value project) ZONE=us-west1-a ACCOUNT=$(gcloud config list account --format "value(core.account)")
 ```
 
 ---

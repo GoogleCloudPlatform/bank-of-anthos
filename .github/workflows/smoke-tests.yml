@@ -1,3 +1,17 @@
+# Copyright 2020 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 name: "Continuous Integration"
 on:
   push:
@@ -14,15 +28,25 @@ jobs:
     runs-on: self-hosted
     steps:
     - uses: actions/checkout@v2
+    - name: License Check
+      run: |
+        set -x
+        git init
+        git add --all
+        git -c user.name="CI Bot" -c user.email="<>" commit -m "initial state"
+        addlicense ./
+        if [[ -n $(git status -s) ]]; then
+          exit 1
+        fi
     - name: Java Checkstyle
       timeout-minutes: 20
       run: |
-        mvn  checkstyle:check -f ./src/*/pom.xml
+        mvn checkstyle:check
     - name: Python Checkstyle
       timeout-minutes: 20
       run: |
-        pylint --disable=F0401 --disable=W0511 --disable=E1101 --disable=R0801  ./src/*/*.py
-        # disabled warnings: import loading, todos, function members, duplicate code
+        pylint --disable=F0401 --disable=W0511 --disable=E1101 --disable=R0801 --disable=R0903  ./src/*/*.py
+        # disabled warnings: import loading, todos, function members, duplicate code, public methods
     - name: Setup Cluster
       run: |
         kind delete cluster 2>/dev/null
@@ -44,18 +68,26 @@ jobs:
         kubectl wait --for=condition=available --timeout=500s deployment/contacts
         kubectl wait --for=condition=available --timeout=500s deployment/frontend
         kubectl wait --for=condition=available --timeout=500s deployment/ledgerwriter
-        kubectl wait --for=condition=available --timeout=500s deployment/redis-ledger
+        kubectl wait --for=condition=available --timeout=500s deployment/ledger-db
         kubectl wait --for=condition=available --timeout=500s deployment/transactionhistory
         kubectl wait --for=condition=available --timeout=500s deployment/userservice
+        kubectl wait --for=condition=available --timeout=500s deployment/loadgenerator
     - name: Smoke Test
       timeout-minutes: 5
       run: |
-        RESULT=" "
-        while [[ "$RESULT" != "  HTTP/1.0 200 OK" ]]; do
-          sleep 1
-          RESULT=$(kubectl run -i --tty busybox --image=busybox --restart=Never -- sh -c "wget --spider -S http://frontend/login 2>&1 | grep 'HTTP/'")
-          echo "front end response: $RESULT"
+        set -x
+        # start fresh loadgenerator pod
+        kubectl delete pod -l app=loadgenerator
+        # wait for requests to come in
+        REQUEST_COUNT="0"
+        while [[ "$REQUEST_COUNT"  -lt "100"  ]]; do
+            sleep 5
+            REQUEST_COUNT=$(kubectl logs -l app=loadgenerator | grep Total | awk '{print $2}')
         done
-        if [[ "$RESULT" != "  HTTP/1.0 200 OK" ]]; then 
+        # ensure there are no errors hitting endpoints
+        ERROR_COUNT=$(kubectl logs -l app=loadgenerator | grep Total | awk '{print $3}' | sed "s/[(][^)]*[)]//g")
+        if [[ "$ERROR_COUNT" -gt "0" ]]; then
           exit 1
         fi
+
+
