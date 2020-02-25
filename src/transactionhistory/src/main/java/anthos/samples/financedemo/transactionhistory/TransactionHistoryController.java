@@ -49,7 +49,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 
 @RestController
-public final class TransactionHistoryController {
+public final class TransactionHistoryController implements LedgerReaderListener {
 
     ApplicationContext ctx =
             new AnnotationConfigApplicationContext(TransactionHistoryConfig.class);
@@ -74,6 +74,14 @@ public final class TransactionHistoryController {
         // set up verifier
         Algorithm algorithm = Algorithm.RSA256(publicKey, null);
         this.verifier = JWT.require(algorithm).build();
+
+        // set up transaction processor
+        LedgerReader reader = new LedgerReader(this);
+    }
+
+    public void processTransaction(Transaction transaction) {
+        System.out.println("New Transaction:");
+        System.out.println(transaction);
     }
 
     /**

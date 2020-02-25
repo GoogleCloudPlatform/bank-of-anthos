@@ -50,30 +50,68 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 
-@RestController
-public final class LedgerReader {
+import io.lettuce.core.StreamMessage;
+import io.lettuce.core.XReadArgs;
+import io.lettuce.core.XReadArgs.StreamOffset;
 
-    private Thread t;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+
+interface LedgerReaderListener {
+    void processTransaction(Transaction transaction);
+}
+
+public final class LedgerReader {
     private ApplicationContext ctx =
         new AnnotationConfigApplicationContext(TransactionHistoryConfig.class);
-    private StatefulRedisConnection c = ctx.getBean(StatefulRedisConnection.class);
+    private StatefulRedisConnection redisConnection = ctx.getBean(StatefulRedisConnection.class);
     private final String ledgerStreamKey = System.getenv("LEDGER_STREAM");
+    private final Thread backgroundThread;
+    private LedgerReaderListener listener;
 
-    public LedgerReader () {
-        Runnable r = new Runnable() {
-            public void listen() {
-                while(true){
-                    List<StreamMessage<String, String>> messages =
-                        c.sync().xread(XReadArgs.Builder.count(1),
-                                       StreamOffset.from(ledgerStreamKey, "0-0"));
-                    System.out.println(messages);
-                }
+    private String pollTransactions(int timeout, String startingTransaction) {
+        if (timeout < 0) {
+            throw new IllegalArgumentException(
+                    "pollTransactions request timeout must be non-negative");
+        }
+        StreamOffset offset = StreamOffset.from(ledgerStreamKey, startingTransaction);
+        XReadArgs args = XReadArgs.Builder.block(Duration.ofSeconds(timeout));
+        List<StreamMessage<String, String>> messages = redisConnection.sync().xread(args, offset);
+
+        String latestTransactionId = startingTransaction;
+        for (StreamMessage<String, String> message : messages) {
+            latestTransactionId = message.getId();
+            Transaction transaction = new Transaction(message.getBody());
+            if (this.listener != null) {
+                this.listener.processTransaction(transaction);
+            } else {
+                System.out.println("Listener not set up");
             }
-        };
-        t = new Thread(r);
+        }
+        return latestTransactionId;
     }
 
-    public void start() {
-        t.start();
+    public LedgerReader (LedgerReaderListener listener) {
+        this.listener = listener;
+        // catch up to latest transaction
+        final String startingTransaction = pollTransactions(1, "0");
+
+        // wait for incomming transactions in background thread
+        backgroundThread = new Thread(
+            new Runnable() {
+                @Override
+                public void run() {
+                    String latestTransaction = startingTransaction;
+                    while (true) {
+                        latestTransaction = pollTransactions(0, latestTransaction);
+                    }
+                }
+            }
+        );
+        System.out.println("Starting background thread to listen for transactions.");
+        backgroundThread.start();
     }
 }
