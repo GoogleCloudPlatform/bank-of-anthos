@@ -46,8 +46,6 @@ import java.util.LinkedList;
 public final class TransactionHistoryController
         implements LedgerReaderListener {
 
-    private final String ledgerStreamKey = System.getenv("LEDGER_STREAM");
-    private final String routingNum =  System.getenv("LOCAL_ROUTING_NUM");
     private final JWTVerifier verifier;
     private final Map<String, List<TransactionHistoryEntry>> historyMap =
         new HashMap<String, List<TransactionHistoryEntry>>();
