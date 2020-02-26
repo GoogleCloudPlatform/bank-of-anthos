@@ -105,8 +105,8 @@ public final class LedgerReader {
                         message.getBody(), TransactionType.CREDIT);
                 TransactionHistoryEntry debit = new TransactionHistoryEntry(
                         message.getBody(), TransactionType.DEBIT);
-                this.listener.processTransaction(receiver, credit);
-                this.listener.processTransaction(sender, debit);
+                this.listener.processTransaction(sender, credit);
+                this.listener.processTransaction(receiver, debit);
             } else {
                 System.out.println("Listener not set up");
             }

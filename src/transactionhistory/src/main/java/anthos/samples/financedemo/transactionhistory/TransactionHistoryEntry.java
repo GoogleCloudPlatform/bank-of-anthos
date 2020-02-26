@@ -53,11 +53,11 @@ public final class TransactionHistoryEntry {
         this.amount = Integer.valueOf(map.get("amount"));
         this.timestamp = Double.valueOf(map.get("timestamp"));
         if (type == TransactionType.CREDIT) {
-            this.accountNum = map.get("fromAccountNum");
-            this.routingNum = map.get("fromRoutingNum");
-        } else if (type == TransactionType.DEBIT) {
             this.accountNum = map.get("toAccountNum");
             this.routingNum = map.get("toRoutingNum");
+        } else if (type == TransactionType.DEBIT) {
+            this.accountNum = map.get("fromAccountNum");
+            this.routingNum = map.get("fromRoutingNum");
         }
     }
 
