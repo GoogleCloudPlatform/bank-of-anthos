@@ -111,10 +111,10 @@ public final class LedgerReader {
                 TransactionHistoryEntry debit = new TransactionHistoryEntry(
                         message.getBody(), TransactionType.DEBIT);
                 // process entries only if they belong to this bank
-                if (senderRouting.equals(localRoutingNum)){
+                if (senderRouting.equals(localRoutingNum)) {
                     this.listener.processTransaction(sender, credit);
                 }
-                if (receiverRouting.equals(localRoutingNum)){
+                if (receiverRouting.equals(localRoutingNum)) {
                     this.listener.processTransaction(receiver, debit);
                 }
             } else {
