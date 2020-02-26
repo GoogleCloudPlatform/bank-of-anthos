@@ -106,7 +106,7 @@ public final class LedgerReader {
                 String senderRouting = map.get("fromRoutingNum");
                 String receiver = map.get("toAccountNum");
                 String receiverRouting = map.get("toRoutingNum");
-                Integer amount = Integer.valueOf(message.getBody().get("amount"));
+                Integer amount = Integer.valueOf(map.get("amount"));
                 if (senderRouting.equals(localRoutingNum)) {
                     this.listener.processTransaction(receiver, amount);
                 }

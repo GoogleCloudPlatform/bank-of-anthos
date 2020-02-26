@@ -37,10 +37,8 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
-import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.LinkedList;
 
 @RestController
 public final class BalanceReaderController implements LedgerReaderListener {
@@ -109,7 +107,7 @@ public final class BalanceReaderController implements LedgerReaderListener {
     }
 
     /**
-     * Return the balance for the requesting user
+     * Return the balance for the authenticated user
      */
     @GetMapping("/get_balance")
     public ResponseEntity<?> getHistory(
@@ -133,13 +131,12 @@ public final class BalanceReaderController implements LedgerReaderListener {
 
     /**
      * Receives transactions from LedgerReader for processing
-     * Add transaction records to internal Map
+     * Update balance in internal Map
      *
      * @param account associated with the transaction
      * @param entry with transaction metadata
      */
     public void processTransaction(String account, Integer amount) {
-        //LinkedList<TransactionHistoryEntry> historyList;
         if (this.balanceMap.containsKey(account)) {
             amount += this.balanceMap.get(account);
         }
