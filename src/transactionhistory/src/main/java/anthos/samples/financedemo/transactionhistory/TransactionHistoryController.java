@@ -40,7 +40,7 @@ import com.auth0.jwt.JWTVerifier;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.ArrayList;
+import java.util.LinkedList;
 
 @RestController
 public final class TransactionHistoryController
@@ -127,7 +127,7 @@ public final class TransactionHistoryController
             if (this.historyMap.containsKey(initiatorAcct)) {
                 historyList = this.historyMap.get(initiatorAcct);
             } else {
-                historyList = new ArrayList<TransactionHistoryEntry>();
+                historyList = new LinkedList<TransactionHistoryEntry>();
             }
             return new ResponseEntity<List<TransactionHistoryEntry>>(
                     historyList, HttpStatus.OK);
@@ -146,14 +146,14 @@ public final class TransactionHistoryController
      */
     public void processTransaction(String account,
                                    TransactionHistoryEntry entry) {
-        List<TransactionHistoryEntry> historyList;
+        LinkedList<TransactionHistoryEntry> historyList;
         if (!this.historyMap.containsKey(account)) {
-            historyList = new ArrayList<TransactionHistoryEntry>();
+            historyList = new LinkedList<TransactionHistoryEntry>();
             this.historyMap.put(account, historyList);
         } else {
-            historyList = this.historyMap.get(account);
+            historyList = (LinkedList)this.historyMap.get(account);
         }
-        historyList.add(entry);
+        historyList.addFirst(entry);
     }
 
 
