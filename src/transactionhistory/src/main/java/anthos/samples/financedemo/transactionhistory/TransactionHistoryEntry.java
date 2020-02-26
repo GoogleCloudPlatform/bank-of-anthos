@@ -16,7 +16,6 @@
 
 package anthos.samples.financedemo.transactionhistory;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Map;
 
 /**
@@ -25,8 +24,7 @@ import java.util.Map;
  * Timestamped at object creation time.
  */
 
-enum TransactionType
-{
+enum TransactionType {
     DEBIT, CREDIT;
 }
 
@@ -34,18 +32,14 @@ public final class TransactionHistoryEntry {
 
     private final String localRoutingNum =  System.getenv("LOCAL_ROUTING_NUM");
 
-    @JsonProperty("type")
     private TransactionType type;
-    @JsonProperty("routingNum")
     private String routingNum;
-    @JsonProperty("accountNum")
     private String accountNum;
-    @JsonProperty("amount")
     private Integer amount;
-    @JsonProperty("timestamp")
     private final double timestamp;
 
-    public TransactionHistoryEntry(Map<String, String> map, TransactionType type) {
+    public TransactionHistoryEntry(Map<String, String> map,
+                                   TransactionType type) {
         this.type = type;
         this.amount = Integer.valueOf(map.get("amount"));
         this.timestamp = Double.valueOf(map.get("timestamp"));

@@ -16,21 +16,11 @@
 
 package anthos.samples.financedemo.transactionhistory;
 
-import io.lettuce.core.api.StatefulRedisConnection;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -53,15 +43,14 @@ import java.util.HashMap;
 import java.util.ArrayList;
 
 @RestController
-public final class TransactionHistoryController implements LedgerReaderListener {
-
-    ApplicationContext ctx =
-            new AnnotationConfigApplicationContext(TransactionHistoryConfig.class);
+public final class TransactionHistoryController
+    implements LedgerReaderListener {
 
     private final String ledgerStreamKey = System.getenv("LEDGER_STREAM");
     private final String routingNum =  System.getenv("LOCAL_ROUTING_NUM");
     private final JWTVerifier verifier;
-    private final Map<String, List<TransactionHistoryEntry>> historyMap = new HashMap<String, List<TransactionHistoryEntry>>();
+    private final Map<String, List<TransactionHistoryEntry>> historyMap =
+        new HashMap<String, List<TransactionHistoryEntry>>();
     private final LedgerReader reader;
     private boolean initialized = false;
 
@@ -88,7 +77,8 @@ public final class TransactionHistoryController implements LedgerReaderListener 
         System.out.println("initialization complete");
     }
 
-    public void processTransaction(String account, TransactionHistoryEntry entry) {
+    public void processTransaction(String account,
+                                   TransactionHistoryEntry entry) {
         List<TransactionHistoryEntry> historyList;
         if (!this.historyMap.containsKey(account)) {
             historyList = new ArrayList<TransactionHistoryEntry>();
@@ -106,10 +96,11 @@ public final class TransactionHistoryController implements LedgerReaderListener 
      */
     @GetMapping("/ready")
     public ResponseEntity readiness() {
-        if (this.initialized){
+        if (this.initialized) {
             return new ResponseEntity<String>("ok", HttpStatus.OK);
         } else {
-            return new ResponseEntity<String>("not initialized", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>("not initialized",
+                                              HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -120,9 +111,10 @@ public final class TransactionHistoryController implements LedgerReaderListener 
      */
     @GetMapping("/healthy")
     public ResponseEntity liveness() {
-        if (this.initialized && !this.reader.isAlive()){
+        if (this.initialized && !this.reader.isAlive()) {
             // background thread died. Abort
-            return new ResponseEntity<String>("LedgerReader not healthy", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>("LedgerReader not healthy",
+                                              HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>("ok", HttpStatus.OK);
     }
@@ -132,16 +124,21 @@ public final class TransactionHistoryController implements LedgerReaderListener 
      */
     @GetMapping("/get_history")
     public ResponseEntity<?> getHistory(
-            @RequestHeader("Authorization") String bearerToken ) {
+            @RequestHeader("Authorization") String bearerToken) {
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             bearerToken = bearerToken.split("Bearer ")[1];
         }
         try {
             DecodedJWT jwt = this.verifier.verify(bearerToken);
             String initiatorAcct = jwt.getClaim("acct").asString();
-            List<TransactionHistoryEntry> historyList = (this.historyMap.containsKey(initiatorAcct) ? this.historyMap.get(initiatorAcct) : new ArrayList<TransactionHistoryEntry>());
-
-            return new ResponseEntity<List<TransactionHistoryEntry>>(historyList, HttpStatus.OK);
+            List<TransactionHistoryEntry> historyList;
+            if (this.historyMap.containsKey(initiatorAcct)) {
+                historyList = this.historyMap.get(initiatorAcct);
+            } else {
+                historyList = new ArrayList<TransactionHistoryEntry>();
+            }
+            return new ResponseEntity<List<TransactionHistoryEntry>>(
+                    historyList, HttpStatus.OK);
         } catch (JWTVerificationException e) {
             return new ResponseEntity<String>("not authorized",
                                               HttpStatus.UNAUTHORIZED);
