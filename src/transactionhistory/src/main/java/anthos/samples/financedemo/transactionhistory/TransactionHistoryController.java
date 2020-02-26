@@ -62,6 +62,7 @@ public final class TransactionHistoryController implements LedgerReaderListener 
     private final String routingNum =  System.getenv("LOCAL_ROUTING_NUM");
     private final JWTVerifier verifier;
     private final Map<String, List<TransactionHistoryEntry>> historyMap = new HashMap<String, List<TransactionHistoryEntry>>();
+    private final LedgerReader reader;
 
     public TransactionHistoryController() throws IOException,
                                            NoSuchAlgorithmException,
@@ -81,7 +82,7 @@ public final class TransactionHistoryController implements LedgerReaderListener 
         this.verifier = JWT.require(algorithm).build();
 
         // set up transaction processor
-        LedgerReader reader = new LedgerReader(this);
+        this.reader = new LedgerReader(this);
     }
 
     public void processTransaction(String account, TransactionHistoryEntry entry) {
@@ -116,6 +117,10 @@ public final class TransactionHistoryController implements LedgerReaderListener 
     @GetMapping("/healthy")
     @ResponseStatus(HttpStatus.OK)
     public String liveness() {
+        if (this.reader == null || !this.reader.isAlive()){
+            // background thread died. Abort
+            throw new RuntimeException("LedgerReader died");
+        }
         return "ok";
     }
 

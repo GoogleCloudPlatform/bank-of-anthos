@@ -104,7 +104,7 @@ public final class LedgerReader {
         final String startingTransaction = pollTransactions(1, "0");
 
         // wait for incomming transactions in background thread
-        backgroundThread = new Thread(
+        this.backgroundThread = new Thread(
             new Runnable() {
                 @Override
                 public void run() {
@@ -116,6 +116,10 @@ public final class LedgerReader {
             }
         );
         System.out.println("Starting background thread to listen for transactions.");
-        backgroundThread.start();
+        this.backgroundThread.start();
+    }
+
+    public boolean isAlive() {
+        return this.backgroundThread.isAlive();
     }
 }
