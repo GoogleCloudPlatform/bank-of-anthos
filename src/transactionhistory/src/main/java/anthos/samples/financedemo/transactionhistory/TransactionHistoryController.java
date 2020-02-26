@@ -63,6 +63,7 @@ public final class TransactionHistoryController implements LedgerReaderListener 
     private final JWTVerifier verifier;
     private final Map<String, List<TransactionHistoryEntry>> historyMap = new HashMap<String, List<TransactionHistoryEntry>>();
     private final LedgerReader reader;
+    private boolean initialized = false;
 
     public TransactionHistoryController() throws IOException,
                                            NoSuchAlgorithmException,
@@ -83,11 +84,11 @@ public final class TransactionHistoryController implements LedgerReaderListener 
 
         // set up transaction processor
         this.reader = new LedgerReader(this);
+        this.initialized = true;
+        System.out.println("initialization complete");
     }
 
     public void processTransaction(String account, TransactionHistoryEntry entry) {
-        System.out.println("New Transaction:");
-        System.out.println(entry);
         List<TransactionHistoryEntry> historyList;
         if (!this.historyMap.containsKey(account)) {
             historyList = new ArrayList<TransactionHistoryEntry>();
@@ -104,9 +105,12 @@ public final class TransactionHistoryController implements LedgerReaderListener 
      * @return HTTP Status 200 if server is serving requests.
      */
     @GetMapping("/ready")
-    @ResponseStatus(HttpStatus.OK)
-    public String readiness() {
-        return "ok";
+    public ResponseEntity readiness() {
+        if (this.initialized){
+            return new ResponseEntity<String>("ok", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<String>("not initialized", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
@@ -115,13 +119,12 @@ public final class TransactionHistoryController implements LedgerReaderListener 
      * @return HTTP Status 200 if server is healthy.
      */
     @GetMapping("/healthy")
-    @ResponseStatus(HttpStatus.OK)
-    public String liveness() {
-        if (this.reader == null || !this.reader.isAlive()){
+    public ResponseEntity liveness() {
+        if (this.initialized && !this.reader.isAlive()){
             // background thread died. Abort
-            throw new RuntimeException("LedgerReader died");
+            return new ResponseEntity<String>("LedgerReader not healthy", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return "ok";
+        return new ResponseEntity<String>("ok", HttpStatus.OK);
     }
 
     /**
