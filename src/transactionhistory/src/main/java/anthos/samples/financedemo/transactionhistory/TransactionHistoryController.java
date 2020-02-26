@@ -151,7 +151,7 @@ public final class TransactionHistoryController
             historyList = new LinkedList<TransactionHistoryEntry>();
             this.historyMap.put(account, historyList);
         } else {
-            historyList = (LinkedList)this.historyMap.get(account);
+            historyList = (LinkedList) this.historyMap.get(account);
         }
         historyList.addFirst(entry);
     }
