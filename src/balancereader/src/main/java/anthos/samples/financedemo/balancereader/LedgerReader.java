@@ -31,7 +31,7 @@ import java.util.List;
  * Defines an interface for reacting to new transactions
  */
 interface LedgerReaderListener {
-    void processTransaction(String account, TransactionHistoryEntry entry);
+    void processTransaction(String account, Integer amount);
 }
 
 /**
@@ -101,12 +101,9 @@ public final class LedgerReader {
                 // each transaction is made up of two parts: debit and credit
                 String sender = message.getBody().get("fromAccountNum");
                 String receiver = message.getBody().get("toAccountNum");
-                TransactionHistoryEntry credit = new TransactionHistoryEntry(
-                        message.getBody(), TransactionType.CREDIT);
-                TransactionHistoryEntry debit = new TransactionHistoryEntry(
-                        message.getBody(), TransactionType.DEBIT);
-                this.listener.processTransaction(receiver, credit);
-                this.listener.processTransaction(sender, debit);
+                Integer amount = Integer.valueOf(message.getBody().get("amount"));
+                this.listener.processTransaction(receiver, amount);
+                this.listener.processTransaction(sender, -amount);
             } else {
                 System.out.println("Listener not set up");
             }

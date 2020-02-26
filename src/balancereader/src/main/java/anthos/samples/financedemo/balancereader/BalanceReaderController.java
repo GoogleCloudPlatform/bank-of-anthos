@@ -45,11 +45,9 @@ import java.util.LinkedList;
 @RestController
 public final class BalanceReaderController implements LedgerReaderListener {
 
-    private final String ledgerStreamKey = System.getenv("LEDGER_STREAM");
-    private final String routingNum =  System.getenv("LOCAL_ROUTING_NUM");
     private final JWTVerifier verifier;
-    private final Map<String, List<TransactionHistoryEntry>> historyMap =
-        new HashMap<String, List<TransactionHistoryEntry>>();
+    private final Map<String, Integer> balanceMap =
+        new HashMap<String, Integer>();
     private final LedgerReader reader;
     private boolean initialized = false;
 
@@ -122,13 +120,11 @@ public final class BalanceReaderController implements LedgerReaderListener {
         try {
             DecodedJWT jwt = this.verifier.verify(bearerToken);
             String initiatorAcct = jwt.getClaim("acct").asString();
-            //List<TransactionHistoryEntry> historyList;
-            //if (this.historyMap.containsKey(initiatorAcct)) {
-            //    historyList = this.historyMap.get(initiatorAcct);
-            //} else {
-            //    historyList = new LinkedList<TransactionHistoryEntry>();
-            //}
-            return new ResponseEntity<Integer>(10, HttpStatus.OK);
+            Integer balance = 0;
+            if (this.balanceMap.containsKey(initiatorAcct)) {
+                balance = this.balanceMap.get(initiatorAcct);
+            }
+            return new ResponseEntity<Integer>(balance, HttpStatus.OK);
         } catch (JWTVerificationException e) {
             return new ResponseEntity<String>("not authorized",
                                               HttpStatus.UNAUTHORIZED);
@@ -142,16 +138,12 @@ public final class BalanceReaderController implements LedgerReaderListener {
      * @param account associated with the transaction
      * @param entry with transaction metadata
      */
-    public void processTransaction(String account,
-                                   TransactionHistoryEntry entry) {
-        LinkedList<TransactionHistoryEntry> historyList;
-        if (!this.historyMap.containsKey(account)) {
-            historyList = new LinkedList<TransactionHistoryEntry>();
-            this.historyMap.put(account, historyList);
-        } else {
-            historyList = (LinkedList) this.historyMap.get(account);
+    public void processTransaction(String account, Integer amount) {
+        //LinkedList<TransactionHistoryEntry> historyList;
+        if (this.balanceMap.containsKey(account)) {
+            amount += this.balanceMap.get(account);
         }
-        historyList.addFirst(entry);
+        this.balanceMap.put(account, amount);
     }
 
 

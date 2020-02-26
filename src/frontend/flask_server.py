@@ -128,7 +128,7 @@ def payment():
         # verify balance is sufficient
         hed = {'Authorization': 'Bearer ' + token}
         req = requests.get(url=APP.config["BALANCES_URI"], headers=hed)
-        balance = req.json()['balance']
+        balance = req.json()
         if balance >= amount:
             transaction_obj = {'fromRoutingNum':  LOCAL_ROUTING,
                                'fromAccountNum': account_id,
