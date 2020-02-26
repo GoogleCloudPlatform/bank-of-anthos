@@ -26,6 +26,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Defines an interface for reacting to new transactions
@@ -44,6 +45,7 @@ public final class LedgerReader {
     private StatefulRedisConnection redisConnection =
         ctx.getBean(StatefulRedisConnection.class);
     private final String ledgerStreamKey = System.getenv("LEDGER_STREAM");
+    private final String localRoutingNum =  System.getenv("LOCAL_ROUTING_NUM");
     private final Thread backgroundThread;
     private LedgerReaderListener listener;
 
@@ -97,16 +99,24 @@ public final class LedgerReader {
         for (StreamMessage<String, String> message : messages) {
             // found a list of transactions. Execute callback for each one
             latestTransactionId = message.getId();
+            Map<String, String> map = message.getBody();
             if (this.listener != null) {
-                // each transaction is made up of two parts: debit and credit
-                String sender = message.getBody().get("fromAccountNum");
-                String receiver = message.getBody().get("toAccountNum");
+                String sender = map.get("fromAccountNum");
+                String senderRouting = map.get("fromRoutingNum");
+                String receiver = map.get("toAccountNum");
+                String receiverRouting = map.get("toRoutingNum");
+                // create credit and debit entries for transaction
                 TransactionHistoryEntry credit = new TransactionHistoryEntry(
                         message.getBody(), TransactionType.CREDIT);
                 TransactionHistoryEntry debit = new TransactionHistoryEntry(
                         message.getBody(), TransactionType.DEBIT);
-                this.listener.processTransaction(sender, credit);
-                this.listener.processTransaction(receiver, debit);
+                // process entries only if they belong to this bank
+                if (senderRouting.equals(localRoutingNum)){
+                    this.listener.processTransaction(sender, credit);
+                }
+                if (receiverRouting.equals(localRoutingNum)){
+                    this.listener.processTransaction(receiver, debit);
+                }
             } else {
                 System.out.println("Listener not set up");
             }
