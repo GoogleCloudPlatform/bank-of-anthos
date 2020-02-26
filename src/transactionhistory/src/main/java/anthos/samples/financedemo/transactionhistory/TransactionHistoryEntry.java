@@ -18,16 +18,13 @@ package anthos.samples.financedemo.transactionhistory;
 
 import java.util.Map;
 
-/**
- * Defines a banking transaction entry.
- *
- * Timestamped at object creation time.
- */
 
 enum TransactionType {
     DEBIT, CREDIT;
 }
-
+/**
+ * Defines a banking transaction histoy entry for display to a user
+ */
 public final class TransactionHistoryEntry {
 
     private final String localRoutingNum =  System.getenv("LOCAL_ROUTING_NUM");
@@ -38,6 +35,12 @@ public final class TransactionHistoryEntry {
     private Integer amount;
     private final double timestamp;
 
+    /**
+     * Construct a TransactionHistoryEntry
+     *
+     * @param map returned from redis
+     * @param transaction type (credit or debit) to parse from the map
+     */
     public TransactionHistoryEntry(Map<String, String> map,
                                    TransactionType type) {
         this.type = type;
@@ -52,6 +55,9 @@ public final class TransactionHistoryEntry {
         }
     }
 
+    /**
+     * String representation for logging
+     */
     public String toString() {
         return String.format("%d: %s",
                 amount, accountNum);

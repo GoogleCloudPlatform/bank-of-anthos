@@ -44,7 +44,7 @@ import java.util.ArrayList;
 
 @RestController
 public final class TransactionHistoryController
-    implements LedgerReaderListener {
+        implements LedgerReaderListener {
 
     private final String ledgerStreamKey = System.getenv("LEDGER_STREAM");
     private final String routingNum =  System.getenv("LOCAL_ROUTING_NUM");
@@ -54,6 +54,10 @@ public final class TransactionHistoryController
     private final LedgerReader reader;
     private boolean initialized = false;
 
+    /**
+     * TransactionHistoryController constructor
+     * Set up JWT verifier, initialize LedgerReader
+     */
     public TransactionHistoryController() throws IOException,
                                            NoSuchAlgorithmException,
                                            InvalidKeySpecException {
@@ -77,22 +81,10 @@ public final class TransactionHistoryController
         System.out.println("initialization complete");
     }
 
-    public void processTransaction(String account,
-                                   TransactionHistoryEntry entry) {
-        List<TransactionHistoryEntry> historyList;
-        if (!this.historyMap.containsKey(account)) {
-            historyList = new ArrayList<TransactionHistoryEntry>();
-            this.historyMap.put(account, historyList);
-        } else {
-            historyList = this.historyMap.get(account);
-        }
-        historyList.add(entry);
-    }
-
     /**
      * Readiness probe endpoint.
      *
-     * @return HTTP Status 200 if server is serving requests.
+     * @return HTTP Status 200 if server is initialized and serving requestsi.
      */
     @GetMapping("/ready")
     public ResponseEntity readiness() {
@@ -144,5 +136,26 @@ public final class TransactionHistoryController
                                               HttpStatus.UNAUTHORIZED);
         }
     }
+
+    /**
+     * Receives transactions from LedgerReader for processing
+     * Add transaction records to internal Map
+     *
+     * @param account associated with the transaction
+     * @param entry with transaction metadata
+     */
+    public void processTransaction(String account,
+                                   TransactionHistoryEntry entry) {
+        List<TransactionHistoryEntry> historyList;
+        if (!this.historyMap.containsKey(account)) {
+            historyList = new ArrayList<TransactionHistoryEntry>();
+            this.historyMap.put(account, historyList);
+        } else {
+            historyList = this.historyMap.get(account);
+        }
+        historyList.add(entry);
+    }
+
+
 
 }
