@@ -42,6 +42,8 @@ spec:
         - name: http-server
           containerPort: 8080
         env:
+        - name: VERSION
+          value: "0.1.0"
         - name: PORT
           value: "8080"
         - name: ACCOUNTS_DB_ADDR

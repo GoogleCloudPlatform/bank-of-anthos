@@ -45,6 +45,13 @@ DEFAULT_CONTACTS = [{'label': 'Friend',
                     {'label': 'Mom',
                      'account_number': '6677889900'}]
 
+@APP.route('/version', methods=['GET'])
+def version():
+    """
+    Service version endpoint
+    """
+    return os.environ.get('VERSION'), 200
+
 @APP.route('/ready', methods=['GET'])
 def ready():
     """Readiness probe."""
