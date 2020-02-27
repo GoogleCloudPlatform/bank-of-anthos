@@ -93,7 +93,7 @@ limitations under the License.
                                {% for t in history %}
                                <tr>
                                    <td class="mdl-data-table__cell--non-numeric"> {{ format_timestamp(t.timestamp) }} </td>
-                                   <td class="mdl-data-table__cell--non-numeric"> {{ t.account }}</td>
+                                   <td class="mdl-data-table__cell--non-numeric"> {{ t.accountNum }}</td>
                                     {% if t.type == "DEBIT" %}
                                        <td style="color: green;">{{ format_currency(t.amount) }}</td>
                                     {% else %}

@@ -40,7 +40,7 @@ jwtRS256.key:
 	openssl rsa -in jwtRS256.key -outform PEM -pubout -out jwtRS256.key.pub
 
 checkstyle:
-	mvn checkstyle:check -f ./src/*/pom.xml
+	mvn checkstyle:check
 	# disable warnings: import loading, todos, function members, duplicate code, public methods
 	pylint --disable=F0401 --disable=W0511 --disable=E1101 --disable=R0801 --disable=R0903  ./src/*/*.py
 

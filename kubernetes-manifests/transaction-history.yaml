@@ -52,13 +52,15 @@ spec:
           value: "123456789"
         - name: PUB_KEY_PATH
           value: "/root/.ssh/publickey"
+          # tell Java to obey container memory limits
+        - name: JVM_OPTS
+          value: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
         resources:
           requests:
             cpu: 200m
-            memory: 64Mi
+            memory: 256Mi
           limits:
             cpu: 300m
-            memory: 128Mi
         readinessProbe:
           httpGet:
             path: /ready
@@ -69,7 +71,7 @@ spec:
           httpGet:
             path: /healthy
             port: 8080
-          initialDelaySeconds: 5
+          initialDelaySeconds: 60
           periodSeconds: 5
       volumes:
       - name: publickey

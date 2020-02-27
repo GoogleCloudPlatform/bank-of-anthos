@@ -68,14 +68,14 @@ def home():
     try:
         req = requests.get(url=APP.config["BALANCES_URI"], headers=hed)
         balance = req.json()['balance']
-    except requests.exceptions.RequestException as err:
+    except (requests.exceptions.RequestException, ValueError) as err:
         logging.error(str(err))
     # get history
     transaction_list = []
     try:
         req = requests.get(url=APP.config["HISTORY_URI"], headers=hed)
-        transaction_list = req.json()['history']
-    except requests.exceptions.RequestException as err:
+        transaction_list = req.json()
+    except (requests.exceptions.RequestException, ValueError) as err:
         logging.error(str(err))
     # get contacts
     internal_list = []
@@ -83,7 +83,7 @@ def home():
         req = requests.get(url=APP.config["INTERNAL_CONTACTS_URI"],
                            headers=hed)
         internal_list = req.json()['account_list']
-    except requests.exceptions.RequestException as err:
+    except (requests.exceptions.RequestException, ValueError) as err:
         logging.error(str(err))
     # get external accounts
     external_list = []
@@ -91,7 +91,7 @@ def home():
         req = requests.get(url=APP.config["EXTERNAL_ACCOUNTS_URI"],
                            headers=hed)
         external_list = req.json()['account_list']
-    except requests.exceptions.RequestException as err:
+    except (requests.exceptions.RequestException, ValueError) as err:
         logging.error(str(err))
 
     return render_template('index.html',
