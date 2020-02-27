@@ -36,7 +36,7 @@ interface LedgerReaderListener {
 }
 
 /**
- * LedgerReader listens for incomming transactions, and executes a callback
+ * LedgerReader listens for incoming transactions, and executes a callback
  * on a subscribed listener object
  */
 public final class LedgerReader {
