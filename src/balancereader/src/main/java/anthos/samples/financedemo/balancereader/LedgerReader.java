@@ -108,10 +108,10 @@ public final class LedgerReader {
                 String receiverRouting = map.get("toRoutingNum");
                 Integer amount = Integer.valueOf(map.get("amount"));
                 if (senderRouting.equals(localRoutingNum)) {
-                    this.listener.processTransaction(receiver, amount);
+                    this.listener.processTransaction(sender, -amount);
                 }
                 if (receiverRouting.equals(localRoutingNum)) {
-                    this.listener.processTransaction(sender, -amount);
+                    this.listener.processTransaction(receiver, amount);
                 }
             } else {
                 System.out.println("Listener not set up");
