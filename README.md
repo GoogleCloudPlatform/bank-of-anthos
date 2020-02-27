@@ -3,10 +3,7 @@
 # Cloud Bank - Anthos Sample Application
 
 This project simulates a bank's payment processing network using [Anthos](https://cloud.google.com/anthos/).
-Cloud Bank allows users to create artificial accounts and simulate transactions between accounts. The Cloud Bank
-infrastructure is disatributed across regions using multiple Anthos GKE clusters, communicating using Anthos 
-Service Mesh. Security policies were added using Anthois Config Management.
-
+Cloud Bank allows users to create artificial accounts and simulate transactions between accounts.
 Cloud Bank was developed to demonstrate how Anthos can be beneficial to financial services companies.
 
 
