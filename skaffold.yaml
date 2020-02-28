@@ -22,7 +22,8 @@ build:
     jib:
       project: src/ledgerwriter
   - image: balancereader
-    context: src/balancereader
+    jib:
+      project: src/balancereader
   - image: transactionhistory
     jib:
       project: src/transactionhistory
