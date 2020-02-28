@@ -77,6 +77,7 @@ public final class BalanceReaderController implements LedgerReaderListener {
     }
 
     /**
+
      * Version endpoint.
      *
      * @return service version string
