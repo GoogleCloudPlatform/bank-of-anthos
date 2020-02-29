@@ -125,10 +125,10 @@ public final class LedgerWriterController {
                 headers.set("Authorization", "Bearer " + bearerToken);
                 HttpEntity entity = new HttpEntity(headers);
                 RestTemplate restTemplate = new RestTemplate();
-                ResponseEntity<Balance> response = restTemplate.exchange(
-                    balancesUri, HttpMethod.GET, entity, Balance.class);
-                Balance senderBalance = response.getBody();
-                if (senderBalance.amount < transaction.getAmount()) {
+                ResponseEntity<Integer> response = restTemplate.exchange(
+                    balancesUri, HttpMethod.GET, entity, Integer.class);
+                Integer senderBalance = response.getBody();
+                if (senderBalance < transaction.getAmount()) {
                     return new ResponseEntity<String>("insufficient balance",
                                                       HttpStatus.BAD_REQUEST);
                 }

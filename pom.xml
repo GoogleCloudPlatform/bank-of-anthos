@@ -28,6 +28,7 @@
     <modules>
         <module>src/ledgerwriter</module>
         <module>src/transactionhistory</module>
+        <module>src/balancereader</module>
     </modules>
 
     <build>
