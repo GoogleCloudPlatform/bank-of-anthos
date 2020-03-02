@@ -5,7 +5,7 @@ Pages are loaded, new accounts are periodically created, and transactions betwee
 
 Implemented in Python with Locust.
 
-### Load Generator Tasks2
+### Load Generator Tasks
 
 - view_login
   - load the `/login` page
