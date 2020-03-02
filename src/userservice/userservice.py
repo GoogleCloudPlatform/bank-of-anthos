@@ -131,7 +131,6 @@ def get_user():
     response:
       - accountid
       - username
-      - passhash
       - firstname
       - lastname
       - birthday
