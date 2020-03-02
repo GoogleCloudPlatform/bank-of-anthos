@@ -2,7 +2,7 @@
 
 The balance reader service provides efficient readable cache of user balances, as read from ledger.
 
-The ledger serves as the source of truth for the application. The balance reader returns data on a
+The `ledger-db` service holds the source of truth for the system. The `balance-reader` returns data on a
 best-effort basis, but may be out of date when under heavy load.
 
 Implemented in Java with Spring Boot.
@@ -11,7 +11,7 @@ Implemented in Java with Spring Boot.
 
 | Enndpoint      | Type  | JWT Required | Description                                                     |
 | -------------- | ----- | ------------ | --------------------------------------------------------------- |
-| `/ready`       | GET   |              |  Readiness probe endpoint                                       |
+| `/ready`       | GET   |              |  Readiness probe endpoint.                                      |
 | `/healthy`     | GET   |              |  Liveness probe endpoint. Monitors health of background thread. |
 | `/get_balance` | POST  | 🔒           |  Returns the total balance of the authenticated user.           |
 

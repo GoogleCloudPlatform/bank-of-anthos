@@ -8,7 +8,7 @@ Implemented in Java with Spring Boot.
 
 | Enndpoint          | Type  | JWT Required | Description                                                 |
 | ------------------ | ----- | ------------ | ----------------------------------------------------------- |
-| `/ready`           | GET   |              |  Readiness probe endpoint                                   |
+| `/ready`           | GET   |              |  Readiness probe endpoint.                                  |
 | `/new_transaction` | POST  | 🔒           |  Validates a new transaction and writes it to the ledger.   |
 
 ### Environment Variables
