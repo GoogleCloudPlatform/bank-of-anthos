@@ -31,9 +31,6 @@ deploy-continuous: check-env
 	gcloud container clusters get-credentials --project ${PROJECT_ID} ${CLUSTER} --zone ${ZONE}
 	skaffold dev --default-repo=gcr.io/${PROJECT_ID}
 
-logs:
-	 kubectl logs -l app=frontend -c front
-
 jwtRS256.key:
 	openssl genrsa -out jwtRS256.key 4096
 	openssl rsa -in jwtRS256.key -outform PEM -pubout -out jwtRS256.key.pub
