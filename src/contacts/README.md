@@ -3,8 +3,6 @@
 The contacts service stores list of other accounts associated with a user. 
 Data from the contacts service is used for drop down in "Send Payment" and "Deposit" forms.
 
-Returned data is hardcoded.
-
 Implemented in Python with Flask.
 
 ### Endpoints
