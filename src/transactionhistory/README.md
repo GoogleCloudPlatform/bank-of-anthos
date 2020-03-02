@@ -1,8 +1,8 @@
-# Balance Reader Service
+# Transaction History Service
 
-The balance reader service provides efficient readable cache of user balances, as read from ledger.
+The transaction history service provides efficient readable cache of past transactions, as read from ledger.
 
-The `ledger-db` service holds the source of truth for the system. The `balance-reader` returns data on a
+The `ledger-db` service holds the source of truth for the system. The `transaction-history` returns data on a
 best-effort basis, but may be out of date when under heavy load.
 
 Implemented in Java with Spring Boot.
@@ -13,7 +13,7 @@ Implemented in Java with Spring Boot.
 | -------------- | ----- | ------------ | --------------------------------------------------------------- |
 | `/ready`       | GET   |              |  Readiness probe endpoint.                                      |
 | `/healthy`     | GET   |              |  Liveness probe endpoint. Monitors health of background thread. |
-| `/get_balance` | GET   | 🔒           |  Returns the total balance of the authenticated user.           |
+| `/get_history` | GET   | 🔒           |  Returns a list of transactions for the authenticated user.     |
 
 ### Environment Variables
 
@@ -34,5 +34,5 @@ Implemented in Java with Spring Boot.
 
 ### Kubernetes Resources
 
-- [deployments/balancereader](/kubernetes-manifests/balance-reader.yaml)
-- [service/balancereader](/kubernetes-manifests/balance-reader.yaml)
+- [deployments/transactionhistory](/kubernetes-manifests/transaction-history.yaml)
+- [service/transactionhistory](/kubernetes-manifests/transaction-history.yaml)
