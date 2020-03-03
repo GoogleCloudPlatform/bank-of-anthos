@@ -9,7 +9,7 @@ Implemented in Python with Flask.
 
 | Enndpoint      | Type  | JWT Required | Description                                                |
 | -------------- | ----- | ------------ | ---------------------------------------------------------- |
-| `/version`     | GET   |              |  Returns the contents of the VERSION environment variable. |
+| `/version`     | GET   |              |  Returns the contents of `$VERSION`                        |
 | `/ready`       | GET   |              |  Readiness probe endpoint.                                 |
 | `/contacts`    | GET   | 🔒           |  Retrieve a (hardcoded) list of connected accounts.        |
 | `/contacts`    | POST  | 🔒           |  Add a new connected account for sending payments.         |

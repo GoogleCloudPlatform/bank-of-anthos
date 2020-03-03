@@ -9,7 +9,7 @@ Implemented in Python with Flask.
 
 | Enndpoint      | Type  | JWT Required | Description                                                |
 | -------------- | ----- | ------------ | ---------------------------------------------------------- |
-| `/version`     | GET   |              |  Returns the contents of the VERSION environment variable. |
+| `/version`     | GET   |              |  Returns the contents of `$VERSION`                        |
 | `/ready`       | GET   |              |  Readiness probe endpoint.                                 |
 | `/create_user` | POST  |              |  Validates and creates a new user record.                  |
 | `/login`       | GET   |              |  Returns a JWT if authentication is successful.            |
