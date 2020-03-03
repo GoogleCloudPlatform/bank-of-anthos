@@ -1,11 +1,10 @@
 ![Continuous Integration](https://github.com/GoogleCloudPlatform/anthos-finance-demo/workflows/Continuous%20Integration/badge.svg)
 
-# Cloud Bank - Anthos Sample Application
+# Cloud Bank - Anthos Financial Sample
 
 This project simulates a bank's payment processing network using [Anthos](https://cloud.google.com/anthos/).
 Cloud Bank allows users to create artificial accounts and simulate transactions between accounts.
-Cloud Bank was developed to demonstrate how Anthos can be beneficial to financial services companies.
-
+Cloud Bank was developed to create an end-to-end sample demonstrating Anthos for financial services companies.
 
 ## Architecture
 
@@ -27,7 +26,8 @@ Cloud Bank was developed to demonstrate how Anthos can be beneficial to financia
 
 ## Installation
 
-Creating a cluster
+### Creating a Cluster
+
 ```
   make cluster \
     PROJECT_ID=$(gcloud config get-value project) \ # required
@@ -35,12 +35,10 @@ Creating a cluster
     CLUSTER=cloud-bank                              # optional. default: cloud-bank
 ```
 
-Deploying Cloud Bank
+### Deployment
+
 ```
-  make deploy \
-    PROJECT_ID=$(gcloud config get-value project) \ # required
-    ZONE=us-west1-a \                               # optional. default: us-west1-a
-    CLUSTER=cloud-bank                              # optional. default: cloud-bank
+skaffold run --default-repo=gcr.io/${PROJECT_ID}
 ```
 
 ---
