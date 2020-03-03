@@ -34,6 +34,8 @@ spec:
           mountPath: "/root/.ssh"
           readOnly: true
         env:
+        - name: VERSION
+          value: "0.1.0"
         - name: PORT
           value: "8080"
         - name: TRANSACTIONS_API_ADDR

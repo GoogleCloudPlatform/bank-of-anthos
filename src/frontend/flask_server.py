@@ -46,6 +46,12 @@ APP.config["EXTERNAL_ACCOUNTS_URI"] = 'http://{}/external'.format(
 
 TOKEN_NAME = 'token'
 
+@APP.route('/version', methods=['GET'])
+def version():
+    """
+    Service version endpoint
+    """
+    return os.environ.get('VERSION'), 200
 
 @APP.route("/home")
 @APP.route("/")

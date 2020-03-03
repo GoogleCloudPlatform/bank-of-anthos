@@ -35,6 +35,13 @@ APP.config["MONGO_URI"] = 'mongodb://{}/users'.format(
 MONGO = PyMongo(APP)
 
 
+@APP.route('/version', methods=['GET'])
+def version():
+    """
+    Service version endpoint
+    """
+    return os.environ.get('VERSION'), 200
+
 @APP.route('/ready', methods=['GET'])
 def readiness():
     """
