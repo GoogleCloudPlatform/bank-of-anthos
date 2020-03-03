@@ -19,6 +19,8 @@ Implemented in Python with Flask.
 
 ### Environment Variables
 
+- `VERSION`
+  - a version string for the service
 - `PORT`
   - the port for the webserver
 - `ACCOUNTS_DB_ADDR`

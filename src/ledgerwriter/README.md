@@ -14,6 +14,8 @@ Implemented in Java with Spring Boot.
 
 ### Environment Variables
 
+- `VERSION`
+  - a version string for the service
 - `LEDGER_ADDR`
   - the address of the `ledger-db` service
 - `LEDGER_PORT`
