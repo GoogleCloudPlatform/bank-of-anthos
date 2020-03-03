@@ -45,8 +45,6 @@ skaffold run --default-repo=gcr.io/${PROJECT_ID}
 
 GitHub Actions workflows [described here](./.github/workflows)
 
-![Continuous Integration](https://github.com/GoogleCloudPlatform/anthos-finance-demo/workflows/Continuous%20Integration/badge.svg)
-
 ---
 
 This is not an official Google project.
