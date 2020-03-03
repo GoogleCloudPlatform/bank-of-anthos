@@ -77,9 +77,21 @@ public final class BalanceReaderController implements LedgerReaderListener {
     }
 
     /**
+
+     * Version endpoint.
+     *
+     * @return service version string
+     */
+    @GetMapping("/version")
+    public ResponseEntity version() {
+        final String versionStr =  System.getenv("VERSION");
+        return new ResponseEntity<String>(versionStr, HttpStatus.OK);
+    }
+
+    /**
      * Readiness probe endpoint.
      *
-     * @return HTTP Status 200 if server is initialized and serving requestsi.
+     * @return HTTP Status 200 if server is initialized and serving requests.
      */
     @GetMapping("/ready")
     public ResponseEntity readiness() {
