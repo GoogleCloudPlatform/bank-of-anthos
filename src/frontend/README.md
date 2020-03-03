@@ -8,6 +8,7 @@ Implemented in Python with Flask.
 
 | Enndpoint  | Type  | JWT Required | Description                                                                               |
 | ---------- | ----- | ------------ | ----------------------------------------------------------------------------------------- |
+| `/version` | GET   |              |  Returns the contents of the VERSION environment variable.                                |
 | `/`        | GET   | 🔒           |  Renders homepage if authenticated. Otherwise redirects to `/login` (alias for `/home`)   |
 | `/home`    | GET   | 🔒           |  Renders homepage if authenticated. Otherwise redirects to `/login` (alias for `/`        |
 | `/login`   | GET   |              |  Renders login page if not authenticated. Otherwise redirects to `/home`                  |

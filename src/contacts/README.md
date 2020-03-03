@@ -7,13 +7,14 @@ Implemented in Python with Flask.
 
 ### Endpoints
 
-| Enndpoint      | Type  | JWT Required | Description                                              |
-| -------------- | ----- | ------------ | -------------------------------------------------------- |
-| `/ready`       | GET   |              |  Readiness probe endpoint.                               |
-| `/contacts`    | GET   | 🔒           |  Retrieve a (hardcoded) list of connected accounts.      |
-| `/contacts`    | POST  | 🔒           |  Add a new connected account for sending payments.       |
-| `/external`    | GET   | 🔒           |  Retrieve a (hardcoded) list of external bank accounts.  |
-| `/external`    | POST  | 🔒           |  Add a new external bank account for deposits.           |
+| Enndpoint      | Type  | JWT Required | Description                                                |
+| -------------- | ----- | ------------ | ---------------------------------------------------------- |
+| `/version`     | GET   |              |  Returns the contents of the VERSION environment variable. |
+| `/ready`       | GET   |              |  Readiness probe endpoint.                                 |
+| `/contacts`    | GET   | 🔒           |  Retrieve a (hardcoded) list of connected accounts.        |
+| `/contacts`    | POST  | 🔒           |  Add a new connected account for sending payments.         |
+| `/external`    | GET   | 🔒           |  Retrieve a (hardcoded) list of external bank accounts.    |
+| `/external`    | POST  | 🔒           |  Add a new external bank account for deposits.             |
 
 
 ### Environment Variables

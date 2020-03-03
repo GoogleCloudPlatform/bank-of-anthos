@@ -8,6 +8,7 @@ Implemented in Java with Spring Boot.
 
 | Enndpoint          | Type  | JWT Required | Description                                                 |
 | ------------------ | ----- | ------------ | ----------------------------------------------------------- |
+| `/version`         | GET   |              |  Returns the contents of the VERSION environment variable.  |
 | `/ready`           | GET   |              |  Readiness probe endpoint.                                  |
 | `/new_transaction` | POST  | 🔒           |  Validates a new transaction and writes it to the ledger.   |
 

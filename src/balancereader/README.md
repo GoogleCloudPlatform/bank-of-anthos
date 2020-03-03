@@ -11,6 +11,7 @@ Implemented in Java with Spring Boot.
 
 | Enndpoint      | Type  | JWT Required | Description                                                     |
 | -------------- | ----- | ------------ | --------------------------------------------------------------- |
+| `/version`     | GET   |              |  Returns the contents of the VERSION environment variable.      |
 | `/ready`       | GET   |              |  Readiness probe endpoint.                                      |
 | `/healthy`     | GET   |              |  Liveness probe endpoint. Monitors health of background thread. |
 | `/get_balance` | GET   | 🔒           |  Returns the total balance of the authenticated user.           |
