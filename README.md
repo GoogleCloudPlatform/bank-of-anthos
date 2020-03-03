@@ -41,9 +41,10 @@ Cloud Bank was developed to create an end-to-end sample demonstrating Anthos for
 skaffold run --default-repo=gcr.io/${PROJECT_ID}
 ```
 
-### Continuous Integratioon
+## Continuous Integratioon
 
 GitHub Actions workflows [described here](./.github/workflows)
+
 ![Continuous Integration](https://github.com/GoogleCloudPlatform/anthos-finance-demo/workflows/Continuous%20Integration/badge.svg)
 
 ---
