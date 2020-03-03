@@ -32,7 +32,8 @@ public class LedgerWriterApplication {
         "LEDGER_PORT",
         "LOCAL_ROUTING_NUM",
         "BALANCES_API_ADDR",
-        "PUB_KEY_PATH"
+        "PUB_KEY_PATH",
+        "VERSION"
     };
 
     public static void main(String[] args) {
