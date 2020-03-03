@@ -1,6 +1,6 @@
 # Transaction History Service
 
-The transaction history service provides efficient readable cache of past transactions, as read from ledger.
+The transaction history service provides an efficient readable cache of past transactions, as read from ledger.
 
 The `ledger-db` service holds the source of truth for the system. The `transaction-history` returns data on a
 best-effort basis, but may be out of date when under heavy load.

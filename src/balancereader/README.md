@@ -1,6 +1,6 @@
 # Balance Reader Service
 
-The balance reader service provides efficient readable cache of user balances, as read from ledger.
+The balance reader service provides an efficient readable cache of user balances, as read from the `ledger-db`.
 
 The `ledger-db` service holds the source of truth for the system. The `balance-reader` returns data on a
 best-effort basis, but may be out of date when under heavy load.

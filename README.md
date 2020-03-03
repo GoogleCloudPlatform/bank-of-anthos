@@ -1,10 +1,10 @@
 ![Continuous Integration](https://github.com/GoogleCloudPlatform/anthos-finance-demo/workflows/Continuous%20Integration/badge.svg)
 
-# Cloud Bank - Anthos Financial Sample
+# Bank of Anthos
 
 This project simulates a bank's payment processing network using [Anthos](https://cloud.google.com/anthos/).
-Cloud Bank allows users to create artificial accounts and simulate transactions between accounts.
-Cloud Bank was developed to create an end-to-end sample demonstrating Anthos for financial services companies.
+Bank of Anthos allows users to create artificial accounts and simulate transactions between accounts.
+Bank of Anthos was developed to create an end-to-end sample demonstrating Anthos best practices.
 
 ## Architecture
 
