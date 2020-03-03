@@ -14,10 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 '''
 
-'''
-The frontend service manages the user-facing web interface for the application.
-'''
-
 import datetime
 import json
 import logging
