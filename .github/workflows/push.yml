@@ -18,8 +18,6 @@ on:
     # run on pushes to master
     branches:
       - master
-      # temporary for testing
-      - push-images
 jobs:
   run-tests:
     runs-on: self-hosted
