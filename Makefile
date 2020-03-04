@@ -15,7 +15,7 @@
 .-PHONY: cluster deploy deploy-continuous logs checkstyle clean check-env
 
 ZONE=us-west1-a
-CLUSTER=cloud-bank
+CLUSTER=bank-of-anthos
 
 cluster: jwtRS256.key check-env
 	./create_cluster.sh ${PROJECT_ID} ${CLUSTER} ${ZONE}
@@ -25,11 +25,11 @@ cluster: jwtRS256.key check-env
 deploy: check-env
 	echo ${CLUSTER}
 	gcloud container clusters get-credentials --project ${PROJECT_ID} ${CLUSTER} --zone ${ZONE}
-	skaffold run --default-repo=gcr.io/${PROJECT_ID}
+	skaffold run --default-repo=gcr.io/${PROJECT_ID}/bank-of-anthos
 
 deploy-continuous: check-env
 	gcloud container clusters get-credentials --project ${PROJECT_ID} ${CLUSTER} --zone ${ZONE}
-	skaffold dev --default-repo=gcr.io/${PROJECT_ID}
+	skaffold dev --default-repo=gcr.io/${PROJECT_ID}/bank-of-anthos
 
 jwtRS256.key:
 	openssl genrsa -out jwtRS256.key 4096
