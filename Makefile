@@ -12,28 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-.-PHONY: cluster deploy deploy-continuous logs checkstyle clean
+.-PHONY: cluster deploy deploy-continuous logs checkstyle clean check-env
 
-PROJECT_ID=hybwksp34
 ZONE=us-west1-a
-CLUSTER=financial-demo
-ACCOUNT=hybwksp34@anthosworkshop.com
+CLUSTER=cloud-bank
 
-cluster: jwtRS256.key
+cluster: jwtRS256.key check-env
 	./create_cluster.sh ${PROJECT_ID} ${CLUSTER} ${ZONE}
 	kubectl create secret generic jwt-key --from-file=./jwtRS256.key --from-file=./jwtRS256.key.pub
 	skaffold run --default-repo=gcr.io/${PROJECT_ID}
 
-deploy:
+deploy: check-env
+	echo ${CLUSTER}
 	gcloud container clusters get-credentials --project ${PROJECT_ID} ${CLUSTER} --zone ${ZONE}
 	skaffold run --default-repo=gcr.io/${PROJECT_ID}
 
-deploy-continuous:
+deploy-continuous: check-env
 	gcloud container clusters get-credentials --project ${PROJECT_ID} ${CLUSTER} --zone ${ZONE}
 	skaffold dev --default-repo=gcr.io/${PROJECT_ID}
-
-logs:
-	 kubectl logs -l app=frontend -c front
 
 jwtRS256.key:
 	openssl genrsa -out jwtRS256.key 4096
@@ -46,3 +42,8 @@ checkstyle:
 
 clean:
 	rm -f jwtRS256*
+
+check-env:
+ifndef PROJECT_ID
+	$(error PROJECT_ID is undefined)
+endif
