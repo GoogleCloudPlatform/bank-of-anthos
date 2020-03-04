@@ -49,3 +49,6 @@ sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debi
 sudo apt update && \
 sudo apt -y install docker-ce && \
 sudo usermod -aG docker ${USER}
+
+# reboot for docker setup
+sudo reboot
