@@ -4,14 +4,13 @@
 - workloads run using [GitHub self-hosted runners](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/about-self-hosted-runners)
 - project admins maintain a private Google Compute Engine VM for running tests
   - VM should be at least n1-standard-4 with 50GB persistent disk
+  - One of the actions pushes containers to GCR. Ensure Use a service account with the proper permissions
+    - ⚠️  WARNING: make sure to limit the permissions on the service account used
   - instructions for setting up the VM can be found in repo settings under "Actions"
-  - ⚠️  WARNING: VM should be set up with no GCP service account
-    - external contributors could contribute malicious PRs to run code on our test VM. Ensure no service accounts or other secrets exist on the VM
-    - An empty GCP project should be used for extra security
   - to set up dependencies, run the following commands:
     ```
-    # install kubectl, maven, jdk, pip
-    sudo apt-get install kubectl maven default-jdk python3-pip
+    # install git, kubectl, maven, jdk, pip
+    sudo apt-get -y install git kubectl maven default-jdk python3-pip
 
     # install go
     curl -O https://storage.googleapis.com/golang/go1.12.9.linux-amd64.tar.gz
@@ -77,3 +76,12 @@
 - deploys manifests from /releases
   - ensures all pods reach ready state
   - ensures HTTP request to frontend returns HTTP status 200
+
+### Push.yml
+
+#### Triggers
+- commits pushed to master
+
+#### Actions
+- builds and pushes containers to gcr.io/bank-of-anthos
+  - tagged with git commit hash and `latest`
