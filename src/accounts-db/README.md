@@ -5,7 +5,7 @@ The `accounts-db` service holds all user data for the system.
 The container is a standard MongoDB image, with a default database added on top.
 By default, `accounts-db` creates a single in-memory replica.
 
-implemented using MongoDB.
+Implemented using MongoDB.
 
 ### Kubernetes Resources
 
