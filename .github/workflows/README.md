@@ -5,13 +5,14 @@ workloads run using [GitHub self-hosted runners](https://help.github.com/en/acti
 ## Setup
 
 1. Create a GCE instance for running tests
-  - VM should be at least n1-standard-4 with 50GB persistent disk
-  - VM should use custom service account with only permissions to push images to GCR
+    - VM should be at least n1-standard-4 with 50GB persistent disk
+    - VM should use custom service account with only permissions to push images to GCR
 2. SSH into new VM through Google Cloud Console
 3. Follow the instructions to add a new runner on the [Actions Settings page](https://github.com/GoogleCloudPlatform/anthos-finance-demo/settings/actions) to authenticate the new runner
 5. Set GitHub Actions as a background service
-  - `sudo ~/actions-runner/svc.sh install ; sudo ~/actions-runner/svc.sh start`
-4. Run  `wget -O - https://github.com/GoogleCloudPlatform/anthos-finance-demo/blob/master/.github/workflows/install-dependencies.sh | bash` to install dependencies
+    - `sudo ~/actions-runner/svc.sh install ; sudo ~/actions-runner/svc.sh start`
+4. Run the following command to install dependencies
+    - `wget -O - https://github.com/GoogleCloudPlatform/anthos-finance-demo/blob/master/.github/workflows/install-dependencies.sh | bash`
 
 ---
 ## Workflows
