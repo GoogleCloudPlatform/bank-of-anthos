@@ -18,11 +18,8 @@ on:
     # run on pushes to master
     branches:
       - master
-  # temporary; remove before merge
-      - *
-  pull_request:
-      - master
-  # end remove
+      # temporary for testing
+      - push-images
 jobs:
   run-tests:
     runs-on: self-hosted
