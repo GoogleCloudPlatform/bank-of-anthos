@@ -6,12 +6,12 @@ for all transaction data.
 The container is a standard redis image, with an added script to insert some
 default transaction data on first launch.
 
-implemented using Redis Streams.
+Implemented using Redis Streams.
 
 ### Environment Variables
 
 - `USE_DEFAULT_DATA`
-  - if adds default data to ledger when initialized if `True`
+  - adds default data to ledger when initialized if `True`
 - `LOCAL_ROUTING_NUM`
   - the routing number for our bank
 - `DEFAULT_ACCOUNT`
