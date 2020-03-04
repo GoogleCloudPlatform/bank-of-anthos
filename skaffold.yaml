@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-apiVersion: skaffold/v1beta15
+apiVersion: skaffold/v2alpha4
 kind: Config
 build:
   artifacts:
@@ -39,6 +39,8 @@ build:
     context: src/ledger-db
   tagPolicy:
     gitCommit: {}
+  local:
+    concurrency: 0
 deploy:
   kubectl:
     manifests:
