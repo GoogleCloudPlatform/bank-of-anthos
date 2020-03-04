@@ -44,7 +44,7 @@ Bank of Anthos was developed to create an end-to-end sample demonstrating Anthos
 
 #### Option 2: Local Build
 ```
-skaffold run --default-repo=gcr.io/${PROJECT_ID}
+    skaffold run --default-repo=gcr.io/${PROJECT_ID}/bank-of-anthos
 ```
 
 ## Continuous Integration

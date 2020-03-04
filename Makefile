@@ -16,20 +16,21 @@
 
 ZONE=us-west1-a
 CLUSTER=bank-of-anthos
+CONTAINER_PREFIX=bank-of-anthos
 
 cluster: jwtRS256.key check-env
 	./create_cluster.sh ${PROJECT_ID} ${CLUSTER} ${ZONE}
 	kubectl create secret generic jwt-key --from-file=./jwtRS256.key --from-file=./jwtRS256.key.pub
-	skaffold run --default-repo=gcr.io/${PROJECT_ID}/bank-of-anthos
+	skaffold run --default-repo=gcr.io/${PROJECT_ID}/${CONTAINER_PREFIX}
 
 deploy: check-env
 	echo ${CLUSTER}
 	gcloud container clusters get-credentials --project ${PROJECT_ID} ${CLUSTER} --zone ${ZONE}
-	skaffold run --default-repo=gcr.io/${PROJECT_ID}/bank-of-anthos
+	skaffold run --default-repo=gcr.io/${PROJECT_ID}/${CONTAINER_PREFIX}
 
 deploy-continuous: check-env
 	gcloud container clusters get-credentials --project ${PROJECT_ID} ${CLUSTER} --zone ${ZONE}
-	skaffold dev --default-repo=gcr.io/${PROJECT_ID}/bank-of-anthos
+	skaffold dev --default-repo=gcr.io/${PROJECT_ID}/${CONTAINER_PREFIX}
 
 jwtRS256.key:
 	openssl genrsa -out jwtRS256.key 4096

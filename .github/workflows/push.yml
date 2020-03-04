@@ -29,8 +29,8 @@ jobs:
       timeout-minutes: 20
       run: |
         # tag with git hash
-        skaffold build --default-repo=gcr.io/bank-of-anthos/bank-of-anthos \
+        skaffold build --default-repo=gcr.io/bank-of-anthos \
                        --tag=$GITHUB_SHA
         # tag as latest
-        skaffold build --default-repo=gcr.io/bank-of-anthos/bank-of-anthos \
+        skaffold build --default-repo=gcr.io/bank-of-anthos \
                        --tag=latest
