@@ -20,7 +20,7 @@ CLUSTER=bank-of-anthos
 cluster: jwtRS256.key check-env
 	./create_cluster.sh ${PROJECT_ID} ${CLUSTER} ${ZONE}
 	kubectl create secret generic jwt-key --from-file=./jwtRS256.key --from-file=./jwtRS256.key.pub
-	skaffold run --default-repo=gcr.io/${PROJECT_ID}
+	skaffold run --default-repo=gcr.io/${PROJECT_ID}/bank-of-anthos
 
 deploy: check-env
 	echo ${CLUSTER}
