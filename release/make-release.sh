@@ -1,18 +1,17 @@
 #!/bin/bash
-set -e
+set -ex
 
+# move to repo root
 SCRIPT_DIR=$(dirname $(realpath -s $0))
 REPO_ROOT=$SCRIPT_DIR/..
 cd $REPO_ROOT
 
-CURRENT_VERSION=$(grep -A 1 VERSION $REPO_ROOT/kubernetes-manifests/*.yaml | grep value | head -n 1 | awk '{print $3}')
-
+# check for issues
 if [[ ! $NEW_VERSION =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
     echo "\$NEW_VERSION argument must conform to regex string:  ^v[0-9]+\.[0-9]+\.[0-9]+$ "
     echo "ex. v1.0.1"
     exit 1
 fi
-
 if [[ $(git rev-parse origin/master) != $(git rev-parse @) ]]; then
     echo "error: must be on same commit as origin/master"
     exit 1
@@ -22,9 +21,8 @@ if [[ $(git status -s | wc -l) -gt 0 ]]; then
     exit 1
 fi
 
-exit 1
-
 # update version in manifests
+CURRENT_VERSION=$(grep -A 1 VERSION $REPO_ROOT/kubernetes-manifests/*.yaml | grep value | head -n 1 | awk '{print $3}')
 find $REPO_ROOT/kubernetes-manifests -name '*.yaml' -exec sed -i -e "s/$CURRENT_VERSION/\"$NEW_VERSION\"/g" {} \;
 
 # push release PR
