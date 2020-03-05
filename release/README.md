@@ -2,10 +2,10 @@
 
 This directory provides a script for releasing new versions of the application.
 
-## Release Tasks
+## Release Script Tasks
 - Push new version tagged containers to `gcr.io/bank-of-anthos`
-- modify `VERSION` environment variables in all manifests
-- open a new `release/$NEW_VERSION` branch to the repository
+- Modify `VERSION` environment variables in all manifests
+- Open a new `release/$NEW_VERSION` branch to the repository
 - Push a new git tag to the repository
 
 ## Running the script
