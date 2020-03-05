@@ -18,7 +18,7 @@ metadata:
   name: bank-ssl-certificate
 spec:
   domains:
-    - anthos.finance # repace me with DNS name mapped to example-ip-address
+    - bank-of-anthos.xyz  # repace me with DNS name mapped to bank-address
 ---
 apiVersion: v1
 kind: Service
@@ -36,9 +36,9 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: example-ingress
+  name: frontend-ingress
   annotations:
-    kubernetes.io/ingress.global-static-ip-name: bank-address # create me with `gcloud compute addresses create example-ip-address --global`
+    kubernetes.io/ingress.global-static-ip-name: bank-address # create me with `gcloud compute addresses create bank-address --global`
     networking.gke.io/managed-certificates: bank-ssl-certificate
 spec:
   backend:
