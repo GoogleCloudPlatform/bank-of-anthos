@@ -1,10 +1,10 @@
 apiVersion: networking.gke.io/v1beta1
 kind: ManagedCertificate
 metadata:
-  name: example-certificate
+  name: bank-ssl-certificate
 spec:
   domains:
-    - myapp.example.com # repace me with DNS name mapped to example-ip-address
+    - anthos.finance # repace me with DNS name mapped to example-ip-address
 ---
 apiVersion: v1
 kind: Service
@@ -24,8 +24,8 @@ kind: Ingress
 metadata:
   name: example-ingress
   annotations:
-    kubernetes.io/ingress.global-static-ip-name: example-ip-address # create me with `gcloud compute addresses create example-ip-address --global`
-    networking.gke.io/managed-certificates: example-certificate
+    kubernetes.io/ingress.global-static-ip-name: bank-address # create me with `gcloud compute addresses create example-ip-address --global`
+    networking.gke.io/managed-certificates: bank-ssl-certificate
 spec:
   backend:
     serviceName: frontend-nodeport
