@@ -1,0 +1,32 @@
+apiVersion: networking.gke.io/v1beta1
+kind: ManagedCertificate
+metadata:
+  name: example-certificate
+spec:
+  domains:
+    - myapp.example.com # repace me with DNS name mapped to example-ip-address
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-nodeport
+spec:
+  type: NodePort
+  selector:
+    app: frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: example-ingress
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: example-ip-address # create me with `gcloud compute addresses create example-ip-address --global`
+    networking.gke.io/managed-certificates: example-certificate
+spec:
+  backend:
+    serviceName: frontend-nodeport
+    servicePort: 80
