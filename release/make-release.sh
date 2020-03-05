@@ -1,6 +1,9 @@
 #!/bin/bash
 set -ex
 
+# set default repo
+REPO_PREFIX="${REPO_PREFIX:-gcr.io/bank-of-anthos}"
+
 # move to repo root
 SCRIPT_DIR=$(dirname $(realpath -s $0))
 REPO_ROOT=$SCRIPT_DIR/..
@@ -34,7 +37,7 @@ git commit -m "release/$NEW_VERSION"
 git tag $NEW_VERSION
 
 # build and push containers
-skaffold build --default-repo=gcr.io/bank-of-anthos --tag=$NEW_VERSION
+skaffold build --default-repo=$REPO_PREFIX --tag=$NEW_VERSION
 
 # push to repo
 git push --set-upstream origin release/$NEW_VERSION
