@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: "Container Push"
+name: "Container Push/Deploy"
 on:
   push:
     # run on pushes to master
@@ -33,6 +33,8 @@ jobs:
         # tag as latest
         skaffold build --default-repo=gcr.io/$PROJECT_ID \
                        --tag=latest
+      env:
+        PROJECT_ID: ${{ secrets.PROJECT_ID }}
     - name: Deploy to GKE
       timeout-minutes: 20
       run: |
@@ -41,3 +43,7 @@ jobs:
         # tag with git hash
         skaffold run --default-repo=gcr.io/$PROJECT_ID \
                      --tag=$GITHUB_SHA
+      env:
+        MASTER_CLUSTER: ${{ secrets.MASTER_CLUSTER }}
+        ZONE: ${{ secrets.ZONE }}
+        PROJECT_ID: ${{ secrets.PROJECT_ID }}
