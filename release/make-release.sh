@@ -6,7 +6,12 @@ REPO_ROOT=$SCRIPT_DIR/..
 cd $REPO_ROOT
 
 CURRENT_VERSION=$(grep -A 1 VERSION $REPO_ROOT/kubernetes-manifests/*.yaml | grep value | head -n 1 | awk '{print $3}')
-NEW_VERSION=v1.0.0
+
+if [[ ! $NEW_VERSION =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    echo "\$NEW_VERSION argument must conform to regex string:  ^v[0-9]+\.[0-9]+\.[0-9]+$ "
+    echo "ex. v1.0.1"
+    exit 1
+fi
 
 if [[ $(git rev-parse origin/master) != $(git rev-parse @) ]]; then
     echo "error: must be on same commit as origin/master"
