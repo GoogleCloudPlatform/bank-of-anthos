@@ -18,6 +18,7 @@ on:
     # run on pushes to master
     branches:
       - master
+      - deploy
 jobs:
   run-tests:
     runs-on: self-hosted
@@ -27,8 +28,16 @@ jobs:
       timeout-minutes: 20
       run: |
         # tag with git hash
-        skaffold build --default-repo=gcr.io/bank-of-anthos \
+        skaffold build --default-repo=gcr.io/$PROJECT_ID \
                        --tag=$GITHUB_SHA
         # tag as latest
-        skaffold build --default-repo=gcr.io/bank-of-anthos \
+        skaffold build --default-repo=gcr.io/$PROJECT_ID \
                        --tag=latest
+    - name: Deploy to GKE
+      timeout-minutes: 20
+      run: |
+        gcloud container clusters get-credentials $MASTER_CLUSTER \
+            --zone $ZONE --project $PROJECT_ID
+        # tag with git hash
+        skaffold run --default-repo=gcr.io/$PROJECT_ID \
+                     --tag=$GITHUB_SHA

@@ -2,6 +2,8 @@
 
 workloads run using [GitHub self-hosted runners](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/about-self-hosted-runners)
 
+Ensure `MASTER_CLUSTER` `PROJECT_ID` and `ZONE` are set in the [repo's secrets](https://github.com/GoogleCloudPlatform/anthos-finance-demo/settings/secrets)
+
 ## Setup
 
 1. Create a GCE instance for running tests
