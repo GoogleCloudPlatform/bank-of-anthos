@@ -30,7 +30,7 @@ spec:
     app: frontend
   ports:
     - protocol: TCP
-      port: 80
+      port: 8080
       targetPort: 8080
 ---
 apiVersion: extensions/v1beta1
@@ -43,4 +43,4 @@ metadata:
 spec:
   backend:
     serviceName: frontend-nodeport
-    servicePort: 80
+    servicePort: 8080
