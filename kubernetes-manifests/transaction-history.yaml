@@ -50,6 +50,8 @@ spec:
           value: "ledger"
         - name: PORT
           value: "8080"
+        - name: EXTRA_LATENCY_MILLIS
+          value: "5000"
         - name: LOCAL_ROUTING_NUM
           value: "123456789"
         - name: PUB_KEY_PATH
