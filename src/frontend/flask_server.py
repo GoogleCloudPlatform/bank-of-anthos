@@ -53,11 +53,28 @@ def version():
     """
     return os.environ.get('VERSION'), 200
 
-@APP.route("/home")
+@APP.route('/ready', methods=['GET'])
+def readiness():
+    """
+    Readiness probe
+    """
+    return 'ok', 200
+
+
 @APP.route("/")
+def root():
+    """
+    Renders home page or login page, depending on authentication status.
+    """
+    token = request.cookies.get(TOKEN_NAME)
+    if not verify_token(token):
+        return login_page()
+    return home()
+
+@APP.route("/home")
 def home():
     """
-    Renders homapage. Redirects to /login if token is not valid
+    Renders home page. Redirects to /login if token is not valid
     """
     token = request.cookies.get(TOKEN_NAME)
     if not verify_token(token):
