@@ -69,8 +69,7 @@ def root():
     token = request.cookies.get(TOKEN_NAME)
     if not verify_token(token):
         return login_page()
-    else:
-        return home()
+    return home()
 
 @APP.route("/home")
 def home():
