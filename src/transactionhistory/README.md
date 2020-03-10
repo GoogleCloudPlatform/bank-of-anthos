@@ -11,10 +11,10 @@ Implemented in Java with Spring Boot.
 
 | Endpoint        | Type  | Auth? | Description                                                     |
 | --------------- | ----- | ----- | --------------------------------------------------------------- |
-| `/version`      | GET   |       |  Returns the contents of `$VERSION`                             |
-| `/ready`        | GET   |       |  Readiness probe endpoint.                                      |
 | `/healthy`      | GET   |       |  Liveness probe endpoint. Monitors health of background thread. |
+| `/ready`        | GET   |       |  Readiness probe endpoint.                                      |
 | `/transactions` | GET   | 🔒    |  Returns a list of transactions for the authenticated user.     |
+| `/version`      | GET   |       |  Returns the contents of `$VERSION`                             |
 
 ### Environment Variables
 

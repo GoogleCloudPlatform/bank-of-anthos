@@ -6,19 +6,19 @@ Implemented in Python with Flask.
 
 ### Endpoints
 
-| Enndpoint  | Type  | JWT Required | Description                                                                               |
-| ---------- | ----- | ------------ | ----------------------------------------------------------------------------------------- |
-| `/version` | GET   |              |  Returns the contents of `$VERSION`                                                       |
-| `/ready`   | GET   |              |  Readiness probe endpoint.                                                                |
-| `/home`    | GET   | 🔒           |  Renders homepage if authenticated Otherwise redirects to `/login`                        |
-| `/login`   | GET   |              |  Renders login page if not authenticated. Otherwise redirects to `/home`                  |
-| `/login`   | POST  |              |  Submits login request to `userservice`                                                   |
-| `/signup`  | GET   |              |  Renders signup page if not authenticated. Otherwise redirects to `/home`                 |
-| `/login`   | POST  |              |  Submits new user signup request to `userservice`                                         |
-| `/`        | GET   | 🔒           |  Renders `/home` or `/login` based on authentication status. Must always return 200        |
-| `/payment` | POST  | 🔒           |  Submits a new internal payment transaction to `ledgerwriter`                             |
-| `/deposit` | POST  | 🔒           |  Submits a new external deposit transaction to `ledgerwriter`                             |
-| `/logout`  | POST  | 🔒           | delete local authentication token and redirect to `/login`                                |
+| Endpoint   | Type  | Auth? | Description                                                                               |
+| ---------- | ----- | ----- | ----------------------------------------------------------------------------------------- |
+| `/`        | GET   | 🔒    |  Renders `/home` or `/login` based on authentication status. Must always return 200       |
+| `/deposit` | POST  | 🔒    |  Submits a new external deposit transaction to `ledgerwriter`                             |
+| `/home`    | GET   | 🔒    |  Renders homepage if authenticated Otherwise redirects to `/login`                        |
+| `/login`   | GET   |       |  Renders login page if not authenticated. Otherwise redirects to `/home`                  |
+| `/login`   | POST  |       |  Submits login request to `userservice`                                                   |
+| `/logout`  | POST  | 🔒    | delete local authentication token and redirect to `/login`                                |
+| `/payment` | POST  | 🔒    |  Submits a new internal payment transaction to `ledgerwriter`                             |
+| `/ready`   | GET   |       |  Readiness probe endpoint.                                                                |
+| `/signup`  | GET   |       |  Renders signup page if not authenticated. Otherwise redirects to `/home`                 |
+| `/signup`  | POST  |       |  Submits new user signup request to `userservice`                                         |
+| `/version` | GET   |       |  Returns the contents of `$VERSION`                                                       |
 
 ### Environment Variables
 

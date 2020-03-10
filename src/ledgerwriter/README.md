@@ -8,9 +8,9 @@ Implemented in Java with Spring Boot.
 
 | Endpoint           | Type  | Auth? | Description                                          |
 | ------------------ | ----- | ----- | ---------------------------------------------------- |
-| `/version`         | GET   |       |  Returns the contents of `$VERSION`                  |
 | `/ready`           | GET   |       |  Readiness probe endpoint.                           |
 | `/transactions`    | POST  | 🔒    |  Submits a transaction to be appended to the ledger. |
+| `/version`         | GET   |       |  Returns the contents of `$VERSION`                  |
 
 ### Environment Variables
 

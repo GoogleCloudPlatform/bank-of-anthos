@@ -9,12 +9,12 @@ Implemented in Python with Flask.
 
 | Enndpoint      | Type  | JWT Required | Description                                                |
 | -------------- | ----- | ------------ | ---------------------------------------------------------- |
-| `/version`     | GET   |              |  Returns the contents of `$VERSION`                        |
-| `/ready`       | GET   |              |  Readiness probe endpoint.                                 |
 | `/contacts`    | GET   | 🔒           |  Retrieve a (hardcoded) list of connected accounts.        |
 | `/contacts`    | POST  | 🔒           |  Add a new connected account for sending payments.         |
 | `/external`    | GET   | 🔒           |  Retrieve a (hardcoded) list of external bank accounts.    |
 | `/external`    | POST  | 🔒           |  Add a new external bank account for deposits.             |
+| `/ready`       | GET   |              |  Readiness probe endpoint.                                 |
+| `/version`     | GET   |              |  Returns the contents of `$VERSION`                        |
 
 
 ### Environment Variables

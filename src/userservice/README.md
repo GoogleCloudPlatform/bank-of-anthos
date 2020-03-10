@@ -9,11 +9,11 @@ Implemented in Python with Flask.
 
 | Endpoint            | Type  | Auth? | Description                                                      |
 | ------------------- | ----- | ----- | ---------------------------------------------------------------- |
-| `/version`          | GET   |       |  Returns the contents of `$VERSION`                              |
-| `/ready`            | GET   |       |  Readiness probe endpoint.                                       |
 | `/login`            | GET   |       |  Returns a JWT if authentication is successful.                  |
+| `/ready`            | GET   |       |  Readiness probe endpoint.                                       |
 | `/users`            | POST  |       |  Validates and creates a new user record.                        |
 | `/users/<username>` | GET   | 🔒    |  Returns user metadata iff that user is currently authenticated. |
+| `/version`          | GET   |       |  Returns the contents of `$VERSION`                              |
 
 ### Environment Variables
 
