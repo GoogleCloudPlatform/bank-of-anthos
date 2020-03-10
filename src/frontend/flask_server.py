@@ -30,7 +30,7 @@ APP = Flask(__name__)
 
 APP.config["TRANSACTIONS_URI"] = 'http://{}/new_transaction'.format(
     os.environ.get('TRANSACTIONS_API_ADDR'))
-APP.config["USERSERVICE_URI"] = 'http://{}/create_user'.format(
+APP.config["USERSERVICE_URI"] = 'http://{}/users'.format(
     os.environ.get('USERSERVICE_API_ADDR'))
 APP.config["BALANCES_URI"] = 'http://{}/get_balance'.format(
     os.environ.get('BALANCES_API_ADDR'))

@@ -50,7 +50,7 @@ def readiness():
     return 'ok', 200
 
 
-@APP.route('/create_user', methods=['POST'])
+@APP.route('/users', methods=['POST'])
 def create_user():
     """Create a user record.
 
@@ -126,13 +126,15 @@ def create_user():
     return jsonify({}), 201
 
 
-@APP.route('/get_user', methods=['GET'])
-def get_user():
-    """Get a user record.
+@APP.route('/users/<username>', methods=['GET'])
+def get_user(username):
+    """Get personal metadata for the currently authorized user.
 
-    Fails if there is no such user.
+    Authorized requests only:  headers['Authorization'].
 
-    request:
+    Fails if the specified username does not match the authorized user.
+
+    parameter:
       - username
 
     response:
@@ -155,6 +157,9 @@ def get_user():
     try:
         payload = jwt.decode(token, key=PUBLIC_KEY, algorithms='RS256')
         user = payload['user']
+        if username != user:
+            msg = 'user {} not authorized for account {}'.format(user, username)
+            return jsonify({'msg': msg}), 401
         logging.info('getting user: %s', str(user))
         # get user from MongoDB
         query = {'username': user}

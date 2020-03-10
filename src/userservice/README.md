@@ -7,13 +7,13 @@ Implemented in Python with Flask.
 
 ### Endpoints
 
-| Enndpoint      | Type  | JWT Required | Description                                                |
-| -------------- | ----- | ------------ | ---------------------------------------------------------- |
-| `/version`     | GET   |              |  Returns the contents of `$VERSION`                        |
-| `/ready`       | GET   |              |  Readiness probe endpoint.                                 |
-| `/create_user` | POST  |              |  Validates and creates a new user record.                  |
-| `/login`       | GET   |              |  Returns a JWT if authentication is successful.            |
-| `/get_user`    | GET   | 🔒           |  Returns metadata for the authenticated user.              |
+| Endpoint            | Type  | Auth? | Description                                                      |
+| ------------------- | ----- | ----- | ---------------------------------------------------------------- |
+| `/version`          | GET   |       |  Returns the contents of `$VERSION`                              |
+| `/ready`            | GET   |       |  Readiness probe endpoint.                                       |
+| `/login`            | GET   |       |  Returns a JWT if authentication is successful.                  |
+| `/users`            | POST  |       |  Validates and creates a new user record.                        |
+| `/users/<username>` | GET   | 🔒    |  Returns user metadata iff that user is currently authenticated. |
 
 ### Environment Variables
 
