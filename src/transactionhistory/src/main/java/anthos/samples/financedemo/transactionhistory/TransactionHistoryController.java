@@ -142,7 +142,11 @@ public final class TransactionHistoryController
             // Set artificial extra latency.
             String latency = System.getenv("EXTRA_LATENCY_MILLIS");
             if (latency != null) {
-                Thread.sleep(Integer.parseInt(latency));
+                try {
+                    Thread.sleep(Integer.parseInt(latency));
+                } catch (InterruptedException e) {
+                    // Fake latency interrupted. Continue.
+                }
             }
 
             return new ResponseEntity<List<TransactionHistoryEntry>>(
