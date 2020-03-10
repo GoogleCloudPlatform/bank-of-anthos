@@ -34,7 +34,7 @@ spec:
           - for i in {1..100}; do sleep 1; if redis-cli -h ledger-db -p 6379 ping; then exit 0; fi; done; exit 1
       containers:
       - name: reader
-        image: balancereader
+        image: gcr.io/bank-of-anthos/balancereader
         volumeMounts:
         - name: publickey
           mountPath: "/root/.ssh"
