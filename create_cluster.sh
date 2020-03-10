@@ -44,4 +44,4 @@ gcloud beta container clusters create ${CLUSTER} \
     --project=${PROJECT} --zone=${ZONE} \
     --machine-type=n1-standard-2 --num-nodes=4 \
     --enable-stackdriver-kubernetes --subnetwork=default \
-    --identity-namespace=${PROJECT}.svc.id.goog --labels csm=
+    --labels csm=

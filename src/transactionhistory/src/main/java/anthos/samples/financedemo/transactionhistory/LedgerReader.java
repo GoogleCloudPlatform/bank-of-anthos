@@ -17,6 +17,7 @@
 package anthos.samples.financedemo.transactionhistory;
 
 import io.lettuce.core.api.StatefulRedisConnection;
+import io.lettuce.core.RedisCommandTimeoutException;
 import io.lettuce.core.StreamMessage;
 import io.lettuce.core.XReadArgs;
 import io.lettuce.core.XReadArgs.StreamOffset;
@@ -81,7 +82,10 @@ public final class LedgerReader {
      * Poll for new transactions
      * Execute callback for each one
      *
-     * @param timeout the blocking time for new transactions. 0 = block forever
+     * @param timeout the blocking time for new transactions.
+     *                0 = block forever
+     * @param startingTransaction the transaction to start reading after.
+     *                            "0" = start reading at beginning of the ledger
      * @return String id of latest transaction processed
      */
     private String pollTransactions(int timeout, String startingTransaction) {
@@ -89,37 +93,41 @@ public final class LedgerReader {
             throw new IllegalArgumentException(
                     "pollTransactions request timeout must be non-negative");
         }
+        String latestTransactionId = startingTransaction;
         StreamOffset offset = StreamOffset.from(ledgerStreamKey,
                                                 startingTransaction);
         XReadArgs args = XReadArgs.Builder.block(Duration.ofSeconds(timeout));
-        List<StreamMessage<String, String>> messages =
-            redisConnection.sync().xread(args, offset);
+        try {
+            List<StreamMessage<String, String>> messages =
+                redisConnection.sync().xread(args, offset);
 
-        String latestTransactionId = startingTransaction;
-        for (StreamMessage<String, String> message : messages) {
-            // found a list of transactions. Execute callback for each one
-            latestTransactionId = message.getId();
-            Map<String, String> map = message.getBody();
-            if (this.listener != null) {
-                String sender = map.get("fromAccountNum");
-                String senderRouting = map.get("fromRoutingNum");
-                String receiver = map.get("toAccountNum");
-                String receiverRouting = map.get("toRoutingNum");
-                // create credit and debit entries for transaction
-                TransactionHistoryEntry credit = new TransactionHistoryEntry(
-                        message.getBody(), TransactionType.CREDIT);
-                TransactionHistoryEntry debit = new TransactionHistoryEntry(
-                        message.getBody(), TransactionType.DEBIT);
-                // process entries only if they belong to this bank
-                if (senderRouting.equals(localRoutingNum)) {
-                    this.listener.processTransaction(sender, credit);
+            for (StreamMessage<String, String> message : messages) {
+                // found a list of transactions. Execute callback for each one
+                latestTransactionId = message.getId();
+                Map<String, String> map = message.getBody();
+                if (this.listener != null) {
+                    String sender = map.get("fromAccountNum");
+                    String senderRouting = map.get("fromRoutingNum");
+                    String receiver = map.get("toAccountNum");
+                    String receiverRouting = map.get("toRoutingNum");
+                    // create credit and debit entries for transaction
+                    TransactionHistoryEntry cred = new TransactionHistoryEntry(
+                            message.getBody(), TransactionType.CREDIT);
+                    TransactionHistoryEntry debit = new TransactionHistoryEntry(
+                            message.getBody(), TransactionType.DEBIT);
+                    // process entries only if they belong to this bank
+                    if (senderRouting.equals(localRoutingNum)) {
+                        this.listener.processTransaction(sender, cred);
+                    }
+                    if (receiverRouting.equals(localRoutingNum)) {
+                        this.listener.processTransaction(receiver, debit);
+                    }
+                } else {
+                    System.out.println("Listener not set up");
                 }
-                if (receiverRouting.equals(localRoutingNum)) {
-                    this.listener.processTransaction(receiver, debit);
-                }
-            } else {
-                System.out.println("Listener not set up");
             }
+        } catch (RedisCommandTimeoutException e) {
+            System.out.println("Read timeout");
         }
         return latestTransactionId;
     }
