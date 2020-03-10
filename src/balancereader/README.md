@@ -9,12 +9,12 @@ Implemented in Java with Spring Boot.
 
 ### Endpoints
 
-| Enndpoint      | Type  | JWT Required | Description                                                     |
-| -------------- | ----- | ------------ | --------------------------------------------------------------- |
-| `/version`     | GET   |              |  Returns the contents of `$VERSION`                             |
-| `/ready`       | GET   |              |  Readiness probe endpoint.                                      |
-| `/healthy`     | GET   |              |  Liveness probe endpoint. Monitors health of background thread. |
-| `/get_balance` | GET   | 🔒           |  Returns the total balance of the authenticated user.           |
+| Endpoint                | Type  | Auth? | Description                                                             |
+| ----------------------- | ----- | ----- | ----------------------------------------------------------------------- |
+| `/version`              | GET   |       |  Returns the contents of `$VERSION`                                     |
+| `/ready`                | GET   |       |  Readiness probe endpoint.                                              |
+| `/healthy`              | GET   |       |  Liveness probe endpoint. Monitors health of background thread.         |
+| `/balances/<accountid>` | GET   | 🔒    |  Get the account balance iff owned by the currently authenticated user. |
 
 ### Environment Variables
 

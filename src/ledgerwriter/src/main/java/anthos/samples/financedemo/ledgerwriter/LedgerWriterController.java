@@ -56,7 +56,7 @@ public final class LedgerWriterController {
 
     private final String ledgerStreamKey = System.getenv("LEDGER_STREAM");
     private final String routingNum =  System.getenv("LOCAL_ROUTING_NUM");
-    private final String balancesUri = String.format("http://%s/get_balance",
+    private final String balancesUri = String.format("http://%s/balances",
         System.getenv("BALANCES_API_ADDR"));
     private final JWTVerifier verifier;
 
@@ -136,8 +136,9 @@ public final class LedgerWriterController {
                 headers.set("Authorization", "Bearer " + bearerToken);
                 HttpEntity entity = new HttpEntity(headers);
                 RestTemplate restTemplate = new RestTemplate();
+                String uri = balancesUri + "/" + initiatorAcct;
                 ResponseEntity<Integer> response = restTemplate.exchange(
-                    balancesUri, HttpMethod.GET, entity, Integer.class);
+                    uri, HttpMethod.GET, entity, Integer.class);
                 Integer senderBalance = response.getBody();
                 if (senderBalance < transaction.getAmount()) {
                     return new ResponseEntity<String>("insufficient balance",
