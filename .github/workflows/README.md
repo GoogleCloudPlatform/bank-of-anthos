@@ -1,61 +1,18 @@
 # GitHub Actions Workflows
 
+workloads run using [GitHub self-hosted runners](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/about-self-hosted-runners)
+
 ## Setup
-- workloads run using [GitHub self-hosted runners](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/about-self-hosted-runners)
-- project admins maintain a private Google Compute Engine VM for running tests
-  - VM should be at least n1-standard-4 with 50GB persistent disk
-  - instructions for setting up the VM can be found in repo settings under "Actions"
-  - ⚠️  WARNING: VM should be set up with no GCP service account
-    - external contributors could contribute malicious PRs to run code on our test VM. Ensure no service accounts or other secrets exist on the VM
-    - An empty GCP project should be used for extra security
-  - to set up dependencies, run the following commands:
-    ```
-    # install kubectl, maven, jdk, pip
-    sudo apt-get install kubectl maven default-jdk python3-pip
 
-    # install go
-    curl -O https://storage.googleapis.com/golang/go1.12.9.linux-amd64.tar.gz
-    tar -xvf go1.12.9.linux-amd64.tar.gz
-    sudo chown -R root:root ./go
-    sudo mv go /usr/local
-    echo 'export GOPATH=$HOME/go' >> ~/.profile
-    echo 'export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin' >> ~/.profile
-    source ~/.profile
-
-    # install addlicense
-    go get -u github.com/google/addlicense
-    sudo ln -s $HOME/go/bin/addlicense /bin
-
-    # install pylint
-    sudo pip3 install pylint
-
-    # install kind
-    curl -Lo ./kind "https://github.com/kubernetes-sigs/kind/releases/download/v0.7.0/kind-$(uname)-amd64" && \
-    chmod +x ./kind && \
-    sudo mv ./kind /usr/local/bin
-
-    # install skaffold
-    curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64 && \
-    chmod +x skaffold && \
-    sudo mv skaffold /usr/local/bin
-
-    # install docker
-    sudo apt install apt-transport-https ca-certificates curl gnupg2 software-properties-common && \
-    curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add - && \
-    sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable" && \
-    sudo apt update && \
-    sudo apt install docker-ce && \
-    sudo usermod -aG docker ${USER}
-
-    # logout and back on
-    exit
-    ```
-  - ensure GitHub Actions runs as background service:
-    ```
-    sudo ~/actions-runner/svc.sh install
-    sudo ~/actions-runner/svc.sh start
-    ```
-
+1. Create a GCE instance for running tests
+    - VM should be at least n1-standard-4 with 50GB persistent disk
+    - VM should use custom service account with only permissions to push images to GCR
+2. SSH into new VM through Google Cloud Console
+3. Follow the instructions to add a new runner on the [Actions Settings page](https://github.com/GoogleCloudPlatform/anthos-finance-demo/settings/actions) to authenticate the new runner
+4. Set GitHub Actions as a background service
+    - `sudo ~/actions-runner/svc.sh install ; sudo ~/actions-runner/svc.sh start`
+5. Run the following command to install dependencies
+    - `wget -O - https://github.com/GoogleCloudPlatform/anthos-finance-demo/blob/master/.github/workflows/install-dependencies.sh | bash`
 
 ---
 ## Workflows
@@ -77,3 +34,12 @@
 - deploys manifests from /releases
   - ensures all pods reach ready state
   - ensures HTTP request to frontend returns HTTP status 200
+
+### Push.yml
+
+#### Triggers
+- commits pushed to master
+
+#### Actions
+- builds and pushes containers to gcr.io/bank-of-anthos
+  - tagged with git commit hash and `latest`

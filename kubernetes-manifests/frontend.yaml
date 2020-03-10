@@ -28,7 +28,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: front
-        image: frontend
+        image: gcr.io/bank-of-anthos/frontend
         volumeMounts:
         - name: publickey
           mountPath: "/root/.ssh"

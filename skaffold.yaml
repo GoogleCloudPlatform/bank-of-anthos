@@ -16,26 +16,26 @@ apiVersion: skaffold/v2alpha4
 kind: Config
 build:
   artifacts:
-  - image: frontend
+  - image: gcr.io/bank-of-anthos/frontend
     context: src/frontend
-  - image: ledgerwriter
+  - image: gcr.io/bank-of-anthos/ledgerwriter
     jib:
       project: src/ledgerwriter
-  - image: balancereader
+  - image: gcr.io/bank-of-anthos/balancereader
     jib:
       project: src/balancereader
-  - image: transactionhistory
+  - image: gcr.io/bank-of-anthos/transactionhistory
     jib:
       project: src/transactionhistory
-  - image: contacts
+  - image: gcr.io/bank-of-anthos/contacts
     context: src/contacts
-  - image: userservice
+  - image: gcr.io/bank-of-anthos/userservice
     context: src/userservice
-  - image: loadgenerator
+  - image: gcr.io/bank-of-anthos/loadgenerator
     context: src/loadgenerator
-  - image: accounts-db
+  - image: gcr.io/bank-of-anthos/accounts-db
     context: src/accounts-db
-  - image: ledger-db
+  - image: gcr.io/bank-of-anthos/ledger-db
     context: src/ledger-db
   tagPolicy:
     gitCommit: {}
