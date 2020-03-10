@@ -13,9 +13,9 @@ for Bank of Anthos. More information can be found in the [GCP docs](https://clou
   - [Instructions for Google Domains](https://support.google.com/domains/answer/9211383)
 4. Modify `managed-certificates.yaml` as necessary
   - ensure `domains` and `kubernetes.io/ingress.global-static-ip-name` match your domain and static IP name
+  - http can be disabled with the `kubernetes.io/ingress.allow-http: "false"` annotation. It will return 404
 5. Apply the manifest
   - `kubectl apply -f ./managed-certificates.yaml`
 6. Access your application at `https://YOUR_DOMAIN`
   - It may take a couple minutes for the Ingress resource to provision your LoadBalancer and certificates.
     You will see 502 and 404 errors in the mean time.
-  - `http://YOUR_DOMAIN` is disabled by the `kubernetes.io/ingress.allow-http: "false"` annotation. It will return 404
