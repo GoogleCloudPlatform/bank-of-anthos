@@ -37,11 +37,17 @@ Bank of Anthos was developed to create an end-to-end sample demonstrating Anthos
 
 ### Deployment
 
+#### Option 1: Pre-Built Containers
 ```
-skaffold run --default-repo=gcr.io/${PROJECT_ID}
+   kubectl apply -f ./kubernetes-manifests
 ```
 
-## Continuous Integratioon
+#### Option 2: Local Build
+```
+    skaffold run --default-repo=gcr.io/${PROJECT_ID}/bank-of-anthos
+```
+
+## Continuous Integration
 
 GitHub Actions workflows [described here](./.github/workflows)
 
