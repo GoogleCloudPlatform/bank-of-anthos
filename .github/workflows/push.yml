@@ -27,6 +27,7 @@ jobs:
     - name: Push to GCR
       timeout-minutes: 20
       run: |
+        skaffold config set --global local-cluster false
         # tag with git hash
         skaffold build --default-repo=gcr.io/$PROJECT_ID \
                        --tag=$GITHUB_SHA
@@ -38,6 +39,7 @@ jobs:
     - name: Deploy to GKE
       timeout-minutes: 20
       run: |
+        skaffold config set --global local-cluster false
         gcloud container clusters get-credentials $MASTER_CLUSTER \
             --zone $ZONE --project $PROJECT_ID
         # deploy tag to cluster
