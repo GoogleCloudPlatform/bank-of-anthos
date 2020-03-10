@@ -123,8 +123,8 @@ public final class TransactionHistoryController
     /**
      * Return a list of the user's past transactions.
      */
-    @GetMapping("/get_history")
-    public ResponseEntity<?> getHistory(
+    @GetMapping("/transactions")
+    public ResponseEntity<?> getTransactions(
             @RequestHeader("Authorization") String bearerToken) {
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             bearerToken = bearerToken.split("Bearer ")[1];

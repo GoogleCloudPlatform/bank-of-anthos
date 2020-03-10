@@ -34,7 +34,7 @@ APP.config["USERSERVICE_URI"] = 'http://{}/users'.format(
     os.environ.get('USERSERVICE_API_ADDR'))
 APP.config["BALANCES_URI"] = 'http://{}/get_balance'.format(
     os.environ.get('BALANCES_API_ADDR'))
-APP.config["HISTORY_URI"] = 'http://{}/get_history'.format(
+APP.config["HISTORY_URI"] = 'http://{}/transactions'.format(
     os.environ.get('HISTORY_API_ADDR'))
 APP.config["LOGIN_URI"] = 'http://{}/login'.format(
     os.environ.get('USERSERVICE_API_ADDR'))
