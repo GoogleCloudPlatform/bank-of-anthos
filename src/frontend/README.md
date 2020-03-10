@@ -9,12 +9,13 @@ Implemented in Python with Flask.
 | Enndpoint  | Type  | JWT Required | Description                                                                               |
 | ---------- | ----- | ------------ | ----------------------------------------------------------------------------------------- |
 | `/version` | GET   |              |  Returns the contents of `$VERSION`                                                       |
-| `/`        | GET   | 🔒           |  Renders homepage if authenticated. Otherwise redirects to `/login` (alias for `/home`)   |
-| `/home`    | GET   | 🔒           |  Renders homepage if authenticated. Otherwise redirects to `/login` (alias for `/`        |
+| `/ready`   | GET   |              |  Readiness probe endpoint.                                                                |
+| `/home`    | GET   | 🔒           |  Renders homepage if authenticated Otherwise redirects to `/login`                        |
 | `/login`   | GET   |              |  Renders login page if not authenticated. Otherwise redirects to `/home`                  |
 | `/login`   | POST  |              |  Submits login request to `userservice`                                                   |
 | `/signup`  | GET   |              |  Renders signup page if not authenticated. Otherwise redirects to `/home`                 |
 | `/login`   | POST  |              |  Submits new user signup request to `userservice`                                         |
+| `/`        | GET   | 🔒           |  Renders `/home` or `/login` based on authentication status. Must always return 200        |
 | `/payment` | POST  | 🔒           |  Submits a new internal payment transaction to `ledgerwriter`                             |
 | `/deposit` | POST  | 🔒           |  Submits a new external deposit transaction to `ledgerwriter`                             |
 | `/logout`  | POST  | 🔒           | delete local authentication token and redirect to `/login`                                |
