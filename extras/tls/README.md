@@ -13,7 +13,7 @@ for Bank of Anthos. More information can be found in the [GCP docs](https://clou
     - [Instructions for Google Domains](https://support.google.com/domains/answer/9211383)
 4. Modify `managed-certificates.yaml` as necessary
     - ensure `domains` and `kubernetes.io/ingress.global-static-ip-name` match your domain and static IP name
-    - http can be disabled with the `kubernetes.io/ingress.allow-http: "false"` annotation
+    - http can be optionally disabled with the `kubernetes.io/ingress.allow-http: "false"` annotation
 5. Apply the manifest
     - `kubectl apply -f ./managed-certificates.yaml`
 6. Access your application at `https://YOUR_DOMAIN`

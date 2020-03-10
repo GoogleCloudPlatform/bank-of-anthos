@@ -64,7 +64,7 @@ def readiness():
 @APP.route("/")
 def root():
     """
-    Renders Homepage or login, depending on auth status.
+    Renders home page or login page, depending on authentication status.
     """
     token = request.cookies.get(TOKEN_NAME)
     if not verify_token(token):
@@ -74,7 +74,7 @@ def root():
 @APP.route("/home")
 def home():
     """
-    Renders homepage. Redirects to /login if token is not valid
+    Renders home page. Redirects to /login if token is not valid
     """
     token = request.cookies.get(TOKEN_NAME)
     if not verify_token(token):
