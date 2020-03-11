@@ -37,7 +37,7 @@ Ensure `MASTER_CLUSTER` `PROJECT_ID` and `ZONE` are set in the [repo's secrets](
   - ensures all pods reach ready state
   - ensures HTTP request to frontend returns HTTP status 200
 
-### Push.yml
+### Push-Deploy.yml
 
 #### Triggers
 - commits pushed to master
