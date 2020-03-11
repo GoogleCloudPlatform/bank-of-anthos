@@ -124,7 +124,7 @@ public final class TransactionHistoryController
     /**
      * Return a list of transactions for the specified account.
      *
-     * Account must be owned by the currently authenticated user.
+     * The currently authenticated user must be allowed to access the account.
      *
      * @param accountId the account to get transactions for.
      * @return a list of transactions for this account.
@@ -138,16 +138,15 @@ public final class TransactionHistoryController
         }
         try {
             DecodedJWT jwt = this.verifier.verify(bearerToken);
-            String initiatorAcct = jwt.getClaim("acct").asString();
-            if (!initiatorAcct.equals(accountId)) {
-                // The authenticated user does not own this account.
+            // Check that the authenticated user can access this account.
+            if (!accountId.equals(jwt.getClaim("acct").asString())) {
                 return new ResponseEntity<String>("not authorized",
                                                   HttpStatus.UNAUTHORIZED);
             }
 
             List<TransactionHistoryEntry> historyList;
-            if (this.historyMap.containsKey(initiatorAcct)) {
-                historyList = this.historyMap.get(initiatorAcct);
+            if (this.historyMap.containsKey(accountId)) {
+                historyList = this.historyMap.get(accountId);
             } else {
                 historyList = new LinkedList<TransactionHistoryEntry>();
             }

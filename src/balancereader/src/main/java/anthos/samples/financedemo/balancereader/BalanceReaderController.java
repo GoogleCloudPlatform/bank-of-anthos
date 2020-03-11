@@ -122,7 +122,7 @@ public final class BalanceReaderController implements LedgerReaderListener {
     /**
      * Return the balance for the specified account.
      *
-     * Account must be owned by the currently authenticated user.
+     * The currently authenticated user must be allowed to access the account.
      *
      * @param accountId the account to get the balance for.
      * @return the balance amount.
@@ -136,16 +136,15 @@ public final class BalanceReaderController implements LedgerReaderListener {
         }
         try {
             DecodedJWT jwt = this.verifier.verify(bearerToken);
-            String initiatorAcct = jwt.getClaim("acct").asString();
-            if (!initiatorAcct.equals(accountId)) {
-                // The authenticated user does not own this account.
+            // Check that the authenticated user can access this account.
+            if (!accountId.equals(jwt.getClaim("acct").asString())) {
                 return new ResponseEntity<String>("not authorized",
                                                   HttpStatus.UNAUTHORIZED);
             }
 
             Integer balance = 0;
-            if (this.balanceMap.containsKey(initiatorAcct)) {
-                balance = this.balanceMap.get(initiatorAcct);
+            if (this.balanceMap.containsKey(accountId)) {
+                balance = this.balanceMap.get(accountId);
             }
             return new ResponseEntity<Integer>(balance, HttpStatus.OK);
         } catch (JWTVerificationException e) {
