@@ -41,6 +41,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
+import java.util.logging.Logger;
 
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
@@ -50,6 +51,9 @@ import com.auth0.jwt.JWTVerifier;
 
 @RestController
 public final class LedgerWriterController {
+
+    private final Logger logger =
+            Logger.getLogger(LedgerWriterController.class.getName());
 
     ApplicationContext ctx =
             new AnnotationConfigApplicationContext(LedgerWriterConfig.class);
@@ -84,7 +88,7 @@ public final class LedgerWriterController {
      * @return service version string
      */
     @GetMapping("/version")
-    public ResponseEntity version() {
+/   public ResponseEntity version() {
         final String versionStr =  System.getenv("VERSION");
         return new ResponseEntity<String>(versionStr, HttpStatus.OK);
     }
@@ -145,7 +149,6 @@ public final class LedgerWriterController {
                 }
             }
             // Transaction looks valid. Add to ledger.
-            System.out.println("adding transaction: " + transaction);
             submitTransaction(transaction);
 
             return new ResponseEntity<String>("ok", HttpStatus.CREATED);
@@ -156,6 +159,7 @@ public final class LedgerWriterController {
     }
 
     private void submitTransaction(Transaction transaction) {
+        logger.info("Submitting transaction " + transaction.toString());
         StatefulRedisConnection redisConnection =
                 ctx.getBean(StatefulRedisConnection.class);
         // Use String key/values so Redis data can be read by non-Java clients.

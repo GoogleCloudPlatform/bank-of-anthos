@@ -77,7 +77,7 @@ public final class BalanceReaderController implements LedgerReaderListener {
         // set up transaction processor
         this.reader = new LedgerReader(this);
         this.initialized = true;
-        logger.info("initialization complete");
+        logger.info("Initialization complete.");
     }
 
     /**
