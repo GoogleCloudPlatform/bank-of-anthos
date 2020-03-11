@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: "Container Push/Deploy"
+name: "Push and Deploy"
 on:
   push:
     # run on pushes to master
     branches:
       - master
 jobs:
-  run-tests:
+  push-deploy:
     runs-on: self-hosted
     steps:
     - uses: actions/checkout@v2
