@@ -41,7 +41,7 @@ if [[ $(git status -s | wc -l) -gt 0 ]]; then
 fi
 
 # update version in manifests
-CURRENT_VERSION=$(grep -A 1 VERSION "${REPO_ROOT}/kubernetes-manifests/*.yaml" | grep value | head -n 1 | awk '{print $3}')
+CURRENT_VERSION=$(grep -A 1 VERSION ${REPO_ROOT}/kubernetes-manifests/*.yaml | grep value | head -n 1 | awk '{print $3}')
 find "${REPO_ROOT}/kubernetes-manifests" -name '*.yaml' -exec sed -i -e "s/${CURRENT_VERSION}/\"${NEW_VERSION}\"/g" {} \;
 
 # push release PR
@@ -55,7 +55,7 @@ git tag "${NEW_VERSION}"
 # build and push containers
 skaffold config set local-cluster false
 skaffold build --default-repo="${REPO_PREFIX}" --tag="${NEW_VERSION}"
-skaffold config unset local-cluster false
+skaffold config unset local-cluster
 
 # push to repo
 git push --set-upstream origin "release/${NEW_VERSION}"
