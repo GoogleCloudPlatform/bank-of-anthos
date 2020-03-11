@@ -158,7 +158,7 @@ def _add_ext_acct(accountid, ext_acct):
     return jsonify({}), 201
 
 
-@APP.route('/contacts', methods=['GET', 'POST'])
+@APP.route('/accounts/contacts', methods=['GET', 'POST'])
 def contacts():
     """Add or retrieve linked contacts for the currently authorized user.
 

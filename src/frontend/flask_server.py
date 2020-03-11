@@ -38,7 +38,7 @@ APP.config["HISTORY_URI"] = 'http://{}/transactions'.format(
     os.environ.get('HISTORY_API_ADDR'))
 APP.config["LOGIN_URI"] = 'http://{}/login'.format(
     os.environ.get('USERSERVICE_API_ADDR'))
-APP.config["CONTACTS_URI"] = 'http://{}/contacts'.format(
+APP.config["CONTACTS_URI"] = 'http://{}/accounts/contacts'.format(
     os.environ.get('CONTACTS_API_ADDR'))
 APP.config["EXTERNAL_ACCOUNTS_URI"] = 'http://{}/accounts/external'.format(
     os.environ.get('CONTACTS_API_ADDR'))

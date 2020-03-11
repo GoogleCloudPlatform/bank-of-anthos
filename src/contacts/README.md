@@ -9,8 +9,8 @@ Implemented in Python with Flask.
 
 | Endpoint             | Type  | Auth? | Description                                                |
 | -------------------- | ----- | ----- | ---------------------------------------------------------- |
-| `/contacts`          | GET   | 🔒    |  Retrieve a list of connected accounts.                    |
-| `/contacts`          | POST  | 🔒    |  Add a new connected account for sending payments.         |
+| `/accounts/contacts` | GET   | 🔒    |  Retrieve a list of connected user accounts.               |
+| `/accounts/contacts` | POST  | 🔒    |  Add a new connected user account for sending payments.    |
 | `/accounts/external` | GET   | 🔒    |  Retrieve a list of external bank accounts.                |
 | `/accounts/external` | POST  | 🔒    |  Add a new external bank account for deposits.             |
 | `/ready`             | GET   |       |  Readiness probe endpoint.                                 |
