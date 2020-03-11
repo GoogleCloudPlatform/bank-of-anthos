@@ -122,7 +122,7 @@ public final class BalanceReaderController implements LedgerReaderListener {
     /**
      * Return the balance for the specified account.
      *
-     * Must be owned by the currently authenticated user.
+     * Account must be owned by the currently authenticated user.
      *
      * @param accountId the account to get the balance for.
      * @return the balance amount.

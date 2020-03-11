@@ -9,12 +9,12 @@ Implemented in Java with Spring Boot.
 
 ### Endpoints
 
-| Endpoint        | Type  | Auth? | Description                                                     |
-| --------------- | ----- | ----- | --------------------------------------------------------------- |
-| `/healthy`      | GET   |       |  Liveness probe endpoint. Monitors health of background thread. |
-| `/ready`        | GET   |       |  Readiness probe endpoint.                                      |
-| `/transactions` | GET   | 🔒    |  Returns a list of transactions for the authenticated user.     |
-| `/version`      | GET   |       |  Returns the contents of `$VERSION`                             |
+| Endpoint                    | Type  | Auth? | Description                                                                   |
+| --------------------------- | ----- | ----- | ----------------------------------------------------------------------------- |
+| `/healthy`                  | GET   |       |  Liveness probe endpoint. Monitors health of background thread.               |
+| `/ready`                    | GET   |       |  Readiness probe endpoint.                                                    |
+| `/transactions/<accountid>` | GET   | 🔒    |  Return the account transaction list iff authenticated to access the account. |
+| `/version`                  | GET   |       |  Returns the contents of `$VERSION`                                           |
 
 ### Environment Variables
 

@@ -97,7 +97,8 @@ def home():
     # get history
     transaction_list = []
     try:
-        req = requests.get(url=APP.config["HISTORY_URI"], headers=hed)
+        url = '{}/{}'.format(APP.config["HISTORY_URI"], account_id)
+        req = requests.get(url=url, headers=hed)
         transaction_list = req.json()
     except (requests.exceptions.RequestException, ValueError) as err:
         logging.error(str(err))
