@@ -150,6 +150,17 @@ public final class TransactionHistoryController
             } else {
                 historyList = new LinkedList<TransactionHistoryEntry>();
             }
+
+            // Set artificial extra latency.
+            String latency = System.getenv("EXTRA_LATENCY_MILLIS");
+            if (latency != null) {
+                try {
+                    Thread.sleep(Integer.parseInt(latency));
+                } catch (InterruptedException e) {
+                    // Fake latency interrupted. Continue.
+                }
+            }
+
             return new ResponseEntity<List<TransactionHistoryEntry>>(
                     historyList, HttpStatus.OK);
         } catch (JWTVerificationException e) {
