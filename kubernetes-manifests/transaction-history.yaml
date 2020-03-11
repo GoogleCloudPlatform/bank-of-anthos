@@ -57,6 +57,8 @@ spec:
           # tell Java to obey container memory limits
         - name: JVM_OPTS
           value: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
+        #- name: EXTRA_LATENCY_MILLIS
+        #  value: "5000"
         resources:
           requests:
             cpu: 200m
