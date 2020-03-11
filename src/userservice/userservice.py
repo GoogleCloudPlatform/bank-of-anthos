@@ -126,54 +126,6 @@ def create_user():
     return jsonify({}), 201
 
 
-@APP.route('/users/<username>', methods=['GET'])
-def get_user(username):
-    """Get personal metadata for the currently authorized user.
-
-    Authorized requests only:  headers['Authorization'].
-
-    Fails if the specified username does not match the authorized user.
-
-    parameter:
-      - username
-
-    response:
-      - accountid
-      - username
-      - firstname
-      - lastname
-      - birthday
-      - timezone
-      - address
-      - state
-      - zip
-      - ssn
-    """
-    auth_header = request.headers.get('Authorization')
-    if auth_header:
-        token = auth_header.split(" ")[-1]
-    else:
-        token = ''
-    try:
-        payload = jwt.decode(token, key=PUBLIC_KEY, algorithms='RS256')
-        user = payload['user']
-        if username != user:
-            msg = 'user {} not authorized for account {}'.format(user, username)
-            return jsonify({'msg': msg}), 401
-        logging.info('getting user: %s', str(user))
-        # get user from MongoDB
-        query = {'username': user}
-        fields = {'_id': False,
-                  'passhash': False}
-        result = MONGO.db.users.find_one(query, fields)
-        if result is None:
-            return jsonify({'msg': 'user not found'}), 400
-        return jsonify(result), 201
-    except jwt.exceptions.InvalidTokenError as err:
-        logging.error(err)
-        return jsonify({'error': str(err)}), 401
-
-
 @APP.route('/login', methods=['GET'])
 def get_token():
     """Login a user and return a JWT token
