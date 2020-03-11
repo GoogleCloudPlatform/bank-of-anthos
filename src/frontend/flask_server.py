@@ -38,9 +38,9 @@ APP.config["HISTORY_URI"] = 'http://{}/transactions'.format(
     os.environ.get('HISTORY_API_ADDR'))
 APP.config["LOGIN_URI"] = 'http://{}/login'.format(
     os.environ.get('USERSERVICE_API_ADDR'))
-APP.config["INTERNAL_CONTACTS_URI"] = 'http://{}/contacts'.format(
+APP.config["CONTACTS_URI"] = 'http://{}/contacts'.format(
     os.environ.get('CONTACTS_API_ADDR'))
-APP.config["EXTERNAL_ACCOUNTS_URI"] = 'http://{}/external'.format(
+APP.config["EXTERNAL_ACCOUNTS_URI"] = 'http://{}/accounts/external'.format(
     os.environ.get('CONTACTS_API_ADDR'))
 
 
@@ -104,8 +104,7 @@ def home():
     # get contacts
     internal_list = []
     try:
-        req = requests.get(url=APP.config["INTERNAL_CONTACTS_URI"],
-                           headers=hed)
+        req = requests.get(url=APP.config["CONTACTS_URI"], headers=hed)
         internal_list = req.json()['account_list']
     except (requests.exceptions.RequestException, ValueError) as err:
         logging.error(str(err))
