@@ -124,7 +124,7 @@ public final class LedgerReader {
                         this.listener.processTransaction(receiver, amount);
                     }
                 } else {
-                    logger.warn("Listener not set up.");
+                    logger.warning("Listener not set up.");
                 }
             }
         } catch (RedisCommandTimeoutException e) {

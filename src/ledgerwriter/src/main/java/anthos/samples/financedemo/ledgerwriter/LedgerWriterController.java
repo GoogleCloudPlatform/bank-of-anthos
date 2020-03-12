@@ -82,13 +82,13 @@ public final class LedgerWriterController {
         this.verifier = JWT.require(algorithm).build();
     }
 
-   /**
+    /**
      * Version endpoint.
      *
      * @return service version string
      */
     @GetMapping("/version")
-/   public ResponseEntity version() {
+    public ResponseEntity version() {
         final String versionStr =  System.getenv("VERSION");
         return new ResponseEntity<String>(versionStr, HttpStatus.OK);
     }
