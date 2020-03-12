@@ -28,19 +28,19 @@ import jwt
 
 APP = Flask(__name__)
 
-APP.config["TRANSACTIONS_URI"] = 'http://{}/new_transaction'.format(
+APP.config["TRANSACTIONS_URI"] = 'http://{}/transactions'.format(
     os.environ.get('TRANSACTIONS_API_ADDR'))
-APP.config["USERSERVICE_URI"] = 'http://{}/create_user'.format(
+APP.config["USERSERVICE_URI"] = 'http://{}/users'.format(
     os.environ.get('USERSERVICE_API_ADDR'))
-APP.config["BALANCES_URI"] = 'http://{}/get_balance'.format(
+APP.config["BALANCES_URI"] = 'http://{}/balances'.format(
     os.environ.get('BALANCES_API_ADDR'))
-APP.config["HISTORY_URI"] = 'http://{}/get_history'.format(
+APP.config["HISTORY_URI"] = 'http://{}/transactions'.format(
     os.environ.get('HISTORY_API_ADDR'))
 APP.config["LOGIN_URI"] = 'http://{}/login'.format(
     os.environ.get('USERSERVICE_API_ADDR'))
-APP.config["INTERNAL_CONTACTS_URI"] = 'http://{}/contacts'.format(
+APP.config["CONTACTS_URI"] = 'http://{}/accounts/contacts'.format(
     os.environ.get('CONTACTS_API_ADDR'))
-APP.config["EXTERNAL_ACCOUNTS_URI"] = 'http://{}/external'.format(
+APP.config["EXTERNAL_ACCOUNTS_URI"] = 'http://{}/accounts/external'.format(
     os.environ.get('CONTACTS_API_ADDR'))
 
 
@@ -89,22 +89,23 @@ def home():
     # get balance
     balance = None
     try:
-        req = requests.get(url=APP.config["BALANCES_URI"], headers=hed)
+        url = '{}/{}'.format(APP.config["BALANCES_URI"], account_id)
+        req = requests.get(url=url, headers=hed)
         balance = req.json()
     except (requests.exceptions.RequestException, ValueError) as err:
         logging.error(str(err))
     # get history
     transaction_list = []
     try:
-        req = requests.get(url=APP.config["HISTORY_URI"], headers=hed)
+        url = '{}/{}'.format(APP.config["HISTORY_URI"], account_id)
+        req = requests.get(url=url, headers=hed)
         transaction_list = req.json()
     except (requests.exceptions.RequestException, ValueError) as err:
         logging.error(str(err))
     # get contacts
     internal_list = []
     try:
-        req = requests.get(url=APP.config["INTERNAL_CONTACTS_URI"],
-                           headers=hed)
+        req = requests.get(url=APP.config["CONTACTS_URI"], headers=hed)
         internal_list = req.json()['account_list']
     except (requests.exceptions.RequestException, ValueError) as err:
         logging.error(str(err))

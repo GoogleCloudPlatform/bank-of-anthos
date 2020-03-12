@@ -20,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
@@ -119,20 +120,31 @@ public final class BalanceReaderController implements LedgerReaderListener {
     }
 
     /**
-     * Return the balance for the authenticated user
+     * Return the balance for the specified account.
+     *
+     * The currently authenticated user must be allowed to access the account.
+     *
+     * @param accountId the account to get the balance for.
+     * @return the balance amount.
      */
-    @GetMapping("/get_balance")
-    public ResponseEntity<?> getHistory(
-            @RequestHeader("Authorization") String bearerToken) {
+    @GetMapping("/balances/{accountId}")
+    public ResponseEntity<?> getBalance(
+            @RequestHeader("Authorization") String bearerToken,
+            @PathVariable String accountId) {
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             bearerToken = bearerToken.split("Bearer ")[1];
         }
         try {
             DecodedJWT jwt = this.verifier.verify(bearerToken);
-            String initiatorAcct = jwt.getClaim("acct").asString();
+            // Check that the authenticated user can access this account.
+            if (!accountId.equals(jwt.getClaim("acct").asString())) {
+                return new ResponseEntity<String>("not authorized",
+                                                  HttpStatus.UNAUTHORIZED);
+            }
+
             Integer balance = 0;
-            if (this.balanceMap.containsKey(initiatorAcct)) {
-                balance = this.balanceMap.get(initiatorAcct);
+            if (this.balanceMap.containsKey(accountId)) {
+                balance = this.balanceMap.get(accountId);
             }
             return new ResponseEntity<Integer>(balance, HttpStatus.OK);
         } catch (JWTVerificationException e) {
