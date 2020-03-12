@@ -160,7 +160,7 @@ public final class LedgerWriterController {
     }
 
     private void submitTransaction(Transaction transaction) {
-        logger.debug("Submitting transaction " + transaction.toString());
+        logger.fine("Submitting transaction " + transaction.toString());
         StatefulRedisConnection redisConnection =
                 ctx.getBean(StatefulRedisConnection.class);
         // Use String key/values so Redis data can be read by non-Java clients.
