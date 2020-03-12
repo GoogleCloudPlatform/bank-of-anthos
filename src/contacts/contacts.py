@@ -132,11 +132,9 @@ def _get_ext_accts(accountid):
 
     acct_list = []
     if result is not None:
-        acct_list = result['ext_accounts']
-
+        acct_list = result.get('external_accts', [])
     # (fixme): Remove DEFAULT_EXT_ACCTS when frontend implemented to add external accounts.
     acct_list = acct_list + DEFAULT_EXT_ACCTS
-
     return jsonify({'account_list': acct_list}), 200
 
 
@@ -192,13 +190,13 @@ def get_contacts():
         if request.method == 'POST':
             req = {k: bleach.clean(v) for k, v in request.form.items()}
             # check if required fields are present
-            fields = ('label',
-                      'account_number')
-            if any(field not in req for field in fields):
-                return jsonify({'error': 'missing required field(s)'}), 400
+            # fields = ('contact_label',
+            #           'contact_account_num')
+            # if any(field not in req for field in fields):
+            #     return jsonify({'error': 'missing required field(s)'}), 400
 
-            contact = {'label': req['label'],
-                       'account_number': req['account_number']}
+            contact = {'label': req.get('contact_label', 'test'),
+                       'account_number': req.get('contact_account_num', 'test')}
 
             return _add_contact(accountid, contact)
 
@@ -226,7 +224,7 @@ def _get_contacts(accountid):
     """
     query = {'accountid': accountid}
     projection = {'contact_accts': True}
-    result = MONGO.db.contacts.find_one(query, projection)
+    result = MONGO.db.accounts.find_one(query, projection)
 
     acct_list = []
     if result is not None:
@@ -249,18 +247,13 @@ def _add_contact(accountid, contact):
         contact: the contact to add
             {'label': ..., 'account_number': ..., 'routing_number': ...}
     """
-    # check if the contact account number exists
-    query = {'accountid': contact['account_number']}
-    if MONGO.db.users.find_one(query) is None:
-        return jsonify({'error': 'contact account number does not exist'}), 400
 
     # add the contact
     query = {'accountid': accountid}
     update = {'$push': {'contact_accts': contact}}
-    params = {'upsert': True}
-    result = MONGO.db.accounts.update(query, update, params)
-
-    if not result.acknowledged:
+    try:
+        MONGO.db.accounts.update(query, update, upsert=True)
+    except PyMongo.PyMongoError as e:
         return jsonify({'error': 'add contact failed'}), 500
     return jsonify({}), 201
 
