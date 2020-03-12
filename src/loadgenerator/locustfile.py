@@ -54,7 +54,7 @@ def signup_helper(locust, username):
             found_token |= r_hist.cookies.get('token') is not None
         if found_token:
             response.success()
-            logging.debug("created user: {}".format(username))
+            logging.debug("created user: %s", username)
         else:
             response.failure("login failed")
         return found_token

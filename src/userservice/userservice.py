@@ -174,7 +174,7 @@ if __name__ == '__main__':
     for v in ['PORT', 'ACCOUNTS_DB_ADDR', 'TOKEN_EXPIRY_SECONDS', 'PRIV_KEY_PATH',
               'PUB_KEY_PATH']:
         if os.environ.get(v) is None:
-            logging.critical("error: {} environment variable not set".format(v))
+            logging.critical("error: environment variable %s not set", v)
             logging.shutdown()
             sys.exit(1)
     EXPIRY_SECONDS = int(os.environ.get('TOKEN_EXPIRY_SECONDS'))

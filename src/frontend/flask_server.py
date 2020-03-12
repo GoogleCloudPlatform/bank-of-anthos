@@ -336,7 +336,7 @@ if __name__ == '__main__':
               'LOCAL_ROUTING_NUM', 'PUB_KEY_PATH', 'CONTACTS_API_ADDR',
               'USERSERVICE_API_ADDR']:
         if os.environ.get(v) is None:
-            logging.critical("error: {} environment variable not set".format(v))
+            logging.critical("error: environment variable %s not set", v)
             logging.shutdown()
             sys.exit(1)
 
