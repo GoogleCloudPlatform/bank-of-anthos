@@ -20,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
@@ -121,20 +122,31 @@ public final class TransactionHistoryController
     }
 
     /**
-     * Return a list of the user's past transactions.
+     * Return a list of transactions for the specified account.
+     *
+     * The currently authenticated user must be allowed to access the account.
+     *
+     * @param accountId the account to get transactions for.
+     * @return a list of transactions for this account.
      */
-    @GetMapping("/get_history")
-    public ResponseEntity<?> getHistory(
-            @RequestHeader("Authorization") String bearerToken) {
+    @GetMapping("/transactions/{accountId}")
+    public ResponseEntity<?> getTransactions(
+            @RequestHeader("Authorization") String bearerToken,
+            @PathVariable String accountId) {
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             bearerToken = bearerToken.split("Bearer ")[1];
         }
         try {
             DecodedJWT jwt = this.verifier.verify(bearerToken);
-            String initiatorAcct = jwt.getClaim("acct").asString();
+            // Check that the authenticated user can access this account.
+            if (!accountId.equals(jwt.getClaim("acct").asString())) {
+                return new ResponseEntity<String>("not authorized",
+                                                  HttpStatus.UNAUTHORIZED);
+            }
+
             List<TransactionHistoryEntry> historyList;
-            if (this.historyMap.containsKey(initiatorAcct)) {
-                historyList = this.historyMap.get(initiatorAcct);
+            if (this.historyMap.containsKey(accountId)) {
+                historyList = this.historyMap.get(accountId);
             } else {
                 historyList = new LinkedList<TransactionHistoryEntry>();
             }
