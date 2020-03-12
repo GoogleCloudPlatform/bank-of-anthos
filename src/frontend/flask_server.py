@@ -38,9 +38,7 @@ APP.config["HISTORY_URI"] = 'http://{}/transactions'.format(
     os.environ.get('HISTORY_API_ADDR'))
 APP.config["LOGIN_URI"] = 'http://{}/login'.format(
     os.environ.get('USERSERVICE_API_ADDR'))
-APP.config["CONTACTS_URI"] = 'http://{}/accounts/contacts'.format(
-    os.environ.get('CONTACTS_API_ADDR'))
-APP.config["EXTERNAL_ACCOUNTS_URI"] = 'http://{}/accounts/external'.format(
+APP.config["CONTACTS_URI"] = 'http://{}/contacts'.format(
     os.environ.get('CONTACTS_API_ADDR'))
 
 
@@ -103,18 +101,12 @@ def home():
     except (requests.exceptions.RequestException, ValueError) as err:
         logging.error(str(err))
     # get contacts
-    internal_list = []
+    all_contacts = []
+    deposit_contacts = []
     try:
         req = requests.get(url=APP.config["CONTACTS_URI"], headers=hed)
-        internal_list = req.json()['account_list']
-    except (requests.exceptions.RequestException, ValueError) as err:
-        logging.error(str(err))
-    # get external accounts
-    external_list = []
-    try:
-        req = requests.get(url=APP.config["EXTERNAL_ACCOUNTS_URI"],
-                           headers=hed)
-        external_list = req.json()['account_list']
+        all_contacts = req.json()['account_list']
+        deposit_contacts = [c for c in all_contacts if c.get('deposit', False) == True]
     except (requests.exceptions.RequestException, ValueError) as err:
         logging.error(str(err))
 
@@ -123,8 +115,8 @@ def home():
                            balance=balance,
                            name=display_name,
                            account_id=account_id,
-                           external_accounts=external_list,
-                           favorite_accounts=internal_list,
+                           external_accounts=deposit_contacts,
+                           favorite_accounts=all_contacts,
                            message=request.args.get('msg', None))
 
 
