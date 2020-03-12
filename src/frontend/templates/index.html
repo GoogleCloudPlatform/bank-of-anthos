@@ -117,9 +117,9 @@ limitations under the License.
         <form id=deposit-form method="POST" action="/deposit">
          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
             <select class="mdl-textfield__input" id="accounts" name="account">
-               {% for account in external_accounts %}
-               <option value='{"account_num": "{{ account.account_number }}", "routing_num": "{{ account.routing_number }}" }'>
-                    {{ account.label }} - {{ account.account_number }} - {{ account.routing_number }}
+               {% for account in deposit_contacts %}
+               <option value='{"account_num": "{{ account.account_num }}", "routing_num": "{{ account.routing_num }}" }'>
+                    {{ account.label }} - {{ account.account_num }} - {{ account.routing_num }}
                </option>
                {% endfor %}
                <option disabled value="add">Add new account</option>
@@ -170,8 +170,8 @@ limitations under the License.
         <form id=payment-form method="POST" action="/payment">
          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
             <select class="mdl-textfield__input" id="account_num" name="account_num" onchange='CheckChoice(this.value);'>
-               {% for account in favorite_accounts %}
-                    <option value="{{ account.account_number }}">{{ account.label }} - {{ account.account_number }}</option>
+               {% for account in contacts %}
+                    <option value="{{ account.account_num }}">{{ account.label }} - {{ account.account_num }}</option>
                {% endfor %}
                <option disabled>──────────</option>
                <option value="other">New recipient</option>

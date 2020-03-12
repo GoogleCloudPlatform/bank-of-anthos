@@ -56,8 +56,19 @@ def get_contacts():
     try:
         payload = jwt.decode(token, key=PUBLIC_KEY, algorithms='RS256')
         accountid = payload['acct']
-        # return hard coded data
-        return jsonify({'account_list': DEFAULT_CONTACTS}), 200
+        # contact data
+        query = {'accountid': accountid}
+        projection = {'contact_accts': True}
+        result = MONGO.db.accounts.find_one(query, projection)
+
+        acct_list = []
+        if result is not None:
+            acct_list = result['contact_accts']
+
+        # (fixme): Remove DEFAULT_CONTACTS when frontend implemented to add contacts.
+        acct_list = acct_list + DEFAULT_CONTACTS
+
+        return jsonify({'account_list': acct_list}), 200
     except jwt.exceptions.InvalidTokenError as ex:
         logging.error(ex)
         return jsonify({'error': str(ex)}), 401
@@ -71,12 +82,19 @@ def get_add():
         token = ''
     try:
         payload = jwt.decode(token, key=PUBLIC_KEY, algorithms='RS256')
-        accountid = payload['acct']
-        # return success
+        # TODO: validate contact information
+        # add new contact to database
+        contact = request.get_json()
+        query = {'accountid': payload['acct']}
+        update = {'$push': {'contact_accts': contact}}
+        MONGO.db.accounts.update(query, update, upsert=True)
         return jsonify({}), 201
     except jwt.exceptions.InvalidTokenError as ex:
         logging.error(ex)
         return jsonify({'error': str(ex)}), 401
+    except PyMongo.PyMongoError as ex:
+        logging.error(ex)
+        return jsonify({'error': str(ex)}), 500
 
 def _add_contact(accountid, contact):
     """Add a linked contact.
@@ -105,20 +123,20 @@ if __name__ == '__main__':
     LOCAL_ROUTING = os.environ.get('LOCAL_ROUTING_NUM')
 
     DEFAULT_CONTACTS = [{'label': 'External Checking',
-                        'account_number': '0123456789',
-                        'routing_number': '111111111',
+                        'account_num': '0123456789',
+                        'routing_num': '111111111',
                         'deposit': True},
                         {'label': 'External Savings',
-                        'account_number': '9876543210',
-                        'routing_number': '222222222',
+                        'account_num': '9876543210',
+                        'routing_num': '222222222',
                         'deposit': True},
                         {'label': 'Friend',
-                        'account_number': '1122334455',
-                        'routing_number': LOCAL_ROUTING,
+                        'account_num': '1122334455',
+                        'routing_num': LOCAL_ROUTING,
                         'deposit': False},
                         {'label': 'Mom',
-                        'account_number': '6677889900',
-                        'routing_number': LOCAL_ROUTING,
+                        'account_num': '6677889900',
+                        'routing_num': LOCAL_ROUTING,
                         'deposit': False}]
 
     PUBLIC_KEY = open(os.environ.get('PUB_KEY_PATH'), 'r').read()

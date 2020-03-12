@@ -115,8 +115,8 @@ def home():
                            balance=balance,
                            name=display_name,
                            account_id=account_id,
-                           external_accounts=deposit_contacts,
-                           favorite_accounts=all_contacts,
+                           deposit_contacts=deposit_contacts,
+                           contacts=all_contacts,
                            message=request.args.get('msg', None))
 
 
@@ -138,7 +138,12 @@ def payment():
         account_id = jwt.decode(token, verify=False)['acct']
         recipient = request.form['account_num']
         if recipient == 'other':
-            recipient = request.form['other_account_num']
+            recipient = request.form['contact_account_num']
+            # new contact. Add to contacts list
+            _add_contact(request.form['contact_label'], 
+                         recipient,
+                         LOCAL_ROUTING,
+                         False)
         # convert amount to integer
         amount = int(float(request.form['amount']) * 100)
         # verify balance is sufficient
@@ -163,7 +168,20 @@ def payment():
         logging.error(str(err))
     return redirect(url_for('home', msg='Transaction failed'))
 
-
+def _add_contact(label, acct_num, routing_num, deposit=False):
+    token = request.cookies.get(TOKEN_NAME)
+    hed = {'Authorization': 'Bearer ' + token,
+           'content-type': 'application/json'}
+    contact_data = {
+        'label': label,
+        'accountNum': acct_num,
+        'routingNum': routing_num,
+        'deposit': deposit
+    }
+    requests.post(url=APP.config["CONTACTS_URI"],
+                  data=jsonify(contact_data).data,
+                  headers=hed,
+                  timeout=3)
 @APP.route('/deposit', methods=['POST'])
 def deposit():
     """
