@@ -49,6 +49,12 @@ def ready():
 
 @APP.route('/contacts', methods=['GET'])
 def get_contacts():
+    """Retrieve the contacts list for the authenticated user.
+    This list is used for populating Payment and Deposit fields.
+    
+    Returns: a list of linked external accounts
+            {'account_list': [account1, account2, ...]}
+    """
     auth_header = request.headers.get('Authorization')
     if auth_header:
         token = auth_header.split(" ")[-1]
@@ -57,18 +63,13 @@ def get_contacts():
     try:
         payload = jwt.decode(token, key=PUBLIC_KEY, algorithms='RS256')
         accountid = payload['acct']
-        # contact data
+        # get data
         query = {'accountid': accountid}
         projection = {'contact_accts': True}
         result = MONGO.db.accounts.find_one(query, projection)
-
         acct_list = []
         if result is not None:
             acct_list = result['contact_accts']
-
-        # (fixme): Remove DEFAULT_CONTACTS when frontend implemented to add contacts.
-        #acct_list = acct_list + DEFAULT_CONTACTS
-
         return jsonify({'account_list': acct_list}), 200
     except jwt.exceptions.InvalidTokenError as ex:
         logging.error(ex)
@@ -76,6 +77,17 @@ def get_contacts():
 
 @APP.route('/contacts', methods=['POST'])
 def get_add():
+    """Add a new favorite account to contacts list
+    
+    Fails if account or routing number are invalid
+    or if label is not alphanumeric
+
+    request:
+    - accont_num
+    - routing_num
+    - label
+    """
+
     auth_header = request.headers.get('Authorization')
     if auth_header:
         token = auth_header.split(" ")[-1]

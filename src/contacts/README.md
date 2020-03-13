@@ -7,14 +7,12 @@ Implemented in Python with Flask.
 
 ### Endpoints
 
-| Endpoint             | Type  | Auth? | Description                                                |
-| -------------------- | ----- | ----- | ---------------------------------------------------------- |
-| `/accounts/contacts` | GET   | 🔒    |  Retrieve a list of connected user accounts.               |
-| `/accounts/contacts` | POST  | 🔒    |  Add a new connected user account for sending payments.    |
-| `/accounts/external` | GET   | 🔒    |  Retrieve a list of external bank accounts.                |
-| `/accounts/external` | POST  | 🔒    |  Add a new external bank account for deposits.             |
-| `/ready`             | GET   |       |  Readiness probe endpoint.                                 |
-| `/version`           | GET   |       |  Returns the contents of `$VERSION`                        |
+| Endpoint     | Type  | Auth? | Description                                                        |
+| ------------ | ----- | ----- | ------------------------------------------------------------------ |
+| `/contacts`  | GET   | 🔒    |  Retrieve a list of connected favorite accounts for quick payments.|
+| `/contacts`  | POST  | 🔒    |  Add a new favorite account.                                       |
+| `/ready`     | GET   |       |  Readiness probe endpoint.                                         |
+| `/version`   | GET   |       |  Returns the contents of `$VERSION`                                |
 
 
 ### Environment Variables
