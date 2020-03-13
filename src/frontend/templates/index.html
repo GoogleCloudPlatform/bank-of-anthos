@@ -140,11 +140,11 @@ limitations under the License.
 
           <div class="mdl-textfield mdl-js-textfield  mdl-textfield--floating-label" id="deposit_label_div" style='display:none;'>
             <input class="mdl-textfield__input" id="deposit_label" name="deposit_label">
-            <label class="mdl-textfield__label" for="deposit_label">Account Label</label>
+            <label class="mdl-textfield__label" for="deposit_label">Account Name (Optional)</label>
           </div>
 
           <div class="mdl-textfield mdl-js-textfield  mdl-textfield--floating-label">
-            <input class="mdl-textfield__input" type="number" step='0.01' id="payment-amount" name="amount" value=0 min=0>
+            <input class="mdl-textfield__input" type="number" step='0.01' id="payment-amount" name="amount" min=0.01>
             <label class="mdl-textfield__label" for="payment-amount">💲 Deposit Amount</label>
           </div>
         </form>
@@ -171,8 +171,15 @@ limitations under the License.
         });
         depositDialog.querySelector('.deposit').addEventListener('click', function() {
           if (depositForm.amount.value=="" || depositForm.amount.value <= 0) {
-              notification.MaterialSnackbar.showSnackbar({ message: 'Error: Invalid Amount'});
-              // TODO: more checks
+            notification.MaterialSnackbar.showSnackbar({ message: 'Error: Invalid Amount'});
+          } else if (depositForm.account.value == "add" && (depositForm.deposit_account_num.value == "" || 
+                                                            depositForm.deposit_account_num.value < 1000000000 || 
+                                                            depositForm.deposit_account_num.value > 9999999999 )){
+            notification.MaterialSnackbar.showSnackbar({ message: 'Error: Invalid Account Number'});
+          } else if (depositForm.account.value == "add" && (depositForm.deposit_routing_num.value == "" || 
+                                                            depositForm.deposit_routing_num.value < 100000000 || 
+                                                            depositForm.deposit_routing_num.value > 999999999 )){
+            notification.MaterialSnackbar.showSnackbar({ message: 'Error: Invalid Routing Number'});
           } else {
               depositForm.submit();
           }
@@ -203,11 +210,11 @@ limitations under the License.
 
           <div class="mdl-textfield mdl-js-textfield  mdl-textfield--floating-label" id="contact_label_div" style='display:none;'>
             <input class="mdl-textfield__input" id="contact_label" name="contact_label">
-            <label class="mdl-textfield__label" for="contact_label">Account Label</label>
+            <label class="mdl-textfield__label" for="contact_label">Contact Name (Optional)</label>
           </div>
 
           <div class="mdl-textfield mdl-js-textfield  mdl-textfield--floating-label">
-            <input class="mdl-textfield__input" type="number" step='0.01' id="amount" name="amount" min=0>
+            <input class="mdl-textfield__input" type="number" step='0.01' id="amount" name="amount" min=0.01>
             <label class="mdl-textfield__label" for="amount">💲 Transaction Amount</label>
           </div>
         </form>
@@ -233,12 +240,14 @@ limitations under the License.
           paymentDialog.close();
         });
         paymentDialog.querySelector('.send-payment').addEventListener('click', function() {
-          console.log(paymentForm.amount.value)
           if (paymentForm.amount.value=="" || paymentForm.amount.value <= 0) {
               notification.MaterialSnackbar.showSnackbar({ message: 'Error: Invalid Amount'});
-              // TODO: more checks
+          } else if (paymentForm.account_num.value == "add" && (paymentForm.contact_account_num.value == "" || 
+                                                                paymentForm.contact_account_num.value < 1000000000 || 
+                                                                paymentForm.contact_account_num.value > 9999999999 )){
+            notification.MaterialSnackbar.showSnackbar({ message: 'Error: Invalid Account Number'});
           } else {
-              paymentForm.submit();
+            paymentForm.submit();
           }
           paymentDialog.close();
         });

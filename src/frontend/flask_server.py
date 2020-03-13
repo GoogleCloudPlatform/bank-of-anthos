@@ -139,11 +139,12 @@ def payment():
         recipient = request.form['account_num']
         if recipient == 'add':
             recipient = request.form['contact_account_num']
-            # new contact. Add to contacts list
-            _add_contact(request.form['contact_label'], 
-                         recipient,
-                         LOCAL_ROUTING,
-                         False)
+            if request.form.get('contact_label', "") != "":
+                # new contact. Add to contacts list
+                _add_contact(request.form['contact_label'], 
+                            recipient,
+                            LOCAL_ROUTING,
+                            False)
         # convert amount to integer
         amount = int(float(request.form['amount']) * 100)
         # verify balance is sufficient
@@ -190,11 +191,12 @@ def deposit():
         if request.form['account'] == 'add':
             external_account_num = request.form['deposit_account_num']
             external_routing_num = request.form['deposit_routing_num']
-            # new contact. Add to contacts list
-            _add_contact(request.form['deposit_label'], 
-                         external_account_num,
-                         external_routing_num,
-                         True)
+            if request.form.get('deposit_label', "") != "":
+                # new contact. Add to contacts list
+                _add_contact(request.form['deposit_label'], 
+                            external_account_num,
+                            external_routing_num,
+                            True)
         else:
             account_details = json.loads(request.form['account'])
             external_account_num = account_details['account_num']
