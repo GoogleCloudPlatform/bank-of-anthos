@@ -112,8 +112,8 @@ def get_add(account_id):
         if (not contact['label'].isalnum() or
                 len(contact['label']) > 40):
             raise RuntimeError('invalid account label')
-        # add new contact to databaseAuthenticationFailed
         query = {'accountid': account_id}
+        # add new contact to database
         update = {'$push': {'contact_accts': contact}}
         MONGO.db.accounts.update(query, update, upsert=True)
         return jsonify({}), 201
