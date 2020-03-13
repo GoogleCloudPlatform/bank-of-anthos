@@ -109,7 +109,7 @@ def get_add(username):
         if contact['deposit'] and contact['routing_num'] == LOCAL_ROUTING:
             raise RuntimeError('invalid routing number')
         # validate label
-        if (not contact['label'].isalnum() or
+        if (not all(s.isalnum() for s in contact['label'].split()) or
                 len(contact['label']) > 40):
             raise RuntimeError('invalid account label')
         # add new contact to database
