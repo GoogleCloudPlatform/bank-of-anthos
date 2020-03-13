@@ -168,20 +168,6 @@ def payment():
         logging.error(str(err))
     return redirect(url_for('home', msg='Transaction failed'))
 
-def _add_contact(label, acct_num, routing_num, deposit=False):
-    token = request.cookies.get(TOKEN_NAME)
-    hed = {'Authorization': 'Bearer ' + token,
-           'content-type': 'application/json'}
-    contact_data = {
-        'label': label,
-        'account_num': acct_num,
-        'routing_num': routing_num,
-        'deposit': deposit
-    }
-    requests.post(url=APP.config["CONTACTS_URI"],
-                  data=jsonify(contact_data).data,
-                  headers=hed,
-                  timeout=3)
 @APP.route('/deposit', methods=['POST'])
 def deposit():
     """
@@ -234,6 +220,21 @@ def deposit():
         logging.error(str(err))
     return redirect(url_for('home', msg='Deposit failed'))
 
+
+def _add_contact(label, acct_num, routing_num, deposit=False):
+    token = request.cookies.get(TOKEN_NAME)
+    hed = {'Authorization': 'Bearer ' + token,
+           'content-type': 'application/json'}
+    contact_data = {
+        'label': label,
+        'account_num': acct_num,
+        'routing_num': routing_num,
+        'deposit': deposit
+    }
+    requests.post(url=APP.config["CONTACTS_URI"],
+                  data=jsonify(contact_data).data,
+                  headers=hed,
+                  timeout=3)
 
 @APP.route("/login", methods=['GET'])
 def login_page():
