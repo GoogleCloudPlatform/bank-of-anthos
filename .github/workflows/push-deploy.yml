@@ -12,23 +12,39 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: "Container Push"
+name: "Push and Deploy"
 on:
   push:
     # run on pushes to master
     branches:
       - master
 jobs:
-  run-tests:
+  push-deploy:
     runs-on: self-hosted
     steps:
     - uses: actions/checkout@v2
     - name: Push to GCR
       timeout-minutes: 20
       run: |
+        skaffold config set --global local-cluster false
         # tag with git hash
-        skaffold build --default-repo=gcr.io/bank-of-anthos \
+        skaffold build --default-repo=gcr.io/$PROJECT_ID \
                        --tag=$GITHUB_SHA
         # tag as latest
-        skaffold build --default-repo=gcr.io/bank-of-anthos \
+        skaffold build --default-repo=gcr.io/$PROJECT_ID \
                        --tag=latest
+      env:
+        PROJECT_ID: ${{ secrets.PROJECT_ID }}
+    - name: Deploy to GKE
+      timeout-minutes: 20
+      run: |
+        skaffold config set --global local-cluster false
+        gcloud container clusters get-credentials $MASTER_CLUSTER \
+            --zone $ZONE --project $PROJECT_ID
+        # deploy tag to cluster
+        skaffold run --default-repo=gcr.io/$PROJECT_ID \
+                     --tag=$GITHUB_SHA
+      env:
+        MASTER_CLUSTER: ${{ secrets.MASTER_CLUSTER }}
+        ZONE: ${{ secrets.ZONE }}
+        PROJECT_ID: ${{ secrets.PROJECT_ID }}
