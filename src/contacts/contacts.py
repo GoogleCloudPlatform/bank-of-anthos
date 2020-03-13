@@ -46,8 +46,8 @@ def ready():
     return 'ok', 200
 
 
-@APP.route('/contacts/<account_id>', methods=['GET'])
-def get_contacts(account_id):
+@APP.route('/contacts/<username>', methods=['GET'])
+def get_contacts(username):
     """Retrieve the contacts list for the authenticated user.
     This list is used for populating Payment and Deposit fields.
 
@@ -61,10 +61,10 @@ def get_contacts(account_id):
         token = ''
     try:
         payload = jwt.decode(token, key=PUBLIC_KEY, algorithms='RS256')
-        if account_id != payload['acct']:
+        if username != payload['user']:
             raise PermissionError('not authorized')
         # get data
-        query = {'accountid': account_id}
+        query = {'user': username}
         projection = {'contact_accts': True}
         result = MONGO.db.accounts.find_one(query, projection)
         acct_list = []
@@ -75,9 +75,9 @@ def get_contacts(account_id):
         logging.error(ex)
         return jsonify({'error': str(ex)}), 401
 
-@APP.route('/contacts/<account_id>', methods=['POST'])
-def get_add(account_id):
-    """Add a new favorite account to contacts list
+@APP.route('/contacts/<username>', methods=['POST'])
+def get_add(username):
+    """Add a new favorite account to user's contacts list
 
     Fails if account or routing number are invalid
     or if label is not alphanumeric
@@ -95,7 +95,7 @@ def get_add(account_id):
         token = ''
     try:
         payload = jwt.decode(token, key=PUBLIC_KEY, algorithms='RS256')
-        if account_id != payload['acct']:
+        if username != payload['user']:
             raise PermissionError('not authorized')
         contact = request.get_json()
         # validate account number
@@ -112,8 +112,8 @@ def get_add(account_id):
         if (not contact['label'].isalnum() or
                 len(contact['label']) > 40):
             raise RuntimeError('invalid account label')
-        query = {'accountid': account_id}
         # add new contact to database
+        query = {'user': username}
         update = {'$push': {'contact_accts': contact}}
         MONGO.db.accounts.update(query, update, upsert=True)
         return jsonify({}), 201

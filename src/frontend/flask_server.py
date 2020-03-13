@@ -81,6 +81,7 @@ def home():
 
     token_data = jwt.decode(token, verify=False)
     display_name = token_data['name']
+    username = token_data['user']
     account_id = token_data['acct']
 
     hed = {'Authorization': 'Bearer ' + token}
@@ -104,7 +105,7 @@ def home():
     all_contacts = []
     deposit_contacts = []
     try:
-        url = '{}/{}'.format(APP.config["CONTACTS_URI"], account_id)
+        url = '{}/{}'.format(APP.config["CONTACTS_URI"], username)
         req = requests.get(url=url, headers=hed)
         all_contacts = req.json()['account_list']
         deposit_contacts = [c for c in all_contacts if c.get('deposit', False)]
@@ -238,7 +239,7 @@ def _add_contact(label, acct_num, routing_num, is_deposit_acct=False):
         'deposit': is_deposit_acct
     }
     token_data = jwt.decode(token, verify=False)
-    url = '{}/{}'.format(APP.config["CONTACTS_URI"], token_data['acct'])
+    url = '{}/{}'.format(APP.config["CONTACTS_URI"], token_data['user'])
     requests.post(url=url,
                   data=jsonify(contact_data).data,
                   headers=hed,
