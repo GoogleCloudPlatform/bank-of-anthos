@@ -67,7 +67,7 @@ def get_contacts():
             acct_list = result['contact_accts']
 
         # (fixme): Remove DEFAULT_CONTACTS when frontend implemented to add contacts.
-        acct_list = acct_list + DEFAULT_CONTACTS
+        #acct_list = acct_list + DEFAULT_CONTACTS
 
         return jsonify({'account_list': acct_list}), 200
     except jwt.exceptions.InvalidTokenError as ex:
@@ -117,23 +117,6 @@ if __name__ == '__main__':
             print("error: {} environment variable not set".format(v))
             sys.exit(1)
     LOCAL_ROUTING = os.environ.get('LOCAL_ROUTING_NUM')
-
-    DEFAULT_CONTACTS = [{'label': 'External Checking',
-                        'account_num': '0123456789',
-                        'routing_num': '111111111',
-                        'deposit': True},
-                        {'label': 'External Savings',
-                        'account_num': '9876543210',
-                        'routing_num': '222222222',
-                        'deposit': True},
-                        {'label': 'Friend',
-                        'account_num': '1122334455',
-                        'routing_num': LOCAL_ROUTING,
-                        'deposit': False},
-                        {'label': 'Mom',
-                        'account_num': '6677889900',
-                        'routing_num': LOCAL_ROUTING,
-                        'deposit': False}]
 
     PUBLIC_KEY = open(os.environ.get('PUB_KEY_PATH'), 'r').read()
     logging.info("Starting flask.")
