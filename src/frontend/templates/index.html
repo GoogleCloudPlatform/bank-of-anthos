@@ -122,6 +122,7 @@ limitations under the License.
                     {{ account.label }} - {{ account.account_num }} - {{ account.routing_num }}
                </option>
                {% endfor %}
+               <option disabled>──────────</option>
                <option value="add">New deposit account</option>
             </select>
             <input class="mdl-textfield__input" type="number" step='1' id="deposit_account_num" name="deposit_account_num" min=1000000000 max=9999999999  placeholder="Account #" style='display:none;'/>

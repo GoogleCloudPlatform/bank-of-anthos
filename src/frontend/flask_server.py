@@ -137,7 +137,7 @@ def payment():
     try:
         account_id = jwt.decode(token, verify=False)['acct']
         recipient = request.form['account_num']
-        if recipient == 'other':
+        if recipient == 'add':
             recipient = request.form['contact_account_num']
             # new contact. Add to contacts list
             _add_contact(request.form['contact_label'], 
@@ -174,8 +174,8 @@ def _add_contact(label, acct_num, routing_num, deposit=False):
            'content-type': 'application/json'}
     contact_data = {
         'label': label,
-        'accountNum': acct_num,
-        'routingNum': routing_num,
+        'account_num': acct_num,
+        'routing_num': routing_num,
         'deposit': deposit
     }
     requests.post(url=APP.config["CONTACTS_URI"],
@@ -201,9 +201,18 @@ def deposit():
         account_id = jwt.decode(token, verify=False)['acct']
 
         # get data from form
-        account_details = json.loads(request.form['account'])
-        external_account_num = account_details['account_num']
-        external_routing_num = account_details['routing_num']
+        if request.form['account'] == 'add':
+            external_account_num = request.form['deposit_account_num']
+            external_routing_num = request.form['deposit_routing_num']
+            # new contact. Add to contacts list
+            _add_contact(request.form['deposit_label'], 
+                         external_account_num,
+                         external_routing_num,
+                         True)
+        else:
+            account_details = json.loads(request.form['account'])
+            external_account_num = account_details['account_num']
+            external_routing_num = account_details['routing_num']
         # convert amount to integer
         amount = int(float(request.form['amount']) * 100)
 

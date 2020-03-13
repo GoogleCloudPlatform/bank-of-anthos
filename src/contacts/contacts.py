@@ -96,24 +96,6 @@ def get_add():
         logging.error(ex)
         return jsonify({'error': str(ex)}), 500
 
-def _add_contact(accountid, contact):
-    """Add a linked contact.
-
-    Args:
-        accountid: the user to add this contact for
-        contact: the contact to add
-            {'label': ..., 'account_number': ..., 'routing_number': ...}
-    """
-
-    # add the contact
-    query = {'accountid': accountid}
-    update = {'$push': {'contact_accts': contact}}
-    try:
-        MONGO.db.accounts.update(query, update, upsert=True)
-    except PyMongo.PyMongoError as e:
-        return jsonify({'error': 'add contact failed'}), 500
-    return jsonify({}), 201
-
 
 if __name__ == '__main__':
     for v in ['PORT', 'ACCOUNTS_DB_ADDR', 'PUB_KEY_PATH', 'LOCAL_ROUTING_NUM']:
