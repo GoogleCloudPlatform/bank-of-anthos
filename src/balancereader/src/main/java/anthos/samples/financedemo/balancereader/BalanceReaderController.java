@@ -40,9 +40,13 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.logging.Logger;
 
 @RestController
 public final class BalanceReaderController implements LedgerReaderListener {
+
+    private final Logger logger =
+            Logger.getLogger(BalanceReaderController.class.getName());
 
     private final JWTVerifier verifier;
     private final Map<String, Integer> balanceMap =
@@ -74,7 +78,7 @@ public final class BalanceReaderController implements LedgerReaderListener {
         // set up transaction processor
         this.reader = new LedgerReader(this);
         this.initialized = true;
-        System.out.println("initialization complete");
+        logger.info("Initialization complete.");
     }
 
     /**

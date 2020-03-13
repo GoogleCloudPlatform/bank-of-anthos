@@ -28,6 +28,9 @@ from pymongo.errors import PyMongoError
 
 import jwt
 
+
+logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO').upper())
+
 APP = Flask(__name__)
 APP.config["MONGO_URI"] = 'mongodb://{}/users'.format(
         os.environ.get('ACCOUNTS_DB_ADDR'))
@@ -54,7 +57,9 @@ def get_contacts(username):
     Returns: a list of linked external accounts
             {'account_list': [account1, account2, ...]}
     """
-    auth_header = request.headers.get('Authorization')
+    auth_header = request.head
+    
+    ers.get('Authorization')
     if auth_header:
         token = auth_header.split(" ")[-1]
     else:
@@ -128,7 +133,8 @@ def get_add(username):
 if __name__ == '__main__':
     for v in ['PORT', 'ACCOUNTS_DB_ADDR', 'PUB_KEY_PATH', 'LOCAL_ROUTING_NUM']:
         if os.environ.get(v) is None:
-            print("error: {} environment variable not set".format(v))
+            logging.error("error: environment variable %s not set", v)
+            logging.shutdown()
             sys.exit(1)
     LOCAL_ROUTING = os.environ.get('LOCAL_ROUTING_NUM')
 
