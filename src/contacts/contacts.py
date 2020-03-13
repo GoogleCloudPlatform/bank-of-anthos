@@ -83,7 +83,7 @@ def get_add(username):
     or if label is not alphanumeric
 
     request:
-    - accont_num
+    - account_num
     - routing_num
     - label
     """
