@@ -23,10 +23,11 @@ import sys
 
 from flask import Flask, jsonify, request
 from flask_pymongo import PyMongo
+from pymongo.errors import PyMongoError
 
 import bleach
 import jwt
-
+import re
 
 APP = Flask(__name__)
 APP.config["MONGO_URI"] = 'mongodb://{}/users'.format(
@@ -82,9 +83,22 @@ def get_add():
         token = ''
     try:
         payload = jwt.decode(token, key=PUBLIC_KEY, algorithms='RS256')
-        # TODO: validate contact information
-        # add new contact to database
         contact = request.get_json()
+        # validate account number
+        if (not re.match(r'\A[0-9]{10}\Z', contact['account_num']) or
+                contact['account_num'] == payload['acct']):
+            return jsonify({'error': 'invalid account number'}), 500
+        # validate routing number
+        if not re.match(r'\A[0-9]{9}\Z', contact['routing_num']):
+            return jsonify({'error': 'invalid routing number'}), 500
+        # only allow external accounts for deposit
+        if contact['deposit'] and contact['routing_num'] == LOCAL_ROUTING:
+            return jsonify({'error': 'invalid deposit account'}), 500
+        # validate label
+        if (not contact['label'].isalnum() or 
+                len(contact['label']) > 40):
+            return jsonify({'error': 'invalid deposit account'}), 500
+        # add new contact to database
         query = {'accountid': payload['acct']}
         update = {'$push': {'contact_accts': contact}}
         MONGO.db.accounts.update(query, update, upsert=True)
@@ -92,7 +106,7 @@ def get_add():
     except jwt.exceptions.InvalidTokenError as ex:
         logging.error(ex)
         return jsonify({'error': str(ex)}), 401
-    except PyMongo.PyMongoError as ex:
+    except PyMongoError as ex:
         logging.error(ex)
         return jsonify({'error': str(ex)}), 500
 
