@@ -62,7 +62,7 @@ def get_contacts(account_id):
     try:
         payload = jwt.decode(token, key=PUBLIC_KEY, algorithms='RS256')
         if account_id != payload['acct']:
-            return jsonify({'error': 'not authorized'}), 401
+            raise PermissionError('not authorized')
         # get data
         query = {'accountid': account_id}
         projection = {'contact_accts': True}
@@ -71,7 +71,7 @@ def get_contacts(account_id):
         if result is not None:
             acct_list = result['contact_accts']
         return jsonify({'account_list': acct_list}), 200
-    except jwt.exceptions.InvalidTokenError as ex:
+    except (jwt.exceptions.InvalidTokenError, PermissionError) as ex:
         logging.error(ex)
         return jsonify({'error': str(ex)}), 401
 
