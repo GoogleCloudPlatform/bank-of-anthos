@@ -195,7 +195,11 @@ limitations under the License.
          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
             <select class="mdl-textfield__input" id="account_num" name="account_num" onchange='RefreshModals();'>
                {% for account in contacts %}
+                  {% if account.deposit %}
+                    <option value="{{ account.account_num }}">{{ account.label }} - {{ account.account_num }} [External]</option>
+                  {% else %}
                     <option value="{{ account.account_num }}">{{ account.label }} - {{ account.account_num }}</option>
+                  {% endif %}
                {% endfor %}
                <option disabled>──────────</option>
                <option value="add">New recipient</option>
