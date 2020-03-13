@@ -57,9 +57,7 @@ def get_contacts(username):
     Returns: a list of linked external accounts
             {'account_list': [account1, account2, ...]}
     """
-    auth_header = request.head
-    
-    ers.get('Authorization')
+    auth_header = request.headers.get('Authorization')
     if auth_header:
         token = auth_header.split(" ")[-1]
     else:
