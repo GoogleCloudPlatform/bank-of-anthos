@@ -103,17 +103,17 @@ def get_add(username):
         if username != payload['user']:
             raise PermissionError('not authorized')
         contact = request.get_json()
-        # validate account number
+        # validate account number (must be 10 digits)
         if (not re.match(r'\A[0-9]{10}\Z', contact['account_num']) or
                 contact['account_num'] == payload['acct']):
             raise RuntimeError('invalid account number')
-        # validate routing number
+        # validate routing number (must be 9 digits)
         if not re.match(r'\A[0-9]{9}\Z', contact['routing_num']):
             raise RuntimeError('invalid routing number')
         # only allow external accounts for deposit
         if contact['deposit'] and contact['routing_num'] == LOCAL_ROUTING:
             raise RuntimeError('invalid routing number')
-        # validate label
+        # validate label (must be <40 chars, only alphanumeric and spaces)
         if (not all(s.isalnum() for s in contact['label'].split()) or
                 len(contact['label']) > 40):
             raise RuntimeError('invalid account label')
