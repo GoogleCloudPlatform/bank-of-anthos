@@ -47,8 +47,8 @@ def ready():
     return 'ok', 200
 
 
-@APP.route('/contacts', methods=['GET'])
-def get_contacts():
+@APP.route('/contacts/<account_id>', methods=['GET'])
+def get_contacts(account_id):
     """Retrieve the contacts list for the authenticated user.
     This list is used for populating Payment and Deposit fields.
     
@@ -62,9 +62,10 @@ def get_contacts():
         token = ''
     try:
         payload = jwt.decode(token, key=PUBLIC_KEY, algorithms='RS256')
-        accountid = payload['acct']
+        if account_id != payload['acct']:
+            return jsonify({'error': 'not authorized'}), 401
         # get data
-        query = {'accountid': accountid}
+        query = {'accountid': account_id}
         projection = {'contact_accts': True}
         result = MONGO.db.accounts.find_one(query, projection)
         acct_list = []
@@ -75,8 +76,8 @@ def get_contacts():
         logging.error(ex)
         return jsonify({'error': str(ex)}), 401
 
-@APP.route('/contacts', methods=['POST'])
-def get_add():
+@APP.route('/contacts/<account_id>', methods=['POST'])
+def get_add(account_id):
     """Add a new favorite account to contacts list
     
     Fails if account or routing number are invalid
@@ -95,6 +96,8 @@ def get_add():
         token = ''
     try:
         payload = jwt.decode(token, key=PUBLIC_KEY, algorithms='RS256')
+        if account_id != payload['acct']:
+            return jsonify({'error': 'not authorized'}), 401
         contact = request.get_json()
         # validate account number
         if (not re.match(r'\A[0-9]{10}\Z', contact['account_num']) or
@@ -111,7 +114,7 @@ def get_add():
                 len(contact['label']) > 40):
             return jsonify({'error': 'invalid deposit account'}), 500
         # add new contact to database
-        query = {'accountid': payload['acct']}
+        query = {'accountid': account_id}
         update = {'$push': {'contact_accts': contact}}
         MONGO.db.accounts.update(query, update, upsert=True)
         return jsonify({}), 201

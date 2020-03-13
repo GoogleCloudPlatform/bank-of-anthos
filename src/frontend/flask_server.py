@@ -104,7 +104,8 @@ def home():
     all_contacts = []
     deposit_contacts = []
     try:
-        req = requests.get(url=APP.config["CONTACTS_URI"], headers=hed)
+        url = '{}/{}'.format(APP.config["CONTACTS_URI"], account_id)
+        req = requests.get(url=url, headers=hed)
         all_contacts = req.json()['account_list']
         deposit_contacts = [c for c in all_contacts if c.get('deposit', False) == True]
     except (requests.exceptions.RequestException, ValueError) as err:
@@ -233,7 +234,9 @@ def _add_contact(label, acct_num, routing_num, deposit=False):
         'routing_num': routing_num,
         'deposit': deposit
     }
-    requests.post(url=APP.config["CONTACTS_URI"],
+    token_data = jwt.decode(token, verify=False)
+    url = '{}/{}'.format(APP.config["CONTACTS_URI"], token_data['acct'])
+    requests.post(url=url,
                   data=jsonify(contact_data).data,
                   headers=hed,
                   timeout=3)
