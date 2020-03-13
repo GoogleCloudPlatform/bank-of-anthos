@@ -125,10 +125,22 @@ limitations under the License.
                <option disabled>──────────</option>
                <option value="add">New deposit account</option>
             </select>
-            <input class="mdl-textfield__input" type="number" step='1' id="deposit_account_num" name="deposit_account_num" min=1000000000 max=9999999999  placeholder="Account #" style='display:none;'/>
-            <input class="mdl-textfield__input" type="number" step='1' id="deposit_routing_num" name="deposit_routing_num" min=1000000000 max=9999999999  placeholder="Routing #" style='display:none;'/>
-            <input class="mdl-textfield__input" id="deposit_label" name="deposit_label"  placeholder="Account Label" style='display:none;'/>
             <label class="mdl-textfield__label" for="accounts">🏦 Deposit Account</label>
+          </div>
+
+          <div class="mdl-textfield mdl-js-textfield  mdl-textfield--floating-label" id="deposit_account_div" style='display:none;'>
+            <input class="mdl-textfield__input" type="number" step='1' id="deposit_account_num" name="deposit_account_num" min=1000000000 max=9999999999>
+            <label class="mdl-textfield__label" for="deposit_account_num">Account #</label>
+          </div>
+
+          <div class="mdl-textfield mdl-js-textfield  mdl-textfield--floating-label" id="deposit_routing_div"  style='display:none;'>
+            <input class="mdl-textfield__input" type="number" step='1' id="deposit_routing_num" name="deposit_routing_num" min=100000000 max=999999999>
+            <label class="mdl-textfield__label" for="deposit_routing_num">Routing #</label>
+          </div>
+
+          <div class="mdl-textfield mdl-js-textfield  mdl-textfield--floating-label" id="deposit_label_div" style='display:none;'>
+            <input class="mdl-textfield__input" id="deposit_label" name="deposit_label">
+            <label class="mdl-textfield__label" for="deposit_label">Account Label</label>
           </div>
 
           <div class="mdl-textfield mdl-js-textfield  mdl-textfield--floating-label">
@@ -181,9 +193,17 @@ limitations under the License.
                <option disabled>──────────</option>
                <option value="add">New recipient</option>
             </select>
-            <input class="mdl-textfield__input" type="number" step='1' id="contact_account_num" name="contact_account_num" min=1000000000 max=9999999999  placeholder="Account #" style='display:none;'/>
-            <input class="mdl-textfield__input" id="contact_label" name="contact_label"  placeholder="Account Label" style='display:none;'/>
             <label class="mdl-textfield__label" for="recipients">🏦 Recipient</label>
+          </div>
+
+          <div class="mdl-textfield mdl-js-textfield  mdl-textfield--floating-label" id="contact_account_div" style='display:none;'>
+            <input class="mdl-textfield__input" type="number" step='1' id="contact_account_num" name="contact_account_num" min=1000000000 max=9999999999>
+            <label class="mdl-textfield__label" for="contact_account_num">Account #</label>
+          </div>
+
+          <div class="mdl-textfield mdl-js-textfield  mdl-textfield--floating-label" id="contact_label_div" style='display:none;'>
+            <input class="mdl-textfield__input" id="contact_label" name="contact_label">
+            <label class="mdl-textfield__label" for="contact_label">Account Label</label>
           </div>
 
           <div class="mdl-textfield mdl-js-textfield  mdl-textfield--floating-label">
@@ -226,11 +246,11 @@ limitations under the License.
       var deposit_modal = document.getElementById('accounts');
       var contact_modal = document.getElementById('account_num');
       
-      var contact_num = document.getElementById('contact_account_num');
-      var contact_label = document.getElementById('contact_label');
-      var deposit_num = document.getElementById('deposit_account_num');
-      var deposit_routing = document.getElementById('deposit_routing_num');
-      var deposit_label = document.getElementById('deposit_label');
+      var contact_num = document.getElementById('contact_account_div');
+      var contact_label = document.getElementById('contact_label_div');
+      var deposit_num = document.getElementById('deposit_account_div');
+      var deposit_routing = document.getElementById('deposit_routing_div');
+      var deposit_label = document.getElementById('deposit_label_div');
 
       if(contact_modal.value=='add') {
         contact_num.style.display='block';
