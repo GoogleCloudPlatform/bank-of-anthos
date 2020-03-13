@@ -28,6 +28,7 @@ import bleach
 import bcrypt
 import jwt
 
+logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO').upper())
 
 APP = Flask(__name__)
 APP.config["MONGO_URI"] = 'mongodb://{}/users'.format(
@@ -72,7 +73,7 @@ def create_user():
       - ssn
     """
     req = {k: bleach.clean(v) for k, v in request.form.items()}
-    logging.info('validating new user request: %s', str(req))
+    logging.debug('validating new user request: %s', str(req))
 
     # check if required fields are filled
     fields = ('username',
@@ -100,7 +101,7 @@ def create_user():
     if not req['password'] == req['password-repeat']:
         return jsonify({'msg': 'passwords don\'t match'}), 400
 
-    logging.info('creating user: %s', str(req))
+    logging.debug('creating user: %s', str(req))
     # create password hash with salt
     password = req['password']
     salt = bcrypt.gensalt()
@@ -173,7 +174,8 @@ if __name__ == '__main__':
     for v in ['PORT', 'ACCOUNTS_DB_ADDR', 'TOKEN_EXPIRY_SECONDS', 'PRIV_KEY_PATH',
               'PUB_KEY_PATH']:
         if os.environ.get(v) is None:
-            print("error: {} environment variable not set".format(v))
+            logging.critical("error: environment variable %s not set", v)
+            logging.shutdown()
             sys.exit(1)
     EXPIRY_SECONDS = int(os.environ.get('TOKEN_EXPIRY_SECONDS'))
     PRIVATE_KEY = open(os.environ.get('PRIV_KEY_PATH'), 'r').read()

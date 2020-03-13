@@ -28,6 +28,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * Defines an interface for reacting to new transactions
@@ -41,6 +42,10 @@ interface LedgerReaderListener {
  * on a subscribed listener object
  */
 public final class LedgerReader {
+
+    private final Logger logger =
+            Logger.getLogger(LedgerReader.class.getName());
+
     private ApplicationContext ctx =
         new AnnotationConfigApplicationContext(BalanceReaderConfig.class);
     private StatefulRedisConnection redisConnection =
@@ -73,7 +78,7 @@ public final class LedgerReader {
                 }
             }
         );
-        System.out.println("Starting background thread.");
+        logger.info("Starting background thread.");
         this.backgroundThread.start();
     }
 
@@ -119,11 +124,11 @@ public final class LedgerReader {
                         this.listener.processTransaction(receiver, amount);
                     }
                 } else {
-                    System.out.println("Listener not set up");
+                    logger.warning("Listener not set up.");
                 }
             }
         } catch (RedisCommandTimeoutException e) {
-            System.out.println("Read timeout");
+            logger.info("Redis stream read timeout.");
         }
         return latestTransactionId;
     }
