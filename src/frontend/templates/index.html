@@ -116,15 +116,18 @@ limitations under the License.
     <div class="mdl-dialog__content">
         <form id=deposit-form method="POST" action="/deposit">
          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-            <select class="mdl-textfield__input" id="accounts" name="account">
+            <select class="mdl-textfield__input" id="accounts" name="account" onchange='RefreshModals();'>
                {% for account in deposit_contacts %}
                <option value='{"account_num": "{{ account.account_num }}", "routing_num": "{{ account.routing_num }}" }'>
                     {{ account.label }} - {{ account.account_num }} - {{ account.routing_num }}
                </option>
                {% endfor %}
-               <option disabled value="add">Add new account</option>
+               <option value="add">New deposit account</option>
             </select>
-            <label class="mdl-textfield__label" for="accounts">🏦 Select Account</label>
+            <input class="mdl-textfield__input" type="number" step='1' id="deposit_account_num" name="deposit_account_num" min=1000000000 max=9999999999  placeholder="Account #" style='display:none;'/>
+            <input class="mdl-textfield__input" type="number" step='1' id="deposit_routing_num" name="deposit_routing_num" min=1000000000 max=9999999999  placeholder="Routing #" style='display:none;'/>
+            <input class="mdl-textfield__input" id="deposit_label" name="deposit_label"  placeholder="Account Label" style='display:none;'/>
+            <label class="mdl-textfield__label" for="accounts">🏦 Deposit Account</label>
           </div>
 
           <div class="mdl-textfield mdl-js-textfield  mdl-textfield--floating-label">
@@ -147,6 +150,7 @@ limitations under the License.
           dialogPolyfill.registerDialog(depositDialog);
         }
         depositButton.addEventListener('click', function() {
+          RefreshModals();
           depositDialog.showModal();
         });
         depositDialog.querySelector('.close').addEventListener('click', function() {
@@ -169,12 +173,12 @@ limitations under the License.
     <div class="mdl-dialog__content">
         <form id=payment-form method="POST" action="/payment">
          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-            <select class="mdl-textfield__input" id="account_num" name="account_num" onchange='CheckChoice(this.value);'>
+            <select class="mdl-textfield__input" id="account_num" name="account_num" onchange='RefreshModals();'>
                {% for account in contacts %}
                     <option value="{{ account.account_num }}">{{ account.label }} - {{ account.account_num }}</option>
                {% endfor %}
                <option disabled>──────────</option>
-               <option value="other">New recipient</option>
+               <option value="add">New recipient</option>
             </select>
             <input class="mdl-textfield__input" type="number" step='1' id="contact_account_num" name="contact_account_num" min=1000000000 max=9999999999  placeholder="Account #" style='display:none;'/>
             <input class="mdl-textfield__input" id="contact_label" name="contact_label"  placeholder="Account Label" style='display:none;'/>
@@ -201,6 +205,7 @@ limitations under the License.
           dialogPolyfill.registerDialog(paymentDialog);
         }
         paymentButton.addEventListener('click', function() {
+          RefreshModals();
           paymentDialog.showModal();
         });
         paymentDialog.querySelector('.close').addEventListener('click', function() {
@@ -216,15 +221,31 @@ limitations under the License.
           }
           paymentDialog.close();
         });
-    function CheckChoice(val){
+    function RefreshModals(){
+      var deposit_modal = document.getElementById('accounts');
+      var contact_modal = document.getElementById('account_num');
+      
       var contact_num = document.getElementById('contact_account_num');
       var contact_label = document.getElementById('contact_label');
-      if(val=='other') {
+      var deposit_num = document.getElementById('deposit_account_num');
+      var deposit_routing = document.getElementById('deposit_routing_num');
+      var deposit_label = document.getElementById('deposit_label');
+
+      if(contact_modal.value=='add') {
         contact_num.style.display='block';
         contact_label.style.display='block';
       } else {
         contact_num.style.display='none';
         contact_label.style.display='none';
+      }
+      if(deposit_modal.value=='add') {
+        deposit_num.style.display='block';
+        deposit_label.style.display='block';
+        deposit_routing.style.display='block';
+      } else {
+        deposit_num.style.display='none';
+        deposit_label.style.display='none';
+        deposit_routing.style.display='none';
       }
     }
    </script>
