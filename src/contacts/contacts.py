@@ -19,15 +19,14 @@ Manages internal user contacts and external accounts.
 
 import logging
 import os
+import re
 import sys
 
 from flask import Flask, jsonify, request
 from flask_pymongo import PyMongo
 from pymongo.errors import PyMongoError
 
-import bleach
 import jwt
-import re
 
 APP = Flask(__name__)
 APP.config["MONGO_URI"] = 'mongodb://{}/users'.format(
@@ -51,7 +50,7 @@ def ready():
 def get_contacts(account_id):
     """Retrieve the contacts list for the authenticated user.
     This list is used for populating Payment and Deposit fields.
-    
+
     Returns: a list of linked external accounts
             {'account_list': [account1, account2, ...]}
     """
@@ -79,7 +78,7 @@ def get_contacts(account_id):
 @APP.route('/contacts/<account_id>', methods=['POST'])
 def get_add(account_id):
     """Add a new favorite account to contacts list
-    
+
     Fails if account or routing number are invalid
     or if label is not alphanumeric
 
@@ -97,31 +96,31 @@ def get_add(account_id):
     try:
         payload = jwt.decode(token, key=PUBLIC_KEY, algorithms='RS256')
         if account_id != payload['acct']:
-            return jsonify({'error': 'not authorized'}), 401
+            raise PermissionError('not authorized')
         contact = request.get_json()
         # validate account number
         if (not re.match(r'\A[0-9]{10}\Z', contact['account_num']) or
                 contact['account_num'] == payload['acct']):
-            return jsonify({'error': 'invalid account number'}), 500
+            raise RuntimeError('invalid account number')
         # validate routing number
         if not re.match(r'\A[0-9]{9}\Z', contact['routing_num']):
-            return jsonify({'error': 'invalid routing number'}), 500
+            raise RuntimeError('invalid routing number')
         # only allow external accounts for deposit
         if contact['deposit'] and contact['routing_num'] == LOCAL_ROUTING:
-            return jsonify({'error': 'invalid deposit account'}), 500
+            raise RuntimeError('invalid routing number')
         # validate label
-        if (not contact['label'].isalnum() or 
+        if (not contact['label'].isalnum() or
                 len(contact['label']) > 40):
-            return jsonify({'error': 'invalid deposit account'}), 500
-        # add new contact to database
+            raise RuntimeError('invalid account label')
+        # add new contact to databaseAuthenticationFailed
         query = {'accountid': account_id}
         update = {'$push': {'contact_accts': contact}}
         MONGO.db.accounts.update(query, update, upsert=True)
         return jsonify({}), 201
-    except jwt.exceptions.InvalidTokenError as ex:
+    except (jwt.exceptions.InvalidTokenError, PermissionError) as ex:
         logging.error(ex)
         return jsonify({'error': str(ex)}), 401
-    except PyMongoError as ex:
+    except (PyMongoError, RuntimeError) as ex:
         logging.error(ex)
         return jsonify({'error': str(ex)}), 500
 

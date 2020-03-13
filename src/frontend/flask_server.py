@@ -107,7 +107,7 @@ def home():
         url = '{}/{}'.format(APP.config["CONTACTS_URI"], account_id)
         req = requests.get(url=url, headers=hed)
         all_contacts = req.json()['account_list']
-        deposit_contacts = [c for c in all_contacts if c.get('deposit', False) == True]
+        deposit_contacts = [c for c in all_contacts if c.get('deposit', False)]
     except (requests.exceptions.RequestException, ValueError) as err:
         logging.error(str(err))
 
@@ -142,10 +142,10 @@ def payment():
             recipient = request.form['contact_account_num']
             if request.form.get('contact_label', "") != "":
                 # new contact. Add to contacts list
-                _add_contact(request.form['contact_label'], 
-                            recipient,
-                            LOCAL_ROUTING,
-                            False)
+                _add_contact(request.form['contact_label'],
+                             recipient,
+                             LOCAL_ROUTING,
+                             False)
         # convert amount to integer
         amount = int(float(request.form['amount']) * 100)
         # verify balance is sufficient
@@ -194,10 +194,10 @@ def deposit():
             external_routing_num = request.form['deposit_routing_num']
             if request.form.get('deposit_label', "") != "":
                 # new contact. Add to contacts list
-                _add_contact(request.form['deposit_label'], 
-                            external_account_num,
-                            external_routing_num,
-                            True)
+                _add_contact(request.form['deposit_label'],
+                             external_account_num,
+                             external_routing_num,
+                             True)
         else:
             account_details = json.loads(request.form['account'])
             external_account_num = account_details['account_num']
@@ -224,7 +224,10 @@ def deposit():
     return redirect(url_for('home', msg='Deposit failed'))
 
 
-def _add_contact(label, acct_num, routing_num, deposit=False):
+def _add_contact(label, acct_num, routing_num, is_deposit_acct=False):
+    """
+    Submits a new contact to the contact service
+    """
     token = request.cookies.get(TOKEN_NAME)
     hed = {'Authorization': 'Bearer ' + token,
            'content-type': 'application/json'}
@@ -232,7 +235,7 @@ def _add_contact(label, acct_num, routing_num, deposit=False):
         'label': label,
         'account_num': acct_num,
         'routing_num': routing_num,
-        'deposit': deposit
+        'deposit': is_deposit_acct
     }
     token_data = jwt.decode(token, verify=False)
     url = '{}/{}'.format(APP.config["CONTACTS_URI"], token_data['acct'])
