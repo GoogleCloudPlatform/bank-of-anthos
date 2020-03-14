@@ -102,7 +102,7 @@ public final class BalanceReaderController implements LedgerReaderListener {
     /**
      * Readiness probe endpoint.
      *
-     * @return HTTP Status 200 if server is ready to recieve requests.
+     * @return HTTP Status 200 if server is ready to receive requests.
      */
     @GetMapping("/ready")
     public ResponseEntity readiness() {

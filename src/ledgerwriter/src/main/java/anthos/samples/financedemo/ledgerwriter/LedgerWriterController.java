@@ -111,7 +111,7 @@ public final class LedgerWriterController {
     /**
      * Readiness probe endpoint.
      *
-     * @return HTTP Status 200 if server is ready to recieve requests.
+     * @return HTTP Status 200 if server is ready to receive requests.
      */
     @GetMapping("/ready")
     @ResponseStatus(HttpStatus.OK)
