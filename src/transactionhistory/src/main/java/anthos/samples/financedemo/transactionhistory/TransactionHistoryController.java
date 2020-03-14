@@ -16,13 +16,6 @@
 
 package anthos.samples.financedemo.transactionhistory;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.http.ResponseEntity;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -32,39 +25,56 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
+import java.util.List;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.logging.Logger;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.PathVariable;
+
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.logging.Logger;
 
+/**
+ * Controller for the TransactionHistory service.
+ *
+ * Functions to show the transaction history for each user account.
+ */
 @RestController
 public final class TransactionHistoryController
         implements LedgerReaderListener {
 
-    private final Logger logger =
+    private static final Logger logger =
             Logger.getLogger(TransactionHistoryController.class.getName());
 
-    private final JWTVerifier verifier;
-    private final Map<String, List<TransactionHistoryEntry>> historyMap =
-        new HashMap<String, List<TransactionHistoryEntry>>();
+    private final Map<String, List<TransactionHistoryEntry>> historyMap;
     private final LedgerReader reader;
-    private boolean initialized = false;
+    private final JWTVerifier verifier;
+    private final boolean initialized;
 
     /**
-     * TransactionHistoryController constructor
-     * Set up JWT verifier, initialize LedgerReader
+     * Constructor.
+     *
+     * Initializes a connection to the bank ledger.
      */
     public TransactionHistoryController() throws IOException,
                                            NoSuchAlgorithmException,
                                            InvalidKeySpecException {
-        // load public key from file
+        this.historyMap = new HashMap<String, List<TransactionHistoryEntry>>();
+
+        // Initialize transaction processor.
+        this.reader = new LedgerReader(this);
+
+        // Initialize JWT verifier.
         String fPath = System.getenv("PUB_KEY_PATH");
         String pubKeyStr  = new String(Files.readAllBytes(Paths.get(fPath)));
         pubKeyStr = pubKeyStr.replaceFirst("-----BEGIN PUBLIC KEY-----", "");
@@ -74,12 +84,9 @@ public final class TransactionHistoryController
         KeyFactory kf = KeyFactory.getInstance("RSA");
         X509EncodedKeySpec keySpecX509 = new X509EncodedKeySpec(pubKeyBytes);
         RSAPublicKey publicKey = (RSAPublicKey) kf.generatePublic(keySpecX509);
-        // set up verifier
         Algorithm algorithm = Algorithm.RSA256(publicKey, null);
         this.verifier = JWT.require(algorithm).build();
 
-        // set up transaction processor
-        this.reader = new LedgerReader(this);
         this.initialized = true;
         logger.info("Initialization complete.");
     }
@@ -98,7 +105,7 @@ public final class TransactionHistoryController
     /**
      * Readiness probe endpoint.
      *
-     * @return HTTP Status 200 if server is initialized and serving requests.
+     * @return HTTP Status 200 if server is ready to recieve requests.
      */
     @GetMapping("/ready")
     public ResponseEntity readiness() {
@@ -113,7 +120,7 @@ public final class TransactionHistoryController
     /**
      * Liveness probe endpoint.
      *
-     * @return HTTP Status 200 if server is healthy.
+     * @return HTTP Status 200 if server is healthy and serving requests.
      */
     @GetMapping("/healthy")
     public ResponseEntity liveness() {
@@ -130,8 +137,9 @@ public final class TransactionHistoryController
      *
      * The currently authenticated user must be allowed to access the account.
      *
-     * @param accountId the account to get transactions for.
-     * @return a list of transactions for this account.
+     * @param bearerToken  HTTP request 'Authorization' header
+     * @param accountId    the account to get transactions for.
+     * @return             a list of transactions for this account.
      */
     @GetMapping("/transactions/{accountId}")
     public ResponseEntity<?> getTransactions(
@@ -174,11 +182,10 @@ public final class TransactionHistoryController
     }
 
     /**
-     * Receives transactions from LedgerReader for processing
-     * Add transaction records to internal Map
+     * Appends a transaction to the account history.
      *
-     * @param account associated with the transaction
-     * @param entry with transaction metadata
+     * @param account  the account id of the transaction
+     * @param entry    the transaction metadata to append to the history
      */
     public void processTransaction(String account,
                                    TransactionHistoryEntry entry) {
@@ -191,7 +198,4 @@ public final class TransactionHistoryController
         }
         historyList.addFirst(entry);
     }
-
-
-
 }

@@ -16,20 +16,29 @@
 
 package anthos.samples.financedemo.balancereader;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.codec.StringCodec;
 import io.lettuce.core.resource.ClientResources;
 import io.lettuce.core.resource.DefaultClientResources;
 import io.lettuce.core.api.StatefulRedisConnection;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
+/**
+ * Configuration for the BalanceReader service.
+ *
+ * Configures connections to the bank ledger database backend.
+ */
 @Configuration
 public class BalanceReaderConfig {
 
-    private final String redisHostName = System.getenv("LEDGER_ADDR");
-    private final int redisPort = Integer.valueOf(System.getenv("LEDGER_PORT"));
+    @Value("${ledger.address}")
+    private String redisHostName;
+    @Value("${ledger.port}")
+    private String redisPort;
 
     @Bean(destroyMethod = "shutdown")
     ClientResources clientResources() {
@@ -39,7 +48,7 @@ public class BalanceReaderConfig {
     @Bean(destroyMethod = "shutdown")
     RedisClient redisClient(ClientResources clientResources) {
         return RedisClient.create(clientResources,
-                                  RedisURI.create(redisHostName, redisPort));
+                RedisURI.create(redisHostName, Integer.valueOf(redisPort)));
     }
 
     @Bean(destroyMethod = "close")

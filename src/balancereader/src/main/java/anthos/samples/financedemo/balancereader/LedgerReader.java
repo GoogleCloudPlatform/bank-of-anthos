@@ -16,52 +16,66 @@
 
 package anthos.samples.financedemo.balancereader;
 
-import io.lettuce.core.api.StatefulRedisConnection;
-import io.lettuce.core.RedisCommandTimeoutException;
-import io.lettuce.core.StreamMessage;
-import io.lettuce.core.XReadArgs;
-import io.lettuce.core.XReadArgs.StreamOffset;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-
-
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+import io.lettuce.core.RedisCommandTimeoutException;
+import io.lettuce.core.StreamMessage;
+import io.lettuce.core.XReadArgs;
+import io.lettuce.core.XReadArgs.StreamOffset;
+import io.lettuce.core.api.StatefulRedisConnection;
+
 /**
- * Defines an interface for reacting to new transactions
+ * Interface for processing ledger transactions.
  */
 interface LedgerReaderListener {
+
+    /**
+     * Process a transaction.
+     *
+     * @param account  the account id of the transaction
+     * @param amount   the amount of the transaction
+     */
     void processTransaction(String account, Integer amount);
+
 }
 
 /**
- * LedgerReader listens for incoming transactions, and executes a callback
- * on a subscribed listener object
+ * Reader for new and existing ledger transactions.
+ *
+ * Executes a callback on a subscribed listener object.
  */
 public final class LedgerReader {
 
-    private final Logger logger =
+    private static final Logger logger =
             Logger.getLogger(LedgerReader.class.getName());
 
-    private ApplicationContext ctx =
-        new AnnotationConfigApplicationContext(BalanceReaderConfig.class);
-    private StatefulRedisConnection redisConnection =
-        ctx.getBean(StatefulRedisConnection.class);
-    private final String ledgerStreamKey = System.getenv("LEDGER_STREAM");
-    private final String localRoutingNum =  System.getenv("LOCAL_ROUTING_NUM");
+    private final ApplicationContext ctx;
     private final Thread backgroundThread;
-    private LedgerReaderListener listener;
+    private final LedgerReaderListener listener;
+
+    @Value("${ledger.stream}")
+    private String ledgerStreamKey;
+    @Value("${LOCAL_ROUTING_NUM}")
+    private String localRoutingNum;
 
     /**
-     * LedgerReader constructor
+     * Constructor.
+     *
      * Synchronously loads all existing transactions, and then starts
-     * a background thread to listen for future transactions
-     * @param listener to process transactions
+     * a background thread to listen for future transactions.
+     *
+     * @param listener  callback client to process transactions
      */
     public LedgerReader(LedgerReaderListener listener) {
+        this.ctx = new AnnotationConfigApplicationContext(
+                BalanceReaderConfig.class);
         this.listener = listener;
         // read from starting transaction to latest
         final String startingTransaction = pollTransactions(1, "0");
@@ -82,16 +96,16 @@ public final class LedgerReader {
         this.backgroundThread.start();
     }
 
-
     /**
-     * Poll for new transactions
-     * Execute callback for each one
+     * Poll for transactions.
      *
-     * @param timeout the blocking time for new transactions.
-     *                0 = block forever
-     * @param startingTransaction the transaction to start reading after.
-     *                            "0" = start reading at beginning of the ledger
-     * @return String id of latest transaction processed
+     * Execute callback for each new transaction.
+     *
+     * @param timeout              the blocking time for new transactions
+     *                             0 = block forever
+     * @param startingTransaction  the transaction to start reading after
+     *                             "0" = start at the beginning of the ledger
+     * @return                     the id of the latest transaction processed
      */
     private String pollTransactions(int timeout, String startingTransaction) {
         if (timeout < 0) {
@@ -103,6 +117,8 @@ public final class LedgerReader {
                                                 startingTransaction);
         XReadArgs args = XReadArgs.Builder.block(Duration.ofSeconds(timeout));
         try {
+            StatefulRedisConnection redisConnection =
+                    ctx.getBean(StatefulRedisConnection.class);
             List<StreamMessage<String, String>> messages =
                 redisConnection.sync().xread(args, offset);
 
@@ -134,8 +150,9 @@ public final class LedgerReader {
     }
 
     /**
-     * Indicates health of LedgerReader
-     * @return false if background thread dies
+     * Returns whether the transaction listener is active.
+     *
+     * @return  true if currently listening for transactions
      */
     public boolean isAlive() {
         return this.backgroundThread.isAlive();

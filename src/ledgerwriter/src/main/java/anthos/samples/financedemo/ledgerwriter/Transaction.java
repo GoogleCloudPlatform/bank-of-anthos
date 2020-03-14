@@ -26,6 +26,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public final class Transaction {
 
     private static final double MILLISECONDS_PER_SECOND = 1000.0;
+    private static final double CENTS_PER_DOLLAR = 100.0;
 
     // Timestamp in seconds with decimal precision.
     private final double timestamp;
@@ -89,8 +90,13 @@ public final class Transaction {
         return this.timestamp;
     }
 
+    /**
+     * String representation.
+     *
+     * Formatting = "{fromAccountNum}->${dollars.cents}->{toAccountNum}"
+     */
     public String toString() {
-        return String.format("%d: %s->%s",
-                amount, fromAccountNum, toAccountNum);
+        return String.format("%s->$%.2f->%s",
+                fromAccountNum, amount / CENTS_PER_DOLLAR, toAccountNum);
     }
 }

@@ -17,21 +17,28 @@
 package anthos.samples.financedemo.transactionhistory;
 
 import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Value;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-
-enum TransactionType {
-    DEBIT, CREDIT;
-}
 /**
- * Defines a banking transaction histoy entry for display to a user
+ * Defines an entry in a list of historical banking transactions.
  */
 public final class TransactionHistoryEntry {
 
-    private final String localRoutingNum =  System.getenv("LOCAL_ROUTING_NUM");
+    /**
+     * The possible types of transactions.
+     */
+    public static enum Type {
+        DEBIT, CREDIT;
+    }
+
+    @Value("${LOCAL_ROUTING_NUM}")
+    private String localRoutingNum;
 
     @JsonProperty("type")
-    private TransactionType type;
+    private Type type;
     @JsonProperty("routingNum")
     private String routingNum;
     @JsonProperty("accountNum")
@@ -42,20 +49,20 @@ public final class TransactionHistoryEntry {
     private final double timestamp;
 
     /**
-     * Construct a TransactionHistoryEntry
+     * Constructor.
      *
-     * @param map returned from redis
-     * @param transaction type (credit or debit) to parse from the map
+     * @param map   the transaction attributes as a map of key/value pairs
+     * @param type  the transaction type (credit or debit)
      */
     public TransactionHistoryEntry(Map<String, String> map,
-                                   TransactionType type) {
+                                   Type type) {
         this.type = type;
         this.amount = Integer.valueOf(map.get("amount"));
         this.timestamp = Double.valueOf(map.get("timestamp"));
-        if (type == TransactionType.CREDIT) {
+        if (type == Type.CREDIT) {
             this.accountNum = map.get("toAccountNum");
             this.routingNum = map.get("toRoutingNum");
-        } else if (type == TransactionType.DEBIT) {
+        } else if (type == Type.DEBIT) {
             this.accountNum = map.get("fromAccountNum");
             this.routingNum = map.get("fromRoutingNum");
         }
@@ -64,7 +71,7 @@ public final class TransactionHistoryEntry {
     /**
      * String representation.
      *
-     * "{accountNum}:{type}:{amount}"
+     * Formatting = "{accountNum}:{type}:{amount}"
      */
     public String toString() {
         return String.format("%s:%s:%d", accountNum, type, amount);

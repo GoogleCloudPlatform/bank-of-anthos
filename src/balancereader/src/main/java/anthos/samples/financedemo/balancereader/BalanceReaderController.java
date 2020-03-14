@@ -16,13 +16,6 @@
 
 package anthos.samples.financedemo.balancereader;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.http.ResponseEntity;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -32,36 +25,53 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Logger;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestHeader;
+
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.logging.Logger;
 
+/**
+ * Controller for the BalanceReader service.
+ *
+ * Functions to track the bank balance for each user account.
+ */
 @RestController
 public final class BalanceReaderController implements LedgerReaderListener {
 
-    private final Logger logger =
+    private static final Logger logger =
             Logger.getLogger(BalanceReaderController.class.getName());
 
-    private final JWTVerifier verifier;
-    private final Map<String, Integer> balanceMap =
-        new HashMap<String, Integer>();
+    private final Map<String, Integer> balanceMap;
     private final LedgerReader reader;
-    private boolean initialized = false;
+    private final JWTVerifier verifier;
+    private final boolean initialized;
 
     /**
-     * BalanceReaderController constructor
-     * Set up JWT verifier, initialize LedgerReader
+     * Constructor.
+     *
+     * Initializes a connection to the bank ledger.
      */
     public BalanceReaderController() throws IOException,
                                            NoSuchAlgorithmException,
                                            InvalidKeySpecException {
-        // load public key from file
+        this.balanceMap = new HashMap<String, Integer>();
+
+        // Initialize transaction processor.
+        this.reader = new LedgerReader(this);
+
+        // Initialize JWT verifier.
         String fPath = System.getenv("PUB_KEY_PATH");
         String pubKeyStr  = new String(Files.readAllBytes(Paths.get(fPath)));
         pubKeyStr = pubKeyStr.replaceFirst("-----BEGIN PUBLIC KEY-----", "");
@@ -71,21 +81,17 @@ public final class BalanceReaderController implements LedgerReaderListener {
         KeyFactory kf = KeyFactory.getInstance("RSA");
         X509EncodedKeySpec keySpecX509 = new X509EncodedKeySpec(pubKeyBytes);
         RSAPublicKey publicKey = (RSAPublicKey) kf.generatePublic(keySpecX509);
-        // set up verifier
         Algorithm algorithm = Algorithm.RSA256(publicKey, null);
         this.verifier = JWT.require(algorithm).build();
 
-        // set up transaction processor
-        this.reader = new LedgerReader(this);
         this.initialized = true;
         logger.info("Initialization complete.");
     }
 
     /**
-
      * Version endpoint.
      *
-     * @return service version string
+     * @return  service version string
      */
     @GetMapping("/version")
     public ResponseEntity version() {
@@ -96,7 +102,7 @@ public final class BalanceReaderController implements LedgerReaderListener {
     /**
      * Readiness probe endpoint.
      *
-     * @return HTTP Status 200 if server is initialized and serving requests.
+     * @return HTTP Status 200 if server is ready to recieve requests.
      */
     @GetMapping("/ready")
     public ResponseEntity readiness() {
@@ -111,7 +117,7 @@ public final class BalanceReaderController implements LedgerReaderListener {
     /**
      * Liveness probe endpoint.
      *
-     * @return HTTP Status 200 if server is healthy.
+     * @return HTTP Status 200 if server is healthy and serving requests.
      */
     @GetMapping("/healthy")
     public ResponseEntity liveness() {
@@ -128,8 +134,9 @@ public final class BalanceReaderController implements LedgerReaderListener {
      *
      * The currently authenticated user must be allowed to access the account.
      *
-     * @param accountId the account to get the balance for.
-     * @return the balance amount.
+     * @param bearerToken  HTTP request 'Authorization' header
+     * @param accountId    the account to get the balance for
+     * @return             the balance of the account
      */
     @GetMapping("/balances/{accountId}")
     public ResponseEntity<?> getBalance(
@@ -158,11 +165,10 @@ public final class BalanceReaderController implements LedgerReaderListener {
     }
 
     /**
-     * Receives transactions from LedgerReader for processing
-     * Update balance in internal Map
+     * Add the transaction amount to the account balance.
      *
-     * @param account associated with the transaction
-     * @param entry with transaction metadata
+     * @param account  the account id of the transaction
+     * @param amount   the amount to add to the account
      */
     public void processTransaction(String account, Integer amount) {
         if (this.balanceMap.containsKey(account)) {
@@ -170,7 +176,4 @@ public final class BalanceReaderController implements LedgerReaderListener {
         }
         this.balanceMap.put(account, amount);
     }
-
-
-
 }
