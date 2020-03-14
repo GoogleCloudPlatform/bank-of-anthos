@@ -47,7 +47,7 @@ public final class Transaction {
     }
 
     public String getFromAccountNum() {
-        return this.fromAccountNum;
+        return fromAccountNum;
     }
 
     public void setFromAccountNum(String fromAccountNum) {
@@ -55,7 +55,7 @@ public final class Transaction {
     }
 
     public String getFromRoutingNum() {
-        return this.fromRoutingNum;
+        return fromRoutingNum;
     }
 
     public void setFromRoutingNum(String fromRoutingNum) {
@@ -63,7 +63,7 @@ public final class Transaction {
     }
 
     public String getToAccountNum() {
-        return this.toAccountNum;
+        return toAccountNum;
     }
 
     public void setToAccountNum(String toAccountNum) {
@@ -71,7 +71,7 @@ public final class Transaction {
     }
 
     public String getToRoutingNum() {
-        return this.toRoutingNum;
+        return toRoutingNum;
     }
 
     public void setToRoutingNum(String toRoutingNum) {
@@ -79,7 +79,7 @@ public final class Transaction {
     }
 
     public Integer getAmount() {
-        return this.amount;
+        return amount;
     }
 
     public void setAmount(Integer amount) {
@@ -87,7 +87,7 @@ public final class Transaction {
     }
 
     public double getTimestamp() {
-        return this.timestamp;
+        return timestamp;
     }
 
     /**

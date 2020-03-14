@@ -70,7 +70,7 @@ public final class LedgerWriterController {
     @Value("${service.balancereader.uri}")
     private String balancesUri;
     @Value("${LOCAL_ROUTING_NUM}")
-    private String routingNum;
+    private String localRoutingNum;
 
     /**
      * Constructor.
@@ -136,13 +136,13 @@ public final class LedgerWriterController {
             bearerToken = bearerToken.split("Bearer ")[1];
         }
         try {
-            DecodedJWT jwt = this.verifier.verify(bearerToken);
+            DecodedJWT jwt = verifier.verify(bearerToken);
             String initiatorAcct = jwt.getClaim("acct").asString();
-            // Ensure sender is the one who initiated this transaction,
-            // or is external deposit.
+            // If a local account, check that it belongs to the initiator of
+            // this request.
             // TODO: Check if external account belongs to initiator of deposit.
-            if (!(transaction.getFromAccountNum() == initiatorAcct
-                  || transaction.getFromRoutingNum() != this.routingNum)) {
+            if (transaction.getFromRoutingNum().equals(localRoutingNum)
+                    && !transaction.getFromAccountNum().equals(initiatorAcct)) {
                 return new ResponseEntity<String>("not authorized",
                                                   HttpStatus.UNAUTHORIZED);
             }
@@ -152,7 +152,7 @@ public final class LedgerWriterController {
                                                   HttpStatus.BAD_REQUEST);
             }
             // Ensure sender balance can cover transaction.
-            if (transaction.getFromRoutingNum() == this.routingNum) {
+            if (transaction.getFromRoutingNum().equals(localRoutingNum)) {
                 HttpHeaders headers = new HttpHeaders();
                 headers.set("Authorization", "Bearer " + bearerToken);
                 HttpEntity entity = new HttpEntity(headers);

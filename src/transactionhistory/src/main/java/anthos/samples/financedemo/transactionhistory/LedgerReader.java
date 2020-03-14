@@ -126,7 +126,7 @@ public final class LedgerReader {
                 // found a list of transactions. Execute callback for each one
                 latestTransactionId = message.getId();
                 Map<String, String> map = message.getBody();
-                if (this.listener != null) {
+                if (listener != null) {
                     String sender = map.get("fromAccountNum");
                     String senderRouting = map.get("fromRoutingNum");
                     String receiver = map.get("toAccountNum");
@@ -140,10 +140,10 @@ public final class LedgerReader {
                             TransactionHistoryEntry.Type.DEBIT);
                     // process entries only if they belong to this bank
                     if (senderRouting.equals(localRoutingNum)) {
-                        this.listener.processTransaction(sender, cred);
+                        listener.processTransaction(sender, cred);
                     }
                     if (receiverRouting.equals(localRoutingNum)) {
-                        this.listener.processTransaction(receiver, debit);
+                        listener.processTransaction(receiver, debit);
                     }
                 } else {
                     logger.warning("Listener not set up.");
@@ -161,6 +161,6 @@ public final class LedgerReader {
      * @return  true if currently listening for transactions
      */
     public boolean isAlive() {
-        return this.backgroundThread.isAlive();
+        return backgroundThread.isAlive();
     }
 }

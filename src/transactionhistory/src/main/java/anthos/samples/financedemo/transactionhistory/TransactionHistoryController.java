@@ -25,7 +25,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
-import java.util.List;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -56,7 +56,7 @@ public final class TransactionHistoryController
     private static final Logger logger =
             Logger.getLogger(TransactionHistoryController.class.getName());
 
-    private final Map<String, List<TransactionHistoryEntry>> historyMap;
+    private final Map<String, Deque<TransactionHistoryEntry>> historyMap;
     private final LedgerReader reader;
     private final JWTVerifier verifier;
     private final boolean initialized;
@@ -69,7 +69,7 @@ public final class TransactionHistoryController
     public TransactionHistoryController() throws IOException,
                                            NoSuchAlgorithmException,
                                            InvalidKeySpecException {
-        this.historyMap = new HashMap<String, List<TransactionHistoryEntry>>();
+        this.historyMap = new HashMap<String, Deque<TransactionHistoryEntry>>();
 
         // Initialize transaction processor.
         this.reader = new LedgerReader(this);
@@ -109,7 +109,7 @@ public final class TransactionHistoryController
      */
     @GetMapping("/ready")
     public ResponseEntity readiness() {
-        if (this.initialized) {
+        if (initialized) {
             return new ResponseEntity<String>("ok", HttpStatus.OK);
         } else {
             return new ResponseEntity<String>("not initialized",
@@ -124,7 +124,7 @@ public final class TransactionHistoryController
      */
     @GetMapping("/healthy")
     public ResponseEntity liveness() {
-        if (this.initialized && !this.reader.isAlive()) {
+        if (initialized && !reader.isAlive()) {
             // background thread died. Abort
             return new ResponseEntity<String>("LedgerReader not healthy",
                                               HttpStatus.INTERNAL_SERVER_ERROR);
@@ -149,16 +149,16 @@ public final class TransactionHistoryController
             bearerToken = bearerToken.split("Bearer ")[1];
         }
         try {
-            DecodedJWT jwt = this.verifier.verify(bearerToken);
+            DecodedJWT jwt = verifier.verify(bearerToken);
             // Check that the authenticated user can access this account.
             if (!accountId.equals(jwt.getClaim("acct").asString())) {
                 return new ResponseEntity<String>("not authorized",
                                                   HttpStatus.UNAUTHORIZED);
             }
 
-            List<TransactionHistoryEntry> historyList;
-            if (this.historyMap.containsKey(accountId)) {
-                historyList = this.historyMap.get(accountId);
+            Deque<TransactionHistoryEntry> historyList;
+            if (historyMap.containsKey(accountId)) {
+                historyList = historyMap.get(accountId);
             } else {
                 historyList = new LinkedList<TransactionHistoryEntry>();
             }
@@ -173,7 +173,7 @@ public final class TransactionHistoryController
                 }
             }
 
-            return new ResponseEntity<List<TransactionHistoryEntry>>(
+            return new ResponseEntity<Deque<TransactionHistoryEntry>>(
                     historyList, HttpStatus.OK);
         } catch (JWTVerificationException e) {
             return new ResponseEntity<String>("not authorized",
@@ -189,12 +189,12 @@ public final class TransactionHistoryController
      */
     public void processTransaction(String account,
                                    TransactionHistoryEntry entry) {
-        LinkedList<TransactionHistoryEntry> historyList;
-        if (!this.historyMap.containsKey(account)) {
+        Deque<TransactionHistoryEntry> historyList;
+        if (!historyMap.containsKey(account)) {
             historyList = new LinkedList<TransactionHistoryEntry>();
-            this.historyMap.put(account, historyList);
+            historyMap.put(account, historyList);
         } else {
-            historyList = (LinkedList) this.historyMap.get(account);
+            historyList = historyMap.get(account);
         }
         historyList.addFirst(entry);
     }

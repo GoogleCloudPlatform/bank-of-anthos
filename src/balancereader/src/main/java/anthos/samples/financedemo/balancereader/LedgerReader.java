@@ -126,7 +126,7 @@ public final class LedgerReader {
                 // found a list of transactions. Execute callback for each one
                 latestTransactionId = message.getId();
                 Map<String, String> map = message.getBody();
-                if (this.listener != null) {
+                if (listener != null) {
                     // each transaction is made up of a debit and a credit
                     String sender = map.get("fromAccountNum");
                     String senderRouting = map.get("fromRoutingNum");
@@ -134,10 +134,10 @@ public final class LedgerReader {
                     String receiverRouting = map.get("toRoutingNum");
                     Integer amount = Integer.valueOf(map.get("amount"));
                     if (senderRouting.equals(localRoutingNum)) {
-                        this.listener.processTransaction(sender, -amount);
+                        listener.processTransaction(sender, -amount);
                     }
                     if (receiverRouting.equals(localRoutingNum)) {
-                        this.listener.processTransaction(receiver, amount);
+                        listener.processTransaction(receiver, amount);
                     }
                 } else {
                     logger.warning("Listener not set up.");

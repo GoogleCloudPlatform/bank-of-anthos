@@ -106,7 +106,7 @@ public final class BalanceReaderController implements LedgerReaderListener {
      */
     @GetMapping("/ready")
     public ResponseEntity readiness() {
-        if (this.initialized) {
+        if (initialized) {
             return new ResponseEntity<String>("ok", HttpStatus.OK);
         } else {
             return new ResponseEntity<String>("not initialized",
@@ -121,7 +121,7 @@ public final class BalanceReaderController implements LedgerReaderListener {
      */
     @GetMapping("/healthy")
     public ResponseEntity liveness() {
-        if (this.initialized && !this.reader.isAlive()) {
+        if (initialized && !reader.isAlive()) {
             // background thread died. Abort
             return new ResponseEntity<String>("LedgerReader not healthy",
                                               HttpStatus.INTERNAL_SERVER_ERROR);
@@ -146,7 +146,7 @@ public final class BalanceReaderController implements LedgerReaderListener {
             bearerToken = bearerToken.split("Bearer ")[1];
         }
         try {
-            DecodedJWT jwt = this.verifier.verify(bearerToken);
+            DecodedJWT jwt = verifier.verify(bearerToken);
             // Check that the authenticated user can access this account.
             if (!accountId.equals(jwt.getClaim("acct").asString())) {
                 return new ResponseEntity<String>("not authorized",
@@ -154,8 +154,8 @@ public final class BalanceReaderController implements LedgerReaderListener {
             }
 
             Integer balance = 0;
-            if (this.balanceMap.containsKey(accountId)) {
-                balance = this.balanceMap.get(accountId);
+            if (balanceMap.containsKey(accountId)) {
+                balance = balanceMap.get(accountId);
             }
             return new ResponseEntity<Integer>(balance, HttpStatus.OK);
         } catch (JWTVerificationException e) {
@@ -171,9 +171,9 @@ public final class BalanceReaderController implements LedgerReaderListener {
      * @param amount   the amount to add to the account
      */
     public void processTransaction(String account, Integer amount) {
-        if (this.balanceMap.containsKey(account)) {
-            amount += this.balanceMap.get(account);
+        if (balanceMap.containsKey(account)) {
+            amount += balanceMap.get(account);
         }
-        this.balanceMap.put(account, amount);
+        balanceMap.put(account, amount);
     }
 }
