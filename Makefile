@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-.-PHONY: cluster deploy deploy-continuous logs checkstyle clean check-env
+.-PHONY: cluster deploy deploy-continuous logs checkstyle check-env
 
 ZONE=us-west1-a
 CLUSTER=bank-of-anthos
@@ -34,17 +34,10 @@ deploy-continuous: check-env
 	gcloud container clusters get-credentials --project ${PROJECT_ID} ${CLUSTER} --zone ${ZONE}
 	skaffold dev --default-repo=gcr.io/${PROJECT_ID}
 
-jwtRS256.key:
-	openssl genrsa -out jwtRS256.key 4096
-	openssl rsa -in jwtRS256.key -outform PEM -pubout -out jwtRS256.key.pub
-
 checkstyle:
 	mvn checkstyle:check
 	# disable warnings: import loading, todos, function members, duplicate code, public methods
 	pylint --disable=F0401 --disable=W0511 --disable=E1101 --disable=R0801 --disable=R0903  ./src/*/*.py
-
-clean:
-	rm -f jwtRS256*
 
 check-env:
 ifndef PROJECT_ID

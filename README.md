@@ -45,6 +45,7 @@ gcloud beta container clusters create ${CLUSTER} \
 #### Option 1: Pre-Built Containers
 ```
    kubectl apply -f ./kubernetes-manifests
+   kubectl apply -f ./extras/jwt/jwt-secret.yaml
 ```
 
 #### Option 2: Local Build
