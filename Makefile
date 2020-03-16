@@ -17,9 +17,12 @@
 ZONE=us-west1-a
 CLUSTER=bank-of-anthos
 
-cluster: jwtRS256.key check-env
-	./create_cluster.sh ${PROJECT_ID} ${CLUSTER} ${ZONE}
-	kubectl create secret generic jwt-key --from-file=./jwtRS256.key --from-file=./jwtRS256.key.pub
+cluster: check-env
+	gcloud beta container clusters create ${CLUSTER} \
+		--project=${PROJECT} --zone=${ZONE} \
+		--machine-type=n1-standard-2 --num-nodes=4 \
+		--enable-stackdriver-kubernetes --subnetwork=default \
+		--labels csm=
 	skaffold run --default-repo=gcr.io/${PROJECT_ID}
 
 deploy: check-env

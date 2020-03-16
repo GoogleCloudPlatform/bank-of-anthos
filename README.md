@@ -26,13 +26,18 @@ Bank of Anthos was developed to create an end-to-end sample demonstrating Anthos
 
 ## Installation
 
-### Creating a Cluster
+### Cluster Setup
+
+Set up a new cluster on GKE
 
 ```
-  make cluster \
-    PROJECT_ID=$(gcloud config get-value project) \ # required
-    ZONE=us-west1-a \                               # optional. default: us-west1-a
-    CLUSTER=cloud-bank                              # optional. default: cloud-bank
+export CLUSTER=bank-of-anthos
+export PROJECT_ID=$(gcloud config get-value project)
+export ZONE=us-west1-a
+
+gcloud beta container clusters create ${CLUSTER} \
+    --project=${PROJECT_ID} --zone=${ZONE} \
+    --machine-type=n1-standard-2 --num-nodes=4
 ```
 
 ### Deployment
