@@ -42,10 +42,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.logging.Logger;
 
 @RestController
 public final class TransactionHistoryController
         implements LedgerReaderListener {
+
+    private final Logger logger =
+            Logger.getLogger(TransactionHistoryController.class.getName());
 
     private final JWTVerifier verifier;
     private final Map<String, List<TransactionHistoryEntry>> historyMap =
@@ -77,7 +81,7 @@ public final class TransactionHistoryController
         // set up transaction processor
         this.reader = new LedgerReader(this);
         this.initialized = true;
-        System.out.println("initialization complete");
+        logger.info("Initialization complete.");
     }
 
    /**
