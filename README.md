@@ -43,9 +43,17 @@ gcloud beta container clusters create ${CLUSTER} \
 ### Deployment
 
 #### Option 1: Pre-Built Containers
+
+Generate RSA key pair Secret
+```
+     openssl genrsa -out jwtRS256.key 4096
+     openssl rsa -in jwtRS256.key -outform PEM -pubout -out jwtRS256.key.pub
+     kubectl create secret generic jwt-key --from-file=./jwtRS256.key --from-file=./jwtRS256.key.pub
+```
+
+Deploy Bank of Anthos manifests
 ```
    kubectl apply -f ./kubernetes-manifests
-   kubectl apply -f ./extras/jwt/jwt-secret.yaml
 ```
 
 #### Option 2: Local Build
