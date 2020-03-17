@@ -229,6 +229,9 @@ label {
 .btn-create-account:focus {
   box-shadow: 0 0 0 0.2rem rgba(84,154,252,.5);
 }
+.hidden {
+  display: none;
+}
 .footer {
   border-top: 1px solid rgba(152,166,173,.2);
   bottom: 0;

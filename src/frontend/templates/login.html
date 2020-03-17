@@ -81,13 +81,19 @@ limitations under the License.
                 <div class="card-body sign-in">
                   <div class="row align-items-center mt-2">
                     <div class="col-10 offset-1 mb-4">
-                      <form id="signin-form" method="POST" action="/login">
+                      <div id="alertBanner" class="alert alert-danger mb-4 hidden" role="alert">
+                        <i class="mr-2 fas fa-exclamation-circle"></i>We can't find that username and password. You can reset your password or try again.
+                      </div>
+                      <form id="signin-form" class="needs-validation" novalidate="" method="POST" action="/login">
                         <label class="text-uppercase text-muted secondary-text" for="username">Username</label>
                         <div class="input-group mt-2d mb-5">
                           <div class="input-group-prepend mr-2">
                             <span class="input-group-text"><i class="fas fa-user"></i></span>
                           </div>
                           <input class="form-control" type="text" id="username" name="username" autocomplete="off" value="{{ default_user }}" required>
+                          <div class="invalid-feedback">
+                            Please enter your username.
+                          </div>
                         </div>
                         <label class="text-uppercase text-muted secondary-text" for="password">Password</label>
                         <div class="input-group mt-2 mb-5">
@@ -95,6 +101,9 @@ limitations under the License.
                             <span class="input-group-text"><i class="fas fa-lock"></i></span>
                           </div>
                           <input class="form-control" type="password" id="password" name="password" value="{{ default_password }}" required>
+                          <div class="invalid-feedback">
+                            Please enter your password.
+                        </div>
                         </div>
                         <button class="btn btn-sign-in btn-block mb-4" type="submit">Sign in</button>
                         <small class="text-uppercase secondary-text text-muted">
@@ -131,6 +140,38 @@ limitations under the License.
       <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
       <script src="https://unpkg.com/popper.js@1.12.6/dist/umd/popper.js" integrity="sha384-fA23ZRQ3G/J53mElWqVJEGJzU0sTs+SvzG8fXVWP+kJQ1lwFAOkcUOysnlKJC33U" crossorigin="anonymous"></script>
       <script src="https://unpkg.com/bootstrap-material-design@4.1.1/dist/js/bootstrap-material-design.js" integrity="sha384-CauSuKpEqAFajSpkdjv3z9t8E7RlpJ1UP0lKM/+NdtSarroVKu069AlsRPKkFBz9" crossorigin="anonymous"></script>
+      <script>
+        $( document ).ready(function() {
+            var showAlert = (window.location.search != "");
+            if (showAlert){
+                $('#alertBanner').removeClass('hidden');
+            }
+            else {
+                $('#alertBanner').removeClass();
+                $('#alertBanner').addClass('hidden');
+            }
+        });
+      </script>
+      <script>
+        // Disable form submissions if there are invalid fields
+        (function() {
+        'use strict';
+
+        window.addEventListener('load', function() {
+            var forms = document.getElementsByClassName('needs-validation');
+
+            var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                event.preventDefault();
+                event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+            });
+        }, false);
+        })();
+      </script>
     </body> 
 
 <!--toast message on load-->
