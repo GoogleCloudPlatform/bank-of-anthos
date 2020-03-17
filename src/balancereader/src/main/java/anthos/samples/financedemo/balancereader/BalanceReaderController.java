@@ -50,7 +50,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 @RestController
 public final class BalanceReaderController implements LedgerReaderListener {
 
-    private static final Logger logger =
+    private static final Logger LOGGER =
             Logger.getLogger(BalanceReaderController.class.getName());
 
     private final Map<String, Integer> balanceMap;
@@ -85,7 +85,7 @@ public final class BalanceReaderController implements LedgerReaderListener {
         this.verifier = JWT.require(algorithm).build();
 
         this.initialized = true;
-        logger.info("Initialization complete.");
+        LOGGER.info("Initialization complete.");
     }
 
     /**

@@ -29,7 +29,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class LedgerWriterApplication {
 
-    private static final Logger logger =
+    private static final Logger LOGGER =
             Logger.getLogger(LedgerWriterApplication.class.getName());
 
     private static final String[] EXPECTED_ENV_VARS = {
@@ -48,12 +48,12 @@ public class LedgerWriterApplication {
         for (String v : EXPECTED_ENV_VARS) {
             String value = System.getenv(v);
             if (value == null) {
-                logger.severe(String.format(
+                LOGGER.severe(String.format(
                         "error: %s environment variable not set", v));
                 System.exit(1);
             }
         }
         SpringApplication.run(LedgerWriterApplication.class, args);
-        logger.info("Started LedgerWriter service.");
+        LOGGER.info("Started LedgerWriter service.");
     }
 }

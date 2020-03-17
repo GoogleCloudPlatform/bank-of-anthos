@@ -53,7 +53,7 @@ interface LedgerReaderListener {
  */
 public final class LedgerReader {
 
-    private static final Logger logger =
+    private static final Logger LOGGER =
             Logger.getLogger(LedgerReader.class.getName());
 
     private final ApplicationContext ctx;
@@ -92,7 +92,7 @@ public final class LedgerReader {
                 }
             }
         );
-        logger.info("Starting background thread.");
+        LOGGER.info("Starting background thread.");
         this.backgroundThread.start();
     }
 
@@ -146,11 +146,11 @@ public final class LedgerReader {
                         listener.processTransaction(receiver, debit);
                     }
                 } else {
-                    logger.warning("Listener not set up.");
+                    LOGGER.warning("Listener not set up.");
                 }
             }
         } catch (RedisCommandTimeoutException e) {
-            logger.info("Redis stream read timeout.");
+            LOGGER.info("Redis stream read timeout.");
         }
         return latestTransactionId;
     }

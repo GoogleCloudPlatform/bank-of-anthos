@@ -59,7 +59,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 @RestController
 public final class LedgerWriterController {
 
-    private static final Logger logger =
+    private static final Logger LOGGER =
             Logger.getLogger(LedgerWriterController.class.getName());
 
     private final ApplicationContext ctx;
@@ -177,7 +177,7 @@ public final class LedgerWriterController {
     }
 
     private void submitTransaction(Transaction transaction) {
-        logger.fine("Submitting transaction to ledger: " + transaction);
+        LOGGER.fine("Submitting transaction to ledger: " + transaction);
         StatefulRedisConnection redisConnection =
                 ctx.getBean(StatefulRedisConnection.class);
         // Use String key/values so Redis data can be read by non-Java clients.

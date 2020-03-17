@@ -53,7 +53,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 public final class TransactionHistoryController
         implements LedgerReaderListener {
 
-    private static final Logger logger =
+    private static final Logger LOGGER =
             Logger.getLogger(TransactionHistoryController.class.getName());
 
     private final Map<String, Deque<TransactionHistoryEntry>> historyMap;
@@ -88,7 +88,7 @@ public final class TransactionHistoryController
         this.verifier = JWT.require(algorithm).build();
 
         this.initialized = true;
-        logger.info("Initialization complete.");
+        LOGGER.info("Initialization complete.");
     }
 
    /**

@@ -29,7 +29,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class TransactionHistoryApplication {
 
-    private static final Logger logger =
+    private static final Logger LOGGER =
             Logger.getLogger(TransactionHistoryApplication.class.getName());
 
     private static final String[] EXPECTED_ENV_VARS = {
@@ -47,12 +47,12 @@ public class TransactionHistoryApplication {
         for (String v : EXPECTED_ENV_VARS) {
             String value = System.getenv(v);
             if (value == null) {
-                logger.severe(String.format(
+                LOGGER.severe(String.format(
                         "error: %s environment variable not set", v));
                 System.exit(1);
             }
         }
         SpringApplication.run(TransactionHistoryApplication.class, args);
-        logger.info("Started TransactionHistory service.");
+        LOGGER.info("Started TransactionHistory service.");
     }
 }
