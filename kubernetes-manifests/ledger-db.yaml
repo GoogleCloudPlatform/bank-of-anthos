@@ -54,11 +54,9 @@ spec:
           value: "111111111"
         resources:
           limits:
-            memory: 256Mi
             cpu: 125m
           requests:
             cpu: 70m
-            memory: 200Mi
       volumes:
       - name: redis-data
         emptyDir: {}
