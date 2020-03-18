@@ -62,10 +62,11 @@ public final class TransactionHistoryEntry {
     }
 
     /**
-     * String representation for logging
+     * String representation.
+     *
+     * "{accountNum}:{type}:{amount}"
      */
     public String toString() {
-        return String.format("%d: %s",
-                amount, accountNum);
+        return String.format("%s:%s:%d", accountNum, type, amount);
     }
 }

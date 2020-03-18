@@ -58,7 +58,8 @@ jobs:
         kubectl create secret generic jwt-key --from-file=./jwtRS256.key --from-file=./jwtRS256.key.pub
     - name: Deploy From Source
       run: |
-        skaffold run
+        skaffold config set --global local-cluster true
+        skaffold run --default-repo local
     - name: Wait For Pods
       timeout-minutes: 20
       run: |

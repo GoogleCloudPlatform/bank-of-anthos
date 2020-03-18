@@ -27,6 +27,7 @@ from flask_pymongo import PyMongo
 import bleach
 import jwt
 
+logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO').upper())
 
 APP = Flask(__name__)
 APP.config["MONGO_URI"] = 'mongodb://{}/users'.format(
@@ -58,8 +59,8 @@ def ready():
     return 'ok', 200
 
 
-@APP.route('/external', methods=['GET', 'POST'])
-def external():
+@APP.route('/accounts/external', methods=['GET', 'POST'])
+def external_accounts():
     """Add or retrieve linked external accounts for the currently authorized user.
 
     External accounts are accounts for external banking institutions.
@@ -158,8 +159,8 @@ def _add_ext_acct(accountid, ext_acct):
     return jsonify({}), 201
 
 
-@APP.route('/contacts', methods=['GET', 'POST'])
-def get_contacts():
+@APP.route('/accounts/contacts', methods=['GET', 'POST'])
+def contacts():
     """Add or retrieve linked contacts for the currently authorized user.
 
     Contacts are other users of this banking application.
@@ -268,7 +269,8 @@ def _add_contact(accountid, contact):
 if __name__ == '__main__':
     for v in ['PORT', 'ACCOUNTS_DB_ADDR', 'PUB_KEY_PATH', 'LOCAL_ROUTING_NUM']:
         if os.environ.get(v) is None:
-            print("error: {} environment variable not set".format(v))
+            logging.error("error: environment variable %s not set", v)
+            logging.shutdown()
             sys.exit(1)
     LOCAL_ROUTING = os.environ.get('LOCAL_ROUTING_NUM')
     PUBLIC_KEY = open(os.environ.get('PUB_KEY_PATH'), 'r').read()

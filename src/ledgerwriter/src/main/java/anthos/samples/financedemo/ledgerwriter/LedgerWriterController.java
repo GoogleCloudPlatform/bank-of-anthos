@@ -41,6 +41,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
+import java.util.logging.Logger;
 
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
@@ -51,12 +52,15 @@ import com.auth0.jwt.JWTVerifier;
 @RestController
 public final class LedgerWriterController {
 
+    private final Logger logger =
+            Logger.getLogger(LedgerWriterController.class.getName());
+
     ApplicationContext ctx =
             new AnnotationConfigApplicationContext(LedgerWriterConfig.class);
 
     private final String ledgerStreamKey = System.getenv("LEDGER_STREAM");
     private final String routingNum =  System.getenv("LOCAL_ROUTING_NUM");
-    private final String balancesUri = String.format("http://%s/get_balance",
+    private final String balancesUri = String.format("http://%s/balances",
         System.getenv("BALANCES_API_ADDR"));
     private final JWTVerifier verifier;
 
@@ -78,7 +82,7 @@ public final class LedgerWriterController {
         this.verifier = JWT.require(algorithm).build();
     }
 
-   /**
+    /**
      * Version endpoint.
      *
      * @return service version string
@@ -106,7 +110,7 @@ public final class LedgerWriterController {
      * @param Transaction to be submitted.
      * @return HTTP Status 200 if transaction was successfully submitted.
      */
-    @PostMapping(value = "/new_transaction", consumes = "application/json")
+    @PostMapping(value = "/transactions", consumes = "application/json")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> addTransaction(
             @RequestHeader("Authorization") String bearerToken,
@@ -136,8 +140,9 @@ public final class LedgerWriterController {
                 headers.set("Authorization", "Bearer " + bearerToken);
                 HttpEntity entity = new HttpEntity(headers);
                 RestTemplate restTemplate = new RestTemplate();
+                String uri = balancesUri + "/" + initiatorAcct;
                 ResponseEntity<Integer> response = restTemplate.exchange(
-                    balancesUri, HttpMethod.GET, entity, Integer.class);
+                    uri, HttpMethod.GET, entity, Integer.class);
                 Integer senderBalance = response.getBody();
                 if (senderBalance < transaction.getAmount()) {
                     return new ResponseEntity<String>("insufficient balance",
@@ -145,7 +150,6 @@ public final class LedgerWriterController {
                 }
             }
             // Transaction looks valid. Add to ledger.
-            System.out.println("adding transaction: " + transaction);
             submitTransaction(transaction);
 
             return new ResponseEntity<String>("ok", HttpStatus.CREATED);
@@ -156,6 +160,7 @@ public final class LedgerWriterController {
     }
 
     private void submitTransaction(Transaction transaction) {
+        logger.fine("Submitting transaction " + transaction.toString());
         StatefulRedisConnection redisConnection =
                 ctx.getBean(StatefulRedisConnection.class);
         // Use String key/values so Redis data can be read by non-Java clients.

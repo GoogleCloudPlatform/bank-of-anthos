@@ -34,7 +34,7 @@ spec:
           - for i in {1..100}; do sleep 1; if redis-cli -h ledger-db -p 6379 ping; then exit 0; fi; done; exit 1
       containers:
       - name: history
-        image: transactionhistory
+        image: gcr.io/bank-of-anthos/transactionhistory
         volumeMounts:
         - name: publickey
           mountPath: "/root/.ssh"
@@ -57,6 +57,8 @@ spec:
           # tell Java to obey container memory limits
         - name: JVM_OPTS
           value: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
+        #- name: EXTRA_LATENCY_MILLIS
+        #  value: "5000"
         resources:
           requests:
             cpu: 200m
