@@ -239,42 +239,45 @@ limitations under the License.
         <div class="modal fade" id="depositFunds" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
           <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
-              <div class="modal-header">
-                <h3 class="modal-title header-title" id="exampleModalLongTitle">Make a Deposit</h3>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-              <div class="modal-body">
-                <form id=deposit-form method="POST" action="/deposit">
-                  <div class="row">
-                    <div class="col-md-10 offset-md-1 mb-4">
-                      <label class="text-uppercase text-muted secondary-text mb-3" for="accounts">Select Account</label>
-                      <select class="custom-select d-block w-100" id="accounts" name="account">
-                        {% for account in external_accounts %}
-                          <option value='{"account_num": "{{ account.account_number }}", "routing_num": "{{ account.routing_number }}" }'>
-                            {{ account.label }} - {{ account.account_number }} - {{ account.routing_number }}
-                          </option>
-                        {% endfor %}
-                        <option disabled value="add">Add new account</option>
-                      </select>
-                    </div>
-                    <div class="col-md-10 offset-md-1">
-                      <label class="text-uppercase text-muted secondary-text mb-1" for="deposit-amount">Deposit Amount</label>
-                      <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                          <span class="input-group-text"><i class="amount-font deposit-input fas fa-dollar-sign" aria-hidden="true"></i></span>
+              <form id="deposit-form" class="needs-validation" novalidate="" method="POST" action="/deposit">
+                <div class="modal-header">
+                  <h3 class="modal-title header-title" id="exampleModalLongTitle">Make a Deposit</h3>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                      <div class="col-md-10 offset-md-1 mb-4">
+                        <label class="text-uppercase text-muted secondary-text mb-3" for="accounts">Select Account</label>
+                        <select class="custom-select d-block w-100" id="accounts" name="account">
+                          {% for account in external_accounts %}
+                            <option value='{"account_num": "{{ account.account_number }}", "routing_num": "{{ account.routing_number }}" }'>
+                              {{ account.label }} - {{ account.account_number }} - {{ account.routing_number }}
+                            </option>
+                          {% endfor %}
+                          <option disabled value="add">Add new account</option>
+                        </select>
+                      </div>
+                      <div class="col-md-10 offset-md-1">
+                        <label class="text-uppercase text-muted secondary-text mb-1" for="deposit-amount">Deposit Amount</label>
+                        <div class="input-group mb-3">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="amount-font deposit-input fas fa-dollar-sign" aria-hidden="true"></i></span>
+                          </div>
+                          <input class="form-control amount-font" type="number" step='0.01' id="deposit-amount" name="amount" placeholder=0.00 min=0 aria-label="Amount (to the nearest dollar)" required>
+                          <div class="invalid-feedback">
+                            Please enter a valid amount.
+                          </div>
                         </div>
-                        <input class="form-control amount-font" type="number" step='0.01' id="deposit-amount" name="amount" placeholder=0.00 min=0 aria-label="Amount (to the nearest dollar)">
                       </div>
                     </div>
-                  </div>
-                </form>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <button type="submit" class="btn btn-primary">Deposit</button>
-              </div>
+                </div>
+                <div class="modal-footer">
+                  <button id="deposit-cancel" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                  <button type="submit" class="btn btn-primary">Deposit</button>
+                </div>
+              </form>
             </div>
           </div>
         </div>
@@ -347,6 +350,23 @@ limitations under the License.
       <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
       <script src="https://unpkg.com/popper.js@1.12.6/dist/umd/popper.js" integrity="sha384-fA23ZRQ3G/J53mElWqVJEGJzU0sTs+SvzG8fXVWP+kJQ1lwFAOkcUOysnlKJC33U" crossorigin="anonymous"></script>
       <script src="https://unpkg.com/bootstrap-material-design@4.1.1/dist/js/bootstrap-material-design.js" integrity="sha384-CauSuKpEqAFajSpkdjv3z9t8E7RlpJ1UP0lKM/+NdtSarroVKu069AlsRPKkFBz9" crossorigin="anonymous"></script>
+      <script>
+        $( document ).ready(function() {
+          // Deposit modal client-side validation
+          var form = document.getElementById("deposit-form");
+          form.addEventListener("submit", function(e) {
+            if(form.checkValidity() === false || $('#deposit-amount').val() <= 0.00){
+              e.preventDefault();
+              e.stopPropagation();
+            }
+            form.classList.add('was-validated');
+          });
+          document.getElementById("deposit-cancel").addEventListener("click", function() {
+            form.reset();
+            form.classList.remove('was-validated');
+          });
+        });
+      </script>
     </body> 
 
 <!--toast message on load-->
