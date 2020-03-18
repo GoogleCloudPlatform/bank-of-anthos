@@ -30,7 +30,7 @@ public final class TransactionHistoryEntry {
     /**
      * The possible types of transactions.
      */
-    public static enum Type {
+    public enum Type {
         DEBIT, CREDIT;
     }
 
