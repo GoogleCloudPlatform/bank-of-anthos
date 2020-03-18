@@ -75,9 +75,6 @@ limitations under the License.
             <h2 class="header-title">Register a new account</h2>
           </div>
         </div>
-        <div class="row">
-          <div class="col-lg-8 offset-lg-2"><p>Description.</p></div>
-        </div>
         <div class="row mt-5 mb-5">
           <div class="col-lg-10 offset-lg-1">
               <div class="card">
@@ -87,7 +84,9 @@ limitations under the License.
                       <form class="needs-validation" novalidate="" method="POST" action="/signup">
                         <small class="text-uppercase text-muted secondary-text">Section 1</small>
                         <h4 class="mb-5">Account Information</h4>
-                        
+                        <div id="alertBanner" class="alert alert-danger mb-4 hidden" role="alert">
+                            <i class="mr-2 fas fa-exclamation-circle"></i>Passwords don't match. Please try again.
+                        </div>
                         <div class="mb-5">
                           <label class="text-uppercase text-muted secondary-text" for="username">Username</label>
                           <div class="input-group mt-2 mb-5">
@@ -115,12 +114,12 @@ limitations under the License.
                         </div>
 
                         <div class="mb-5">
-                          <label class="text-uppercase text-muted secondary-text" for="confirmPassword">Confirm Password</label>
+                          <label class="text-uppercase text-muted secondary-text" for="password-repeat">Confirm Password</label>
                           <div class="input-group mt-2 mb-5">
                             <div class="input-group-prepend mr-2">
                               <span class="input-group-text"><i class="fas fa-lock"></i></span>
                             </div>
-                            <input class="form-control" type="password" id="confirmPassword" name="confirmPassword" autocomplete="off" required>
+                            <input class="form-control" type="password" id="password-repeat" name="password-repeat" autocomplete="off" required>
                             <div class="invalid-feedback">
                                 Please confirm your password.
                             </div>
@@ -132,15 +131,15 @@ limitations under the License.
 
                         <div class="row mb-5">
                           <div class="col-md-6">
-                            <label class="text-uppercase text-muted secondary-text" for="firstName">First name</label>
-                            <input type="text" class="form-control" id="firstName" value="" required>
+                            <label class="text-uppercase text-muted secondary-text" for="firstname">First name</label>
+                            <input type="text" class="form-control" id="firstname" name="firstname" required>
                             <div class="invalid-feedback">
                               Valid first name is required.
                             </div>
                           </div>
                           <div class="col-md-6">
-                            <label class="text-uppercase text-muted secondary-text" for="lastName">Last name</label>
-                            <input type="text" class="form-control" id="lastName" value="" required>
+                            <label class="text-uppercase text-muted secondary-text" for="lastname">Last name</label>
+                            <input type="text" class="form-control" id="lastname" name="lastname" required>
                             <div class="invalid-feedback">
                               Valid last name is required.
                             </div>
@@ -149,7 +148,7 @@ limitations under the License.
     
                         <div class="mb-5">
                           <label class="text-uppercase text-muted secondary-text" for="address">Address</label>
-                          <input type="text" class="form-control" id="address" required>
+                          <input type="text" class="form-control" id="address" name="address" value="1021 Valley St" disabled>
                           <div class="invalid-feedback">
                             Please enter your address.
                           </div>
@@ -158,7 +157,7 @@ limitations under the License.
                         <div class="row mb-5">
                           <div class="col-md-5">
                             <label class="text-uppercase text-muted secondary-text" for="country">Country</label>
-                            <select class="custom-select d-block w-100" id="country" disabled>
+                            <select class="custom-select d-block w-100" id="country" name="country" readonly>
                               <option selected>United States</option>
                             </select>
                             <div class="invalid-feedback">
@@ -167,7 +166,7 @@ limitations under the License.
                           </div>
                           <div class="col-md-4">
                             <label class="text-uppercase text-muted secondary-text" for="state">State</label>
-                            <select class="custom-select d-block w-100" id="state" disabled>
+                            <select class="custom-select d-block w-100" id="state" name="state" disabled>
                               <option value="">Choose...</option>
                               <option value="AL">Alabama</option>
                               <option value="AK">Alaska</option>
@@ -243,8 +242,8 @@ limitations under the License.
                             </div>
                           </div>
                           <div class="col-md-6">
-                            <label class="text-uppercase text-muted secondary-text" for="dob">Date of Birth</label>
-                            <input type="text" class="form-control" id="dob" value="" required>
+                            <label class="text-uppercase text-muted secondary-text" for="birthday">Birthday (mm/dd/yyyy)</label>
+                            <input type="text" class="form-control" id="birthday" name="birthday" required>
                             <div class="invalid-feedback">
                               Valid birthday is required.
                             </div>
@@ -253,7 +252,7 @@ limitations under the License.
 
                         <div class="mb-5">
                           <label class="text-uppercase text-muted secondary-text" for="timezone">Timezone</label>
-                          <select class="custom-select d-block w-100" id="timezone" required="">
+                          <select class="custom-select d-block w-100" id="timezone" name="timezone" required>
                             <option timeZoneId="1" gmtAdjustment="GMT-12:00" useDaylightTime="0" value="-12">(GMT-12:00) International Date Line West</option>
                             <option timeZoneId="2" gmtAdjustment="GMT-11:00" useDaylightTime="0" value="-11">(GMT-11:00) Midway Island, Samoa</option>
                             <option timeZoneId="3" gmtAdjustment="GMT-10:00" useDaylightTime="0" value="-10">(GMT-10:00) Hawaii</option>
@@ -380,12 +379,21 @@ limitations under the License.
   
           window.addEventListener('load', function() {
             var forms = document.getElementsByClassName('needs-validation');
-  
+
             var validation = Array.prototype.filter.call(forms, function(form) {
               form.addEventListener('submit', function(event) {
+                var passwordsMatch = $('#password').val() == $('#password-repeat').val();
+                console.log(passwordsMatch);
+
                 if (form.checkValidity() === false) {
                   event.preventDefault();
                   event.stopPropagation();
+                }
+                else if (!passwordsMatch) {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  $('#alertBanner').removeClass('hidden');
+                  window.scrollTo({ top: 0, behavior: 'auto' });
                 }
                 form.classList.add('was-validated');
               }, false);
