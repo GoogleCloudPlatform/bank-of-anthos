@@ -60,16 +60,21 @@ limitations under the License.
         </nav>
       </header>
 
-      <!-- Toast Box -->
-      <div aria-live="assertive" aria-atomic="true" aria-relevant="text" class="mdl-snackbar mdl-js-snackbar">
-        <div class="mdl-snackbar__text"></div>
-        <button type="button" class="mdl-snackbar__action"></button>
-      </div>
-
       <!-- Main Content -->
       <main class="container">
         <!-- Sign-in card -->
         <div class="row mt-5 mb-5">
+          <!-- Alert on load -->
+          {% if message != None and message != 'Login Failed' %}
+          <div class="col-md-8 offset-md-2">
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+              <strong><i class="mr-2 fas fa-exclamation-circle"></i></strong> {{ message }}
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">×</span>
+              </button>
+            </div>
+          </div>
+          {% endif %}
           <div class="col-lg-6 offset-lg-3">
               <div class="card">
                 <div class="card-title header-body">
@@ -142,52 +147,25 @@ limitations under the License.
       <script src="https://unpkg.com/bootstrap-material-design@4.1.1/dist/js/bootstrap-material-design.js" integrity="sha384-CauSuKpEqAFajSpkdjv3z9t8E7RlpJ1UP0lKM/+NdtSarroVKu069AlsRPKkFBz9" crossorigin="anonymous"></script>
       <script>
         $( document ).ready(function() {
-            var showAlert = (window.location.search != "");
-            if (showAlert){
-                $('#alertBanner').removeClass('hidden');
+          // Login client-side validation
+          var login = document.getElementById("signin-form");
+          login.addEventListener("submit", function(e) {
+            if(login.checkValidity() === false){
+              e.preventDefault();
+              e.stopPropagation();
             }
-            else {
-                $('#alertBanner').removeClass();
-                $('#alertBanner').addClass('hidden');
-            }
+            login.classList.add('was-validated');
+          });
+
+          var showAlert = (window.location.search == "?msg=Login+Failed");
+          if (showAlert){
+              $('#alertBanner').removeClass('hidden');
+          }
+          else {
+              $('#alertBanner').removeClass();
+              $('#alertBanner').addClass('hidden');
+          }
         });
-      </script>
-      <script>
-        // Disable form submissions if there are invalid fields
-        (function() {
-        'use strict';
-
-        window.addEventListener('load', function() {
-            var forms = document.getElementsByClassName('needs-validation');
-
-            var validation = Array.prototype.filter.call(forms, function(form) {
-            form.addEventListener('submit', function(event) {
-                if (form.checkValidity() === false) {
-                event.preventDefault();
-                event.stopPropagation();
-                }
-                form.classList.add('was-validated');
-            }, false);
-            });
-        }, false);
-        })();
       </script>
     </body> 
-
-<!--toast message on load-->
-{% if message != None %}
-    <script>
-        r(function(){
-            var notification = document.querySelector('.mdl-js-snackbar');
-            notification.MaterialSnackbar.showSnackbar(
-              {
-                  message: '{{ message }}'
-              }
-            );
-        window.history.pushState({}, document.title, "/");
-        });
-
-        function r(f){/in/.test(document.readyState)?setTimeout('r('+f+')',9):f()}
-    </script>
-{% endif %}
 </html>

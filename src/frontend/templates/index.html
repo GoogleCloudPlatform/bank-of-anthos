@@ -68,16 +68,21 @@ limitations under the License.
         </nav>
       </header>
 
-      <!-- Toast Box -->
-      <div aria-live="assertive" aria-atomic="true" aria-relevant="text" class="mdl-snackbar mdl-js-snackbar">
-        <div class="mdl-snackbar__text"></div>
-        <button type="button" class="mdl-snackbar__action"></button>
-      </div>
-
       <!-- Main Content -->
       <main class="container">
         <!-- Header -->
         <div class="row d-flex align-items-end header header-body">
+          <!-- Alert on load -->
+          {% if message != None %}
+          <div class="col-md-8 offset-md-2">
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+              <i class="mr-2 fas fa-exclamation-circle"></i> {{ message }}
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">×</span>
+              </button>
+            </div>
+          </div>
+          {% endif %}
           <div class="col-md-8">        
             <small class="text-uppercase text-muted secondary-text">Overview</small>
             <h2 class="header-title">Checking Account</h2>
@@ -236,7 +241,7 @@ limitations under the License.
         </div>
 
         <!-- Deposit Modal -->
-        <div class="modal fade" id="depositFunds" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal fade" id="depositFunds" tabindex="-1" role="dialog" aria-hidden="true">
           <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
               <form id="deposit-form" class="needs-validation" novalidate="" method="POST" action="/deposit">
@@ -283,32 +288,35 @@ limitations under the License.
         </div>
 
         <!-- Send Modal -->
-        <div class="modal fade" id="sendPayment" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal fade" id="sendPayment" tabindex="-1" role="dialog" aria-hidden="true">
           <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
-              <div class="modal-header">
-                <h3 class="modal-title header-title" id="exampleModalLongTitle">Send a Payment</h3>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-              <div class="modal-body">
-                <form id=payment-form method="POST" action="/payment">
+              <form id="payment-form" class="needs-validation" novalidate="" method="POST" action="/payment">
+                <div class="modal-header">
+                  <h3 class="modal-title header-title" id="exampleModalLongTitle">Send a Payment</h3>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
                   <div class="row">
                     <div class="col-md-10 offset-md-1 mb-4">
-                      <label class="text-uppercase secondary-text text-muted mb-3" for="accounts">Recipient</label>
-                      <select class="custom-select d-block w-100 mb-3" id="accounts" name="account">
+                      <label class="text-uppercase secondary-text text-muted mb-3" for="payment-accounts">Recipient</label>
+                      <select class="custom-select d-block w-100 mb-3" id="payment-accounts" name="account">
                         {% for account in favorite_accounts %}
                           <option value="{{ account.account_number }}">{{ account.label }} - {{ account.account_number }}</option>
                         {% endfor %}
                         <option disabled>──────────</option>
                         <option value="other">New Recipient</option>
                       </select>
-                      <div class="input-group mb-3">
+                      <div id="otherAccountInputs" class="hidden input-group mb-3">
                         <div class="input-group-prepend">
                           <span class="input-group-text"><i class="deposit-input fa fa-hashtag" aria-hidden="true"></i></span>
                         </div>
                         <input class="form-control" type="number" step='1' id="other_account_num" name="other_account_num" min=1000000000 max=9999999999  placeholder="Account Number"/>
+                        <div class="invalid-feedback">
+                          Please enter a valid account number.
+                        </div>
                       </div>
                     </div>
                     <div class="col-md-10 offset-md-1">
@@ -317,16 +325,19 @@ limitations under the License.
                         <div class="input-group-prepend">
                           <span class="input-group-text"><i class="amount-font deposit-input fas fa-dollar-sign" aria-hidden="true"></i></span>
                         </div>
-                        <input class="form-control amount-font" type="number" step='0.01' id="payment-amount" name="amount" placeholder=0.00 min=0 aria-label="Amount (to the nearest dollar)">
+                        <input class="form-control amount-font" type="number" step='0.01' id="payment-amount" name="amount" placeholder=0.00 min=0 aria-label="Amount (to the nearest dollar)" required>
+                        <div class="invalid-feedback">
+                          Please enter a valid amount.
+                        </div>
                       </div>
                     </div>
                   </div>
-                </form>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary">Send</button>
-              </div>
+                </div>
+                <div class="modal-footer">
+                  <button id="payment-cancel" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                  <button type="submit" class="btn btn-primary">Send</button>
+                </div>
+              </form>
             </div>
           </div>
         </div>
@@ -353,36 +364,45 @@ limitations under the License.
       <script>
         $( document ).ready(function() {
           // Deposit modal client-side validation
-          var form = document.getElementById("deposit-form");
-          form.addEventListener("submit", function(e) {
-            if(form.checkValidity() === false || $('#deposit-amount').val() <= 0.00){
+          var depositForm = document.getElementById("deposit-form");
+          depositForm.addEventListener("submit", function(e) {
+            if(depositForm.checkValidity() === false || $('#deposit-amount').val() <= 0.00){
               e.preventDefault();
               e.stopPropagation();
             }
-            form.classList.add('was-validated');
+            depositForm.classList.add('was-validated');
           });
           document.getElementById("deposit-cancel").addEventListener("click", function() {
-            form.reset();
-            form.classList.remove('was-validated');
+            depositForm.reset();
+            depositForm.classList.remove('was-validated');
+          });
+
+          // Send payment modal client-side validation
+          var paymentForm = document.getElementById("payment-form");
+          paymentForm.addEventListener("submit", function(e) {
+            // Check if account number is required
+            document.getElementById("other_account_num").required = (document.getElementById('payment-accounts').value == 'other');
+
+            if(paymentForm.checkValidity() === false || $('#payment-amount').val() <= 0.00){
+              e.preventDefault();
+              e.stopPropagation();
+            }
+            paymentForm.classList.add('was-validated');
+          });
+          document.getElementById("payment-cancel").addEventListener("click", function() {
+            paymentForm.reset();
+            paymentForm.classList.remove('was-validated');
+            document.getElementById("otherAccountInputs").classList.add('hidden');
+          });
+
+          // Handle new account option in Send Payment modal
+          document.getElementById("payment-accounts").addEventListener("change", function(e) {
+            if(e.target.value == 'other'){
+              document.getElementById("otherAccountInputs").classList.remove('hidden');
+            }
+            else document.getElementById("otherAccountInputs").classList.add('hidden');
           });
         });
       </script>
     </body> 
-
-<!--toast message on load-->
-{% if message != None %}
-    <script>
-        r(function(){
-            var notification = document.querySelector('.mdl-js-snackbar');
-            notification.MaterialSnackbar.showSnackbar(
-              {
-                  message: '{{ message }}'
-              }
-            );
-        window.history.pushState({}, document.title, "/");
-        });
-
-        function r(f){/in/.test(document.readyState)?setTimeout('r('+f+')',9):f()}
-    </script>
-{% endif %}
 </html>
