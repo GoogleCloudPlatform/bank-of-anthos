@@ -60,12 +60,6 @@ limitations under the License.
         </nav>
       </header>
 
-      <!-- Toast Box -->
-      <div aria-live="assertive" aria-atomic="true" aria-relevant="text" class="mdl-snackbar mdl-js-snackbar">
-        <div class="mdl-snackbar__text"></div>
-        <button type="button" class="mdl-snackbar__action"></button>
-      </div>
-
       <!-- Main Content -->
       <main class="container">
         <!-- Header -->
@@ -81,7 +75,7 @@ limitations under the License.
                 <div class="card-body">
                   <div class="row mt-4">
                     <div class="col-10 offset-1 mb-2">
-                      <form class="needs-validation" novalidate="" method="POST" action="/signup">
+                      <form id="signup-form" class="needs-validation" novalidate="" method="POST" action="/signup">
                         <small class="text-uppercase text-muted secondary-text">Section 1</small>
                         <h4 class="mb-4">Account Information</h4>
                         <div id="alertBanner" class="alert alert-danger mb-4 hidden" role="alert">
@@ -373,50 +367,24 @@ limitations under the License.
       <script src="https://unpkg.com/popper.js@1.12.6/dist/umd/popper.js" integrity="sha384-fA23ZRQ3G/J53mElWqVJEGJzU0sTs+SvzG8fXVWP+kJQ1lwFAOkcUOysnlKJC33U" crossorigin="anonymous"></script>
       <script src="https://unpkg.com/bootstrap-material-design@4.1.1/dist/js/bootstrap-material-design.js" integrity="sha384-CauSuKpEqAFajSpkdjv3z9t8E7RlpJ1UP0lKM/+NdtSarroVKu069AlsRPKkFBz9" crossorigin="anonymous"></script>
       <script>
-        // Disable form submissions if there are invalid fields
-        (function() {
-          'use strict';
-  
-          window.addEventListener('load', function() {
-            var forms = document.getElementsByClassName('needs-validation');
-
-            var validation = Array.prototype.filter.call(forms, function(form) {
-              form.addEventListener('submit', function(event) {
-                var passwordsMatch = $('#password').val() == $('#password-repeat').val();
-                console.log(passwordsMatch);
-
-                if (form.checkValidity() === false) {
-                  event.preventDefault();
-                  event.stopPropagation();
-                }
-                else if (!passwordsMatch) {
-                  event.preventDefault();
-                  event.stopPropagation();
-                  $('#alertBanner').removeClass('hidden');
-                  window.scrollTo({ top: 0, behavior: 'auto' });
-                }
-                form.classList.add('was-validated');
-              }, false);
-            });
-          }, false);
-        })();
+        // Sign-up validation
+        $( document ).ready(function() {
+          var form = document.getElementById("signup-form");
+          form.addEventListener("submit", function(event) {
+            var passwordsMatch = $('#password').val() == $('#password-repeat').val();
+            if (form.checkValidity() === false) {
+              event.preventDefault();
+              event.stopPropagation();
+            }
+            else if (!passwordsMatch) {
+              event.preventDefault();
+              event.stopPropagation();
+              $('#alertBanner').removeClass('hidden');
+              window.scrollTo({ top: 0, behavior: 'auto' });
+            }
+            form.classList.add('was-validated');
+          });
+        });
       </script>
     </body> 
-
-<!--toast message on load-->
-{% if message != None %}
-    <script>
-        r(function(){
-            var notification = document.querySelector('.mdl-js-snackbar');
-            notification.MaterialSnackbar.showSnackbar(
-              {
-                  message: '{{ message }}'
-              }
-            );
-        window.history.pushState({}, document.title, "/");
-        });
-
-        function r(f){/in/.test(document.readyState)?setTimeout('r('+f+')',9):f()}
-    </script>
-{% endif %}
 </html>

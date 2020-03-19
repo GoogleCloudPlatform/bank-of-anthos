@@ -247,7 +247,7 @@ limitations under the License.
               <form id="deposit-form" class="needs-validation" novalidate="" method="POST" action="/deposit">
                 <div class="modal-header">
                   <h3 class="modal-title header-title" id="exampleModalLongTitle">Make a Deposit</h3>
-                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <button type="button" class="close deposit-cancel" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                   </button>
                 </div>
@@ -279,7 +279,7 @@ limitations under the License.
                     </div>
                 </div>
                 <div class="modal-footer">
-                  <button id="deposit-cancel" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                  <button type="button" class="btn btn-secondary deposit-cancel" data-dismiss="modal">Cancel</button>
                   <button type="submit" class="btn btn-primary">Deposit</button>
                 </div>
               </form>
@@ -294,7 +294,7 @@ limitations under the License.
               <form id="payment-form" class="needs-validation" novalidate="" method="POST" action="/payment">
                 <div class="modal-header">
                   <h3 class="modal-title header-title" id="exampleModalLongTitle">Send a Payment</h3>
-                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <button type="button" class="close payment-cancel" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                   </button>
                 </div>
@@ -302,7 +302,7 @@ limitations under the License.
                   <div class="row">
                     <div class="col-md-10 offset-md-1 mb-4">
                       <label class="text-uppercase secondary-text text-muted mb-3" for="payment-accounts">Recipient</label>
-                      <select class="custom-select d-block w-100 mb-3" id="payment-accounts" name="account">
+                      <select class="custom-select d-block w-100 mb-3" id="payment-accounts" name="account_num">
                         {% for account in favorite_accounts %}
                           <option value="{{ account.account_number }}">{{ account.label }} - {{ account.account_number }}</option>
                         {% endfor %}
@@ -334,7 +334,7 @@ limitations under the License.
                   </div>
                 </div>
                 <div class="modal-footer">
-                  <button id="payment-cancel" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                  <button type="button" class="btn btn-secondary payment-cancel" data-dismiss="modal">Cancel</button>
                   <button type="submit" class="btn btn-primary">Send</button>
                 </div>
               </form>
@@ -372,10 +372,15 @@ limitations under the License.
             }
             depositForm.classList.add('was-validated');
           });
-          document.getElementById("deposit-cancel").addEventListener("click", function() {
-            depositForm.reset();
-            depositForm.classList.remove('was-validated');
-          });
+
+          // Reset form on cancel event
+          var depositCancel = document.getElementsByClassName("deposit-cancel");
+          for (var i = 0; i < depositCancel.length; i++) {
+            depositCancel[i].addEventListener('click', function () {
+              depositForm.reset();
+              depositForm.classList.remove('was-validated');
+            });
+          }
 
           // Send payment modal client-side validation
           var paymentForm = document.getElementById("payment-form");
@@ -389,11 +394,16 @@ limitations under the License.
             }
             paymentForm.classList.add('was-validated');
           });
-          document.getElementById("payment-cancel").addEventListener("click", function() {
-            paymentForm.reset();
-            paymentForm.classList.remove('was-validated');
-            document.getElementById("otherAccountInputs").classList.add('hidden');
-          });
+
+          // Reset form on cancel event
+          var paymentCancel = document.getElementsByClassName("payment-cancel");
+          for (var i = 0; i < paymentCancel.length; i++) {
+            paymentCancel[i].addEventListener('click', function () {
+              paymentForm.reset();
+              paymentForm.classList.remove('was-validated');
+              document.getElementById("otherAccountInputs").classList.add('hidden');
+            });
+          }
 
           // Handle new account option in Send Payment modal
           document.getElementById("payment-accounts").addEventListener("change", function(e) {
