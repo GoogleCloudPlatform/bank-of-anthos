@@ -32,51 +32,30 @@ import io.lettuce.core.XReadArgs.StreamOffset;
 import io.lettuce.core.api.StatefulRedisConnection;
 
 /**
- * Interface for processing ledger transactions.
- */
-interface LedgerReaderListener {
-
-    /**
-     * Process a transaction.
-     *
-     * @param account  the account id of the transaction
-     * @param amount   the amount of the transaction
-     */
-    void processTransaction(String account, Integer amount);
-
-}
-
-/**
- * Reader for new and existing ledger transactions.
+ * Abstract reader of new and existing ledger transactions.
  *
- * Executes a callback on a subscribed listener object.
+ * Executes a callback for each transaction read.
  */
-public final class LedgerReader {
+public abstract class LedgerReader {
 
     private static final Logger LOGGER =
             Logger.getLogger(LedgerReader.class.getName());
 
     private final ApplicationContext ctx;
     private final Thread backgroundThread;
-    private final LedgerReaderListener listener;
 
     @Value("${ledger.stream}")
     private String ledgerStreamKey;
-    @Value("${LOCAL_ROUTING_NUM}")
-    private String localRoutingNum;
 
     /**
      * Constructor.
      *
      * Synchronously loads all existing transactions, and then starts
      * a background thread to listen for future transactions.
-     *
-     * @param listener  callback client to process transactions
      */
-    public LedgerReader(LedgerReaderListener listener) {
+    public LedgerReader() {
         this.ctx = new AnnotationConfigApplicationContext(
                 BalanceReaderConfig.class);
-        this.listener = listener;
         // read from starting transaction to latest
         final String startingTransaction = pollTransactions(1, "0");
 
@@ -95,6 +74,22 @@ public final class LedgerReader {
         LOGGER.info("Starting background thread.");
         this.backgroundThread.start();
     }
+
+    /**
+     * Process a transaction.
+     *
+     * A transaction contains the following attributes:
+     *    - "fromAccountNum"
+     *    - "fromRoutingNum"
+     *    - "toAccountNum"
+     *    - "toRoutingNum"
+     *    - "amount"
+     *    - "timestamp"
+     *
+     * @param transaction  the collection of transaction attributes/values
+     */
+    abstract void processTransaction(Map<String, String> transaction);
+
 
     /**
      * Poll for transactions.
@@ -123,25 +118,9 @@ public final class LedgerReader {
                 redisConnection.sync().xread(args, offset);
 
             for (StreamMessage<String, String> message : messages) {
-                // found a list of transactions. Execute callback for each one
+                // found a list of transactions. Execute callback for each one.
                 latestTransactionId = message.getId();
-                Map<String, String> map = message.getBody();
-                if (listener != null) {
-                    // each transaction is made up of a debit and a credit
-                    String sender = map.get("fromAccountNum");
-                    String senderRouting = map.get("fromRoutingNum");
-                    String receiver = map.get("toAccountNum");
-                    String receiverRouting = map.get("toRoutingNum");
-                    Integer amount = Integer.valueOf(map.get("amount"));
-                    if (senderRouting.equals(localRoutingNum)) {
-                        listener.processTransaction(sender, -amount);
-                    }
-                    if (receiverRouting.equals(localRoutingNum)) {
-                        listener.processTransaction(receiver, amount);
-                    }
-                } else {
-                    LOGGER.warning("Listener not set up.");
-                }
+                processTransaction(message.getBody());
             }
         } catch (RedisCommandTimeoutException e) {
             LOGGER.info("Redis stream read timeout.");
@@ -150,11 +129,11 @@ public final class LedgerReader {
     }
 
     /**
-     * Returns whether the transaction listener is active.
+     * Returns whether this reader is currently active.
      *
-     * @return  true if currently listening for transactions
+     * @return  true if currently listening for new transactions
      */
     public boolean isAlive() {
-        return this.backgroundThread.isAlive();
+        return backgroundThread.isAlive();
     }
 }

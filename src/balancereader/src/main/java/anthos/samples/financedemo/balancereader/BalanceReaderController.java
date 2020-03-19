@@ -25,10 +25,12 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,15 +50,18 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
  * Functions to track the bank balance for each user account.
  */
 @RestController
-public final class BalanceReaderController implements LedgerReaderListener {
+public final class BalanceReaderController {
 
     private static final Logger LOGGER =
             Logger.getLogger(BalanceReaderController.class.getName());
 
-    private final Map<String, Integer> balanceMap;
+    private final Map<String, AtomicInteger> balanceMap;
     private final LedgerReader reader;
     private final JWTVerifier verifier;
     private final boolean initialized;
+
+    @Value("${LOCAL_ROUTING_NUM}")
+    private String localRoutingNum;
 
     /**
      * Constructor.
@@ -66,10 +71,29 @@ public final class BalanceReaderController implements LedgerReaderListener {
     public BalanceReaderController() throws IOException,
                                            NoSuchAlgorithmException,
                                            InvalidKeySpecException {
-        this.balanceMap = new HashMap<String, Integer>();
+        this.balanceMap = new ConcurrentHashMap<String, AtomicInteger>();
 
-        // Initialize transaction processor.
-        this.reader = new LedgerReader(this);
+        // Initialize transaction reader.
+        this.reader = new LedgerReader() {
+            @Override
+            void processTransaction(Map<String, String> transaction) {
+                // Each transaction is made up of a debit and a credit.
+                String sender = transaction.get("fromAccountNum");
+                String senderRouting = transaction.get("fromRoutingNum");
+                String receiver = transaction.get("toAccountNum");
+                String receiverRouting = transaction.get("toRoutingNum");
+                Integer amount = Integer.valueOf(transaction.get("amount"));
+                // Update an account balance only if it is a local account.
+                if (senderRouting.equals(localRoutingNum)) {
+                    // Debit the sender.
+                    updateBalance(sender, amount * -1);
+                }
+                if (receiverRouting.equals(localRoutingNum)) {
+                    // Credit the receiver.
+                    updateBalance(receiver, amount);
+                }
+            }
+        };
 
         // Initialize JWT verifier.
         String fPath = System.getenv("PUB_KEY_PATH");
@@ -123,7 +147,7 @@ public final class BalanceReaderController implements LedgerReaderListener {
     public ResponseEntity liveness() {
         if (initialized && !reader.isAlive()) {
             // background thread died. Abort
-            return new ResponseEntity<String>("LedgerReader not healthy",
+            return new ResponseEntity<String>("Ledger reader not healthy",
                                               HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>("ok", HttpStatus.OK);
@@ -155,7 +179,7 @@ public final class BalanceReaderController implements LedgerReaderListener {
 
             Integer balance = 0;
             if (balanceMap.containsKey(accountId)) {
-                balance = balanceMap.get(accountId);
+                balance = balanceMap.get(accountId).get();
             }
             return new ResponseEntity<Integer>(balance, HttpStatus.OK);
         } catch (JWTVerificationException e) {
@@ -165,15 +189,13 @@ public final class BalanceReaderController implements LedgerReaderListener {
     }
 
     /**
-     * Add the transaction amount to the account balance.
+     * Update the balance for an account.
      *
      * @param account  the account id of the transaction
-     * @param amount   the amount to add to the account
+     * @param amount   the amount of the transaction
      */
-    public void processTransaction(String account, Integer amount) {
-        if (balanceMap.containsKey(account)) {
-            amount += balanceMap.get(account);
-        }
-        balanceMap.put(account, amount);
+    private void updateBalance(String account, Integer amount) {
+        balanceMap.putIfAbsent(account, new AtomicInteger());
+        balanceMap.get(account).getAndAdd(amount);
     }
 }

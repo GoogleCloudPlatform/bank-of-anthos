@@ -29,8 +29,11 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.logging.Logger;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -50,8 +53,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
  * Functions to show the transaction history for each user account.
  */
 @RestController
-public final class TransactionHistoryController
-        implements LedgerReaderListener {
+public final class TransactionHistoryController {
 
     private static final Logger LOGGER =
             Logger.getLogger(TransactionHistoryController.class.getName());
@@ -61,6 +63,9 @@ public final class TransactionHistoryController
     private final JWTVerifier verifier;
     private final boolean initialized;
 
+    @Value("${LOCAL_ROUTING_NUM}")
+    private String localRoutingNum;
+
     /**
      * Constructor.
      *
@@ -69,10 +74,34 @@ public final class TransactionHistoryController
     public TransactionHistoryController() throws IOException,
                                            NoSuchAlgorithmException,
                                            InvalidKeySpecException {
-        this.historyMap = new HashMap<String, Deque<TransactionHistoryEntry>>();
+        this.historyMap =
+                new ConcurrentHashMap<String, Deque<TransactionHistoryEntry>>();
 
         // Initialize transaction processor.
-        this.reader = new LedgerReader(this);
+        this.reader = new LedgerReader() {
+            @Override
+            void processTransaction(Map<String, String> transaction) {
+                String sender = transaction.get("fromAccountNum");
+                String senderRouting = transaction.get("fromRoutingNum");
+                String receiver = transaction.get("toAccountNum");
+                String receiverRouting = transaction.get("toRoutingNum");
+                // Process entries only if they belong to this bank.
+                if (senderRouting.equals(localRoutingNum)) {
+                    // Credit the sender.
+                    TransactionHistoryEntry entry = new TransactionHistoryEntry(
+                            transaction,
+                            TransactionHistoryEntry.Type.CREDIT);
+                    updateTransactionHistory(sender, entry);
+                }
+                if (receiverRouting.equals(localRoutingNum)) {
+                    // Debit the receiver.
+                    TransactionHistoryEntry entry = new TransactionHistoryEntry(
+                            transaction,
+                            TransactionHistoryEntry.Type.DEBIT);
+                    updateTransactionHistory(receiver, entry);
+                }
+            }
+        };
 
         // Initialize JWT verifier.
         String fPath = System.getenv("PUB_KEY_PATH");
@@ -182,20 +211,15 @@ public final class TransactionHistoryController
     }
 
     /**
-     * Appends a transaction to the account history.
+     * Appends a transaction to the history of the specified account.
      *
-     * @param account  the account id of the transaction
+     * @param account  the account to append the transaction to
      * @param entry    the transaction metadata to append to the history
      */
-    public void processTransaction(String account,
-                                   TransactionHistoryEntry entry) {
-        Deque<TransactionHistoryEntry> historyList;
-        if (!historyMap.containsKey(account)) {
-            historyList = new LinkedList<TransactionHistoryEntry>();
-            historyMap.put(account, historyList);
-        } else {
-            historyList = historyMap.get(account);
-        }
-        historyList.addFirst(entry);
+    public void updateTransactionHistory(String account,
+                                         TransactionHistoryEntry entry) {
+        historyMap.putIfAbsent(account,
+                new ConcurrentLinkedDeque<TransactionHistoryEntry>());
+        historyMap.get(account).addFirst(entry);
     }
 }
