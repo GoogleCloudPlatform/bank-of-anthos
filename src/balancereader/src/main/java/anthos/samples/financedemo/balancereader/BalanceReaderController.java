@@ -30,7 +30,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -55,13 +54,14 @@ public final class BalanceReaderController {
     private static final Logger LOGGER =
             Logger.getLogger(BalanceReaderController.class.getName());
 
+    private final String version = System.getenv("VERSION");
+    private final String pubKeyPath = System.getenv("PUB_KEY_PATH");
+    private final String localRoutingNum = System.getenv("LOCAL_ROUTING_NUM");
+
     private final Map<String, AtomicInteger> balanceMap;
     private final LedgerReader reader;
     private final JWTVerifier verifier;
     private final boolean initialized;
-
-    @Value("${LOCAL_ROUTING_NUM}")
-    private String localRoutingNum;
 
     /**
      * Constructor.
@@ -96,8 +96,8 @@ public final class BalanceReaderController {
         };
 
         // Initialize JWT verifier.
-        String fPath = System.getenv("PUB_KEY_PATH");
-        String pubKeyStr  = new String(Files.readAllBytes(Paths.get(fPath)));
+        String pubKeyStr =
+                new String(Files.readAllBytes(Paths.get(pubKeyPath)));
         pubKeyStr = pubKeyStr.replaceFirst("-----BEGIN PUBLIC KEY-----", "");
         pubKeyStr = pubKeyStr.replaceFirst("-----END PUBLIC KEY-----", "");
         pubKeyStr = pubKeyStr.replaceAll("\\s", "");
@@ -119,8 +119,7 @@ public final class BalanceReaderController {
      */
     @GetMapping("/version")
     public ResponseEntity version() {
-        final String versionStr =  System.getenv("VERSION");
-        return new ResponseEntity<String>(versionStr, HttpStatus.OK);
+        return new ResponseEntity<String>(version, HttpStatus.OK);
     }
 
     /**
@@ -146,7 +145,7 @@ public final class BalanceReaderController {
     @GetMapping("/healthy")
     public ResponseEntity liveness() {
         if (initialized && !reader.isAlive()) {
-            // background thread died. Abort
+            // Background thread died.
             return new ResponseEntity<String>("Ledger reader not healthy",
                                               HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -177,10 +176,9 @@ public final class BalanceReaderController {
                                                   HttpStatus.UNAUTHORIZED);
             }
 
-            Integer balance = 0;
-            if (balanceMap.containsKey(accountId)) {
-                balance = balanceMap.get(accountId).get();
-            }
+            Integer balance = balanceMap
+                    .getOrDefault(accountId, new AtomicInteger(0))
+                    .get();
             return new ResponseEntity<Integer>(balance, HttpStatus.OK);
         } catch (JWTVerificationException e) {
             return new ResponseEntity<String>("not authorized",

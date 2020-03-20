@@ -26,14 +26,12 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.Deque;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.logging.Logger;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -58,13 +56,16 @@ public final class TransactionHistoryController {
     private static final Logger LOGGER =
             Logger.getLogger(TransactionHistoryController.class.getName());
 
+    private final String version = System.getenv("VERSION");
+    private final String pubKeyPath = System.getenv("PUB_KEY_PATH");
+    private final String localRoutingNum = System.getenv("LOCAL_ROUTING_NUM");
+    private final String extraLatencyMillis =
+            System.getenv("EXTRA_LATENCY_MILLIS");
+
     private final Map<String, Deque<TransactionHistoryEntry>> historyMap;
     private final LedgerReader reader;
     private final JWTVerifier verifier;
     private final boolean initialized;
-
-    @Value("${LOCAL_ROUTING_NUM}")
-    private String localRoutingNum;
 
     /**
      * Constructor.
@@ -104,8 +105,8 @@ public final class TransactionHistoryController {
         };
 
         // Initialize JWT verifier.
-        String fPath = System.getenv("PUB_KEY_PATH");
-        String pubKeyStr  = new String(Files.readAllBytes(Paths.get(fPath)));
+        String pubKeyStr =
+                new String(Files.readAllBytes(Paths.get(pubKeyPath)));
         pubKeyStr = pubKeyStr.replaceFirst("-----BEGIN PUBLIC KEY-----", "");
         pubKeyStr = pubKeyStr.replaceFirst("-----END PUBLIC KEY-----", "");
         pubKeyStr = pubKeyStr.replaceAll("\\s", "");
@@ -127,8 +128,7 @@ public final class TransactionHistoryController {
      */
     @GetMapping("/version")
     public ResponseEntity version() {
-        final String versionStr =  System.getenv("VERSION");
-        return new ResponseEntity<String>(versionStr, HttpStatus.OK);
+        return new ResponseEntity<String>(version, HttpStatus.OK);
     }
 
     /**
@@ -185,22 +185,18 @@ public final class TransactionHistoryController {
                                                   HttpStatus.UNAUTHORIZED);
             }
 
-            Deque<TransactionHistoryEntry> historyList;
-            if (historyMap.containsKey(accountId)) {
-                historyList = historyMap.get(accountId);
-            } else {
-                historyList = new LinkedList<TransactionHistoryEntry>();
-            }
-
             // Set artificial extra latency.
-            String latency = System.getenv("EXTRA_LATENCY_MILLIS");
-            if (latency != null) {
+            if (extraLatencyMillis != null) {
                 try {
-                    Thread.sleep(Integer.parseInt(latency));
+                    Thread.sleep(Integer.parseInt(extraLatencyMillis));
                 } catch (InterruptedException e) {
                     // Fake latency interrupted. Continue.
                 }
             }
+
+            Deque<TransactionHistoryEntry> historyList = historyMap
+                    .getOrDefault(accountId,
+                        new LinkedList<TransactionHistoryEntry>());
 
             return new ResponseEntity<Deque<TransactionHistoryEntry>>(
                     historyList, HttpStatus.OK);

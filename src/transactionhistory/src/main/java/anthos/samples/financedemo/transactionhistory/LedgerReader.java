@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
@@ -41,11 +40,10 @@ public abstract class LedgerReader {
     private static final Logger LOGGER =
             Logger.getLogger(LedgerReader.class.getName());
 
+    private final String ledgerStream = System.getenv("LEDGER_STREAM");
+
     private final ApplicationContext ctx;
     private final Thread backgroundThread;
-
-    @Value("${ledger.stream}")
-    private String ledgerStreamKey;
 
     /**
      * Constructor.
@@ -107,7 +105,7 @@ public abstract class LedgerReader {
                     "pollTransactions request timeout must be non-negative");
         }
         String latestTransactionId = startingTransaction;
-        StreamOffset offset = StreamOffset.from(ledgerStreamKey,
+        StreamOffset offset = StreamOffset.from(ledgerStream,
                                                 startingTransaction);
         XReadArgs args = XReadArgs.Builder.block(Duration.ofSeconds(timeout));
         try {

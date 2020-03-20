@@ -27,7 +27,6 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.logging.Logger;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.http.HttpEntity;
@@ -62,15 +61,15 @@ public final class LedgerWriterController {
     private static final Logger LOGGER =
             Logger.getLogger(LedgerWriterController.class.getName());
 
+    private final String version = System.getenv("VERSION");
+    private final String pubKeyPath = System.getenv("PUB_KEY_PATH");
+    private final String localRoutingNum = System.getenv("LOCAL_ROUTING_NUM");
+    private final String ledgerStream = System.getenv("LEDGER_STREAM");
+    private final String balancesApiUri = String.format("http://${}/balances",
+            System.getenv("BALANCES_API_ADDR"));
+
     private final ApplicationContext ctx;
     private final JWTVerifier verifier;
-
-    @Value("${ledger.stream}")
-    private String ledgerStreamKey;
-    @Value("${service.balancereader.uri}")
-    private String balancesUri;
-    @Value("${LOCAL_ROUTING_NUM}")
-    private String localRoutingNum;
 
     /**
      * Constructor.
@@ -84,8 +83,8 @@ public final class LedgerWriterController {
                 LedgerWriterConfig.class);
 
         // Initialize JWT verifier.
-        String fPath = System.getenv("PUB_KEY_PATH");
-        String pubKeyStr  = new String(Files.readAllBytes(Paths.get(fPath)));
+        String pubKeyStr =
+                new String(Files.readAllBytes(Paths.get(pubKeyPath)));
         pubKeyStr = pubKeyStr.replaceFirst("-----BEGIN PUBLIC KEY-----", "");
         pubKeyStr = pubKeyStr.replaceFirst("-----END PUBLIC KEY-----", "");
         pubKeyStr = pubKeyStr.replaceAll("\\s", "");
@@ -104,8 +103,7 @@ public final class LedgerWriterController {
      */
     @GetMapping("/version")
     public ResponseEntity version() {
-        final String versionStr =  System.getenv("VERSION");
-        return new ResponseEntity<String>(versionStr, HttpStatus.OK);
+        return new ResponseEntity<String>(version, HttpStatus.OK);
     }
 
     /**
@@ -157,7 +155,7 @@ public final class LedgerWriterController {
                 headers.set("Authorization", "Bearer " + bearerToken);
                 HttpEntity entity = new HttpEntity(headers);
                 RestTemplate restTemplate = new RestTemplate();
-                String uri = balancesUri + "/" + initiatorAcct;
+                String uri = balancesApiUri + "/" + initiatorAcct;
                 ResponseEntity<Integer> response = restTemplate.exchange(
                     uri, HttpMethod.GET, entity, Integer.class);
                 Integer senderBalance = response.getBody();
@@ -181,7 +179,7 @@ public final class LedgerWriterController {
         StatefulRedisConnection redisConnection =
                 ctx.getBean(StatefulRedisConnection.class);
         // Use String key/values so Redis data can be read by non-Java clients.
-        redisConnection.async().xadd(ledgerStreamKey,
+        redisConnection.async().xadd(ledgerStream,
                 "fromAccountNum", transaction.getFromAccountNum(),
                 "fromRoutingNum", transaction.getFromRoutingNum(),
                 "toAccountNum", transaction.getToAccountNum(),
