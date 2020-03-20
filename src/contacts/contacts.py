@@ -27,6 +27,7 @@ from flask_pymongo import PyMongo
 import bleach
 import jwt
 
+logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO').upper())
 
 APP = Flask(__name__)
 APP.config["MONGO_URI"] = 'mongodb://{}/users'.format(
@@ -268,7 +269,8 @@ def _add_contact(accountid, contact):
 if __name__ == '__main__':
     for v in ['PORT', 'ACCOUNTS_DB_ADDR', 'PUB_KEY_PATH', 'LOCAL_ROUTING_NUM']:
         if os.environ.get(v) is None:
-            print("error: {} environment variable not set".format(v))
+            logging.error("error: environment variable %s not set", v)
+            logging.shutdown()
             sys.exit(1)
     LOCAL_ROUTING = os.environ.get('LOCAL_ROUTING_NUM')
     PUBLIC_KEY = open(os.environ.get('PUB_KEY_PATH'), 'r').read()

@@ -18,15 +18,16 @@ Exercises the frontend endpoints for the system
 """
 
 
-import random
-import uuid
 import json
+import logging
+import os
 from random import randint, random
 import sys
+import uuid
 
 from locust import HttpLocust, TaskSet, TaskSequence, task, seq_task
 
-
+logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO').upper())
 
 MASTER_PASSWORD = "password"
 
@@ -53,7 +54,7 @@ def signup_helper(locust, username):
             found_token |= r_hist.cookies.get('token') is not None
         if found_token:
             response.success()
-            print("created user: {}".format(username))
+            logging.debug("created user: %s", username)
         else:
             response.failure("login failed")
         return found_token
@@ -70,7 +71,8 @@ class AllTasks(TaskSequence):
         new_username = str(uuid.uuid4())
         success = signup_helper(self, new_username)
         if not success:
-            print("failed to create account. Abort")
+            logging.critical("failed to create account. Abort")
+            logging.shutdown()
             sys.exit(1)
         else:
             self.client.post("/logout")
