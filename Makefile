@@ -12,36 +12,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-.-PHONY: cluster deploy deploy-continuous logs checkstyle clean check-env
+.-PHONY: cluster deploy deploy-continuous logs checkstyle check-env
 
 ZONE=us-west1-a
 CLUSTER=bank-of-anthos
 
-cluster: jwtRS256.key check-env
-	./create_cluster.sh ${PROJECT_ID} ${CLUSTER} ${ZONE}
-	kubectl create secret generic jwt-key --from-file=./jwtRS256.key --from-file=./jwtRS256.key.pub
-	skaffold run --default-repo=gcr.io/${PROJECT_ID}
+cluster: check-env
+	gcloud beta container clusters create ${CLUSTER} \
+		--project=${PROJECT} --zone=${ZONE} \
+		--machine-type=n1-standard-2 --num-nodes=4 \
+		--enable-stackdriver-kubernetes --subnetwork=default \
+		--labels csm=
+	skaffold run --default-repo=gcr.io/${PROJECT_ID} -l skaffold.dev/run-id=${CLUSTER}-${PROJECT_ID}-${ZONE}
 
 deploy: check-env
 	echo ${CLUSTER}
 	gcloud container clusters get-credentials --project ${PROJECT_ID} ${CLUSTER} --zone ${ZONE}
-	skaffold run --default-repo=gcr.io/${PROJECT_ID}
+	skaffold run --default-repo=gcr.io/${PROJECT_ID} -l skaffold.dev/run-id=${CLUSTER}-${PROJECT_ID}-${ZONE}
 
 deploy-continuous: check-env
 	gcloud container clusters get-credentials --project ${PROJECT_ID} ${CLUSTER} --zone ${ZONE}
 	skaffold dev --default-repo=gcr.io/${PROJECT_ID}
 
-jwtRS256.key:
-	openssl genrsa -out jwtRS256.key 4096
-	openssl rsa -in jwtRS256.key -outform PEM -pubout -out jwtRS256.key.pub
-
 checkstyle:
 	mvn checkstyle:check
 	# disable warnings: import loading, todos, function members, duplicate code, public methods
 	pylint --disable=F0401 --disable=W0511 --disable=E1101 --disable=R0801 --disable=R0903  ./src/*/*.py
-
-clean:
-	rm -f jwtRS256*
 
 check-env:
 ifndef PROJECT_ID
