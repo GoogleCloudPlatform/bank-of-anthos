@@ -110,7 +110,7 @@ limitations under the License.
                   <div class="card-body">
                     <div class="row align-items-center">
                       <div class="col">
-                        <span class="h6 mb-0">
+                        <span class="h5 mb-0">
                           Deposit Funds
                         </span>
                       </div>
@@ -126,7 +126,7 @@ limitations under the License.
                   <div class="card-body">
                     <div class="row align-items-center">
                       <div class="col">
-                        <span class="h6 mb-0">
+                        <span class="h5 mb-0">
                           Send Payment
                         </span>
                       </div>
@@ -155,6 +155,9 @@ limitations under the License.
                 </div>
               </div>
               <div class="table-responsive mb-0">
+                {% if history|length == 0 %}
+                <h4 class="card-table-header">No Transactions Found</h4>
+                {% else %}
                 <table class="table table-sm table-nowrap card-table">
                   <thead class="text-uppercase">
                     <tr>
@@ -173,9 +176,6 @@ limitations under the License.
                     </tr>
                   </thead>
                   <tbody class="list">
-                    {% if history|length == 0 %}
-                      <h4>No transactions found</h4>
-                    {% else %}
                       {% for t in history %}
                         <tr>
                           <td class="text-uppercase transaction-date">
@@ -204,9 +204,9 @@ limitations under the License.
                           {% endif %}
                         </tr>
                       {% endfor %}
-                    {% endif %}
                   </tbody>
                 </table>
+                {% endif %}
               </div>
             </div>
           </div>
