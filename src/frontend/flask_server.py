@@ -192,24 +192,24 @@ def deposit():
 
         # get data from form
         if request.form['account'] == 'add':
-            external_account_num = request.form['deposit_account_num']
-            external_routing_num = request.form['deposit_routing_num']
+            deposit_account_num = request.form['deposit_account_num']
+            deposit_routing_num = request.form['deposit_routing_num']
             if request.form.get('deposit_label', "") != "":
                 # new contact. Add to contacts list
                 _add_contact(request.form['deposit_label'],
-                             external_account_num,
-                             external_routing_num,
+                             deposit_account_num,
+                             deposit_routing_num,
                              True)
         else:
             account_details = json.loads(request.form['account'])
-            external_account_num = account_details['account_num']
-            external_routing_num = account_details['routing_num']
+            deposit_account_num = account_details['account_num']
+            deposit_routing_num = account_details['routing_num']
         # convert amount to integer
         amount = int(float(request.form['amount']) * 100)
 
         # simulate transaction from external bank into user's account
-        transaction_obj = {'fromRoutingNum':  external_routing_num,
-                           'fromAccountNum': external_account_num,
+        transaction_obj = {'fromRoutingNum': deposit_routing_num,
+                           'fromAccountNum': deposit_account_num,
                            'toRoutingNum': LOCAL_ROUTING,
                            'toAccountNum': account_id,
                            'amount': amount}

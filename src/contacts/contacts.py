@@ -54,7 +54,7 @@ def get_contacts(username):
     """Retrieve the contacts list for the authenticated user.
     This list is used for populating Payment and Deposit fields.
 
-    Returns: a list of linked external accounts
+    Returns: a list of contacts
             {'account_list': [account1, account2, ...]}
     """
     auth_header = request.headers.get('Authorization')
