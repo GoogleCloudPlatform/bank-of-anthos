@@ -300,13 +300,24 @@ limitations under the License.
                         <option disabled>──────────</option>
                         <option value="add">New Recipient</option>
                       </select>
-                      <div id="otherAccountInputs" class="hidden input-group mb-3">
-                        <div class="input-group-prepend">
-                          <span class="input-group-text"><i class="deposit-input fa fa-hashtag" aria-hidden="true"></i></span>
+                      <div id="otherAccountInputs" class="hidden">
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                              <span class="input-group-text"><i class="deposit-input fa fa-hashtag" aria-hidden="true"></i></span>
+                            </div>
+                            <input class="form-control" type="number" step='1' id="contact_account_num" name="contact_account_num" min=1000000000 max=9999999999  placeholder="Account Number"/>
+                            <div class="invalid-feedback">
+                              Please enter a valid account number.
+                            </div>
                         </div>
-                        <input class="form-control" type="number" step='1' id="other_account_num" name="other_account_num" min=1000000000 max=9999999999  placeholder="Account Number"/>
-                        <div class="invalid-feedback">
-                          Please enter a valid account number.
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                              <span class="input-group-text"><i class="deposit-input fa fa-tag" aria-hidden="true"></i></span>
+                            </div>
+                            <input class="form-control"  type="text" id="contact_label" name="contact_label" placeholder="Contact Label (Optional)"/>
+                            <div class="invalid-feedback">
+                              Please enter a valid account number.
+                            </div>
                         </div>
                       </div>
                     </div>
