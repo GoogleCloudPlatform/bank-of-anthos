@@ -1,6 +1,6 @@
 # Contacts Service
 
-The contacts service stores a list of favorite accounts associated with a user.
+The contacts service stores a list of saved accounts associated with a user.
 Data from the contacts service is used for drop down in "Send Payment" and "Deposit" forms.
 
 Implemented in Python with Flask.
@@ -9,8 +9,8 @@ Implemented in Python with Flask.
 
 | Endpoint                | Type  | Auth? | Description                                                        |
 | ----------------------- | ----- | ----- | ------------------------------------------------------------------ |
-| `/contacts/<username>`  | GET   | 🔒    |  Retrieve a list of favorite accounts for the authenticated user.  |
-| `/contacts/<username>`  | POST  | 🔒    |  Add a new favorite account for the authenticated user.            |
+| `/contacts/<username>`  | GET   | 🔒    |  Retrieve a list of saved accounts for the authenticated user.     |
+| `/contacts/<username>`  | POST  | 🔒    |  Add a new saved account for the authenticated user.               |
 | `/ready`                | GET   |       |  Readiness probe endpoint.                                         |
 | `/version`              | GET   |       |  Returns the contents of `$VERSION`                                |
 
