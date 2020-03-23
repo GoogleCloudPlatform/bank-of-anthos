@@ -79,7 +79,7 @@ def get_contacts(username):
         return jsonify({'error': str(ex)}), 401
 
 @APP.route('/contacts/<username>', methods=['POST'])
-def get_add(username):
+def add_contact(username):
     """Add a new favorite account to user's contacts list
 
     Fails if account or routing number are invalid
@@ -108,8 +108,8 @@ def get_add(username):
         # validate routing number (must be 9 digits)
         if not re.match(r'\A[0-9]{9}\Z', contact['routing_num']):
             raise RuntimeError('invalid routing number')
-        # only allow external accounts for deposit
-        if contact['deposit'] and contact['routing_num'] == LOCAL_ROUTING:
+        # only allow external accounts to deposit
+        if contact['can_deposit'] and contact['routing_num'] == LOCAL_ROUTING:
             raise RuntimeError('invalid routing number')
         # validate label (must be <40 chars, only alphanumeric and spaces)
         if (not all(s.isalnum() for s in contact['label'].split()) or

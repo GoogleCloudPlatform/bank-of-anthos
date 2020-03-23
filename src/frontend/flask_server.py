@@ -237,7 +237,7 @@ def _add_contact(label, acct_num, routing_num, is_deposit_acct=False):
         'label': label,
         'account_num': acct_num,
         'routing_num': routing_num,
-        'deposit': is_deposit_acct
+        'can_deposit': is_deposit_acct
     }
     token_data = jwt.decode(token, verify=False)
     url = '{}/{}'.format(APP.config["CONTACTS_URI"], token_data['user'])
