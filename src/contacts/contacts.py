@@ -102,8 +102,8 @@ def add_contact(username):
             raise PermissionError('not authorized')
         contact = request.get_json()
         # don't allow self reference
-        if contact['account_num'] == payload['accountid'] and 
-                contact['routing_num'] == LOCAL_ROUTING:
+        if (contact['account_num'] == payload['acct'] and
+                contact['routing_num'] == LOCAL_ROUTING):
             raise RuntimeError('can\'t add self to contacts')
         # validate account number (must be 10 digits)
         if (not re.match(r'\A[0-9]{10}\Z', contact['account_num']) or
