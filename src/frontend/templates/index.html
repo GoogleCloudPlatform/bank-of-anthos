@@ -390,7 +390,7 @@ limitations under the License.
             depositCancel[i].addEventListener('click', function () {
               depositForm.reset();
               depositForm.classList.remove('was-validated');
-              document.getElementById("otherDepositInputs").classList.add('hidden');
+              RefreshModals();
             });
           }
 
@@ -413,25 +413,36 @@ limitations under the License.
             paymentCancel[i].addEventListener('click', function () {
               paymentForm.reset();
               paymentForm.classList.remove('was-validated');
-              document.getElementById("otherAccountInputs").classList.add('hidden');
+              RefreshModals();
             });
           }
 
           // Handle new account option in Send Payment modal
-          document.getElementById("payment-accounts").addEventListener("change", function(e) {
-            if(e.target.value == 'add'){
-              document.getElementById("otherAccountInputs").classList.remove('hidden');
-            }
-            else document.getElementById("otherAccountInputs").classList.add('hidden');
+          document.getElementById("payment-accounts").addEventListener("load", function(e) {
+            RefreshModals();
           });
 
           // Handle new account option in Deposit modal
           document.getElementById("accounts").addEventListener("change", function(e) {
-            if(e.target.value == 'add'){
-              document.getElementById("otherDepositInputs").classList.remove('hidden');
-            }
-            else document.getElementById("otherDepositInputs").classList.add('hidden');
+            RefreshModals();
           });
+
+          // Reset Modals to proper state
+          function RefreshModals(){
+              paymentSelection = document.getElementById("payment-accounts").value;
+              if (paymentSelection == 'add') {
+                document.getElementById("otherAccountInputs").classList.remove('hidden');
+              } else {
+                document.getElementById("otherAccountInputs").classList.add('hidden');
+              }
+              depositSelection = document.getElementById("accounts").value;
+              if (depositSelection == 'add') {
+                document.getElementById("otherDepositInputs").classList.remove('hidden');
+              } else {
+                document.getElementById("otherDepositInputs").classList.add('hidden');
+              }
+          }
+          RefreshModals();
         });
       </script>
     </body> 
