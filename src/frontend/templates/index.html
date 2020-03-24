@@ -238,7 +238,7 @@ limitations under the License.
                           <option disabled>──────────</option>
                           <option value="add">New External Account</option>
                         </select>
-                        <div id="otherDepositInputs">
+                        <div id="otherDepositInputs" class="hidden">
                           <div class="input-group mb-3">
                             <div class="input-group-prepend">
                               <span class="input-group-text"><i class="deposit-input fa fa-hashtag" aria-hidden="true"></i></span>
@@ -390,6 +390,7 @@ limitations under the License.
             depositCancel[i].addEventListener('click', function () {
               depositForm.reset();
               depositForm.classList.remove('was-validated');
+              document.getElementById("otherDepositInputs").classList.add('hidden');
             });
           }
 
@@ -422,6 +423,14 @@ limitations under the License.
               document.getElementById("otherAccountInputs").classList.remove('hidden');
             }
             else document.getElementById("otherAccountInputs").classList.add('hidden');
+          });
+
+          // Handle new account option in Deposit modal
+          document.getElementById("accounts").addEventListener("change", function(e) {
+            if(e.target.value == 'add'){
+              document.getElementById("otherDepositInputs").classList.remove('hidden');
+            }
+            else document.getElementById("otherDepositInputs").classList.add('hidden');
           });
         });
       </script>
