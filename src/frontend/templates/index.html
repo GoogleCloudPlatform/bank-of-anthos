@@ -380,6 +380,10 @@ limitations under the License.
           // Deposit modal client-side validation
           var depositForm = document.getElementById("deposit-form");
           depositForm.addEventListener("submit", function(e) {
+            var isNewAcct = (document.getElementById('accounts').value == 'add');
+            document.getElementById("external_account_num").required = isNewAcct;
+            document.getElementById("external_routing_num").required = isNewAcct;
+
             if(depositForm.checkValidity() === false || $('#deposit-amount').val() <= 0.00){
               e.preventDefault();
               e.stopPropagation();
@@ -401,7 +405,7 @@ limitations under the License.
           var paymentForm = document.getElementById("payment-form");
           paymentForm.addEventListener("submit", function(e) {
             // Check if account number is required
-            document.getElementById("other_account_num").required = (document.getElementById('payment-accounts').value == 'add');
+            document.getElementById("contact_account_num").required = (document.getElementById('payment-accounts').value == 'add');
 
             if(paymentForm.checkValidity() === false || $('#payment-amount').val() <= 0.00){
               e.preventDefault();
