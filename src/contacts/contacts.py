@@ -101,6 +101,10 @@ def add_contact(username):
         if username != payload['user']:
             raise PermissionError('not authorized')
         contact = request.get_json()
+        # don't allow self reference
+        if contact['account_num'] == payload['accountid'] and 
+                contact['routing_num'] == LOCAL_ROUTING:
+            raise RuntimeError('can\'t add self to contacts')
         # validate account number (must be 10 digits)
         if (not re.match(r'\A[0-9]{10}\Z', contact['account_num']) or
                 contact['account_num'] == payload['acct']):
@@ -109,7 +113,7 @@ def add_contact(username):
         if not re.match(r'\A[0-9]{9}\Z', contact['routing_num']):
             raise RuntimeError('invalid routing number')
         # only allow external accounts to deposit
-        if contact['can_deposit'] and contact['routing_num'] == LOCAL_ROUTING:
+        if contact['is_external'] and contact['routing_num'] == LOCAL_ROUTING:
             raise RuntimeError('invalid routing number')
         # validate label (must be <40 chars, only alphanumeric and spaces)
         if (not all(s.isalnum() for s in contact['label'].split()) or
