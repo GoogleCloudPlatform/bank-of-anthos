@@ -139,9 +139,10 @@ def payment():
         recipient = request.form['account_num']
         if recipient == 'add':
             recipient = request.form['contact_account_num']
-            if request.form.get('contact_label', "") != "":
+            label = request.form.get('contact_label', None)
+            if label is not None:
                 # new contact. Add to contacts list
-                _add_contact(request.form['contact_label'],
+                _add_contact(label,
                              recipient,
                              LOCAL_ROUTING,
                              False)
@@ -189,24 +190,25 @@ def deposit():
 
         # get data from form
         if request.form['account'] == 'add':
-            deposit_account_num = request.form['deposit_account_num']
-            deposit_routing_num = request.form['deposit_routing_num']
-            if request.form.get('deposit_label', "") != "":
+            external_account_num = request.form['external_account_num']
+            external_routing_num = request.form['external_routing_num']
+            external_label = request.form.get('external_label', None)
+            if external_label is not None:
                 # new contact. Add to contacts list
-                _add_contact(request.form['deposit_label'],
-                             deposit_account_num,
-                             deposit_routing_num,
+                _add_contact(external_label,
+                             external_account_num,
+                             external_routing_num,
                              True)
         else:
             account_details = json.loads(request.form['account'])
-            deposit_account_num = account_details['account_num']
-            deposit_routing_num = account_details['routing_num']
+            external_account_num = account_details['account_num']
+            external_routing_num = account_details['routing_num']
         # convert amount to integer
         amount = int(float(request.form['amount']) * 100)
 
         # simulate transaction from external bank into user's account
-        transaction_obj = {'fromRoutingNum': deposit_routing_num,
-                           'fromAccountNum': deposit_account_num,
+        transaction_obj = {'fromRoutingNum': external_routing_num,
+                           'fromAccountNum': external_account_num,
                            'toRoutingNum': LOCAL_ROUTING,
                            'toAccountNum': account_id,
                            'amount': amount}
@@ -223,7 +225,7 @@ def deposit():
     return redirect(url_for('home', msg='Deposit failed'))
 
 
-def _add_contact(label, acct_num, routing_num, is_deposit_acct=False):
+def _add_contact(label, acct_num, routing_num, is_external_acct=False):
     """
     Submits a new contact to the contact service
     """
@@ -234,7 +236,7 @@ def _add_contact(label, acct_num, routing_num, is_deposit_acct=False):
         'label': label,
         'account_num': acct_num,
         'routing_num': routing_num,
-        'can_deposit': is_deposit_acct
+        'is_external': is_external_acct
     }
     token_data = jwt.decode(token, verify=False)
     url = '{}/{}'.format(APP.config["CONTACTS_URI"], token_data['user'])
