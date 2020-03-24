@@ -140,7 +140,7 @@ def payment():
         if recipient == 'add':
             recipient = request.form['contact_account_num']
             label = request.form.get('contact_label', None)
-            if label is not None:
+            if label:
                 # new contact. Add to contacts list
                 _add_contact(label,
                              recipient,
@@ -193,7 +193,7 @@ def deposit():
             external_account_num = request.form['external_account_num']
             external_routing_num = request.form['external_routing_num']
             external_label = request.form.get('external_label', None)
-            if external_label is not None:
+            if external_label:
                 # new contact. Add to contacts list
                 _add_contact(external_label,
                              external_account_num,

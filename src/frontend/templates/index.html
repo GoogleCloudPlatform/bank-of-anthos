@@ -230,7 +230,7 @@ limitations under the License.
                         <select class="custom-select d-block w-100" id="accounts" name="account">
                           {% for account in contacts %}
                             {% if account.is_external %}
-                                <option value='{"account_num": "{{ account.account_number }}", "routing_num": "{{ account.routing_number }}" }'>
+                                <option value='{"account_num": "{{ account.account_num }}", "routing_num": "{{ account.routing_num }}" }'>
                                   {{ account.label }} - {{ account.account_num }} - {{ account.routing_num }}
                                 </option>
                             {% endif %}
