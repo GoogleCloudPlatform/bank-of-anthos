@@ -228,10 +228,12 @@ limitations under the License.
                       <div class="col-md-10 offset-md-1 mb-4">
                         <label class="text-uppercase text-muted secondary-text mb-3" for="accounts">External Account</label>
                         <select class="custom-select d-block w-100" id="accounts" name="account">
-                          {% for account in deposit_contacts %}
-                            <option value='{"account_num": "{{ account.account_number }}", "routing_num": "{{ account.routing_number }}" }'>
-                              {{ account.label }} - {{ account.account_num }} - {{ account.routing_num }}
-                            </option>
+                          {% for account in contacts %}
+                            {% if account.can_deposit %}
+                                <option value='{"account_num": "{{ account.account_number }}", "routing_num": "{{ account.routing_number }}" }'>
+                                  {{ account.label }} - {{ account.account_num }} - {{ account.routing_num }}
+                                </option>
+                            {% endif %}
                           {% endfor %}
                           <option disabled>──────────</option>
                           <option value="add">New External Account</option>
@@ -252,7 +254,7 @@ limitations under the License.
                             </div>
                             <input class="form-control" type="number" step='1' id="deposit_routing_num" name="deposit_routing_num" min=100000000 max=999999999  placeholder="Routing Number"/>
                             <div class="invalid-feedback">
-                              Please enter a valid account number.
+                              Please enter a valid routing number.
                             </div>
                           </div>
                           <div class="input-group mb-3">

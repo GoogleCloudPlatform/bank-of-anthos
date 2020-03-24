@@ -103,13 +103,11 @@ def home():
     except (requests.exceptions.RequestException, ValueError) as err:
         logging.error(str(err))
     # get contacts
-    all_contacts = []
-    deposit_contacts = []
+    contacts = []
     try:
         url = '{}/{}'.format(APP.config["CONTACTS_URI"], username)
         req = requests.get(url=url, headers=hed)
-        all_contacts = req.json()['account_list']
-        deposit_contacts = [c for c in all_contacts if c.get('deposit', False)]
+        contacts = req.json()['account_list']
     except (requests.exceptions.RequestException, ValueError) as err:
         logging.error(str(err))
 
@@ -118,8 +116,7 @@ def home():
                            balance=balance,
                            name=display_name,
                            account_id=account_id,
-                           deposit_contacts=deposit_contacts,
-                           contacts=all_contacts,
+                           contacts=contacts,
                            message=request.args.get('msg', None))
 
 
