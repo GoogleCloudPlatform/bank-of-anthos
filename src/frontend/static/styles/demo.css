@@ -77,14 +77,15 @@
   margin-bottom: 2rem;
 }
 .card-icon {
-  font-size: 36px;
+  font-size: 36px !important;
 }
 .button-icon {
   font-size: 24px;
 }
 .account-fa {
-  font-size: 15px;
-  margin-right: 10px;
+  vertical-align: bottom;
+  font-size: 20px;
+  margin-right: 5px;
   color: #313a46;
 }
 .account-num-text {
@@ -216,6 +217,14 @@ label {
 }
 .btn-sign-in:focus {
   box-shadow: 0 0 0 0.2rem rgba(76,175,80,.5);
+}
+.arrow-back {
+  font-size: 15px;
+  vertical-align: middle;
+}
+.alert-icon {
+  font-size: 18px;
+  vertical-align: middle;
 }
 .btn-create-account {
   color: #fafbfe;

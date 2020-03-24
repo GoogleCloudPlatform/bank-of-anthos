@@ -22,7 +22,7 @@ limitations under the License.
       <title>Bank of Anthos</title>
       <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
       <link rel="stylesheet" href="https://unpkg.com/bootstrap-material-design@4.1.1/dist/css/bootstrap-material-design.min.css" integrity="sha384-wXznGJNEXNG1NFsbm0ugrLFMQPWswR3lds2VeinahP8N0zJw9VWSopbjv2x7WCvX" crossorigin="anonymous">
-      <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+      <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
       <link rel="stylesheet" href="static/styles/demo.css">
    </head>
     <body>
@@ -34,7 +34,7 @@ limitations under the License.
               Bank of Anthos
             </a>
             <button type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler navbar-toggler-right">
-              <i class="menu-icon fa fa-bars"></i>
+              <span class="material-icons">menu</span>
             </button>
             <div class="justify-content-end collapse navbar-collapse" id="navbarNav">
               <ul class="navbar-nav">
@@ -46,7 +46,7 @@ limitations under the License.
                   </a>
                   <div class="dropdown-menu" aria-labelledby="accountDropdown">
                     <form id="logout-form" method="POST" action="/logout">
-                      <a class="dropdown-item" onclick="document.getElementById('logout-form').submit();">Sign out<i class="fa-icon-spacer fas fa-sign-out-alt"></i></a>
+                      <a class="dropdown-item" onclick="document.getElementById('logout-form').submit();">Sign out<span class="fa-icon-spacer material-icons">exit_to_app</span></a>
                     </form>
                   </div>
                 </li>
@@ -64,7 +64,7 @@ limitations under the License.
           {% if message != None %}
           <div class="col-md-8 offset-md-2">
             <div class="alert alert-info alert-dismissible fade show" role="alert">
-              <i class="mr-2 fas fa-exclamation-circle"></i> {{ message }}
+              <span class="alert-icon mr-2 material-icons">check_circle</span>{{ message }}
               <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">×</span>
               </button>
@@ -77,7 +77,7 @@ limitations under the License.
           </div>
           <div class="col-md-4">
             <div class="account-info float-right">
-              <p><i class="account-fa fas fa-info-circle" aria-hidden="true"></i><span class="account-num-text">Account Number:</span><span class="account-number">{{ account_id }}</span></p>
+              <p><span class="account-fa material-icons">info</span><span class="account-num-text">Account Number:</span><span class="account-number">{{ account_id }}</span></p>
             </div>
           </div>
         </div>
@@ -96,8 +96,8 @@ limitations under the License.
                         {{ format_currency(balance) }}
                       </span>
                     </div>
-                    <div class="card-icon col-auto">
-                      <i class="fas fa-wallet"></i>
+                    <div class="col-auto">
+                      <span class="material-icons card-icon">account_balance_wallet</span>
                     </div>
                   </div>
                 </div>
@@ -115,7 +115,7 @@ limitations under the License.
                         </span>
                       </div>
                       <div class="button-icon col-auto">
-                        <i class="fas fa-download" aria-hidden="true"></i>
+                        <span class="material-icons">get_app</span>
                       </div>
                     </div>
                   </div>
@@ -131,7 +131,7 @@ limitations under the License.
                         </span>
                       </div>
                       <div class="button-icon col-auto">
-                        <i class="fas fa-share" aria-hidden="true"></i>
+                        <span class="material-icons">forward</span>
                       </div>
                     </div>
                   </div>
@@ -240,7 +240,7 @@ limitations under the License.
                         <label class="text-uppercase text-muted secondary-text mb-1" for="deposit-amount">Deposit Amount</label>
                         <div class="input-group mb-3">
                           <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="amount-font deposit-input fas fa-dollar-sign" aria-hidden="true"></i></span>
+                            <span class="input-group-text"><span class="amount-font material-icons">attach_money</span></span>
                           </div>
                           <input class="form-control amount-font" type="number" step='0.01' id="deposit-amount" name="amount" placeholder=0.00 min=0 aria-label="Amount (to the nearest dollar)" required>
                           <div class="invalid-feedback">
@@ -283,7 +283,7 @@ limitations under the License.
                       </select>
                       <div id="otherAccountInputs" class="hidden input-group mb-3">
                         <div class="input-group-prepend">
-                          <span class="input-group-text"><i class="deposit-input fa fa-hashtag" aria-hidden="true"></i></span>
+                          <span class="input-group-text"><strong class="deposit-input">#</strong></span>
                         </div>
                         <input class="form-control" type="number" step='1' id="other_account_num" name="other_account_num" min=1000000000 max=9999999999  placeholder="Account Number"/>
                         <div class="invalid-feedback">
@@ -295,7 +295,7 @@ limitations under the License.
                       <label class="text-uppercase secondary-text text-muted mb-1" for="payment-amount">Transaction Amount</label>
                       <div class="input-group mb-3">
                         <div class="input-group-prepend">
-                          <span class="input-group-text"><i class="amount-font deposit-input fas fa-dollar-sign" aria-hidden="true"></i></span>
+                          <span class="input-group-text"><span class="amount-font deposit-input material-icons">attach_money</span></span>
                         </div>
                         <input class="form-control amount-font" type="number" step='0.01' id="payment-amount" name="amount" placeholder=0.00 min=0 aria-label="Amount (to the nearest dollar)" required>
                         <div class="invalid-feedback">

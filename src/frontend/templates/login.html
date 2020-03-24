@@ -22,7 +22,7 @@ limitations under the License.
       <title>Bank of Anthos</title>
       <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
       <link rel="stylesheet" href="https://unpkg.com/bootstrap-material-design@4.1.1/dist/css/bootstrap-material-design.min.css" integrity="sha384-wXznGJNEXNG1NFsbm0ugrLFMQPWswR3lds2VeinahP8N0zJw9VWSopbjv2x7WCvX" crossorigin="anonymous">
-      <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+      <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
       <link rel="stylesheet" href="static/styles/demo.css">
    </head>
     <body>
@@ -45,7 +45,7 @@ limitations under the License.
           {% if message != None and message != 'Login Failed' %}
           <div class="col-md-8 offset-md-2">
             <div class="alert alert-info alert-dismissible fade show" role="alert">
-              <strong><i class="mr-2 fas fa-exclamation-circle"></i></strong> {{ message }}
+              <span class="alert-icon mr-2 material-icons">error</span>{{ message }}
               <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">×</span>
               </button>
@@ -64,13 +64,13 @@ limitations under the License.
                   <div class="row align-items-center mt-2">
                     <div class="col-10 offset-1 mb-4">
                       <div id="alertBanner" class="alert alert-danger mb-4 hidden" role="alert">
-                        <i class="mr-2 fas fa-exclamation-circle"></i>We can't find that username and password. You can reset your password or try again.
+                        <span class="alert-icon mr-2 material-icons">error</span>We can't find that username and password. You can reset your password or try again.
                       </div>
                       <form id="signin-form" class="needs-validation" novalidate="" method="POST" action="/login">
                         <label class="text-uppercase text-muted secondary-text" for="username">Username</label>
                         <div class="input-group mt-2d mb-5">
                           <div class="input-group-prepend mr-2">
-                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                            <span class="input-group-text"><span class="material-icons">account_circle</span></span>
                           </div>
                           <input class="form-control" type="text" id="username" name="username" autocomplete="off" value="{{ default_user }}" required>
                           <div class="invalid-feedback">
@@ -80,7 +80,7 @@ limitations under the License.
                         <label class="text-uppercase text-muted secondary-text" for="password">Password</label>
                         <div class="input-group mt-2 mb-5">
                           <div class="input-group-prepend mr-2">
-                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                            <span class="input-group-text"><span class="material-icons">lock</span></span>
                           </div>
                           <input class="form-control" type="password" id="password" name="password" value="{{ default_password }}" required>
                           <div class="invalid-feedback">
