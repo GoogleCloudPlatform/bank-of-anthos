@@ -236,23 +236,33 @@ limitations under the License.
                           <option disabled>──────────</option>
                           <option value="add">New External Account</option>
                         </select>
+                        <div id="otherDepositInputs">
+                          <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                              <span class="input-group-text"><i class="deposit-input fa fa-hashtag" aria-hidden="true"></i></span>
+                            </div>
+                            <input class="form-control" type="number" step='1' id="deposit_account_num" name="deposit_account_num" min=1000000000 max=9999999999  placeholder="Account Number"/>
+                            <div class="invalid-feedback">
+                              Please enter a valid account number.
+                            </div>
+                          </div>
+                          <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                              <span class="input-group-text"><i class="deposit-input fa fa-university" aria-hidden="true"></i></span>
+                            </div>
+                            <input class="form-control" type="number" step='1' id="deposit_routing_num" name="deposit_routing_num" min=100000000 max=999999999  placeholder="Routing Number"/>
+                            <div class="invalid-feedback">
+                              Please enter a valid account number.
+                            </div>
+                          </div>
+                          <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                              <span class="input-group-text"><i class="deposit-input fa fa-tag" aria-hidden="true"></i></span>
+                            </div>
+                            <input class="form-control"  type="text" id="deposit_label" name="deposit_label" placeholder="Account Label (Optional)"/>
+                          </div>
+                        </div>
                       </div>
-
-                      <div class="mdl-textfield mdl-js-textfield  mdl-textfield--floating-label" id="deposit_account_div" style='display:none;'>
-                        <input class="mdl-textfield__input" type="number" step='1' id="deposit_account_num" name="deposit_account_num" min=1000000000 max=9999999999>
-                        <label class="mdl-textfield__label" for="deposit_account_num">Account #</label>
-                      </div>
-
-                      <div class="mdl-textfield mdl-js-textfield  mdl-textfield--floating-label" id="deposit_routing_div"  style='display:none;'>
-                        <input class="mdl-textfield__input" type="number" step='1' id="deposit_routing_num" name="deposit_routing_num" min=100000000 max=999999999>
-                        <label class="mdl-textfield__label" for="deposit_routing_num">Routing #</label>
-                      </div>
-
-                      <div class="mdl-textfield mdl-js-textfield  mdl-textfield--floating-label" id="deposit_label_div" style='display:none;'>
-                        <input class="mdl-textfield__input" id="deposit_label" name="deposit_label">
-                        <label class="mdl-textfield__label" for="deposit_label">Account Name (Optional)</label>
-                      </div>
-
                       <div class="col-md-10 offset-md-1">
                         <label class="text-uppercase text-muted secondary-text mb-1" for="deposit-amount">Deposit Amount</label>
                         <div class="input-group mb-3">
