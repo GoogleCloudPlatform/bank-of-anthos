@@ -20,83 +20,126 @@ limitations under the License.
       <meta http-equiv="X-UA-Compatible" content="IE=edge">
       <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
       <title>Bank of Anthos</title>
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en">
-      <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-      <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-green.min.css">
+      <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
+      <link rel="stylesheet" href="https://unpkg.com/bootstrap-material-design@4.1.1/dist/css/bootstrap-material-design.min.css" integrity="sha384-wXznGJNEXNG1NFsbm0ugrLFMQPWswR3lds2VeinahP8N0zJw9VWSopbjv2x7WCvX" crossorigin="anonymous">
+      <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
       <link rel="stylesheet" href="static/styles/demo.css">
-      <script src="https://code.getmdl.io/1.3.0/material.min.js"></script>
    </head>
-   <body class="mdl-demo mdl-color--grey-100 mdl-color-text--grey-700 mdl-base">
-    <!-- Toast Box -->
-    <div aria-live="assertive" aria-atomic="true" aria-relevant="text" class="mdl-snackbar mdl-js-snackbar">
-        <div class="mdl-snackbar__text"></div>
-        <button type="button" class="mdl-snackbar__action"></button>
-    </div>
-    <!-- Header -->
-      <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
-         <header class="mdl-layout__header mdl-layout__header--scroll mdl-color--primary">
-            <div class="mdl-layout--large-screen-only mdl-layout__header-row"></div>
-            <div class="mdl-layout__header-row">
-               <h3>Bank of Anthos</h3>
+    <body>
+      <!-- Bank of Anthos Navigation Bar -->
+      <header>
+        <nav class="navbar navbar-expand-lg navbar-top">
+          <div class="container">
+            <a class="navbar-brand">
+              Bank of Anthos
+            </a>
+          </div>
+        </nav>
+      </header>
+
+      <!-- Main Content -->
+      <main class="container">
+        <!-- Sign-in card -->
+        <div class="row mt-5 mb-5">
+          <!-- Alert on load -->
+          {% if message != None and message != 'Login Failed' %}
+          <div class="col-md-8 offset-md-2">
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+              <span class="alert-icon mr-2 material-icons">error</span>{{ message }}
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">×</span>
+              </button>
             </div>
-         </header>
-         <main class="mdl-layout__content">
-            <!-- empty section for spacing --!>
-            <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
-            </section>
-            <!-- signin section --!>
-            <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
-                <div class="mdl-card mdl-cell mdl-cell--12-col">
-                    <div class="mdl-card__supporting-text">
-                        <h4>Sign In</h4>
+          </div>
+          {% endif %}
+          <div class="col-lg-6 offset-lg-3">
+              <div class="card">
+                <div class="card-title header-body">
+                  <div class="text-center col-10 offset-1">
+                    <p class="text-uppercase text-muted secondary-text">Welcome</p>
+                    <h2 class="mb-4 header-title">Sign In</h2>
+                  </div>
+                </div>
+                <div class="card-body sign-in">
+                  <div class="row align-items-center mt-2">
+                    <div class="col-10 offset-1 mb-4">
+                      <div id="alertBanner" class="alert alert-danger mb-4 hidden" role="alert">
+                        <span class="alert-icon mr-2 material-icons">error</span>We can't find that username and password. You can reset your password or try again.
+                      </div>
+                      <form id="signin-form" class="needs-validation" novalidate="" method="POST" action="/login">
+                        <label class="text-uppercase text-muted secondary-text" for="username">Username</label>
+                        <div class="input-group mt-2d mb-5">
+                          <div class="input-group-prepend mr-2">
+                            <span class="input-group-text"><span class="material-icons">account_circle</span></span>
+                          </div>
+                          <input class="form-control" type="text" id="username" name="username" autocomplete="off" value="{{ default_user }}" required>
+                          <div class="invalid-feedback">
+                            Please enter your username.
+                          </div>
+                        </div>
+                        <label class="text-uppercase text-muted secondary-text" for="password">Password</label>
+                        <div class="input-group mt-2 mb-5">
+                          <div class="input-group-prepend mr-2">
+                            <span class="input-group-text"><span class="material-icons">lock</span></span>
+                          </div>
+                          <input class="form-control" type="password" id="password" name="password" value="{{ default_password }}" required>
+                          <div class="invalid-feedback">
+                            Please enter your password.
+                        </div>
+                        </div>
+                        <button class="btn btn-sign-in btn-block mb-4" type="submit">Sign in</button>
+                        <small class="text-uppercase secondary-text text-muted">
+                          Not registered?
+                        </small>
+                        <a href="/signup" class="btn btn-create-account btn-block mt-2 mb-4" type="button">Create an Account</a>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+            </div>
+          </div>
+        </div>
+      </main>
 
-                        <form id=signin-form method="POST" action="/login">
-                            <div class="mdl-textfield mdl-js-textfield  mdl-textfield--floating-label">
-                            <input class="mdl-textfield__input" type="text" id="username" name="username" value="{{ default_user }}">
-                                <label class="mdl-textfield__label" for="username">Username</label>
-                            </div>
-                            <div class="mdl-textfield mdl-js-textfield  mdl-textfield--floating-label">
-                            <input class="mdl-textfield__input" type="password" id="password" name="password" value="{{ default_password  }}">
-                                <label class="mdl-textfield__label" for="password">Password</label>
-                            </div>
-                            <div class="mdl-dialog__actions">
-                                <button type="button" class="mdl-button signin-btn mdl-js-button mdl-button--raised 
-                                mdl-js-ripple-effect mdl-color--accent mdl-color-text--accent-contrast"
-                                onClick="document.getElementById('signin-form').submit();">Sign In</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </section>
-            <!-- signup section --!>
-            <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
-                <div class="mdl-card mdl-cell mdl-cell--12-col">
-                    <div class="mdl-card__supporting-text">
-                        <h4>Sign Up</h4>
-                            <div class="mdl-dialog__actions">
-                                <button type="button" class="mdl-button signin-btn mdl-js-button mdl-button--raised 
-                                mdl-js-ripple-effect mdl-color--accent mdl-color-text--accent-contrast"
-                                onClick="window.location.href = '/signup'">Create Account</button>
-                            </div>
-                    </div>
-                </div>
-            </section>
-         </main>
-      </div>
-   </body>
-{% if message != None %}
-    <script>
-        r(function(){
-            var notification = document.querySelector('.mdl-js-snackbar');
-            notification.MaterialSnackbar.showSnackbar(
-              {
-                  message: '{{ message }}'
-              }
-            );
-        window.history.pushState({}, document.title, "/login");
+      <!-- Page Footer -->
+      <footer class="footer">
+        <div class="container">
+            <div class="row mb-2">© 2020 Google Inc</div>
+            <div class="row mb-3">
+              <small class="text-muted">
+                This website is hosted for demo purposes only. It is not an
+                actual bank. This is not an official Google project.
+              </small>
+            </div>
+        </div>
+      </footer>
+
+      <!-- JavaScript Libs -->
+      <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+      <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+      <script src="https://unpkg.com/popper.js@1.12.6/dist/umd/popper.js" integrity="sha384-fA23ZRQ3G/J53mElWqVJEGJzU0sTs+SvzG8fXVWP+kJQ1lwFAOkcUOysnlKJC33U" crossorigin="anonymous"></script>
+      <script src="https://unpkg.com/bootstrap-material-design@4.1.1/dist/js/bootstrap-material-design.js" integrity="sha384-CauSuKpEqAFajSpkdjv3z9t8E7RlpJ1UP0lKM/+NdtSarroVKu069AlsRPKkFBz9" crossorigin="anonymous"></script>
+      <script>
+        $( document ).ready(function() {
+          // Login client-side validation
+          var login = document.getElementById("signin-form");
+          login.addEventListener("submit", function(e) {
+            if(login.checkValidity() === false){
+              e.preventDefault();
+              e.stopPropagation();
+            }
+            login.classList.add('was-validated');
+          });
+
+          var showAlert = (window.location.search == "?msg=Login+Failed");
+          if (showAlert){
+              $('#alertBanner').removeClass('hidden');
+          }
+          else {
+              $('#alertBanner').removeClass();
+              $('#alertBanner').addClass('hidden');
+          }
         });
-
-        function r(f){/in/.test(document.readyState)?setTimeout('r('+f+')',9):f()}
-    </script>
-{% endif %}
+      </script>
+    </body> 
 </html>

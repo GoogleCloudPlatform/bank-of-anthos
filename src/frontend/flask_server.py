@@ -314,12 +314,17 @@ def verify_token(token):
         return False
 
 
-def format_timestamp(timestamp):
-    """ Format the input timestamp in a human readable way """
+def format_timestamp_day(timestamp):
+    """ Format the input timestamp day in a human readable way """
     # TODO: time zones?
     date = datetime.datetime.fromtimestamp(float(timestamp))
-    return date.strftime('%b %d, %Y')
+    return date.strftime('%d')
 
+def format_timestamp_month(timestamp):
+    """ Format the input timestamp month in a human readable way """
+    # TODO: time zones?
+    date = datetime.datetime.fromtimestamp(float(timestamp))
+    return date.strftime('%b')
 
 def format_currency(int_amount):
     """ Format the input currency in a human readable way """
@@ -353,7 +358,8 @@ if __name__ == '__main__':
     logging.getLogger().setLevel(logging.INFO)
 
     # register html template formatters
-    APP.jinja_env.globals.update(format_timestamp=format_timestamp)
+    APP.jinja_env.globals.update(format_timestamp_month=format_timestamp_month)
+    APP.jinja_env.globals.update(format_timestamp_day=format_timestamp_day)
     APP.jinja_env.globals.update(format_currency=format_currency)
 
     # start serving requests
