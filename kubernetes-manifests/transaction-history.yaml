@@ -42,6 +42,8 @@ spec:
         env:
         - name: VERSION
           value: "0.1.0"
+        - name: HISTORY_LIMIT
+          value: "100"
         - name: LEDGER_ADDR
           value: "ledger-db"
         - name: LEDGER_PORT
