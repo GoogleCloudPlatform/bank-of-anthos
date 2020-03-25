@@ -159,7 +159,7 @@ class AllTasks(TaskSequence):
             """
             if amount is None:
                 amount = random() * 1000
-            transaction = {"account_num":str(randint(100000000, 999999999)),
+            transaction = {"account_num":str(randint(1000000000, 9999999999)),
                            "amount":amount}
             with self.client.post("/payment", data=transaction, catch_response=True) as response:
                 if "failed" in response.url:
@@ -172,7 +172,7 @@ class AllTasks(TaskSequence):
             """
             if amount is None:
                 amount = random() * 1000
-            account_info = {"account_num":str(randint(100000000, 999999999)),
+            account_info = {"account_num":str(randint(1000000000, 9999999999)),
                             "routing_num":"111111111"}
             transaction = {"account": json.dumps(account_info),
                            "amount":amount}
