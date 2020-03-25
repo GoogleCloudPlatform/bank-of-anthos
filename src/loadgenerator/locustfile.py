@@ -31,6 +31,9 @@ logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO').upper())
 
 MASTER_PASSWORD = "password"
 
+TRANSACTION_ACCT_LIST = [str(randint(1000000000, 9999999999))
+                            for _ in range(50)]
+
 def signup_helper(locust, username):
     """
     create a new user account in the system
@@ -159,9 +162,11 @@ class AllTasks(TaskSequence):
             """
             if amount is None:
                 amount = random() * 1000
-            transaction = {"account_num":str(randint(100000000, 999999999)),
+            transaction = {"account_num": random.choice(TRANSACTION_ACCT_LIST),
                            "amount":amount}
-            with self.client.post("/payment", data=transaction, catch_response=True) as response:
+            with self.client.post("/payment",
+                                  data=transaction,
+                                  catch_response=True) as response:
                 if "failed" in response.url:
                     response.failure("payment failed")
 
@@ -172,11 +177,13 @@ class AllTasks(TaskSequence):
             """
             if amount is None:
                 amount = random() * 1000
-            account_info = {"account_num":str(randint(100000000, 999999999)),
-                            "routing_num":"111111111"}
-            transaction = {"account": json.dumps(account_info),
+            acct_info = {"account_num": random.choice(TRANSACTION_ACCT_LIST),
+                         "routing_num":"111111111"}
+            transaction = {"account": json.dumps(acct_info),
                            "amount":amount}
-            with self.client.post("/deposit", data=transaction, catch_response=True) as response:
+            with self.client.post("/deposit",
+                                  data=transaction,
+                                  catch_response=True) as response:
                 if "failed" in response.url:
                     response.failure("deposit failed")
 
