@@ -19,7 +19,7 @@ CLUSTER=bank-of-anthos
 
 cluster: check-env
 	gcloud beta container clusters create ${CLUSTER} \
-		--project=${PROJECT} --zone=${ZONE} \
+		--project=${PROJECT_ID} --zone=${ZONE} \
 		--machine-type=n1-standard-2 --num-nodes=4 \
 		--enable-stackdriver-kubernetes --subnetwork=default \
 		--labels csm=
