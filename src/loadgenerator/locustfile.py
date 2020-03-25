@@ -21,7 +21,7 @@ Exercises the frontend endpoints for the system
 import json
 import logging
 import os
-from random import randint, random
+from random import randint, random, choice
 import sys
 import uuid
 
@@ -162,7 +162,7 @@ class AllTasks(TaskSequence):
             """
             if amount is None:
                 amount = random() * 1000
-            transaction = {"account_num": random.choice(TRANSACTION_ACCT_LIST),
+            transaction = {"account_num": choice(TRANSACTION_ACCT_LIST),
                            "amount":amount}
             with self.client.post("/payment",
                                   data=transaction,
@@ -177,7 +177,7 @@ class AllTasks(TaskSequence):
             """
             if amount is None:
                 amount = random() * 1000
-            acct_info = {"account_num": random.choice(TRANSACTION_ACCT_LIST),
+            acct_info = {"account_num": choice(TRANSACTION_ACCT_LIST),
                          "routing_num":"111111111"}
             transaction = {"account": json.dumps(acct_info),
                            "amount":amount}
