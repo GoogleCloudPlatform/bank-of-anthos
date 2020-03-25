@@ -155,7 +155,7 @@ class AllTasks(TaskSequence):
                     if r_hist.status_code > 200 and r_hist.status_code < 400:
                         response.failure("Got redirect")
 
-        @task(20)
+        @task(10)
         def payment(self, amount=None):
             """
             POST to /payment, sending money to other account
@@ -170,7 +170,7 @@ class AllTasks(TaskSequence):
                 if "failed" in response.url:
                     response.failure("payment failed")
 
-        @task(20)
+        @task(10)
         def deposit(self, amount=None):
             """
             POST to /deposit, depositing external money into account
@@ -222,5 +222,5 @@ class WebsiteUser(HttpLocust):
     Locust class to simulate HTTP users
     """
     task_set = AllTasks
-    min_wait = 100
+    min_wait = 1000
     max_wait = 1000
