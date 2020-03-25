@@ -43,7 +43,6 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
@@ -65,8 +64,8 @@ public final class LedgerWriterController {
     private final String balancesUri = String.format("http://%s/balances",
         System.getenv("BALANCES_API_ADDR"));
     private final JWTVerifier verifier;
-    private final Pattern accountNumRegex;
-    private final Pattern routingNumRegex;
+    private final Pattern acctRegex;
+    private final Pattern routeRegex;
 
     public LedgerWriterController() throws IOException,
                                            NoSuchAlgorithmException,
@@ -85,9 +84,9 @@ public final class LedgerWriterController {
         Algorithm algorithm = Algorithm.RSA256(publicKey, null);
         this.verifier = JWT.require(algorithm).build();
 
-        // regex matchers for 10 digit account numbers and 9 digit routing numbers
-        accountNumRegex = Pattern.compile("^[0-9]{10}$");
-        routingNumRegex = Pattern.compile("^[0-9]{9}$");
+        // regex matchers for account and routing numbers
+        acctRegex = Pattern.compile("^[0-9]{10}$");
+        routeRegex = Pattern.compile("^[0-9]{9}$");
     }
 
     /**
@@ -127,27 +126,31 @@ public final class LedgerWriterController {
             bearerToken = bearerToken.split("Bearer ")[1];
         }
         try {
-            DecodedJWT jwt = this.verifier.verify(bearerToken);
-            String initiatorAcct = jwt.getClaim("acct").asString();
+            final DecodedJWT jwt = this.verifier.verify(bearerToken);
+            final String initiatorAcct = jwt.getClaim("acct").asString();
+            final String senderAcct = transaction.getFromAccountNum();
+            final String senderRoute = transaction.getFromRoutingNum();
+            final String recvAcct = transaction.getToAccountNum();
+            final String recvRoute = transaction.getToRoutingNum();
+
             // Ensure sender is the one who initiated this transaction,
             // or is external deposit.
-            if (!(transaction.getFromAccountNum().equals(initiatorAcct)
-                  || !transaction.getFromRoutingNum().equals(this.routingNum))) {
+            if (!senderAcct.equals(initiatorAcct)
+                    && senderRoute.equals(routingNum)) {
                 return new ResponseEntity<String>("not authorized",
                                                   HttpStatus.UNAUTHORIZED);
             }
 
             // Validate account and routing numbers
-            if (!accountNumRegex.matcher(transaction.getFromAccountNum()).matches()
-                  || !accountNumRegex.matcher(transaction.getToAccountNum()).matches()
-                  || !routingNumRegex.matcher(transaction.getFromRoutingNum()).matches()
-                  || !routingNumRegex.matcher(transaction.getToRoutingNum()).matches()){
+            if (!acctRegex.matcher(senderAcct).matches()
+                  || !acctRegex.matcher(recvAcct).matches()
+                  || !routeRegex.matcher(senderRoute).matches()
+                  || !routeRegex.matcher(recvRoute).matches()) {
                 return new ResponseEntity<String>("invalid account details",
                                                   HttpStatus.BAD_REQUEST);
             }
             // Ensure sender isn't receiver
-            if (transaction.getFromRoutingNum().equals(transaction.getToRoutingNum())
-                    && transaction.getFromAccountNum().equals(transaction.getToAccountNum())){
+            if (senderAcct.equals(recvAcct) && senderRoute.equals(recvRoute)) {
                 return new ResponseEntity<String>("can't send to self",
                                                   HttpStatus.BAD_REQUEST);
             }
@@ -157,7 +160,7 @@ public final class LedgerWriterController {
                                                   HttpStatus.BAD_REQUEST);
             }
             // Ensure sender balance can cover transaction.
-            if (transaction.getFromRoutingNum().equals(this.routingNum)) {
+            if (senderRoute.equals(this.routingNum)) {
                 HttpHeaders headers = new HttpHeaders();
                 headers.set("Authorization", "Bearer " + bearerToken);
                 HttpEntity entity = new HttpEntity(headers);
