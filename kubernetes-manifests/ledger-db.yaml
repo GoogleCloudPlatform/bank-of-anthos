@@ -57,6 +57,7 @@ spec:
             cpu: 125m
           requests:
             cpu: 70m
+            memory: 2Gi
       volumes:
       - name: redis-data
         emptyDir: {}
