@@ -145,7 +145,12 @@ public final class LedgerWriterController {
                 return new ResponseEntity<String>("invalid account details",
                                                   HttpStatus.BAD_REQUEST);
             }
-
+            // Ensure sender isn't receiver
+            if (transaction.getFromRoutingNum().equals(transaction.getToRoutingNum())
+                    && transaction.getFromAccountNum().equals(transaction.getToAccountNum())){
+                return new ResponseEntity<String>("can't send to self",
+                                                  HttpStatus.BAD_REQUEST);
+            }
             // Ensure amount is valid value.
             if (transaction.getAmount() <= 0) {
                 return new ResponseEntity<String>("invalid amount",
