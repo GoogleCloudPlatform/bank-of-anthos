@@ -42,6 +42,8 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
@@ -63,6 +65,8 @@ public final class LedgerWriterController {
     private final String balancesUri = String.format("http://%s/balances",
         System.getenv("BALANCES_API_ADDR"));
     private final JWTVerifier verifier;
+    private final Pattern accountNumRegex;
+    private final Pattern routingNumRegex;
 
     public LedgerWriterController() throws IOException,
                                            NoSuchAlgorithmException,
@@ -80,6 +84,10 @@ public final class LedgerWriterController {
         // set up verifier
         Algorithm algorithm = Algorithm.RSA256(publicKey, null);
         this.verifier = JWT.require(algorithm).build();
+
+        // regex matchers for 10 digit account numbers and 9 digit routing numbers
+        accountNumRegex = Pattern.compile("^[0-9]{10}$");
+        routingNumRegex = Pattern.compile("^[0-9]{9}$");
     }
 
     /**
@@ -129,6 +137,16 @@ public final class LedgerWriterController {
                 return new ResponseEntity<String>("not authorized",
                                                   HttpStatus.UNAUTHORIZED);
             }
+
+            // Validate account and routing numbers
+            if (!accountNumRegex.matcher(transaction.getFromAccountNum()).matches()
+                  || !accountNumRegex.matcher(transaction.getToAccountNum()).matches()
+                  || !routingNumRegex.matcher(transaction.getFromRoutingNum()).matches()
+                  || !routingNumRegex.matcher(transaction.getToRoutingNum()).matches()){
+                return new ResponseEntity<String>("invalid account details",
+                                                  HttpStatus.BAD_REQUEST);
+            }
+
             // Ensure amount is valid value.
             if (transaction.getAmount() <= 0) {
                 return new ResponseEntity<String>("invalid amount",
