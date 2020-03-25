@@ -124,8 +124,8 @@ public final class LedgerWriterController {
             // Ensure sender is the one who initiated this transaction,
             // or is external deposit.
             // TODO: Check if external account belongs to initiator of deposit.
-            if (!(transaction.getFromAccountNum() == initiatorAcct
-                  || transaction.getFromRoutingNum() != this.routingNum)) {
+            if (!(transaction.getFromAccountNum().equals(initiatorAcct)
+                  || !transaction.getFromRoutingNum().equals(this.routingNum))) {
                 return new ResponseEntity<String>("not authorized",
                                                   HttpStatus.UNAUTHORIZED);
             }
@@ -135,7 +135,7 @@ public final class LedgerWriterController {
                                                   HttpStatus.BAD_REQUEST);
             }
             // Ensure sender balance can cover transaction.
-            if (transaction.getFromRoutingNum() == this.routingNum) {
+            if (transaction.getFromRoutingNum().equals(this.routingNum)) {
                 HttpHeaders headers = new HttpHeaders();
                 headers.set("Authorization", "Bearer " + bearerToken);
                 HttpEntity entity = new HttpEntity(headers);
