@@ -133,7 +133,7 @@ class AllTasks(TaskSequence):
             """
             self.deposit(1000000)
 
-        @task(5)
+        @task(10)
         def view_index(self):
             """
             load the / page
@@ -144,7 +144,7 @@ class AllTasks(TaskSequence):
                     if r_hist.status_code > 200 and r_hist.status_code < 400:
                         response.failure("Got redirect")
 
-        @task(5)
+        @task(10)
         def view_home(self):
             """
             load the /home page (identical to /)
@@ -155,7 +155,7 @@ class AllTasks(TaskSequence):
                     if r_hist.status_code > 200 and r_hist.status_code < 400:
                         response.failure("Got redirect")
 
-        @task(10)
+        @task(5)
         def payment(self, amount=None):
             """
             POST to /payment, sending money to other account
@@ -170,7 +170,7 @@ class AllTasks(TaskSequence):
                 if "failed" in response.url:
                     response.failure("payment failed")
 
-        @task(10)
+        @task(5)
         def deposit(self, amount=None):
             """
             POST to /deposit, depositing external money into account
@@ -187,7 +187,7 @@ class AllTasks(TaskSequence):
                 if "failed" in response.url:
                     response.failure("deposit failed")
 
-        @task(2)
+        @task(5)
         def login(self):
             """
             sends POST request to /login with stored credentials
