@@ -31,8 +31,7 @@ logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO').upper())
 
 MASTER_PASSWORD = "password"
 
-TRANSACTION_ACCT_LIST = [str(randint(1000000000, 9999999999))
-                            for _ in range(50)]
+TRANSACTION_ACCT_LIST = [str(randint(1000000000, 9999999999)) for _ in range(50)]
 
 def signup_helper(locust, username):
     """
