@@ -131,7 +131,6 @@ public final class LedgerWriterController {
             String initiatorAcct = jwt.getClaim("acct").asString();
             // Ensure sender is the one who initiated this transaction,
             // or is external deposit.
-            // TODO: Check if external account belongs to initiator of deposit.
             if (!(transaction.getFromAccountNum().equals(initiatorAcct)
                   || !transaction.getFromRoutingNum().equals(this.routingNum))) {
                 return new ResponseEntity<String>("not authorized",
