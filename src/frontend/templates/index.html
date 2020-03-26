@@ -46,7 +46,7 @@ limitations under the License.
                   </a>
                   <div class="dropdown-menu" aria-labelledby="accountDropdown">
                     <form id="logout-form" method="POST" action="/logout">
-                      <a class="dropdown-item" onclick="document.getElementById('logout-form').submit();">Sign out<span class="fa-icon-spacer material-icons">exit_to_app</span></a>
+                      <a class="dropdown-item" onclick="document.getElementById('logout-form').submit();">Sign out<i class="fa-icon-spacer fas fa-sign-out-alt"></i></a>
                     </form>
                   </div>
                 </li>
@@ -226,15 +226,47 @@ limitations under the License.
                 <div class="modal-body">
                     <div class="row">
                       <div class="col-md-10 offset-md-1 mb-4">
-                        <label class="text-uppercase text-muted secondary-text mb-3" for="accounts">Select Account</label>
+                        <label class="text-uppercase text-muted secondary-text mb-3" for="accounts">External Account</label>
                         <select class="custom-select d-block w-100" id="accounts" name="account">
-                          {% for account in external_accounts %}
-                            <option value='{"account_num": "{{ account.account_number }}", "routing_num": "{{ account.routing_number }}" }'>
-                              {{ account.label }} - {{ account.account_number }} - {{ account.routing_number }}
-                            </option>
+                          {% for account in contacts %}
+                            {% if account.is_external %}
+                                <option value='{"account_num": "{{ account.account_num }}", "routing_num": "{{ account.routing_num }}" }'>
+                                  {{ account.label }} - {{ account.account_num }} - {{ account.routing_num }}
+                                </option>
+                            {% endif %}
                           {% endfor %}
-                          <option disabled value="add">Add new account</option>
+                          <option disabled>──────────</option>
+                          <option value="add">New External Account</option>
                         </select>
+                        <div id="otherDepositInputs" class="hidden">
+                          <div id="alertBanner" class="alert alert-danger mb-4" role="alert">
+                            <span class="alert-icon mr-2 material-icons">error</span>Warning: this website is a simulation. Please don't include real personal information
+                          </div>
+                          <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                              <span class="input-group-text"><strong class="deposit-input">#</strong></span>
+                            </div>
+                            <input class="form-control" type="number" step='1' id="external_account_num" name="external_account_num" min=1000000000 max=9999999999  placeholder="Account Number"/>
+                            <div class="invalid-feedback">
+                              Please enter a valid 10 digit account number.
+                            </div>
+                          </div>
+                          <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                              <span class="input-group-text"><span class="amount-font material-icons">account_balance</span></span>
+                            </div>
+                            <input class="form-control" type="number" step='1' id="external_routing_num" name="external_routing_num" min=100000000 max=999999999  placeholder="Routing Number"/>
+                            <div class="invalid-feedback">
+                              Please enter a valid 9 digit routing number.
+                            </div>
+                          </div>
+                          <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                              <span class="input-group-text"><span class="amount-font material-icons">label</span></span>
+                            </div>
+                            <input class="form-control"  type="text" id="external_label" name="external_label" placeholder="Account Label (Optional)"/>
+                          </div>
+                        </div>
                       </div>
                       <div class="col-md-10 offset-md-1">
                         <label class="text-uppercase text-muted secondary-text mb-1" for="deposit-amount">Deposit Amount</label>
@@ -242,7 +274,7 @@ limitations under the License.
                           <div class="input-group-prepend">
                             <span class="input-group-text"><span class="amount-font material-icons">attach_money</span></span>
                           </div>
-                          <input class="form-control amount-font" type="number" step='0.01' id="deposit-amount" name="amount" placeholder=0.00 min=0 aria-label="Amount (to the nearest dollar)" required>
+                          <input class="form-control amount-font" type="number" step='0.01' id="deposit-amount" name="amount" placeholder=0.00 min=0.01 aria-label="Amount (to the nearest dollar)" required>
                           <div class="invalid-feedback">
                             Please enter a valid amount.
                           </div>
@@ -275,19 +307,29 @@ limitations under the License.
                     <div class="col-md-10 offset-md-1 mb-4">
                       <label class="text-uppercase secondary-text text-muted mb-3" for="payment-accounts">Recipient</label>
                       <select class="custom-select d-block w-100 mb-3" id="payment-accounts" name="account_num">
-                        {% for account in favorite_accounts %}
-                          <option value="{{ account.account_number }}">{{ account.label }} - {{ account.account_number }}</option>
+                        {% for account in contacts %}
+                            {% if not account.is_external %}
+                                <option value="{{ account.account_num }}">{{ account.label }} - {{ account.account_num }}</option>
+                            {% endif %}
                         {% endfor %}
                         <option disabled>──────────</option>
-                        <option value="other">New Recipient</option>
+                        <option value="add">New Recipient</option>
                       </select>
-                      <div id="otherAccountInputs" class="hidden input-group mb-3">
-                        <div class="input-group-prepend">
-                          <span class="input-group-text"><strong class="deposit-input">#</strong></span>
+                      <div id="otherAccountInputs" class="hidden">
+                        <div class="input-group mb-3">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text"><strong class="deposit-input">#</strong></span>
+                          </div>
+                          <input class="form-control" type="number" step='1' id="contact_account_num" name="contact_account_num" min=1000000000 max=9999999999  placeholder="Account Number"/>
+                          <div class="invalid-feedback">
+                            Please enter a valid 10 digit account number.
+                          </div>
                         </div>
-                        <input class="form-control" type="number" step='1' id="other_account_num" name="other_account_num" min=1000000000 max=9999999999  placeholder="Account Number"/>
-                        <div class="invalid-feedback">
-                          Please enter a valid account number.
+                        <div class="input-group mb-3">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text"><span class="amount-font material-icons">label</span></span>
+                          </div>
+                          <input class="form-control"  type="text" id="contact_label" name="contact_label" placeholder="Contact Label (Optional)"/>
                         </div>
                       </div>
                     </div>
@@ -297,7 +339,7 @@ limitations under the License.
                         <div class="input-group-prepend">
                           <span class="input-group-text"><span class="amount-font deposit-input material-icons">attach_money</span></span>
                         </div>
-                        <input class="form-control amount-font" type="number" step='0.01' id="payment-amount" name="amount" placeholder=0.00 min=0 aria-label="Amount (to the nearest dollar)" required>
+                        <input class="form-control amount-font" type="number" step='0.01' id="payment-amount" name="amount" placeholder=0.00 min=0.01 aria-label="Amount (to the nearest dollar)" required>
                         <div class="invalid-feedback">
                           Please enter a valid amount.
                         </div>
@@ -338,6 +380,10 @@ limitations under the License.
           // Deposit modal client-side validation
           var depositForm = document.getElementById("deposit-form");
           depositForm.addEventListener("submit", function(e) {
+            var isNewAcct = (document.getElementById('accounts').value == 'add');
+            document.getElementById("external_account_num").required = isNewAcct;
+            document.getElementById("external_routing_num").required = isNewAcct;
+
             if(depositForm.checkValidity() === false || $('#deposit-amount').val() <= 0.00){
               e.preventDefault();
               e.stopPropagation();
@@ -351,6 +397,7 @@ limitations under the License.
             depositCancel[i].addEventListener('click', function () {
               depositForm.reset();
               depositForm.classList.remove('was-validated');
+              RefreshModals();
             });
           }
 
@@ -358,7 +405,7 @@ limitations under the License.
           var paymentForm = document.getElementById("payment-form");
           paymentForm.addEventListener("submit", function(e) {
             // Check if account number is required
-            document.getElementById("other_account_num").required = (document.getElementById('payment-accounts').value == 'other');
+            document.getElementById("contact_account_num").required = (document.getElementById('payment-accounts').value == 'add');
 
             if(paymentForm.checkValidity() === false || $('#payment-amount').val() <= 0.00){
               e.preventDefault();
@@ -373,17 +420,36 @@ limitations under the License.
             paymentCancel[i].addEventListener('click', function () {
               paymentForm.reset();
               paymentForm.classList.remove('was-validated');
-              document.getElementById("otherAccountInputs").classList.add('hidden');
+              RefreshModals();
             });
           }
 
           // Handle new account option in Send Payment modal
           document.getElementById("payment-accounts").addEventListener("change", function(e) {
-            if(e.target.value == 'other'){
-              document.getElementById("otherAccountInputs").classList.remove('hidden');
-            }
-            else document.getElementById("otherAccountInputs").classList.add('hidden');
+            RefreshModals();
           });
+
+          // Handle new account option in Deposit modal
+          document.getElementById("accounts").addEventListener("change", function(e) {
+            RefreshModals();
+          });
+
+          // Reset Modals to proper state
+          function RefreshModals(){
+              paymentSelection = document.getElementById("payment-accounts").value;
+              if (paymentSelection == 'add') {
+                document.getElementById("otherAccountInputs").classList.remove('hidden');
+              } else {
+                document.getElementById("otherAccountInputs").classList.add('hidden');
+              }
+              depositSelection = document.getElementById("accounts").value;
+              if (depositSelection == 'add') {
+                document.getElementById("otherDepositInputs").classList.remove('hidden');
+              } else {
+                document.getElementById("otherDepositInputs").classList.add('hidden');
+              }
+          }
+          RefreshModals();
         });
       </script>
     </body> 

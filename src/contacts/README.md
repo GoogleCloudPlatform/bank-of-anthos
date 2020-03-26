@@ -1,20 +1,18 @@
 # Contacts Service
 
-The contacts service stores a list of other accounts associated with a user.
+The contacts service stores a list of saved accounts associated with a user.
 Data from the contacts service is used for drop down in "Send Payment" and "Deposit" forms.
 
 Implemented in Python with Flask.
 
 ### Endpoints
 
-| Endpoint             | Type  | Auth? | Description                                                |
-| -------------------- | ----- | ----- | ---------------------------------------------------------- |
-| `/accounts/contacts` | GET   | 🔒    |  Retrieve a list of connected user accounts.               |
-| `/accounts/contacts` | POST  | 🔒    |  Add a new connected user account for sending payments.    |
-| `/accounts/external` | GET   | 🔒    |  Retrieve a list of external bank accounts.                |
-| `/accounts/external` | POST  | 🔒    |  Add a new external bank account for deposits.             |
-| `/ready`             | GET   |       |  Readiness probe endpoint.                                 |
-| `/version`           | GET   |       |  Returns the contents of `$VERSION`                        |
+| Endpoint                | Type  | Auth? | Description                                                        |
+| ----------------------- | ----- | ----- | ------------------------------------------------------------------ |
+| `/contacts/<username>`  | GET   | 🔒    |  Retrieve a list of saved accounts for the authenticated user.     |
+| `/contacts/<username>`  | POST  | 🔒    |  Add a new saved account for the authenticated user.               |
+| `/ready`                | GET   |       |  Readiness probe endpoint.                                         |
+| `/version`              | GET   |       |  Returns the contents of `$VERSION`                                |
 
 
 ### Environment Variables
