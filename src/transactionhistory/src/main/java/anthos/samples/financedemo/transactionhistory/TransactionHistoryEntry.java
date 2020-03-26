@@ -44,6 +44,21 @@ final class TransactionHistoryEntry {
     @Column (name="SEND_ACCT")
     private String accountNum;
 
+    @Column (name="KEY_ACCT")
+    private String keyAccountNum;
+
+    @JsonProperty("routingNum")
+    @Column (name="SEND_ROUTING")
+    private String routingNum;
+
+    @JsonProperty("amount")
+    @Column (name="AMOUNT")
+    private long amount;
+
+    @JsonProperty("timestamp")
+    @Column (name="TIMESTAMP")
+    private double timestamp;
+
     public long getTransactionId() {
         return transactionId;
     }
@@ -59,4 +74,37 @@ final class TransactionHistoryEntry {
     public void setAccountNum(String accountNum) {
         this.accountNum = accountNum;
     }
+
+    public String getKeyAccountNum() {
+        return keyAccountNum;
+    }
+
+    public void setKeyAccountNum(String keyAccountNum){
+        this.keyAccountNum = keyAccountNum;
+    }
+
+    public String getRoutingNum() {
+        return routingNum;
+    }
+
+    public void setRoutingNum(String routingNum){
+        this.routingNum = routingNum;
+    }
+
+    public long getAmount() {
+        return amount;
+    }
+
+    public void setAmount(long amount){
+        this.amount = amount;
+    }
+
+    public double getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(double timestamp){
+        this.timestamp = timestamp;
+    }
+
 }
