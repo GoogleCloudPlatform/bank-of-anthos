@@ -154,7 +154,8 @@ def payment():
                             send_route=LOCAL_ROUTING,
                             recv_acct=recipient,
                             recv_route=LOCAL_ROUTING,
-                            amount=int(float(request.form['amount']) * 100))
+                            amount=int(float(request.form['amount']) * 100),
+                            token=token)
         if status_code == 201:
             return redirect(url_for('home', msg='Transaction initiated'))
     except requests.exceptions.RequestException as err:
@@ -186,14 +187,15 @@ def deposit():
                             send_route=account_details['routing_num'],
                             recv_acct=account_id,
                             recv_route=LOCAL_ROUTING,
-                            amount=int(float(request.form['amount']) * 100))
+                            amount=int(float(request.form['amount']) * 100),
+                            token=token)
         if status_code == 201:
             return redirect(url_for('home', msg='Deposit accepted'))
     except requests.exceptions.RequestException as err:
         logging.error(str(err))
     return redirect(url_for('home', msg='Deposit failed'))
 
-def _transaction_helper(send_acct, send_route, recv_acct, recv_route, amount):
+def _transaction_helper(send_acct, send_route, recv_acct, recv_route, amount, token):
     transaction_obj = {'fromRoutingNum': send_route,
                        'fromAccountNum': send_acct,
                        'toRoutingNum': recv_route,
