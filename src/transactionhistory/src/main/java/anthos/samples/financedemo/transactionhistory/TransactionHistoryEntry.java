@@ -18,7 +18,12 @@ package anthos.samples.financedemo.transactionhistory;
 
 import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 enum TransactionType {
     DEBIT, CREDIT;
@@ -26,47 +31,32 @@ enum TransactionType {
 /**
  * Defines a banking transaction histoy entry for display to a user
  */
-public final class TransactionHistoryEntry {
+@Entity
+@Table(name="TRANSACTIONS")
+final class TransactionHistoryEntry {
 
-    private final String localRoutingNum =  System.getenv("LOCAL_ROUTING_NUM");
+    @Id
+    @Column(name="TRANSACTION_ID")
+    @GeneratedValue(strategy=GenerationType.AUTO)
+    private long transactionId;
 
-    @JsonProperty("type")
-    private TransactionType type;
-    @JsonProperty("routingNum")
-    private String routingNum;
     @JsonProperty("accountNum")
+    @Column (name="SEND_ACCT")
     private String accountNum;
-    @JsonProperty("amount")
-    private Integer amount;
-    @JsonProperty("timestamp")
-    private final double timestamp;
 
-    /**
-     * Construct a TransactionHistoryEntry
-     *
-     * @param map returned from redis
-     * @param transaction type (credit or debit) to parse from the map
-     */
-    public TransactionHistoryEntry(Map<String, String> map,
-                                   TransactionType type) {
-        this.type = type;
-        this.amount = Integer.valueOf(map.get("amount"));
-        this.timestamp = Double.valueOf(map.get("timestamp"));
-        if (type == TransactionType.CREDIT) {
-            this.accountNum = map.get("toAccountNum");
-            this.routingNum = map.get("toRoutingNum");
-        } else if (type == TransactionType.DEBIT) {
-            this.accountNum = map.get("fromAccountNum");
-            this.routingNum = map.get("fromRoutingNum");
-        }
+    public long getTransactionId() {
+        return transactionId;
     }
 
-    /**
-     * String representation.
-     *
-     * "{accountNum}:{type}:{amount}"
-     */
-    public String toString() {
-        return String.format("%s:%s:%d", accountNum, type, amount);
+    public void setTransactionId(long transactionId){
+        this.transactionId = transactionId;
+    }
+
+    public String getAccountNum(){
+        return accountNum;
+    }
+
+    public void setAccountNum(String accountNum) {
+        this.accountNum = accountNum;
     }
 }

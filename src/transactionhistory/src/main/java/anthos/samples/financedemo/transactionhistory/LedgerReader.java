@@ -116,17 +116,17 @@ public final class LedgerReader {
                     String receiver = map.get("toAccountNum");
                     String receiverRouting = map.get("toRoutingNum");
                     // create credit and debit entries for transaction
-                    TransactionHistoryEntry cred = new TransactionHistoryEntry(
-                            message.getBody(), TransactionType.CREDIT);
-                    TransactionHistoryEntry debit = new TransactionHistoryEntry(
-                            message.getBody(), TransactionType.DEBIT);
-                    // process entries only if they belong to this bank
-                    if (senderRouting.equals(localRoutingNum)) {
-                        this.listener.processTransaction(sender, cred);
-                    }
-                    if (receiverRouting.equals(localRoutingNum)) {
-                        this.listener.processTransaction(receiver, debit);
-                    }
+                    //TransactionHistoryEntry cred = new TransactionHistoryEntry(
+                    //        message.getBody(), TransactionType.CREDIT);
+                    //TransactionHistoryEntry debit = new TransactionHistoryEntry(
+                    //        message.getBody(), TransactionType.DEBIT);
+                    //// process entries only if they belong to this bank
+                    //if (senderRouting.equals(localRoutingNum)) {
+                    //    this.listener.processTransaction(sender, cred);
+                    //}
+                    //if (receiverRouting.equals(localRoutingNum)) {
+                    //    this.listener.processTransaction(receiver, debit);
+                    //}
                 } else {
                     logger.warning("Listener not set up.");
                 }

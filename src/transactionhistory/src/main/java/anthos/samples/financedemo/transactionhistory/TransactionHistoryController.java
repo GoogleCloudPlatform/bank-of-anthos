@@ -44,6 +44,10 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.logging.Logger;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Iterator;
+
 @RestController
 public final class TransactionHistoryController
         implements LedgerReaderListener {
@@ -56,6 +60,8 @@ public final class TransactionHistoryController
         new HashMap<String, List<TransactionHistoryEntry>>();
     private final LedgerReader reader;
     private boolean initialized = false;
+    @Autowired
+    private TransactionRepository transactionRepository;
 
     /**
      * TransactionHistoryController constructor
@@ -148,12 +154,7 @@ public final class TransactionHistoryController
                                                   HttpStatus.UNAUTHORIZED);
             }
 
-            List<TransactionHistoryEntry> historyList;
-            if (this.historyMap.containsKey(accountId)) {
-                historyList = this.historyMap.get(accountId);
-            } else {
-                historyList = new LinkedList<TransactionHistoryEntry>();
-            }
+            Iterable<TransactionHistoryEntry> historyList = transactionRepository.findAll();
 
             // Set artificial extra latency.
             String latency = System.getenv("EXTRA_LATENCY_MILLIS");
@@ -165,7 +166,7 @@ public final class TransactionHistoryController
                 }
             }
 
-            return new ResponseEntity<List<TransactionHistoryEntry>>(
+            return new ResponseEntity<Iterable<TransactionHistoryEntry>>(
                     historyList, HttpStatus.OK);
         } catch (JWTVerificationException e) {
             return new ResponseEntity<String>("not authorized",
@@ -182,14 +183,14 @@ public final class TransactionHistoryController
      */
     public void processTransaction(String account,
                                    TransactionHistoryEntry entry) {
-        LinkedList<TransactionHistoryEntry> historyList;
-        if (!this.historyMap.containsKey(account)) {
-            historyList = new LinkedList<TransactionHistoryEntry>();
-            this.historyMap.put(account, historyList);
-        } else {
-            historyList = (LinkedList) this.historyMap.get(account);
-        }
-        historyList.addFirst(entry);
+        //LinkedList<TransactionHistoryEntry> historyList;
+        //if (!this.historyMap.containsKey(account)) {
+        //    historyList = new LinkedList<TransactionHistoryEntry>();
+        //    this.historyMap.put(account, historyList);
+        //} else {
+        //    historyList = (LinkedList) this.historyMap.get(account);
+        //}
+        //historyList.addFirst(entry);
     }
 
 
