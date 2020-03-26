@@ -148,26 +148,15 @@ def payment():
         recipient = request.form['account_num']
         if recipient == 'other':
             recipient = request.form['other_account_num']
-        # convert amount to integer
-        amount = int(float(request.form['amount']) * 100)
-        # verify balance is sufficient
-        hed = {'Authorization': 'Bearer ' + token}
-        req = requests.get(url=APP.config["BALANCES_URI"], headers=hed)
-        balance = req.json()
-        if balance >= amount:
-            transaction_obj = {'fromRoutingNum':  LOCAL_ROUTING,
-                               'fromAccountNum': account_id,
-                               'toRoutingNum': LOCAL_ROUTING,
-                               'toAccountNum': recipient,
-                               'amount': amount}
-            hed = {'Authorization': 'Bearer ' + token,
-                   'content-type': 'application/json'}
-            req = requests.post(url=APP.config["TRANSACTIONS_URI"],
-                                data=jsonify(transaction_obj).data,
-                                headers=hed,
-                                timeout=3)
-            if req.status_code == 201:
-                return redirect(url_for('home', msg='Transaction initiated'))
+
+        status_code = _transaction_helper(
+                            send_acct=account_id,
+                            send_route=LOCAL_ROUTING,
+                            recv_acct=recipient,
+                            recv_route=LOCAL_ROUTING,
+                            amount=int(float(request.form['amount']) * 100))
+        if status_code == 201:
+            return redirect(url_for('home', msg='Transaction initiated'))
     except requests.exceptions.RequestException as err:
         logging.error(str(err))
     return redirect(url_for('home', msg='Transaction failed'))
@@ -190,31 +179,33 @@ def deposit():
     try:
         # get account id from token
         account_id = jwt.decode(token, verify=False)['acct']
-
-        # get data from form
         account_details = json.loads(request.form['account'])
-        external_account_num = account_details['account_num']
-        external_routing_num = account_details['routing_num']
-        # convert amount to integer
-        amount = int(float(request.form['amount']) * 100)
 
-        # simulate transaction from external bank into user's account
-        transaction_obj = {'fromRoutingNum':  external_routing_num,
-                           'fromAccountNum': external_account_num,
-                           'toRoutingNum': LOCAL_ROUTING,
-                           'toAccountNum': account_id,
-                           'amount': amount}
-        hed = {'Authorization': 'Bearer ' + token,
-               'content-type': 'application/json'}
-        req = requests.post(url=APP.config["TRANSACTIONS_URI"],
-                            data=jsonify(transaction_obj).data,
-                            headers=hed,
-                            timeout=3)
-        if req.status_code == 201:
+        status_code = _transaction_helper(
+                            send_acct=account_details['account_num'],
+                            send_route=account_details['routing_num'],
+                            recv_acct=account_id,
+                            recv_route=LOCAL_ROUTING,
+                            amount=int(float(request.form['amount']) * 100))
+        if status_code == 201:
             return redirect(url_for('home', msg='Deposit accepted'))
     except requests.exceptions.RequestException as err:
         logging.error(str(err))
     return redirect(url_for('home', msg='Deposit failed'))
+
+def _transaction_helper(send_acct, send_route, recv_acct, recv_route, amount):
+    transaction_obj = {'fromRoutingNum': send_route,
+                       'fromAccountNum': send_acct,
+                       'toRoutingNum': recv_route,
+                       'toAccountNum': recv_acct,
+                       'amount': amount}
+    hed = {'Authorization': 'Bearer ' + token,
+           'content-type': 'application/json'}
+    req = requests.post(url=APP.config["TRANSACTIONS_URI"],
+                        data=jsonify(transaction_obj).data,
+                        headers=hed,
+                        timeout=3)
+    return req.status_code
 
 
 @APP.route("/login", methods=['GET'])
