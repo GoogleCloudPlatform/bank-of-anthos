@@ -148,12 +148,11 @@ def payment():
                              False)
 
         status_code = _transaction_helper(
-                            send_acct=account_id,
-                            send_route=LOCAL_ROUTING,
-                            recv_acct=recipient,
-                            recv_route=LOCAL_ROUTING,
-                            amount=int(float(request.form['amount']) * 100),
-                            token=token)
+            send_acct=account_id,
+            send_route=LOCAL_ROUTING,
+            recv_acct=recipient,
+            recv_route=LOCAL_ROUTING,
+            amount=int(float(request.form['amount']) * 100))
         if status_code == 201:
             return redirect(url_for('home', msg='Transaction initiated'))
     except requests.exceptions.RequestException as err:
@@ -191,21 +190,20 @@ def deposit():
             account_details = json.loads(request.form['account'])
             external_account_num = account_details['account_num']
             external_routing_num = account_details['routing_num']
-
         status_code = _transaction_helper(
-                            send_acct=external_account_num
-                            send_route=external_routing_num,
-                            recv_acct=account_id,
-                            recv_route=LOCAL_ROUTING,
-                            amount=int(float(request.form['amount']) * 100),
-                            token=token)
+            send_acct=external_account_num,
+            send_route=external_routing_num,
+            recv_acct=account_id,
+            recv_route=LOCAL_ROUTING,
+            amount=int(float(request.form['amount']) * 100))
         if status_code == 201:
             return redirect(url_for('home', msg='Deposit accepted'))
     except requests.exceptions.RequestException as err:
         logging.error(str(err))
     return redirect(url_for('home', msg='Deposit failed'))
 
-def _transaction_helper(send_acct, send_route, recv_acct, recv_route, amount, token):
+def _transaction_helper(send_acct, send_route, recv_acct, recv_route, amount):
+    token = request.cookies.get(TOKEN_NAME)
     transaction_obj = {'fromRoutingNum': send_route,
                        'fromAccountNum': send_acct,
                        'toRoutingNum': recv_route,
