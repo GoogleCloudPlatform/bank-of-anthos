@@ -53,7 +53,7 @@ spec:
         - name: PUB_KEY_PATH
           value: "/root/.ssh/privatekey"
         - name: ACCOUNTS_DB_ADDR
-          value: "accounts-db-2"
+          value: "accounts-db"
         - name: ACCOUNTS_DB_PORT
           value: "5432"
         - name: ACCOUNTS_DB_USER
