@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.http.ResponseEntity;
 
+import java.lang.InterruptedException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -69,7 +70,8 @@ public final class TransactionHistoryController
      */
     public TransactionHistoryController() throws IOException,
                                            NoSuchAlgorithmException,
-                                           InvalidKeySpecException {
+                                           InvalidKeySpecException,
+                                           InterruptedException {
         // load public key from file
         String fPath = System.getenv("PUB_KEY_PATH");
         String pubKeyStr  = new String(Files.readAllBytes(Paths.get(fPath)));
@@ -181,8 +183,7 @@ public final class TransactionHistoryController
      * @param account associated with the transaction
      * @param entry with transaction metadata
      */
-    public void processTransaction(String account,
-                                   TransactionHistoryEntry entry) {
+    public void processTransaction(TransactionHistoryEntry entry) {
         //LinkedList<TransactionHistoryEntry> historyList;
         //if (!this.historyMap.containsKey(account)) {
         //    historyList = new LinkedList<TransactionHistoryEntry>();
@@ -191,6 +192,12 @@ public final class TransactionHistoryController
         //    historyList = (LinkedList) this.historyMap.get(account);
         //}
         //historyList.addFirst(entry);
+        logger.info("new entry");
+
+        if (entry != null && transactionRepository != null){
+            logger.info("here");
+            transactionRepository.save(entry);
+        }
     }
 
 

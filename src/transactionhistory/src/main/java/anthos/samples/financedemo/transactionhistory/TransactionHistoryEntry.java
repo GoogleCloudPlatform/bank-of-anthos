@@ -37,7 +37,7 @@ final class TransactionHistoryEntry {
 
     @Id
     @Column(name="TRANSACTION_ID")
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     private long transactionId;
 
     @JsonProperty("accountNum")
@@ -107,4 +107,27 @@ final class TransactionHistoryEntry {
         this.timestamp = timestamp;
     }
 
+    /**
+     * Construct a TransactionHistoryEntry
+     *
+     * @param map returned from redis
+     * @param transaction type (credit or debit) to parse from the map
+     */
+    public TransactionHistoryEntry(Map<String, String> map,
+                                   TransactionType type) {
+        //this.type = type;
+        this.amount = Integer.valueOf(map.get("amount"));
+        this.timestamp = Double.valueOf(map.get("timestamp"));
+        if (type == TransactionType.CREDIT) {
+            this.accountNum = map.get("toAccountNum");
+            this.routingNum = map.get("toRoutingNum");
+            this.keyAccountNum = map.get("fromAccountNum");
+        } else if (type == TransactionType.DEBIT) {
+            this.accountNum = map.get("fromAccountNum");
+            this.routingNum = map.get("fromRoutingNum");
+            this.keyAccountNum = map.get("toAccountNum");
+        }
+    }
+
+    public TransactionHistoryEntry() {}
 }

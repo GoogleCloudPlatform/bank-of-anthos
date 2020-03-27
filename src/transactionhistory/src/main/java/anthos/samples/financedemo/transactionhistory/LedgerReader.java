@@ -29,18 +29,20 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import org.springframework.stereotype.Component;
 
 /**
  * Defines an interface for reacting to new transactions
  */
 interface LedgerReaderListener {
-    void processTransaction(String account, TransactionHistoryEntry entry);
+    void processTransaction(TransactionHistoryEntry entry);
 }
 
 /**
  * LedgerReader listens for incoming transactions, and executes a callback
  * on a subscribed listener object
  */
+@Component
 public final class LedgerReader {
 
     private final Logger logger =
@@ -111,22 +113,20 @@ public final class LedgerReader {
                 latestTransactionId = message.getId();
                 Map<String, String> map = message.getBody();
                 if (this.listener != null) {
-                    String sender = map.get("fromAccountNum");
                     String senderRouting = map.get("fromRoutingNum");
-                    String receiver = map.get("toAccountNum");
                     String receiverRouting = map.get("toRoutingNum");
                     // create credit and debit entries for transaction
-                    //TransactionHistoryEntry cred = new TransactionHistoryEntry(
-                    //        message.getBody(), TransactionType.CREDIT);
-                    //TransactionHistoryEntry debit = new TransactionHistoryEntry(
-                    //        message.getBody(), TransactionType.DEBIT);
-                    //// process entries only if they belong to this bank
-                    //if (senderRouting.equals(localRoutingNum)) {
-                    //    this.listener.processTransaction(sender, cred);
-                    //}
-                    //if (receiverRouting.equals(localRoutingNum)) {
-                    //    this.listener.processTransaction(receiver, debit);
-                    //}
+                    TransactionHistoryEntry cred = new TransactionHistoryEntry(
+                            message.getBody(), TransactionType.CREDIT);
+                    TransactionHistoryEntry debit = new TransactionHistoryEntry(
+                            message.getBody(), TransactionType.DEBIT);
+                    // process entries only if they belong to this bank
+                    if (senderRouting.equals(localRoutingNum)) {
+                        this.listener.processTransaction(cred);
+                    }
+                    if (receiverRouting.equals(localRoutingNum)) {
+                        this.listener.processTransaction(debit);
+                    }
                 } else {
                     logger.warning("Listener not set up.");
                 }
