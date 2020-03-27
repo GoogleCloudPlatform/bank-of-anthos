@@ -20,225 +20,437 @@ limitations under the License.
       <meta http-equiv="X-UA-Compatible" content="IE=edge">
       <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
       <title>Bank of Anthos</title>
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en">
-      <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-      <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-green.min.css">
+      <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
+      <link rel="stylesheet" href="https://unpkg.com/bootstrap-material-design@4.1.1/dist/css/bootstrap-material-design.min.css" integrity="sha384-wXznGJNEXNG1NFsbm0ugrLFMQPWswR3lds2VeinahP8N0zJw9VWSopbjv2x7WCvX" crossorigin="anonymous">
+      <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
       <link rel="stylesheet" href="static/styles/demo.css">
-      <script src="https://code.getmdl.io/1.3.0/material.min.js"></script>
    </head>
-   <body class="mdl-demo mdl-color--grey-100 mdl-color-text--grey-700 mdl-base">
-    <!-- Toast Box -->
-    <div aria-live="assertive" aria-atomic="true" aria-relevant="text" class="mdl-snackbar mdl-js-snackbar">
-        <div class="mdl-snackbar__text"></div>
-        <button type="button" class="mdl-snackbar__action"></button>
-    </div>
-    <!-- Header -->
-      <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
-         <header class="mdl-layout__header mdl-layout__header--scroll mdl-color--primary">
-            <div class="mdl-layout--large-screen-only mdl-layout__header-row"></div>
-            <div class="mdl-layout__header-row">
-               <h3>Bank of Anthos</h3>
-               <div class = "mdl-layout-spacer"></div>
-               <h3>{{ name }} </h3>
-               <div class = "mdl-layout-spacer"></div>
-
-                <form id=logout-form method="POST" action="/logout">
-                  <button type="button"
-                     class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--accent mdl-color-text--accent-contrast"
-                     onClick="document.getElementById('logout-form').submit();" style="margin:auto;display:block">Log Out</button>
-                </form>
+    <body>
+      <!-- Bank of Anthos Navigation Bar -->
+      <header>
+        <nav class="navbar navbar-expand-lg navbar-top">
+          <div class="container">
+            <a class="navbar-brand">
+              Bank of Anthos
+            </a>
+            <button type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler navbar-toggler-right">
+              <span class="material-icons">menu</span>
+            </button>
+            <div class="justify-content-end collapse navbar-collapse" id="navbarNav">
+              <ul class="navbar-nav">
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" id="accountDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span>
+                        <span class="account-user-name">{{ name }}</span>
+                    </span>
+                  </a>
+                  <div class="dropdown-menu" aria-labelledby="accountDropdown">
+                    <form id="logout-form" method="POST" action="/logout">
+                      <a class="dropdown-item" onclick="document.getElementById('logout-form').submit();">Sign out<i class="fa-icon-spacer fas fa-sign-out-alt"></i></a>
+                    </form>
+                  </div>
+                </li>
+              </ul>
             </div>
-         </header>
-         <main class="mdl-layout__content">
-            <!-- empty section for spacing --!>
-            <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
-            </section>
-            <!-- balance section --!>
-            <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
-                <div class="mdl-card mdl-cell mdl-cell--12-col">
-                    <div class="mdl-card__supporting-text">
-                        <h4>Account: {{account_id}}</h4>
-                        <table style="margin:auto;width:100%">
-                        <tbody>
-                           <tr>
-                           <td class="mdl-data-table__cell--non-numeric"><h3> {{ format_currency(balance) }} </h3></td>
-                              <td class="mdl-card__menu"><button type="button"
-                            class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--accent mdl-color-text--accent-contrast deposit-modal-btn"
-                            style="margin:auto;display:block">⬇ Deposit Funds</button><br>
-                            <button type="button"
-                            class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--accent mdl-color-text--accent-contrast payment-modal-btn"
-                            style="margin:auto;display:block">⬆ Send Payment</button></td>
-                           </tr>
-                        </tbody>
-                     </table>
+          </div>
+        </nav>
+      </header>
 
+      <!-- Main Content -->
+      <main class="container">
+        <!-- Header -->
+        <div class="row d-flex align-items-end header header-body">
+          <!-- Alert on load -->
+          {% if message != None %}
+          <div class="col-md-8 offset-md-2">
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+              <span class="alert-icon mr-2 material-icons">check_circle</span>{{ message }}
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">×</span>
+              </button>
+            </div>
+          </div>
+          {% endif %}
+          <div class="col-md-8">        
+            <small class="text-uppercase text-muted secondary-text">Overview</small>
+            <h2 class="header-title">Checking Account</h2>
+          </div>
+          <div class="col-md-4">
+            <div class="account-info float-right">
+              <p><span class="account-fa material-icons">info</span><span class="account-num-text">Account Number:</span><span class="account-number">{{ account_id }}</span></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cards -->
+        <div class="row col-lg-12 align-items-center">
+          <div class="col-lg-4">
+              <div class="card">
+                <div class="card-body">
+                  <div class="row align-items-center">
+                    <div class="col">
+                      <p class="text-uppercase secondary-text text-muted mb-3">
+                        <b>Current Balance</b>
+                      </p>
+                      <span class="h1 mb-0">
+                        {{ format_currency(balance) }}
+                      </span>
+                    </div>
+                    <div class="col-auto">
+                      <span class="material-icons card-icon">account_balance_wallet</span>
+                    </div>
+                  </div>
+                </div>
+            </div>
+          </div>
+          <div class="col-lg-8">
+            <div class="row">
+              <div class="col-lg-6">
+                <div class="card card-button" data-toggle="modal" data-target="#depositFunds">
+                  <div class="card-body">
+                    <div class="row align-items-center">
+                      <div class="col">
+                        <span class="h5 mb-0">
+                          Deposit Funds
+                        </span>
+                      </div>
+                      <div class="button-icon col-auto">
+                        <span class="material-icons">get_app</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="card card-button" data-toggle="modal" data-target="#sendPayment">
+                  <div class="card-body">
+                    <div class="row align-items-center">
+                      <div class="col">
+                        <span class="h5 mb-0">
+                          Send Payment
+                        </span>
+                      </div>
+                      <div class="button-icon col-auto">
+                        <span class="material-icons">forward</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Transaction History Table -->
+        <div class="row col-lg-10 offset-lg-1 mb-4">
+          <div class="col-lg-12">
+            <div class="card">
+              <div class="card-table-header">
+                <div class="row align-items-center">
+                  <div class="col">
+                    <h4 class="card-header-title">
+                      Transaction History
+                    </h4>
+                  </div>
+                </div>
+              </div>
+              <div class="table-responsive mb-0">
+                {% if history|length == 0 %}
+                <h4 class="card-table-header">No Transactions Found</h4>
+                {% else %}
+                <table class="table table-sm table-nowrap card-table">
+                  <thead class="text-uppercase">
+                    <tr>
+                      <th>
+                        <a class="text-transaction-header">Date</a> 
+                      </th>
+                      <th>
+                        <a class="text-transaction-header">Type</a>
+                      </th>
+                      <th>
+                        <a class="text-transaction-header">Account</a>
+                      </th>
+                      <th class="text-right">
+                        <a class="text-transaction-header">Amount</a>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody class="list">
+                      {% for t in history %}
+                        <tr>
+                          <td class="text-uppercase transaction-date">
+                            <p><small class="text-uppercase date-month">{{ format_timestamp_month(t.timestamp) }}</small>{{ format_timestamp_day(t.timestamp) }}</p>
+                          </td>
+                          {% if t.type == "DEBIT" %}
+                            <td class="transaction-type">
+                              <span class="text-success">●</span> Debit
+                            </td>
+                            <td class="transaction-account">
+                              {{ t.accountNum }}
+                            </td>
+                            <td class="transaction-amount transaction-amount-debit">
+                              +{{ format_currency(t.amount) }}
+                            </td>
+                          {% else %}
+                            <td class="transaction-type">
+                              <span class="text-warning">●</span> Credit
+                            </td>
+                            <td class="transaction-account">
+                              {{ t.accountNum }}
+                            </td>
+                            <td class="transaction-amount">
+                              -{{ format_currency(t.amount) }}
+                            </td>
+                          {% endif %}
+                        </tr>
+                      {% endfor %}
+                  </tbody>
+                </table>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Deposit Modal -->
+        <div class="modal fade" id="depositFunds" tabindex="-1" role="dialog" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+              <form id="deposit-form" class="needs-validation" novalidate="" method="POST" action="/deposit">
+                <div class="modal-header">
+                  <h3 class="modal-title header-title" id="exampleModalLongTitle">Make a Deposit</h3>
+                  <button type="button" class="close deposit-cancel" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                      <div class="col-md-10 offset-md-1 mb-4">
+                        <label class="text-uppercase text-muted secondary-text mb-3" for="accounts">External Account</label>
+                        <select class="custom-select d-block w-100" id="accounts" name="account">
+                          {% for account in contacts %}
+                            {% if account.is_external %}
+                                <option value='{"account_num": "{{ account.account_num }}", "routing_num": "{{ account.routing_num }}" }'>
+                                  {{ account.label }} - {{ account.account_num }} - {{ account.routing_num }}
+                                </option>
+                            {% endif %}
+                          {% endfor %}
+                          <option disabled>──────────</option>
+                          <option value="add">New External Account</option>
+                        </select>
+                        <div id="otherDepositInputs" class="hidden">
+                          <div id="alertBanner" class="alert alert-danger mb-4" role="alert">
+                            <span class="alert-icon mr-2 material-icons">error</span>Warning: this website is a simulation. Please don't include real personal information
+                          </div>
+                          <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                              <span class="input-group-text"><strong class="deposit-input">#</strong></span>
+                            </div>
+                            <input class="form-control" type="number" step='1' id="external_account_num" name="external_account_num" min=1000000000 max=9999999999  placeholder="Account Number"/>
+                            <div class="invalid-feedback">
+                              Please enter a valid 10 digit account number.
+                            </div>
+                          </div>
+                          <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                              <span class="input-group-text"><span class="amount-font material-icons">account_balance</span></span>
+                            </div>
+                            <input class="form-control" type="number" step='1' id="external_routing_num" name="external_routing_num" min=100000000 max=999999999  placeholder="Routing Number"/>
+                            <div class="invalid-feedback">
+                              Please enter a valid 9 digit routing number.
+                            </div>
+                          </div>
+                          <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                              <span class="input-group-text"><span class="amount-font material-icons">label</span></span>
+                            </div>
+                            <input class="form-control"  type="text" id="external_label" name="external_label" placeholder="Account Label (Optional)"/>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-10 offset-md-1">
+                        <label class="text-uppercase text-muted secondary-text mb-1" for="deposit-amount">Deposit Amount</label>
+                        <div class="input-group mb-3">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text"><span class="amount-font material-icons">attach_money</span></span>
+                          </div>
+                          <input class="form-control amount-font" type="number" step='0.01' id="deposit-amount" name="amount" placeholder=0.00 min=0.01 aria-label="Amount (to the nearest dollar)" required>
+                          <div class="invalid-feedback">
+                            Please enter a valid amount.
+                          </div>
+                        </div>
+                      </div>
                     </div>
                 </div>
-            </section>
-            <!-- if connected to server, render testing results -->
-            <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
-               <div class="mdl-card mdl-cell mdl-cell--12-col">
-                  <div class="mdl-card__supporting-text">
-                     <h4>Transaction History</h4>
-                     {% if history|length == 0 %}
-                         <p>No transactions found</p>
-                     {% else %}
-                         <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp" style="margin:auto;width:100%">
-                         <thead>
-                            <tr>
-                                <th class="mdl-data-table__cell--non-numeric">Date</th><th class="mdl-data-table__cell--non-numeric">Account</th><th>Amount</th>
-                            </tr>
-                         </thead>
-                            <tbody>
-                               {% for t in history %}
-                               <tr>
-                                   <td class="mdl-data-table__cell--non-numeric"> {{ format_timestamp(t.timestamp) }} </td>
-                                   <td class="mdl-data-table__cell--non-numeric"> {{ t.accountNum }}</td>
-                                    {% if t.type == "DEBIT" %}
-                                       <td style="color: green;">{{ format_currency(t.amount) }}</td>
-                                    {% else %}
-                                       <td>-{{ format_currency(t.amount) }}</td>
-                                    {% endif %}
-                               </tr>
-                               {% endfor %}
-                            </tbody>
-                         </table>
-                      {% endif %}
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary deposit-cancel" data-dismiss="modal">Cancel</button>
+                  <button type="submit" class="btn btn-primary">Deposit</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Send Modal -->
+        <div class="modal fade" id="sendPayment" tabindex="-1" role="dialog" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+              <form id="payment-form" class="needs-validation" novalidate="" method="POST" action="/payment">
+                <div class="modal-header">
+                  <h3 class="modal-title header-title" id="exampleModalLongTitle">Send a Payment</h3>
+                  <button type="button" class="close payment-cancel" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <div class="row">
+                    <div class="col-md-10 offset-md-1 mb-4">
+                      <label class="text-uppercase secondary-text text-muted mb-3" for="payment-accounts">Recipient</label>
+                      <select class="custom-select d-block w-100 mb-3" id="payment-accounts" name="account_num">
+                        {% for account in contacts %}
+                            {% if not account.is_external %}
+                                <option value="{{ account.account_num }}">{{ account.label }} - {{ account.account_num }}</option>
+                            {% endif %}
+                        {% endfor %}
+                        <option disabled>──────────</option>
+                        <option value="add">New Recipient</option>
+                      </select>
+                      <div id="otherAccountInputs" class="hidden">
+                        <div class="input-group mb-3">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text"><strong class="deposit-input">#</strong></span>
+                          </div>
+                          <input class="form-control" type="number" step='1' id="contact_account_num" name="contact_account_num" min=1000000000 max=9999999999  placeholder="Account Number"/>
+                          <div class="invalid-feedback">
+                            Please enter a valid 10 digit account number.
+                          </div>
+                        </div>
+                        <div class="input-group mb-3">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text"><span class="amount-font material-icons">label</span></span>
+                          </div>
+                          <input class="form-control"  type="text" id="contact_label" name="contact_label" placeholder="Contact Label (Optional)"/>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-10 offset-md-1">
+                      <label class="text-uppercase secondary-text text-muted mb-1" for="payment-amount">Transaction Amount</label>
+                      <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text"><span class="amount-font deposit-input material-icons">attach_money</span></span>
+                        </div>
+                        <input class="form-control amount-font" type="number" step='0.01' id="payment-amount" name="amount" placeholder=0.00 min=0.01 aria-label="Amount (to the nearest dollar)" required>
+                        <div class="invalid-feedback">
+                          Please enter a valid amount.
+                        </div>
+                      </div>
+                    </div>
                   </div>
-               </div>
-            </section>
-         </main>
-      </div>
-    <!-- Deposit Modal -->
-    <dialog class="mdl-dialog deposit-modal-dialog">
-
-    <h4 class="mdl-dialog__title">Deposit Funds</h4>
-    <div class="mdl-dialog__content">
-        <form id=deposit-form method="POST" action="/deposit">
-         <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-            <select class="mdl-textfield__input" id="accounts" name="account">
-               {% for account in external_accounts %}
-               <option value='{"account_num": "{{ account.account_number }}", "routing_num": "{{ account.routing_number }}" }'>
-                    {{ account.label }} - {{ account.account_number }} - {{ account.routing_number }}
-               </option>
-               {% endfor %}
-               <option disabled value="add">Add new account</option>
-            </select>
-            <label class="mdl-textfield__label" for="accounts">🏦 Select Account</label>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary payment-cancel" data-dismiss="modal">Cancel</button>
+                  <button type="submit" class="btn btn-primary">Send</button>
+                </div>
+              </form>
+            </div>
           </div>
+        </div>
+      </main>
 
-          <div class="mdl-textfield mdl-js-textfield  mdl-textfield--floating-label">
-            <input class="mdl-textfield__input" type="number" step='0.01' id="payment-amount" name="amount" value=0 min=0>
-            <label class="mdl-textfield__label" for="payment-amount">💲 Deposit Amount</label>
-          </div>
-        </form>
-    </div>
-    <div class="mdl-dialog__actions">
-      <button type="button" class="mdl-button deposit mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--accent mdl-color-text--accent-contrast">Deposit</button>
-      <button type="button" class="mdl-button close">Cancel</button>
-    </div>
-    </dialog>
-    <script>
-        var depositDialog = document.querySelector('.deposit-modal-dialog');
-        var notification = document.querySelector('.mdl-js-snackbar');
-        var depositButton = document.querySelector('.deposit-modal-btn');
-        var depositForm = document.getElementById("deposit-form");
-        if (! depositDialog.showModal) {
-          dialogPolyfill.registerDialog(depositDialog);
-        }
-        depositButton.addEventListener('click', function() {
-          depositDialog.showModal();
-        });
-        depositDialog.querySelector('.close').addEventListener('click', function() {
-          depositDialog.close();
-        });
-        depositDialog.querySelector('.deposit').addEventListener('click', function() {
-          if (depositForm.amount.value=="" || depositForm.amount.value <= 0) {
-              notification.MaterialSnackbar.showSnackbar({ message: 'Error: Invalid Amount'});
-              // TODO: more checks
-          } else {
-              depositForm.submit();
+      <!-- Page Footer -->
+      <footer class="footer">
+        <div class="container">
+            <div class="row mb-2">© 2020 Google Inc</div>
+            <div class="row mb-3">
+              <small class="text-muted">
+                This website is hosted for demo purposes only. It is not an
+                actual bank. This is not an official Google project.
+              </small>
+            </div>
+        </div>
+      </footer>
+
+      <!-- JavaScript Libs -->
+      <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+      <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+      <script src="https://unpkg.com/popper.js@1.12.6/dist/umd/popper.js" integrity="sha384-fA23ZRQ3G/J53mElWqVJEGJzU0sTs+SvzG8fXVWP+kJQ1lwFAOkcUOysnlKJC33U" crossorigin="anonymous"></script>
+      <script src="https://unpkg.com/bootstrap-material-design@4.1.1/dist/js/bootstrap-material-design.js" integrity="sha384-CauSuKpEqAFajSpkdjv3z9t8E7RlpJ1UP0lKM/+NdtSarroVKu069AlsRPKkFBz9" crossorigin="anonymous"></script>
+      <script>
+        $( document ).ready(function() {
+          // Deposit modal client-side validation
+          var depositForm = document.getElementById("deposit-form");
+          depositForm.addEventListener("submit", function(e) {
+            var isNewAcct = (document.getElementById('accounts').value == 'add');
+            document.getElementById("external_account_num").required = isNewAcct;
+            document.getElementById("external_routing_num").required = isNewAcct;
+
+            if(depositForm.checkValidity() === false || $('#deposit-amount').val() <= 0.00){
+              e.preventDefault();
+              e.stopPropagation();
+            }
+            depositForm.classList.add('was-validated');
+          });
+
+          // Reset form on cancel event
+          var depositCancel = document.getElementsByClassName("deposit-cancel");
+          for (var i = 0; i < depositCancel.length; i++) {
+            depositCancel[i].addEventListener('click', function () {
+              depositForm.reset();
+              depositForm.classList.remove('was-validated');
+              RefreshModals();
+            });
           }
-          depositDialog.close();
-        });
-   </script>
-    <!-- Payment Modal -->
-    <dialog class="mdl-dialog payment-modal-dialog">
 
-    <h4 class="mdl-dialog__title">Send Payment</h4>
-    <div class="mdl-dialog__content">
-        <form id=payment-form method="POST" action="/payment">
-         <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-            <select class="mdl-textfield__input" id="account_num" name="account_num" onchange='CheckChoice(this.value);'>
-               {% for account in favorite_accounts %}
-                    <option value="{{ account.account_number }}">{{ account.label }} - {{ account.account_number }}</option>
-               {% endfor %}
-               <option disabled>──────────</option>
-               <option value="other">Other account</option>
-            </select>
-            <input class="mdl-textfield__input" type="number" step='1' id="other_account_num" name="other_account_num" min=1000000000 max=9999999999  placeholder="Account #" style='display:none;'/>
-            <label class="mdl-textfield__label" for="recipients">🏦 Recipient</label>
-          </div>
+          // Send payment modal client-side validation
+          var paymentForm = document.getElementById("payment-form");
+          paymentForm.addEventListener("submit", function(e) {
+            // Check if account number is required
+            document.getElementById("contact_account_num").required = (document.getElementById('payment-accounts').value == 'add');
 
-          <div class="mdl-textfield mdl-js-textfield  mdl-textfield--floating-label">
-            <input class="mdl-textfield__input" type="number" step='0.01' id="amount" name="amount" min=0>
-            <label class="mdl-textfield__label" for="amount">💲 Transaction Amount</label>
-          </div>
-        </form>
-    </div>
-    <div class="mdl-dialog__actions">
-      <button type="button" class="mdl-button send-payment mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--accent mdl-color-text--accent-contrast">Send</button>
-      <button type="button" class="mdl-button close">Cancel</button>
-    </div>
-    </dialog>
-    <script>
-        var paymentDialog = document.querySelector('.payment-modal-dialog');
-        var notification = document.querySelector('.mdl-js-snackbar');
-        var paymentButton = document.querySelector('.payment-modal-btn');
-        var paymentForm = document.getElementById("payment-form");
-        if (! paymentDialog.showModal) {
-          dialogPolyfill.registerDialog(paymentDialog);
-        }
-        paymentButton.addEventListener('click', function() {
-          paymentDialog.showModal();
-        });
-        paymentDialog.querySelector('.close').addEventListener('click', function() {
-          paymentDialog.close();
-        });
-        paymentDialog.querySelector('.send-payment').addEventListener('click', function() {
-          console.log(paymentForm.amount.value)
-          if (paymentForm.amount.value=="" || paymentForm.amount.value <= 0) {
-              notification.MaterialSnackbar.showSnackbar({ message: 'Error: Invalid Amount'});
-              // TODO: more checks
-          } else {
-              paymentForm.submit();
+            if(paymentForm.checkValidity() === false || $('#payment-amount').val() <= 0.00){
+              e.preventDefault();
+              e.stopPropagation();
+            }
+            paymentForm.classList.add('was-validated');
+          });
+
+          // Reset form on cancel event
+          var paymentCancel = document.getElementsByClassName("payment-cancel");
+          for (var i = 0; i < paymentCancel.length; i++) {
+            paymentCancel[i].addEventListener('click', function () {
+              paymentForm.reset();
+              paymentForm.classList.remove('was-validated');
+              RefreshModals();
+            });
           }
-          paymentDialog.close();
-        });
-    function CheckChoice(val){
-     var element=document.getElementById('other_account_num');
-     if(val=='other')
-       element.style.display='block';
-     else  
-       element.style.display='none';
-    }
-   </script>
-   </body>
 
-<!--toast message on load-->
-{% if message != None %}
-    <script>
-        r(function(){
-            var notification = document.querySelector('.mdl-js-snackbar');
-            notification.MaterialSnackbar.showSnackbar(
-              {
-                  message: '{{ message }}'
+          // Handle new account option in Send Payment modal
+          document.getElementById("payment-accounts").addEventListener("change", function(e) {
+            RefreshModals();
+          });
+
+          // Handle new account option in Deposit modal
+          document.getElementById("accounts").addEventListener("change", function(e) {
+            RefreshModals();
+          });
+
+          // Reset Modals to proper state
+          function RefreshModals(){
+              paymentSelection = document.getElementById("payment-accounts").value;
+              if (paymentSelection == 'add') {
+                document.getElementById("otherAccountInputs").classList.remove('hidden');
+              } else {
+                document.getElementById("otherAccountInputs").classList.add('hidden');
               }
-            );
-        window.history.pushState({}, document.title, "/");
+              depositSelection = document.getElementById("accounts").value;
+              if (depositSelection == 'add') {
+                document.getElementById("otherDepositInputs").classList.remove('hidden');
+              } else {
+                document.getElementById("otherDepositInputs").classList.add('hidden');
+              }
+          }
+          RefreshModals();
         });
-
-        function r(f){/in/.test(document.readyState)?setTimeout('r('+f+')',9):f()}
-    </script>
-{% endif %}
+      </script>
+    </body> 
 </html>

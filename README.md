@@ -26,25 +26,39 @@ Bank of Anthos was developed to create an end-to-end sample demonstrating Anthos
 
 ## Installation
 
-### Creating a Cluster
+### Cluster Setup
+
+Set up a new cluster on GKE
 
 ```
-  make cluster \
-    PROJECT_ID=$(gcloud config get-value project) \ # required
-    ZONE=us-west1-a \                               # optional. default: us-west1-a
-    CLUSTER=cloud-bank                              # optional. default: cloud-bank
+export CLUSTER=bank-of-anthos
+export PROJECT_ID=$(gcloud config get-value project)
+export ZONE=us-west1-a
+
+gcloud beta container clusters create ${CLUSTER} \
+    --project=${PROJECT_ID} --zone=${ZONE} \
+    --machine-type=n1-standard-2 --num-nodes=4
 ```
 
 ### Deployment
 
 #### Option 1: Pre-Built Containers
+
+Generate RSA key pair Secret
 ```
-   kubectl apply -f ./kubernetes-manifests
+openssl genrsa -out jwtRS256.key 4096
+openssl rsa -in jwtRS256.key -outform PEM -pubout -out jwtRS256.key.pub
+kubectl create secret generic jwt-key --from-file=./jwtRS256.key --from-file=./jwtRS256.key.pub
+```
+
+Deploy Bank of Anthos manifests
+```
+kubectl apply -f ./kubernetes-manifests
 ```
 
 #### Option 2: Local Build
 ```
-    skaffold run --default-repo=gcr.io/${PROJECT_ID}/bank-of-anthos
+skaffold run --default-repo=gcr.io/${PROJECT_ID}/bank-of-anthos
 ```
 
 ## Continuous Integration

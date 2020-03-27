@@ -39,9 +39,7 @@ APP.config["HISTORY_URI"] = 'http://{}/transactions'.format(
     os.environ.get('HISTORY_API_ADDR'))
 APP.config["LOGIN_URI"] = 'http://{}/login'.format(
     os.environ.get('USERSERVICE_API_ADDR'))
-APP.config["CONTACTS_URI"] = 'http://{}/accounts/contacts'.format(
-    os.environ.get('CONTACTS_API_ADDR'))
-APP.config["EXTERNAL_ACCOUNTS_URI"] = 'http://{}/accounts/external'.format(
+APP.config["CONTACTS_URI"] = 'http://{}/contacts'.format(
     os.environ.get('CONTACTS_API_ADDR'))
 
 
@@ -84,6 +82,7 @@ def home():
 
     token_data = jwt.decode(token, verify=False)
     display_name = token_data['name']
+    username = token_data['user']
     account_id = token_data['acct']
 
     hed = {'Authorization': 'Bearer ' + token}
@@ -104,18 +103,11 @@ def home():
     except (requests.exceptions.RequestException, ValueError) as err:
         logging.error(str(err))
     # get contacts
-    internal_list = []
+    contacts = []
     try:
-        req = requests.get(url=APP.config["CONTACTS_URI"], headers=hed)
-        internal_list = req.json()['account_list']
-    except (requests.exceptions.RequestException, ValueError) as err:
-        logging.error(str(err))
-    # get external accounts
-    external_list = []
-    try:
-        req = requests.get(url=APP.config["EXTERNAL_ACCOUNTS_URI"],
-                           headers=hed)
-        external_list = req.json()['account_list']
+        url = '{}/{}'.format(APP.config["CONTACTS_URI"], username)
+        req = requests.get(url=url, headers=hed)
+        contacts = req.json()['account_list']
     except (requests.exceptions.RequestException, ValueError) as err:
         logging.error(str(err))
 
@@ -124,8 +116,7 @@ def home():
                            balance=balance,
                            name=display_name,
                            account_id=account_id,
-                           external_accounts=external_list,
-                           favorite_accounts=internal_list,
+                           contacts=contacts,
                            message=request.args.get('msg', None))
 
 
@@ -146,8 +137,15 @@ def payment():
     try:
         account_id = jwt.decode(token, verify=False)['acct']
         recipient = request.form['account_num']
-        if recipient == 'other':
-            recipient = request.form['other_account_num']
+        if recipient == 'add':
+            recipient = request.form['contact_account_num']
+            label = request.form.get('contact_label', None)
+            if label:
+                # new contact. Add to contacts list
+                _add_contact(label,
+                             recipient,
+                             LOCAL_ROUTING,
+                             False)
         # convert amount to integer
         amount = int(float(request.form['amount']) * 100)
         # verify balance is sufficient
@@ -172,7 +170,6 @@ def payment():
         logging.error(str(err))
     return redirect(url_for('home', msg='Transaction failed'))
 
-
 @APP.route('/deposit', methods=['POST'])
 def deposit():
     """
@@ -192,14 +189,25 @@ def deposit():
         account_id = jwt.decode(token, verify=False)['acct']
 
         # get data from form
-        account_details = json.loads(request.form['account'])
-        external_account_num = account_details['account_num']
-        external_routing_num = account_details['routing_num']
+        if request.form['account'] == 'add':
+            external_account_num = request.form['external_account_num']
+            external_routing_num = request.form['external_routing_num']
+            external_label = request.form.get('external_label', None)
+            if external_label:
+                # new contact. Add to contacts list
+                _add_contact(external_label,
+                             external_account_num,
+                             external_routing_num,
+                             True)
+        else:
+            account_details = json.loads(request.form['account'])
+            external_account_num = account_details['account_num']
+            external_routing_num = account_details['routing_num']
         # convert amount to integer
         amount = int(float(request.form['amount']) * 100)
 
         # simulate transaction from external bank into user's account
-        transaction_obj = {'fromRoutingNum':  external_routing_num,
+        transaction_obj = {'fromRoutingNum': external_routing_num,
                            'fromAccountNum': external_account_num,
                            'toRoutingNum': LOCAL_ROUTING,
                            'toAccountNum': account_id,
@@ -216,6 +224,26 @@ def deposit():
         logging.error(str(err))
     return redirect(url_for('home', msg='Deposit failed'))
 
+
+def _add_contact(label, acct_num, routing_num, is_external_acct=False):
+    """
+    Submits a new contact to the contact service
+    """
+    token = request.cookies.get(TOKEN_NAME)
+    hed = {'Authorization': 'Bearer ' + token,
+           'content-type': 'application/json'}
+    contact_data = {
+        'label': label,
+        'account_num': acct_num,
+        'routing_num': routing_num,
+        'is_external': is_external_acct
+    }
+    token_data = jwt.decode(token, verify=False)
+    url = '{}/{}'.format(APP.config["CONTACTS_URI"], token_data['user'])
+    requests.post(url=url,
+                  data=jsonify(contact_data).data,
+                  headers=hed,
+                  timeout=3)
 
 @APP.route("/login", methods=['GET'])
 def login_page():
@@ -314,12 +342,17 @@ def verify_token(token):
         return False
 
 
-def format_timestamp(timestamp):
-    """ Format the input timestamp in a human readable way """
+def format_timestamp_day(timestamp):
+    """ Format the input timestamp day in a human readable way """
     # TODO: time zones?
     date = datetime.datetime.fromtimestamp(float(timestamp))
-    return date.strftime('%b %d, %Y')
+    return date.strftime('%d')
 
+def format_timestamp_month(timestamp):
+    """ Format the input timestamp month in a human readable way """
+    # TODO: time zones?
+    date = datetime.datetime.fromtimestamp(float(timestamp))
+    return date.strftime('%b')
 
 def format_currency(int_amount):
     """ Format the input currency in a human readable way """
@@ -353,7 +386,8 @@ if __name__ == '__main__':
     logging.getLogger().setLevel(logging.INFO)
 
     # register html template formatters
-    APP.jinja_env.globals.update(format_timestamp=format_timestamp)
+    APP.jinja_env.globals.update(format_timestamp_month=format_timestamp_month)
+    APP.jinja_env.globals.update(format_timestamp_day=format_timestamp_day)
     APP.jinja_env.globals.update(format_currency=format_currency)
 
     # start serving requests
