@@ -188,18 +188,8 @@ public final class TransactionHistoryController
      * @param entry with transaction metadata
      */
     public void processTransaction(TransactionHistoryEntry entry) {
-        //LinkedList<TransactionHistoryEntry> historyList;
-        //if (!this.historyMap.containsKey(account)) {
-        //    historyList = new LinkedList<TransactionHistoryEntry>();
-        //    this.historyMap.put(account, historyList);
-        //} else {
-        //    historyList = (LinkedList) this.historyMap.get(account);
-        //}
-        //historyList.addFirst(entry);
         logger.info("new entry");
-
         if (entry != null && transactionRepository != null){
-            logger.info("here");
             transactionRepository.save(entry);
         }
     }

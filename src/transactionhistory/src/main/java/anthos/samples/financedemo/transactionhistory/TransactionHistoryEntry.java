@@ -40,6 +40,10 @@ final class TransactionHistoryEntry {
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private long transactionId;
 
+    @Column(name="TYPE")
+    @JsonProperty("type")
+    private String type;
+
     @JsonProperty("accountNum")
     @Column (name="SEND_ACCT")
     private String accountNum;
@@ -107,6 +111,14 @@ final class TransactionHistoryEntry {
         this.timestamp = timestamp;
     }
 
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type){
+        this.type = type;
+    }
+
     /**
      * Construct a TransactionHistoryEntry
      *
@@ -122,10 +134,12 @@ final class TransactionHistoryEntry {
             this.accountNum = map.get("toAccountNum");
             this.routingNum = map.get("toRoutingNum");
             this.keyAccountNum = map.get("fromAccountNum");
+            this.type = "CREDIT";
         } else if (type == TransactionType.DEBIT) {
             this.accountNum = map.get("fromAccountNum");
             this.routingNum = map.get("fromRoutingNum");
             this.keyAccountNum = map.get("toAccountNum");
+            this.type = "DEBIT";
         }
     }
 
