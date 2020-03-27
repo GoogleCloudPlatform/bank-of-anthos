@@ -146,13 +146,12 @@ def payment():
                              recipient,
                              LOCAL_ROUTING,
                              False)
-
-        status_code = _transaction_helper(
-            send_acct=account_id,
-            send_route=LOCAL_ROUTING,
-            recv_acct=recipient,
-            recv_route=LOCAL_ROUTING,
-            amount=int(float(request.form['amount']) * 100))
+        transaction_data = {"fromAccountNum": account_id,
+                            "fromRoutingNum": LOCAL_ROUTING,
+                            "toAccountNum": recipient,
+                            "toRoutingNum": LOCAL_ROUTING,
+                            "amount": int(float(request.form['amount']) * 100)}
+        status_code = _submit_transaction(transaction_data)
         if status_code == 201:
             return redirect(url_for('home', msg='Transaction initiated'))
     except requests.exceptions.RequestException as err:
@@ -190,29 +189,24 @@ def deposit():
             account_details = json.loads(request.form['account'])
             external_account_num = account_details['account_num']
             external_routing_num = account_details['routing_num']
-        status_code = _transaction_helper(
-            send_acct=external_account_num,
-            send_route=external_routing_num,
-            recv_acct=account_id,
-            recv_route=LOCAL_ROUTING,
-            amount=int(float(request.form['amount']) * 100))
+        transaction_data = {"fromAccountNum": external_account_num,
+                            "fromRoutingNum": external_routing_num,
+                            "toAccountNum": account_id,
+                            "toRoutingNum": LOCAL_ROUTING,
+                            "amount": int(float(request.form['amount']) * 100)}
+        status_code = _submit_transaction(transaction_data)
         if status_code == 201:
             return redirect(url_for('home', msg='Deposit accepted'))
     except requests.exceptions.RequestException as err:
         logging.error(str(err))
     return redirect(url_for('home', msg='Deposit failed'))
 
-def _transaction_helper(send_acct, send_route, recv_acct, recv_route, amount):
+def _submit_transaction(transaction_data):
     token = request.cookies.get(TOKEN_NAME)
-    transaction_obj = {'fromRoutingNum': send_route,
-                       'fromAccountNum': send_acct,
-                       'toRoutingNum': recv_route,
-                       'toAccountNum': recv_acct,
-                       'amount': amount}
     hed = {'Authorization': 'Bearer ' + token,
            'content-type': 'application/json'}
     req = requests.post(url=APP.config["TRANSACTIONS_URI"],
-                        data=jsonify(transaction_obj).data,
+                        data=jsonify(transaction_data).data,
                         headers=hed,
                         timeout=3)
     return req.status_code
