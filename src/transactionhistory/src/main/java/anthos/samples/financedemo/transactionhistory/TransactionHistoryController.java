@@ -49,6 +49,8 @@ import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Iterator;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @RestController
 public final class TransactionHistoryController
@@ -157,7 +159,8 @@ public final class TransactionHistoryController
                                                   HttpStatus.UNAUTHORIZED);
             }
 
-            Set<TransactionHistoryEntry> historyList = transactionRepository.findAllByKeyAccountNum(accountId);
+            Pageable request = new PageRequest(0, 100);
+            List<TransactionHistoryEntry> historyList = transactionRepository.findForAccount(accountId, request);
 
             // Set artificial extra latency.
             String latency = System.getenv("EXTRA_LATENCY_MILLIS");
@@ -169,7 +172,7 @@ public final class TransactionHistoryController
                 }
             }
 
-            return new ResponseEntity<Set<TransactionHistoryEntry>>(
+            return new ResponseEntity<List<TransactionHistoryEntry>>(
                     historyList, HttpStatus.OK);
         } catch (JWTVerificationException e) {
             return new ResponseEntity<String>("not authorized",
