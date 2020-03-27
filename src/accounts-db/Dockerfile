@@ -11,6 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-FROM mongo:4
 
-COPY data /data
+FROM postgres:12
+
+# Files for initializing the database.
+COPY initdb/*.sql /docker-entrypoint-initdb.d/

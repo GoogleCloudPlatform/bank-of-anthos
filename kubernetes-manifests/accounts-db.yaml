@@ -12,42 +12,66 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-kind: Deployment
 apiVersion: apps/v1
+kind: StatefulSet
 metadata:
   name: accounts-db
-  labels:
-    app: accounts-db
-    tier: db
 spec:
-  replicas: 1
+  serviceName: "accounts-db"
+  replicas: 2
   selector:
     matchLabels:
       app: accounts-db
-      tier: db
   template:
     metadata:
       labels:
         app: accounts-db
-        tier: db
     spec:
       containers:
-        - name: mongo
+        - name: postgres
           image: gcr.io/bank-of-anthos/accounts-db
+          envFrom:
+            - configMapRef:
+                name: accounts-db-config
           ports:
-            - containerPort: 27017
+            - containerPort: 5432
+              name: postgredb
+          volumeMounts:
+            - name: postgredb
+              mountPath: /var/lib/postgresql/data
+              subPath: postgres
+  volumeClaimTemplates:
+    - metadata:
+        name: postgredb
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 3Gi
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: accounts-db
+  name: postgres
   labels:
-    app: accounts-db
+    app: postgres
     tier: db
 spec:
+  type: NodePort
   ports:
-    - port: 27017
-      targetPort: 27017
+    - port: 5432
+      name: postgres
   selector:
-    app: accounts-db
+    app: postgres
     tier: db
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: accounts-db-config
+  labels:
+    app: postgres
+data:
+  POSTGRES_DB: accounts-db
+  POSTGRES_USER: accounts-admin
+  POSTGRES_PASSWORD: accounts-pwd
