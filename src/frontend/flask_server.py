@@ -39,9 +39,7 @@ APP.config["HISTORY_URI"] = 'http://{}/transactions'.format(
     os.environ.get('HISTORY_API_ADDR'))
 APP.config["LOGIN_URI"] = 'http://{}/login'.format(
     os.environ.get('USERSERVICE_API_ADDR'))
-APP.config["CONTACTS_URI"] = 'http://{}/accounts/contacts'.format(
-    os.environ.get('CONTACTS_API_ADDR'))
-APP.config["EXTERNAL_ACCOUNTS_URI"] = 'http://{}/accounts/external'.format(
+APP.config["CONTACTS_URI"] = 'http://{}/contacts'.format(
     os.environ.get('CONTACTS_API_ADDR'))
 
 
@@ -84,6 +82,7 @@ def home():
 
     token_data = jwt.decode(token, verify=False)
     display_name = token_data['name']
+    username = token_data['user']
     account_id = token_data['acct']
 
     hed = {'Authorization': 'Bearer ' + token}
@@ -104,18 +103,11 @@ def home():
     except (requests.exceptions.RequestException, ValueError) as err:
         logging.error(str(err))
     # get contacts
-    internal_list = []
+    contacts = []
     try:
-        req = requests.get(url=APP.config["CONTACTS_URI"], headers=hed)
-        internal_list = req.json()['account_list']
-    except (requests.exceptions.RequestException, ValueError) as err:
-        logging.error(str(err))
-    # get external accounts
-    external_list = []
-    try:
-        req = requests.get(url=APP.config["EXTERNAL_ACCOUNTS_URI"],
-                           headers=hed)
-        external_list = req.json()['account_list']
+        url = '{}/{}'.format(APP.config["CONTACTS_URI"], username)
+        req = requests.get(url=url, headers=hed)
+        contacts = req.json()['account_list']
     except (requests.exceptions.RequestException, ValueError) as err:
         logging.error(str(err))
 
@@ -124,8 +116,7 @@ def home():
                            balance=balance,
                            name=display_name,
                            account_id=account_id,
-                           external_accounts=external_list,
-                           favorite_accounts=internal_list,
+                           contacts=contacts,
                            message=request.args.get('msg', None))
 
 
@@ -146,8 +137,15 @@ def payment():
     try:
         account_id = jwt.decode(token, verify=False)['acct']
         recipient = request.form['account_num']
-        if recipient == 'other':
-            recipient = request.form['other_account_num']
+        if recipient == 'add':
+            recipient = request.form['contact_account_num']
+            label = request.form.get('contact_label', None)
+            if label:
+                # new contact. Add to contacts list
+                _add_contact(label,
+                             recipient,
+                             LOCAL_ROUTING,
+                             False)
 
         status_code = _transaction_helper(
                             send_acct=account_id,
@@ -161,7 +159,6 @@ def payment():
     except requests.exceptions.RequestException as err:
         logging.error(str(err))
     return redirect(url_for('home', msg='Transaction failed'))
-
 
 @APP.route('/deposit', methods=['POST'])
 def deposit():
@@ -180,11 +177,24 @@ def deposit():
     try:
         # get account id from token
         account_id = jwt.decode(token, verify=False)['acct']
-        account_details = json.loads(request.form['account'])
+        if request.form['account'] == 'add':
+            external_account_num = request.form['external_account_num']
+            external_routing_num = request.form['external_routing_num']
+            external_label = request.form.get('external_label', None)
+            if external_label:
+                # new contact. Add to contacts list
+                _add_contact(external_label,
+                             external_account_num,
+                             external_routing_num,
+                             True)
+        else:
+            account_details = json.loads(request.form['account'])
+            external_account_num = account_details['account_num']
+            external_routing_num = account_details['routing_num']
 
         status_code = _transaction_helper(
-                            send_acct=account_details['account_num'],
-                            send_route=account_details['routing_num'],
+                            send_acct=external_account_num
+                            send_route=external_routing_num,
                             recv_acct=account_id,
                             recv_route=LOCAL_ROUTING,
                             amount=int(float(request.form['amount']) * 100),
@@ -209,6 +219,26 @@ def _transaction_helper(send_acct, send_route, recv_acct, recv_route, amount, to
                         timeout=3)
     return req.status_code
 
+
+def _add_contact(label, acct_num, routing_num, is_external_acct=False):
+    """
+    Submits a new contact to the contact service
+    """
+    token = request.cookies.get(TOKEN_NAME)
+    hed = {'Authorization': 'Bearer ' + token,
+           'content-type': 'application/json'}
+    contact_data = {
+        'label': label,
+        'account_num': acct_num,
+        'routing_num': routing_num,
+        'is_external': is_external_acct
+    }
+    token_data = jwt.decode(token, verify=False)
+    url = '{}/{}'.format(APP.config["CONTACTS_URI"], token_data['user'])
+    requests.post(url=url,
+                  data=jsonify(contact_data).data,
+                  headers=hed,
+                  timeout=3)
 
 @APP.route("/login", methods=['GET'])
 def login_page():
