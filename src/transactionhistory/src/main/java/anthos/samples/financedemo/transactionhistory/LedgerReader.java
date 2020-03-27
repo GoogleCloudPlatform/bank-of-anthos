@@ -24,6 +24,8 @@ import io.lettuce.core.XReadArgs.StreamOffset;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
 
 import java.time.Duration;
 import java.util.List;
@@ -54,35 +56,29 @@ public final class LedgerReader {
         ctx.getBean(StatefulRedisConnection.class);
     private final String ledgerStreamKey = System.getenv("LEDGER_STREAM");
     private final String localRoutingNum =  System.getenv("LOCAL_ROUTING_NUM");
-    private final Thread backgroundThread;
-    private LedgerReaderListener listener;
+    public LedgerReaderListener listener;
+    private boolean initialized = false;
 
-    /**
-     * LedgerReader constructor
-     * Synchronously loads all existing transactions, and then starts
-     * a background thread to listen for future transactions
-     * @param listener to process transactions
-     */
-    public LedgerReader(LedgerReaderListener listener) {
+    public void startWithListener(LedgerReaderListener listener){
         this.listener = listener;
-        // read from starting transaction to latest
-        final String startingTransaction = pollTransactions(1, "0");
+        if (!backgroundThread.isAlive()) {
+            backgroundThread.start();
+        }
+    }
 
-        // set up background thread to listen for incomming transactions
-        this.backgroundThread = new Thread(
+    private final Thread backgroundThread = new Thread(
             new Runnable() {
                 @Override
                 public void run() {
-                    String latest = startingTransaction;
+                    String latest = pollTransactions(1, "0");
+                    logger.info("caught up");
+                    initialized = true;
                     while (true) {
                         latest = pollTransactions(0, latest);
                     }
                 }
             }
         );
-        logger.info("Starting background thread.");
-        this.backgroundThread.start();
-    }
 
 
     /**
@@ -143,5 +139,9 @@ public final class LedgerReader {
      */
     public boolean isAlive() {
         return this.backgroundThread.isAlive();
+    }
+
+    public boolean isInitialized() {
+        return this.initialized;
     }
 }

@@ -52,9 +52,14 @@ import java.util.Iterator;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
+
+
+
 @RestController
 public final class TransactionHistoryController
-        implements LedgerReaderListener {
+    implements LedgerReaderListener,  ApplicationListener<ContextRefreshedEvent> {
 
     private final Logger logger =
             Logger.getLogger(TransactionHistoryController.class.getName());
@@ -62,10 +67,10 @@ public final class TransactionHistoryController
     private final JWTVerifier verifier;
     private final Map<String, List<TransactionHistoryEntry>> historyMap =
         new HashMap<String, List<TransactionHistoryEntry>>();
-    private final LedgerReader reader;
-    private boolean initialized = false;
     @Autowired
     private TransactionRepository transactionRepository;
+    @Autowired
+    private LedgerReader ledgerReader;
 
     /**
      * TransactionHistoryController constructor
@@ -88,12 +93,13 @@ public final class TransactionHistoryController
         // set up verifier
         Algorithm algorithm = Algorithm.RSA256(publicKey, null);
         this.verifier = JWT.require(algorithm).build();
-
-        // set up transaction processor
-        this.reader = new LedgerReader(this);
-        this.initialized = true;
-        logger.info("Initialization complete.");
     }
+
+    @Override
+    public void onApplicationEvent(ContextRefreshedEvent event) {
+        this.ledgerReader.startWithListener(this);
+    }
+
 
    /**
      * Version endpoint.
@@ -113,7 +119,7 @@ public final class TransactionHistoryController
      */
     @GetMapping("/ready")
     public ResponseEntity readiness() {
-        if (this.initialized) {
+        if (this.ledgerReader.isInitialized()) {
             return new ResponseEntity<String>("ok", HttpStatus.OK);
         } else {
             return new ResponseEntity<String>("not initialized",
@@ -128,7 +134,7 @@ public final class TransactionHistoryController
      */
     @GetMapping("/healthy")
     public ResponseEntity liveness() {
-        if (this.initialized && !this.reader.isAlive()) {
+        if (this.ledgerReader.isInitialized() && !this.ledgerReader.isAlive()) {
             // background thread died. Abort
             return new ResponseEntity<String>("LedgerReader not healthy",
                                               HttpStatus.INTERNAL_SERVER_ERROR);
@@ -148,6 +154,7 @@ public final class TransactionHistoryController
     public ResponseEntity<?> getTransactions(
             @RequestHeader("Authorization") String bearerToken,
             @PathVariable String accountId) {
+        logger.info("request from " + accountId);
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             bearerToken = bearerToken.split("Bearer ")[1];
         }
@@ -189,9 +196,7 @@ public final class TransactionHistoryController
      */
     public void processTransaction(TransactionHistoryEntry entry) {
         logger.info("new entry");
-        if (entry != null && transactionRepository != null){
-            transactionRepository.save(entry);
-        }
+        transactionRepository.save(entry);
     }
 
 
