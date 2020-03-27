@@ -25,6 +25,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import javax.persistence.Index;
 enum TransactionType {
     DEBIT, CREDIT;
 }
@@ -32,7 +33,8 @@ enum TransactionType {
  * Defines a banking transaction histoy entry for display to a user
  */
 @Entity
-@Table(name="TRANSACTIONS")
+@Table(name="TRANSACTIONS",
+       indexes={@Index(name="account_num", columnList="KEY_ACCT", unique=false)})
 final class TransactionHistoryEntry {
 
     @Id
@@ -48,7 +50,7 @@ final class TransactionHistoryEntry {
     @Column (name="SEND_ACCT")
     private String accountNum;
 
-    @Column (name="KEY_ACCT")
+    @Column (name="KEY_ACCT", nullable=false)
     private String keyAccountNum;
 
     @JsonProperty("routingNum")
