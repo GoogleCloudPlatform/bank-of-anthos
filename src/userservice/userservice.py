@@ -16,6 +16,7 @@
 Userservice manages user account creation, user login, and related tasks
 """
 
+import atexit
 import logging
 import os
 import random
@@ -23,7 +24,8 @@ import sys
 from datetime import datetime, timedelta
 
 from flask import Flask, jsonify, request
-from flask_pymongo import PyMongo
+from sqlalchemy import create_engine, Metadata, Table, Column, String, Date
+from sqlalchemy.exc import SQLAlchemyError
 import bleach
 import bcrypt
 import jwt
@@ -31,9 +33,6 @@ import jwt
 logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO').upper())
 
 APP = Flask(__name__)
-APP.config["MONGO_URI"] = 'mongodb://{}/users'.format(
-        os.environ.get('ACCOUNTS_DB_ADDR'))
-MONGO = PyMongo(APP)
 
 
 @APP.route('/version', methods=['GET'])
@@ -41,7 +40,8 @@ def version():
     """
     Service version endpoint
     """
-    return os.environ.get('VERSION'), 200
+    return VERSION, 200
+
 
 @APP.route('/ready', methods=['GET'])
 def readiness():
@@ -75,7 +75,7 @@ def create_user():
     req = {k: bleach.clean(v) for k, v in request.form.items()}
     logging.debug('validating new user request: %s', str(req))
 
-    # check if required fields are filled
+    # Check if required fields are filled.
     fields = ('username',
               'password',
               'password-repeat',
@@ -92,39 +92,49 @@ def create_user():
     if any(not bool(req[field] or req[field].strip()) for field in fields):
         return jsonify({'msg': 'missing value for input field(s)'}), 400
 
-    # check if user exists
-    query = {'username': req['username']}
-    if MONGO.db.users.find_one(query) is not None:
-        return jsonify({'msg': 'user already exists'}), 400
-
-    # check if passwords match
+    # Check if passwords match.
     if not req['password'] == req['password-repeat']:
-        return jsonify({'msg': 'passwords don\'t match'}), 400
+        return jsonify({'msg': 'passwords do not match'}), 400
 
-    logging.debug('creating user: %s', str(req))
-    # create password hash with salt
-    password = req['password']
-    salt = bcrypt.gensalt()
-    passhash = bcrypt.hashpw(password.encode('utf-8'), salt)
+    try:
+        # Check if user exists.
+        statement = USERS_TABLE.select().where(
+                USERS_TABLE.c.username == req['username']).as_scalar()
+        logging.debug('QUERY: %s', str(statement))
+        with DB_CONN.execute(statement) as result:
+        logging.debug('QUERY: %s', str(statement))
+            if result.scalar() is not None:
+                return jsonify({'msg': 'user already exists'}), 400
+        logging.debug('creating user: %s', str(req))
 
-    # insert user in MongoDB
-    accountid = generate_accountid()
-    data = {'username': req['username'],
-            'accountid': accountid,
-            'passhash': passhash,
-            'firstname': req['firstname'],
-            'lastname': req['lastname'],
-            'birthday': req['birthday'],
-            'timezone': req['timezone'],
-            'address': req['address'],
-            'state': req['state'],
-            'zip': req['zip'],
-            'ssn': req['ssn']}
-    result = MONGO.db.users.insert_one(data)
+        # Create password hash with salt.
+        password = req['password']
+        salt = bcrypt.gensalt()
+        passhash = bcrypt.hashpw(password.encode('utf-8'), salt)
 
-    if not result.acknowledged:
+        # Add user to database.
+        accountid = _generate_accountid()
+        data = {'accountid': accountid,
+                'username': req['username'],
+                'passhash': passhash,
+                'firstname': req['firstname'],
+                'lastname': req['lastname'],
+                'birthday': req['birthday'],
+                'timezone': req['timezone'],
+                'address': req['address'],
+                'state': req['state'],
+                'zip': req['zip'],
+                'ssn': req['ssn']}
+        statement = USERS_TABLE.insert().values(data)
+        logging.debug('QUERY: %s', str(statement))
+        with DB_CONN.execute(statement) as result:
+            logging.debug('RESULT: %s', str(result))
+            if not result.inserted_primary_key:
+                return jsonify({'msg': 'create user failed'}), 500
+            return jsonify({}), 201
+    except SQLAlchemyError as e:
+        logging.error(e)
         return jsonify({'msg': 'create user failed'}), 500
-    return jsonify({}), 201
 
 
 @APP.route('/login', methods=['GET'])
@@ -142,43 +152,97 @@ def get_token():
     username = bleach.clean(request.args.get('username'))
     password = bleach.clean(request.args.get('password'))
 
-    # get user from MongoDB
-    query = {'username': username}
-    result = MONGO.db.users.find_one(query)
+    try:
+        # Get user data.
+        statement = USERS_TABLE.select().where(
+                USERS_TABLE.c.username == username)
+        with DB_CONN.execute(statement) as result:
+            if result.scalar() is not None:
 
-    if result is not None:
-        if bcrypt.checkpw(password.encode('utf-8'), result['passhash']):
-            full_name = '{} {}'.format(result['firstname'], result['lastname'])
-            exp_time = datetime.utcnow() + timedelta(seconds=EXPIRY_SECONDS)
-            payload = {'user': username,
-                       'acct': result['accountid'],
-                       'name': full_name,
-                       'iat': datetime.utcnow(),
-                       'exp': exp_time
-                       }
-            token = jwt.encode(payload, PRIVATE_KEY, algorithm='RS256')
-            return jsonify({'token': token.decode("utf-8")}), 200
-    return jsonify({'msg': 'invalid login'}), 400
+            # Validate the password.
+            if bcrypt.checkpw(password.encode('utf-8'), result['passhash']):
+                full_name = '{} {}'.format(result['firstname'], result['lastname'])
+                exp_time = datetime.utcnow() + timedelta(seconds=EXPIRY_SECONDS)
+                payload = {'user': username,
+                           'acct': result['accountid'],
+                           'name': full_name,
+                           'iat': datetime.utcnow(),
+                           'exp': exp_time
+                           }
+                token = jwt.encode(payload, PRIVATE_KEY, algorithm='RS256')
+                return jsonify({'token': token.decode("utf-8")}), 200
+        return jsonify({'msg': 'invalid login'}), 400
+    except SQLAlchemyError as e:
+        logging.error(e)
+        return jsonify({'msg': 'login failed'}), 500
 
 
-def generate_accountid():
+def _generate_accountid():
     """Generates a globally unique alphanumerical accountid."""
-    accountid = None
-    while (accountid is None or
-           MONGO.db.users.find_one({'accountid': accountid}) is not None):
+    accountid = str(random.randint(1e9, (1e10-1)))
+    while True:
+        statement = USERS_TABLE.select().where(
+                USERS_TABLE.c.accountid == accountid)
+        logging.debug('QUERY: %s', str(statement))
+        with DB_CONN.execute(statement) as result:
+            logging.debug('RESULT: %s', str(result))
+            if result.scalar() is None:
+                continue
         accountid = str(random.randint(1e9, (1e10-1)))
     return accountid
 
 
+@atexit.register
+def _shutdown():
+    """Executed when web app is terminated."""
+    DB_CONN.close()
+    logging.info("Stopping flask.")
+    logging.shutdown()
+
+
 if __name__ == '__main__':
-    for v in ['PORT', 'ACCOUNTS_DB_ADDR', 'TOKEN_EXPIRY_SECONDS', 'PRIV_KEY_PATH',
-              'PUB_KEY_PATH']:
+    env_vars = ['PORT',
+                'VERSION',
+                'TOKEN_EXPIRY_SECONDS',
+                'PRIV_KEY_PATH',
+                'PUB_KEY_PATH',
+                'ACCOUNTS_DB_ADDR',
+                'ACCOUNTS_DB_PORT',
+                'ACCOUNTS_DB_USER',
+                'ACCOUNTS_DB_PASS',
+                'ACCOUNTS_DB_NAME']
+    for v in env_vars:
         if os.environ.get(v) is None:
             logging.critical("error: environment variable %s not set", v)
             logging.shutdown()
             sys.exit(1)
+
+    VERSION = os.environ.get('VERSION')
     EXPIRY_SECONDS = int(os.environ.get('TOKEN_EXPIRY_SECONDS'))
     PRIVATE_KEY = open(os.environ.get('PRIV_KEY_PATH'), 'r').read()
     PUBLIC_KEY = open(os.environ.get('PUB_KEY_PATH'), 'r').read()
+
+    # Configure database connection.
+    _accounts_db = create_engine(
+            'postgresql://{user}:{password}@{host}:{port}/{database}'.format(
+                user=os.environ.get('ACCOUNTS_DB_USER'),
+                password=os.environ.get('ACCOUNTS_DB_PASS'),
+                host=os.environ.get('ACCOUNTS_DB_ADDR'),
+                port=os.environ.get('ACCOUNTS_DB_PORT'),
+                database=os.environ.get('ACCOUNTS_DB_NAME')))
+    USERS_TABLE = Table('users', Metadata(_accounts_db),
+            Column('accountid', String),
+            Column('username', String),
+            Column('passhash', String),
+            Column('firstname', String),
+            Column('lastname', String),
+            Column('birthday', Date),
+            Column('timezone', String),
+            Column('address', String),
+            Column('state', String),
+            Column('zip', String),
+            Column('ssn', String))
+    DB_CONN = _accounts_db.connect()
+
     logging.info("Starting flask.")
     APP.run(debug=False, port=os.environ.get('PORT'), host='0.0.0.0')
