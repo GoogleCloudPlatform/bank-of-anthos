@@ -17,31 +17,29 @@
 Manages internal user contacts and external accounts.
 """
 
+import atexit
 import logging
 import os
 import re
 import sys
 
+import bleach
 from flask import Flask, jsonify, request
-from flask_pymongo import PyMongo
-from pymongo.errors import PyMongoError
-
 import jwt
-
+from sqlalchemy import create_engine, Metadata, Table, Column, String
+from sqlalchemy.exc import SQLAlchemyError
 
 logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO').upper())
 
 APP = Flask(__name__)
-APP.config["MONGO_URI"] = 'mongodb://{}/users'.format(
-        os.environ.get('ACCOUNTS_DB_ADDR'))
-MONGO = PyMongo(APP)
+
 
 @APP.route('/version', methods=['GET'])
 def version():
     """
     Service version endpoint
     """
-    return os.environ.get('VERSION'), 200
+    return VERSION, 200
 
 @APP.route('/ready', methods=['GET'])
 def ready():
@@ -66,17 +64,25 @@ def get_contacts(username):
         payload = jwt.decode(token, key=PUBLIC_KEY, algorithms='RS256')
         if username != payload['user']:
             raise PermissionError('not authorized')
-        # get data
-        query = {'user': username}
-        projection = {'contact_accts': True}
-        result = MONGO.db.accounts.find_one(query, projection)
-        acct_list = []
-        if result is not None:
-            acct_list = result['contact_accts']
-        return jsonify({'account_list': acct_list}), 200
+
+        # Get contacts list
+        contacts_list = list()
+        statement = CONTACTS_TABLE.select().where(
+                CONTACTS_TABLE.c.username == username)
+        with DB_CONN.execute(statement) as result:
+            for row in result:
+                contact = {
+                        'label': row['label'],
+                        'account_num': row['account_num'],
+                        'routing_num': row['routing_num']}
+                contacts_list.append(contact)
+
+        return jsonify({'account_list': contacts_list}), 200
     except (jwt.exceptions.InvalidTokenError, PermissionError) as ex:
-        logging.error(ex)
         return jsonify({'error': str(ex)}), 401
+    except SQLAlchemyError as e:
+        logging.error(e)
+        return jsonify({'error': 'failed to retrieve contacts list'}), 500
 
 @APP.route('/contacts/<username>', methods=['POST'])
 def add_contact(username):
@@ -100,46 +106,95 @@ def add_contact(username):
         payload = jwt.decode(token, key=PUBLIC_KEY, algorithms='RS256')
         if username != payload['user']:
             raise PermissionError('not authorized')
-        contact = request.get_json()
-        # don't allow self reference
-        if (contact['account_num'] == payload['acct'] and
-                contact['routing_num'] == LOCAL_ROUTING):
-            raise RuntimeError('can\'t add self to contacts')
-        # validate account number (must be 10 digits)
-        if (not re.match(r'\A[0-9]{10}\Z', contact['account_num']) or
-                contact['account_num'] == payload['acct']):
-            raise RuntimeError('invalid account number')
-        # validate routing number (must be 9 digits)
-        if not re.match(r'\A[0-9]{9}\Z', contact['routing_num']):
-            raise RuntimeError('invalid routing number')
-        # only allow external accounts to deposit
-        if contact['is_external'] and contact['routing_num'] == LOCAL_ROUTING:
-            raise RuntimeError('invalid routing number')
-        # validate label (must be <40 chars, only alphanumeric and spaces)
-        if (not all(s.isalnum() for s in contact['label'].split()) or
-                len(contact['label']) > 40):
-            raise RuntimeError('invalid account label')
-        # add new contact to database
-        query = {'user': username}
-        update = {'$push': {'contact_accts': contact}}
-        MONGO.db.accounts.update(query, update, upsert=True)
+
+        req = {k: bleach.clean(v) for k, v in request.get_json().items()}
+        logging.debug('validating add contact request: %s', str(req))
+        # Check if required fields are filled
+        fields = ('label',
+                  'account_num',
+                  'routing_num')
+        if any(f not in req for f in fields):
+            return jsonify({'msg': 'missing required field(s)'}), 400
+        if any(not bool(req[f] or req[f].strip()) for f in fields):
+            return jsonify({'msg': 'missing value for input field(s)'}), 400
+
+        # Don't allow self reference
+        if (req['account_num'] == payload['acct'] and
+                req['routing_num'] == LOCAL_ROUTING):
+            return jsonify({'error': 'may not add yourself to contacts'}, 400)
+        # Validate account number (must be 10 digits)
+        if (not re.match(r'\A[0-9]{10}\Z', req['account_num']) or
+                req['account_num'] == payload['acct']):
+            return jsonify({'msg': 'invalid account number'}, 400)
+        # Validate routing number (must be 9 digits)
+        if not re.match(r'\A[0-9]{9}\Z', req['routing_num']):
+            return jsonify({'msg': 'invalid routing number'}, 400)
+        # Only allow external accounts to deposit
+        if req['is_external'] and req['routing_num'] == LOCAL_ROUTING:
+            return jsonify({'msg': 'invalid routing number'}, 400)
+        # Validate label (must be <40 chars, only alphanumeric and spaces)
+        if (not all(s.isalnum() for s in req['label'].split()) or
+                len(req['label']) > 40):
+            return jsonify({'msg': 'invalid account label'}, 400)
+
+        # Add new contact to database
+        data = {'username': username,
+                'label': req['label'],
+                'account_num': req['account_num'],
+                'routing_num': req['routing_num']}
+        statement = CONTACTS_TABLE.insert().values(data)
+        DB_CONN.execute(statement)
+
         return jsonify({}), 201
-    except (jwt.exceptions.InvalidTokenError, PermissionError) as ex:
-        logging.error(ex)
-        return jsonify({'error': str(ex)}), 401
-    except (PyMongoError, RuntimeError) as ex:
-        logging.error(ex)
-        return jsonify({'error': str(ex)}), 500
+    except (jwt.exceptions.InvalidTokenError, PermissionError) as e:
+        logging.info(e)
+        return jsonify({'error': str(e)}), 401
+    except SQLAlchemyError as e:
+        logging.error(e)
+        return jsonify({'error': 'failed to retrieve contacts list'}), 500
+
+
+@atexit.register
+def _shutdown():
+    """Executed when web app is terminated."""
+    DB_CONN.close()
+    logging.info("Stopping flask.")
+    logging.shutdown()
 
 
 if __name__ == '__main__':
-    for v in ['PORT', 'ACCOUNTS_DB_ADDR', 'PUB_KEY_PATH', 'LOCAL_ROUTING_NUM']:
+    env_vars = ['PORT',
+                'VERSION',
+                'PUB_KEY_PATH',
+                'ACCOUNTS_DB_ADDR',
+                'ACCOUNTS_DB_PORT',
+                'ACCOUNTS_DB_USER',
+                'ACCOUNTS_DB_PASS',
+                'ACCOUNTS_DB_NAME']
+    for v in env_vars:
         if os.environ.get(v) is None:
             logging.error("error: environment variable %s not set", v)
             logging.shutdown()
             sys.exit(1)
-    LOCAL_ROUTING = os.environ.get('LOCAL_ROUTING_NUM')
 
+    VERSION = os.environ.get('VERSION')
+    LOCAL_ROUTING = os.environ.get('LOCAL_ROUTING_NUM')
     PUBLIC_KEY = open(os.environ.get('PUB_KEY_PATH'), 'r').read()
+
+    # Configure database connection
+    _accounts_db = create_engine(
+            'postgresql://{user}:{password}@{host}:{port}/{database}'.format(
+                user=os.environ.get('ACCOUNTS_DB_USER'),
+                password=os.environ.get('ACCOUNTS_DB_PASS'),
+                host=os.environ.get('ACCOUNTS_DB_ADDR'),
+                port=os.environ.get('ACCOUNTS_DB_PORT'),
+                database=os.environ.get('ACCOUNTS_DB_NAME')))
+    CONTACTS_TABLE = Table('contacts', Metadata(_accounts_db),
+            Column('username', String),
+            Column('label', String),
+            Column('account_num', String),
+            Column('routing_num', String))
+    DB_CONN = _accounts_db.connect()
+
     logging.info("Starting flask.")
     APP.run(debug=False, port=os.environ.get('PORT'), host='0.0.0.0')

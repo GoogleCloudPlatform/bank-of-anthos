@@ -1,6 +1,6 @@
 bleach
-flask
-flask_pymongo
-pymongo>=3.7.2
-pyjwt
 cryptography
+flask
+psycopg2
+pyjwt
+sqlalchemy

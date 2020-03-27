@@ -27,10 +27,10 @@ spec:
     spec:
       terminationGracePeriodSeconds: 5
       initContainers:
-      - name: init-db-ready
-        image: mongo:4
+      - name: check-db-ready
+        image: postgres:12
         command: ['/bin/sh', '-c']
-        args: ["until (mongo --host accounts-db:27017 >/dev/null) do echo 'Waiting for connection for 2 sec.'; sleep 2; done"]
+        args: ["until pg_isready -h accounts-db -p 5432; do echo 'Waiting for database.'; sleep 2; done"]
       containers:
       - name: contacts
         image: gcr.io/bank-of-anthos/contacts
@@ -43,12 +43,22 @@ spec:
           value: "0.1.0"
         - name: PORT
           value: "8080"
-        - name: ACCOUNTS_DB_ADDR
-          value: "accounts-db:27017"
         - name: LOCAL_ROUTING_NUM
           value: "123456789"
         - name: PUB_KEY_PATH
           value: "/root/.ssh/publickey"
+        - name: ACCOUNTS_DB_ADDR
+          value: "accounts-db"
+        - name: ACCOUNTS_DB_PORT
+          value: "5432"
+        - name: ACCOUNTS_DB_USER
+          value: "accounts-admin"
+        - name: ACCOUNTS_DB_PASS
+          value: "accounts-pwd"
+        - name: ACCOUNTS_DB_NAME
+          value: "accounts-db"
+        - name: LOGLEVEL
+          value: 'DEBUG'
         resources:
           requests:
             cpu: 200m

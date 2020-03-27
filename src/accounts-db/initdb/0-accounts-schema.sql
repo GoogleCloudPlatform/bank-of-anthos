@@ -36,11 +36,11 @@ CREATE INDEX IF NOT EXISTS idx_users_username ON users (username);
 
 
 CREATE TABLE IF NOT EXISTS contacts (
-  owner VARCHAR(64) NOT NULL,
+  username VARCHAR(64) NOT NULL,
   label VARCHAR(64) NOT NULL,
   account_num VARCHAR(16),
   routing_num VARCHAR(16),
-  FOREIGN KEY (owner) REFERENCES users(username)
+  FOREIGN KEY (username) REFERENCES users(username)
 );
 
-CREATE INDEX IF NOT EXISTS idx_contacts_owner ON contacts (owner);
+CREATE INDEX IF NOT EXISTS idx_contacts_username ON contacts (username);
