@@ -41,6 +41,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.logging.Logger;
@@ -156,7 +157,7 @@ public final class TransactionHistoryController
                                                   HttpStatus.UNAUTHORIZED);
             }
 
-            Iterable<TransactionHistoryEntry> historyList = transactionRepository.findAll();
+            Set<TransactionHistoryEntry> historyList = transactionRepository.findAllByKeyAccountNum(accountId);
 
             // Set artificial extra latency.
             String latency = System.getenv("EXTRA_LATENCY_MILLIS");
@@ -168,7 +169,7 @@ public final class TransactionHistoryController
                 }
             }
 
-            return new ResponseEntity<Iterable<TransactionHistoryEntry>>(
+            return new ResponseEntity<Set<TransactionHistoryEntry>>(
                     historyList, HttpStatus.OK);
         } catch (JWTVerificationException e) {
             return new ResponseEntity<String>("not authorized",
