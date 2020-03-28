@@ -71,12 +71,12 @@ spec:
             port: 8080
           initialDelaySeconds: 5
           periodSeconds: 5
-        livenessProbe:
-          httpGet:
-            path: /healthy
-            port: 8080
-          initialDelaySeconds: 60
-          periodSeconds: 5
+        #livenessProbe:
+        #  httpGet:
+        #    path: /healthy
+        #    port: 8080
+        #  initialDelaySeconds: 60
+        #  periodSeconds: 5
       volumes:
       - name: publickey
         secret:
