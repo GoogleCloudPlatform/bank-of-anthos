@@ -18,26 +18,47 @@ package anthos.samples.financedemo.ledgerwriter;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import javax.persistence.Index;
+
 /**
  * Defines a banking transaction.
  *
  * Timestamped at object creation time.
  */
+@Entity
+@Table(name="TRANSACTIONS")
 public final class Transaction {
 
     private static final double MILLISECONDS_PER_SECOND = 1000.0;
 
+    @Id
+    @Column(name="TRANSACTION_ID")
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    private long transactionId;
+
     // Timestamp in seconds with decimal precision.
     private final double timestamp;
 
+    @Column(name="FROM_ACCT")
     @JsonProperty("fromAccountNum")
     private String fromAccountNum;
+    @Column(name="FROM_ROUTE")
     @JsonProperty("fromRoutingNum")
     private String fromRoutingNum;
+    @Column(name="TO_ACCT")
     @JsonProperty("toAccountNum")
     private String toAccountNum;
+    @Column(name="TO_ROUTE")
     @JsonProperty("toRoutingNum")
     private String toRoutingNum;
+    @Column(name="AMOUNT")
     @JsonProperty("amount")
     private Integer amount;
 
