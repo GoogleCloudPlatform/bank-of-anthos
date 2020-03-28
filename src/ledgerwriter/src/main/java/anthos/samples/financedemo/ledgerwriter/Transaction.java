@@ -43,9 +43,6 @@ public final class Transaction {
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private long transactionId;
 
-    // Timestamp in seconds with decimal precision.
-    private final double timestamp;
-
     @Column(name="FROM_ACCT")
     @JsonProperty("fromAccountNum")
     private String fromAccountNum;
@@ -61,10 +58,6 @@ public final class Transaction {
     @Column(name="AMOUNT")
     @JsonProperty("amount")
     private Integer amount;
-
-    public Transaction() {
-        this.timestamp = System.currentTimeMillis() / MILLISECONDS_PER_SECOND;
-    }
 
     public String getFromAccountNum() {
         return this.fromAccountNum;
@@ -104,10 +97,6 @@ public final class Transaction {
 
     public void setAmount(Integer amount) {
         this.amount = amount;
-    }
-
-    public double getTimestamp() {
-        return this.timestamp;
     }
 
     public String toString() {

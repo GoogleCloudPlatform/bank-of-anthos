@@ -16,7 +16,6 @@
 
 package anthos.samples.financedemo.ledgerwriter;
 
-import io.lettuce.core.api.StatefulRedisConnection;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.http.HttpStatus;
@@ -48,6 +47,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @RestController
 public final class LedgerWriterController {
@@ -55,14 +55,14 @@ public final class LedgerWriterController {
     private final Logger logger =
             Logger.getLogger(LedgerWriterController.class.getName());
 
-    ApplicationContext ctx =
-            new AnnotationConfigApplicationContext(LedgerWriterConfig.class);
-
     private final String ledgerStreamKey = System.getenv("LEDGER_STREAM");
     private final String routingNum =  System.getenv("LOCAL_ROUTING_NUM");
     private final String balancesUri = String.format("http://%s/balances",
         System.getenv("BALANCES_API_ADDR"));
     private final JWTVerifier verifier;
+
+    @Autowired
+    private TransactionRepository transactionRepository;
 
     public LedgerWriterController() throws IOException,
                                            NoSuchAlgorithmException,
@@ -160,16 +160,7 @@ public final class LedgerWriterController {
     }
 
     private void submitTransaction(Transaction transaction) {
-        logger.fine("Submitting transaction " + transaction.toString());
-        StatefulRedisConnection redisConnection =
-                ctx.getBean(StatefulRedisConnection.class);
-        // Use String key/values so Redis data can be read by non-Java clients.
-        redisConnection.async().xadd(ledgerStreamKey,
-                "fromAccountNum", transaction.getFromAccountNum(),
-                "fromRoutingNum", transaction.getFromRoutingNum(),
-                "toAccountNum", transaction.getToAccountNum(),
-                "toRoutingNum", transaction.getToRoutingNum(),
-                "amount", transaction.getAmount().toString(),
-                "timestamp", Double.toString(transaction.getTimestamp()));
+        logger.info("Submitting transaction " + transaction.toString());
+        transactionRepository.save(transaction);
     }
 }

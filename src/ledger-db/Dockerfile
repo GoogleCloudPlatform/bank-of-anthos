@@ -11,8 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-FROM redis:alpine
+FROM postgres:10.4
 
-COPY run.sh /home/redis/run.sh
-COPY init_data.sh /home/redis/init_data.sh
-ENTRYPOINT /home/redis/run.sh
+COPY init_data.sql /docker-entrypoint-initdb.d/init_data.sql
