@@ -167,7 +167,7 @@ public final class TransactionHistoryController
             }
 
             Pageable request = new PageRequest(0, 100);
-            List<TransactionHistoryEntry> historyList = transactionRepository.findForAccount(accountId, request);
+            List<Transaction> historyList = transactionRepository.findForAccount(accountId, request);
 
             // Set artificial extra latency.
             String latency = System.getenv("EXTRA_LATENCY_MILLIS");
@@ -179,7 +179,7 @@ public final class TransactionHistoryController
                 }
             }
 
-            return new ResponseEntity<List<TransactionHistoryEntry>>(
+            return new ResponseEntity<List<Transaction>>(
                     historyList, HttpStatus.OK);
         } catch (JWTVerificationException e) {
             return new ResponseEntity<String>("not authorized",
@@ -195,8 +195,8 @@ public final class TransactionHistoryController
      * @param entry with transaction metadata
      */
     public void processTransaction(TransactionHistoryEntry entry) {
-        logger.info("new entry");
-        transactionRepository.save(entry);
+        //logger.info("new entry");
+        //transactionRepository.save(entry);
     }
 
 
