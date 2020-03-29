@@ -100,6 +100,11 @@ Using the pre-populated username and password fields, log in as `testuser`. You 
 
 ![](/docs/transactions.png)
 
+
+## Local Development
+
+See the [Development Guide](./docs/development.md) for instructions on how to build and develop services locally, and the [Contributing Guide](./CONTRIBUTING.md) for pull request and code review guidelines.
+
 ---
 
 This is not an official Google project.
