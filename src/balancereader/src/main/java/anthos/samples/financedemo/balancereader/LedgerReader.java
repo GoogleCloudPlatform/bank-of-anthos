@@ -61,7 +61,7 @@ public final class LedgerReader {
     private TransactionRepository transactionRepository;
 
     /**
-     * LedgerReader constructor
+     * LedgerReader setup
      * Synchronously loads all existing transactions, and then starts
      * a background thread to listen for future transactions
      * @param listener to process transactions
@@ -94,10 +94,8 @@ public final class LedgerReader {
      * Poll for new transactions
      * Execute callback for each one
      *
-     * @param timeout the blocking time for new transactions.
-     *                0 = block forever
      * @param startingTransaction the transaction to start reading after.
-     *                            "0" = start reading at beginning of the ledger
+     *                            -1 = start reading at beginning of the ledger
      * @return long id of latest transaction processed
      */
     private long pollTransactions(long startingTransaction) {
@@ -135,6 +133,4 @@ public final class LedgerReader {
     public boolean isInitialized() {
         return this.initialized;
     }
-
-
 }

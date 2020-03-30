@@ -60,7 +60,6 @@ public final class BalanceReaderController
         new HashMap<String, Integer>();
     @Autowired
     private LedgerReader reader;
-    private boolean initialized = false;
 
     /**
      * BalanceReaderController constructor
@@ -87,8 +86,6 @@ public final class BalanceReaderController
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
         this.reader.startWithListener(this);
-        this.initialized = true;
-        logger.info("Initialization complete.");
     }
 
 
@@ -112,7 +109,7 @@ public final class BalanceReaderController
      */
     @GetMapping("/ready")
     public ResponseEntity readiness() {
-        if (this.initialized) {
+        if (this.reader.isInitialized()) {
             return new ResponseEntity<String>("ok", HttpStatus.OK);
         } else {
             return new ResponseEntity<String>("not initialized",
@@ -127,7 +124,7 @@ public final class BalanceReaderController
      */
     @GetMapping("/healthy")
     public ResponseEntity liveness() {
-        if (this.initialized && !this.reader.isAlive()) {
+        if (!this.reader.isAlive()) {
             // background thread died. Abort
             return new ResponseEntity<String>("LedgerReader not healthy",
                                               HttpStatus.INTERNAL_SERVER_ERROR);
