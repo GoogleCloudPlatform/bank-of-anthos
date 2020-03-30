@@ -134,7 +134,7 @@ public final class TransactionHistoryController
      */
     @GetMapping("/healthy")
     public ResponseEntity liveness() {
-        if (this.ledgerReader.isInitialized() && !this.ledgerReader.isAlive()) {
+        if (!this.ledgerReader.isAlive()) {
             // background thread died. Abort
             return new ResponseEntity<String>("LedgerReader not healthy",
                                               HttpStatus.INTERNAL_SERVER_ERROR);
@@ -194,8 +194,8 @@ public final class TransactionHistoryController
      * @param account associated with the transaction
      * @param entry with transaction metadata
      */
-    public void processTransaction(TransactionHistoryEntry entry) {
-        //logger.info("new entry");
+    public void processTransaction(Transaction transaction) {
+        logger.info("new entry");
         //transactionRepository.save(entry);
     }
 

@@ -11,6 +11,12 @@ import org.springframework.data.domain.Pageable;
 @Repository
 public interface TransactionRepository extends CrudRepository<Transaction, Long>{
 
+    @Query("SELECT MAX(transactionId) FROM Transaction")
+    public long latestId();
+
     @Query("SELECT t FROM Transaction t WHERE t.fromAccountNum=:accountNum OR t.toAccountNum=:accountNum ORDER BY t.timestamp DESC")
     public List<Transaction> findForAccount(@Param("accountNum")String accountNum, Pageable pageable);
+
+    @Query("SELECT t FROM Transaction t WHERE t.transactionId > :latest ORDER BY t.transactionId ASC")
+    public List<Transaction> findLatest(@Param("latest")long latestTransaction);
 }
