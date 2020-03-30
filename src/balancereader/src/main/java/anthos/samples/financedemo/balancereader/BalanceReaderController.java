@@ -42,8 +42,15 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
+
 @RestController
-public final class BalanceReaderController implements LedgerReaderListener {
+public final class BalanceReaderController 
+    implements LedgerReaderListener, ApplicationListener<ContextRefreshedEvent> {
+
+
 
     private final Logger logger =
             Logger.getLogger(BalanceReaderController.class.getName());
@@ -51,7 +58,8 @@ public final class BalanceReaderController implements LedgerReaderListener {
     private final JWTVerifier verifier;
     private final Map<String, Integer> balanceMap =
         new HashMap<String, Integer>();
-    private final LedgerReader reader;
+    @Autowired
+    private LedgerReader reader;
     private boolean initialized = false;
 
     /**
@@ -74,12 +82,16 @@ public final class BalanceReaderController implements LedgerReaderListener {
         // set up verifier
         Algorithm algorithm = Algorithm.RSA256(publicKey, null);
         this.verifier = JWT.require(algorithm).build();
+    }
 
-        // set up transaction processor
-        this.reader = new LedgerReader(this);
+    @Override
+    public void onApplicationEvent(ContextRefreshedEvent event) {
+        this.reader.startWithListener(this);
         this.initialized = true;
         logger.info("Initialization complete.");
     }
+
+
 
     /**
 

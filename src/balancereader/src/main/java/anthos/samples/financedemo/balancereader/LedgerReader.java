@@ -29,6 +29,9 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.lang.Iterable;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * Defines an interface for reacting to new transactions
@@ -41,19 +44,31 @@ interface LedgerReaderListener {
  * LedgerReader listens for incoming transactions, and executes a callback
  * on a subscribed listener object
  */
+@Component
 public final class LedgerReader {
+
+
 
     private final Logger logger =
             Logger.getLogger(LedgerReader.class.getName());
+;
 
-    private ApplicationContext ctx =
-        new AnnotationConfigApplicationContext(BalanceReaderConfig.class);
-    private StatefulRedisConnection redisConnection =
-        ctx.getBean(StatefulRedisConnection.class);
     private final String ledgerStreamKey = System.getenv("LEDGER_STREAM");
     private final String localRoutingNum =  System.getenv("LOCAL_ROUTING_NUM");
-    private final Thread backgroundThread;
+    //private final Thread backgroundThread;
     private LedgerReaderListener listener;
+
+    @Autowired
+    private TransactionRepository transactionRepository;
+
+    public void startWithListener(LedgerReaderListener listener) {
+        this.listener = listener;
+        logger.info("Starting poll.");
+        pollTransactions(1, "0");
+        logger.info("Poll complete.");
+    }
+
+
 
     /**
      * LedgerReader constructor
@@ -61,26 +76,26 @@ public final class LedgerReader {
      * a background thread to listen for future transactions
      * @param listener to process transactions
      */
-    public LedgerReader(LedgerReaderListener listener) {
-        this.listener = listener;
-        // read from starting transaction to latest
-        final String startingTransaction = pollTransactions(1, "0");
+    //public LedgerReader(LedgerReaderListener listener) {
+    //    this.listener = listener;
+    //    // read from starting transaction to latest
+    //    final String startingTransaction = pollTransactions(1, "0");
 
-        // set up background thread to listen for incomming transactions
-        this.backgroundThread = new Thread(
-            new Runnable() {
-                @Override
-                public void run() {
-                    String latest = startingTransaction;
-                    while (true) {
-                        latest = pollTransactions(0, latest);
-                    }
-                }
-            }
-        );
-        logger.info("Starting background thread.");
-        this.backgroundThread.start();
-    }
+    //    // set up background thread to listen for incomming transactions
+    //    this.backgroundThread = new Thread(
+    //        new Runnable() {
+    //            @Override
+    //            public void run() {
+    //                String latest = startingTransaction;
+    //                while (true) {
+    //                    //latest = pollTransactions(0, latest);
+    //                }
+    //            }
+    //        }
+    //    );
+    //    logger.info("Starting background thread.");
+    //    this.backgroundThread.start();
+    //}
 
 
     /**
@@ -98,30 +113,20 @@ public final class LedgerReader {
             throw new IllegalArgumentException(
                     "pollTransactions request timeout must be non-negative");
         }
-        String latestTransactionId = startingTransaction;
-        StreamOffset offset = StreamOffset.from(ledgerStreamKey,
-                                                startingTransaction);
-        XReadArgs args = XReadArgs.Builder.block(Duration.ofSeconds(timeout));
+        //String latestTransactionId = startingTransaction;
+        //StreamOffset offset = StreamOffset.from(ledgerStreamKey,
+        //                                        startingTransaction);
+        //XReadArgs args = XReadArgs.Builder.block(Duration.ofSeconds(timeout));
         try {
-            List<StreamMessage<String, String>> messages =
-                redisConnection.sync().xread(args, offset);
+            Iterable<Transaction> transactionList = transactionRepository.findAll();
 
-            for (StreamMessage<String, String> message : messages) {
-                // found a list of transactions. Execute callback for each one
-                latestTransactionId = message.getId();
-                Map<String, String> map = message.getBody();
+            for (Transaction transaction : transactionList) {
                 if (this.listener != null) {
-                    // each transaction is made up of a debit and a credit
-                    String sender = map.get("fromAccountNum");
-                    String senderRouting = map.get("fromRoutingNum");
-                    String receiver = map.get("toAccountNum");
-                    String receiverRouting = map.get("toRoutingNum");
-                    Integer amount = Integer.valueOf(map.get("amount"));
-                    if (senderRouting.equals(localRoutingNum)) {
-                        this.listener.processTransaction(sender, -amount);
+                    if (transaction.getFromRoutingNum().equals(localRoutingNum)) {
+                        this.listener.processTransaction(transaction.getFromAccountNum(), -transaction.getAmount());
                     }
-                    if (receiverRouting.equals(localRoutingNum)) {
-                        this.listener.processTransaction(receiver, amount);
+                    if (transaction.getToRoutingNum().equals(localRoutingNum)) {
+                        this.listener.processTransaction(transaction.getToAccountNum(), transaction.getAmount());
                     }
                 } else {
                     logger.warning("Listener not set up.");
@@ -130,7 +135,8 @@ public final class LedgerReader {
         } catch (RedisCommandTimeoutException e) {
             logger.info("Redis stream read timeout.");
         }
-        return latestTransactionId;
+        return "";
+        //return latestTransactionId;
     }
 
     /**
@@ -138,6 +144,7 @@ public final class LedgerReader {
      * @return false if background thread dies
      */
     public boolean isAlive() {
-        return this.backgroundThread.isAlive();
+        return true;
+        //return this.backgroundThread.isAlive();
     }
 }
