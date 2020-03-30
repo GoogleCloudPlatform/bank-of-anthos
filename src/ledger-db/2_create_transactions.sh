@@ -20,8 +20,19 @@
 # values are chosen so that the depsoit in a period > payments in the same period
 set -u
 
-format_date () {
-    date -u +"%Y-%m-%d %H:%M:%S.%3N%z" --date="@$(($1))"
+# skip adding transactions if not enabled
+if [ "$USE_DEFAULT_DATA" != "True"  ]; then
+    echo "no default transactions added"
+    exit 0
+fi
+
+add_transaction() {
+    DATE=$(date -u +"%Y-%m-%d %H:%M:%S.%3N%z" --date="@$(($6))")
+    echo "adding default transaction: $1 -> $2"
+    psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
+        INSERT INTO TRANSACTIONS (FROM_ACCT, TO_ACCT, FROM_ROUTE, TO_ROUTE, AMOUNT, TIMESTAMP)
+        VALUES ($1, $2, $3, $4, $5, '$DATE');
+EOSQL
 }
 
 PAY_PREIODS=3
@@ -33,20 +44,14 @@ DEPOSIT_AMOUNT=250000
 START_TIMESTAMP=$(( $(date +%s) - $(( $(($PAY_PREIODS+1)) * $SECONDS_IN_PAY_PERIOD  ))  ))
 for i in $(seq 1 $PAY_PREIODS); do
     # create deposit transaction
-    psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
-        INSERT INTO TRANSACTIONS (FROM_ACCT, TO_ACCT, FROM_ROUTE, TO_ROUTE, AMOUNT, TIMESTAMP)
-        VALUES ($DEFAULT_DEPOSIT_ACCOUNT, $DEFAULT_ACCOUNT, $DEFAULT_DEPOSIT_ROUTING, $LOCAL_ROUTING_NUM, $DEPOSIT_AMOUNT, '$(format_date $START_TIMESTAMP)');
-EOSQL
+    add_transaction $DEFAULT_DEPOSIT_ACCOUNT $DEFAULT_ACCOUNT $DEFAULT_DEPOSIT_ROUTING $LOCAL_ROUTING_NUM $DEPOSIT_AMOUNT $START_TIMESTAMP
     # create payments
     TRANSACTIONS_PER_PERIOD=$(shuf -i 3-11 -n1)
     for p in $(seq 1 $TRANSACTIONS_PER_PERIOD); do
         AMOUNT=$(shuf -i 100-25000 -n1)
         ACCOUNT=$(shuf -i 1000000000-9999999999 -n1)
         TIMESTAMP=$(( $START_TIMESTAMP + $(( $SECONDS_IN_PAY_PERIOD * $p / $(($TRANSACTIONS_PER_PERIOD + 1 )) )) ))
-        psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
-            INSERT INTO TRANSACTIONS (FROM_ACCT, TO_ACCT, FROM_ROUTE, TO_ROUTE, AMOUNT, TIMESTAMP)
-            VALUES ($DEFAULT_ACCOUNT, $ACCOUNT, $LOCAL_ROUTING_NUM, $LOCAL_ROUTING_NUM, $AMOUNT, '$(format_date $TIMESTAMP)');
-EOSQL
+        add_transaction $DEFAULT_ACCOUNT $ACCOUNT $LOCAL_ROUTING_NUM $LOCAL_ROUTING_NUM $AMOUNT $TIMESTAMP
     done
     START_TIMESTAMP=$(( $START_TIMESTAMP + $(( $i * $SECONDS_IN_PAY_PERIOD  )) ))
 done
