@@ -51,24 +51,14 @@ public final class LedgerReader {
 
     private final Logger logger =
             Logger.getLogger(LedgerReader.class.getName());
-;
-
     private final String ledgerStreamKey = System.getenv("LEDGER_STREAM");
     private final String localRoutingNum =  System.getenv("LOCAL_ROUTING_NUM");
-    //private final Thread backgroundThread;
+    private Thread backgroundThread;
     private LedgerReaderListener listener;
+    private boolean initialized = false;
 
     @Autowired
     private TransactionRepository transactionRepository;
-
-    public void startWithListener(LedgerReaderListener listener) {
-        this.listener = listener;
-        logger.info("Starting poll.");
-        pollTransactions(-1);
-        logger.info("Poll complete.");
-    }
-
-
 
     /**
      * LedgerReader constructor
@@ -76,27 +66,29 @@ public final class LedgerReader {
      * a background thread to listen for future transactions
      * @param listener to process transactions
      */
-    //public LedgerReader(LedgerReaderListener listener) {
-    //    this.listener = listener;
-    //    // read from starting transaction to latest
-    //    final String startingTransaction = pollTransactions(1, "0");
-
-    //    // set up background thread to listen for incomming transactions
-    //    this.backgroundThread = new Thread(
-    //        new Runnable() {
-    //            @Override
-    //            public void run() {
-    //                String latest = startingTransaction;
-    //                while (true) {
-    //                    //latest = pollTransactions(0, latest);
-    //                }
-    //            }
-    //        }
-    //    );
-    //    logger.info("Starting background thread.");
-    //    this.backgroundThread.start();
-    //}
-
+    public void startWithListener(LedgerReaderListener listener) {
+        this.listener = listener;
+        logger.info("Starting poll.");
+        final long first = pollTransactions(-1);
+        this.initialized = true;
+        logger.info("Poll complete.");
+        this.backgroundThread = new Thread(
+            new Runnable() {
+                @Override
+                public void run() {
+                    long latest = first;
+                    while (true) {
+                        try{
+                            Thread.sleep(100);
+                        } catch (InterruptedException e){}
+                        latest = pollTransactions(latest);
+                    }
+                }
+            }
+        );
+        logger.info("Starting background thread.");
+        this.backgroundThread.start();
+    }
 
     /**
      * Poll for new transactions
@@ -124,7 +116,6 @@ public final class LedgerReader {
                 logger.warning("Listener not set up.");
             }
             latestTransactionId = transaction.getTransactionId();
-            logger.info(Long.toString(latestTransactionId));
         }
         return latestTransactionId;
     }
@@ -134,7 +125,16 @@ public final class LedgerReader {
      * @return false if background thread dies
      */
     public boolean isAlive() {
-        return true;
-        //return this.backgroundThread.isAlive();
+        return !this.initialized || this.backgroundThread.isAlive();
     }
+
+    /**
+     * Indicates health of LedgerReader
+     * @return false if background thread dies
+     */
+    public boolean isInitialized() {
+        return this.initialized;
+    }
+
+
 }
