@@ -13,4 +13,5 @@
 # limitations under the License.
 FROM postgres:10.4
 
-COPY init_data.sql /docker-entrypoint-initdb.d/init_data.sql
+COPY 1_init_tables.sql /docker-entrypoint-initdb.d
+COPY 2_create_transactions.sh /docker-entrypoint-initdb.d
