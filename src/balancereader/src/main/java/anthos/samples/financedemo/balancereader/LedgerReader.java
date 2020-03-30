@@ -64,7 +64,7 @@ public final class LedgerReader {
     public void startWithListener(LedgerReaderListener listener) {
         this.listener = listener;
         logger.info("Starting poll.");
-        pollTransactions(1, "0");
+        pollTransactions(-1);
         logger.info("Poll complete.");
     }
 
@@ -106,37 +106,27 @@ public final class LedgerReader {
      *                0 = block forever
      * @param startingTransaction the transaction to start reading after.
      *                            "0" = start reading at beginning of the ledger
-     * @return String id of latest transaction processed
+     * @return long id of latest transaction processed
      */
-    private String pollTransactions(int timeout, String startingTransaction) {
-        if (timeout < 0) {
-            throw new IllegalArgumentException(
-                    "pollTransactions request timeout must be non-negative");
-        }
-        //String latestTransactionId = startingTransaction;
-        //StreamOffset offset = StreamOffset.from(ledgerStreamKey,
-        //                                        startingTransaction);
-        //XReadArgs args = XReadArgs.Builder.block(Duration.ofSeconds(timeout));
-        try {
-            Iterable<Transaction> transactionList = transactionRepository.findAll();
+    private long pollTransactions(long startingTransaction) {
+        long latestTransactionId = startingTransaction;
+        Iterable<Transaction> transactionList = transactionRepository.findLatest(startingTransaction);
 
-            for (Transaction transaction : transactionList) {
-                if (this.listener != null) {
-                    if (transaction.getFromRoutingNum().equals(localRoutingNum)) {
-                        this.listener.processTransaction(transaction.getFromAccountNum(), -transaction.getAmount());
-                    }
-                    if (transaction.getToRoutingNum().equals(localRoutingNum)) {
-                        this.listener.processTransaction(transaction.getToAccountNum(), transaction.getAmount());
-                    }
-                } else {
-                    logger.warning("Listener not set up.");
+        for (Transaction transaction : transactionList) {
+            if (this.listener != null) {
+                if (transaction.getFromRoutingNum().equals(localRoutingNum)) {
+                    this.listener.processTransaction(transaction.getFromAccountNum(), -transaction.getAmount());
                 }
+                if (transaction.getToRoutingNum().equals(localRoutingNum)) {
+                    this.listener.processTransaction(transaction.getToAccountNum(), transaction.getAmount());
+                }
+            } else {
+                logger.warning("Listener not set up.");
             }
-        } catch (RedisCommandTimeoutException e) {
-            logger.info("Redis stream read timeout.");
+            latestTransactionId = transaction.getTransactionId();
+            logger.info(Long.toString(latestTransactionId));
         }
-        return "";
-        //return latestTransactionId;
+        return latestTransactionId;
     }
 
     /**

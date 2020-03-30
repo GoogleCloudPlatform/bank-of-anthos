@@ -66,6 +66,10 @@ public final class Transaction {
     @JsonProperty("timestamp")
     private Date timestamp;
 
+    public long getTransactionId(){
+        return this.transactionId;
+    }
+
     public String getFromAccountNum() {
         return this.fromAccountNum;
     }
