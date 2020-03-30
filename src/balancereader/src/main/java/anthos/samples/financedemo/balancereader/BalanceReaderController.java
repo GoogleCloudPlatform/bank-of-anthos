@@ -88,8 +88,6 @@ public final class BalanceReaderController
         this.reader.startWithListener(this);
     }
 
-
-
     /**
 
      * Version endpoint.
@@ -179,7 +177,4 @@ public final class BalanceReaderController
         }
         this.balanceMap.put(account, amount);
     }
-
-
-
 }
