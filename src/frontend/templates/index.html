@@ -181,22 +181,22 @@ limitations under the License.
                           <td class="text-uppercase transaction-date">
                             <p><small class="text-uppercase date-month">{{ format_timestamp_month(t.timestamp) }}</small>{{ format_timestamp_day(t.timestamp) }}</p>
                           </td>
-                          {% if t.type == "DEBIT" %}
+                          {% if t.toAccountNum == account_id %}
                             <td class="transaction-type">
                               <span class="text-success">●</span> Debit
                             </td>
                             <td class="transaction-account">
-                              {{ t.accountNum }}
+                              {{ t.fromAccountNum }}
                             </td>
                             <td class="transaction-amount transaction-amount-debit">
                               +{{ format_currency(t.amount) }}
                             </td>
-                          {% else %}
+                          {% elif t.fromAccountNum == account_id %}
                             <td class="transaction-type">
                               <span class="text-warning">●</span> Credit
                             </td>
                             <td class="transaction-account">
-                              {{ t.accountNum }}
+                              {{ t.toAccountNum }}
                             </td>
                             <td class="transaction-amount">
                               -{{ format_currency(t.amount) }}
