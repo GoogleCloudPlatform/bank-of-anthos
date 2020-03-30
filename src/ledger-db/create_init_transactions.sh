@@ -20,6 +20,10 @@
 # values are chosen so that the depsoit in a period > payments in the same period
 set -u
 
+format_date () {
+    date -u +"%Y-%m-%dT%H:%M:%S.%3N%z" --date="@$(($1))"
+}
+
 PAY_PREIODS=3
 DAYS_BETWEEN_PAY=14
 let SECONDS_IN_PAY_PERIOD=60*60*24*$DAYS_BETWEEN_PAY
@@ -28,7 +32,8 @@ DEPOSIT_AMOUNT=250000
 START_TIMESTAMP=$(( $(date +%s) - $(( $(($PAY_PREIODS+1)) * $SECONDS_IN_PAY_PERIOD  ))  ))
 for i in $(seq 1 $PAY_PREIODS); do
     # create deposit transaction
-    echo XADD ledger \* fromAccountNum $DEFAULT_DEPOSIT_ACCOUNT fromRoutingNum $DEFAULT_DEPOSIT_ROUTING toAccountNum $DEFAULT_ACCOUNT toRoutingNum $LOCAL_ROUTING_NUM amount $DEPOSIT_AMOUNT timestamp $START_TIMESTAMP
+    echo "INSERT INTO TRANSACTIONS (FROM_ACCT, TO_ACCT, FROM_ROUTE, TO_ROUTE, AMOUNT, TIMESTAMP)"
+    echo "   VALUES ($DEFAULT_DEPOSIT_ACCOUNT $DEFAULT_ACCOUNT $DEFAULT_DEPOSIT_ROUTING $LOCAL_ROUTING_NUM $DEPOSIT_AMOUNT $(format_date $START_TIMESTAMP))"
     # create payments
     TRANSACTIONS_PER_PERIOD=$((  $RANDOM % 8 + 3 ))
     for p in $(seq 1 $TRANSACTIONS_PER_PERIOD); do
@@ -36,6 +41,8 @@ for i in $(seq 1 $PAY_PREIODS); do
         ACCOUNT=$(($RANDOM%9+1))$(($RANDOM%9+1))$(($RANDOM%9+1))$(($RANDOM%9+1))$(($RANDOM%9+1))$(($RANDOM%9+1))$(($RANDOM%9+1))$(($RANDOM%9+1))$(($RANDOM%9+1))$(($RANDOM%9+1))
         TIMESTAMP=$(( $START_TIMESTAMP + $(( $SECONDS_IN_PAY_PERIOD * $p / $(($TRANSACTIONS_PER_PERIOD + 1 )) )) ))
         echo XADD ledger \* fromAccountNum $DEFAULT_ACCOUNT fromRoutingNum $LOCAL_ROUTING_NUM toAccountNum $ACCOUNT toRoutingNum $LOCAL_ROUTING_NUM amount $AMOUNT timestamp $TIMESTAMP
+        echo "INSERT INTO TRANSACTIONS (FROM_ACCT, TO_ACCT, FROM_ROUTE, TO_ROUTE, AMOUNT, TIMESTAMP)"
+        echo "   VALUES ($DEFAULT_ACCOUNT $ACCOUNT $LOCAL_ROUTING_NUM $LOCAL_ROUTING_NUM $DEPOSIT_AMOUNT $(format_date $TIMESTAMP))"
     done
     START_TIMESTAMP=$(( $START_TIMESTAMP + $(( $i * $SECONDS_IN_PAY_PERIOD  )) ))
 done
