@@ -11,6 +11,6 @@ import org.springframework.data.domain.Pageable;
 @Repository
 public interface TransactionRepository extends CrudRepository<Transaction, Long>{
 
-    @Query("SELECT t FROM Transaction t WHERE t.fromAccountNum=:accountNum OR t.toAccountNum=:accountNum")
+    @Query("SELECT t FROM Transaction t WHERE t.fromAccountNum=:accountNum OR t.toAccountNum=:accountNum ORDER BY t.timestamp DESC")
     public List<Transaction> findForAccount(@Param("accountNum")String accountNum, Pageable pageable);
 }
