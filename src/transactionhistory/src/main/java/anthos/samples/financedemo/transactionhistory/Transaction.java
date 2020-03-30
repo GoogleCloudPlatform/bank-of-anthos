@@ -27,6 +27,9 @@ import javax.persistence.Table;
 
 import javax.persistence.Index;
 
+import java.util.Date;
+import org.hibernate.annotations.CreationTimestamp;
+
 /**
  * Defines a banking transaction.
  *
@@ -58,6 +61,10 @@ public final class Transaction {
     @Column(name="AMOUNT")
     @JsonProperty("amount")
     private Integer amount;
+    @Column(name="TIMESTAMP", nullable = false, updatable = false)
+    @CreationTimestamp
+    @JsonProperty("timestamp")
+    private Date timestamp;
 
     public String getFromAccountNum() {
         return this.fromAccountNum;
