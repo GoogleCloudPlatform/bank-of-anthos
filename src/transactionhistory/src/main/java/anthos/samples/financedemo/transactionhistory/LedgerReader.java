@@ -37,7 +37,7 @@ import org.springframework.stereotype.Component;
  * Defines an interface for reacting to new transactions
  */
 interface LedgerReaderListener {
-    void processTransaction(Transaction transaction);
+    void processTransaction(String accountId, Transaction transaction);
 }
 
 /**
@@ -101,10 +101,10 @@ public final class LedgerReader {
         for (Transaction transaction : transactionList) {
             if (this.listener != null) {
                 if (transaction.getFromRoutingNum().equals(localRoutingNum)) {
-                    this.listener.processTransaction(transaction);
+                    this.listener.processTransaction(transaction.getFromAccountNum(), transaction);
                 }
                 if (transaction.getToRoutingNum().equals(localRoutingNum)) {
-                    this.listener.processTransaction(transaction);
+                    this.listener.processTransaction(transaction.getToAccountNum(), transaction);
                 }
             } else {
                 logger.warning("Listener not set up.");

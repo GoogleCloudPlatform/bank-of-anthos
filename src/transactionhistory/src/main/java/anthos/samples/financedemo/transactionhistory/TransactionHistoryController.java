@@ -55,6 +55,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 
+import com.google.common.cache.RemovalListener;
+import com.google.common.cache.RemovalNotification;
+import com.google.common.cache.LoadingCache;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.CacheBuilder;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ExecutionException;
 
 
 @RestController
@@ -65,8 +72,19 @@ public final class TransactionHistoryController
             Logger.getLogger(TransactionHistoryController.class.getName());
 
     private final JWTVerifier verifier;
-    private final Map<String, List<TransactionHistoryEntry>> historyMap =
-        new HashMap<String, List<TransactionHistoryEntry>>();
+    private final LoadingCache<String, List<Transaction>> cache = CacheBuilder.newBuilder()
+        .maximumSize(1000)
+        .expireAfterWrite(60, TimeUnit.MINUTES)
+        .build(
+            new CacheLoader<String, List<Transaction>>() {
+                @Override
+                public List<Transaction> load(String accountId) {
+                    logger.info("loaded from db");
+                    Pageable request = new PageRequest(0, 100);
+                    return transactionRepository.findForAccount(accountId, request);
+                }
+            }
+        );
     @Autowired
     private TransactionRepository transactionRepository;
     @Autowired
@@ -166,8 +184,8 @@ public final class TransactionHistoryController
                                                   HttpStatus.UNAUTHORIZED);
             }
 
-            Pageable request = new PageRequest(0, 100);
-            List<Transaction> historyList = transactionRepository.findForAccount(accountId, request);
+            // Load from cache
+            List<Transaction> historyList = cache.get(accountId);
 
             // Set artificial extra latency.
             String latency = System.getenv("EXTRA_LATENCY_MILLIS");
@@ -184,6 +202,9 @@ public final class TransactionHistoryController
         } catch (JWTVerificationException e) {
             return new ResponseEntity<String>("not authorized",
                                               HttpStatus.UNAUTHORIZED);
+        } catch (ExecutionException e) {
+            return new ResponseEntity<String>("cache error",
+                                              HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -194,11 +215,11 @@ public final class TransactionHistoryController
      * @param account associated with the transaction
      * @param entry with transaction metadata
      */
-    public void processTransaction(Transaction transaction) {
-        logger.info("new entry");
-        //transactionRepository.save(entry);
+    public void processTransaction(String accountId, Transaction transaction) {
+        if (cache.asMap().containsKey(accountId)){
+            logger.info("modifying cache: " + accountId);
+            List<Transaction> tList = cache.asMap().get(accountId);
+            tList.add(0, transaction);
+        }
     }
-
-
-
 }
