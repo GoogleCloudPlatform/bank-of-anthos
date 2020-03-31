@@ -45,7 +45,7 @@ public final class LedgerReader {
     private TransactionRepository dbRepo;
 
     @Value("${POLL_MS:100}")
-    private final Integer pollMs;
+    private Integer pollMs;
 
     /**
      * LedgerReader setup

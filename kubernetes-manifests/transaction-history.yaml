@@ -43,7 +43,7 @@ spec:
         - name: PUB_KEY_PATH
           value: "/root/.ssh/publickey"
         - name: POLL_MS
-          value: 100
+          value: "100"
         - name: CACHE_SIZE
           value: "1000"
         - name: CACHE_MINUTES
