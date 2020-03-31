@@ -48,18 +48,41 @@ import org.springframework.context.event.ContextRefreshedEvent;
 
 import java.lang.Long;
 
+import com.google.common.cache.RemovalListener;
+import com.google.common.cache.RemovalNotification;
+import com.google.common.cache.LoadingCache;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.CacheBuilder;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ExecutionException;
+
+
+
 @RestController
 public final class BalanceReaderController 
     implements LedgerReaderListener, ApplicationListener<ContextRefreshedEvent> {
-
-
 
     private final Logger logger =
             Logger.getLogger(BalanceReaderController.class.getName());
 
     private final JWTVerifier verifier;
-    private final Map<String, Integer> balanceMap =
-        new HashMap<String, Integer>();
+
+    private final LoadingCache<String, Long> cache = CacheBuilder.newBuilder()
+        .maximumSize((long) 1e6)
+        .build(
+            new CacheLoader<String, Long>() {
+                @Override
+                public Long load(String accountId) {
+                    logger.info("loaded from db");
+                    Long balance = transactionRepository.findBalance(accountId);
+                    if (balance == null){
+                        balance = 0L;
+                    }
+                    return balance;
+                }
+            }
+        );
+
     @Autowired
     private LedgerReader reader;
 
@@ -159,14 +182,16 @@ public final class BalanceReaderController
                                                   HttpStatus.UNAUTHORIZED);
             }
 
-            Long balance = transactionRepository.findBalance(accountId);
-            if (balance == null){
-                balance = 0L;
-            }
+            // Load from cache
+            Long balance = cache.get(accountId);
+
             return new ResponseEntity<Long>(balance, HttpStatus.OK);
         } catch (JWTVerificationException e) {
             return new ResponseEntity<String>("not authorized",
                                               HttpStatus.UNAUTHORIZED);
+        } catch (ExecutionException e) {
+            return new ResponseEntity<String>("cache error",
+                                              HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -177,10 +202,11 @@ public final class BalanceReaderController
      * @param account associated with the transaction
      * @param entry with transaction metadata
      */
-    public void processTransaction(String account, Integer amount) {
-        if (this.balanceMap.containsKey(account)) {
-            amount += this.balanceMap.get(account);
+    public void processTransaction(String accountId, Integer amount) {
+        if (cache.asMap().containsKey(accountId)){
+            logger.info("modifying cache: " + accountId);
+            Long prevBalance = cache.asMap().get(accountId);
+            cache.put(accountId, prevBalance+amount);
         }
-        this.balanceMap.put(account, amount);
     }
 }
