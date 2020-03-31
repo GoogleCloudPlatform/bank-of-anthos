@@ -85,7 +85,6 @@ public final class LedgerWriterController {
         // set up verifier
         Algorithm algorithm = Algorithm.RSA256(publicKey, null);
         this.verifier = JWT.require(algorithm).build();
-
     }
 
     /**
@@ -127,12 +126,7 @@ public final class LedgerWriterController {
         try {
             final DecodedJWT jwt = this.verifier.verify(bearerToken);
             // validate transaction
-            validateTransaction(jwt.getClaim("acct").asString(),
-                                transaction.getAmount(),
-                                transaction.getFromAccountNum(),
-                                transaction.getFromRoutingNum(),
-                                transaction.getToAccountNum(),
-                                transaction.getToRoutingNum());
+            validateTransaction(jwt.getClaim("acct").asString(), transaction);
             // No exceptions thrown. Add to ledger.
             submitTransaction(transaction);
             return new ResponseEntity<String>("ok", HttpStatus.CREATED);
@@ -152,12 +146,18 @@ public final class LedgerWriterController {
      *   - Ensure sender and receiver are different accounts
      *   - Ensure amount is positive, and sender has proper balance
      *
-     *  @throws RuntimeException on validation error
-     *  @throws AuthenticationException when sender isn't authenticated
+     * @param authedAccount the currently authenticated user account
+     * @param transaction the transaction object
+     * @throws RuntimeException on validation error
+     * @throws AuthenticationException when sender isn't authenticated
      */
-    private void validateTransaction(String authedAcct, Integer amount,
-            String fromAcct, String fromRoute, String toAcct, String toRoute) 
+    private void validateTransaction(String authedAcct, Transaction transaction)
             throws RuntimeException, AuthenticationException {
+        final String fromAcct = transaction.getFromAccountNum();
+        final String fromRoute = transaction.getFromRoutingNum();
+        final String toAcct = transaction.getToAccountNum();
+        final String toRoute = transaction.getToRoutingNum();
+
         // If this is an internal transaction,
         // ensure it originated from the authenticated user
         if (fromRoute.equals(routingNum) && !fromAcct.equals(authedAcct)) {
