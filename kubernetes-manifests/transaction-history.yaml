@@ -36,12 +36,6 @@ spec:
         env:
         - name: VERSION
           value: "0.1.0"
-        - name: LEDGER_ADDR
-          value: "ledger-db"
-        - name: LEDGER_PORT
-          value: "6379"
-        - name: LEDGER_STREAM
-          value: "ledger"
         - name: PORT
           value: "8080"
         - name: LOCAL_ROUTING_NUM
@@ -53,6 +47,10 @@ spec:
           value: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
         #- name: EXTRA_LATENCY_MILLIS
         #  value: "5000"
+        envFrom:
+        # add ledger-db credentials from ConfigMap
+        - configMapRef:
+            name: postgres-config
         resources:
           requests:
             cpu: 200m
@@ -65,12 +63,6 @@ spec:
             port: 8080
           initialDelaySeconds: 5
           periodSeconds: 5
-        #livenessProbe:
-        #  httpGet:
-        #    path: /healthy
-        #    port: 8080
-        #  initialDelaySeconds: 60
-        #  periodSeconds: 5
       volumes:
       - name: publickey
         secret:

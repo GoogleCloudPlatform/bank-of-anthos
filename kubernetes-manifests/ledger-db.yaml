@@ -54,8 +54,11 @@ metadata:
     app: postgres
 data:
   POSTGRES_DB: postgresdb
-  POSTGRES_USER: postgresadmin
-  POSTGRES_PASSWORD: admin123
+  POSTGRES_USER: admin
+  POSTGRES_PASSWORD: password
+  SPRING_DATASOURCE_URL: jdbc:postgresql://ledger-db:5432/postgresdb
+  SPRING_DATASOURCE_USERNAME: admin # should match POSTGRES_USER
+  SPRING_DATASOURCE_PASSWORD: password # should match POSTGRES_PASSWORD
 ---
 apiVersion: v1
 kind: Service

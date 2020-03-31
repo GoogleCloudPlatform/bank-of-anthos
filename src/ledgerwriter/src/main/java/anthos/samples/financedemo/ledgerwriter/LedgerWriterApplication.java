@@ -26,14 +26,14 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class LedgerWriterApplication {
 
     private static final String[] EXPECTED_ENV_VARS = {
+        "VERSION",
         "PORT",
-        "LEDGER_ADDR",
-        "LEDGER_STREAM",
-        "LEDGER_PORT",
         "LOCAL_ROUTING_NUM",
         "BALANCES_API_ADDR",
         "PUB_KEY_PATH",
-        "VERSION"
+        "SPRING_DATASOURCE_URL",
+        "SPRING_DATASOURCE_USERNAME",
+        "SPRING_DATASOURCE_PASSWORD"
     };
 
     public static void main(String[] args) {

@@ -21,6 +21,14 @@ Implemented using Redis Streams.
 - `DEFAULT_DEPOSIT_ROUTING`
   - the routing number for the external bank account initiating deposits in default data
 
+- ConfigMap `postgres-config`:
+  - `POSTGRES_DB`
+    - database name
+  - `POSTGRES_USER`
+    - database username
+  - `POSTGRES_PASSWORD`
+    - database password
+
 ### Kubernetes Resources
 
 - [deployments/ledger-db](/kubernetes-manifests/ledger-db.yaml)
