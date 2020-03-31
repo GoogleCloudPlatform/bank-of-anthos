@@ -26,7 +26,7 @@ import sys
 import bleach
 from flask import Flask, jsonify, request
 import jwt
-from sqlalchemy import create_engine, Metadata, Table, Column, String
+from sqlalchemy import create_engine, MetaData, Table, Column, String, Boolean
 from sqlalchemy.exc import SQLAlchemyError
 
 logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO').upper())
@@ -47,12 +47,76 @@ def ready():
     return 'ok', 200
 
 
+@APP.route('/contacts/<username>', methods=['POST'])
+def add_contact(username):
+    """Add a new favorite account to user's contacts list
+
+    Fails if account or routing number are invalid
+    or if label is not alphanumeric
+
+    request fields:
+    - account_num
+    - routing_num
+    - label
+    - is_external
+    """
+    auth_header = request.headers.get('Authorization')
+    if auth_header:
+        token = auth_header.split(" ")[-1]
+    else:
+        token = ''
+    try:
+        payload = jwt.decode(token, key=PUBLIC_KEY, algorithms='RS256')
+    except jwt.exceptions.InvalidTokenError as e:
+        return jsonify({'msg': 'invalid authentication'}), 401
+    if username != payload['user']:
+        return jsonify({'msg': 'authorization denied'}), 401
+
+    req = {k: bleach.clean(v) for k, v in request.get_json().items()}
+    logging.debug('validating add contact request: %s', str(req))
+    # Check if required fields are filled
+    fields = ('label',
+              'account_num',
+              'routing_num')
+    if any(f not in req for f in fields):
+        return jsonify({'msg': 'missing required field(s)'}), 400
+    if any(not bool(req[f] or req[f].strip()) for f in fields):
+        return jsonify({'msg': 'missing value for input field(s)'}), 400
+
+    # Don't allow self reference
+    if (req['account_num'] == payload['acct'] and
+            req['routing_num'] == LOCAL_ROUTING):
+        return jsonify({'error': 'may not add yourself to contacts'}), 400
+    # Validate account number (must be 10 digits)
+    if (not re.match(r'\A[0-9]{10}\Z', req['account_num']) or
+            req['account_num'] == payload['acct']):
+        return jsonify({'msg': 'invalid account number'}), 400
+    # Validate routing number (must be 9 digits)
+    if not re.match(r'\A[0-9]{9}\Z', req['routing_num']):
+        return jsonify({'msg': 'invalid routing number'}), 400
+    # Only allow external accounts to deposit
+    if req['is_external'] and req['routing_num'] == LOCAL_ROUTING:
+        return jsonify({'msg': 'invalid routing number'}), 400
+    # Validate label (must be <40 chars, only alphanumeric and spaces)
+    if (not all(s.isalnum() for s in req['label'].split()) or
+            len(req['label']) > 40):
+        return jsonify({'msg': 'invalid account label'}), 400
+
+    try:
+        _add_contact(username, req)
+    except SQLAlchemyError as e:
+        logging.error(e)
+        return jsonify({'error': 'failed to add contact'}), 500
+
+    return jsonify({}), 201
+
+
 @APP.route('/contacts/<username>', methods=['GET'])
 def get_contacts(username):
     """Retrieve the contacts list for the authenticated user.
     This list is used for populating Payment and Deposit fields.
 
-    Returns: a list of contacts
+    Return: a list of contacts
             {'account_list': [account1, account2, ...]}
     """
     auth_header = request.headers.get('Authorization')
@@ -62,96 +126,61 @@ def get_contacts(username):
         token = ''
     try:
         payload = jwt.decode(token, key=PUBLIC_KEY, algorithms='RS256')
-        if username != payload['user']:
-            raise PermissionError('not authorized')
+    except jwt.exceptions.InvalidTokenError as e:
+        return jsonify({'msg': 'invalid authentication'}), 401
+    if username != payload['user']:
+        return jsonify({'msg': 'authorization denied'}), 401
 
-        # Get contacts list
-        contacts_list = list()
-        statement = CONTACTS_TABLE.select().where(
-                CONTACTS_TABLE.c.username == username)
-        with DB_CONN.execute(statement) as result:
-            for row in result:
-                contact = {
-                        'label': row['label'],
-                        'account_num': row['account_num'],
-                        'routing_num': row['routing_num']}
-                contacts_list.append(contact)
-
-        return jsonify({'account_list': contacts_list}), 200
-    except (jwt.exceptions.InvalidTokenError, PermissionError) as ex:
-        return jsonify({'error': str(ex)}), 401
-    except SQLAlchemyError as e:
-        logging.error(e)
-        return jsonify({'error': 'failed to retrieve contacts list'}), 500
-
-@APP.route('/contacts/<username>', methods=['POST'])
-def add_contact(username):
-    """Add a new favorite account to user's contacts list
-
-    Fails if account or routing number are invalid
-    or if label is not alphanumeric
-
-    request:
-    - account_num
-    - routing_num
-    - label
-    """
-
-    auth_header = request.headers.get('Authorization')
-    if auth_header:
-        token = auth_header.split(" ")[-1]
-    else:
-        token = ''
     try:
-        payload = jwt.decode(token, key=PUBLIC_KEY, algorithms='RS256')
-        if username != payload['user']:
-            raise PermissionError('not authorized')
-
-        req = {k: bleach.clean(v) for k, v in request.get_json().items()}
-        logging.debug('validating add contact request: %s', str(req))
-        # Check if required fields are filled
-        fields = ('label',
-                  'account_num',
-                  'routing_num')
-        if any(f not in req for f in fields):
-            return jsonify({'msg': 'missing required field(s)'}), 400
-        if any(not bool(req[f] or req[f].strip()) for f in fields):
-            return jsonify({'msg': 'missing value for input field(s)'}), 400
-
-        # Don't allow self reference
-        if (req['account_num'] == payload['acct'] and
-                req['routing_num'] == LOCAL_ROUTING):
-            return jsonify({'error': 'may not add yourself to contacts'}, 400)
-        # Validate account number (must be 10 digits)
-        if (not re.match(r'\A[0-9]{10}\Z', req['account_num']) or
-                req['account_num'] == payload['acct']):
-            return jsonify({'msg': 'invalid account number'}, 400)
-        # Validate routing number (must be 9 digits)
-        if not re.match(r'\A[0-9]{9}\Z', req['routing_num']):
-            return jsonify({'msg': 'invalid routing number'}, 400)
-        # Only allow external accounts to deposit
-        if req['is_external'] and req['routing_num'] == LOCAL_ROUTING:
-            return jsonify({'msg': 'invalid routing number'}, 400)
-        # Validate label (must be <40 chars, only alphanumeric and spaces)
-        if (not all(s.isalnum() for s in req['label'].split()) or
-                len(req['label']) > 40):
-            return jsonify({'msg': 'invalid account label'}, 400)
-
-        # Add new contact to database
-        data = {'username': username,
-                'label': req['label'],
-                'account_num': req['account_num'],
-                'routing_num': req['routing_num']}
-        statement = CONTACTS_TABLE.insert().values(data)
-        DB_CONN.execute(statement)
-
-        return jsonify({}), 201
-    except (jwt.exceptions.InvalidTokenError, PermissionError) as e:
-        logging.info(e)
-        return jsonify({'error': str(e)}), 401
+        contacts_list = _get_contacts(username)
     except SQLAlchemyError as e:
         logging.error(e)
         return jsonify({'error': 'failed to retrieve contacts list'}), 500
+
+    return jsonify({'account_list': contacts_list}), 200
+
+
+def _add_contact(username, contact):
+    """Add a contact under the specified username.
+
+    Params: username - the username of the user
+            contact - a key/value dict of contact attributes
+                      {'label': label, 'account_num': account_num, ...}
+    Raises: SQLAlchemyError if there was an issue with the database
+    """
+    data = {'username': username,
+            'label': contact['label'],
+            'account_num': contact['account_num'],
+            'routing_num': contact['routing_num'],
+            'is_external': contact['is_external']}
+    logging.debug('QUERY: %s', str(statement))
+    statement = CONTACTS_TABLE.insert().values(data)
+    DB_CONN.execute(statement)
+
+
+def _get_contacts(username):
+    """Get a list of contacts for the specified username.
+
+    Params: username - the username of the user
+    Return: a list of contacts in the form of key/value attribute dicts,
+            [ {'label': contact1, ...}, {'label': contact2, ...}, ...]
+    Raises: SQLAlchemyError if there was an issue with the database
+    """
+    contacts = list()
+    statement = CONTACTS_TABLE.select().where(
+            CONTACTS_TABLE.c.username == username)
+    logging.debug('QUERY: %s', str(statement))
+    result = DB_CONN.execute(statement)
+    logging.debug('RESULT: %s', str(result))
+    for row in result:
+        contact = {
+                'label': row['label'],
+                'account_num': row['account_num'],
+                'routing_num': row['routing_num'],
+                'is_external': row['is_external']}
+        contacts.append(contact)
+
+    return contacts
 
 
 @atexit.register
@@ -189,11 +218,12 @@ if __name__ == '__main__':
                 host=os.environ.get('ACCOUNTS_DB_ADDR'),
                 port=os.environ.get('ACCOUNTS_DB_PORT'),
                 database=os.environ.get('ACCOUNTS_DB_NAME')))
-    CONTACTS_TABLE = Table('contacts', Metadata(_accounts_db),
+    CONTACTS_TABLE = Table('contacts', MetaData(_accounts_db),
             Column('username', String),
             Column('label', String),
             Column('account_num', String),
-            Column('routing_num', String))
+            Column('routing_num', String),
+            Column('is_external', Boolean))
     DB_CONN = _accounts_db.connect()
 
     logging.info("Starting flask.")

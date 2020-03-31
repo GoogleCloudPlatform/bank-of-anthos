@@ -27,7 +27,7 @@ import bleach
 import bcrypt
 from flask import Flask, jsonify, request
 import jwt
-from sqlalchemy import create_engine, Metadata, Table, Column, String, Date
+from sqlalchemy import create_engine, MetaData, Table, Column, String, Date, LargeBinary
 from sqlalchemy.exc import SQLAlchemyError
 
 logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO').upper())
@@ -59,7 +59,7 @@ def create_user():
 
     Generates a unique accountid.
 
-    request:
+    request fields:
       - username
       - password
       - password-repeat
@@ -96,43 +96,40 @@ def create_user():
     if not req['password'] == req['password-repeat']:
         return jsonify({'msg': 'passwords do not match'}), 400
 
+    # Check if user exists
     try:
-        # Check if user exists
-        statement = USERS_TABLE.select().where(
-                USERS_TABLE.c.username == req['username']).as_scalar()
-        logging.debug('QUERY: %s', str(statement))
-        result = DB_CONN.execute(statement).first()
-        logging.debug('RESULT: %s', str(result))
-        if result is not None:
-            return jsonify({'msg': 'user already exists'}), 400
-        logging.debug('creating user: %s', str(req))
+        user = _get_user(req['username'])
+    except SQLAlchemyError as e:
+        logging.error(e)
+        return jsonify({'error': 'failed to retrieve user information'}), 500
+    if user is not None:
+        return jsonify({'msg': 'user already exists'}), 400
 
-        # Create password hash with salt
-        password = req['password']
-        salt = bcrypt.gensalt()
-        passhash = bcrypt.hashpw(password.encode('utf-8'), salt)
+    # Create password hash with salt
+    password = req['password']
+    salt = bcrypt.gensalt()
+    passhash = bcrypt.hashpw(password.encode('utf-8'), salt)
 
-        # Add user to database
-        accountid = _generate_accountid()
-        data = {'accountid': accountid,
-                'username': req['username'],
-                'passhash': passhash,
-                'firstname': req['firstname'],
-                'lastname': req['lastname'],
-                'birthday': req['birthday'],
-                'timezone': req['timezone'],
-                'address': req['address'],
-                'state': req['state'],
-                'zip': req['zip'],
-                'ssn': req['ssn']}
-        statement = USERS_TABLE.insert().values(data)
-        logging.debug('QUERY: %s', str(statement))
-        DB_CONN.execute(statement)
-
-        return jsonify({}), 201
+    # Add user to database
+    accountid = _generate_accountid()
+    data = {'accountid': accountid,
+            'username': req['username'],
+            'passhash': passhash,
+            'firstname': req['firstname'],
+            'lastname': req['lastname'],
+            'birthday': req['birthday'],
+            'timezone': req['timezone'],
+            'address': req['address'],
+            'state': req['state'],
+            'zip': req['zip'],
+            'ssn': req['ssn']}
+    try:
+        _add_user(data)
     except SQLAlchemyError as e:
         logging.error(e)
         return jsonify({'error': 'create user failed'}), 500
+
+    return jsonify({}), 201
 
 
 @APP.route('/login', methods=['GET'])
@@ -143,37 +140,65 @@ def get_token():
 
     token expiry time determined by environment variable
 
-    request:
+    request fields:
       - username
       - password
     """
     username = bleach.clean(request.args.get('username'))
     password = bleach.clean(request.args.get('password'))
 
+    # Get user data
     try:
-        # Get user data
-        statement = USERS_TABLE.select().where(
-                USERS_TABLE.c.username == username)
-        logging.debug('QUERY: %s', str(statement))
-        result = dict(DB_CONN.execute(statement).first())
-        logging.debug('RESULT: %s', str(result))
-
-        # Validate the password
-        if not bcrypt.checkpw(password.encode('utf-8'), result['passhash']):
-            return jsonify({'msg': 'invalid login'}), 400
-
-        full_name = '{} {}'.format(result['firstname'], result['lastname'])
-        exp_time = datetime.utcnow() + timedelta(seconds=EXPIRY_SECONDS)
-        payload = {'user': username,
-                   'acct': result['accountid'],
-                   'name': full_name,
-                   'iat': datetime.utcnow(),
-                   'exp': exp_time}
-        token = jwt.encode(payload, PRIVATE_KEY, algorithm='RS256')
-        return jsonify({'token': token.decode("utf-8")}), 200
+        user = _get_user(username)
     except SQLAlchemyError as e:
         logging.error(e)
         return jsonify({'error': 'failed to retrieve user information'}), 500
+    if user is None:
+        return jsonify({'msg': 'user does not exist'}), 400
+
+    # Validate the password
+    if not bcrypt.checkpw(password.encode('utf-8'), user['passhash']):
+        return jsonify({'msg': 'invalid login'}), 400
+
+    full_name = '{} {}'.format(user['firstname'], user['lastname'])
+    exp_time = datetime.utcnow() + timedelta(seconds=EXPIRY_SECONDS)
+    payload = {'user': username,
+               'acct': user['accountid'],
+               'name': full_name,
+               'iat': datetime.utcnow(),
+               'exp': exp_time}
+    token = jwt.encode(payload, PRIVATE_KEY, algorithm='RS256')
+    return jsonify({'token': token.decode("utf-8")}), 200
+
+
+def _add_user(user):
+    """Add a user to the database.
+
+    Params: user - a key/value dict of user attributes,
+                   {'username': username, 'accountid': accountid, ...}
+    Raises: SQLAlchemyError if there was an issue with the database
+    """
+    statement = USERS_TABLE.insert().values(user)
+    logging.debug('QUERY: %s', str(statement))
+    DB_CONN.execute(statement)
+
+
+def _get_user(username):
+    """Get user data for the specified username.
+    
+    Params: username - the username of the user
+    Return: a key/value dict of user attributes,
+            {'username': username, 'accountid': accountid, ...}
+            or None if that user does not exist
+    Raises: SQLAlchemyError if there was an issue with the database
+    """
+    statement = USERS_TABLE.select().where(
+            USERS_TABLE.c.username == username)
+    logging.debug('QUERY: %s', str(statement))
+    result = DB_CONN.execute(statement).first()
+    logging.debug('RESULT: %s', str(result))
+
+    return dict(result) if result is not None else None
 
 
 def _generate_accountid():
@@ -187,7 +212,8 @@ def _generate_accountid():
         logging.debug('QUERY: %s', str(statement))
         result = DB_CONN.execute(statement).first()
         logging.debug('RESULT: %s', str(result))
-        if result is None:
+        # If there already exists an account, try again.
+        if result is not None:
             accountid = None
     return accountid
 
@@ -230,10 +256,10 @@ if __name__ == '__main__':
                 host=os.environ.get('ACCOUNTS_DB_ADDR'),
                 port=os.environ.get('ACCOUNTS_DB_PORT'),
                 database=os.environ.get('ACCOUNTS_DB_NAME')))
-    USERS_TABLE = Table('users', Metadata(_accounts_db),
+    USERS_TABLE = Table('users', MetaData(_accounts_db),
             Column('accountid', String),
             Column('username', String),
-            Column('passhash', String),
+            Column('passhash', LargeBinary),
             Column('firstname', String),
             Column('lastname', String),
             Column('birthday', Date),
