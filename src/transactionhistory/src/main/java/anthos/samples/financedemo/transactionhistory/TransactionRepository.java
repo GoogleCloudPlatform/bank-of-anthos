@@ -14,7 +14,7 @@ public interface TransactionRepository
     long latestId();
 
     @Query("SELECT t FROM Transaction t "
-        + "WHERE t.fromAccountNum=:accountNum OR t.toAccountNum=?1"
+        + "WHERE t.fromAccountNum=?1 OR t.toAccountNum=?1"
         + "ORDER BY t.timestamp DESC")
     List<Transaction> findForAccount(String accountNum, Pageable pager);
 
