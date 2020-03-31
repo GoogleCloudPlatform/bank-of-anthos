@@ -57,9 +57,9 @@ public final class BalanceReaderController implements LedgerReaderListener,
     private final Logger logger =
             Logger.getLogger(BalanceReaderController.class.getName());
 
-    private final JWTVerifier verifier;
+    private JWTVerifier verifier;
 
-    private final LoadingCache<String, Long> cache;
+    private LoadingCache<String, Long> cache;
 
     @Autowired
     private LedgerReader reader;
@@ -71,25 +71,31 @@ public final class BalanceReaderController implements LedgerReaderListener,
     private long expireSize;
 
     /**
-     * BalanceReaderController constructor
-     * Set up JWT verifier, initialize LedgerReader
+     * BalanceReaderController initialization
      */
-    public BalanceReaderController() throws IOException,
-                                           NoSuchAlgorithmException,
-                                           InvalidKeySpecException {
-        // load public key from file
-        String fPath = System.getenv("PUB_KEY_PATH");
-        String pubKeyStr  = new String(Files.readAllBytes(Paths.get(fPath)));
-        pubKeyStr = pubKeyStr.replaceFirst("-----BEGIN PUBLIC KEY-----", "");
-        pubKeyStr = pubKeyStr.replaceFirst("-----END PUBLIC KEY-----", "");
-        pubKeyStr = pubKeyStr.replaceAll("\\s", "");
-        byte[] pubKeyBytes = Base64.getDecoder().decode(pubKeyStr);
-        KeyFactory kf = KeyFactory.getInstance("RSA");
-        X509EncodedKeySpec keySpecX509 = new X509EncodedKeySpec(pubKeyBytes);
-        RSAPublicKey publicKey = (RSAPublicKey) kf.generatePublic(keySpecX509);
-        // set up verifier
-        Algorithm algorithm = Algorithm.RSA256(publicKey, null);
-        this.verifier = JWT.require(algorithm).build();
+    @Override
+    public void onApplicationEvent(ContextRefreshedEvent event) {
+        try {
+            // load public key from file
+            String fPath = System.getenv("PUB_KEY_PATH");
+            String keyStr  = new String(Files.readAllBytes(Paths.get(fPath)));
+            keyStr = keyStr.replaceFirst("-----BEGIN PUBLIC KEY-----", "")
+                           .replaceFirst("-----END PUBLIC KEY-----", "")
+                           .replaceAll("\\s", "");
+            byte[] keyBytes = Base64.getDecoder().decode(keyStr);
+            KeyFactory kf = KeyFactory.getInstance("RSA");
+            X509EncodedKeySpec keySpecX509 = new X509EncodedKeySpec(keyBytes);
+            RSAPublicKey publicKey =
+                (RSAPublicKey) kf.generatePublic(keySpecX509);
+            // set up verifier
+            Algorithm algorithm = Algorithm.RSA256(publicKey, null);
+            this.verifier = JWT.require(algorithm).build();
+        } catch (IOException
+                | NoSuchAlgorithmException
+                | InvalidKeySpecException e) {
+            logger.warning(e.toString());
+            System.exit(1);
+        }
         // set up cache
         CacheLoader loader =  new CacheLoader<String, Long>() {
             @Override
@@ -105,10 +111,7 @@ public final class BalanceReaderController implements LedgerReaderListener,
         cache = CacheBuilder.newBuilder()
                             .maximumSize(expireSize)
                             .build(loader);
-    }
-
-    @Override
-    public void onApplicationEvent(ContextRefreshedEvent event) {
+        // start background ledger reader
         this.reader.startWithListener(this);
     }
 

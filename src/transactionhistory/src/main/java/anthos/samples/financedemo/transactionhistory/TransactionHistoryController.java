@@ -61,8 +61,8 @@ public final class TransactionHistoryController implements LedgerReaderListener,
     private final Logger logger =
             Logger.getLogger(TransactionHistoryController.class.getName());
 
-    private final JWTVerifier verifier;
-    private final LoadingCache<String, List<Transaction>> cache;
+    private JWTVerifier verifier;
+    private LoadingCache<String, List<Transaction>> cache;
 
     @Autowired
     private TransactionRepository transactionRepository;
@@ -77,26 +77,31 @@ public final class TransactionHistoryController implements LedgerReaderListener,
     private Integer historyLimit;
 
     /**
-     * TransactionHistoryController constructor
-     * Set up JWT verifier, initialize LedgerReader
+     * TransactionHistoryController initialization
      */
-    public TransactionHistoryController() throws IOException,
-                                           NoSuchAlgorithmException,
-                                           InvalidKeySpecException,
-                                           InterruptedException {
-        // load public key from file
-        String fPath = System.getenv("PUB_KEY_PATH");
-        String pubKeyStr  = new String(Files.readAllBytes(Paths.get(fPath)));
-        pubKeyStr = pubKeyStr.replaceFirst("-----BEGIN PUBLIC KEY-----", "");
-        pubKeyStr = pubKeyStr.replaceFirst("-----END PUBLIC KEY-----", "");
-        pubKeyStr = pubKeyStr.replaceAll("\\s", "");
-        byte[] pubKeyBytes = Base64.getDecoder().decode(pubKeyStr);
-        KeyFactory kf = KeyFactory.getInstance("RSA");
-        X509EncodedKeySpec keySpecX509 = new X509EncodedKeySpec(pubKeyBytes);
-        RSAPublicKey publicKey = (RSAPublicKey) kf.generatePublic(keySpecX509);
-        // set up verifier
-        Algorithm algorithm = Algorithm.RSA256(publicKey, null);
-        this.verifier = JWT.require(algorithm).build();
+    @Override
+    public void onApplicationEvent(ContextRefreshedEvent event) {
+        try {
+            // load public key from file
+            String fPath = System.getenv("PUB_KEY_PATH");
+            String keyStr  = new String(Files.readAllBytes(Paths.get(fPath)));
+            keyStr = keyStr.replaceFirst("-----BEGIN PUBLIC KEY-----", "")
+                           .replaceFirst("-----END PUBLIC KEY-----", "")
+                           .replaceAll("\\s", "");
+            byte[] keyBytes = Base64.getDecoder().decode(keyStr);
+            KeyFactory kf = KeyFactory.getInstance("RSA");
+            X509EncodedKeySpec keySpecX509 = new X509EncodedKeySpec(keyBytes);
+            RSAPublicKey publicKey =
+                (RSAPublicKey) kf.generatePublic(keySpecX509);
+            // set up verifier
+            Algorithm algorithm = Algorithm.RSA256(publicKey, null);
+            this.verifier = JWT.require(algorithm).build();
+        } catch (IOException
+                 | NoSuchAlgorithmException
+                 | InvalidKeySpecException e) {
+            logger.warning(e.toString());
+            System.exit(1);
+        }
         // set up cache
         CacheLoader loader = new CacheLoader<String, List<Transaction>>() {
             @Override
@@ -110,10 +115,7 @@ public final class TransactionHistoryController implements LedgerReaderListener,
                             .maximumSize(expireSize)
                             .expireAfterWrite(expireMinutes, TimeUnit.MINUTES)
                             .build(loader);
-    }
-
-    @Override
-    public void onApplicationEvent(ContextRefreshedEvent event) {
+        // start background ledger reader
         this.ledgerReader.startWithListener(this);
     }
 
