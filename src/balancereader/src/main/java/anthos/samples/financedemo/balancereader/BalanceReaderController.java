@@ -16,12 +16,15 @@
 
 package anthos.samples.financedemo.balancereader;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -31,63 +34,38 @@ import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.concurrent.ExecutionException;
 import java.util.Base64;
+import java.util.logging.Logger;
 
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.logging.Logger;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
-
-import java.lang.Long;
-
-import com.google.common.cache.RemovalListener;
-import com.google.common.cache.RemovalNotification;
-import com.google.common.cache.LoadingCache;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.CacheBuilder;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.ExecutionException;
-
-
+import com.google.common.cache.LoadingCache;
 
 @RestController
-public final class BalanceReaderController 
-    implements LedgerReaderListener, ApplicationListener<ContextRefreshedEvent> {
+public final class BalanceReaderController implements LedgerReaderListener,
+       ApplicationListener<ContextRefreshedEvent> {
 
     private final Logger logger =
             Logger.getLogger(BalanceReaderController.class.getName());
 
     private final JWTVerifier verifier;
 
-    private final LoadingCache<String, Long> cache = CacheBuilder.newBuilder()
-        .maximumSize((long) 1e6)
-        .build(
-            new CacheLoader<String, Long>() {
-                @Override
-                public Long load(String accountId) {
-                    logger.info("loaded from db");
-                    Long balance = transactionRepository.findBalance(accountId);
-                    if (balance == null){
-                        balance = 0L;
-                    }
-                    return balance;
-                }
-            }
-        );
+    private final LoadingCache<String, Long> cache;
 
     @Autowired
     private LedgerReader reader;
 
     @Autowired
     private TransactionRepository transactionRepository;
+
+    private final long expireSize = (long) 1e6;
 
     /**
      * BalanceReaderController constructor
@@ -109,6 +87,21 @@ public final class BalanceReaderController
         // set up verifier
         Algorithm algorithm = Algorithm.RSA256(publicKey, null);
         this.verifier = JWT.require(algorithm).build();
+        // set up cache
+        CacheLoader loader =  new CacheLoader<String, Long>() {
+            @Override
+            public Long load(String accountId) {
+                logger.info("loaded from db");
+                Long balance = transactionRepository.findBalance(accountId);
+                if (balance == null) {
+                    balance = 0L;
+                }
+                return balance;
+            }
+        };
+        cache = CacheBuilder.newBuilder()
+                            .maximumSize(expireSize)
+                            .build(loader);
     }
 
     @Override
@@ -203,10 +196,10 @@ public final class BalanceReaderController
      * @param entry with transaction metadata
      */
     public void processTransaction(String accountId, Integer amount) {
-        if (cache.asMap().containsKey(accountId)){
+        if (cache.asMap().containsKey(accountId)) {
             logger.info("modifying cache: " + accountId);
             Long prevBalance = cache.asMap().get(accountId);
-            cache.put(accountId, prevBalance+amount);
+            cache.put(accountId, prevBalance + amount);
         }
     }
 }

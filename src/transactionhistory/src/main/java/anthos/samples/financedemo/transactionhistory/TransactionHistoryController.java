@@ -16,14 +16,18 @@
 
 package anthos.samples.financedemo.transactionhistory;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.http.ResponseEntity;
 
-import java.lang.InterruptedException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -33,62 +37,39 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
+import java.util.List;
+import java.util.logging.Logger;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ExecutionException;
 
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.logging.Logger;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.Iterator;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
-
-import com.google.common.cache.RemovalListener;
-import com.google.common.cache.RemovalNotification;
 import com.google.common.cache.LoadingCache;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.CacheBuilder;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.ExecutionException;
-
 
 @RestController
-public final class TransactionHistoryController
-    implements LedgerReaderListener,  ApplicationListener<ContextRefreshedEvent> {
+public final class TransactionHistoryController implements LedgerReaderListener,
+       ApplicationListener<ContextRefreshedEvent> {
 
     private final Logger logger =
             Logger.getLogger(TransactionHistoryController.class.getName());
 
     private final JWTVerifier verifier;
-    private final LoadingCache<String, List<Transaction>> cache = CacheBuilder.newBuilder()
-        .maximumSize(1000)
-        .expireAfterWrite(60, TimeUnit.MINUTES)
-        .build(
-            new CacheLoader<String, List<Transaction>>() {
-                @Override
-                public List<Transaction> load(String accountId) {
-                    logger.info("loaded from db");
-                    Pageable request = new PageRequest(0, 100);
-                    return transactionRepository.findForAccount(accountId, request);
-                }
-            }
-        );
+    private final LoadingCache<String, List<Transaction>> cache;
+
     @Autowired
     private TransactionRepository transactionRepository;
     @Autowired
     private LedgerReader ledgerReader;
+
+    private final Integer expireMinutes = 60;
+    private final Integer expireSize = 1000;
+    private final Integer historyLimit = 100;
 
     /**
      * TransactionHistoryController constructor
@@ -111,6 +92,19 @@ public final class TransactionHistoryController
         // set up verifier
         Algorithm algorithm = Algorithm.RSA256(publicKey, null);
         this.verifier = JWT.require(algorithm).build();
+        // set up cache
+        CacheLoader loader = new CacheLoader<String, List<Transaction>>() {
+            @Override
+            public List<Transaction> load(String accountId) {
+                logger.info("loaded from db");
+                Pageable request = new PageRequest(0, historyLimit);
+                return transactionRepository.findForAccount(accountId, request);
+            }
+        };
+        cache = CacheBuilder.newBuilder()
+                            .maximumSize(expireSize)
+                            .expireAfterWrite(expireMinutes, TimeUnit.MINUTES)
+                            .build(loader);
     }
 
     @Override
@@ -216,7 +210,7 @@ public final class TransactionHistoryController
      * @param entry with transaction metadata
      */
     public void processTransaction(String accountId, Transaction transaction) {
-        if (cache.asMap().containsKey(accountId)){
+        if (cache.asMap().containsKey(accountId)) {
             logger.info("modifying cache: " + accountId);
             List<Transaction> tList = cache.asMap().get(accountId);
             tList.add(0, transaction);

@@ -44,7 +44,7 @@ APP.config["CONTACTS_URI"] = 'http://{}/contacts'.format(
 
 
 TOKEN_NAME = 'token'
-TIMESTAMP_FORMAT =  '%Y-%m-%dT%H:%M:%S.%f%z'
+TIMESTAMP_FORMAT = '%Y-%m-%dT%H:%M:%S.%f%z'
 
 @APP.route('/version', methods=['GET'])
 def version():

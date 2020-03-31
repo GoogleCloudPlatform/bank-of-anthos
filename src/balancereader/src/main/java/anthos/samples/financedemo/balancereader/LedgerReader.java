@@ -15,21 +15,7 @@
  */
 
 package anthos.samples.financedemo.balancereader;
-
-import io.lettuce.core.api.StatefulRedisConnection;
-import io.lettuce.core.RedisCommandTimeoutException;
-import io.lettuce.core.StreamMessage;
-import io.lettuce.core.XReadArgs;
-import io.lettuce.core.XReadArgs.StreamOffset;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-
-
-import java.time.Duration;
-import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
-import java.lang.Iterable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -53,9 +39,10 @@ public final class LedgerReader {
     private LedgerReaderListener listener;
     private boolean initialized = false;
     private long latestId = -1;
+    private final Integer sleepTime = 100;
 
     @Autowired
-    private TransactionRepository transactionRepository;
+    private TransactionRepository dbRepo;
 
     /**
      * LedgerReader setup
@@ -66,7 +53,7 @@ public final class LedgerReader {
     public void startWithListener(LedgerReaderListener listener) {
         this.listener = listener;
         // get the latest transaction id in ledger
-        this.latestId = transactionRepository.latestId();
+        this.latestId = dbRepo.latestId();
         logger.info(String.format("starting id: %d", this.latestId));
         this.initialized = true;
         this.backgroundThread = new Thread(
@@ -74,14 +61,13 @@ public final class LedgerReader {
                 @Override
                 public void run() {
                     while (true) {
-                        try{
-                            Thread.sleep(100);
-                        } catch (InterruptedException e){}
+                        try {
+                            Thread.sleep(sleepTime);
+                        } catch (InterruptedException e) { }
                         latestId = pollTransactions(latestId);
                     }
                 }
-            }
-        );
+            });
         logger.info("Starting background thread.");
         this.backgroundThread.start();
     }
@@ -90,28 +76,30 @@ public final class LedgerReader {
      * Poll for new transactions
      * Execute callback for each one
      *
-     * @param startingTransaction the transaction to start reading after.
+     * @param startingId the transaction to start reading after.
      *                            -1 = start reading at beginning of the ledger
      * @return long id of latest transaction processed
      */
-    private long pollTransactions(long startingTransaction) {
-        long latestTransactionId = startingTransaction;
-        Iterable<Transaction> transactionList = transactionRepository.findLatest(startingTransaction);
+    private long pollTransactions(long startingId) {
+        long latestId = startingId;
+        Iterable<Transaction> transactionList = dbRepo.findLatest(startingId);
 
         for (Transaction transaction : transactionList) {
-            if (this.listener != null) {
+            if (listener != null) {
                 if (transaction.getFromRoutingNum().equals(localRoutingNum)) {
-                    this.listener.processTransaction(transaction.getFromAccountNum(), -transaction.getAmount());
+                    listener.processTransaction(transaction.getFromAccountNum(),
+                                                -transaction.getAmount());
                 }
                 if (transaction.getToRoutingNum().equals(localRoutingNum)) {
-                    this.listener.processTransaction(transaction.getToAccountNum(), transaction.getAmount());
+                    listener.processTransaction(transaction.getToAccountNum(),
+                                                transaction.getAmount());
                 }
             } else {
                 logger.warning("Listener not set up.");
             }
-            latestTransactionId = transaction.getTransactionId();
+            latestId = transaction.getTransactionId();
         }
-        return latestTransactionId;
+        return latestId;
     }
 
     /**
@@ -128,9 +116,5 @@ public final class LedgerReader {
      */
     public boolean isInitialized() {
         return this.initialized;
-    }
-
-    public long getLatestId(){
-        return this.latestId;
     }
 }
