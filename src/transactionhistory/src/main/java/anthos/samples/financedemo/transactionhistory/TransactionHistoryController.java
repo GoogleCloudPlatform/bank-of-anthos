@@ -24,6 +24,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -130,13 +131,9 @@ public final class TransactionHistoryController implements LedgerReaderListener,
      * @return HTTP Status 200 if server is initialized and serving requests.
      */
     @GetMapping("/ready")
-    public ResponseEntity readiness() {
-        if (this.ledgerReader.isInitialized()) {
-            return new ResponseEntity<String>("ok", HttpStatus.OK);
-        } else {
-            return new ResponseEntity<String>("not initialized",
-                                              HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    @ResponseStatus(HttpStatus.OK)
+    public String readiness() {
+        return "ok";
     }
 
     /**

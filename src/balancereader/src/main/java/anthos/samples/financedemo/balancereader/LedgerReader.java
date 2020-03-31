@@ -37,7 +37,6 @@ public final class LedgerReader {
     private final String localRoutingNum =  System.getenv("LOCAL_ROUTING_NUM");
     private Thread backgroundThread;
     private LedgerReaderListener listener;
-    private boolean initialized = false;
     private long latestId = -1;
     private final Integer sleepTime = 100;
 
@@ -55,7 +54,6 @@ public final class LedgerReader {
         // get the latest transaction id in ledger
         this.latestId = dbRepo.latestId();
         logger.info(String.format("starting id: %d", this.latestId));
-        this.initialized = true;
         this.backgroundThread = new Thread(
             new Runnable() {
                 @Override
@@ -107,14 +105,6 @@ public final class LedgerReader {
      * @return false if background thread dies
      */
     public boolean isAlive() {
-        return !this.initialized || this.backgroundThread.isAlive();
-    }
-
-    /**
-     * Indicates health of LedgerReader
-     * @return false if background thread dies
-     */
-    public boolean isInitialized() {
-        return this.initialized;
+        return backgroundThread == null || this.backgroundThread.isAlive();
     }
 }
