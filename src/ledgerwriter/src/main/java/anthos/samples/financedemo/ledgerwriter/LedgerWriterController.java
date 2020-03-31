@@ -65,9 +65,9 @@ public final class LedgerWriterController {
         System.getenv("BALANCES_API_ADDR"));
     private final JWTVerifier verifier;
     // account ids should be 10 digits between 0 and 9
-    private static final Pattern acctRegex = Pattern.compile("^[0-9]{10}$");
+    private static final Pattern ACCT_REGEX = Pattern.compile("^[0-9]{10}$");
     // route numbers should be 9 digits between 0 and 9
-    private static final Pattern routeRegex = Pattern.compile("^[0-9]{9}$");
+    private static final Pattern ROUTE_REGEX = Pattern.compile("^[0-9]{9}$");
 
     public LedgerWriterController() throws IOException,
                                            NoSuchAlgorithmException,
@@ -164,10 +164,10 @@ public final class LedgerWriterController {
             throw new AuthenticationException("not authorized");
         }
         // Validate account and routing numbers
-        if (!acctRegex.matcher(fromAcct).matches()
-              || !acctRegex.matcher(toAcct).matches()
-              || !routeRegex.matcher(fromRoute).matches()
-              || !routeRegex.matcher(toRoute).matches()) {
+        if (!ACCT_REGEX.matcher(fromAcct).matches()
+              || !ACCT_REGEX.matcher(toAcct).matches()
+              || !ROUTE_REGEX.matcher(fromRoute).matches()
+              || !ROUTE_REGEX.matcher(toRoute).matches()) {
             throw new RuntimeException("invalid account details");
 
         }
