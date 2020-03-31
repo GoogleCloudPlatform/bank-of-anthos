@@ -339,7 +339,7 @@ limitations under the License.
                         <div class="input-group-prepend">
                           <span class="input-group-text"><span class="amount-font deposit-input material-icons">attach_money</span></span>
                         </div>
-                        <input class="form-control amount-font" type="number" step='0.01' id="payment-amount" name="amount" placeholder=0.00 min=0.01 aria-label="Amount (to the nearest dollar)" required>
+                        <input class="form-control amount-font" type="number" step='0.01' id="payment-amount" name="amount" placeholder=0.00 min=0 max={{ balance / 100 }} aria-label="Amount (to the nearest dollar)" required>
                         <div class="invalid-feedback">
                           Please enter a valid amount.
                         </div>
