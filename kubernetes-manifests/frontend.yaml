@@ -53,7 +53,7 @@ spec:
         - name: PUB_KEY_PATH
           value: "/root/.ssh/publickey"
         - name: DEFAULT_USERNAME
-          value: "testuser123"
+          value: "testuser"
         - name: DEFAULT_PASSWORD
           value: "password"
         readinessProbe:
