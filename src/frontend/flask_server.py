@@ -146,26 +146,14 @@ def payment():
                              recipient,
                              LOCAL_ROUTING,
                              False)
-        # convert amount to integer
-        amount = int(float(request.form['amount']) * 100)
-        # verify balance is sufficient
-        hed = {'Authorization': 'Bearer ' + token}
-        req = requests.get(url=APP.config["BALANCES_URI"], headers=hed)
-        balance = req.json()
-        if balance >= amount:
-            transaction_obj = {'fromRoutingNum':  LOCAL_ROUTING,
-                               'fromAccountNum': account_id,
-                               'toRoutingNum': LOCAL_ROUTING,
-                               'toAccountNum': recipient,
-                               'amount': amount}
-            hed = {'Authorization': 'Bearer ' + token,
-                   'content-type': 'application/json'}
-            req = requests.post(url=APP.config["TRANSACTIONS_URI"],
-                                data=jsonify(transaction_obj).data,
-                                headers=hed,
-                                timeout=3)
-            if req.status_code == 201:
-                return redirect(url_for('home', msg='Transaction initiated'))
+        transaction_data = {"fromAccountNum": account_id,
+                            "fromRoutingNum": LOCAL_ROUTING,
+                            "toAccountNum": recipient,
+                            "toRoutingNum": LOCAL_ROUTING,
+                            "amount": int(float(request.form['amount']) * 100)}
+        status_code = _submit_transaction(transaction_data)
+        if status_code == 201:
+            return redirect(url_for('home', msg='Transaction initiated'))
     except requests.exceptions.RequestException as err:
         logging.error(str(err))
     return redirect(url_for('home', msg='Transaction failed'))
@@ -187,8 +175,6 @@ def deposit():
     try:
         # get account id from token
         account_id = jwt.decode(token, verify=False)['acct']
-
-        # get data from form
         if request.form['account'] == 'add':
             external_account_num = request.form['external_account_num']
             external_routing_num = request.form['external_routing_num']
@@ -203,26 +189,27 @@ def deposit():
             account_details = json.loads(request.form['account'])
             external_account_num = account_details['account_num']
             external_routing_num = account_details['routing_num']
-        # convert amount to integer
-        amount = int(float(request.form['amount']) * 100)
-
-        # simulate transaction from external bank into user's account
-        transaction_obj = {'fromRoutingNum': external_routing_num,
-                           'fromAccountNum': external_account_num,
-                           'toRoutingNum': LOCAL_ROUTING,
-                           'toAccountNum': account_id,
-                           'amount': amount}
-        hed = {'Authorization': 'Bearer ' + token,
-               'content-type': 'application/json'}
-        req = requests.post(url=APP.config["TRANSACTIONS_URI"],
-                            data=jsonify(transaction_obj).data,
-                            headers=hed,
-                            timeout=3)
-        if req.status_code == 201:
+        transaction_data = {"fromAccountNum": external_account_num,
+                            "fromRoutingNum": external_routing_num,
+                            "toAccountNum": account_id,
+                            "toRoutingNum": LOCAL_ROUTING,
+                            "amount": int(float(request.form['amount']) * 100)}
+        status_code = _submit_transaction(transaction_data)
+        if status_code == 201:
             return redirect(url_for('home', msg='Deposit accepted'))
     except requests.exceptions.RequestException as err:
         logging.error(str(err))
     return redirect(url_for('home', msg='Deposit failed'))
+
+def _submit_transaction(transaction_data):
+    token = request.cookies.get(TOKEN_NAME)
+    hed = {'Authorization': 'Bearer ' + token,
+           'content-type': 'application/json'}
+    req = requests.post(url=APP.config["TRANSACTIONS_URI"],
+                        data=jsonify(transaction_data).data,
+                        headers=hed,
+                        timeout=3)
+    return req.status_code
 
 
 def _add_contact(label, acct_num, routing_num, is_external_acct=False):
