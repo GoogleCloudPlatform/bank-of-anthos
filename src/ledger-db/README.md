@@ -3,10 +3,10 @@
 The `ledger-db` service is an append-only ledger that acts as the source of truth
 for all transaction data.
 
-The container is a standard redis image, with an added script to insert some
+The container is a standard `postgres` image, with an added script to insert some
 default transaction data on first launch.
 
-Implemented using Redis Streams.
+Implemented using Postgres.
 
 ### Environment Variables
 

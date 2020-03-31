@@ -1,11 +1,11 @@
 # Transaction History Service
 
-The transaction history service provides an efficient readable cache of past transactions, as read from ledger.
+The transaction history service provides an efficient readable cache of past transactions, as read from the `ledger-db`.
 
-The `ledger-db` service holds the source of truth for the system. The `transaction-history` returns data on a
-best-effort basis, but may be out of date when under heavy load.
+The `ledger-db` service holds the source of truth for the system.
+The `transaction-history`  reads and caches data from the `ledger-db`, but may be out of date when under heavy load.
 
-Implemented in Java with Spring Boot.
+Implemented in Java with Spring Boot and Guava.
 
 ### Endpoints
 
