@@ -47,11 +47,11 @@ spec:
         - name: LOCAL_ROUTING_NUM
           value: "123456789"
         - name: DEFAULT_ACCOUNT
-          value: "7673361018"
+          value: "7595821437"
         - name: DEFAULT_DEPOSIT_ACCOUNT
-          value: "0123456789"
+          value: "6029390231"
         - name: DEFAULT_DEPOSIT_ROUTING
-          value: "111111111"
+          value: "295164083"
         resources:
           limits:
             cpu: 125m
