@@ -126,60 +126,72 @@ public final class LedgerWriterController {
         }
         try {
             final DecodedJWT jwt = this.verifier.verify(bearerToken);
-            final String initiatorAcct = jwt.getClaim("acct").asString();
-            final String senderAcct = transaction.getFromAccountNum();
-            final String senderRoute = transaction.getFromRoutingNum();
-            final String recvAcct = transaction.getToAccountNum();
-            final String recvRoute = transaction.getToRoutingNum();
-
-            // If this is an internal transaction,
-            // ensure it originated from the authenticated user
-            if (senderRoute.equals(routingNum) &&
-                    !senderAcct.equals(initiatorAcct)) {
-                return new ResponseEntity<String>("not authorized",
-                                                  HttpStatus.UNAUTHORIZED);
-            }
-
-            // Validate account and routing numbers
-            if (!acctRegex.matcher(senderAcct).matches()
-                  || !acctRegex.matcher(recvAcct).matches()
-                  || !routeRegex.matcher(senderRoute).matches()
-                  || !routeRegex.matcher(recvRoute).matches()) {
-                return new ResponseEntity<String>("invalid account details",
-                                                  HttpStatus.BAD_REQUEST);
-            }
-            // Ensure sender isn't receiver
-            if (senderAcct.equals(recvAcct) && senderRoute.equals(recvRoute)) {
-                return new ResponseEntity<String>("can't send to self",
-                                                  HttpStatus.BAD_REQUEST);
-            }
-            // Ensure amount is valid value.
-            if (transaction.getAmount() <= 0) {
-                return new ResponseEntity<String>("invalid amount",
-                                                  HttpStatus.BAD_REQUEST);
-            }
-            // Ensure sender balance can cover transaction.
-            if (senderRoute.equals(this.routingNum)) {
-                HttpHeaders headers = new HttpHeaders();
-                headers.set("Authorization", "Bearer " + bearerToken);
-                HttpEntity entity = new HttpEntity(headers);
-                RestTemplate restTemplate = new RestTemplate();
-                String uri = balancesUri + "/" + initiatorAcct;
-                ResponseEntity<Integer> response = restTemplate.exchange(
-                    uri, HttpMethod.GET, entity, Integer.class);
-                Integer senderBalance = response.getBody();
-                if (senderBalance < transaction.getAmount()) {
-                    return new ResponseEntity<String>("insufficient balance",
-                                                      HttpStatus.BAD_REQUEST);
-                }
-            }
-            // Transaction looks valid. Add to ledger.
+            // validate transaction
+            validateTransaction(jwt.getClaim("acct").asString(),
+                                transaction.getAmount(),
+                                transaction.getFromAccountNum(),
+                                transaction.getFromRoutingNum(),
+                                transaction.getToAccountNum(),
+                                transaction.getToRoutingNum());
+            // No exceptions thrown. Add to ledger.
             submitTransaction(transaction);
-
             return new ResponseEntity<String>("ok", HttpStatus.CREATED);
-        } catch (JWTVerificationException e) {
+        } catch (JWTVerificationException | AuthenticationException e) {
             return new ResponseEntity<String>("not authorized",
                                               HttpStatus.UNAUTHORIZED);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<String>(e.toString(),
+                                              HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Authenticate transaction details before adding to the ledger
+     *   - Ensure sender is the same user authenticated by auth token
+     *   - Ensure account and routing numbers are in the correct format
+     *   - Ensure sender and receiver are different accounts
+     *   - Ensure amount is positive, and sender has proper balance
+     *
+     *  @throws RuntimeException on validation error
+     *  @throws AuthenticationException when sender isn't authenticated
+     */
+    private void validateTransaction(String authedAcct, Integer amount,
+            String fromAcct, String fromRoute, String toAcct, String toRoute) 
+            throws RuntimeException, AuthenticationException {
+        // If this is an internal transaction,
+        // ensure it originated from the authenticated user
+        if (fromRoute.equals(routingNum) && !fromAcct.equals(authedAcct)) {
+            throw new AuthenticationException("not authorized");
+        }
+        // Validate account and routing numbers
+        if (!acctRegex.matcher(fromAcct).matches()
+              || !acctRegex.matcher(toAcct).matches()
+              || !routeRegex.matcher(fromRoute).matches()
+              || !routeRegex.matcher(toRoute).matches()) {
+            throw new RuntimeException("invalid account details");
+
+        }
+        // Ensure sender isn't receiver
+        if (fromAcct.equals(toAcct) && fromRoute.equals(toRoute)) {
+            throw new RuntimeException("can't send to self");
+        }
+        // Ensure amount is valid value.
+        if (amount <= 0) {
+            throw new RuntimeException("invalid amount");
+        }
+        // Ensure sender balance can cover transaction.
+        if (fromRoute.equals(routingNum)) {
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Bearer " + bearerToken);
+            HttpEntity entity = new HttpEntity(headers);
+            RestTemplate restTemplate = new RestTemplate();
+            String uri = balancesUri + "/" + initiatorAcct;
+            ResponseEntity<Integer> response = restTemplate.exchange(
+                uri, HttpMethod.GET, entity, Integer.class);
+            Integer senderBalance = response.getBody();
+            if (senderBalance < amount()) {
+                throw new RuntimeException("insufficient balance");
+            }
         }
     }
 
