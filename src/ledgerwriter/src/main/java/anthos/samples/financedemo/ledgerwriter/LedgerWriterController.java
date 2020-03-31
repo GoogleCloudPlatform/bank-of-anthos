@@ -64,8 +64,10 @@ public final class LedgerWriterController {
     private final String balancesUri = String.format("http://%s/balances",
         System.getenv("BALANCES_API_ADDR"));
     private final JWTVerifier verifier;
-    private final Pattern acctRegex;
-    private final Pattern routeRegex;
+    // account ids should be 10 digits between 0 and 9
+    private static final Pattern acctRegex = Pattern.compile("^[0-9]{10}$");
+    // route numbers should be 9 digits between 0 and 9
+    private static final Pattern routeRegex = Pattern.compile("^[0-9]{9}$");
 
     public LedgerWriterController() throws IOException,
                                            NoSuchAlgorithmException,
@@ -84,9 +86,6 @@ public final class LedgerWriterController {
         Algorithm algorithm = Algorithm.RSA256(publicKey, null);
         this.verifier = JWT.require(algorithm).build();
 
-        // regex matchers for account and routing numbers
-        acctRegex = Pattern.compile("^[0-9]{10}$");
-        routeRegex = Pattern.compile("^[0-9]{9}$");
     }
 
     /**
