@@ -46,16 +46,13 @@ interface LedgerReaderListener {
  */
 @Component
 public final class LedgerReader {
-
-
-
     private final Logger logger =
             Logger.getLogger(LedgerReader.class.getName());
-    private final String ledgerStreamKey = System.getenv("LEDGER_STREAM");
     private final String localRoutingNum =  System.getenv("LOCAL_ROUTING_NUM");
     private Thread backgroundThread;
     private LedgerReaderListener listener;
     private boolean initialized = false;
+    private long latestId = -1;
 
     @Autowired
     private TransactionRepository transactionRepository;
@@ -68,20 +65,19 @@ public final class LedgerReader {
      */
     public void startWithListener(LedgerReaderListener listener) {
         this.listener = listener;
-        logger.info("Starting poll.");
-        final long first = pollTransactions(-1);
+        // get the latest transaction id in ledger
+        this.latestId = transactionRepository.latestId();
+        logger.info(String.format("starting id: %d", this.latestId));
         this.initialized = true;
-        logger.info("Poll complete.");
         this.backgroundThread = new Thread(
             new Runnable() {
                 @Override
                 public void run() {
-                    long latest = first;
                     while (true) {
                         try{
                             Thread.sleep(100);
                         } catch (InterruptedException e){}
-                        latest = pollTransactions(latest);
+                        latestId = pollTransactions(latestId);
                     }
                 }
             }
@@ -132,5 +128,9 @@ public final class LedgerReader {
      */
     public boolean isInitialized() {
         return this.initialized;
+    }
+
+    public long getLatestId(){
+        return this.latestId;
     }
 }

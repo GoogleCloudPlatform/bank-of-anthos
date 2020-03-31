@@ -46,6 +46,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 
+import java.lang.Long;
+
 @RestController
 public final class BalanceReaderController 
     implements LedgerReaderListener, ApplicationListener<ContextRefreshedEvent> {
@@ -60,6 +62,9 @@ public final class BalanceReaderController
         new HashMap<String, Integer>();
     @Autowired
     private LedgerReader reader;
+
+    @Autowired
+    private TransactionRepository transactionRepository;
 
     /**
      * BalanceReaderController constructor
@@ -142,6 +147,7 @@ public final class BalanceReaderController
     public ResponseEntity<?> getBalance(
             @RequestHeader("Authorization") String bearerToken,
             @PathVariable String accountId) {
+        logger.info("request from: " + accountId);
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             bearerToken = bearerToken.split("Bearer ")[1];
         }
@@ -153,11 +159,11 @@ public final class BalanceReaderController
                                                   HttpStatus.UNAUTHORIZED);
             }
 
-            Integer balance = 0;
-            if (this.balanceMap.containsKey(accountId)) {
-                balance = this.balanceMap.get(accountId);
+            Long balance = transactionRepository.findBalance(accountId);
+            if (balance == null){
+                balance = 0L;
             }
-            return new ResponseEntity<Integer>(balance, HttpStatus.OK);
+            return new ResponseEntity<Long>(balance, HttpStatus.OK);
         } catch (JWTVerificationException e) {
             return new ResponseEntity<String>("not authorized",
                                               HttpStatus.UNAUTHORIZED);
