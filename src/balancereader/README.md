@@ -26,6 +26,9 @@ Implemented in Java with Spring Boot and Guava.
   - the routing number for our bank
 - `PUB_KEY_PATH`
   - the path to the JWT signer's public key, mounted as a secret
+- `POLL_MS`
+  - the number of milliseconds to wait in between polls to `ledger-db`
+  - optional. Defaults to 100
 - `CACHE_SIZE`
   - the max number of account balances to store in the cache
   - optional. Defaults to 1,000,000

@@ -18,6 +18,7 @@ package anthos.samples.financedemo.transactionhistory;
 
 import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
@@ -39,10 +40,12 @@ public final class LedgerReader {
     private Thread backgroundThread;
     private LedgerReaderListener listener;
     private long latestId = -1;
-    private final Integer sleepTime = 100;
 
     @Autowired
     private TransactionRepository dbRepo;
+
+    @Value("${POLL_MS:100}")
+    private final Integer pollMs;
 
     /**
      * LedgerReader setup
@@ -61,7 +64,7 @@ public final class LedgerReader {
                 public void run() {
                     while (true) {
                         try {
-                            Thread.sleep(sleepTime);
+                            Thread.sleep(pollMs);
                         } catch (InterruptedException e) { }
                             latestId = pollTransactions(latestId);
                     }

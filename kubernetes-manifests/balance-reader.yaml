@@ -42,6 +42,8 @@ spec:
           value: "123456789"
         - name: PUB_KEY_PATH
           value: "/root/.ssh/publickey"
+        - name: POLL_MS
+          value: 100
         - name: CACHE_SIZE
           value: "1000000"
         # tell Java to obey container memory limits
