@@ -132,10 +132,10 @@ public final class LedgerWriterController {
             final String recvAcct = transaction.getToAccountNum();
             final String recvRoute = transaction.getToRoutingNum();
 
-            // Ensure sender is the one who initiated this transaction,
-            // or is external deposit.
-            if (!senderAcct.equals(initiatorAcct)
-                    && senderRoute.equals(routingNum)) {
+            // If this is an internal transaction,
+            // ensure it originated from the authenticated user
+            if (senderRoute.equals(routingNum) &&
+                    !senderAcct.equals(initiatorAcct)) {
                 return new ResponseEntity<String>("not authorized",
                                                   HttpStatus.UNAUTHORIZED);
             }
