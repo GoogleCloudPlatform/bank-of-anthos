@@ -26,6 +26,15 @@ Implemented in Java with Spring Boot.
   - the routing number for our bank
 - `PUB_KEY_PATH`
   - the path to the JWT signer's public key, mounted as a secret
+- `CACHE_SIZE`
+  - the max number of history lists to store in the cache
+  - optional. Defaults to 1,000
+- `CACHE_MINUTES`
+  - the expiry time for the cache in minutes
+  - optional. Defaults to 60
+- `HISTORY_LIMIT`
+  - the number of past transactions to store for each user
+  - optional. Defaults to 100
 - `JVM_OPTS`
   - settings for the JVM. Used to obey container memory limits
 - `EXTRA_LATENCY_MILLIS`

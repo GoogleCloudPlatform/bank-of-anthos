@@ -26,6 +26,9 @@ Implemented in Java with Spring Boot.
   - the routing number for our bank
 - `PUB_KEY_PATH`
   - the path to the JWT signer's public key, mounted as a secret
+- `CACHE_SIZE`
+  - the max number of account balances to store in the cache
+  - optional. Defaults to 1,000,000
 - `JVM_OPTS`
   - settings for the JVM. Used to obey container memory limits
 
