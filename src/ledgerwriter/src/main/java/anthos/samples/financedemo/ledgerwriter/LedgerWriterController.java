@@ -126,11 +126,13 @@ public final class LedgerWriterController {
         try {
             final DecodedJWT jwt = this.verifier.verify(bearerToken);
             // validate transaction
-            validateTransaction(jwt.getClaim("acct").asString(), transaction);
+            validateTransaction(jwt.getClaim("acct").asString(),
+                                transaction,
+                                bearerToken);
             // No exceptions thrown. Add to ledger.
             submitTransaction(transaction);
             return new ResponseEntity<String>("ok", HttpStatus.CREATED);
-        } catch (JWTVerificationException | AuthenticationException e) {
+        } catch (JWTVerificationException e) {
             return new ResponseEntity<String>("not authorized",
                                               HttpStatus.UNAUTHORIZED);
         } catch (RuntimeException e) {
@@ -148,20 +150,21 @@ public final class LedgerWriterController {
      *
      * @param authedAccount the currently authenticated user account
      * @param transaction the transaction object
+     * @param bearerToken the token used to authenticate request
      * @throws RuntimeException on validation error
-     * @throws AuthenticationException when sender isn't authenticated
      */
-    private void validateTransaction(String authedAcct, Transaction transaction)
-            throws RuntimeException, AuthenticationException {
+    private void validateTransaction(String authedAcct,Transaction transaction,
+            String bearerToken) throws RuntimeException {
         final String fromAcct = transaction.getFromAccountNum();
         final String fromRoute = transaction.getFromRoutingNum();
         final String toAcct = transaction.getToAccountNum();
         final String toRoute = transaction.getToRoutingNum();
+        final Integer amount = transaction.getAmount();
 
         // If this is an internal transaction,
         // ensure it originated from the authenticated user
         if (fromRoute.equals(routingNum) && !fromAcct.equals(authedAcct)) {
-            throw new AuthenticationException("not authorized");
+            throw new RuntimeException("sender not authenticated");
         }
         // Validate account and routing numbers
         if (!ACCT_REGEX.matcher(fromAcct).matches()
@@ -185,11 +188,11 @@ public final class LedgerWriterController {
             headers.set("Authorization", "Bearer " + bearerToken);
             HttpEntity entity = new HttpEntity(headers);
             RestTemplate restTemplate = new RestTemplate();
-            String uri = balancesUri + "/" + initiatorAcct;
+            String uri = balancesUri + "/" + fromAcct;
             ResponseEntity<Integer> response = restTemplate.exchange(
                 uri, HttpMethod.GET, entity, Integer.class);
             Integer senderBalance = response.getBody();
-            if (senderBalance < amount()) {
+            if (senderBalance < amount) {
                 throw new RuntimeException("insufficient balance");
             }
         }
