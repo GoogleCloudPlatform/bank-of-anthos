@@ -47,6 +47,35 @@ def ready():
     return 'ok', 200
 
 
+@APP.route('/contacts/<username>', methods=['GET'])
+def get_contacts(username):
+    """Retrieve the contacts list for the authenticated user.
+    This list is used for populating Payment and Deposit fields.
+
+    Return: a list of contacts
+            {'account_list': [account1, account2, ...]}
+    """
+    auth_header = request.headers.get('Authorization')
+    if auth_header:
+        token = auth_header.split(" ")[-1]
+    else:
+        token = ''
+    try:
+        payload = jwt.decode(token, key=PUBLIC_KEY, algorithms='RS256')
+    except jwt.exceptions.InvalidTokenError as e:
+        return jsonify({'msg': 'invalid authentication'}), 401
+    if username != payload['user']:
+        return jsonify({'msg': 'authorization denied'}), 401
+
+    try:
+        contacts_list = _get_contacts(username)
+    except SQLAlchemyError as e:
+        logging.error(e)
+        return jsonify({'error': 'failed to retrieve contacts list'}), 500
+
+    return jsonify({'account_list': contacts_list}), 200
+
+
 @APP.route('/contacts/<username>', methods=['POST'])
 def add_contact(username):
     """Add a new favorite account to user's contacts list
@@ -111,40 +140,11 @@ def add_contact(username):
     return jsonify({}), 201
 
 
-@APP.route('/contacts/<username>', methods=['GET'])
-def get_contacts(username):
-    """Retrieve the contacts list for the authenticated user.
-    This list is used for populating Payment and Deposit fields.
-
-    Return: a list of contacts
-            {'account_list': [account1, account2, ...]}
-    """
-    auth_header = request.headers.get('Authorization')
-    if auth_header:
-        token = auth_header.split(" ")[-1]
-    else:
-        token = ''
-    try:
-        payload = jwt.decode(token, key=PUBLIC_KEY, algorithms='RS256')
-    except jwt.exceptions.InvalidTokenError as e:
-        return jsonify({'msg': 'invalid authentication'}), 401
-    if username != payload['user']:
-        return jsonify({'msg': 'authorization denied'}), 401
-
-    try:
-        contacts_list = _get_contacts(username)
-    except SQLAlchemyError as e:
-        logging.error(e)
-        return jsonify({'error': 'failed to retrieve contacts list'}), 500
-
-    return jsonify({'account_list': contacts_list}), 200
-
-
 def _add_contact(username, contact):
     """Add a contact under the specified username.
 
     Params: username - the username of the user
-            contact - a key/value dict of contact attributes
+            contact - a key/value dict of attributes describing a new contact
                       {'label': label, 'account_num': account_num, ...}
     Raises: SQLAlchemyError if there was an issue with the database
     """

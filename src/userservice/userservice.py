@@ -96,38 +96,21 @@ def create_user():
     if not req['password'] == req['password-repeat']:
         return jsonify({'msg': 'passwords do not match'}), 400
 
-    # Check if user exists
+    # Check if user already exists
     try:
         user = _get_user(req['username'])
     except SQLAlchemyError as e:
         logging.error(e)
-        return jsonify({'error': 'failed to retrieve user information'}), 500
+        return jsonify({'error': 'failed to access user data'}), 500
     if user is not None:
         return jsonify({'msg': 'user already exists'}), 400
 
-    # Create password hash with salt
-    password = req['password']
-    salt = bcrypt.gensalt()
-    passhash = bcrypt.hashpw(password.encode('utf-8'), salt)
-
-    # Add user to database
-    accountid = _generate_accountid()
-    data = {'accountid': accountid,
-            'username': req['username'],
-            'passhash': passhash,
-            'firstname': req['firstname'],
-            'lastname': req['lastname'],
-            'birthday': req['birthday'],
-            'timezone': req['timezone'],
-            'address': req['address'],
-            'state': req['state'],
-            'zip': req['zip'],
-            'ssn': req['ssn']}
+    # Create the user
     try:
-        _add_user(data)
+        _add_user(data, req)
     except SQLAlchemyError as e:
         logging.error(e)
-        return jsonify({'error': 'create user failed'}), 500
+        return jsonify({'error': 'failed to create user'}), 500
 
     return jsonify({}), 201
 
@@ -174,11 +157,30 @@ def get_token():
 def _add_user(user):
     """Add a user to the database.
 
-    Params: user - a key/value dict of user attributes,
-                   {'username': username, 'accountid': accountid, ...}
+    Params: user - a key/value dict of attributes describing a new user
+                   {'username': username, 'password': password, ...}
     Raises: SQLAlchemyError if there was an issue with the database
     """
-    statement = USERS_TABLE.insert().values(user)
+    # Create password hash with salt
+    password = user['password']
+    salt = bcrypt.gensalt()
+    passhash = bcrypt.hashpw(password.encode('utf-8'), salt)
+
+    accountid = _generate_accountid()
+
+    # Add user to database
+    data = {'accountid': accountid,
+            'username': user['username'],
+            'passhash': passhash,
+            'firstname': user['firstname'],
+            'lastname': user['lastname'],
+            'birthday': user['birthday'],
+            'timezone': user['timezone'],
+            'address': user['address'],
+            'state': user['state'],
+            'zip': user['zip'],
+            'ssn': user['ssn']}
+    statement = USERS_TABLE.insert().values(data)
     logging.debug('QUERY: %s', str(statement))
     DB_CONN.execute(statement)
 
