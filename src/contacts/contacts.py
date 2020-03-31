@@ -61,16 +61,16 @@ def get_contacts(username):
     else:
         token = ''
     try:
-        payload = jwt.decode(token, key=PUBLIC_KEY, algorithms='RS256')
-    except jwt.exceptions.InvalidTokenError as e:
+        auth_payload = jwt.decode(token, key=PUBLIC_KEY, algorithms='RS256')
+    except jwt.exceptions.InvalidTokenError:
         return jsonify({'msg': 'invalid authentication'}), 401
-    if username != payload['user']:
+    if username != auth_payload['user']:
         return jsonify({'msg': 'authorization denied'}), 401
 
     try:
         contacts_list = _get_contacts(username)
-    except SQLAlchemyError as e:
-        logging.error(e)
+    except SQLAlchemyError as err:
+        logging.error(err)
         return jsonify({'error': 'failed to retrieve contacts list'}), 500
 
     return jsonify({'account_list': contacts_list}), 200
@@ -95,49 +95,56 @@ def add_contact(username):
     else:
         token = ''
     try:
-        payload = jwt.decode(token, key=PUBLIC_KEY, algorithms='RS256')
-    except jwt.exceptions.InvalidTokenError as e:
-        return jsonify({'msg': 'invalid authentication'}), 401
-    if username != payload['user']:
-        return jsonify({'msg': 'authorization denied'}), 401
+        auth_payload = jwt.decode(token, key=PUBLIC_KEY, algorithms='RS256')
+        if username != auth_payload['user']:
+            return jsonify({'msg': 'authorization denied'}), 401
 
-    req = {k: bleach.clean(v) for k, v in request.get_json().items()}
+        req = {k: bleach.clean(v) for k, v in request.get_json().items()}
+        _validate_new_contact(req)
+
+        # Don't allow self reference
+        if (req['account_num'] == auth_payload['acct'] and
+                req['routing_num'] == LOCAL_ROUTING):
+            return jsonify({'msg': 'may not add yourself to contacts'}), 409
+
+        _add_contact(username, req)
+
+    except jwt.exceptions.InvalidTokenError:
+        return jsonify({'msg': 'invalid authentication'}), 401
+    except UserWarning as warn:
+        return jsonify({'msg': str(warn)}), 400
+    except SQLAlchemyError as err:
+        logging.error(err)
+        return jsonify({'error': 'failed to add contact'}), 500
+
+    return jsonify({}), 201
+
+
+def _validate_new_contact(req):
     logging.debug('validating add contact request: %s', str(req))
     # Check if required fields are filled
     fields = ('label',
               'account_num',
-              'routing_num')
+              'routing_num',
+              'is_external')
     if any(f not in req for f in fields):
-        return jsonify({'msg': 'missing required field(s)'}), 400
+        raise UserWarning('missing required field(s)')
     if any(not bool(req[f] or req[f].strip()) for f in fields):
-        return jsonify({'msg': 'missing value for input field(s)'}), 400
+        raise UserWarning('missing value for input field(s)')
 
-    # Don't allow self reference
-    if (req['account_num'] == payload['acct'] and
-            req['routing_num'] == LOCAL_ROUTING):
-        return jsonify({'error': 'may not add yourself to contacts'}), 400
     # Validate account number (must be 10 digits)
-    if (not re.match(r'\A[0-9]{10}\Z', req['account_num']) or
-            req['account_num'] == payload['acct']):
-        return jsonify({'msg': 'invalid account number'}), 400
+    if not re.match(r'\A[0-9]{10}\Z', req['account_num']):
+        raise UserWarning('invalid account number')
     # Validate routing number (must be 9 digits)
     if not re.match(r'\A[0-9]{9}\Z', req['routing_num']):
-        return jsonify({'msg': 'invalid routing number'}), 400
+        raise UserWarning('invalid routing number')
     # Only allow external accounts to deposit
     if req['is_external'] and req['routing_num'] == LOCAL_ROUTING:
-        return jsonify({'msg': 'invalid routing number'}), 400
+        raise UserWarning('invalid routing number')
     # Validate label (must be <40 chars, only alphanumeric and spaces)
     if (not all(s.isalnum() for s in req['label'].split()) or
             len(req['label']) > 40):
-        return jsonify({'msg': 'invalid account label'}), 400
-
-    try:
-        _add_contact(username, req)
-    except SQLAlchemyError as e:
-        logging.error(e)
-        return jsonify({'error': 'failed to add contact'}), 500
-
-    return jsonify({}), 201
+        raise UserWarning('invalid account label')
 
 
 def _add_contact(username, contact):
@@ -153,8 +160,8 @@ def _add_contact(username, contact):
             'account_num': contact['account_num'],
             'routing_num': contact['routing_num'],
             'is_external': contact['is_external']}
-    logging.debug('QUERY: %s', str(statement))
     statement = CONTACTS_TABLE.insert().values(data)
+    logging.debug('QUERY: %s', str(statement))
     DB_CONN.execute(statement)
 
 
@@ -168,16 +175,16 @@ def _get_contacts(username):
     """
     contacts = list()
     statement = CONTACTS_TABLE.select().where(
-            CONTACTS_TABLE.c.username == username)
+        CONTACTS_TABLE.c.username == username)
     logging.debug('QUERY: %s', str(statement))
     result = DB_CONN.execute(statement)
     logging.debug('RESULT: %s', str(result))
     for row in result:
         contact = {
-                'label': row['label'],
-                'account_num': row['account_num'],
-                'routing_num': row['routing_num'],
-                'is_external': row['is_external']}
+            'label': row['label'],
+            'account_num': row['account_num'],
+            'routing_num': row['routing_num'],
+            'is_external': row['is_external']}
         contacts.append(contact)
 
     return contacts
@@ -192,15 +199,14 @@ def _shutdown():
 
 
 if __name__ == '__main__':
-    env_vars = ['PORT',
-                'VERSION',
-                'PUB_KEY_PATH',
-                'ACCOUNTS_DB_ADDR',
-                'ACCOUNTS_DB_PORT',
-                'ACCOUNTS_DB_USER',
-                'ACCOUNTS_DB_PASS',
-                'ACCOUNTS_DB_NAME']
-    for v in env_vars:
+    for v in ['PORT',
+              'VERSION',
+              'PUB_KEY_PATH',
+              'ACCOUNTS_DB_ADDR',
+              'ACCOUNTS_DB_PORT',
+              'ACCOUNTS_DB_USER',
+              'ACCOUNTS_DB_PASS',
+              'ACCOUNTS_DB_NAME']:
         if os.environ.get(v) is None:
             logging.error("error: environment variable %s not set", v)
             logging.shutdown()
@@ -211,20 +217,20 @@ if __name__ == '__main__':
     PUBLIC_KEY = open(os.environ.get('PUB_KEY_PATH'), 'r').read()
 
     # Configure database connection
-    _accounts_db = create_engine(
-            'postgresql://{user}:{password}@{host}:{port}/{database}'.format(
-                user=os.environ.get('ACCOUNTS_DB_USER'),
-                password=os.environ.get('ACCOUNTS_DB_PASS'),
-                host=os.environ.get('ACCOUNTS_DB_ADDR'),
-                port=os.environ.get('ACCOUNTS_DB_PORT'),
-                database=os.environ.get('ACCOUNTS_DB_NAME')))
-    CONTACTS_TABLE = Table('contacts', MetaData(_accounts_db),
-            Column('username', String),
-            Column('label', String),
-            Column('account_num', String),
-            Column('routing_num', String),
-            Column('is_external', Boolean))
-    DB_CONN = _accounts_db.connect()
+    ACCOUNTS_DB = create_engine(
+        'postgresql://{user}:{password}@{host}:{port}/{database}'.format(
+            user=os.environ.get('ACCOUNTS_DB_USER'),
+            password=os.environ.get('ACCOUNTS_DB_PASS'),
+            host=os.environ.get('ACCOUNTS_DB_ADDR'),
+            port=os.environ.get('ACCOUNTS_DB_PORT'),
+            database=os.environ.get('ACCOUNTS_DB_NAME')))
+    CONTACTS_TABLE = Table('contacts', MetaData(ACCOUNTS_DB),
+                           Column('username', String),
+                           Column('label', String),
+                           Column('account_num', String),
+                           Column('routing_num', String),
+                           Column('is_external', Boolean))
+    DB_CONN = ACCOUNTS_DB.connect()
 
     logging.info("Starting flask.")
     APP.run(debug=False, port=os.environ.get('PORT'), host='0.0.0.0')

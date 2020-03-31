@@ -72,9 +72,28 @@ def create_user():
       - zip
       - ssn
     """
-    req = {k: bleach.clean(v) for k, v in request.form.items()}
-    logging.debug('validating create user request: %s', str(req))
+    try:
+        req = {k: bleach.clean(v) for k, v in request.form.items()}
+        _validate_new_user(req)
 
+        # Check if user already exists
+        if _get_user(req['username']) is not None:
+            return jsonify({'msg': 'user already exists'}), 409
+
+        # Create the user
+        _add_user(req)
+
+    except UserWarning as warn:
+        return jsonify({'msg': str(warn)}), 400
+    except SQLAlchemyError as err:
+        logging.error(err)
+        return jsonify({'error': 'failed to create user'}), 500
+
+    return jsonify({}), 201
+
+
+def _validate_new_user(req):
+    logging.debug('validating create user request: %s', str(req))
     # Check if required fields are filled
     fields = ('username',
               'password',
@@ -88,31 +107,13 @@ def create_user():
               'zip',
               'ssn')
     if any(f not in req for f in fields):
-        return jsonify({'msg': 'missing required field(s)'}), 400
+        raise UserWarning('missing required field(s)')
     if any(not bool(req[f] or req[f].strip()) for f in fields):
-        return jsonify({'msg': 'missing value for input field(s)'}), 400
+        raise UserWarning('missing value for input field(s)')
 
     # Check if passwords match
     if not req['password'] == req['password-repeat']:
-        return jsonify({'msg': 'passwords do not match'}), 400
-
-    # Check if user already exists
-    try:
-        user = _get_user(req['username'])
-    except SQLAlchemyError as e:
-        logging.error(e)
-        return jsonify({'error': 'failed to access user data'}), 500
-    if user is not None:
-        return jsonify({'msg': 'user already exists'}), 400
-
-    # Create the user
-    try:
-        _add_user(data, req)
-    except SQLAlchemyError as e:
-        logging.error(e)
-        return jsonify({'error': 'failed to create user'}), 500
-
-    return jsonify({}), 201
+        raise UserWarning('passwords do not match')
 
 
 @APP.route('/login', methods=['GET'])
@@ -133,15 +134,15 @@ def get_token():
     # Get user data
     try:
         user = _get_user(username)
-    except SQLAlchemyError as e:
-        logging.error(e)
+    except SQLAlchemyError as err:
+        logging.error(err)
         return jsonify({'error': 'failed to retrieve user information'}), 500
     if user is None:
-        return jsonify({'msg': 'user does not exist'}), 400
+        return jsonify({'msg': 'user does not exist'}), 404
 
     # Validate the password
     if not bcrypt.checkpw(password.encode('utf-8'), user['passhash']):
-        return jsonify({'msg': 'invalid login'}), 400
+        return jsonify({'msg': 'invalid login'}), 401
 
     full_name = '{} {}'.format(user['firstname'], user['lastname'])
     exp_time = datetime.utcnow() + timedelta(seconds=EXPIRY_SECONDS)
@@ -187,7 +188,7 @@ def _add_user(user):
 
 def _get_user(username):
     """Get user data for the specified username.
-    
+
     Params: username - the username of the user
     Return: a key/value dict of user attributes,
             {'username': username, 'accountid': accountid, ...}
@@ -195,7 +196,7 @@ def _get_user(username):
     Raises: SQLAlchemyError if there was an issue with the database
     """
     statement = USERS_TABLE.select().where(
-            USERS_TABLE.c.username == username)
+        USERS_TABLE.c.username == username)
     logging.debug('QUERY: %s', str(statement))
     result = DB_CONN.execute(statement).first()
     logging.debug('RESULT: %s', str(result))
@@ -210,7 +211,7 @@ def _generate_accountid():
         accountid = str(random.randint(1e9, (1e10-1)))
 
         statement = USERS_TABLE.select().where(
-                USERS_TABLE.c.accountid == accountid)
+            USERS_TABLE.c.accountid == accountid)
         logging.debug('QUERY: %s', str(statement))
         result = DB_CONN.execute(statement).first()
         logging.debug('RESULT: %s', str(result))
@@ -229,17 +230,16 @@ def _shutdown():
 
 
 if __name__ == '__main__':
-    env_vars = ['PORT',
-                'VERSION',
-                'TOKEN_EXPIRY_SECONDS',
-                'PRIV_KEY_PATH',
-                'PUB_KEY_PATH',
-                'ACCOUNTS_DB_ADDR',
-                'ACCOUNTS_DB_PORT',
-                'ACCOUNTS_DB_USER',
-                'ACCOUNTS_DB_PASS',
-                'ACCOUNTS_DB_NAME']
-    for v in env_vars:
+    for v in ['PORT',
+              'VERSION',
+              'TOKEN_EXPIRY_SECONDS',
+              'PRIV_KEY_PATH',
+              'PUB_KEY_PATH',
+              'ACCOUNTS_DB_ADDR',
+              'ACCOUNTS_DB_PORT',
+              'ACCOUNTS_DB_USER',
+              'ACCOUNTS_DB_PASS',
+              'ACCOUNTS_DB_NAME']:
         if os.environ.get(v) is None:
             logging.critical("error: environment variable %s not set", v)
             logging.shutdown()
@@ -251,26 +251,26 @@ if __name__ == '__main__':
     PUBLIC_KEY = open(os.environ.get('PUB_KEY_PATH'), 'r').read()
 
     # Configure database connection
-    _accounts_db = create_engine(
-            'postgresql://{user}:{password}@{host}:{port}/{database}'.format(
-                user=os.environ.get('ACCOUNTS_DB_USER'),
-                password=os.environ.get('ACCOUNTS_DB_PASS'),
-                host=os.environ.get('ACCOUNTS_DB_ADDR'),
-                port=os.environ.get('ACCOUNTS_DB_PORT'),
-                database=os.environ.get('ACCOUNTS_DB_NAME')))
-    USERS_TABLE = Table('users', MetaData(_accounts_db),
-            Column('accountid', String),
-            Column('username', String),
-            Column('passhash', LargeBinary),
-            Column('firstname', String),
-            Column('lastname', String),
-            Column('birthday', Date),
-            Column('timezone', String),
-            Column('address', String),
-            Column('state', String),
-            Column('zip', String),
-            Column('ssn', String))
-    DB_CONN = _accounts_db.connect()
+    ACCOUNTS_DB = create_engine(
+        'postgresql://{user}:{password}@{host}:{port}/{database}'.format(
+            user=os.environ.get('ACCOUNTS_DB_USER'),
+            password=os.environ.get('ACCOUNTS_DB_PASS'),
+            host=os.environ.get('ACCOUNTS_DB_ADDR'),
+            port=os.environ.get('ACCOUNTS_DB_PORT'),
+            database=os.environ.get('ACCOUNTS_DB_NAME')))
+    USERS_TABLE = Table('users', MetaData(ACCOUNTS_DB),
+                        Column('accountid', String),
+                        Column('username', String),
+                        Column('passhash', LargeBinary),
+                        Column('firstname', String),
+                        Column('lastname', String),
+                        Column('birthday', Date),
+                        Column('timezone', String),
+                        Column('address', String),
+                        Column('state', String),
+                        Column('zip', String),
+                        Column('ssn', String))
+    DB_CONN = ACCOUNTS_DB.connect()
 
     logging.info("Starting flask.")
     APP.run(debug=False, port=os.environ.get('PORT'), host='0.0.0.0')
