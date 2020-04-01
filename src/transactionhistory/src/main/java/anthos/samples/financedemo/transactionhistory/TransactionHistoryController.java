@@ -194,7 +194,7 @@ public final class TransactionHistoryController
         historyList.addFirst(entry);
         // Drop old transactions
         if (historyList.size() > historyLimit) {
-            historyList.remove(historyLimit);
+            historyList.removeLast();
         }
     }
 }
