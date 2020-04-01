@@ -67,8 +67,10 @@ public final class LedgerReader {
                     while (true) {
                         try {
                             Thread.sleep(pollMs);
-                        } catch (InterruptedException e) { }
-                            latestId = pollTransactions(latestId);
+                        } catch (InterruptedException e) {
+                            logger.warning("LedgerReader sleep interrupted");
+                        }
+                        latestId = pollTransactions(latestId);
                     }
                 }
             });
@@ -80,7 +82,7 @@ public final class LedgerReader {
      * Poll for new transactions
      * Execute callback for each one
      *
-     * @param startingTransaction the transaction to start reading after.
+     * @param startingId the transaction to start reading after.
      *                            -1 = start reading at beginning of the ledger
      * @return long id of latest transaction processed
      */
@@ -89,7 +91,7 @@ public final class LedgerReader {
         Iterable<Transaction> transactionList = dbRepo.findLatest(startingId);
 
         for (Transaction transaction : transactionList) {
-            if (this.callback != null) {
+            if (callback != null) {
                 if (transaction.getFromRoutingNum().equals(localRoutingNum)) {
                     callback.processTransaction(transaction.getFromAccountNum(),
                                                 -transation.getAmount(),
