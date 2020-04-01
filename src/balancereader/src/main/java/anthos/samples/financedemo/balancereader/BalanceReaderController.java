@@ -119,8 +119,16 @@ public final class BalanceReaderController implements LedgerReaderListener,
         cache = CacheBuilder.newBuilder()
                             .maximumSize(expireSize)
                             .build(loader);
-        // start background ledger reader
-        this.reader.startWithListener(this);
+        // start background ledger reader with callback updating the cache
+        this.ledgerReader.startWithCallback(
+            (String accountId, Integer amount, Transaction transaction) -> {
+                if (cache.asMap().containsKey(accountId)) {
+                    logger.info("modifying cache: " + accountId);
+                    Long prevBalance = cache.asMap().get(accountId);
+                    cache.put(accountId, prevBalance + amount);
+                }
+            }
+        );
     }
 
     /**
