@@ -26,11 +26,6 @@ spec:
         app: contacts
     spec:
       terminationGracePeriodSeconds: 5
-      initContainers:
-      - name: init-db-ready
-        image: mongo:4
-        command: ['/bin/sh', '-c']
-        args: ["until (mongo --host accounts-db:27017 >/dev/null) do echo 'Waiting for connection for 2 sec.'; sleep 2; done"]
       containers:
       - name: contacts
         image: gcr.io/bank-of-anthos/contacts
