@@ -29,11 +29,12 @@ public interface TransactionRepository
     long latestId();
 
     @Query("SELECT t FROM Transaction t "
-        + "WHERE t.fromAccountNum=?1 OR t.toAccountNum=?1"
-        + "ORDER BY t.timestamp DESC")
-    LinkedList<Transaction> findForAccount(String accountNum, Pageable pager);
+        + " WHERE (t.fromAccountNum=?1 AND t.fromRoutingNum=?2) "
+        + "   OR (t.toAccountNum=?1 AND t.toRoutingNum=?2) "
+        + " ORDER BY t.timestamp DESC")
+    LinkedList<Transaction> findForAccount(String accountNum, String routingNum, Pageable pager);
 
     @Query("SELECT t FROM Transaction t "
-        + "WHERE t.transactionId > ?1 ORDER BY t.transactionId ASC")
+        + " WHERE t.transactionId > ?1 ORDER BY t.transactionId ASC")
     List<Transaction> findLatest(long latestTransaction);
 }

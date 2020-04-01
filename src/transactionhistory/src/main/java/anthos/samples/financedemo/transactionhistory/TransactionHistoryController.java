@@ -66,7 +66,7 @@ public final class TransactionHistoryController implements LedgerReaderListener,
     private LoadingCache<String, LinkedList<Transaction>> cache;
 
     @Autowired
-    private TransactionRepository transactionRepository;
+    private TransactionRepository dbRepo;
     @Autowired
     private LedgerReader ledgerReader;
 
@@ -76,6 +76,8 @@ public final class TransactionHistoryController implements LedgerReaderListener,
     private Integer expireMinutes;
     @Value("${HISTORY_LIMIT:100}")
     private Integer historyLimit;
+    @Value("${LOCAL_ROUTING_NUM}")
+    private String localRoutingNum;
 
     /**
      * TransactionHistoryController initialization
@@ -109,7 +111,7 @@ public final class TransactionHistoryController implements LedgerReaderListener,
             public LinkedList<Transaction> load(String accountId) {
                 logger.info("loaded from db");
                 Pageable request = new PageRequest(0, historyLimit);
-                return transactionRepository.findForAccount(accountId, request);
+                return dbRepo.findForAccount(accountId, localRoutingNum, request);
             }
         };
         cache = CacheBuilder.newBuilder()

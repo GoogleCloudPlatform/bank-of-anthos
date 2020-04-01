@@ -65,10 +65,12 @@ public final class BalanceReaderController implements LedgerReaderListener,
     private LedgerReader reader;
 
     @Autowired
-    private TransactionRepository transactionRepository;
+    private TransactionRepository dbRepo;
 
     @Value("${CACHE_SIZE:1000000}")
     private long expireSize;
+    @Value("${LOCAL_ROUTING_NUM}")
+    private String localRoutingNum;
 
     /**
      * BalanceReaderController initialization
@@ -101,7 +103,7 @@ public final class BalanceReaderController implements LedgerReaderListener,
             @Override
             public Long load(String accountId) {
                 logger.info("loaded from db");
-                Long balance = transactionRepository.findBalance(accountId);
+                Long balance = dbRepo.findBalance(accountId, localRoutingNum);
                 if (balance == null) {
                     balance = 0L;
                 }

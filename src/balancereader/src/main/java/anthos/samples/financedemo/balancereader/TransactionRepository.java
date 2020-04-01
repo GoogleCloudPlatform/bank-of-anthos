@@ -24,10 +24,12 @@ public interface TransactionRepository
     extends CrudRepository<Transaction, Long> {
 
     @Query(value = "SELECT "
-        + " (SELECT SUM(AMOUNT) FROM TRANSACTIONS t WHERE TO_ACCT = ?1) - "
-        + " (SELECT SUM(AMOUNT) FROM TRANSACTIONS t WHERE FROM_ACCT = ?1)",
+        + " (SELECT SUM(AMOUNT) FROM TRANSACTIONS t "
+        + "     WHERE (TO_ACCT = ?1 AND TO_ROUTE = ?2)) - "
+        + " (SELECT SUM(AMOUNT) FROM TRANSACTIONS t "
+        + "     WHERE (FROM_ACCT = ?1 AND FROM_ROUTE = ?2))",
         nativeQuery = true)
-    Long findBalance(String accountId);
+    Long findBalance(String accountNum, String routeNum);
 
     @Query("SELECT t FROM Transaction t "
         + "WHERE t.transactionId > ?1 "
