@@ -95,7 +95,7 @@ def home():
     except (requests.exceptions.RequestException, ValueError) as err:
         logging.error(str(err))
     # get history
-    transaction_list = []
+    transaction_list = None
     try:
         url = '{}/{}'.format(APP.config["HISTORY_URI"], account_id)
         req = requests.get(url=url, headers=hed)
