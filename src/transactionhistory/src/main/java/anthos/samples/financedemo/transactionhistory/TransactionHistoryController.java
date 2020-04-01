@@ -58,6 +58,9 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
+/**
+ * REST service to retrieve a list of recent transactions for a user
+ */
 @RestController
 public final class TransactionHistoryController implements LedgerReaderListener,
        ApplicationListener<ContextRefreshedEvent> {

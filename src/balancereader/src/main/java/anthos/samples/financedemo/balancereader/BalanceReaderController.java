@@ -53,6 +53,9 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
+/**
+ * REST service to retrieve the current balance for the authenticated user.
+ */
 @RestController
 public final class BalanceReaderController implements LedgerReaderListener,
        ApplicationListener<ContextRefreshedEvent> {
