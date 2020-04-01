@@ -40,6 +40,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.List;
+import java.util.LinkedList;
 import java.util.logging.Logger;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ExecutionException;
@@ -62,7 +63,7 @@ public final class TransactionHistoryController implements LedgerReaderListener,
             Logger.getLogger(TransactionHistoryController.class.getName());
 
     private JWTVerifier verifier;
-    private LoadingCache<String, List<Transaction>> cache;
+    private LoadingCache<String, LinkedList<Transaction>> cache;
 
     @Autowired
     private TransactionRepository transactionRepository;
@@ -103,9 +104,9 @@ public final class TransactionHistoryController implements LedgerReaderListener,
             System.exit(1);
         }
         // set up cache
-        CacheLoader loader = new CacheLoader<String, List<Transaction>>() {
+        CacheLoader load = new CacheLoader<String, LinkedList<Transaction>>() {
             @Override
-            public List<Transaction> load(String accountId) {
+            public LinkedList<Transaction> load(String accountId) {
                 logger.info("loaded from db");
                 Pageable request = new PageRequest(0, historyLimit);
                 return transactionRepository.findForAccount(accountId, request);
@@ -114,7 +115,7 @@ public final class TransactionHistoryController implements LedgerReaderListener,
         cache = CacheBuilder.newBuilder()
                             .maximumSize(expireSize)
                             .expireAfterWrite(expireMinutes, TimeUnit.MINUTES)
-                            .build(loader);
+                            .build(load);
         // start background ledger reader
         this.ledgerReader.startWithListener(this);
     }
@@ -215,8 +216,12 @@ public final class TransactionHistoryController implements LedgerReaderListener,
     public void processTransaction(String accountId, Transaction transaction) {
         if (cache.asMap().containsKey(accountId)) {
             logger.info("modifying cache: " + accountId);
-            List<Transaction> tList = cache.asMap().get(accountId);
-            tList.add(0, transaction);
+            LinkedList<Transaction> tList = cache.asMap().get(accountId);
+            tList.addFirst(transaction);
+            // Drop old transactions
+            if (tList.size() > historyLimit) {
+                tList.removeLast();
+            }
         }
     }
 }
