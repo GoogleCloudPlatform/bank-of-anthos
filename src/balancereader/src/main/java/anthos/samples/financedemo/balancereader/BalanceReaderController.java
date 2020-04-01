@@ -29,7 +29,6 @@ import java.security.spec.X509EncodedKeySpec;
 
 import java.util.Base64;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
