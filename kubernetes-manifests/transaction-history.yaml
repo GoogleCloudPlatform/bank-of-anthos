@@ -64,7 +64,7 @@ spec:
         resources:
           requests:
             cpu: 200m
-            memory: 2Gi
+            memory: 512Mi
           limits:
             cpu: 300m
         readinessProbe:
