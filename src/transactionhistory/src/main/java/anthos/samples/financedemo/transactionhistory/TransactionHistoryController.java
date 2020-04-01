@@ -108,14 +108,14 @@ public final class TransactionHistoryController
         } catch (IOException
                  | NoSuchAlgorithmException
                  | InvalidKeySpecException e) {
-            logger.warning(e.toString());
+            logger.severe(e.toString());
             System.exit(1);
         }
         // set up cache
         CacheLoader load = new CacheLoader<String, LinkedList<Transaction>>() {
             @Override
             public LinkedList<Transaction> load(String accountId) {
-                logger.info("loaded from db");
+                logger.fine("loaded from db");
                 Pageable request = new PageRequest(0, historyLimit);
                 return dbRepo.findForAccount(accountId,
                                              localRoutingNum,
@@ -130,7 +130,7 @@ public final class TransactionHistoryController
         this.ledgerReader.startWithCallback(
             (String accountId, Integer amount, Transaction transaction) -> {
                 if (cache.asMap().containsKey(accountId)) {
-                    logger.info("modifying cache: " + accountId);
+                    logger.fine("modifying cache: " + accountId);
                     LinkedList<Transaction> tList = cache.asMap()
                                                          .get(accountId);
                     tList.addFirst(transaction);
@@ -193,7 +193,7 @@ public final class TransactionHistoryController
     public ResponseEntity<?> getTransactions(
             @RequestHeader("Authorization") String bearerToken,
             @PathVariable String accountId) {
-        logger.info("request from " + accountId);
+        logger.fine("request from " + accountId);
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             bearerToken = bearerToken.split("Bearer ")[1];
         }

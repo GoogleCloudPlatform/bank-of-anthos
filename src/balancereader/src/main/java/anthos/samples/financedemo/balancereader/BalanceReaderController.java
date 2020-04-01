@@ -29,6 +29,7 @@ import java.security.spec.X509EncodedKeySpec;
 
 import java.util.Base64;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,14 +102,14 @@ public final class BalanceReaderController
         } catch (IOException
                 | NoSuchAlgorithmException
                 | InvalidKeySpecException e) {
-            logger.warning(e.toString());
+            logger.severe(e.toString());
             System.exit(1);
         }
         // set up cache
         CacheLoader loader =  new CacheLoader<String, Long>() {
             @Override
             public Long load(String accountId) {
-                logger.info("loaded from db");
+                logger.fine("loaded from db");
                 Long balance = dbRepo.findBalance(accountId, localRoutingNum);
                 if (balance == null) {
                     balance = 0L;
@@ -123,7 +124,7 @@ public final class BalanceReaderController
         this.ledgerReader.startWithCallback(
             (String accountId, Integer amount, Transaction transaction) -> {
                 if (cache.asMap().containsKey(accountId)) {
-                    logger.info("modifying cache: " + accountId);
+                    logger.fine("modifying cache: " + accountId);
                     Long prevBalance = cache.asMap().get(accountId);
                     cache.put(accountId, prevBalance + amount);
                 }
@@ -181,7 +182,7 @@ public final class BalanceReaderController
     public ResponseEntity<?> getBalance(
             @RequestHeader("Authorization") String bearerToken,
             @PathVariable String accountId) {
-        logger.info("request from: " + accountId);
+        logger.fine("request from: " + accountId);
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             bearerToken = bearerToken.split("Bearer ")[1];
         }

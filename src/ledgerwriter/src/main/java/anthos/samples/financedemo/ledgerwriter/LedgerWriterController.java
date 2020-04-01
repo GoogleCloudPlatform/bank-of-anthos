@@ -161,7 +161,7 @@ public final class LedgerWriterController {
     }
 
     private void submitTransaction(Transaction transaction) {
-        logger.info("Submitting transaction " + transaction.toString());
+        logger.fine("Submitting transaction " + transaction.toString());
         transactionRepository.save(transaction);
     }
 }
