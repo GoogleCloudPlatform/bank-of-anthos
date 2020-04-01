@@ -57,8 +57,8 @@ import com.google.common.cache.LoadingCache;
  * REST service to retrieve the current balance for the authenticated user.
  */
 @RestController
-public final class BalanceReaderController implements LedgerReaderListener,
-       ApplicationListener<ContextRefreshedEvent> {
+public final class BalanceReaderController
+        implements ApplicationListener<ContextRefreshedEvent> {
 
     private final Logger logger =
             Logger.getLogger(BalanceReaderController.class.getName());
@@ -68,7 +68,7 @@ public final class BalanceReaderController implements LedgerReaderListener,
     private LoadingCache<String, Long> cache;
 
     @Autowired
-    private LedgerReader reader;
+    private LedgerReader ledgerReader;
 
     @Autowired
     private TransactionRepository dbRepo;
@@ -161,7 +161,7 @@ public final class BalanceReaderController implements LedgerReaderListener,
      */
     @GetMapping("/healthy")
     public ResponseEntity liveness() {
-        if (!this.reader.isAlive()) {
+        if (!ledgerReader.isAlive()) {
             // background thread died. Abort
             return new ResponseEntity<String>("LedgerReader not healthy",
                                               HttpStatus.INTERNAL_SERVER_ERROR);
@@ -203,21 +203,6 @@ public final class BalanceReaderController implements LedgerReaderListener,
         } catch (ExecutionException e) {
             return new ResponseEntity<String>("cache error",
                                               HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    /**
-     * Receives transactions from LedgerReader for processing
-     * Update balance in internal Map
-     *
-     * @param account associated with the transaction
-     * @param entry with transaction metadata
-     */
-    public void processTransaction(String accountId, Integer amount) {
-        if (cache.asMap().containsKey(accountId)) {
-            logger.info("modifying cache: " + accountId);
-            Long prevBalance = cache.asMap().get(accountId);
-            cache.put(accountId, prevBalance + amount);
         }
     }
 }

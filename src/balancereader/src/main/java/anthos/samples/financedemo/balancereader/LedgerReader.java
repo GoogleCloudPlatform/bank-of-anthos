@@ -93,12 +93,12 @@ public final class LedgerReader {
             if (callback != null) {
                 if (transaction.getFromRoutingNum().equals(localRoutingNum)) {
                     callback.processTransaction(transaction.getFromAccountNum(),
-                                                -transation.getAmount(),
+                                                -transaction.getAmount(),
                                                 transaction);
                 }
                 if (transaction.getToRoutingNum().equals(localRoutingNum)) {
                     callback.processTransaction(transaction.getToAccountNum(),
-                                                transation.getAmount(),
+                                                transaction.getAmount(),
                                                 transaction);
                 }
             } else {

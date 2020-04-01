@@ -131,7 +131,8 @@ public final class TransactionHistoryController
             (String accountId, Integer amount, Transaction transaction) -> {
                 if (cache.asMap().containsKey(accountId)) {
                     logger.info("modifying cache: " + accountId);
-                    LinkedList<Transaction> tList = cache.asMap().get(accountId);
+                    LinkedList<Transaction> tList = cache.asMap()
+                                                         .get(accountId);
                     tList.addFirst(transaction);
                     // Drop old transactions
                     if (tList.size() > historyLimit) {
