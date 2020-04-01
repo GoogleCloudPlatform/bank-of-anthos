@@ -153,7 +153,7 @@ public final class LedgerWriterController {
      * @param bearerToken the token used to authenticate request
      * @throws RuntimeException on validation error
      */
-    private void validateTransaction(String authedAcct,Transaction transaction,
+    private void validateTransaction(String authedAcct, Transaction transaction,
             String bearerToken) throws RuntimeException {
         final String fromAcct = transaction.getFromAccountNum();
         final String fromRoute = transaction.getFromRoutingNum();
