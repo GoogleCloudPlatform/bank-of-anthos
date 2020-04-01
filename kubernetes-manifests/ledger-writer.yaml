@@ -50,7 +50,7 @@ spec:
         envFrom:
         # add ledger-db credentials from ConfigMap
         - configMapRef:
-            name: postgres-config
+            name: accounts-db-config
         resources:
           requests:
             cpu: 200m

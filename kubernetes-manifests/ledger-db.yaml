@@ -44,12 +44,12 @@ spec:
               value: "295164083"
           envFrom:
             - configMapRef:
-                name: postgres-config
+                name: accounts-db-config
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: postgres-config
+  name: accounts-db-config
   labels:
     app: postgres
 data:
