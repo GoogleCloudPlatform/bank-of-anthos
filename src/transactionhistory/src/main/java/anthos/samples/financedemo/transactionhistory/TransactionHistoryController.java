@@ -114,7 +114,9 @@ public final class TransactionHistoryController implements LedgerReaderListener,
             public LinkedList<Transaction> load(String accountId) {
                 logger.info("loaded from db");
                 Pageable request = new PageRequest(0, historyLimit);
-                return dbRepo.findForAccount(accountId, localRoutingNum, request);
+                return dbRepo.findForAccount(accountId,
+                                             localRoutingNum,
+                                             request);
             }
         };
         cache = CacheBuilder.newBuilder()
