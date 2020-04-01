@@ -8,7 +8,7 @@ Bank of Anthos was developed to create an end-to-end sample demonstrating Anthos
 
 ## Architecture
 
-![Architecture Diagram](./architecture.png)
+![Architecture Diagram](./docs/architecture.png)
 
 
 | Service                                          | Language      | Description                                                                                                                                  |
@@ -26,44 +26,84 @@ Bank of Anthos was developed to create an end-to-end sample demonstrating Anthos
 
 ## Installation
 
-### Cluster Setup
+### 1 - Project setup
 
-Set up a new cluster on GKE
+Create a GCP project or use an existing project. Then, set the Project ID variable.
 
 ```
-export CLUSTER=bank-of-anthos
-export PROJECT_ID=$(gcloud config get-value project)
-export ZONE=us-west1-a
+PROJECT_ID=<your-project-id>
+```
 
-gcloud beta container clusters create ${CLUSTER} \
-    --project=${PROJECT_ID} --zone=${ZONE} \
+### 1 - Create a Kubernetes cluster
+
+```
+gcloud beta container clusters create bank-of-anthos \
+    --project=${PROJECT_ID} --zone=us-central1-b \
     --machine-type=n1-standard-2 --num-nodes=4
 ```
 
-### Deployment
+### 2 - Generate RSA key pair secret
 
-#### Option 1: Pre-Built Containers
-
-Generate RSA key pair Secret
 ```
 openssl genrsa -out jwtRS256.key 4096
 openssl rsa -in jwtRS256.key -outform PEM -pubout -out jwtRS256.key.pub
 kubectl create secret generic jwt-key --from-file=./jwtRS256.key --from-file=./jwtRS256.key.pub
 ```
 
-Deploy Bank of Anthos manifests
+### 3 - Deploy Kubernetes manifests
+
 ```
 kubectl apply -f ./kubernetes-manifests
 ```
 
-#### Option 2: Local Build
+After 1-2 minutes, you should see that all the pods are running:
+
 ```
-skaffold run --default-repo=gcr.io/${PROJECT_ID}/bank-of-anthos
+kubectl get pods
 ```
 
-## Continuous Integration
+*Example output - do not copy*
 
-GitHub Actions workflows [described here](./.github/workflows)
+```
+NAME                                  READY   STATUS    RESTARTS   AGE
+accounts-db-6f589464bc-6r7b7          1/1     Running   0          99s
+balancereader-797bf6d7c5-8xvp6        1/1     Running   0          99s
+contacts-769c4fb556-25pg2             1/1     Running   0          98s
+frontend-7c96b54f6b-zkdbz             1/1     Running   0          98s
+ledger-db-5b78474d4f-p6xcb            1/1     Running   0          98s
+ledgerwriter-84bf44b95d-65mqf         1/1     Running   0          97s
+loadgenerator-559667b6ff-4zsvb        1/1     Running   0          97s
+transactionhistory-5569754896-z94cn   1/1     Running   0          97s
+userservice-78dc876bff-pdhtl          1/1     Running   0          96s
+```
+
+### 4 - Get the frontend IP
+
+```
+kubectl get svc frontend | awk '{print $4}'
+```
+
+*Example output - do not copy*
+
+```
+EXTERNAL-IP
+35.223.69.29
+```
+
+### 5 - Navigate to the web frontend
+
+Paste the frontend IP into a web browser. You should see a log-in screen:
+
+![](/docs/login.png)
+
+Using the pre-populated username and password fields, log in as `testuser`. You should see a list of transactions, indicating that the frontend can successfully reach the backend transaction services.
+
+![](/docs/transactions.png)
+
+
+## Local Development
+
+See the [Development Guide](./docs/development.md) for instructions on how to build and develop services locally, and the [Contributing Guide](./CONTRIBUTING.md) for pull request and code review guidelines.
 
 ---
 
