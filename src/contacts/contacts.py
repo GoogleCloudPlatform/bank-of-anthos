@@ -19,13 +19,15 @@ Manages internal user contacts and external accounts.
 
 import logging
 import os
+import re
 import sys
 
 from flask import Flask, jsonify, request
 from flask_pymongo import PyMongo
+from pymongo.errors import PyMongoError
 
-import bleach
 import jwt
+
 
 logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO').upper())
 
@@ -33,18 +35,6 @@ APP = Flask(__name__)
 APP.config["MONGO_URI"] = 'mongodb://{}/users'.format(
         os.environ.get('ACCOUNTS_DB_ADDR'))
 MONGO = PyMongo(APP)
-
-DEFAULT_EXT_ACCTS = [{'label': 'External Checking',
-                      'account_number': '0123456789',
-                      'routing_number': '111111111'},
-                     {'label': 'External Savings',
-                      'account_number': '9876543210',
-                      'routing_number': '222222222'}]
-
-DEFAULT_CONTACTS = [{'label': 'Friend',
-                     'account_number': '1122334455'},
-                    {'label': 'Mom',
-                     'account_number': '6677889900'}]
 
 @APP.route('/version', methods=['GET'])
 def version():
@@ -59,25 +49,13 @@ def ready():
     return 'ok', 200
 
 
-@APP.route('/accounts/external', methods=['GET', 'POST'])
-def external_accounts():
-    """Add or retrieve linked external accounts for the currently authorized user.
+@APP.route('/contacts/<username>', methods=['GET'])
+def get_contacts(username):
+    """Retrieve the contacts list for the authenticated user.
+    This list is used for populating Payment and Deposit fields.
 
-    External accounts are accounts for external banking institutions.
-
-    Authorized requests only:  headers['Authorization'].
-
-    GET: Get a list of linked external accounts for this user.
-        Args: None
-        Returns: a list of linked external accounts
+    Returns: a list of contacts
             {'account_list': [account1, account2, ...]}
-
-    POST: Adds a linked external account for this user.
-        Args: HTTP form data
-          - label
-          - account_number
-          - routing_number
-        Returns: None
     """
     auth_header = request.headers.get('Authorization')
     if auth_header:
@@ -86,98 +64,33 @@ def external_accounts():
         token = ''
     try:
         payload = jwt.decode(token, key=PUBLIC_KEY, algorithms='RS256')
-        accountid = payload['acct']
-
-        if request.method == 'GET':
-            return _get_ext_accts(accountid)
-
-        if request.method == 'POST':
-            req = {k: bleach.clean(v) for k, v in request.form.items()}
-            # check if required fields are present
-            fields = ('label',
-                      'account_number',
-                      'routing_number')
-            if any(field not in req for field in fields):
-                return jsonify({'error': 'missing required field(s)'}), 400
-
-            ext_acct = {'label': req['label'],
-                        'account_number': req['account_number'],
-                        'routing_number': req['routing_number']}
-            return _add_ext_acct(accountid, ext_acct)
-
-        msg = 'unsupported request method {}'.format(request.method)
-        logging.info(msg)
-        return jsonify({'error': msg}), 501
-
-    except jwt.exceptions.InvalidTokenError as ex:
+        if username != payload['user']:
+            raise PermissionError('not authorized')
+        # get data
+        query = {'user': username}
+        projection = {'contact_accts': True}
+        result = MONGO.db.accounts.find_one(query, projection)
+        acct_list = []
+        if result is not None:
+            acct_list = result['contact_accts']
+        return jsonify({'account_list': acct_list}), 200
+    except (jwt.exceptions.InvalidTokenError, PermissionError) as ex:
         logging.error(ex)
         return jsonify({'error': str(ex)}), 401
 
+@APP.route('/contacts/<username>', methods=['POST'])
+def add_contact(username):
+    """Add a new favorite account to user's contacts list
 
-def _get_ext_accts(accountid):
-    """Get a list of linked extenal accounts.
+    Fails if account or routing number are invalid
+    or if label is not alphanumeric
 
-    Args:
-        accountid: the user to get external accounts for
-
-    Returns:
-        A list of accounts:
-        {'account_list': [account1, account2, ...]}
-
-        Each account contains the following:
-        {'label': ..., 'account_number': ..., 'routing_number': ...}
+    request:
+    - account_num
+    - routing_num
+    - label
     """
-    query = {'accountid': accountid}
-    projection = {'external_accts': True}
-    result = MONGO.db.accounts.find_one(query, projection)
 
-    acct_list = []
-    if result is not None:
-        acct_list = result['ext_accounts']
-
-    # (fixme): Remove DEFAULT_EXT_ACCTS when frontend implemented to add external accounts.
-    acct_list = acct_list + DEFAULT_EXT_ACCTS
-
-    return jsonify({'account_list': acct_list}), 200
-
-
-def _add_ext_acct(accountid, ext_acct):
-    """Add a linked external account.
-
-    Args:
-        accountid: the user to add this external account for
-        ext_acct: the external account to add
-            {'label': ..., 'account_number': ..., 'routing_number': ...}
-    """
-    query = {'accountid': accountid}
-    update = {'$push': {'external_accts': ext_acct}}
-    params = {'upsert': True}
-    result = MONGO.db.accounts.update(query, update, params)
-
-    if not result.acknowledged:
-        return jsonify({'error': 'add external account failed'}), 500
-    return jsonify({}), 201
-
-
-@APP.route('/accounts/contacts', methods=['GET', 'POST'])
-def contacts():
-    """Add or retrieve linked contacts for the currently authorized user.
-
-    Contacts are other users of this banking application.
-
-    Authorized requests only:  headers['Authorization'].
-
-    GET: Get a list of linked contact accounts for this user.
-        Args: None
-        Returns: a list of contact accounts
-            {'account_list': [contact1, contact2, ...]}
-
-    POST: Adds a linked contact account for this user.
-        Args: HTTP form data
-          - label
-          - account_number
-        Returns: None
-    """
     auth_header = request.headers.get('Authorization')
     if auth_header:
         token = auth_header.split(" ")[-1]
@@ -185,85 +98,38 @@ def contacts():
         token = ''
     try:
         payload = jwt.decode(token, key=PUBLIC_KEY, algorithms='RS256')
-        accountid = payload['acct']
-
-        if request.method == 'GET':
-            return _get_contacts(accountid)
-
-        if request.method == 'POST':
-            req = {k: bleach.clean(v) for k, v in request.form.items()}
-            # check if required fields are present
-            fields = ('label',
-                      'account_number')
-            if any(field not in req for field in fields):
-                return jsonify({'error': 'missing required field(s)'}), 400
-
-            contact = {'label': req['label'],
-                       'account_number': req['account_number']}
-
-            return _add_contact(accountid, contact)
-
-        msg = 'unsupported request method {}'.format(request.method)
-        logging.info(msg)
-        return jsonify({'error': msg}), 501
-
-    except jwt.exceptions.InvalidTokenError as ex:
+        if username != payload['user']:
+            raise PermissionError('not authorized')
+        contact = request.get_json()
+        # don't allow self reference
+        if (contact['account_num'] == payload['acct'] and
+                contact['routing_num'] == LOCAL_ROUTING):
+            raise RuntimeError('can\'t add self to contacts')
+        # validate account number (must be 10 digits)
+        if (not re.match(r'\A[0-9]{10}\Z', contact['account_num']) or
+                contact['account_num'] == payload['acct']):
+            raise RuntimeError('invalid account number')
+        # validate routing number (must be 9 digits)
+        if not re.match(r'\A[0-9]{9}\Z', contact['routing_num']):
+            raise RuntimeError('invalid routing number')
+        # only allow external accounts to deposit
+        if contact['is_external'] and contact['routing_num'] == LOCAL_ROUTING:
+            raise RuntimeError('invalid routing number')
+        # validate label (must be <40 chars, only alphanumeric and spaces)
+        if (not all(s.isalnum() for s in contact['label'].split()) or
+                len(contact['label']) > 40):
+            raise RuntimeError('invalid account label')
+        # add new contact to database
+        query = {'user': username}
+        update = {'$push': {'contact_accts': contact}}
+        MONGO.db.accounts.update(query, update, upsert=True)
+        return jsonify({}), 201
+    except (jwt.exceptions.InvalidTokenError, PermissionError) as ex:
         logging.error(ex)
         return jsonify({'error': str(ex)}), 401
-
-
-def _get_contacts(accountid):
-    """Get a list of linked contacts.
-
-    Args:
-        accountid: the user to get contacts for
-
-    Returns:
-        A list of contacts:
-        {'account_list': [contact1, contact2, ...]}
-
-        Each contact contains the following:
-        {'label': ..., 'account_number': ..., 'routing_number': ...}
-    """
-    query = {'accountid': accountid}
-    projection = {'contact_accts': True}
-    result = MONGO.db.contacts.find_one(query, projection)
-
-    acct_list = []
-    if result is not None:
-        acct_list = result['contact_accts']
-
-    # (fixme): Remove DEFAULT_CONTACTS when frontend implemented to add contacts.
-    acct_list = acct_list + DEFAULT_CONTACTS
-
-    # Add the banking routing number for this banking application
-    for contact in acct_list:
-        contact['routing_number'] = LOCAL_ROUTING
-    return jsonify({'account_list': acct_list}), 200
-
-
-def _add_contact(accountid, contact):
-    """Add a linked contact.
-
-    Args:
-        accountid: the user to add this contact for
-        contact: the contact to add
-            {'label': ..., 'account_number': ..., 'routing_number': ...}
-    """
-    # check if the contact account number exists
-    query = {'accountid': contact['account_number']}
-    if MONGO.db.users.find_one(query) is None:
-        return jsonify({'error': 'contact account number does not exist'}), 400
-
-    # add the contact
-    query = {'accountid': accountid}
-    update = {'$push': {'contact_accts': contact}}
-    params = {'upsert': True}
-    result = MONGO.db.accounts.update(query, update, params)
-
-    if not result.acknowledged:
-        return jsonify({'error': 'add contact failed'}), 500
-    return jsonify({}), 201
+    except (PyMongoError, RuntimeError) as ex:
+        logging.error(ex)
+        return jsonify({'error': str(ex)}), 500
 
 
 if __name__ == '__main__':
@@ -273,6 +139,7 @@ if __name__ == '__main__':
             logging.shutdown()
             sys.exit(1)
     LOCAL_ROUTING = os.environ.get('LOCAL_ROUTING_NUM')
+
     PUBLIC_KEY = open(os.environ.get('PUB_KEY_PATH'), 'r').read()
     logging.info("Starting flask.")
     APP.run(debug=False, port=os.environ.get('PORT'), host='0.0.0.0')
