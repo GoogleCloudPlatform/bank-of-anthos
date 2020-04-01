@@ -52,7 +52,7 @@ spec:
         envFrom:
         # add ledger-db credentials from ConfigMap
         - configMapRef:
-            name: accounts-db-config
+            name: ledger-db-config
         resources:
           requests:
             cpu: 200m
