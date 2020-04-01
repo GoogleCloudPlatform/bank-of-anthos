@@ -25,13 +25,12 @@ import org.springframework.stereotype.Component;
 /**
  * Defines an interface for reacting to new transactions
  */
-interface LedgerReaderListener {
+interface LedgerReaderCallback {
     void processTransaction(String accountId, Transaction transaction);
 }
 
 /**
- * LedgerReader listens for incoming transactions, and executes a callback
- * on a subscribed listener object
+ * LedgerReader listens for and reacts to incoming transactions
  */
 @Component
 public final class LedgerReader {
@@ -39,7 +38,7 @@ public final class LedgerReader {
             Logger.getLogger(LedgerReader.class.getName());
     private final String localRoutingNum =  System.getenv("LOCAL_ROUTING_NUM");
     private Thread backgroundThread;
-    private LedgerReaderListener listener;
+    private LedgerReaderCallback callback;
     private long latestId = -1;
 
     @Autowired
@@ -54,8 +53,8 @@ public final class LedgerReader {
      * a background thread to listen for future transactions
      * @param listener to process transactions
      */
-    public void startWithListener(LedgerReaderListener listener) {
-        this.listener = listener;
+    public void startWithCallback(LedgerReaderCallback callback) {
+        this.callback = callback;
         // get the latest transaction id in ledger
         this.latestId = dbRepo.latestId();
         logger.info(String.format("starting id: %d", this.latestId));
@@ -88,13 +87,13 @@ public final class LedgerReader {
         Iterable<Transaction> transactionList = dbRepo.findLatest(startingId);
 
         for (Transaction transaction : transactionList) {
-            if (listener != null) {
+            if (this.callback != null) {
                 if (transaction.getFromRoutingNum().equals(localRoutingNum)) {
-                    listener.processTransaction(transaction.getFromAccountNum(),
+                    callback.processTransaction(transaction.getFromAccountNum(),
                                                 transaction);
                 }
                 if (transaction.getToRoutingNum().equals(localRoutingNum)) {
-                    listener.processTransaction(transaction.getToAccountNum(),
+                    callback.processTransaction(transaction.getToAccountNum(),
                                                 transaction);
                 }
             } else {

@@ -62,8 +62,8 @@ import com.google.common.cache.LoadingCache;
  * REST service to retrieve a list of recent transactions for a user
  */
 @RestController
-public final class TransactionHistoryController implements LedgerReaderListener,
-       ApplicationListener<ContextRefreshedEvent> {
+public final class TransactionHistoryController
+        implements ApplicationListener<ContextRefreshedEvent> {
 
     private final Logger logger =
             Logger.getLogger(TransactionHistoryController.class.getName());
@@ -126,8 +126,20 @@ public final class TransactionHistoryController implements LedgerReaderListener,
                             .maximumSize(expireSize)
                             .expireAfterWrite(expireMinutes, TimeUnit.MINUTES)
                             .build(load);
-        // start background ledger reader
-        this.ledgerReader.startWithListener(this);
+        // start background ledger reader with callback updating the cache
+        this.ledgerReader.startWithCallback(
+            (String accountId, Transaction transaction) -> {
+                if (cache.asMap().containsKey(accountId)) {
+                    logger.info("modifying cache: " + accountId);
+                    LinkedList<Transaction> tList = cache.asMap().get(accountId);
+                    tList.addFirst(transaction);
+                    // Drop old transactions
+                    if (tList.size() > historyLimit) {
+                        tList.removeLast();
+                    }
+                }
+            }
+        );
     }
 
 
@@ -213,25 +225,6 @@ public final class TransactionHistoryController implements LedgerReaderListener,
         } catch (ExecutionException e) {
             return new ResponseEntity<String>("cache error",
                                               HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    /**
-     * Receives transactions from LedgerReader for processing
-     * Add transaction records to internal Map
-     *
-     * @param account associated with the transaction
-     * @param entry with transaction metadata
-     */
-    public void processTransaction(String accountId, Transaction transaction) {
-        if (cache.asMap().containsKey(accountId)) {
-            logger.info("modifying cache: " + accountId);
-            LinkedList<Transaction> tList = cache.asMap().get(accountId);
-            tList.addFirst(transaction);
-            // Drop old transactions
-            if (tList.size() > historyLimit) {
-                tList.removeLast();
-            }
         }
     }
 }
