@@ -20,6 +20,8 @@ Implemented in Java with Spring Boot.
 
 - `VERSION`
   - a version string for the service
+- `HISTORY_LIMIT`
+  - the number of transactions to store in the history cache
 - `LEDGER_ADDR`
   - the address of the `ledger-db` service
 - `LEDGER_PORT`

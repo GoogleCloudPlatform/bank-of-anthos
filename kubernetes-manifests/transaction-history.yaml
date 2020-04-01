@@ -42,6 +42,8 @@ spec:
         env:
         - name: VERSION
           value: "0.1.0"
+        - name: HISTORY_LIMIT
+          value: "100"
         - name: LEDGER_ADDR
           value: "ledger-db"
         - name: LEDGER_PORT
@@ -62,7 +64,7 @@ spec:
         resources:
           requests:
             cpu: 200m
-            memory: 256Mi
+            memory: 512Mi
           limits:
             cpu: 300m
         readinessProbe:
@@ -75,7 +77,7 @@ spec:
           httpGet:
             path: /healthy
             port: 8080
-          initialDelaySeconds: 60
+          initialDelaySeconds: 300
           periodSeconds: 5
       volumes:
       - name: publickey

@@ -21,7 +21,7 @@ Exercises the frontend endpoints for the system
 import json
 import logging
 import os
-from random import randint, random
+from random import randint, random, choice
 import sys
 import uuid
 
@@ -30,6 +30,8 @@ from locust import HttpLocust, TaskSet, TaskSequence, task, seq_task
 logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO').upper())
 
 MASTER_PASSWORD = "password"
+
+TRANSACTION_ACCT_LIST = [str(randint(1111100000, 1111199999)) for _ in range(50)]
 
 def signup_helper(locust, username):
     """
@@ -130,7 +132,7 @@ class AllTasks(TaskSequence):
             """
             self.deposit(1000000)
 
-        @task(5)
+        @task(10)
         def view_index(self):
             """
             load the / page
@@ -141,7 +143,7 @@ class AllTasks(TaskSequence):
                     if r_hist.status_code > 200 and r_hist.status_code < 400:
                         response.failure("Got redirect")
 
-        @task(5)
+        @task(10)
         def view_home(self):
             """
             load the /home page (identical to /)
@@ -152,35 +154,39 @@ class AllTasks(TaskSequence):
                     if r_hist.status_code > 200 and r_hist.status_code < 400:
                         response.failure("Got redirect")
 
-        @task(20)
+        @task(5)
         def payment(self, amount=None):
             """
             POST to /payment, sending money to other account
             """
             if amount is None:
                 amount = random() * 1000
-            transaction = {"account_num":str(randint(100000000, 999999999)),
+            transaction = {"account_num": choice(TRANSACTION_ACCT_LIST),
                            "amount":amount}
-            with self.client.post("/payment", data=transaction, catch_response=True) as response:
+            with self.client.post("/payment",
+                                  data=transaction,
+                                  catch_response=True) as response:
                 if "failed" in response.url:
                     response.failure("payment failed")
 
-        @task(20)
+        @task(5)
         def deposit(self, amount=None):
             """
             POST to /deposit, depositing external money into account
             """
             if amount is None:
                 amount = random() * 1000
-            account_info = {"account_num":str(randint(100000000, 999999999)),
-                            "routing_num":"111111111"}
-            transaction = {"account": json.dumps(account_info),
+            acct_info = {"account_num": choice(TRANSACTION_ACCT_LIST),
+                         "routing_num":"111111111"}
+            transaction = {"account": json.dumps(acct_info),
                            "amount":amount}
-            with self.client.post("/deposit", data=transaction, catch_response=True) as response:
+            with self.client.post("/deposit",
+                                  data=transaction,
+                                  catch_response=True) as response:
                 if "failed" in response.url:
                     response.failure("deposit failed")
 
-        @task(2)
+        @task(5)
         def login(self):
             """
             sends POST request to /login with stored credentials
@@ -215,5 +221,5 @@ class WebsiteUser(HttpLocust):
     Locust class to simulate HTTP users
     """
     task_set = AllTasks
-    min_wait = 100
+    min_wait = 1000
     max_wait = 1000

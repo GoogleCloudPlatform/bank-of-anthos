@@ -32,7 +32,8 @@ public class TransactionHistoryApplication {
         "LEDGER_PORT",
         "LOCAL_ROUTING_NUM",
         "PUB_KEY_PATH",
-        "VERSION"
+        "VERSION",
+        "HISTORY_LIMIT"
     };
 
     public static void main(String[] args) {
