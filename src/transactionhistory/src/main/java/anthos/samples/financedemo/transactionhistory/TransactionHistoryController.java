@@ -128,7 +128,7 @@ public final class TransactionHistoryController
                             .build(load);
         // start background ledger reader with callback updating the cache
         this.ledgerReader.startWithCallback(
-            (String accountId, Transaction transaction) -> {
+            (String accountId, Integer amount, Transaction transaction) -> {
                 if (cache.asMap().containsKey(accountId)) {
                     logger.info("modifying cache: " + accountId);
                     LinkedList<Transaction> tList = cache.asMap().get(accountId);

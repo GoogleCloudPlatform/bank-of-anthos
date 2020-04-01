@@ -26,7 +26,9 @@ import org.springframework.stereotype.Component;
  * Defines an interface for reacting to new transactions
  */
 interface LedgerReaderCallback {
-    void processTransaction(String accountId, Transaction transaction);
+    void processTransaction(String accountId,
+                            Integer amount,
+                            Transaction transaction);
 }
 
 /**
@@ -90,10 +92,12 @@ public final class LedgerReader {
             if (this.callback != null) {
                 if (transaction.getFromRoutingNum().equals(localRoutingNum)) {
                     callback.processTransaction(transaction.getFromAccountNum(),
+                                                -transation.getAmount(),
                                                 transaction);
                 }
                 if (transaction.getToRoutingNum().equals(localRoutingNum)) {
                     callback.processTransaction(transaction.getToAccountNum(),
+                                                transation.getAmount(),
                                                 transaction);
                 }
             } else {
