@@ -27,7 +27,7 @@
 
     <parent>
         <groupId>com.google.cloud.anthos.samples</groupId>
-        <artifactId>financial-app</artifactId>
+        <artifactId>bank-of-anthos</artifactId>
         <version>1.0</version>
         <relativePath>../..</relativePath>
     </parent>
@@ -39,6 +39,10 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
@@ -55,4 +59,21 @@
             <version>3.9.0</version>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <addResources>true</addResources>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <version>2.1.0</version>
+            </plugin>
+        </plugins>
+    </build>
 </project>
