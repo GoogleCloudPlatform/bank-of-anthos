@@ -15,19 +15,17 @@
  */
 
 CREATE TABLE IF NOT EXISTS users (
-  accountid VARCHAR(16) NOT NULL,
-  username VARCHAR(64) NOT NULL,
+  accountid CHAR(10) PRIMARY KEY,
+  username VARCHAR(64) UNIQUE NOT NULL,
   passhash BYTEA NOT NULL,
   firstname VARCHAR(64) NOT NULL,
   lastname VARCHAR(64) NOT NULL,
   birthday DATE NOT NULL,
   timezone VARCHAR(8) NOT NULL,
   address VARCHAR(64) NOT NULL,
-  state VARCHAR(2) NOT NULL,
-  zip VARCHAR(16) NOT NULL,
-  ssn VARCHAR(16) NOT NULL,
-  CONSTRAINT pk_accountid PRIMARY KEY (accountid),
-  CONSTRAINT unique_username UNIQUE (username)
+  state CHAR(2) NOT NULL,
+  zip VARCHAR(5) NOT NULL,
+  ssn CHAR(11) NOT NULL
 );
 
 CREATE INDEX IF NOT EXISTS idx_users_accountid ON users (accountid);
@@ -38,8 +36,8 @@ CREATE INDEX IF NOT EXISTS idx_users_username ON users (username);
 CREATE TABLE IF NOT EXISTS contacts (
   username VARCHAR(64) NOT NULL,
   label VARCHAR(128),
-  account_num VARCHAR(16) NOT NULL,
-  routing_num VARCHAR(16) NOT NULL,
+  account_num CHAR(10) NOT NULL,
+  routing_num CHAR(9) NOT NULL,
   is_external BOOLEAN NOT NULL,
   FOREIGN KEY (username) REFERENCES users(username)
 );
