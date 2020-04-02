@@ -66,7 +66,7 @@ def get_contacts(username):
             raise PermissionError
 
         contacts_list = _get_contacts(username)
-    except (PermissionError or jwt.exceptions.InvalidTokenError):
+    except (PermissionError, jwt.exceptions.InvalidTokenError):
         return jsonify({'msg': 'authentication denied'}), 401
     except SQLAlchemyError as err:
         logging.error(err)
@@ -108,7 +108,7 @@ def add_contact(username):
 
         _add_contact(username, req)
 
-    except (PermissionError or jwt.exceptions.InvalidTokenError):
+    except (PermissionError, jwt.exceptions.InvalidTokenError):
         return jsonify({'msg': 'authentication denied'}), 401
     except UserWarning as warn:
         return jsonify({'msg': str(warn)}), 400
