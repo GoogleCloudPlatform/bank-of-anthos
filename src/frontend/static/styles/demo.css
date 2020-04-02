@@ -1,5 +1,5 @@
 /**
- * Copyright 2015 Google Inc. All Rights Reserved.
+ * Copyright 2020 Google Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,228 +14,237 @@
  * limitations under the License.
  */
 
-html, body {
-  font-family: 'Roboto', 'Helvetica', sans-serif;
+ html, body {
+  font-family: 'Open Sans', sans-serif !important;
   margin: 0;
   padding: 0;
+  background-color: #fafbfe !important;
 }
-.mdl-demo .mdl-layout__header-row {
-  padding-left: 40px;
-}
-.mdl-demo .mdl-layout.is-small-screen .mdl-layout__header-row h3 {
-  font-size: inherit;
-}
-.mdl-demo .mdl-layout__tab-bar-button {
-  display: none;
-}
-.mdl-demo .mdl-layout.is-small-screen .mdl-layout__tab-bar .mdl-button {
-  display: none;
-}
-.mdl-demo .mdl-layout:not(.is-small-screen) .mdl-layout__tab-bar,
-.mdl-demo .mdl-layout:not(.is-small-screen) .mdl-layout__tab-bar-container {
-  overflow: visible;
-}
-.mdl-demo .mdl-layout__tab-bar-container {
-  height: 64px;
-}
-.mdl-demo .mdl-layout__tab-bar {
-  padding: 0;
-  padding-left: 16px;
-  box-sizing: border-box;
-  height: 100%;
-  width: 100%;
-}
-.mdl-demo .mdl-layout__tab-bar .mdl-layout__tab {
-  height: 64px;
-  line-height: 64px;
-}
-.mdl-demo .mdl-layout__tab-bar .mdl-layout__tab.is-active::after {
-  background-color: white;
-  height: 4px;
-}
-.mdl-demo main > .mdl-layout__tab-panel {
-  padding: 8px;
-  padding-top: 48px;
-}
-.mdl-demo .mdl-card {
-  height: auto;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-      -ms-flex-direction: column;
-          flex-direction: column;
-}
-.mdl-demo .mdl-card > * {
-  height: auto;
-}
-.mdl-demo .mdl-card .mdl-card__supporting-text {
-  margin: 40px;
-  -webkit-flex-grow: 1;
-      -ms-flex-positive: 1;
-          flex-grow: 1;
-  padding: 0;
-  color: inherit;
-  width: calc(100% - 80px);
-}
-.mdl-demo.mdl-demo .mdl-card__supporting-text h4 {
-  margin-top: 0;
-  margin-bottom: 20px;
-}
-.mdl-demo .mdl-card__actions {
-  margin: 0;
-  padding: 4px 40px;
-  color: inherit;
-}
-.mdl-demo .mdl-card__actions a {
-  color: #00BCD4;
-  margin: 0;
-}
-.mdl-demo .mdl-card__actions a:hover,
-.mdl-demo .mdl-card__actions a:active {
-  color: inherit;
-  background-color: transparent;
-}
-.mdl-demo .mdl-card__supporting-text + .mdl-card__actions {
-  border-top: 1px solid rgba(0, 0, 0, 0.12);
-}
-.mdl-demo #add {
-  position: absolute;
-  right: 40px;
-  top: 36px;
-  z-index: 999;
-}
-
-.mdl-demo .mdl-layout__content section:not(:last-of-type) {
+.navbar-top {
+  background-color: #313a46;
+  min-height: 80px;
+  color: #98a6ad;
   position: relative;
-  margin-bottom: 48px;
 }
-.mdl-demo section.section--center {
-  max-width: 860px;
+.nav-item {
+  font-size: 24px !important;
+  margin: auto;
+  margin-left: 20px;
 }
-.mdl-demo #features section.section--center {
-  max-width: 620px;
+.nav-link {
+  color: #98a6ad;
+  text-transform: none !important;
+  font-size: 1rem !important;
 }
-.mdl-demo section > header{
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-align-items: center;
-      -ms-flex-align: center;
-          align-items: center;
-  -webkit-justify-content: center;
-      -ms-flex-pack: center;
-          justify-content: center;
+.navbar-brand {
+  color: white !important;
+  font-weight: 700;
 }
-.mdl-demo section > .section__play-btn {
-  min-height: 200px;
+.nav-link i {
+  font-size: 20px;
 }
-.mdl-demo section > header > .material-icons {
-  font-size: 3rem;
+.nav-link:hover {
+  color: white;
+  transition: all 0.2s ease-in;
 }
-.mdl-demo section > button {
-  position: absolute;
-  z-index: 99;
-  top: 8px;
-  right: 8px;
+#logout-form a:hover {
+  cursor: pointer;
 }
-.mdl-demo section .section__circle {
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-align-items: center;
-      -ms-flex-align: center;
-          align-items: center;
-  -webkit-justify-content: flex-start;
-      -ms-flex-pack: start;
-          justify-content: flex-start;
-  -webkit-flex-grow: 0;
-      -ms-flex-positive: 0;
-          flex-grow: 0;
-  -webkit-flex-shrink: 1;
-      -ms-flex-negative: 1;
-          flex-shrink: 1;
+.menu-icon {
+  color: #98a6ad;
 }
-.mdl-demo section .section__text {
-  -webkit-flex-grow: 1;
-      -ms-flex-positive: 1;
-          flex-grow: 1;
-  -webkit-flex-shrink: 0;
-      -ms-flex-negative: 0;
-          flex-shrink: 0;
-  padding-top: 8px;
+.account-user-name {
+  font-weight: 600;
 }
-.mdl-demo section .section__text h5 {
-  font-size: inherit;
-  margin: 0;
-  margin-bottom: 0.5em;
+.account-user-avatar {
+  margin-right: 5px;
 }
-.mdl-demo section .section__text a {
-  text-decoration: none;
+.header-body {
+  padding-top: 1.5rem;
+  border-bottom: 1px solid #e3ebf6;
 }
-.mdl-demo section .section__circle-container > .section__circle-container__circle {
-  width: 64px;
-  height: 64px;
-  border-radius: 32px;
-  margin: 8px 0;
+.profile {
+  height: 32px;
+  width: 32px;
+  border-radius: 50%;
 }
-.mdl-demo section.section--footer .section__circle--big {
-  width: 100px;
-  height: 100px;
-  border-radius: 50px;
-  margin: 8px 32px;
+.card {
+  margin-bottom: 1.5rem;
+  border-color: #edf2f9 !important;
+  box-shadow: 0 0 10px 2px rgba(154,161,171,.15) !important;
 }
-.mdl-demo .is-small-screen section.section--footer .section__circle--big {
-  width: 50px;
-  height: 50px;
-  border-radius: 25px;
-  margin: 8px 16px;
+.header {
+  margin-bottom: 2rem;
 }
-.mdl-demo section.section--footer {
-  padding: 64px 0;
-  margin: 0 -8px -8px -8px;
+.card-icon {
+  font-size: 36px !important;
 }
-.mdl-demo section.section--center .section__text:not(:last-child) {
-  border-bottom: 1px solid rgba(0,0,0,.13);
+.button-icon {
+  font-size: 24px;
 }
-.mdl-demo .mdl-card .mdl-card__supporting-text > h3:first-child {
-  margin-bottom: 24px;
+.account-fa {
+  vertical-align: bottom;
+  font-size: 20px;
+  margin-right: 5px;
+  color: #313a46;
 }
-.mdl-demo .mdl-layout__tab-panel:not(#overview) {
-  background-color: white;
+.account-num-text {
+  font-weight: 600;
+  font-size: 14px;
+  margin-right: 8px;
 }
-.mdl-demo #features section {
-  margin-bottom: 72px;
+.account-number {
+  font-weight: 200;
+  font-size: 14px;
 }
-.mdl-demo #features h4, #features h5 {
-  margin-bottom: 16px;
+.secondary-text {
+  letter-spacing: .08em;
 }
-.mdl-demo .toc {
-  border-left: 4px solid #C1EEF4;
-  margin: 24px;
-  padding: 0;
-  padding-left: 8px;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-      -ms-flex-direction: column;
-          flex-direction: column;
+.table-sm td, .table-sm th {
+  padding: 1.2rem !important;
 }
-.mdl-demo .toc h4 {
-  font-size: 0.9rem;
-  margin-top: 0;
+.table td {
+  vertical-align: middle !important;
+  border-top: 1px solid #edf2f9 !important;
 }
-.mdl-demo .toc a {
-  color: #4DD0E1;
-  text-decoration: none;
-  font-size: 16px;
-  line-height: 28px;
-  display: block;
+.card {
+  border-radius: .25rem !important;
 }
-.mdl-demo .mdl-menu__container {
-  z-index: 99;
+.card-table {
+  margin-bottom: 0 !important;
 }
-::placeholder {
-  opacity: 0.5;
+.card-table tbody td:first-child, .card-table thead th:first-child {
+  padding-left: 1.5rem!important;
+}
+.card-table-header {
+  padding: 1.5rem 1.5rem;
+  margin-bottom: 0;
+  background-color: transparent;
+  border-bottom: 1px solid #edf2f9;
+}
+.header-title {
+  font-weight: 700;
+}
+.modal-header {
+  padding-bottom: 1rem !important;
+  border-bottom: 1px solid #edf2f9 !important;
+}
+.modal-content .modal-body {
+  padding: 20px 24px 0px;
+}
+.card-header-title {
+  margin-bottom: 0;
+  font-weight: 700;
+}
+.table thead th {
+  background-color: #f9fbfd;
+  text-transform: uppercase;
+  font-size: .8125rem;
+  font-weight: 600;
+  letter-spacing: .08em;
+  color: #95aac9;
+  border-bottom-width: 1px;
+}
+.table [data-sort]::after {
+  margin-left: .25rem;
+}
+.list tr:hover {
+  background-color: #f9fbfd;
+  transition: all 0.3s ease-in;
+}
+.transaction-amount {
+  text-align: right !important;
+  font-size: 22px;
+}
+.transaction-amount-debit {
+  color: green;
+}
+.transaction-date {
+  font-size: 18px;
+}
+.text-transaction-header {
+  color: #95aac9 !important;
+}
+.date-month {
+  margin-right: 5px;
+}
+p {
+  margin-bottom: 0rem !important;
+}
+.card-button:hover {
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  transform: translateY(-5px) scale(1.005) translateZ(0);
+  background-color: #313a46;
+  color: white;
+}
+.fa-icon-spacer {
+  margin-left: 8px;
+}
+.deposit-input {
+  margin-right: 8px;
+}
+.amount-font {
+  font-size: 28px !important;
+}
+.amount-font::-webkit-input-placeholder {
+  font-size: 28px !important;
+}
+.custom-select:focus {
+  border-color: #009688;
+  outline: 0;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.075), 0 0 5px rgba(0, 110, 99, 0);
+}
+label {
+  font-size: 0.8rem;
+}
+.sign-in button {
+  font-size: 1rem;
+}
+.sign-in i {
+  font-size: 1.125rem;
+}
+.sign-in input {
+  font-size: 1.15rem;
+}
+.btn-sign-in {
+  color: #fafbfe;
+  background-color: #4caf50;
+}
+.btn-sign-in:focus:active, .btn-sign-in:focus, .btn-sign-in:hover {
+  background-color: #218838;
+  color: #fafbfe;
+}
+.btn-sign-in:focus {
+  box-shadow: 0 0 0 0.2rem rgba(76,175,80,.5);
+}
+.arrow-back {
+  font-size: 15px;
+  vertical-align: middle;
+}
+.alert-icon {
+  font-size: 18px;
+  vertical-align: middle;
+}
+.btn-create-account {
+  color: #fafbfe;
+  background-color: #3688fc;
+  font-size: 1rem;
+}
+.btn-create-account:focus:active, .btn-create-account:focus, .btn-create-account:hover {
+  background-color: #1072fb;
+  color: #fafbfe;
+}
+.btn-create-account:focus {
+  box-shadow: 0 0 0 0.2rem rgba(84,154,252,.5);
+}
+.hidden {
+  display: none;
+}
+.footer {
+  border-top: 1px solid rgba(152,166,173,.2);
+  bottom: 0;
+  padding: 20px 24px 20px;
+  right: 0;
+  color: #98a6ad;
 }

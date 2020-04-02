@@ -4,3 +4,7 @@ istio-*
 *.key
 *.pub
 target/
+.settings
+.project
+.classpath
+.DS_Store

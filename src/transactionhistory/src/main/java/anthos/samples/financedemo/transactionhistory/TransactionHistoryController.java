@@ -61,6 +61,8 @@ public final class TransactionHistoryController {
     private final String localRoutingNum = System.getenv("LOCAL_ROUTING_NUM");
     private final String extraLatencyMillis =
             System.getenv("EXTRA_LATENCY_MILLIS");
+    private final int historyLimit =
+            Integer.parseInt(System.getenv("HISTORY_LIMIT"));
 
     private final Map<String, Deque<TransactionHistoryEntry>> historyMap;
     private final LedgerReader reader;
@@ -216,6 +218,10 @@ public final class TransactionHistoryController {
                                          TransactionHistoryEntry entry) {
         historyMap.putIfAbsent(account,
                 new ConcurrentLinkedDeque<TransactionHistoryEntry>());
-        historyMap.get(account).addFirst(entry);
+        Deque<TransactionHistoryEntry> history = historyMap.get(account);
+        history.addFirst(entry);
+        if (history.size() > historyLimit) {
+            history.removeLast();
+        }
     }
 }
