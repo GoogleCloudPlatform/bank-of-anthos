@@ -78,13 +78,15 @@ def create_user():
 
         # Check if user already exists
         if _get_user(req['username']) is not None:
-            return jsonify({'msg': 'user already exists'}), 409
+            raise NameError('user {} already exists'.format(req['username']))
 
         # Create the user
         _add_user(req)
 
     except UserWarning as warn:
         return jsonify({'msg': str(warn)}), 400
+    except NameError as err:
+        return jsonify({'msg': str(err)}), 409
     except SQLAlchemyError as err:
         logging.error(err)
         return jsonify({'error': 'failed to create user'}), 500
@@ -134,25 +136,30 @@ def get_token():
     # Get user data
     try:
         user = _get_user(username)
+        if user is None:
+            raise LookupError('user {} does not exist'.format(user))
+
+        # Validate the password
+        if not bcrypt.checkpw(password.encode('utf-8'), user['passhash']):
+            raise PermissionError('invalid login')
+
+        full_name = '{} {}'.format(user['firstname'], user['lastname'])
+        exp_time = datetime.utcnow() + timedelta(seconds=EXPIRY_SECONDS)
+        payload = {'user': username,
+                   'acct': user['accountid'],
+                   'name': full_name,
+                   'iat': datetime.utcnow(),
+                   'exp': exp_time}
+        token = jwt.encode(payload, PRIVATE_KEY, algorithm='RS256')
+        return jsonify({'token': token.decode("utf-8")}), 200
+
+    except LookupError as err:
+        return jsonify({'msg': str(err)}), 404
+    except PermissionError as err:
+        return jsonify({'msg': str(err)}), 401
     except SQLAlchemyError as err:
         logging.error(err)
         return jsonify({'error': 'failed to retrieve user information'}), 500
-    if user is None:
-        return jsonify({'msg': 'user does not exist'}), 404
-
-    # Validate the password
-    if not bcrypt.checkpw(password.encode('utf-8'), user['passhash']):
-        return jsonify({'msg': 'invalid login'}), 401
-
-    full_name = '{} {}'.format(user['firstname'], user['lastname'])
-    exp_time = datetime.utcnow() + timedelta(seconds=EXPIRY_SECONDS)
-    payload = {'user': username,
-               'acct': user['accountid'],
-               'name': full_name,
-               'iat': datetime.utcnow(),
-               'exp': exp_time}
-    token = jwt.encode(payload, PRIVATE_KEY, algorithm='RS256')
-    return jsonify({'token': token.decode("utf-8")}), 200
 
 
 def _add_user(user):
@@ -232,14 +239,10 @@ def _shutdown():
 if __name__ == '__main__':
     for v in ['PORT',
               'VERSION',
-              'TOKEN_EXPIRY_SECONDS',
               'PRIV_KEY_PATH',
               'PUB_KEY_PATH',
-              'ACCOUNTS_DB_ADDR',
-              'ACCOUNTS_DB_PORT',
-              'ACCOUNTS_DB_USER',
-              'ACCOUNTS_DB_PASS',
-              'ACCOUNTS_DB_NAME']:
+              'TOKEN_EXPIRY_SECONDS',
+              'ACCOUNTS_DB_URI']:
         if os.environ.get(v) is None:
             logging.critical("error: environment variable %s not set", v)
             logging.shutdown()
@@ -251,13 +254,7 @@ if __name__ == '__main__':
     PUBLIC_KEY = open(os.environ.get('PUB_KEY_PATH'), 'r').read()
 
     # Configure database connection
-    ACCOUNTS_DB = create_engine(
-        'postgresql://{user}:{password}@{host}:{port}/{database}'.format(
-            user=os.environ.get('ACCOUNTS_DB_USER'),
-            password=os.environ.get('ACCOUNTS_DB_PASS'),
-            host=os.environ.get('ACCOUNTS_DB_ADDR'),
-            port=os.environ.get('ACCOUNTS_DB_PORT'),
-            database=os.environ.get('ACCOUNTS_DB_NAME')))
+    ACCOUNTS_DB = create_engine(os.environ.get('ACCOUNTS_DB_URI'))
     USERS_TABLE = Table('users', MetaData(ACCOUNTS_DB),
                         Column('accountid', String),
                         Column('username', String),

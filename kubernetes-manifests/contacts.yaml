@@ -47,18 +47,9 @@ spec:
           value: "123456789"
         - name: PUB_KEY_PATH
           value: "/root/.ssh/publickey"
-        - name: ACCOUNTS_DB_ADDR
-          value: "accounts-db"
-        - name: ACCOUNTS_DB_PORT
-          value: "5432"
-        - name: ACCOUNTS_DB_USER
-          value: "accounts-admin"
-        - name: ACCOUNTS_DB_PASS
-          value: "accounts-pwd"
-        - name: ACCOUNTS_DB_NAME
-          value: "accounts-db"
-        - name: LOGLEVEL
-          value: 'DEBUG'
+        envFrom:
+        - configMapRef:
+            name: accounts-db-config
         resources:
           requests:
             cpu: 200m

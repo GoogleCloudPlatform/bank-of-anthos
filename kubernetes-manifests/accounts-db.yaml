@@ -32,15 +32,22 @@ spec:
         tier: db
     spec:
       containers:
-        - name: accounts-db
-          image: gcr.io/bank-of-anthos/accounts-db-postgres:v0.1
-          imagePullPolicy: Always
-          envFrom:
-            - configMapRef:
-                name: accounts-db-config
-          ports:
-            - containerPort: 5432
-              name: postgredb
+      - name: accounts-db
+        image: gcr.io/bank-of-anthos/accounts-db
+        imagePullPolicy: Always
+        env:
+        - name: LOCAL_ROUTING_NUM
+          value: "123456789"
+        - name: TEST_ACCOUNTID
+          value: "1111111111"
+        - name: TEST_USERNAME
+          value: "testuser"
+        envFrom:
+          - configMapRef:
+              name: accounts-db-config
+        ports:
+          - containerPort: 5432
+            name: postgredb
 ---
 apiVersion: v1
 kind: Service
@@ -69,3 +76,4 @@ data:
   POSTGRES_DB: accounts-db
   POSTGRES_USER: accounts-admin
   POSTGRES_PASSWORD: accounts-pwd
+  ACCOUNTS_DB_URI: postgresql://accounts-admin:accounts-pwd@accounts-db:5432/accounts-db

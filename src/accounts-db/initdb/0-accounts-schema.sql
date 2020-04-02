@@ -37,7 +37,7 @@ CREATE INDEX IF NOT EXISTS idx_users_username ON users (username);
 
 CREATE TABLE IF NOT EXISTS contacts (
   username VARCHAR(64) NOT NULL,
-  label VARCHAR(64),
+  label VARCHAR(128),
   account_num VARCHAR(16) NOT NULL,
   routing_num VARCHAR(16) NOT NULL,
   is_external BOOLEAN NOT NULL,

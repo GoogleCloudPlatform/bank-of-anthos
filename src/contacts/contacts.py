@@ -62,13 +62,12 @@ def get_contacts(username):
         token = ''
     try:
         auth_payload = jwt.decode(token, key=PUBLIC_KEY, algorithms='RS256')
-    except jwt.exceptions.InvalidTokenError:
-        return jsonify({'msg': 'invalid authentication'}), 401
-    if username != auth_payload['user']:
-        return jsonify({'msg': 'authorization denied'}), 401
+        if username != auth_payload['user']:
+            raise PermissionError
 
-    try:
         contacts_list = _get_contacts(username)
+    except (PermissionError or jwt.exceptions.InvalidTokenError):
+        return jsonify({'msg': 'authentication denied'}), 401
     except SQLAlchemyError as err:
         logging.error(err)
         return jsonify({'error': 'failed to retrieve contacts list'}), 500
@@ -97,7 +96,7 @@ def add_contact(username):
     try:
         auth_payload = jwt.decode(token, key=PUBLIC_KEY, algorithms='RS256')
         if username != auth_payload['user']:
-            return jsonify({'msg': 'authorization denied'}), 401
+            raise PermissionError
 
         req = {k: bleach.clean(v) for k, v in request.get_json().items()}
         _validate_new_contact(req)
@@ -109,8 +108,8 @@ def add_contact(username):
 
         _add_contact(username, req)
 
-    except jwt.exceptions.InvalidTokenError:
-        return jsonify({'msg': 'invalid authentication'}), 401
+    except (PermissionError or jwt.exceptions.InvalidTokenError):
+        return jsonify({'msg': 'authentication denied'}), 401
     except UserWarning as warn:
         return jsonify({'msg': str(warn)}), 400
     except SQLAlchemyError as err:
@@ -202,11 +201,8 @@ if __name__ == '__main__':
     for v in ['PORT',
               'VERSION',
               'PUB_KEY_PATH',
-              'ACCOUNTS_DB_ADDR',
-              'ACCOUNTS_DB_PORT',
-              'ACCOUNTS_DB_USER',
-              'ACCOUNTS_DB_PASS',
-              'ACCOUNTS_DB_NAME']:
+              'LOCAL_ROUTING_NUM',
+              'ACCOUNTS_DB_URI']:
         if os.environ.get(v) is None:
             logging.error("error: environment variable %s not set", v)
             logging.shutdown()
@@ -217,13 +213,7 @@ if __name__ == '__main__':
     PUBLIC_KEY = open(os.environ.get('PUB_KEY_PATH'), 'r').read()
 
     # Configure database connection
-    ACCOUNTS_DB = create_engine(
-        'postgresql://{user}:{password}@{host}:{port}/{database}'.format(
-            user=os.environ.get('ACCOUNTS_DB_USER'),
-            password=os.environ.get('ACCOUNTS_DB_PASS'),
-            host=os.environ.get('ACCOUNTS_DB_ADDR'),
-            port=os.environ.get('ACCOUNTS_DB_PORT'),
-            database=os.environ.get('ACCOUNTS_DB_NAME')))
+    ACCOUNTS_DB = create_engine(os.environ.get('ACCOUNTS_DB_URI'))
     CONTACTS_TABLE = Table('contacts', MetaData(ACCOUNTS_DB),
                            Column('username', String),
                            Column('label', String),
