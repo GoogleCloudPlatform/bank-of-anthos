@@ -66,7 +66,7 @@ public final class LedgerWriterController {
     private final String pubKeyPath = System.getenv("PUB_KEY_PATH");
     private final String localRoutingNum = System.getenv("LOCAL_ROUTING_NUM");
     private final String ledgerStream = System.getenv("LEDGER_STREAM");
-    private final String balancesApiUri = String.format("http://${}/balances",
+    private final String balancesApiUri = String.format("http://%s/balances",
             System.getenv("BALANCES_API_ADDR"));
 
     private final ApplicationContext ctx;
@@ -142,7 +142,7 @@ public final class LedgerWriterController {
             final DecodedJWT jwt = this.verifier.verify(bearerToken);
             // validate transaction
             validateTransaction(jwt.getClaim("acct").asString(), transaction);
-                                
+
             if (transaction.getFromRoutingNum().equals(localRoutingNum)) {
                 checkAvailableBalance(bearerToken, transaction);
             }

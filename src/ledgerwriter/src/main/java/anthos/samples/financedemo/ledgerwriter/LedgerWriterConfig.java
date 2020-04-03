@@ -34,8 +34,9 @@ import io.lettuce.core.resource.DefaultClientResources;
 @Configuration
 public class LedgerWriterConfig {
 
-    private final String ledgerAddress = System.getenv("LEDGER_ADDRESS");
-    private final String ledgerPort = System.getenv("LEDGER_PORT");
+    private final String ledgerAddress = System.getenv("LEDGER_ADDR");
+    private final Integer ledgerPort =
+            Integer.valueOf(System.getenv("LEDGER_PORT"));
 
     @Bean(destroyMethod = "shutdown")
     ClientResources clientResources() {
@@ -45,7 +46,7 @@ public class LedgerWriterConfig {
     @Bean(destroyMethod = "shutdown")
     RedisClient redisClient(ClientResources clientResources) {
         return RedisClient.create(clientResources,
-                RedisURI.create(ledgerAddress, Integer.valueOf(ledgerPort)));
+                RedisURI.create(ledgerAddress, ledgerPort));
     }
 
     @Bean(destroyMethod = "close")
