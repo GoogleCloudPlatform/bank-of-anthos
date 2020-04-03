@@ -33,7 +33,7 @@ spec:
     spec:
       containers:
       - name: accounts-db
-        image: gcr.io/bank-of-anthos/accounts-db
+        image: gcr.io/bank-of-anthos/accounts-db-postgres
         imagePullPolicy: Always
         env:
         - name: LOCAL_ROUTING_NUM
