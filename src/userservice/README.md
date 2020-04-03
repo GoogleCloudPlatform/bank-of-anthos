@@ -28,6 +28,8 @@ Implemented in Python with Flask.
   - the path to the private key for JWT signing, mounted as a secret
 - `PUB_KEY_PATH`
   - the path to the public key for JWT signing, mounted as a secret
+- `LOG_LEVEL`
+  - the [logging level](https://docs.python.org/3/library/logging.html#levels) (default: INFO)
 
 ### Kubernetes Resources
 
