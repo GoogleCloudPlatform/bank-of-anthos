@@ -27,6 +27,8 @@ Implemented in Python with Flask.
   - the routing number for our bank
 - `PUB_KEY_PATH`
   - the path to the JWT signer's public key, mounted as a secret
+- `LOG_LEVEL`
+  - the [logging level](https://docs.python.org/3/library/logging.html#levels) (default: INFO)
 
 ### Kubernetes Resources
 
