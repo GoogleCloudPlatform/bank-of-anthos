@@ -41,6 +41,11 @@
         <pluginManagement>
             <plugins>
                 <plugin>
+                    <groupId>com.google.cloud.tools</groupId>
+                    <artifactId>jib-maven-plugin</artifactId>
+                    <version>2.1.0</version>
+                </plugin>
+                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.8.1</version>
@@ -49,21 +54,6 @@
                             <arg>-Xlint:all</arg>
                         </compilerArgs>
                     </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-checkstyle-plugin</artifactId>
-                    <version>3.1.0</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.22.2</version>
-                </plugin>
-                <plugin>
-                    <groupId>com.google.cloud.tools</groupId>
-                    <artifactId>jib-maven-plugin</artifactId>
-                    <version>2.1.0</version>
                 </plugin>
             </plugins>
         </pluginManagement>
