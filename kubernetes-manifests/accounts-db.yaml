@@ -32,10 +32,22 @@ spec:
         tier: db
     spec:
       containers:
-        - name: mongo
-          image: gcr.io/bank-of-anthos/accounts-db
-          ports:
-            - containerPort: 27017
+      - name: accounts-db
+        image: gcr.io/bank-of-anthos/accounts-db
+        imagePullPolicy: "IfNotPresent"
+        env:
+        - name: LOCAL_ROUTING_NUM
+          value: "123456789"
+        - name: TEST_ACCOUNTID
+          value: "7595821437"
+        - name: TEST_USERNAME
+          value: "testuser"
+        envFrom:
+          - configMapRef:
+              name: accounts-db-config
+        ports:
+          - containerPort: 5432
+            name: postgredb
 ---
 apiVersion: v1
 kind: Service
@@ -46,8 +58,22 @@ metadata:
     tier: db
 spec:
   ports:
-    - port: 27017
-      targetPort: 27017
+    - port: 5432
+      name: postgredb
+      targetPort: 5432
+      protocol: TCP
   selector:
     app: accounts-db
     tier: db
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: accounts-db-config
+  labels:
+    app: accounts-db
+data:
+  POSTGRES_DB: accounts-db
+  POSTGRES_USER: accounts-admin
+  POSTGRES_PASSWORD: accounts-pwd
+  ACCOUNTS_DB_URI: postgresql://accounts-admin:accounts-pwd@accounts-db:5432/accounts-db
