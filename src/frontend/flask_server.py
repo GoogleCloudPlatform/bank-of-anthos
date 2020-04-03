@@ -373,7 +373,8 @@ if __name__ == '__main__':
                                 '|%(pathname)s|%(lineno)d| %(message)s'),
                         datefmt='%Y-%m-%dT%H:%M:%S',
                         )
-    logging.getLogger().setLevel(logging.INFO)
+    # for the Flask server werkzeug logger
+    logging.getLogger('werkzeug').setLevel(logging.INFO)
 
     # register html template formatters
     APP.jinja_env.globals.update(format_timestamp_month=format_timestamp_month)
