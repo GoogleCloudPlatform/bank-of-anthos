@@ -94,6 +94,7 @@ def home():
         balance = req.json()
     except (requests.exceptions.RequestException, ValueError) as err:
         logging.error(str(err))
+
     # get history
     transaction_list = []
     try:
@@ -102,6 +103,7 @@ def home():
         transaction_list = req.json()
     except (requests.exceptions.RequestException, ValueError) as err:
         logging.error(str(err))
+
     # get contacts
     contacts = []
     try:
@@ -199,6 +201,7 @@ def deposit():
             return redirect(url_for('home', msg='Deposit accepted'))
     except requests.exceptions.RequestException as err:
         logging.error(str(err))
+
     return redirect(url_for('home', msg='Deposit failed'))
 
 def _submit_transaction(transaction_data):
@@ -301,7 +304,7 @@ def signup():
         # user created. Attempt login
         return _login_helper(request.form['username'],
                              request.form['password'])
-    logging.error(req.text)
+    logging.debug(req.text)
     return redirect(url_for('login', msg='Error: Account creation failed'))
 
 
@@ -325,7 +328,7 @@ def verify_token(token):
         jwt.decode(token, key=PUBLIC_KEY, algorithms='RS256', verify=True)
         return True
     except jwt.exceptions.InvalidTokenError as err:
-        logging.error(err)
+        logging.debug(err)
         return False
 
 
