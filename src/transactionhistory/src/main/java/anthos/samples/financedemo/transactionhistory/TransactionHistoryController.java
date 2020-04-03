@@ -56,6 +56,8 @@ public final class TransactionHistoryController
         new HashMap<String, List<TransactionHistoryEntry>>();
     private final LedgerReader reader;
     private boolean initialized = false;
+    private final int historyLimit =  Integer.parseInt(
+                                        System.getenv("HISTORY_LIMIT"));
 
     /**
      * TransactionHistoryController constructor
@@ -190,8 +192,9 @@ public final class TransactionHistoryController
             historyList = (LinkedList) this.historyMap.get(account);
         }
         historyList.addFirst(entry);
+        // Drop old transactions
+        if (historyList.size() > historyLimit) {
+            historyList.removeLast();
+        }
     }
-
-
-
 }
