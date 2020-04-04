@@ -13,5 +13,8 @@
 # limitations under the License.
 FROM postgres:10.4
 
-COPY 1_init_tables.sql /docker-entrypoint-initdb.d
-COPY 2_create_transactions.sh /docker-entrypoint-initdb.d
+COPY initdb/0_init_tables.sql /docker-entrypoint-initdb.d/0_init_tables.sql
+RUN chmod 755  /docker-entrypoint-initdb.d/0_init_tables.sql
+
+COPY initdb/1_create_transactions.sh /docker-entrypoint-initdb.d/1_create_transactions.sh
+RUN chmod 755  /docker-entrypoint-initdb.d/1_create_transactions.sh
