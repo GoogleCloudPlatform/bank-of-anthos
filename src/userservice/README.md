@@ -20,8 +20,8 @@ Implemented in Python with Flask.
   - a version string for the service
 - `PORT`
   - the port for the webserver
-- `ACCOUNTS_DB_ADDR`
-  - the address and port of the `accounts-db` service
+- `ACCOUNTS_DB_URI`
+  - the complete URI for the `accounts-db` database
 - `TOKEN_EXPIRY_SECONDS`
   - how long JWTs are valid before forcing user logout
 - `PRIV_KEY_PATH`
