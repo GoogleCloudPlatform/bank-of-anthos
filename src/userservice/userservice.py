@@ -23,9 +23,9 @@ import os
 import random
 import sys
 
+from flask import Flask, jsonify, request
 import bleach
 import bcrypt
-from flask import Flask, jsonify, request
 import jwt
 from sqlalchemy import create_engine, MetaData, Table, Column, String, Date, LargeBinary
 from sqlalchemy.exc import SQLAlchemyError

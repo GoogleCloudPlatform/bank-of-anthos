@@ -41,7 +41,7 @@ interface LedgerReaderCallback {
 @Component
 public final class LedgerReader {
 
-    private final Logger LOGGER =
+    private static final Logger LOGGER =
             Logger.getLogger(LedgerReader.class.getName());
 
     @Autowired
@@ -67,7 +67,7 @@ public final class LedgerReader {
         this.callback = callback;
         // get the latest transaction id in ledger
         this.latestId = dbRepo.latestId();
-        LOGGER.info(String.format("starting id: %d",latestId));
+        LOGGER.info(String.format("starting id: %d", latestId));
         this.backgroundThread = new Thread(
             new Runnable() {
                 @Override

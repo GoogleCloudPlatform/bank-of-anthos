@@ -23,8 +23,8 @@ import os
 import re
 import sys
 
-import bleach
 from flask import Flask, jsonify, request
+import bleach
 import jwt
 from sqlalchemy import create_engine, MetaData, Table, Column, String, Boolean
 from sqlalchemy.exc import SQLAlchemyError

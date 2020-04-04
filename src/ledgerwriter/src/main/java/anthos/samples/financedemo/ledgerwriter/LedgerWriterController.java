@@ -58,7 +58,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 public final class LedgerWriterController
         implements ApplicationListener<ContextRefreshedEvent> {
 
-    private final Logger LOGGER =
+    private static final Logger LOGGER =
             Logger.getLogger(LedgerWriterController.class.getName());
 
     @Autowired
