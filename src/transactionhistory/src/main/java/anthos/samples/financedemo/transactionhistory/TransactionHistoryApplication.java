@@ -16,14 +16,21 @@
 
 package anthos.samples.financedemo.transactionhistory;
 
+import java.util.logging.Logger;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * Entry point for the Transaction History Spring Boot application.
+ * Entry point for the TransactionHistory Spring Boot application.
+ *
+ * Microservice to track the transaction history for each bank account.
  */
 @SpringBootApplication
 public class TransactionHistoryApplication {
+
+    private static final Logger LOGGER =
+            Logger.getLogger(TransactionHistoryApplication.class.getName());
 
     private static final String[] EXPECTED_ENV_VARS = {
         "VERSION",
@@ -40,10 +47,12 @@ public class TransactionHistoryApplication {
         for (String v : EXPECTED_ENV_VARS) {
             String value = System.getenv(v);
             if (value == null) {
-                System.out.format("error: %s environment variable not set", v);
+                LOGGER.severe(String.format(
+                        "error: %s environment variable not set", v));
                 System.exit(1);
             }
         }
         SpringApplication.run(TransactionHistoryApplication.class, args);
+        LOGGER.info("Started TransactionHistory service.");
     }
 }

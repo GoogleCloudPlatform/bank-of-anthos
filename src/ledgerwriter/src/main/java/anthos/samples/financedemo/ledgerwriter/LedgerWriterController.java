@@ -32,6 +32,9 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -52,57 +55,72 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
 @RestController
-public final class LedgerWriterController {
+public final class LedgerWriterController
+        implements ApplicationListener<ContextRefreshedEvent> {
 
-    private final Logger logger =
+    private final Logger LOGGER =
             Logger.getLogger(LedgerWriterController.class.getName());
 
-    private final String ledgerStreamKey = System.getenv("LEDGER_STREAM");
-    private final String routingNum =  System.getenv("LOCAL_ROUTING_NUM");
-    private final String balancesUri = String.format("http://%s/balances",
-        System.getenv("BALANCES_API_ADDR"));
-    private final JWTVerifier verifier;
+    @Autowired
+    private TransactionRepository transactionRepository;
+
+    @Value("${LOCAL_ROUTING_NUM}")
+    private String localRoutingNum;
+    @Value("http://${BALANCES_API_ADDR}/balances")
+    private String balancesApiUri;
+    @Value("${VERSION}")
+    private String version;
+    @Value("${PUB_KEY_PATH}")
+    private String publicKeyPath;
+
+    private JWTVerifier verifier;
     // account ids should be 10 digits between 0 and 9
     private static final Pattern ACCT_REGEX = Pattern.compile("^[0-9]{10}$");
     // route numbers should be 9 digits between 0 and 9
     private static final Pattern ROUTE_REGEX = Pattern.compile("^[0-9]{9}$");
 
-    @Autowired
-    private TransactionRepository transactionRepository;
-
-    public LedgerWriterController() throws IOException,
-                                           NoSuchAlgorithmException,
-                                           InvalidKeySpecException {
+    /**
+     * Initializes a connection to the bank ledger.
+     */
+    @Override
+    public void onApplicationEvent(ContextRefreshedEvent event) {
         // load public key from file
-        String fPath = System.getenv("PUB_KEY_PATH");
-        String pubKeyStr  = new String(Files.readAllBytes(Paths.get(fPath)));
-        pubKeyStr = pubKeyStr.replaceFirst("-----BEGIN PUBLIC KEY-----", "");
-        pubKeyStr = pubKeyStr.replaceFirst("-----END PUBLIC KEY-----", "");
-        pubKeyStr = pubKeyStr.replaceAll("\\s", "");
-        byte[] pubKeyBytes = Base64.getDecoder().decode(pubKeyStr);
-        KeyFactory kf = KeyFactory.getInstance("RSA");
-        X509EncodedKeySpec keySpecX509 = new X509EncodedKeySpec(pubKeyBytes);
-        RSAPublicKey publicKey = (RSAPublicKey) kf.generatePublic(keySpecX509);
-        // set up verifier
-        Algorithm algorithm = Algorithm.RSA256(publicKey, null);
-        this.verifier = JWT.require(algorithm).build();
+        try {
+            String keyStr =
+                new String(Files.readAllBytes(Paths.get(publicKeyPath)));
+            keyStr = keyStr.replaceFirst("-----BEGIN PUBLIC KEY-----", "")
+                           .replaceFirst("-----END PUBLIC KEY-----", "")
+                           .replaceAll("\\s", "");
+            byte[] keyBytes = Base64.getDecoder().decode(keyStr);
+            KeyFactory kf = KeyFactory.getInstance("RSA");
+            X509EncodedKeySpec keySpecX509 = new X509EncodedKeySpec(keyBytes);
+            RSAPublicKey publicKey =
+                (RSAPublicKey) kf.generatePublic(keySpecX509);
+             // Initialize JWT verifier.
+            Algorithm algorithm = Algorithm.RSA256(publicKey, null);
+            this.verifier = JWT.require(algorithm).build();
+        } catch (IOException
+                | NoSuchAlgorithmException
+                | InvalidKeySpecException e) {
+            LOGGER.severe(e.toString());
+            System.exit(1);
+        }
     }
 
     /**
      * Version endpoint.
      *
-     * @return service version string
+     * @return  service version string
      */
     @GetMapping("/version")
     public ResponseEntity version() {
-        final String versionStr =  System.getenv("VERSION");
-        return new ResponseEntity<String>(versionStr, HttpStatus.OK);
+        return new ResponseEntity<String>(version, HttpStatus.OK);
     }
 
     /**
      * Readiness probe endpoint.
      *
-     * @return HTTP Status 200 if server is serving requests.
+     * @return HTTP Status 200 if server is ready to receive requests.
      */
     @GetMapping("/ready")
     @ResponseStatus(HttpStatus.OK)
@@ -113,8 +131,10 @@ public final class LedgerWriterController {
     /**
      * Submit a new transaction to the ledger.
      *
-     * @param Transaction to be submitted.
-     * @return HTTP Status 200 if transaction was successfully submitted.
+     * @param bearerToken  HTTP request 'Authorization' header
+     * @param transaction  transaction to submit
+     *
+     * @return  HTTP Status 200 if transaction was successfully submitted
      */
     @PostMapping(value = "/transactions", consumes = "application/json")
     @ResponseStatus(HttpStatus.OK)
@@ -127,35 +147,41 @@ public final class LedgerWriterController {
         try {
             final DecodedJWT jwt = this.verifier.verify(bearerToken);
             // validate transaction
-            validateTransaction(jwt.getClaim("acct").asString(),
-                                transaction,
-                                bearerToken);
+            validateTransaction(jwt.getClaim("acct").asString(), transaction);
+
+            if (transaction.getFromRoutingNum().equals(localRoutingNum)) {
+                checkAvailableBalance(bearerToken, transaction);
+            }
+
             // No exceptions thrown. Add to ledger.
             submitTransaction(transaction);
             return new ResponseEntity<String>("ok", HttpStatus.CREATED);
+
         } catch (JWTVerificationException e) {
             return new ResponseEntity<String>("not authorized",
                                               HttpStatus.UNAUTHORIZED);
-        } catch (RuntimeException e) {
+        } catch (IllegalArgumentException | IllegalStateException e) {
             return new ResponseEntity<String>(e.toString(),
                                               HttpStatus.BAD_REQUEST);
         }
     }
 
     /**
-     * Authenticate transaction details before adding to the ledger
+     * Authenticate transaction details before adding to the ledger.
+     *
      *   - Ensure sender is the same user authenticated by auth token
      *   - Ensure account and routing numbers are in the correct format
      *   - Ensure sender and receiver are different accounts
      *   - Ensure amount is positive, and sender has proper balance
      *
-     * @param authedAccount the currently authenticated user account
-     * @param transaction the transaction object
-     * @param bearerToken the token used to authenticate request
-     * @throws RuntimeException on validation error
+     * @param authedAccount  the currently authenticated user account
+     * @param transaction    the transaction object
+     * @param bearerToken    the token used to authenticate request
+     *
+     * @throws IllegalArgumentException  on validation error
      */
-    private void validateTransaction(String authedAcct, Transaction transaction,
-            String bearerToken) throws RuntimeException {
+    private void validateTransaction(String authedAcct, Transaction transaction)
+            throws IllegalArgumentException {
         final String fromAcct = transaction.getFromAccountNum();
         final String fromRoute = transaction.getFromRoutingNum();
         final String toAcct = transaction.getToAccountNum();
@@ -163,44 +189,57 @@ public final class LedgerWriterController {
         final Integer amount = transaction.getAmount();
 
         // If this is an internal transaction,
-        // ensure it originated from the authenticated user
-        if (fromRoute.equals(routingNum) && !fromAcct.equals(authedAcct)) {
-            throw new RuntimeException("sender not authenticated");
+        // ensure it originated from the authenticated user.
+        if (fromRoute.equals(localRoutingNum) && !fromAcct.equals(authedAcct)) {
+            throw new IllegalArgumentException("sender not authenticated");
         }
-        // Validate account and routing numbers
+        // Validate account and routing numbers.
         if (!ACCT_REGEX.matcher(fromAcct).matches()
               || !ACCT_REGEX.matcher(toAcct).matches()
               || !ROUTE_REGEX.matcher(fromRoute).matches()
               || !ROUTE_REGEX.matcher(toRoute).matches()) {
-            throw new RuntimeException("invalid account details");
+            throw new IllegalArgumentException("invalid account details");
 
         }
-        // Ensure sender isn't receiver
+        // Ensure sender isn't receiver.
         if (fromAcct.equals(toAcct) && fromRoute.equals(toRoute)) {
-            throw new RuntimeException("can't send to self");
+            throw new IllegalArgumentException("can't send to self");
         }
         // Ensure amount is valid value.
         if (amount <= 0) {
-            throw new RuntimeException("invalid amount");
+            throw new IllegalArgumentException("invalid amount");
         }
+    }
+
+    /**
+     * Check there is available funds for this transaction.
+     *
+     * @param bearerToken  the token used to authenticate request
+     * @param transaction  the transaction object
+     *
+     * @throws IllegalStateException  if insufficient funds
+     */
+    private void checkAvailableBalance(String bearerToken,
+            Transaction transaction) throws IllegalStateException {
+        final String fromAcct = transaction.getFromAccountNum();
+        final Integer amount = transaction.getAmount();
+
         // Ensure sender balance can cover transaction.
-        if (fromRoute.equals(routingNum)) {
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Authorization", "Bearer " + bearerToken);
-            HttpEntity entity = new HttpEntity(headers);
-            RestTemplate restTemplate = new RestTemplate();
-            String uri = balancesUri + "/" + fromAcct;
-            ResponseEntity<Integer> response = restTemplate.exchange(
-                uri, HttpMethod.GET, entity, Integer.class);
-            Integer senderBalance = response.getBody();
-            if (senderBalance < amount) {
-                throw new RuntimeException("insufficient balance");
-            }
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + bearerToken);
+        HttpEntity entity = new HttpEntity(headers);
+        RestTemplate restTemplate = new RestTemplate();
+        String uri = balancesApiUri + "/" + fromAcct;
+        ResponseEntity<Integer> response = restTemplate.exchange(
+            uri, HttpMethod.GET, entity, Integer.class);
+        Integer senderBalance = response.getBody();
+        if (senderBalance < amount) {
+            throw new IllegalStateException("insufficient balance");
         }
     }
 
     private void submitTransaction(Transaction transaction) {
-        logger.fine("Submitting transaction " + transaction.toString());
+        LOGGER.fine("Submitting transaction " + transaction.toString());
         transactionRepository.save(transaction);
     }
 }

@@ -24,6 +24,10 @@ import org.springframework.stereotype.Component;
 
 /**
  * Defines an interface for reacting to new transactions
+ *
+ * @param accountId    the account associated with the transaction
+ * @param amount       the amount of change in balance for the account
+ * @param transaction  the full transaction object
  */
 interface LedgerReaderCallback {
     void processTransaction(String accountId,
@@ -36,30 +40,34 @@ interface LedgerReaderCallback {
  */
 @Component
 public final class LedgerReader {
-    private final Logger logger =
+
+    private final Logger LOGGER =
             Logger.getLogger(LedgerReader.class.getName());
-    private final String localRoutingNum =  System.getenv("LOCAL_ROUTING_NUM");
-    private Thread backgroundThread;
-    private LedgerReaderCallback callback;
-    private long latestId = -1;
 
     @Autowired
     private TransactionRepository dbRepo;
 
     @Value("${POLL_MS:100}")
     private Integer pollMs;
+    @Value("${LOCAL_ROUTING_NUM}")
+    private String localRoutingNum;
+
+    private Thread backgroundThread;
+    private LedgerReaderCallback callback;
+    private long latestId = -1;
 
     /**
      * LedgerReader setup
      * Synchronously loads all existing transactions, and then starts
      * a background thread to listen for future transactions
-     * @param listener to process transactions
+     *
+     * @param callback to process transactions
      */
     public void startWithCallback(LedgerReaderCallback callback) {
         this.callback = callback;
         // get the latest transaction id in ledger
         this.latestId = dbRepo.latestId();
-        logger.info(String.format("starting id: %d", this.latestId));
+        LOGGER.info(String.format("starting id: %d",latestId));
         this.backgroundThread = new Thread(
             new Runnable() {
                 @Override
@@ -68,13 +76,13 @@ public final class LedgerReader {
                         try {
                             Thread.sleep(pollMs);
                         } catch (InterruptedException e) {
-                            logger.warning("LedgerReader sleep interrupted");
+                            LOGGER.warning("LedgerReader sleep interrupted");
                         }
                         latestId = pollTransactions(latestId);
                     }
                 }
             });
-        logger.info("Starting background thread.");
+        LOGGER.info("Starting background thread.");
         this.backgroundThread.start();
     }
 
@@ -103,7 +111,7 @@ public final class LedgerReader {
                                                 transaction);
                 }
             } else {
-                logger.warning("Listener not set up.");
+                LOGGER.warning("Listener not set up.");
             }
             latestId = transaction.getTransactionId();
         }

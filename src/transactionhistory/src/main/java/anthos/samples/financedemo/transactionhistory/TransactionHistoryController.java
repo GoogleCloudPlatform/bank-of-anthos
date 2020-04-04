@@ -59,23 +59,24 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
 /**
- * REST service to retrieve a list of recent transactions for a user
+ * Controller for the TransactionHistory service.
+ *
+ * Functions to show the transaction history for each user account.
  */
 @RestController
 public final class TransactionHistoryController
         implements ApplicationListener<ContextRefreshedEvent> {
 
-    private final Logger logger =
+    private static final Logger LOGGER =
             Logger.getLogger(TransactionHistoryController.class.getName());
-
-    private JWTVerifier verifier;
-    private LoadingCache<String, LinkedList<Transaction>> cache;
 
     @Autowired
     private TransactionRepository dbRepo;
     @Autowired
     private LedgerReader ledgerReader;
 
+    @Value("${EXTRA_LATENCY_MILLIS:#{null}}")
+    private Integer extraLatencyMillis;
     @Value("${CACHE_SIZE:1000}")
     private Integer expireSize;
     @Value("${CACHE_MINUTES:60}")
@@ -84,16 +85,23 @@ public final class TransactionHistoryController
     private Integer historyLimit;
     @Value("${LOCAL_ROUTING_NUM}")
     private String localRoutingNum;
+    @Value("${VERSION}")
+    private String version;
+    @Value("${PUB_KEY_PATH}")
+    private String publicKeyPath;
+
+    private JWTVerifier verifier;
+    private LoadingCache<String, LinkedList<Transaction>> cache;
 
     /**
-     * TransactionHistoryController initialization
+     * Initializes a connection to the bank ledger.
      */
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
+        // Initialize JWT verifier.
         try {
-            // load public key from file
-            String fPath = System.getenv("PUB_KEY_PATH");
-            String keyStr  = new String(Files.readAllBytes(Paths.get(fPath)));
+            String keyStr =
+                new String(Files.readAllBytes(Paths.get(publicKeyPath)));
             keyStr = keyStr.replaceFirst("-----BEGIN PUBLIC KEY-----", "")
                            .replaceFirst("-----END PUBLIC KEY-----", "")
                            .replaceAll("\\s", "");
@@ -102,20 +110,19 @@ public final class TransactionHistoryController
             X509EncodedKeySpec keySpecX509 = new X509EncodedKeySpec(keyBytes);
             RSAPublicKey publicKey =
                 (RSAPublicKey) kf.generatePublic(keySpecX509);
-            // set up verifier
             Algorithm algorithm = Algorithm.RSA256(publicKey, null);
             this.verifier = JWT.require(algorithm).build();
         } catch (IOException
                  | NoSuchAlgorithmException
                  | InvalidKeySpecException e) {
-            logger.severe(e.toString());
+            LOGGER.severe(e.toString());
             System.exit(1);
         }
-        // set up cache
+        // Initialize cache
         CacheLoader load = new CacheLoader<String, LinkedList<Transaction>>() {
             @Override
             public LinkedList<Transaction> load(String accountId) {
-                logger.fine("loaded from db");
+                LOGGER.fine("loaded from db");
                 Pageable request = new PageRequest(0, historyLimit);
                 return dbRepo.findForAccount(accountId,
                                              localRoutingNum,
@@ -126,11 +133,11 @@ public final class TransactionHistoryController
                             .maximumSize(expireSize)
                             .expireAfterWrite(expireMinutes, TimeUnit.MINUTES)
                             .build(load);
-        // start background ledger reader with callback updating the cache
+        // Initialize transaction processor.
         this.ledgerReader.startWithCallback(
             (String accountId, Integer amount, Transaction transaction) -> {
                 if (cache.asMap().containsKey(accountId)) {
-                    logger.fine("modifying cache: " + accountId);
+                    LOGGER.fine("modifying cache: " + accountId);
                     LinkedList<Transaction> tList = cache.asMap()
                                                          .get(accountId);
                     tList.addFirst(transaction);
@@ -147,18 +154,17 @@ public final class TransactionHistoryController
    /**
      * Version endpoint.
      *
-     * @return service version string
+     * @return  service version string
      */
     @GetMapping("/version")
     public ResponseEntity version() {
-        final String versionStr =  System.getenv("VERSION");
-        return new ResponseEntity<String>(versionStr, HttpStatus.OK);
+        return new ResponseEntity<String>(version, HttpStatus.OK);
     }
 
     /**
      * Readiness probe endpoint.
      *
-     * @return HTTP Status 200 if server is initialized and serving requests.
+     * @return HTTP Status 200 if server is ready to receive requests.
      */
     @GetMapping("/ready")
     @ResponseStatus(HttpStatus.OK)
@@ -169,13 +175,13 @@ public final class TransactionHistoryController
     /**
      * Liveness probe endpoint.
      *
-     * @return HTTP Status 200 if server is healthy.
+     * @return HTTP Status 200 if server is healthy and serving requests.
      */
     @GetMapping("/healthy")
     public ResponseEntity liveness() {
-        if (!this.ledgerReader.isAlive()) {
-            // background thread died. Abort
-            return new ResponseEntity<String>("LedgerReader not healthy",
+        if (!ledgerReader.isAlive()) {
+            // background thread died.
+            return new ResponseEntity<String>("Ledger reader not healthy",
                                               HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>("ok", HttpStatus.OK);
@@ -185,20 +191,20 @@ public final class TransactionHistoryController
      * Return a list of transactions for the specified account.
      *
      * The currently authenticated user must be allowed to access the account.
-     *
-     * @param accountId the account to get transactions for.
-     * @return a list of transactions for this account.
+     * @param bearerToken  HTTP request 'Authorization' header
+     * @param accountId    the account to get transactions for.
+     * @return             a list of transactions for this account.
      */
     @GetMapping("/transactions/{accountId}")
     public ResponseEntity<?> getTransactions(
             @RequestHeader("Authorization") String bearerToken,
             @PathVariable String accountId) {
-        logger.fine("request from " + accountId);
+        LOGGER.fine("request from " + accountId);
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             bearerToken = bearerToken.split("Bearer ")[1];
         }
         try {
-            DecodedJWT jwt = this.verifier.verify(bearerToken);
+            DecodedJWT jwt = verifier.verify(bearerToken);
             // Check that the authenticated user can access this account.
             if (!accountId.equals(jwt.getClaim("acct").asString())) {
                 return new ResponseEntity<String>("not authorized",
@@ -209,10 +215,9 @@ public final class TransactionHistoryController
             List<Transaction> historyList = cache.get(accountId);
 
             // Set artificial extra latency.
-            String latency = System.getenv("EXTRA_LATENCY_MILLIS");
-            if (latency != null) {
+            if (extraLatencyMillis != null) {
                 try {
-                    Thread.sleep(Integer.parseInt(latency));
+                    Thread.sleep(extraLatencyMillis);
                 } catch (InterruptedException e) {
                     // Fake latency interrupted. Continue.
                 }

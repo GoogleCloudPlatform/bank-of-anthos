@@ -16,14 +16,21 @@
 
 package anthos.samples.financedemo.ledgerwriter;
 
+import java.util.logging.Logger;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
  * Entry point for the LedgerWriter Spring Boot application.
+ *
+ * Microservice to accept new transactions for the bank ledger.
  */
 @SpringBootApplication
 public class LedgerWriterApplication {
+
+    private static final Logger LOGGER =
+            Logger.getLogger(LedgerWriterApplication.class.getName());
 
     private static final String[] EXPECTED_ENV_VARS = {
         "VERSION",
@@ -41,10 +48,12 @@ public class LedgerWriterApplication {
         for (String v : EXPECTED_ENV_VARS) {
             String value = System.getenv(v);
             if (value == null) {
-                System.out.format("error: %s environment variable not set", v);
+                LOGGER.severe(String.format(
+                        "error: %s environment variable not set", v));
                 System.exit(1);
             }
         }
         SpringApplication.run(LedgerWriterApplication.class, args);
+        LOGGER.info("Started LedgerWriter service.");
     }
 }

@@ -60,16 +60,11 @@ import com.google.common.cache.LoadingCache;
 public final class BalanceReaderController
         implements ApplicationListener<ContextRefreshedEvent> {
 
-    private final Logger logger =
+    private static final Logger LOGGER =
             Logger.getLogger(BalanceReaderController.class.getName());
-
-    private JWTVerifier verifier;
-
-    private LoadingCache<String, Long> cache;
 
     @Autowired
     private LedgerReader ledgerReader;
-
     @Autowired
     private TransactionRepository dbRepo;
 
@@ -77,16 +72,23 @@ public final class BalanceReaderController
     private long expireSize;
     @Value("${LOCAL_ROUTING_NUM}")
     private String localRoutingNum;
+    @Value("${VERSION}")
+    private String version;
+    @Value("${PUB_KEY_PATH}")
+    private String publicKeyPath;
+
+    private JWTVerifier verifier;
+    private LoadingCache<String, Long> cache;
 
     /**
-     * BalanceReaderController initialization
+     * Initializes a connection to the bank ledger.
      */
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
+        // Initialize JWT verifier.
         try {
-            // load public key from file
-            String fPath = System.getenv("PUB_KEY_PATH");
-            String keyStr  = new String(Files.readAllBytes(Paths.get(fPath)));
+            String keyStr =
+                new String(Files.readAllBytes(Paths.get(publicKeyPath)));
             keyStr = keyStr.replaceFirst("-----BEGIN PUBLIC KEY-----", "")
                            .replaceFirst("-----END PUBLIC KEY-----", "")
                            .replaceAll("\\s", "");
@@ -95,20 +97,19 @@ public final class BalanceReaderController
             X509EncodedKeySpec keySpecX509 = new X509EncodedKeySpec(keyBytes);
             RSAPublicKey publicKey =
                 (RSAPublicKey) kf.generatePublic(keySpecX509);
-            // set up verifier
             Algorithm algorithm = Algorithm.RSA256(publicKey, null);
             this.verifier = JWT.require(algorithm).build();
         } catch (IOException
                 | NoSuchAlgorithmException
                 | InvalidKeySpecException e) {
-            logger.severe(e.toString());
+            LOGGER.severe(e.toString());
             System.exit(1);
         }
-        // set up cache
+        // Initialize cache
         CacheLoader loader =  new CacheLoader<String, Long>() {
             @Override
             public Long load(String accountId) {
-                logger.fine("loaded from db");
+                LOGGER.fine("loaded from db");
                 Long balance = dbRepo.findBalance(accountId, localRoutingNum);
                 if (balance == null) {
                     balance = 0L;
@@ -119,11 +120,11 @@ public final class BalanceReaderController
         cache = CacheBuilder.newBuilder()
                             .maximumSize(expireSize)
                             .build(loader);
-        // start background ledger reader with callback updating the cache
+        // Initialize transaction processor.
         this.ledgerReader.startWithCallback(
             (String accountId, Integer amount, Transaction transaction) -> {
                 if (cache.asMap().containsKey(accountId)) {
-                    logger.fine("modifying cache: " + accountId);
+                    LOGGER.fine("modifying cache: " + accountId);
                     Long prevBalance = cache.asMap().get(accountId);
                     cache.put(accountId, prevBalance + amount);
                 }
@@ -135,18 +136,17 @@ public final class BalanceReaderController
 
      * Version endpoint.
      *
-     * @return service version string
+     * @return  service version string
      */
     @GetMapping("/version")
     public ResponseEntity version() {
-        final String versionStr =  System.getenv("VERSION");
-        return new ResponseEntity<String>(versionStr, HttpStatus.OK);
+        return new ResponseEntity<String>(version, HttpStatus.OK);
     }
 
     /**
      * Readiness probe endpoint.
      *
-     * @return HTTP Status 200 if server is initialized and serving requests.
+     * @return HTTP Status 200 if server is ready to receive requests.
      */
     @GetMapping("/ready")
     @ResponseStatus(HttpStatus.OK)
@@ -157,13 +157,13 @@ public final class BalanceReaderController
     /**
      * Liveness probe endpoint.
      *
-     * @return HTTP Status 200 if server is healthy.
+     * @return HTTP Status 200 if server is healthy and serving requests.
      */
     @GetMapping("/healthy")
     public ResponseEntity liveness() {
         if (!ledgerReader.isAlive()) {
-            // background thread died. Abort
-            return new ResponseEntity<String>("LedgerReader not healthy",
+            // Background thread died.
+            return new ResponseEntity<String>("Ledger reader not healthy",
                                               HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>("ok", HttpStatus.OK);
@@ -174,28 +174,27 @@ public final class BalanceReaderController
      *
      * The currently authenticated user must be allowed to access the account.
      *
-     * @param accountId the account to get the balance for.
-     * @return the balance amount.
+     * @param bearerToken  HTTP request 'Authorization' header
+     * @param accountId    the account to get the balance for
+     * @return             the balance of the account
      */
     @GetMapping("/balances/{accountId}")
     public ResponseEntity<?> getBalance(
             @RequestHeader("Authorization") String bearerToken,
             @PathVariable String accountId) {
-        logger.fine("request from: " + accountId);
+        LOGGER.fine("request from: " + accountId);
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             bearerToken = bearerToken.split("Bearer ")[1];
         }
         try {
-            DecodedJWT jwt = this.verifier.verify(bearerToken);
+            DecodedJWT jwt = verifier.verify(bearerToken);
             // Check that the authenticated user can access this account.
             if (!accountId.equals(jwt.getClaim("acct").asString())) {
                 return new ResponseEntity<String>("not authorized",
                                                   HttpStatus.UNAUTHORIZED);
             }
-
             // Load from cache
             Long balance = cache.get(accountId);
-
             return new ResponseEntity<Long>(balance, HttpStatus.OK);
         } catch (JWTVerificationException e) {
             return new ResponseEntity<String>("not authorized",

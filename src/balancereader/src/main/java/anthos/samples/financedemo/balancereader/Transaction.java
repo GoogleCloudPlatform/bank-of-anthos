@@ -61,32 +61,38 @@ public final class Transaction {
     @JsonProperty("timestamp")
     private Date timestamp;
 
+    private static final double CENTS_PER_DOLLAR = 100.0;
+
     public long getTransactionId() {
-        return this.transactionId;
+        return transactionId;
     }
 
     public String getFromAccountNum() {
-        return this.fromAccountNum;
+        return fromAccountNum;
     }
 
     public String getFromRoutingNum() {
-        return this.fromRoutingNum;
+        return fromRoutingNum;
     }
 
     public String getToAccountNum() {
-        return this.toAccountNum;
+        return toAccountNum;
     }
 
     public String getToRoutingNum() {
-        return this.toRoutingNum;
+        return toRoutingNum;
     }
 
     public Integer getAmount() {
-        return this.amount;
+        return amount;
     }
-
+    /**
+     * String representation.
+     *
+     * Formatting = "{accountNum}:{type}:{amount}"
+     */
     public String toString() {
-        return String.format("%d: %s->%s",
-                amount, fromAccountNum, toAccountNum);
+        return String.format("%s->$%.2f->%s",
+                fromAccountNum, amount / CENTS_PER_DOLLAR, toAccountNum);
     }
 }
