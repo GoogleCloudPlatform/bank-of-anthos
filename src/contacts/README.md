@@ -21,8 +21,8 @@ Implemented in Python with Flask.
   - a version string for the service
 - `PORT`
   - the port for the webserver
-- `ACCOUNTS_DB_ADDR`
-  - the address and port of the `accounts-db` service
+- `ACCOUNTS_DB_URI`
+  - the complete URI for the `accounts-db` database
 - `LOCAL_ROUTING_NUM`
   - the routing number for our bank
 - `PUB_KEY_PATH`
