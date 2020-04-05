@@ -214,7 +214,7 @@ limitations under the License.
                           </div>
                           <div class="col-md-6">
                             <label class="text-uppercase text-muted secondary-text" for="birthday">Birthday (mm/dd/yyyy)</label>
-                            <input type="text" class="form-control" id="birthday" name="birthday" required>
+                            <input type="date" class="form-control" id="birthday" name="birthday"  min="1900-01-01" required>
                             <div class="invalid-feedback">
                               Valid birthday is required.
                             </div>
@@ -345,21 +345,22 @@ limitations under the License.
       <script src="https://unpkg.com/bootstrap-material-design@4.1.1/dist/js/bootstrap-material-design.js" integrity="sha384-CauSuKpEqAFajSpkdjv3z9t8E7RlpJ1UP0lKM/+NdtSarroVKu069AlsRPKkFBz9" crossorigin="anonymous"></script>
       <script>
         // Sign-up validation
-        $( document ).ready(function() {
-          var form = document.getElementById("signup-form");
+        document.addEventListener("DOMContentLoaded", function(e) { 
+          var form = document.querySelector("#signup-form");
+          // Add max attribute to birthday input
+          var today = new Date();
+          var maxDate = today.toISOString().split("T")[0];
+          document.querySelector("#birthday").setAttribute("max", maxDate);
+          // Add submit listener to signup form
           form.addEventListener("submit", function(event) {
-            var passwordsMatch = $('#password').val() == $('#password-repeat').val();
-            if (form.checkValidity() === false) {
+            var passwordsMatch = document.querySelector("#password").value == document.querySelector("#password-repeat").value;
+            if (!form.checkValidity() || !passwordsMatch) {
               event.preventDefault();
               event.stopPropagation();
+              if (!passwordsMatch) document.querySelector("#alertBanner").classList.remove("hidden");
+              window.scrollTo({ top: 0, behavior: "auto" });
             }
-            else if (!passwordsMatch) {
-              event.preventDefault();
-              event.stopPropagation();
-              $('#alertBanner').removeClass('hidden');
-              window.scrollTo({ top: 0, behavior: 'auto' });
-            }
-            form.classList.add('was-validated');
+            form.classList.add("was-validated");
           });
         });
       </script>

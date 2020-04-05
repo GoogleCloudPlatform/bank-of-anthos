@@ -181,8 +181,10 @@ p {
 .fa-icon-spacer {
   margin-left: 8px;
 }
-.deposit-input {
+.modal-icon {
+  font-size: 18px !important;
   margin-right: 8px;
+  width: 18px;
 }
 .amount-font {
   font-size: 28px !important;
