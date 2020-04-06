@@ -26,15 +26,23 @@ Bank of Anthos was developed to create an end-to-end sample demonstrating Anthos
 
 ## Installation
 
-### 1 - Project setup
+### 1 - Clone the repo
 
-Create a GCP project or use an existing project. Then, set the Project ID variable.
+Clone this repository to your local environment.
+
+```
+git clone https://github.com/GoogleCloudPlatform/bank-of-anthos.git
+```
+
+### 2 - Project setup
+
+[Create a Google Cloud Platform project](https://cloud.google.com/resource-manager/docs/creating-managing-projects#creating_a_project) or use an existing project. Then, set the Project ID variable.
 
 ```
 PROJECT_ID=<your-project-id>
 ```
 
-### 1 - Create a Kubernetes cluster
+### 3 - Create a Kubernetes cluster
 
 ```
 gcloud beta container clusters create bank-of-anthos \
@@ -42,7 +50,7 @@ gcloud beta container clusters create bank-of-anthos \
     --machine-type=n1-standard-2 --num-nodes=4
 ```
 
-### 2 - Generate RSA key pair secret
+### 4 - Generate RSA key pair secret
 
 ```
 openssl genrsa -out jwtRS256.key 4096
@@ -50,7 +58,7 @@ openssl rsa -in jwtRS256.key -outform PEM -pubout -out jwtRS256.key.pub
 kubectl create secret generic jwt-key --from-file=./jwtRS256.key --from-file=./jwtRS256.key.pub
 ```
 
-### 3 - Deploy Kubernetes manifests
+### 5 - Deploy Kubernetes manifests
 
 ```
 kubectl apply -f ./kubernetes-manifests
@@ -89,6 +97,8 @@ kubectl get svc frontend | awk '{print $4}'
 EXTERNAL-IP
 35.223.69.29
 ```
+
+**Note:** you may see a `<pending>` IP for a few minutes, while the GCP load balancer is provisioned.
 
 ### 5 - Navigate to the web frontend
 
