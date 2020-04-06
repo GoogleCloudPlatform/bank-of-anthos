@@ -53,7 +53,6 @@ def get_contacts(username):
     This list is used for populating Payment and Deposit fields.
 
     Return: a list of contacts
-            {'account_list': [account1, account2, ...]}
     """
     auth_header = request.headers.get('Authorization')
     if auth_header:
@@ -64,15 +63,14 @@ def get_contacts(username):
         auth_payload = jwt.decode(token, key=PUBLIC_KEY, algorithms='RS256')
         if username != auth_payload['user']:
             raise PermissionError
-
         contacts_list = _get_contacts(username)
+        return jsonify(contacts_list), 200
     except (PermissionError, jwt.exceptions.InvalidTokenError):
-        return jsonify({'msg': 'authentication denied'}), 401
+        return 'authentication denied', 401
     except SQLAlchemyError as err:
         logging.error(err)
-        return jsonify({'error': 'failed to retrieve contacts list'}), 500
+        return 'failed to retrieve contacts list', 500
 
-    return jsonify({'account_list': contacts_list}), 200
 
 
 @APP.route('/contacts/<username>', methods=['POST'])
@@ -196,7 +194,7 @@ def _shutdown():
         DB_CONN.close()
     except NameError as e:
         # catch name error when DB_CONN not set up
-        logging.warning(e)
+        pass
     logging.info("Stopping flask.")
     logging.shutdown()
 

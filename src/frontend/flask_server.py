@@ -108,8 +108,9 @@ def home():
     contacts = []
     try:
         url = '{}/{}'.format(APP.config["CONTACTS_URI"], username)
-        req = requests.get(url=url, headers=hed)
-        contacts = req.json()['account_list']
+        response = requests.get(url=url, headers=hed)
+        if response:
+            contacts = response.json()
     except (requests.exceptions.RequestException, ValueError) as err:
         logging.error(str(err))
 
