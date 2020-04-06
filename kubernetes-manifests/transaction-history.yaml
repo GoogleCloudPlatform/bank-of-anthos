@@ -35,7 +35,6 @@ spec:
       containers:
       - name: history
         image: gcr.io/bank-of-anthos/transactionhistory
-        imagePullPolicy: Always
         volumeMounts:
         - name: publickey
           mountPath: "/root/.ssh"

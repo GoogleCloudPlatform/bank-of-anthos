@@ -34,7 +34,6 @@ spec:
       containers:
       - name: contacts
         image: gcr.io/bank-of-anthos/contacts
-        imagePullPolicy: Always
         volumeMounts:
         - name: publickey
           mountPath: "/root/.ssh"
