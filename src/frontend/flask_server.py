@@ -90,20 +90,20 @@ def home():
     balance = None
     try:
         url = '{}/{}'.format(APP.config["BALANCES_URI"], account_id)
-        req = requests.get(url=url, headers=hed)
-        balance = req.json()
+        response = requests.get(url=url, headers=hed)
+        if response:
+            balance = response.json()
     except (requests.exceptions.RequestException, ValueError) as err:
         logging.error(str(err))
-
     # get history
     transaction_list = None
     try:
         url = '{}/{}'.format(APP.config["HISTORY_URI"], account_id)
-        req = requests.get(url=url, headers=hed)
-        transaction_list = req.json()
+        response = requests.get(url=url, headers=hed)
+        if response:
+            transaction_list = response.json()
     except (requests.exceptions.RequestException, ValueError) as err:
         logging.error(str(err))
-
     # get contacts
     contacts = []
     try:
