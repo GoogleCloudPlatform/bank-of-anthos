@@ -16,6 +16,8 @@
 
 package anthos.samples.financedemo.transactionhistory;
 
+import java.lang.IllegalStateException;
+
 import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,8 +62,13 @@ public final class LedgerReader {
      * a background thread to listen for future transactions
      *
      * @param callback to process transactions
+     * @throws IllegalStateException if callback is null
      */
-    public void startWithCallback(LedgerReaderCallback callback) {
+    public void startWithCallback(LedgerReaderCallback callback)
+            throws IllegalStateException {
+        if (callback == null) {
+            throw new IllegalStateException("callback is null");
+        }
         this.callback = callback;
         // get the latest transaction id in ledger
         this.latestId = dbRepo.latestId();
@@ -97,11 +104,7 @@ public final class LedgerReader {
         Iterable<Transaction> transactionList = dbRepo.findLatest(startingId);
 
         for (Transaction transaction : transactionList) {
-            if (callback != null) {
-                callback.processTransaction(transaction);
-            } else {
-                LOGGER.warning("Listener not set up.");
-            }
+            callback.processTransaction(transaction);
             latestId = transaction.getTransactionId();
         }
         return latestId;
