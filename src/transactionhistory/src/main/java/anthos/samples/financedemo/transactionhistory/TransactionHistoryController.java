@@ -129,7 +129,7 @@ public final class TransactionHistoryController {
                             .build(load);
         // Initialize transaction processor.
         this.ledgerReader = reader;
-        this.ledgerReader.startWithCallback( transaction -> {
+        this.ledgerReader.startWithCallback(transaction -> {
             final String fromId = transaction.getFromAccountNum();
             final String fromRouting = transaction.getFromRoutingNum();
             final String toId = transaction.getToAccountNum();
@@ -152,7 +152,7 @@ public final class TransactionHistoryController {
      * @param accountId   the accountId associated with the transaction
      * @param transaction the full transaction object
      */
-    private void processTransaction(String accountId, Transaction transaction){
+    private void processTransaction(String accountId, Transaction transaction) {
         LOGGER.fine("modifying cache: " + accountId);
         Deque<Transaction> tList = this.cache.asMap()
                                              .get(accountId);
