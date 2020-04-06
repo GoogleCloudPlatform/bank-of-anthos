@@ -46,7 +46,7 @@ limitations under the License.
                   </a>
                   <div class="dropdown-menu" aria-labelledby="accountDropdown">
                     <form id="logout-form" method="POST" action="/logout">
-                      <a class="dropdown-item" onclick="document.getElementById('logout-form').submit();">Sign out<i class="fa-icon-spacer fas fa-sign-out-alt"></i></a>
+                      <a class="dropdown-item" onclick="document.querySelector('#logout-form').submit();">Sign out<i class="fa-icon-spacer fas fa-sign-out-alt"></i></a>
                     </form>
                   </div>
                 </li>
@@ -106,7 +106,7 @@ limitations under the License.
           <div class="col-lg-8">
             <div class="row">
               <div class="col-lg-6">
-                <div class="card card-button" data-toggle="modal" data-target="#depositFunds">
+                <div class="card card-button" data-toggle="modal" data-target="#depositFunds" data-keyboard="false" data-backdrop="static">
                   <div class="card-body">
                     <div class="row align-items-center">
                       <div class="col">
@@ -122,7 +122,7 @@ limitations under the License.
                 </div>
               </div>
               <div class="col-lg-6">
-                <div class="card card-button" data-toggle="modal" data-target="#sendPayment">
+                <div class="card card-button" data-toggle="modal" data-target="#sendPayment" data-keyboard="false" data-backdrop="static">
                   <div class="card-body">
                     <div class="row align-items-center">
                       <div class="col">
@@ -239,12 +239,12 @@ limitations under the License.
                           <option value="add">New External Account</option>
                         </select>
                         <div id="otherDepositInputs" class="hidden">
-                          <div id="alertBanner" class="alert alert-danger mb-4" role="alert">
-                            <span class="alert-icon mr-2 material-icons">error</span>Warning: this website is a simulation. Please don't include real personal information
+                          <div id="alertBanner" class="alert alert-danger mt-3 mb-3" role="alert">
+                            <span class="alert-icon mr-2 material-icons">error</span><strong>Warning</strong>: This website is a simulation. Please don't include real personal information.
                           </div>
                           <div class="input-group mb-3">
                             <div class="input-group-prepend">
-                              <span class="input-group-text"><strong class="deposit-input">#</strong></span>
+                              <span class="input-group-text"><strong class="modal-icon">#</strong></span>
                             </div>
                             <input class="form-control" type="number" step='1' id="external_account_num" name="external_account_num" min=1000000000 max=9999999999  placeholder="Account Number"/>
                             <div class="invalid-feedback">
@@ -253,7 +253,7 @@ limitations under the License.
                           </div>
                           <div class="input-group mb-3">
                             <div class="input-group-prepend">
-                              <span class="input-group-text"><span class="amount-font material-icons">account_balance</span></span>
+                              <span class="input-group-text"><span class="modal-icon material-icons">account_balance</span></span>
                             </div>
                             <input class="form-control" type="number" step='1' id="external_routing_num" name="external_routing_num" min=100000000 max=999999999  placeholder="Routing Number"/>
                             <div class="invalid-feedback">
@@ -262,7 +262,7 @@ limitations under the License.
                           </div>
                           <div class="input-group mb-3">
                             <div class="input-group-prepend">
-                              <span class="input-group-text"><span class="amount-font material-icons">label</span></span>
+                              <span class="input-group-text"><span class="modal-icon material-icons">label</span></span>
                             </div>
                             <input class="form-control"  type="text" id="external_label" name="external_label" placeholder="Account Label (Optional)"/>
                           </div>
@@ -271,10 +271,10 @@ limitations under the License.
                       <div class="col-md-10 offset-md-1">
                         <label class="text-uppercase text-muted secondary-text mb-1" for="deposit-amount">Deposit Amount</label>
                         <div class="input-group mb-3">
-                          <div class="input-group-prepend">
+                          <div class="input-group-prepend mr-2">
                             <span class="input-group-text"><span class="amount-font material-icons">attach_money</span></span>
                           </div>
-                          <input class="form-control amount-font" type="number" step='0.01' id="deposit-amount" name="amount" placeholder=0.00 min=0.01 aria-label="Amount (to the nearest dollar)" required>
+                          <input class="form-control amount-font" type="number" autocomplete="off" step="0.01" id="deposit-amount" name="amount" placeholder="0.00" min="0.01" max="500000.00" required>
                           <div class="invalid-feedback">
                             Please enter a valid amount.
                           </div>
@@ -318,7 +318,7 @@ limitations under the License.
                       <div id="otherAccountInputs" class="hidden">
                         <div class="input-group mb-3">
                           <div class="input-group-prepend">
-                            <span class="input-group-text"><strong class="deposit-input">#</strong></span>
+                            <span class="input-group-text"><strong class="modal-icon">#</strong></span>
                           </div>
                           <input class="form-control" type="number" step='1' id="contact_account_num" name="contact_account_num" min=1000000000 max=9999999999  placeholder="Account Number"/>
                           <div class="invalid-feedback">
@@ -327,7 +327,7 @@ limitations under the License.
                         </div>
                         <div class="input-group mb-3">
                           <div class="input-group-prepend">
-                            <span class="input-group-text"><span class="amount-font material-icons">label</span></span>
+                            <span class="input-group-text"><span class="modal-icon material-icons">label</span></span>
                           </div>
                           <input class="form-control"  type="text" id="contact_label" name="contact_label" placeholder="Contact Label (Optional)"/>
                         </div>
@@ -336,10 +336,10 @@ limitations under the License.
                     <div class="col-md-10 offset-md-1">
                       <label class="text-uppercase secondary-text text-muted mb-1" for="payment-amount">Transaction Amount</label>
                       <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                          <span class="input-group-text"><span class="amount-font deposit-input material-icons">attach_money</span></span>
+                        <div class="input-group-prepend mr-2">
+                          <span class="input-group-text"><span class="amount-font material-icons">attach_money</span></span>
                         </div>
-                        <input class="form-control amount-font" type="number" step='0.01' id="payment-amount" name="amount" placeholder=0.00 min=0 max={{ balance / 100 }} aria-label="Amount (to the nearest dollar)" required>
+                        <input class="form-control amount-font" type="number" autocomplete="off" step="0.01" id="payment-amount" name="amount" placeholder="0.00" min="0.01" max="{{ balance / 100 }}" required>
                         <div class="invalid-feedback">
                           Please enter a valid amount.
                         </div>
@@ -376,77 +376,75 @@ limitations under the License.
       <script src="https://unpkg.com/popper.js@1.12.6/dist/umd/popper.js" integrity="sha384-fA23ZRQ3G/J53mElWqVJEGJzU0sTs+SvzG8fXVWP+kJQ1lwFAOkcUOysnlKJC33U" crossorigin="anonymous"></script>
       <script src="https://unpkg.com/bootstrap-material-design@4.1.1/dist/js/bootstrap-material-design.js" integrity="sha384-CauSuKpEqAFajSpkdjv3z9t8E7RlpJ1UP0lKM/+NdtSarroVKu069AlsRPKkFBz9" crossorigin="anonymous"></script>
       <script>
-        $( document ).ready(function() {
+        document.addEventListener("DOMContentLoaded", function(event) {
           // Deposit modal client-side validation
-          var depositForm = document.getElementById("deposit-form");
+          var depositForm = document.querySelector("#deposit-form");
           depositForm.addEventListener("submit", function(e) {
-            var isNewAcct = (document.getElementById('accounts').value == 'add');
-            document.getElementById("external_account_num").required = isNewAcct;
-            document.getElementById("external_routing_num").required = isNewAcct;
+            var isNewAcct = (document.querySelector("#accounts").value == "add");
+            document.querySelector("#external_account_num").required = isNewAcct;
+            document.querySelector("#external_routing_num").required = isNewAcct;
 
-            if(depositForm.checkValidity() === false || $('#deposit-amount').val() <= 0.00){
+            if(!depositForm.checkValidity() || document.querySelector("#deposit-amount").value <= 0.00){
               e.preventDefault();
               e.stopPropagation();
             }
-            depositForm.classList.add('was-validated');
+            depositForm.classList.add("was-validated");
           });
 
           // Reset form on cancel event
-          var depositCancel = document.getElementsByClassName("deposit-cancel");
-          for (var i = 0; i < depositCancel.length; i++) {
-            depositCancel[i].addEventListener('click', function () {
+          document.querySelectorAll(".deposit-cancel").forEach((depositCancel) => {
+            depositCancel.addEventListener("click", function () {
               depositForm.reset();
-              depositForm.classList.remove('was-validated');
+              depositForm.classList.remove("was-validated");
               RefreshModals();
             });
-          }
+          });
 
           // Send payment modal client-side validation
-          var paymentForm = document.getElementById("payment-form");
+          var paymentForm = document.querySelector("#payment-form");
           paymentForm.addEventListener("submit", function(e) {
             // Check if account number is required
-            document.getElementById("contact_account_num").required = (document.getElementById('payment-accounts').value == 'add');
+            document.querySelector("#contact_account_num").required = (document.querySelector("#payment-accounts").value == "add");
 
-            if(paymentForm.checkValidity() === false || $('#payment-amount').val() <= 0.00){
+            if(!paymentForm.checkValidity() || document.querySelector("#payment-amount").value <= 0.00){
               e.preventDefault();
               e.stopPropagation();
             }
-            paymentForm.classList.add('was-validated');
+            paymentForm.classList.add("was-validated");
           });
 
           // Reset form on cancel event
-          var paymentCancel = document.getElementsByClassName("payment-cancel");
-          for (var i = 0; i < paymentCancel.length; i++) {
-            paymentCancel[i].addEventListener('click', function () {
+          document.querySelectorAll(".payment-cancel").forEach((paymentCancel) => {
+            paymentCancel.addEventListener("click", function () {
               paymentForm.reset();
-              paymentForm.classList.remove('was-validated');
+              paymentForm.classList.remove("was-validated");
               RefreshModals();
             });
-          }
+          });
 
           // Handle new account option in Send Payment modal
-          document.getElementById("payment-accounts").addEventListener("change", function(e) {
+          document.querySelector("#payment-accounts").addEventListener("change", function(e) {
             RefreshModals();
           });
 
           // Handle new account option in Deposit modal
-          document.getElementById("accounts").addEventListener("change", function(e) {
+          document.querySelector("#accounts").addEventListener("change", function(e) {
             RefreshModals();
           });
 
           // Reset Modals to proper state
           function RefreshModals(){
-              paymentSelection = document.getElementById("payment-accounts").value;
-              if (paymentSelection == 'add') {
-                document.getElementById("otherAccountInputs").classList.remove('hidden');
+              paymentSelection = document.querySelector("#payment-accounts").value;
+              if (paymentSelection == "add") {
+                document.querySelector("#otherAccountInputs").classList.remove("hidden");
               } else {
-                document.getElementById("otherAccountInputs").classList.add('hidden');
+                document.querySelector("#otherAccountInputs").classList.add("hidden");
               }
-              depositSelection = document.getElementById("accounts").value;
-              if (depositSelection == 'add') {
-                document.getElementById("otherDepositInputs").classList.remove('hidden');
+              depositSelection = document.querySelector("#accounts").value;
+              if (depositSelection == "add") {
+                document.querySelector("#otherDepositInputs").classList.remove("hidden");
               } else {
-                document.getElementById("otherDepositInputs").classList.add('hidden');
+                document.querySelector("#otherDepositInputs").classList.add("hidden");
               }
           }
           RefreshModals();
