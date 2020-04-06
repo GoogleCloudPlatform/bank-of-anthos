@@ -20,8 +20,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.anthos.financial-app</groupId>
-    <artifactId>financial-app</artifactId>
+    <groupId>com.google.cloud.anthos.samples</groupId>
+    <artifactId>bank-of-anthos</artifactId>
     <version>1.0</version>
     <packaging>pom</packaging>
 
@@ -40,9 +40,9 @@
                     <version>2.1.0</version>
                 </plugin>
                 <plugin>
-		    <groupId>org.apache.maven.plugins</groupId>
-		    <artifactId>maven-compiler-plugin</artifactId>
-		    <version>3.8.1</version>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.8.1</version>
                     <configuration>
                         <compilerArgs>
                             <arg>-Xlint:all</arg>

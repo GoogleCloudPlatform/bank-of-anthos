@@ -3,10 +3,10 @@
 The `ledger-db` service is an append-only ledger that acts as the source of truth
 for all transaction data.
 
-The container is a standard redis image, with an added script to insert some
+The container is a standard `postgres` image, with an added script to insert some
 default transaction data on first launch.
 
-Implemented using Redis Streams.
+Implemented using Postgres.
 
 ### Environment Variables
 
@@ -20,6 +20,14 @@ Implemented using Redis Streams.
   - the account number for the external bank account initiating deposits in default data
 - `DEFAULT_DEPOSIT_ROUTING`
   - the routing number for the external bank account initiating deposits in default data
+
+- ConfigMap `postgres-config`:
+  - `POSTGRES_DB`
+    - database name
+  - `POSTGRES_USER`
+    - database username
+  - `POSTGRES_PASSWORD`
+    - database password
 
 ### Kubernetes Resources
 

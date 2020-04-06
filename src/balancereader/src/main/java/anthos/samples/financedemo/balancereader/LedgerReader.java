@@ -16,121 +16,96 @@
 
 package anthos.samples.financedemo.balancereader;
 
-import io.lettuce.core.api.StatefulRedisConnection;
-import io.lettuce.core.RedisCommandTimeoutException;
-import io.lettuce.core.StreamMessage;
-import io.lettuce.core.XReadArgs;
-import io.lettuce.core.XReadArgs.StreamOffset;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-
-
-import java.time.Duration;
-import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 /**
  * Defines an interface for reacting to new transactions
+ *
+ * @param accountId    the account associated with the transaction
+ * @param amount       the amount of change in balance for the account
+ * @param transaction  the full transaction object
  */
-interface LedgerReaderListener {
-    void processTransaction(String account, Integer amount);
+interface LedgerReaderCallback {
+    void processTransaction(Transaction transaction);
 }
 
 /**
- * LedgerReader listens for incoming transactions, and executes a callback
- * on a subscribed listener object
+ * LedgerReader listens for and reacts to incoming transactions
  */
+@Component
 public final class LedgerReader {
 
-    private final Logger logger =
+    private static final Logger LOGGER =
             Logger.getLogger(LedgerReader.class.getName());
 
-    private ApplicationContext ctx =
-        new AnnotationConfigApplicationContext(BalanceReaderConfig.class);
-    private StatefulRedisConnection redisConnection =
-        ctx.getBean(StatefulRedisConnection.class);
-    private final String ledgerStreamKey = System.getenv("LEDGER_STREAM");
-    private final String localRoutingNum =  System.getenv("LOCAL_ROUTING_NUM");
-    private final Thread backgroundThread;
-    private LedgerReaderListener listener;
+    @Autowired
+    private TransactionRepository dbRepo;
+
+    @Value("${POLL_MS:100}")
+    private Integer pollMs;
+    @Value("${LOCAL_ROUTING_NUM}")
+    private String localRoutingNum;
+
+    private Thread backgroundThread;
+    private LedgerReaderCallback callback;
+    private long latestId = -1;
 
     /**
-     * LedgerReader constructor
+     * LedgerReader setup
      * Synchronously loads all existing transactions, and then starts
      * a background thread to listen for future transactions
-     * @param listener to process transactions
+     *
+     * @param callback to process transactions
+     * @throws IllegalStateException if callback is null
      */
-    public LedgerReader(LedgerReaderListener listener) {
-        this.listener = listener;
-        // read from starting transaction to latest
-        final String startingTransaction = pollTransactions(1, "0");
-
-        // set up background thread to listen for incomming transactions
+    public void startWithCallback(LedgerReaderCallback callback)
+            throws IllegalStateException {
+        if (callback == null) {
+            throw new IllegalStateException("callback is null");
+        }
+        this.callback = callback;
+        // get the latest transaction id in ledger
+        this.latestId = dbRepo.latestId();
+        LOGGER.info(String.format("starting id: %d", latestId));
         this.backgroundThread = new Thread(
             new Runnable() {
                 @Override
                 public void run() {
-                    String latest = startingTransaction;
                     while (true) {
-                        latest = pollTransactions(0, latest);
+                        try {
+                            Thread.sleep(pollMs);
+                        } catch (InterruptedException e) {
+                            LOGGER.warning("LedgerReader sleep interrupted");
+                        }
+                        latestId = pollTransactions(latestId);
                     }
                 }
-            }
-        );
-        logger.info("Starting background thread.");
+            });
+        LOGGER.info("Starting background thread.");
         this.backgroundThread.start();
     }
-
 
     /**
      * Poll for new transactions
      * Execute callback for each one
      *
-     * @param timeout the blocking time for new transactions.
-     *                0 = block forever
-     * @param startingTransaction the transaction to start reading after.
-     *                            "0" = start reading at beginning of the ledger
-     * @return String id of latest transaction processed
+     * @param startingId the transaction to start reading after.
+     *                            -1 = start reading at beginning of the ledger
+     * @return long id of latest transaction processed
      */
-    private String pollTransactions(int timeout, String startingTransaction) {
-        if (timeout < 0) {
-            throw new IllegalArgumentException(
-                    "pollTransactions request timeout must be non-negative");
-        }
-        String latestTransactionId = startingTransaction;
-        StreamOffset offset = StreamOffset.from(ledgerStreamKey,
-                                                startingTransaction);
-        XReadArgs args = XReadArgs.Builder.block(Duration.ofSeconds(timeout));
-        try {
-            List<StreamMessage<String, String>> messages =
-                redisConnection.sync().xread(args, offset);
+    private long pollTransactions(long startingId) {
+        long latestId = startingId;
+        Iterable<Transaction> transactionList = dbRepo.findLatest(startingId);
 
-            for (StreamMessage<String, String> message : messages) {
-                // found a list of transactions. Execute callback for each one
-                latestTransactionId = message.getId();
-                Map<String, String> map = message.getBody();
-                if (this.listener != null) {
-                    // each transaction is made up of a debit and a credit
-                    String sender = map.get("fromAccountNum");
-                    String senderRouting = map.get("fromRoutingNum");
-                    String receiver = map.get("toAccountNum");
-                    String receiverRouting = map.get("toRoutingNum");
-                    Integer amount = Integer.valueOf(map.get("amount"));
-                    if (senderRouting.equals(localRoutingNum)) {
-                        this.listener.processTransaction(sender, -amount);
-                    }
-                    if (receiverRouting.equals(localRoutingNum)) {
-                        this.listener.processTransaction(receiver, amount);
-                    }
-                } else {
-                    logger.warning("Listener not set up.");
-                }
-            }
-        } catch (RedisCommandTimeoutException e) {
-            logger.info("Redis stream read timeout.");
+        for (Transaction transaction : transactionList) {
+            callback.processTransaction(transaction);
+            latestId = transaction.getTransactionId();
         }
-        return latestTransactionId;
+        return latestId;
     }
 
     /**
@@ -138,6 +113,6 @@ public final class LedgerReader {
      * @return false if background thread dies
      */
     public boolean isAlive() {
-        return this.backgroundThread.isAlive();
+        return backgroundThread == null || backgroundThread.isAlive();
     }
 }
