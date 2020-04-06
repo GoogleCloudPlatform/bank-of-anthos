@@ -44,6 +44,7 @@ APP.config["CONTACTS_URI"] = 'http://{}/contacts'.format(
 
 
 TOKEN_NAME = 'token'
+TIMESTAMP_FORMAT = '%Y-%m-%dT%H:%M:%S.%f%z'
 
 @APP.route('/version', methods=['GET'])
 def version():
@@ -335,13 +336,13 @@ def verify_token(token):
 def format_timestamp_day(timestamp):
     """ Format the input timestamp day in a human readable way """
     # TODO: time zones?
-    date = datetime.datetime.fromtimestamp(float(timestamp))
+    date = datetime.datetime.strptime(timestamp, TIMESTAMP_FORMAT)
     return date.strftime('%d')
 
 def format_timestamp_month(timestamp):
     """ Format the input timestamp month in a human readable way """
     # TODO: time zones?
-    date = datetime.datetime.fromtimestamp(float(timestamp))
+    date = datetime.datetime.strptime(timestamp, TIMESTAMP_FORMAT)
     return date.strftime('%b')
 
 def format_currency(int_amount):

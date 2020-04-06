@@ -16,23 +16,30 @@
 
 package anthos.samples.financedemo.balancereader;
 
+import java.util.logging.Logger;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * Entry point for the Balance Reader Spring Boot application.
+ * Entry point for the BalanceReader Spring Boot application.
+ *
+ * Microservice to track the bank balance for each user account.
  */
 @SpringBootApplication
 public class BalanceReaderApplication {
 
+    private static final Logger LOGGER =
+            Logger.getLogger(BalanceReaderApplication.class.getName());
+
     private static final String[] EXPECTED_ENV_VARS = {
+        "VERSION",
         "PORT",
-        "LEDGER_ADDR",
-        "LEDGER_STREAM",
-        "LEDGER_PORT",
         "LOCAL_ROUTING_NUM",
         "PUB_KEY_PATH",
-        "VERSION"
+        "SPRING_DATASOURCE_URL",
+        "SPRING_DATASOURCE_USERNAME",
+        "SPRING_DATASOURCE_PASSWORD"
     };
 
     public static void main(String[] args) {
@@ -40,10 +47,12 @@ public class BalanceReaderApplication {
         for (String v : EXPECTED_ENV_VARS) {
             String value = System.getenv(v);
             if (value == null) {
-                System.out.format("error: %s environment variable not set", v);
+                LOGGER.severe(String.format(
+                            "error: %s environment variable not set", v));
                 System.exit(1);
             }
         }
         SpringApplication.run(BalanceReaderApplication.class, args);
+        LOGGER.info("Started BalanceReader service.");
     }
 }
