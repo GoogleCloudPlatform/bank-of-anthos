@@ -36,7 +36,7 @@ git clone https://github.com/GoogleCloudPlatform/bank-of-anthos.git
 
 ### 2 - Project setup
 
-Create a GCP project or use an existing project. Then, set the Project ID variable.
+[Create a Google Cloud Platform project](https://cloud.google.com/resource-manager/docs/creating-managing-projects#creating_a_project) or use an existing project. Then, set the Project ID variable.
 
 ```
 PROJECT_ID=<your-project-id>
