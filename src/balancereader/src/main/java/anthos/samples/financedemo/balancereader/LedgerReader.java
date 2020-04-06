@@ -16,8 +16,6 @@
 
 package anthos.samples.financedemo.balancereader;
 
-import java.lang.IllegalStateException;
-
 import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
