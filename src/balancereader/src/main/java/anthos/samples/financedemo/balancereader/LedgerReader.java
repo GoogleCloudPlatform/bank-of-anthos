@@ -29,9 +29,7 @@ import org.springframework.stereotype.Component;
  * @param transaction  the full transaction object
  */
 interface LedgerReaderCallback {
-    void processTransaction(String accountId,
-                            Integer amount,
-                            Transaction transaction);
+    void processTransaction(Transaction transaction);
 }
 
 /**
@@ -99,16 +97,7 @@ public final class LedgerReader {
 
         for (Transaction transaction : transactionList) {
             if (callback != null) {
-                if (transaction.getFromRoutingNum().equals(localRoutingNum)) {
-                    callback.processTransaction(transaction.getFromAccountNum(),
-                                                -transaction.getAmount(),
-                                                transaction);
-                }
-                if (transaction.getToRoutingNum().equals(localRoutingNum)) {
-                    callback.processTransaction(transaction.getToAccountNum(),
-                                                transaction.getAmount(),
-                                                transaction);
-                }
+                callback.processTransaction(transaction);
             } else {
                 LOGGER.warning("Listener not set up.");
             }

@@ -72,6 +72,8 @@ public final class TransactionHistoryController {
 
     @Value("${EXTRA_LATENCY_MILLIS:#{null}}")
     private Integer extraLatencyMillis;
+    @Value("${HISTORY_LIMIT:100}")
+    private Integer historyLimit;
     @Value("${VERSION}")
     private String version;
 
@@ -89,7 +91,6 @@ public final class TransactionHistoryController {
             @Value("${PUB_KEY_PATH}") final String publicKeyPath,
             @Value("${CACHE_SIZE:1000}") final Integer expireSize,
             @Value("${CACHE_MINUTES:60}") final Integer expireMinutes,
-            @Value("${HISTORY_LIMIT:100}") final Integer historyLimit,
             @Value("${LOCAL_ROUTING_NUM}") final String localRoutingNum) {
         // Initialize JWT verifier.
         try {
@@ -122,28 +123,45 @@ public final class TransactionHistoryController {
                                              request);
             }
         };
-        cache = CacheBuilder.newBuilder()
+        this.cache = CacheBuilder.newBuilder()
                             .maximumSize(expireSize)
                             .expireAfterWrite(expireMinutes, TimeUnit.MINUTES)
                             .build(load);
         // Initialize transaction processor.
         this.ledgerReader = reader;
-        this.ledgerReader.startWithCallback(
-            (String accountId, Integer amount, Transaction transaction) -> {
-                if (cache.asMap().containsKey(accountId)) {
-                    LOGGER.fine("modifying cache: " + accountId);
-                    Deque<Transaction> tList = cache.asMap()
-                                                    .get(accountId);
-                    tList.addFirst(transaction);
-                    // Drop old transactions
-                    if (tList.size() > historyLimit) {
-                        tList.removeLast();
-                    }
-                }
+        this.ledgerReader.startWithCallback( transaction -> {
+            final String fromId = transaction.getFromAccountNum();
+            final String fromRouting = transaction.getFromRoutingNum();
+            final String toId = transaction.getToAccountNum();
+            final String toRouting = transaction.getToRoutingNum();
+
+            if (fromRouting.equals(localRoutingNum)
+                    && this.cache.asMap().containsKey(fromId)) {
+                processTransaction(fromId, transaction);
             }
-        );
+            if (toRouting.equals(localRoutingNum)
+                    && this.cache.asMap().containsKey(toId)) {
+                processTransaction(toId, transaction);
+            }
+        });
     }
 
+    /**
+     * Helper function to add a single transaction to the internal cache
+     *
+     * @param accountId   the accountId associated with the transaction
+     * @param transaction the full transaction object
+     */
+    private void processTransaction(String accountId, Transaction transaction){
+        LOGGER.fine("modifying cache: " + accountId);
+        Deque<Transaction> tList = this.cache.asMap()
+                                             .get(accountId);
+        tList.addFirst(transaction);
+        // Drop old transactions
+        if (tList.size() > historyLimit) {
+            tList.removeLast();
+        }
+    }
 
    /**
      * Version endpoint.

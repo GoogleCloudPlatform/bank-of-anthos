@@ -114,24 +114,32 @@ public final class BalanceReaderController {
                 return balance;
             }
         };
-        cache = CacheBuilder.newBuilder()
+        this.cache = CacheBuilder.newBuilder()
                             .maximumSize(expireSize)
                             .build(loader);
         // Initialize transaction processor.
         this.ledgerReader = reader;
-        this.ledgerReader.startWithCallback(
-            (String accountId, Integer amount, Transaction transaction) -> {
-                if (cache.asMap().containsKey(accountId)) {
-                    LOGGER.fine("modifying cache: " + accountId);
-                    Long prevBalance = cache.asMap().get(accountId);
-                    cache.put(accountId, prevBalance + amount);
-                }
+        this.ledgerReader.startWithCallback(transaction -> {
+            final String fromId = transaction.getFromAccountNum();
+            final String fromRouting = transaction.getFromRoutingNum();
+            final String toId = transaction.getToAccountNum();
+            final String toRouting = transaction.getToRoutingNum();
+            final Integer amount = transaction.getAmount();
+
+            if (fromRouting.equals(localRoutingNum)
+                    && this.cache.asMap().containsKey(fromId)) {
+                Long prevBalance = cache.asMap().get(fromId);
+                this.cache.put(fromId, prevBalance - amount);
             }
-        );
+            if (toRouting.equals(localRoutingNum)
+                    && this.cache.asMap().containsKey(toId)) {
+                Long prevBalance = cache.asMap().get(toId);
+                this.cache.put(toId, prevBalance + amount);
+            }
+        });
     }
 
     /**
-
      * Version endpoint.
      *
      * @return  service version string
