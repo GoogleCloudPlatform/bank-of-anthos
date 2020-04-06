@@ -98,6 +98,8 @@ EXTERNAL-IP
 35.223.69.29
 ```
 
+**Note:** you may see a `<pending>` IP for a few minutes, while the GCP load balancer is provisioned.
+
 ### 5 - Navigate to the web frontend
 
 Paste the frontend IP into a web browser. You should see a log-in screen:
