@@ -35,6 +35,7 @@ spec:
       containers:
       - name: writer
         image: gcr.io/bank-of-anthos/ledgerwriter
+        imagePullPolicy: Always
         volumeMounts:
         - name: publickey
           mountPath: "/root/.ssh"

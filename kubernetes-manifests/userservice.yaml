@@ -34,6 +34,7 @@ spec:
       containers:
       - name: userservice
         image: gcr.io/bank-of-anthos/userservice
+        imagePullPolicy: Always
         volumeMounts:
         - name: keys
           mountPath: "/root/.ssh"

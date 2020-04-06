@@ -28,6 +28,7 @@ spec:
       containers:
       - name: redis
         image: gcr.io/bank-of-anthos/ledger-db
+        imagePullPolicy: Always
         ports:
         - containerPort: 6379
         readinessProbe:

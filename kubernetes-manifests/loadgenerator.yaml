@@ -38,6 +38,7 @@ spec:
       containers:
       - name: main
         image: gcr.io/bank-of-anthos/loadgenerator
+        imagePullPolicy: Always
         env:
         - name: FRONTEND_ADDR
           value: "frontend:80"
