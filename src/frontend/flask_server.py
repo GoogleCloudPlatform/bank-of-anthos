@@ -126,9 +126,9 @@ def _populate_contact_names(transactions, contacts):
     # Labels are optional, so if no label, default to the empty string
     contact_map = {c['account_num']: c.get('label', '') for c in contacts}
 
-    for t in transactions:
+    for trans in transactions:
         # If not a contact, default to the empty string
-        t['accountName'] = contact_map.get(t['accountNum'], '')
+        trans['accountName'] = contact_map.get(trans['accountNum'], '')
 
 
 @APP.route('/payment', methods=['POST'])
