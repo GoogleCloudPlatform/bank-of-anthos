@@ -66,10 +66,10 @@ def get_contacts(username):
         contacts_list = _get_contacts(username)
         return jsonify(contacts_list), 200
     except (PermissionError, jwt.exceptions.InvalidTokenError):
-        return 'authentication denied', 401
+        return jsonify({'msg': 'authentication denied'}), 401
     except SQLAlchemyError as err:
         logging.error(err)
-        return 'failed to retrieve contacts list', 500
+        return jsonify({'error': 'failed to retrieve contacts list'}), 500
 
 
 
