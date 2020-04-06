@@ -36,8 +36,6 @@ import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -64,40 +62,35 @@ import com.google.common.cache.LoadingCache;
  * Functions to show the transaction history for each user account.
  */
 @RestController
-public final class TransactionHistoryController
-        implements ApplicationListener<ContextRefreshedEvent> {
+public final class TransactionHistoryController {
 
     private static final Logger LOGGER =
             Logger.getLogger(TransactionHistoryController.class.getName());
 
     @Autowired
     private TransactionRepository dbRepo;
-    @Autowired
-    private LedgerReader ledgerReader;
 
     @Value("${EXTRA_LATENCY_MILLIS:#{null}}")
     private Integer extraLatencyMillis;
-    @Value("${CACHE_SIZE:1000}")
-    private Integer expireSize;
-    @Value("${CACHE_MINUTES:60}")
-    private Integer expireMinutes;
-    @Value("${HISTORY_LIMIT:100}")
-    private Integer historyLimit;
-    @Value("${LOCAL_ROUTING_NUM}")
-    private String localRoutingNum;
     @Value("${VERSION}")
     private String version;
-    @Value("${PUB_KEY_PATH}")
-    private String publicKeyPath;
 
     private JWTVerifier verifier;
+    private LedgerReader ledgerReader;
     private LoadingCache<String, Deque<Transaction>> cache;
 
     /**
-     * Initializes a connection to the bank ledger.
+     * Constructor.
+     *
+     * Initializes JWT verifier and a connection to the bank ledger.
      */
-    @Override
-    public void onApplicationEvent(ContextRefreshedEvent event) {
+    @Autowired
+    public TransactionHistoryController(LedgerReader reader,
+            @Value("${PUB_KEY_PATH}") final String publicKeyPath,
+            @Value("${CACHE_SIZE:1000}") final Integer expireSize,
+            @Value("${CACHE_MINUTES:60}") final Integer expireMinutes,
+            @Value("${HISTORY_LIMIT:100}") final Integer historyLimit,
+            @Value("${LOCAL_ROUTING_NUM}") final String localRoutingNum) {
         // Initialize JWT verifier.
         try {
             String keyStr =
@@ -134,6 +127,7 @@ public final class TransactionHistoryController
                             .expireAfterWrite(expireMinutes, TimeUnit.MINUTES)
                             .build(load);
         // Initialize transaction processor.
+        this.ledgerReader = reader;
         this.ledgerReader.startWithCallback(
             (String accountId, Integer amount, Transaction transaction) -> {
                 if (cache.asMap().containsKey(accountId)) {

@@ -33,8 +33,6 @@ import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -57,34 +55,33 @@ import com.google.common.cache.LoadingCache;
  * REST service to retrieve the current balance for the authenticated user.
  */
 @RestController
-public final class BalanceReaderController
-        implements ApplicationListener<ContextRefreshedEvent> {
+public final class BalanceReaderController {
 
     private static final Logger LOGGER =
             Logger.getLogger(BalanceReaderController.class.getName());
 
     @Autowired
-    private LedgerReader ledgerReader;
-    @Autowired
     private TransactionRepository dbRepo;
 
-    @Value("${CACHE_SIZE:1000000}")
-    private long expireSize;
     @Value("${LOCAL_ROUTING_NUM}")
     private String localRoutingNum;
     @Value("${VERSION}")
     private String version;
-    @Value("${PUB_KEY_PATH}")
-    private String publicKeyPath;
 
     private JWTVerifier verifier;
     private LoadingCache<String, Long> cache;
+    private LedgerReader ledgerReader;
 
     /**
-     * Initializes a connection to the bank ledger.
+     * Constructor.
+     *
+     * Initializes JWT verifier and a connection to the bank ledger.
      */
-    @Override
-    public void onApplicationEvent(ContextRefreshedEvent event) {
+    @Autowired
+    public BalanceReaderController(LedgerReader reader,
+            @Value("${PUB_KEY_PATH}") final String publicKeyPath,
+            @Value("${CACHE_SIZE:1000000}") final Integer expireSize,
+            @Value("${LOCAL_ROUTING_NUM}") final String localRoutingNum) {
         // Initialize JWT verifier.
         try {
             String keyStr =
@@ -121,6 +118,7 @@ public final class BalanceReaderController
                             .maximumSize(expireSize)
                             .build(loader);
         // Initialize transaction processor.
+        this.ledgerReader = reader;
         this.ledgerReader.startWithCallback(
             (String accountId, Integer amount, Transaction transaction) -> {
                 if (cache.asMap().containsKey(accountId)) {
