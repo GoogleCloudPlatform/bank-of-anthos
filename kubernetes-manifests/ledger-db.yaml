@@ -26,41 +26,39 @@ spec:
         app: ledger-db
     spec:
       containers:
-      - name: redis
-        image: gcr.io/bank-of-anthos/ledger-db
-        ports:
-        - containerPort: 6379
-        readinessProbe:
-          periodSeconds: 5
-          tcpSocket:
-            port: 6379
-        livenessProbe:
-          periodSeconds: 5
-          tcpSocket:
-            port: 6379
-        volumeMounts:
-        - mountPath: /data
-          name: redis-data
-        env:
-        - name: USE_DEFAULT_DATA
-          value: "True"
-        - name: LOCAL_ROUTING_NUM
-          value: "123456789"
-        - name: DEFAULT_ACCOUNT
-          value: "7595821437"
-        - name: DEFAULT_DEPOSIT_ACCOUNT
-          value: "6029390231"
-        - name: DEFAULT_DEPOSIT_ROUTING
-          value: "295164083"
-        resources:
-          limits:
-            cpu: 125m
-          requests:
-            cpu: 70m
-            memory: 2Gi
-      volumes:
-      - name: redis-data
-        emptyDir: {}
+        - name: postgres
+          image: gcr.io/bank-of-anthos/ledger-db
+          imagePullPolicy: "IfNotPresent"
+          ports:
+            - containerPort: 5432
+          env:
+            - name: USE_DEFAULT_DATA
+              value: "True"
+            - name: LOCAL_ROUTING_NUM
+              value: "123456789"
+            - name: DEFAULT_ACCOUNT
+              value: "7595821437"
+            - name: DEFAULT_DEPOSIT_ACCOUNT
+              value: "6029390231"
+            - name: DEFAULT_DEPOSIT_ROUTING
+              value: "295164083"
+          envFrom:
+            - configMapRef:
+                name: ledger-db-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ledger-db-config
+  labels:
+    app: postgres
+data:
+  POSTGRES_DB: postgresdb
+  POSTGRES_USER: admin
+  POSTGRES_PASSWORD: password
+  SPRING_DATASOURCE_URL: jdbc:postgresql://ledger-db:5432/postgresdb
+  SPRING_DATASOURCE_USERNAME: admin # should match POSTGRES_USER
+  SPRING_DATASOURCE_PASSWORD: password # should match POSTGRES_PASSWORD
 ---
 apiVersion: v1
 kind: Service
@@ -71,6 +69,6 @@ spec:
   selector:
     app: ledger-db
   ports:
-  - name: redis
-    port: 6379
-    targetPort: 6379
+  - name: postgres
+    port: 5432
+    targetPort: 5432

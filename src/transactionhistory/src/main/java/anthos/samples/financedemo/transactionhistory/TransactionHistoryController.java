@@ -16,112 +16,184 @@
 
 package anthos.samples.financedemo.transactionhistory;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.http.ResponseEntity;
-
 import java.io.IOException;
+
 import java.nio.file.Files;
 import java.nio.file.Paths;
+
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.Base64;
 
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.DecodedJWT;
-import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.Base64;
+import java.util.Deque;
+import java.util.Collection;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
-@RestController
-public final class TransactionHistoryController
-        implements LedgerReaderListener {
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
-    private final Logger logger =
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
+
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+
+/**
+ * Controller for the TransactionHistory service.
+ *
+ * Functions to show the transaction history for each user account.
+ */
+@RestController
+public final class TransactionHistoryController {
+
+    private static final Logger LOGGER =
             Logger.getLogger(TransactionHistoryController.class.getName());
 
-    private final JWTVerifier verifier;
-    private final Map<String, List<TransactionHistoryEntry>> historyMap =
-        new HashMap<String, List<TransactionHistoryEntry>>();
-    private final LedgerReader reader;
-    private boolean initialized = false;
-    private final int historyLimit =  Integer.parseInt(
-                                        System.getenv("HISTORY_LIMIT"));
+    @Autowired
+    private TransactionRepository dbRepo;
+
+    @Value("${EXTRA_LATENCY_MILLIS:#{null}}")
+    private Integer extraLatencyMillis;
+    @Value("${HISTORY_LIMIT:100}")
+    private Integer historyLimit;
+    @Value("${VERSION}")
+    private String version;
+
+    private JWTVerifier verifier;
+    private LedgerReader ledgerReader;
+    private LoadingCache<String, Deque<Transaction>> cache;
 
     /**
-     * TransactionHistoryController constructor
-     * Set up JWT verifier, initialize LedgerReader
+     * Constructor.
+     *
+     * Initializes JWT verifier and a connection to the bank ledger.
      */
-    public TransactionHistoryController() throws IOException,
-                                           NoSuchAlgorithmException,
-                                           InvalidKeySpecException {
-        // load public key from file
-        String fPath = System.getenv("PUB_KEY_PATH");
-        String pubKeyStr  = new String(Files.readAllBytes(Paths.get(fPath)));
-        pubKeyStr = pubKeyStr.replaceFirst("-----BEGIN PUBLIC KEY-----", "");
-        pubKeyStr = pubKeyStr.replaceFirst("-----END PUBLIC KEY-----", "");
-        pubKeyStr = pubKeyStr.replaceAll("\\s", "");
-        byte[] pubKeyBytes = Base64.getDecoder().decode(pubKeyStr);
-        KeyFactory kf = KeyFactory.getInstance("RSA");
-        X509EncodedKeySpec keySpecX509 = new X509EncodedKeySpec(pubKeyBytes);
-        RSAPublicKey publicKey = (RSAPublicKey) kf.generatePublic(keySpecX509);
-        // set up verifier
-        Algorithm algorithm = Algorithm.RSA256(publicKey, null);
-        this.verifier = JWT.require(algorithm).build();
+    @Autowired
+    public TransactionHistoryController(LedgerReader reader,
+            @Value("${PUB_KEY_PATH}") final String publicKeyPath,
+            @Value("${CACHE_SIZE:1000}") final Integer expireSize,
+            @Value("${CACHE_MINUTES:60}") final Integer expireMinutes,
+            @Value("${LOCAL_ROUTING_NUM}") final String localRoutingNum) {
+        // Initialize JWT verifier.
+        try {
+            String keyStr =
+                new String(Files.readAllBytes(Paths.get(publicKeyPath)));
+            keyStr = keyStr.replaceFirst("-----BEGIN PUBLIC KEY-----", "")
+                           .replaceFirst("-----END PUBLIC KEY-----", "")
+                           .replaceAll("\\s", "");
+            byte[] keyBytes = Base64.getDecoder().decode(keyStr);
+            KeyFactory kf = KeyFactory.getInstance("RSA");
+            X509EncodedKeySpec keySpecX509 = new X509EncodedKeySpec(keyBytes);
+            RSAPublicKey publicKey =
+                (RSAPublicKey) kf.generatePublic(keySpecX509);
+            Algorithm algorithm = Algorithm.RSA256(publicKey, null);
+            this.verifier = JWT.require(algorithm).build();
+        } catch (IOException
+                 | NoSuchAlgorithmException
+                 | InvalidKeySpecException e) {
+            LOGGER.severe(e.toString());
+            System.exit(1);
+        }
+        // Initialize cache
+        CacheLoader load = new CacheLoader<String, Deque<Transaction>>() {
+            @Override
+            public Deque<Transaction> load(String accountId) {
+                LOGGER.fine("loaded from db");
+                Pageable request = new PageRequest(0, historyLimit);
+                return dbRepo.findForAccount(accountId,
+                                             localRoutingNum,
+                                             request);
+            }
+        };
+        this.cache = CacheBuilder.newBuilder()
+                            .maximumSize(expireSize)
+                            .expireAfterWrite(expireMinutes, TimeUnit.MINUTES)
+                            .build(load);
+        // Initialize transaction processor.
+        this.ledgerReader = reader;
+        this.ledgerReader.startWithCallback(transaction -> {
+            final String fromId = transaction.getFromAccountNum();
+            final String fromRouting = transaction.getFromRoutingNum();
+            final String toId = transaction.getToAccountNum();
+            final String toRouting = transaction.getToRoutingNum();
 
-        // set up transaction processor
-        this.reader = new LedgerReader(this);
-        this.initialized = true;
-        logger.info("Initialization complete.");
+            if (fromRouting.equals(localRoutingNum)
+                    && this.cache.asMap().containsKey(fromId)) {
+                processTransaction(fromId, transaction);
+            }
+            if (toRouting.equals(localRoutingNum)
+                    && this.cache.asMap().containsKey(toId)) {
+                processTransaction(toId, transaction);
+            }
+        });
+    }
+
+    /**
+     * Helper function to add a single transaction to the internal cache
+     *
+     * @param accountId   the accountId associated with the transaction
+     * @param transaction the full transaction object
+     */
+    private void processTransaction(String accountId, Transaction transaction) {
+        LOGGER.fine("modifying cache: " + accountId);
+        Deque<Transaction> tList = this.cache.asMap()
+                                             .get(accountId);
+        tList.addFirst(transaction);
+        // Drop old transactions
+        if (tList.size() > historyLimit) {
+            tList.removeLast();
+        }
     }
 
    /**
      * Version endpoint.
      *
-     * @return service version string
+     * @return  service version string
      */
     @GetMapping("/version")
     public ResponseEntity version() {
-        final String versionStr =  System.getenv("VERSION");
-        return new ResponseEntity<String>(versionStr, HttpStatus.OK);
+        return new ResponseEntity<String>(version, HttpStatus.OK);
     }
 
     /**
      * Readiness probe endpoint.
      *
-     * @return HTTP Status 200 if server is initialized and serving requests.
+     * @return HTTP Status 200 if server is ready to receive requests.
      */
     @GetMapping("/ready")
-    public ResponseEntity readiness() {
-        if (this.initialized) {
-            return new ResponseEntity<String>("ok", HttpStatus.OK);
-        } else {
-            return new ResponseEntity<String>("not initialized",
-                                              HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    @ResponseStatus(HttpStatus.OK)
+    public String readiness() {
+        return "ok";
     }
 
     /**
      * Liveness probe endpoint.
      *
-     * @return HTTP Status 200 if server is healthy.
+     * @return HTTP Status 200 if server is healthy and serving requests.
      */
     @GetMapping("/healthy")
     public ResponseEntity liveness() {
-        if (this.initialized && !this.reader.isAlive()) {
-            // background thread died. Abort
-            return new ResponseEntity<String>("LedgerReader not healthy",
+        if (!ledgerReader.isAlive()) {
+            // background thread died.
+            return new ResponseEntity<String>("Ledger reader not healthy",
                                               HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>("ok", HttpStatus.OK);
@@ -131,70 +203,46 @@ public final class TransactionHistoryController
      * Return a list of transactions for the specified account.
      *
      * The currently authenticated user must be allowed to access the account.
-     *
-     * @param accountId the account to get transactions for.
-     * @return a list of transactions for this account.
+     * @param bearerToken  HTTP request 'Authorization' header
+     * @param accountId    the account to get transactions for.
+     * @return             a list of transactions for this account.
      */
     @GetMapping("/transactions/{accountId}")
     public ResponseEntity<?> getTransactions(
             @RequestHeader("Authorization") String bearerToken,
             @PathVariable String accountId) {
+        LOGGER.fine("request from " + accountId);
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             bearerToken = bearerToken.split("Bearer ")[1];
         }
         try {
-            DecodedJWT jwt = this.verifier.verify(bearerToken);
+            DecodedJWT jwt = verifier.verify(bearerToken);
             // Check that the authenticated user can access this account.
             if (!accountId.equals(jwt.getClaim("acct").asString())) {
                 return new ResponseEntity<String>("not authorized",
                                                   HttpStatus.UNAUTHORIZED);
             }
 
-            List<TransactionHistoryEntry> historyList;
-            if (this.historyMap.containsKey(accountId)) {
-                historyList = this.historyMap.get(accountId);
-            } else {
-                historyList = new LinkedList<TransactionHistoryEntry>();
-            }
+            // Load from cache
+            Deque<Transaction> historyList = cache.get(accountId);
 
             // Set artificial extra latency.
-            String latency = System.getenv("EXTRA_LATENCY_MILLIS");
-            if (latency != null) {
+            if (extraLatencyMillis != null) {
                 try {
-                    Thread.sleep(Integer.parseInt(latency));
+                    Thread.sleep(extraLatencyMillis);
                 } catch (InterruptedException e) {
                     // Fake latency interrupted. Continue.
                 }
             }
 
-            return new ResponseEntity<List<TransactionHistoryEntry>>(
+            return new ResponseEntity<Collection<Transaction>>(
                     historyList, HttpStatus.OK);
         } catch (JWTVerificationException e) {
             return new ResponseEntity<String>("not authorized",
                                               HttpStatus.UNAUTHORIZED);
-        }
-    }
-
-    /**
-     * Receives transactions from LedgerReader for processing
-     * Add transaction records to internal Map
-     *
-     * @param account associated with the transaction
-     * @param entry with transaction metadata
-     */
-    public void processTransaction(String account,
-                                   TransactionHistoryEntry entry) {
-        LinkedList<TransactionHistoryEntry> historyList;
-        if (!this.historyMap.containsKey(account)) {
-            historyList = new LinkedList<TransactionHistoryEntry>();
-            this.historyMap.put(account, historyList);
-        } else {
-            historyList = (LinkedList) this.historyMap.get(account);
-        }
-        historyList.addFirst(entry);
-        // Drop old transactions
-        if (historyList.size() > historyLimit) {
-            historyList.removeLast();
+        } catch (ExecutionException e) {
+            return new ResponseEntity<String>("cache error",
+                                              HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

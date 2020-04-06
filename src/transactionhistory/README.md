@@ -1,11 +1,11 @@
 # Transaction History Service
 
-The transaction history service provides an efficient readable cache of past transactions, as read from ledger.
+The transaction history service provides an efficient readable cache of past transactions, as read from the `ledger-db`.
 
-The `ledger-db` service holds the source of truth for the system. The `transaction-history` returns data on a
-best-effort basis, but may be out of date when under heavy load.
+The `ledger-db` service holds the source of truth for the system.
+The `transaction-history`  reads and caches data from the `ledger-db`, but may be out of date when under heavy load.
 
-Implemented in Java with Spring Boot.
+Implemented in Java with Spring Boot and Guava.
 
 ### Endpoints
 
@@ -20,24 +20,36 @@ Implemented in Java with Spring Boot.
 
 - `VERSION`
   - a version string for the service
-- `HISTORY_LIMIT`
-  - the number of transactions to store in the history cache
-- `LEDGER_ADDR`
-  - the address of the `ledger-db` service
-- `LEDGER_PORT`
-  - the port of the `ledger-db` service
-- `LEDGER_STREAM`
-  - the Redis Stream name used for the ledger
 - `PORT`
   - the port for the webserver
 - `LOCAL_ROUTING_NUM`
   - the routing number for our bank
 - `PUB_KEY_PATH`
   - the path to the JWT signer's public key, mounted as a secret
+- `POLL_MS`
+  - the number of milliseconds to wait in between polls to `ledger-db`
+  - optional. Defaults to 100
+- `CACHE_SIZE`
+  - the max number of history lists to store in the cache
+  - optional. Defaults to 1,000
+- `CACHE_MINUTES`
+  - the expiry time for the cache in minutes
+  - optional. Defaults to 60
+- `HISTORY_LIMIT`
+  - the number of past transactions to store for each user
+  - optional. Defaults to 100
 - `JVM_OPTS`
   - settings for the JVM. Used to obey container memory limits
 - `EXTRA_LATENCY_MILLIS`
   - add fake extra latency in milliseconds to transaction history requests
+
+- ConfigMap `postgres-config`:
+  - `SPRING_DATASOURCE_URL`
+    - URL of the `ledger-db` service
+  - `SPRING_DATASOURCE_USERNAME`
+    - username for the `ledger-db` database
+  - `SPRING_DATASOURCE_PASSWORD`
+    - password for the `ledger-db` database
 
 ### Kubernetes Resources
 

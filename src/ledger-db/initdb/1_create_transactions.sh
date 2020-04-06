@@ -20,22 +20,38 @@
 # values are chosen so that the depsoit in a period > payments in the same period
 set -u
 
+# skip adding transactions if not enabled
+if [ "$USE_DEFAULT_DATA" != "True"  ]; then
+    echo "no default transactions added"
+    exit 0
+fi
+
+add_transaction() {
+    DATE=$(date -u +"%Y-%m-%d %H:%M:%S.%3N%z" --date="@$(($6))")
+    echo "adding default transaction: $1 -> $2"
+    psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
+        INSERT INTO TRANSACTIONS (FROM_ACCT, TO_ACCT, FROM_ROUTE, TO_ROUTE, AMOUNT, TIMESTAMP)
+        VALUES ($1, $2, $3, $4, $5, '$DATE');
+EOSQL
+}
+
 PAY_PREIODS=3
 DAYS_BETWEEN_PAY=14
-let SECONDS_IN_PAY_PERIOD=60*60*24*$DAYS_BETWEEN_PAY
+SECONDS_IN_PAY_PERIOD=$(( 86400 * $DAYS_BETWEEN_PAY  ))
+echo $SECONDS_IN_PAY_PERIOD
 DEPOSIT_AMOUNT=250000
 
 START_TIMESTAMP=$(( $(date +%s) - $(( $(($PAY_PREIODS+1)) * $SECONDS_IN_PAY_PERIOD  ))  ))
 for i in $(seq 1 $PAY_PREIODS); do
     # create deposit transaction
-    echo XADD ledger \* fromAccountNum $DEFAULT_DEPOSIT_ACCOUNT fromRoutingNum $DEFAULT_DEPOSIT_ROUTING toAccountNum $DEFAULT_ACCOUNT toRoutingNum $LOCAL_ROUTING_NUM amount $DEPOSIT_AMOUNT timestamp $START_TIMESTAMP
+    add_transaction $DEFAULT_DEPOSIT_ACCOUNT $DEFAULT_ACCOUNT $DEFAULT_DEPOSIT_ROUTING $LOCAL_ROUTING_NUM $DEPOSIT_AMOUNT $START_TIMESTAMP
     # create payments
-    TRANSACTIONS_PER_PERIOD=$((  $RANDOM % 8 + 3 ))
+    TRANSACTIONS_PER_PERIOD=$(shuf -i 3-11 -n1)
     for p in $(seq 1 $TRANSACTIONS_PER_PERIOD); do
-        AMOUNT=$(( (RANDOM % 25000) + 100 ))
-        ACCOUNT=$(($RANDOM%9+1))$(($RANDOM%9+1))$(($RANDOM%9+1))$(($RANDOM%9+1))$(($RANDOM%9+1))$(($RANDOM%9+1))$(($RANDOM%9+1))$(($RANDOM%9+1))$(($RANDOM%9+1))$(($RANDOM%9+1))
+        AMOUNT=$(shuf -i 100-25000 -n1)
+        ACCOUNT=$(shuf -i 1000000000-9999999999 -n1)
         TIMESTAMP=$(( $START_TIMESTAMP + $(( $SECONDS_IN_PAY_PERIOD * $p / $(($TRANSACTIONS_PER_PERIOD + 1 )) )) ))
-        echo XADD ledger \* fromAccountNum $DEFAULT_ACCOUNT fromRoutingNum $LOCAL_ROUTING_NUM toAccountNum $ACCOUNT toRoutingNum $LOCAL_ROUTING_NUM amount $AMOUNT timestamp $TIMESTAMP
+        add_transaction $DEFAULT_ACCOUNT $ACCOUNT $LOCAL_ROUTING_NUM $LOCAL_ROUTING_NUM $AMOUNT $TIMESTAMP
     done
     START_TIMESTAMP=$(( $START_TIMESTAMP + $(( $i * $SECONDS_IN_PAY_PERIOD  )) ))
 done
