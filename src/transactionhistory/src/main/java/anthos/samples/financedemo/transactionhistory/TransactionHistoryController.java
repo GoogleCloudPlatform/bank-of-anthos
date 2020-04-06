@@ -28,8 +28,8 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 
 import java.util.Base64;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Deque;
+import java.util.Collection;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
@@ -91,7 +91,7 @@ public final class TransactionHistoryController
     private String publicKeyPath;
 
     private JWTVerifier verifier;
-    private LoadingCache<String, LinkedList<Transaction>> cache;
+    private LoadingCache<String, Deque<Transaction>> cache;
 
     /**
      * Initializes a connection to the bank ledger.
@@ -119,9 +119,9 @@ public final class TransactionHistoryController
             System.exit(1);
         }
         // Initialize cache
-        CacheLoader load = new CacheLoader<String, LinkedList<Transaction>>() {
+        CacheLoader load = new CacheLoader<String, Deque<Transaction>>() {
             @Override
-            public LinkedList<Transaction> load(String accountId) {
+            public Deque<Transaction> load(String accountId) {
                 LOGGER.fine("loaded from db");
                 Pageable request = new PageRequest(0, historyLimit);
                 return dbRepo.findForAccount(accountId,
@@ -138,8 +138,8 @@ public final class TransactionHistoryController
             (String accountId, Integer amount, Transaction transaction) -> {
                 if (cache.asMap().containsKey(accountId)) {
                     LOGGER.fine("modifying cache: " + accountId);
-                    LinkedList<Transaction> tList = cache.asMap()
-                                                         .get(accountId);
+                    Deque<Transaction> tList = cache.asMap()
+                                                    .get(accountId);
                     tList.addFirst(transaction);
                     // Drop old transactions
                     if (tList.size() > historyLimit) {
@@ -212,7 +212,7 @@ public final class TransactionHistoryController
             }
 
             // Load from cache
-            List<Transaction> historyList = cache.get(accountId);
+            Deque<Transaction> historyList = cache.get(accountId);
 
             // Set artificial extra latency.
             if (extraLatencyMillis != null) {
@@ -223,7 +223,7 @@ public final class TransactionHistoryController
                 }
             }
 
-            return new ResponseEntity<List<Transaction>>(
+            return new ResponseEntity<Collection<Transaction>>(
                     historyList, HttpStatus.OK);
         } catch (JWTVerificationException e) {
             return new ResponseEntity<String>("not authorized",
