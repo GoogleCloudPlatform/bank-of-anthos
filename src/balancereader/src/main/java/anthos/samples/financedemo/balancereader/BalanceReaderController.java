@@ -109,7 +109,8 @@ public final class BalanceReaderController {
         CacheLoader loader =  new CacheLoader<String, Long>() {
             @Override
             public Long load(String accountId)
-                    throws ResourceAccessException, DataAccessResourceFailureException {
+                    throws ResourceAccessException,
+                           DataAccessResourceFailureException {
                 LOGGER.fine("loaded from db");
                 Long balance = dbRepo.findBalance(accountId, localRoutingNum);
                 if (balance == null) {
@@ -209,7 +210,7 @@ public final class BalanceReaderController {
         } catch (JWTVerificationException e) {
             return new ResponseEntity<String>("not authorized",
                                               HttpStatus.UNAUTHORIZED);
-        } catch (ExecutionException|UncheckedExecutionException e) {
+        } catch (ExecutionException | UncheckedExecutionException e) {
             return new ResponseEntity<String>("cache error",
                                               HttpStatus.INTERNAL_SERVER_ERROR);
         }

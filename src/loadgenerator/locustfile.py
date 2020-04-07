@@ -22,7 +22,6 @@ import json
 import logging
 import os
 from random import randint, random, choice
-import sys
 import uuid
 
 from locust import HttpLocust, TaskSet, TaskSequence, task, seq_task

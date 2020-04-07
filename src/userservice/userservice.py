@@ -233,7 +233,7 @@ def _shutdown():
     """Executed when web app is terminated."""
     try:
         DB_CONN.close()
-    except NameError as e:
+    except NameError:
         # catch name error when DB_CONN not set up
         pass
     logging.info("Stopping flask.")
@@ -273,7 +273,7 @@ if __name__ == '__main__':
                             Column('zip', String),
                             Column('ssn', String))
         DB_CONN = ACCOUNTS_DB.connect()
-    except OperationalError as e:
+    except OperationalError:
         logging.error("database connection failed")
         sys.exit(1)
 

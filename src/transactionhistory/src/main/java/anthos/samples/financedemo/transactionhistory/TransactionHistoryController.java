@@ -119,7 +119,8 @@ public final class TransactionHistoryController {
         CacheLoader load = new CacheLoader<String, Deque<Transaction>>() {
             @Override
             public Deque<Transaction> load(String accountId)
-                    throws ResourceAccessException, DataAccessResourceFailureException  {
+                    throws ResourceAccessException,
+                           DataAccessResourceFailureException  {
                 LOGGER.fine("loaded from db");
                 Pageable request = new PageRequest(0, historyLimit);
                 return dbRepo.findForAccount(accountId,
@@ -244,7 +245,7 @@ public final class TransactionHistoryController {
         } catch (JWTVerificationException e) {
             return new ResponseEntity<String>("not authorized",
                                               HttpStatus.UNAUTHORIZED);
-        } catch (ExecutionException|UncheckedExecutionException e) {
+        } catch (ExecutionException | UncheckedExecutionException e) {
             return new ResponseEntity<String>("cache error",
                                               HttpStatus.INTERNAL_SERVER_ERROR);
         }
