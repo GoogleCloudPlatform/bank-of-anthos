@@ -34,7 +34,6 @@ import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -55,8 +54,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
 @RestController
-public final class LedgerWriterController
-        implements ApplicationListener<ContextRefreshedEvent> {
+public final class LedgerWriterController {
 
     private static final Logger LOGGER =
             Logger.getLogger(LedgerWriterController.class.getName());
@@ -70,8 +68,6 @@ public final class LedgerWriterController
     private String balancesApiUri;
     @Value("${VERSION}")
     private String version;
-    @Value("${PUB_KEY_PATH}")
-    private String publicKeyPath;
 
     private JWTVerifier verifier;
     // account ids should be 10 digits between 0 and 9
@@ -80,10 +76,13 @@ public final class LedgerWriterController
     private static final Pattern ROUTE_REGEX = Pattern.compile("^[0-9]{9}$");
 
     /**
-     * Initializes a connection to the bank ledger.
-     */
-    @Override
-    public void onApplicationEvent(ContextRefreshedEvent event) {
+    * Constructor.
+    *
+    * Initializes JWT verifier.
+    */
+    @Autowired
+    public LedgerWriterController(
+            @Value("${PUB_KEY_PATH}") final String publicKeyPath) {
         // load public key from file
         try {
             String keyStr =
