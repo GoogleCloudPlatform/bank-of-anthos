@@ -11,8 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-FROM redis:alpine
+FROM postgres:12
 
-COPY run.sh /home/redis/run.sh
-COPY init_data.sh /home/redis/init_data.sh
-ENTRYPOINT /home/redis/run.sh
+COPY initdb/0_init_tables.sql /docker-entrypoint-initdb.d/0_init_tables.sql
+RUN chmod 755  /docker-entrypoint-initdb.d/0_init_tables.sql
+
+COPY initdb/1_create_transactions.sh /docker-entrypoint-initdb.d/1_create_transactions.sh
+RUN chmod 755  /docker-entrypoint-initdb.d/1_create_transactions.sh

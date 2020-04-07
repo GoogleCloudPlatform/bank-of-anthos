@@ -26,12 +26,6 @@ spec:
         app: ledgerwriter
     spec:
       terminationGracePeriodSeconds: 5
-      initContainers:
-      - name: init-db-ready
-        image:  redis:alpine
-        command: ['/bin/sh', '-c']
-        args:
-          - for i in {1..100}; do sleep 1; if redis-cli -h ledger-db -p 6379 ping; then exit 0; fi; done; exit 1
       containers:
       - name: writer
         image: gcr.io/bank-of-anthos/ledgerwriter
@@ -42,12 +36,6 @@ spec:
         env:
         - name: VERSION
           value: "0.1.0"
-        - name: LEDGER_ADDR
-          value: "ledger-db"
-        - name: LEDGER_PORT
-          value: "6379"
-        - name: LEDGER_STREAM
-          value: "ledger"
         - name: PORT
           value: "8080"
         - name: LOCAL_ROUTING_NUM
@@ -59,6 +47,10 @@ spec:
          # tell Java to obey container memory limits
         - name: JVM_OPTS
           value: "-Xms1G -Xmx1G"
+        envFrom:
+        # add ledger-db credentials from ConfigMap
+        - configMapRef:
+            name: ledger-db-config
         resources:
           requests:
             cpu: 200m
