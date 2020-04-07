@@ -26,12 +26,6 @@ spec:
         app: transactionhistory
     spec:
       terminationGracePeriodSeconds: 5
-      initContainers:
-      - name: init-db-ready
-        image:  redis:alpine
-        command: ['/bin/sh', '-c']
-        args:
-          - for i in {1..100}; do sleep 1; if redis-cli -h ledger-db -p 6379 ping; then exit 0; fi; done; exit 1
       containers:
       - name: history
         image: gcr.io/bank-of-anthos/transactionhistory
@@ -42,25 +36,29 @@ spec:
         env:
         - name: VERSION
           value: "0.1.0"
-        - name: HISTORY_LIMIT
-          value: "100"
-        - name: LEDGER_ADDR
-          value: "ledger-db"
-        - name: LEDGER_PORT
-          value: "6379"
-        - name: LEDGER_STREAM
-          value: "ledger"
         - name: PORT
           value: "8080"
         - name: LOCAL_ROUTING_NUM
           value: "123456789"
         - name: PUB_KEY_PATH
           value: "/root/.ssh/publickey"
+        - name: POLL_MS
+          value: "100"
+        - name: CACHE_SIZE
+          value: "1000"
+        - name: CACHE_MINUTES
+          value: "60"
+        - name: HISTORY_LIMIT
+          value: "100"
           # tell Java to obey container memory limits
         - name: JVM_OPTS
           value: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
         #- name: EXTRA_LATENCY_MILLIS
         #  value: "5000"
+        envFrom:
+        # add ledger-db credentials from ConfigMap
+        - configMapRef:
+            name: ledger-db-config
         resources:
           requests:
             cpu: 200m

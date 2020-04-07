@@ -63,7 +63,7 @@ limitations under the License.
                 <div class="card-body sign-in">
                   <div class="row align-items-center mt-2">
                     <div class="col-10 offset-1 mb-4">
-                      <div id="alertBanner" class="alert alert-danger mb-4 hidden" role="alert">
+                      <div id="alertBanner" class="alert alert-danger mb-4" role="alert">
                         <span class="alert-icon mr-2 material-icons">error</span>We can't find that username and password.
                       </div>
                       <form id="signin-form" class="needs-validation" novalidate="" method="POST" action="/login">
@@ -120,11 +120,11 @@ limitations under the License.
       <script src="https://unpkg.com/popper.js@1.12.6/dist/umd/popper.js" integrity="sha384-fA23ZRQ3G/J53mElWqVJEGJzU0sTs+SvzG8fXVWP+kJQ1lwFAOkcUOysnlKJC33U" crossorigin="anonymous"></script>
       <script src="https://unpkg.com/bootstrap-material-design@4.1.1/dist/js/bootstrap-material-design.js" integrity="sha384-CauSuKpEqAFajSpkdjv3z9t8E7RlpJ1UP0lKM/+NdtSarroVKu069AlsRPKkFBz9" crossorigin="anonymous"></script>
       <script>
-        $( document ).ready(function() {
+        document.addEventListener("DOMContentLoaded", function(event) {
           // Login client-side validation
-          var login = document.getElementById("signin-form");
+          var login = document.querySelector("#signin-form");
           login.addEventListener("submit", function(e) {
-            if(login.checkValidity() === false){
+            if(!login.checkValidity()){
               e.preventDefault();
               e.stopPropagation();
             }
@@ -133,11 +133,10 @@ limitations under the License.
 
           var showAlert = (window.location.search == "?msg=Login+Failed");
           if (showAlert){
-              $('#alertBanner').removeClass('hidden');
+              document.querySelector("#alertBanner").classList.remove("hidden");
           }
           else {
-              $('#alertBanner').removeClass();
-              $('#alertBanner').addClass('hidden');
+              document.querySelector("#alertBanner").classList.add("hidden");
           }
         });
       </script>
