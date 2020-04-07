@@ -34,7 +34,6 @@ spec:
       containers:
       - name: accounts-db
         image: gcr.io/bank-of-anthos/accounts-db
-        imagePullPolicy: "IfNotPresent"
         env:
         - name: LOCAL_ROUTING_NUM
           value: "123456789"
