@@ -69,7 +69,7 @@ spec:
           httpGet:
             path: /healthy
             port: 8080
-          initialDelaySeconds: 300
+          initialDelaySeconds: 120
           periodSeconds: 5
       volumes:
       - name: publickey
