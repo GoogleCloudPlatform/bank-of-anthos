@@ -192,7 +192,11 @@ limitations under the License.
                               {{ t.fromAccountNum }}
                             </td>
                             <td class="transaction-name">
-                              {{ t.accountName if t.accountName.strip() != "" else "-" }}
+                              {% if t.accountName.strip() != "" %}
+                                {{ t.accountName }}
+                              {% else %}
+                                <span class="transaction-name-none">None</span>
+                              {% endif % %}
                             </td>
                             <td class="transaction-amount transaction-amount-debit">
                               +{{ format_currency(t.amount) }}
@@ -205,7 +209,11 @@ limitations under the License.
                               {{ t.toAccountNum }}
                             </td>
                             <td class="transaction-name">
-                              {{ t.accountName if t.accountName.strip() != "" else "-" }}
+                              {% if t.accountName.strip() != "" %}
+                                {{ t.accountName }}
+                              {% else %}
+                                <span class="transaction-name-none">None</span>
+                              {% endif % %}
                             </td>
                             <td class="transaction-amount">
                               -{{ format_currency(t.amount) }}
