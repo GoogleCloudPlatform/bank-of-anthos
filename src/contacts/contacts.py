@@ -98,7 +98,8 @@ def add_contact(username):
         if username != auth_payload['user']:
             raise PermissionError
 
-        req = {k: bleach.clean(v) for k, v in request.get_json().items()}
+        req = {k: (bleach.clean(v) if isinstance(v, str) else v)
+                for k, v in request.get_json().items()}
         _validate_new_contact(req)
 
         # Don't allow self reference
@@ -128,8 +129,6 @@ def _validate_new_contact(req):
               'is_external')
     if any(f not in req for f in fields):
         raise UserWarning('missing required field(s)')
-    if any(not bool(req[f] or req[f].strip()) for f in fields):
-        raise UserWarning('missing value for input field(s)')
 
     # Validate account number (must be 10 digits)
     if not re.match(r'\A[0-9]{10}\Z', req['account_num']):
@@ -140,9 +139,10 @@ def _validate_new_contact(req):
     # Only allow external accounts to deposit
     if req['is_external'] and req['routing_num'] == LOCAL_ROUTING:
         raise UserWarning('invalid routing number')
-    # Validate label (must be <40 chars, only alphanumeric and spaces)
+    # Validate label (must be >0 and <40 chars, only alphanumeric and spaces)
     if (not all(s.isalnum() for s in req['label'].split()) or
-            len(req['label']) > 40):
+            len(req['label']) > 40 or
+            len(req['label']) == 0):
         raise UserWarning('invalid account label')
 
 
