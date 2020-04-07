@@ -91,7 +91,7 @@ def home():
     balance = None
     try:
         url = '{}/{}'.format(APP.config["BALANCES_URI"], account_id)
-        req = requests.get(url=url, headers=hed)
+        req = requests.get(url=url, headers=hed, timeout=BACKEND_TIMEOUT)
         balance = req.json()
     except (requests.exceptions.RequestException, ValueError) as err:
         logging.error(str(err))
@@ -100,7 +100,7 @@ def home():
     transaction_list = []
     try:
         url = '{}/{}'.format(APP.config["HISTORY_URI"], account_id)
-        req = requests.get(url=url, headers=hed)
+        req = requests.get(url=url, headers=hed, timeout=BACKEND_TIMEOUT)
         transaction_list = req.json()
     except (requests.exceptions.RequestException, ValueError) as err:
         logging.error(str(err))
@@ -109,7 +109,7 @@ def home():
     contacts = []
     try:
         url = '{}/{}'.format(APP.config["CONTACTS_URI"], username)
-        req = requests.get(url=url, headers=hed)
+        req = requests.get(url=url, headers=hed, timeout=BACKEND_TIMEOUT)
         contacts = req.json()['account_list']
     except (requests.exceptions.RequestException, ValueError) as err:
         logging.error(str(err))
@@ -212,7 +212,7 @@ def _submit_transaction(transaction_data):
     req = requests.post(url=APP.config["TRANSACTIONS_URI"],
                         data=jsonify(transaction_data).data,
                         headers=hed,
-                        timeout=3)
+                        timeout=BACKEND_TIMEOUT)
     return req.status_code
 
 
@@ -234,7 +234,7 @@ def _add_contact(label, acct_num, routing_num, is_external_acct=False):
     requests.post(url=url,
                   data=jsonify(contact_data).data,
                   headers=hed,
-                  timeout=3)
+                  timeout=BACKEND_TIMEOUT)
 
 @APP.route("/login", methods=['GET'])
 def login_page():
@@ -300,7 +300,7 @@ def signup():
     # create user
     req = requests.post(url=APP.config["USERSERVICE_URI"],
                         data=request.form,
-                        timeout=3)
+                        timeout=BACKEND_TIMEOUT)
     if req.status_code == 201:
         # user created. Attempt login
         return _login_helper(request.form['username'],
@@ -367,6 +367,7 @@ if __name__ == '__main__':
     # setup global variables
     PUBLIC_KEY = open(os.environ.get('PUB_KEY_PATH'), 'r').read()
     LOCAL_ROUTING = os.getenv('LOCAL_ROUTING_NUM')
+    BACKEND_TIMEOUT = 3  # timeout in seconds for calls to the backend
 
     # setup logger
     logging.basicConfig(level=logging.INFO,
