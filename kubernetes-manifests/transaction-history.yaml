@@ -28,14 +28,14 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: history
-        image: gcr.io/bank-of-anthos/transactionhistory
+        image: gcr.io/bank-of-anthos/transactionhistory:v0.1.0
         volumeMounts:
         - name: publickey
           mountPath: "/root/.ssh"
           readOnly: true
         env:
         - name: VERSION
-          value: "0.1.0"
+          value: "v0.1.0"
         - name: PORT
           value: "8080"
         - name: LOCAL_ROUTING_NUM

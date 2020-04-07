@@ -28,14 +28,14 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: front
-        image: gcr.io/bank-of-anthos/frontend
+        image: gcr.io/bank-of-anthos/frontend:v0.1.0
         volumeMounts:
         - name: publickey
           mountPath: "/root/.ssh"
           readOnly: true
         env:
         - name: VERSION
-          value: "0.1.0"
+          value: "v0.1.0"
         - name: PORT
           value: "8080"
         - name: TRANSACTIONS_API_ADDR

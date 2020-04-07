@@ -41,8 +41,8 @@ if [[ $(git status -s | wc -l) -gt 0 ]]; then
 fi
 
 # update version in manifests
-CURRENT_VERSION=$(grep -A 1 VERSION ${REPO_ROOT}/kubernetes-manifests/*.yaml | grep value | head -n 1 | awk '{print $3}')
-find "${REPO_ROOT}/kubernetes-manifests" -name '*.yaml' -exec sed -i -e "s/${CURRENT_VERSION}/\"${NEW_VERSION}\"/g" {} \;
+CURRENT_VERSION=$(grep -A 1 VERSION ${REPO_ROOT}/kubernetes-manifests/*.yaml | grep value | head -n 1 | awk '{print $3}' |  tr -d '"')
+find "${REPO_ROOT}/kubernetes-manifests" -name '*.yaml' -exec sed -i -e "s/${CURRENT_VERSION}/${NEW_VERSION}/g" {} \;
 
 # push release PR
 git checkout -b "release/${NEW_VERSION}"
