@@ -75,13 +75,22 @@ public final class LedgerReader {
             new Runnable() {
                 @Override
                 public void run() {
-                    while (true) {
+                    boolean alive = true;
+                    while (alive) {
+                        // sleep between polls
                         try {
                             Thread.sleep(pollMs);
                         } catch (InterruptedException e) {
                             LOGGER.warning("LedgerReader sleep interrupted");
                         }
-                        latestId = pollTransactions(latestId);
+                        // poll the database
+                        Long remoteLatest = dbRepo.latestId();
+                        if (remoteLatest > latestId) {
+                            latestId = pollTransactions(latestId);
+                        } else if (remoteLatest < latestId) {
+                            alive = false;
+                            LOGGER.severe("remote transaction id out of sync");
+                        }
                     }
                 }
             });
