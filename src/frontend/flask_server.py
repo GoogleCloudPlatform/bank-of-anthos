@@ -146,10 +146,14 @@ def payment():
             label = request.form.get('contact_label', None)
             if label:
                 # new contact. Add to contacts list
-                _add_contact(label,
-                             recipient,
-                             LOCAL_ROUTING,
-                             False)
+                response = _add_contact(label,
+                                        recipient,
+                                        LOCAL_ROUTING,
+                                        False)
+                if response.status_code != 201:
+                    msg = 'Payment failed: ' + response.json()['msg']
+                    return redirect(url_for('home', msg=msg))
+
         transaction_data = {"fromAccountNum": account_id,
                             "fromRoutingNum": LOCAL_ROUTING,
                             "toAccountNum": recipient,
@@ -157,10 +161,10 @@ def payment():
                             "amount": int(float(request.form['amount']) * 100)}
         status_code = _submit_transaction(transaction_data)
         if status_code == 201:
-            return redirect(url_for('home', msg='Transaction initiated'))
+            return redirect(url_for('home', msg='Payment initiated'))
     except requests.exceptions.RequestException as err:
         logging.error(str(err))
-    return redirect(url_for('home', msg='Transaction failed'))
+    return redirect(url_for('home', msg='Payment failed'))
 
 @APP.route('/deposit', methods=['POST'])
 def deposit():
@@ -185,10 +189,14 @@ def deposit():
             external_label = request.form.get('external_label', None)
             if external_label:
                 # new contact. Add to contacts list
-                _add_contact(external_label,
-                             external_account_num,
-                             external_routing_num,
-                             True)
+                response = _add_contact(external_label,
+                                        external_account_num,
+                                        external_routing_num,
+                                        True)
+                if response.status_code != 201:
+                    msg = 'Deposit failed: ' + response.json()['msg']
+                    return redirect(url_for('home', msg=msg))
+
         else:
             account_details = json.loads(request.form['account'])
             external_account_num = account_details['account_num']
@@ -232,10 +240,10 @@ def _add_contact(label, acct_num, routing_num, is_external_acct=False):
     }
     token_data = jwt.decode(token, verify=False)
     url = '{}/{}'.format(APP.config["CONTACTS_URI"], token_data['user'])
-    requests.post(url=url,
-                  data=jsonify(contact_data).data,
-                  headers=hed,
-                  timeout=BACKEND_TIMEOUT)
+    return requests.post(url=url,
+                         data=jsonify(contact_data).data,
+                         headers=hed,
+                         timeout=BACKEND_TIMEOUT)
 
 @APP.route("/login", methods=['GET'])
 def login_page():
