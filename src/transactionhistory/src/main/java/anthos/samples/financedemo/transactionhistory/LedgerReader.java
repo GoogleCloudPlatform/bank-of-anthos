@@ -20,7 +20,12 @@ import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.stereotype.Component;
+import org.springframework.dao.DataAccessResourceFailureException;
+
+import org.postgresql.util.PSQLException;
+import  java.net.ConnectException;
 
 /**
  * Defines an interface for reacting to new transactions
@@ -69,31 +74,42 @@ public final class LedgerReader {
         }
         this.callback = callback;
         // get the latest transaction id in ledger
-        this.latestId = dbRepo.latestId();
-        LOGGER.info(String.format("starting id: %d", latestId));
-        this.backgroundThread = new Thread(
-            new Runnable() {
-                @Override
-                public void run() {
-                    boolean alive = true;
-                    while (alive) {
-                        // sleep between polls
-                        try {
-                            Thread.sleep(pollMs);
-                        } catch (InterruptedException e) {
-                            LOGGER.warning("LedgerReader sleep interrupted");
-                        }
-                        // poll the database
-                        Long remoteLatest = dbRepo.latestId();
-                        if (remoteLatest > latestId) {
-                            latestId = pollTransactions(latestId);
-                        } else if (remoteLatest < latestId) {
-                            alive = false;
-                            LOGGER.severe("remote transaction id out of sync");
-                        }
+        try {
+            this.latestId = dbRepo.latestId();
+            LOGGER.info(String.format("starting id: %d", latestId));
+        } catch (ResourceAccessException|DataAccessResourceFailureException e) {
+            LOGGER.warning("Could not contact ledger database at init");
+        }
+        this.backgroundThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                boolean alive = true;
+                while (alive) {
+                    // sleep between polls
+                    try {
+                        Thread.sleep(pollMs);
+                    } catch (InterruptedException e) {
+                        LOGGER.warning("LedgerReader sleep interrupted");
+                    }
+                    // check for new updates in ledger
+                    Long remoteLatest;
+                    try {
+                        remoteLatest = dbRepo.latestId();
+                    } catch (ResourceAccessException
+                            | DataAccessResourceFailureException e) {
+                        remoteLatest = latestId;
+                        LOGGER.warning("Could not reach ledger database");
+                    }
+                    // if there are new transactions, poll the database
+                    if (remoteLatest > latestId) {
+                        latestId = pollTransactions(latestId);
+                    } else if (remoteLatest < latestId) {
+                        alive = false;
+                        LOGGER.severe("remote transaction id out of sync");
                     }
                 }
-            });
+            }
+        });
         LOGGER.info("Starting background thread.");
         this.backgroundThread.start();
     }
