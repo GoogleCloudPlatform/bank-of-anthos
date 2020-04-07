@@ -341,7 +341,7 @@ limitations under the License.
                         <div class="input-group-prepend mr-2">
                           <span class="input-group-text"><span class="amount-font material-icons">attach_money</span></span>
                         </div>
-                        <input class="form-control amount-font" type="number" autocomplete="off" step="0.01" id="payment-amount" name="amount" placeholder="0.00" min="0.01" max="{{ balance / 100 if balance else 0 }}" required>
+                        <input class="form-control amount-font" type="number" autocomplete="off" step="0.01" id="payment-amount" name="amount" placeholder="0.00" min="0.01" max="{{ [balance / 100 if balance else 0, 500000]|min }}" required>
                         <div class="invalid-feedback">
                           Please enter a valid amount.
                         </div>
