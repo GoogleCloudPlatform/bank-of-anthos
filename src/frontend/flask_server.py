@@ -150,7 +150,8 @@ def payment():
                                         recipient,
                                         LOCAL_ROUTING,
                                         False)
-                if response.status_code != 201:
+                if response.status_code == 409:
+                    # contact not allowed.
                     msg = 'Payment failed: ' + response.json()['msg']
                     return redirect(url_for('home', msg=msg))
 
@@ -193,7 +194,8 @@ def deposit():
                                         external_account_num,
                                         external_routing_num,
                                         True)
-                if response.status_code != 201:
+                if response.status_code == 409:
+                    # contact not allowed.
                     msg = 'Deposit failed: ' + response.json()['msg']
                     return redirect(url_for('home', msg=msg))
 
