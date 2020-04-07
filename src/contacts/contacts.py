@@ -41,6 +41,7 @@ def version():
     """
     return VERSION, 200
 
+
 @APP.route('/ready', methods=['GET'])
 def ready():
     """Readiness probe."""
@@ -99,7 +100,7 @@ def add_contact(username):
             raise PermissionError
 
         req = {k: (bleach.clean(v) if isinstance(v, str) else v)
-                for k, v in request.get_json().items()}
+               for k, v in request.get_json().items()}
         _validate_new_contact(req)
 
         # Don't allow self reference
