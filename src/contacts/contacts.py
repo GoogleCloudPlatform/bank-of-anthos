@@ -140,10 +140,9 @@ def _validate_new_contact(req):
     # Only allow external accounts to deposit
     if req['is_external'] and req['routing_num'] == LOCAL_ROUTING:
         raise UserWarning('invalid routing number')
-    # Validate label (must be >0 and <40 chars, only alphanumeric and spaces)
-    if (not all(s.isalnum() for s in req['label'].split()) or
-            len(req['label']) > 40 or
-            len(req['label']) == 0):
+    # Validate label
+    # Must be >0 and <30 chars, alphanumeric and spaces, can't start with space
+    if not re.match(r'^[0-9a-zA-Z][0-9a-zA-Z ]{0,29}$', req['label']):
         raise UserWarning('invalid account label')
 
 
