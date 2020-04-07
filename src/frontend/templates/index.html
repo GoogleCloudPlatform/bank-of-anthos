@@ -264,7 +264,10 @@ limitations under the License.
                             <div class="input-group-prepend">
                               <span class="input-group-text"><span class="modal-icon material-icons">label</span></span>
                             </div>
-                            <input class="form-control"  type="text" id="external_label" name="external_label" placeholder="Account Label (Optional)"/>
+                            <input class="form-control"  type="text" id="external_label" maxLength="30" pattern="^[0-9a-zA-Z][0-9a-zA-Z ]{0,29}$" name="external_label" placeholder="Account Label (Optional)"/>
+                            <div class="invalid-feedback">
+                              Invalid label.
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -329,7 +332,10 @@ limitations under the License.
                           <div class="input-group-prepend">
                             <span class="input-group-text"><span class="modal-icon material-icons">label</span></span>
                           </div>
-                          <input class="form-control"  type="text" id="contact_label" name="contact_label" placeholder="Contact Label (Optional)"/>
+                          <input class="form-control"  type="text" id="contact_label" name="contact_label" maxLength="30" pattern="^[0-9a-zA-Z][0-9a-zA-Z ]{0,29}$" placeholder="Contact Label (Optional)"/>
+                          <div class="invalid-feedback">
+                              Invalid label.
+                            </div>
                         </div>
                       </div>
                     </div>
