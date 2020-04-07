@@ -102,6 +102,8 @@ public final class LedgerReader {
                     if (remoteLatest > latestId) {
                         latestId = pollTransactions(latestId);
                     } else if (remoteLatest < latestId) {
+                        // remote database out of sync
+                        // suspend processing transactions to reset service
                         alive = false;
                         LOGGER.severe("remote transaction id out of sync");
                     }

@@ -274,7 +274,7 @@ if __name__ == '__main__':
                             Column('ssn', String))
         DB_CONN = ACCOUNTS_DB.connect()
     except OperationalError:
-        logging.error("database connection failed")
+        logging.critical("database connection failed")
         sys.exit(1)
 
     logging.info("Starting flask.")
