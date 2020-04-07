@@ -26,11 +26,6 @@ spec:
         app: userservice
     spec:
       terminationGracePeriodSeconds: 5
-      initContainers:
-      - name: check-db-ready
-        image: postgres:12
-        command: ['/bin/sh', '-c']
-        args: ["until pg_isready -h accounts-db -p 5432; do echo 'Waiting for database.'; sleep 2; done"]
       containers:
       - name: userservice
         image: gcr.io/bank-of-anthos/userservice

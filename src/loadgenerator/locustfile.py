@@ -22,7 +22,6 @@ import json
 import logging
 import os
 from random import randint, random, choice
-import sys
 import uuid
 
 from locust import HttpLocust, TaskSet, TaskSequence, task, seq_task
@@ -65,20 +64,6 @@ class AllTasks(TaskSequence):
     """
     wrapper for UnauthenticatedTasks and AuthenticatedTasks sets
     """
-    def setup(self):
-        """
-        Before starting, attempt to create one account
-        If it fails, the system isn't ready. Crash and try again
-        """
-        new_username = str(uuid.uuid4())
-        success = signup_helper(self, new_username)
-        if not success:
-            logging.critical("failed to create account. Abort")
-            logging.shutdown()
-            sys.exit(1)
-        else:
-            self.client.post("/logout")
-
     @seq_task(1)
     class UnauthenticatedTasks(TaskSet):
         """
