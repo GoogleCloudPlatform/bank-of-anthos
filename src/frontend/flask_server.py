@@ -26,30 +26,6 @@ import jwt
 
 APP = Flask(__name__)
 
-APP.logger.handlers = logging.getLogger('gunicorn.error').handlers
-APP.logger.setLevel(logging.getLogger('gunicorn.error').level)
-
-APP.config["TRANSACTIONS_URI"] = 'http://{}/transactions'.format(
-    os.environ.get('TRANSACTIONS_API_ADDR'))
-APP.config["USERSERVICE_URI"] = 'http://{}/users'.format(
-    os.environ.get('USERSERVICE_API_ADDR'))
-APP.config["BALANCES_URI"] = 'http://{}/balances'.format(
-    os.environ.get('BALANCES_API_ADDR'))
-APP.config["HISTORY_URI"] = 'http://{}/transactions'.format(
-    os.environ.get('HISTORY_API_ADDR'))
-APP.config["LOGIN_URI"] = 'http://{}/login'.format(
-    os.environ.get('USERSERVICE_API_ADDR'))
-APP.config["CONTACTS_URI"] = 'http://{}/contacts'.format(
-    os.environ.get('CONTACTS_API_ADDR'))
-
-# setup global variables
-APP.config['PUBLIC_KEY'] = open(os.environ.get('PUB_KEY_PATH'), 'r').read()
-APP.config['LOCAL_ROUTING'] = os.getenv('LOCAL_ROUTING_NUM')
-APP.config['BACKEND_TIMEOUT'] = 3  # timeout in seconds for calls to the backend
-APP.config['TOKEN_NAME'] = 'token'
-APP.config['TIMESTAMP_FORMAT'] = '%Y-%m-%dT%H:%M:%S.%f%z'
-
-
 @APP.route('/version', methods=['GET'])
 def version():
     """
@@ -347,14 +323,12 @@ def format_timestamp_day(timestamp):
     # TODO: time zones?
     date = datetime.datetime.strptime(timestamp, APP.config['TIMESTAMP_FORMAT'])
     return date.strftime('%d')
-APP.jinja_env.globals.update(format_timestamp_day=format_timestamp_day)
 
 def format_timestamp_month(timestamp):
     """ Format the input timestamp month in a human readable way """
     # TODO: time zones?
     date = datetime.datetime.strptime(timestamp, APP.config['TIMESTAMP_FORMAT'])
     return date.strftime('%b')
-APP.jinja_env.globals.update(format_timestamp_month=format_timestamp_month)
 
 def format_currency(int_amount):
     """ Format the input currency in a human readable way """
@@ -364,4 +338,31 @@ def format_currency(int_amount):
     if int_amount < 0:
         amount_str = '-' + amount_str
     return amount_str
+
+# set up logger
+APP.logger.handlers = logging.getLogger('gunicorn.error').handlers
+APP.logger.setLevel(logging.getLogger('gunicorn.error').level)
+
+# setup global variables
+APP.config["TRANSACTIONS_URI"] = 'http://{}/transactions'.format(
+    os.environ.get('TRANSACTIONS_API_ADDR'))
+APP.config["USERSERVICE_URI"] = 'http://{}/users'.format(
+    os.environ.get('USERSERVICE_API_ADDR'))
+APP.config["BALANCES_URI"] = 'http://{}/balances'.format(
+    os.environ.get('BALANCES_API_ADDR'))
+APP.config["HISTORY_URI"] = 'http://{}/transactions'.format(
+    os.environ.get('HISTORY_API_ADDR'))
+APP.config["LOGIN_URI"] = 'http://{}/login'.format(
+    os.environ.get('USERSERVICE_API_ADDR'))
+APP.config["CONTACTS_URI"] = 'http://{}/contacts'.format(
+    os.environ.get('CONTACTS_API_ADDR'))
+APP.config['PUBLIC_KEY'] = open(os.environ.get('PUB_KEY_PATH'), 'r').read()
+APP.config['LOCAL_ROUTING'] = os.getenv('LOCAL_ROUTING_NUM')
+APP.config['BACKEND_TIMEOUT'] = 3  # timeout in seconds for calls to the backend
+APP.config['TOKEN_NAME'] = 'token'
+APP.config['TIMESTAMP_FORMAT'] = '%Y-%m-%dT%H:%M:%S.%f%z'
+
+# register formater functions
 APP.jinja_env.globals.update(format_currency=format_currency)
+APP.jinja_env.globals.update(format_timestamp_month=format_timestamp_month)
+APP.jinja_env.globals.update(format_timestamp_day=format_timestamp_day)

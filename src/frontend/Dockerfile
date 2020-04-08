@@ -40,4 +40,4 @@ ADD templates /app/templates
 ADD *.py /app/
 
 # Start server using gunicorn
-CMD gunicorn -b :$PORT --log-level=info flask_server:APP
+CMD gunicorn -b :$PORT --log-level=debug flask_server:APP
