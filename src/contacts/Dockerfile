@@ -38,4 +38,4 @@ RUN pip install -r /app/requirements.txt
 ADD *.py /app/
 
 # Start server using gunicorn
-CMD gunicorn -b :$PORT --threads 4 --log-level=debug contacts:APP
+CMD gunicorn -b :$PORT --threads 4 --log-level=info contacts:APP
