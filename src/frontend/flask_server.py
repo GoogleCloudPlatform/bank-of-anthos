@@ -18,7 +18,6 @@ import datetime
 import json
 import logging
 import os
-import sys
 
 from flask import Flask, abort, jsonify, make_response, redirect, \
     render_template, request, url_for
@@ -240,7 +239,7 @@ def _add_contact(label, acct_num, routing_num, is_external_acct=False):
     requests.post(url=url,
                   data=jsonify(contact_data).data,
                   headers=hed,
-                  timeout=BACKEND_TIMEOUT)
+                  timeout=APP.config['BACKEND_TIMEOUT'])
 
 @APP.route("/login", methods=['GET'])
 def login_page():
@@ -366,5 +365,3 @@ def format_currency(int_amount):
         amount_str = '-' + amount_str
     return amount_str
 APP.jinja_env.globals.update(format_currency=format_currency)
-
-
