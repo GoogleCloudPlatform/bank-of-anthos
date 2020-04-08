@@ -2,3 +2,4 @@ flask
 requests
 pyjwt
 cryptography
+gunicorn
