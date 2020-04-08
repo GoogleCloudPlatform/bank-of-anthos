@@ -12,12 +12,22 @@ variables listed below. You may login to the account using the password
 
 ### Environment Variables
 
-- `TEST_USERNAME`
-  - the username of the default test account to initialize
-- `TEST_ACCOUNTID`
-  - the accountid of the default test account to initialize
-- `LOCAL_ROUTING_NUM`
-  - the routing number for this bank
+- ConfigMap `environment-config`:
+  - `LOCAL_ROUTING_NUM`
+    - the routing number for our bank
+
+- ConfigMap `default-data-config`:
+  - `USE_DEFAULT_DATA`
+    - adds default user accounts to the database when initialized if `True`
+    - configure default data in /kubernetes-manifests/default-data-config.yaml 
+
+- ConfigMap `accounts-db-config`:
+  - `POSTGRES_DB`
+    - database name
+  - `POSTGRES_USER`
+    - database username
+  - `POSTGRES_PASSWORD`
+    - database password
 
 ### Kubernetes Resources
 

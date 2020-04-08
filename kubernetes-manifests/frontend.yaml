@@ -34,28 +34,21 @@ spec:
           mountPath: "/root/.ssh"
           readOnly: true
         env:
-        - name: VERSION
-          value: "v0.1.0"
         - name: PORT
           value: "8080"
-        - name: TRANSACTIONS_API_ADDR
-          value: "ledgerwriter:8080"
-        - name: BALANCES_API_ADDR
-          value: "balancereader:8080"
-        - name: HISTORY_API_ADDR
-          value: "transactionhistory:8080"
-        - name: CONTACTS_API_ADDR
-          value: "contacts:8080"
-        - name: USERSERVICE_API_ADDR
-          value: "userservice:8080"
-        - name: LOCAL_ROUTING_NUM
-          value: "123456789"
-        - name: PUB_KEY_PATH
-          value: "/root/.ssh/publickey"
         - name: DEFAULT_USERNAME
-          value: "testuser"
+          valueFrom:
+            configMapKeyRef:
+              name: default-data-config
+              key: DEFAULT_USER_USERNAME
         - name: DEFAULT_PASSWORD
-          value: "password"
+          valueFrom:
+            configMapKeyRef:
+              name: default-data-config
+              key: DEFAULT_LOGIN_PASSWORD
+        envFrom:
+        - configMapRef:
+            name: environment-config
         readinessProbe:
           httpGet:
             path: /ready
