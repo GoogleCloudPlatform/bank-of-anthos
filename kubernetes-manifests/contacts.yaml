@@ -26,21 +26,16 @@ spec:
         app: contacts
     spec:
       terminationGracePeriodSeconds: 5
-      initContainers:
-      - name: check-db-ready
-        image: postgres:12
-        command: ['/bin/sh', '-c']
-        args: ["until pg_isready -h accounts-db -p 5432; do echo 'Waiting for database.'; sleep 2; done"]
       containers:
       - name: contacts
-        image: gcr.io/bank-of-anthos/contacts
+        image: gcr.io/bank-of-anthos/contacts:v0.1.0
         volumeMounts:
         - name: publickey
           mountPath: "/root/.ssh"
           readOnly: true
         env:
         - name: VERSION
-          value: "0.1.0"
+          value: "v0.1.0"
         - name: PORT
           value: "8080"
         - name: LOCAL_ROUTING_NUM

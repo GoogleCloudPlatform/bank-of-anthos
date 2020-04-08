@@ -27,7 +27,7 @@ from flask import Flask, jsonify, request
 import bleach
 import jwt
 from sqlalchemy import create_engine, MetaData, Table, Column, String, Boolean
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import OperationalError, SQLAlchemyError
 
 logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO').upper())
 
@@ -54,7 +54,6 @@ def get_contacts(username):
     This list is used for populating Payment and Deposit fields.
 
     Return: a list of contacts
-            {'account_list': [account1, account2, ...]}
     """
     auth_header = request.headers.get('Authorization')
     if auth_header:
@@ -65,15 +64,13 @@ def get_contacts(username):
         auth_payload = jwt.decode(token, key=PUBLIC_KEY, algorithms='RS256')
         if username != auth_payload['user']:
             raise PermissionError
-
         contacts_list = _get_contacts(username)
+        return jsonify(contacts_list), 200
     except (PermissionError, jwt.exceptions.InvalidTokenError):
         return jsonify({'msg': 'authentication denied'}), 401
     except SQLAlchemyError as err:
         logging.error(err)
         return jsonify({'error': 'failed to retrieve contacts list'}), 500
-
-    return jsonify({'account_list': contacts_list}), 200
 
 
 @APP.route('/contacts/<username>', methods=['POST'])
@@ -192,7 +189,11 @@ def _get_contacts(username):
 @atexit.register
 def _shutdown():
     """Executed when web app is terminated."""
-    DB_CONN.close()
+    try:
+        DB_CONN.close()
+    except NameError:
+        # catch name error when DB_CONN not set up
+        pass
     logging.info("Stopping flask.")
     logging.shutdown()
 
@@ -213,14 +214,18 @@ if __name__ == '__main__':
     PUBLIC_KEY = open(os.environ.get('PUB_KEY_PATH'), 'r').read()
 
     # Configure database connection
-    ACCOUNTS_DB = create_engine(os.environ.get('ACCOUNTS_DB_URI'))
-    CONTACTS_TABLE = Table('contacts', MetaData(ACCOUNTS_DB),
-                           Column('username', String),
-                           Column('label', String),
-                           Column('account_num', String),
-                           Column('routing_num', String),
-                           Column('is_external', Boolean))
-    DB_CONN = ACCOUNTS_DB.connect()
+    try:
+        ACCOUNTS_DB = create_engine(os.environ.get('ACCOUNTS_DB_URI'))
+        CONTACTS_TABLE = Table('contacts', MetaData(ACCOUNTS_DB),
+                               Column('username', String),
+                               Column('label', String),
+                               Column('account_num', String),
+                               Column('routing_num', String),
+                               Column('is_external', Boolean))
+        DB_CONN = ACCOUNTS_DB.connect()
+    except OperationalError:
+        logging.critical("database connection failed")
+        sys.exit(1)
 
     logging.info("Starting flask.")
     APP.run(debug=False, port=os.environ.get('PORT'), host='0.0.0.0')

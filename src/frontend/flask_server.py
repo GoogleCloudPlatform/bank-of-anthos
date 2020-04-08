@@ -91,26 +91,27 @@ def home():
     balance = None
     try:
         url = '{}/{}'.format(APP.config["BALANCES_URI"], account_id)
-        req = requests.get(url=url, headers=hed)
-        balance = req.json()
+        response = requests.get(url=url, headers=hed, timeout=BACKEND_TIMEOUT)
+        if response:
+            balance = response.json()
     except (requests.exceptions.RequestException, ValueError) as err:
         logging.error(str(err))
-
     # get history
-    transaction_list = []
+    transaction_list = None
     try:
         url = '{}/{}'.format(APP.config["HISTORY_URI"], account_id)
-        req = requests.get(url=url, headers=hed)
-        transaction_list = req.json()
+        response = requests.get(url=url, headers=hed, timeout=BACKEND_TIMEOUT)
+        if response:
+            transaction_list = response.json()
     except (requests.exceptions.RequestException, ValueError) as err:
         logging.error(str(err))
-
     # get contacts
     contacts = []
     try:
         url = '{}/{}'.format(APP.config["CONTACTS_URI"], username)
-        req = requests.get(url=url, headers=hed)
-        contacts = req.json()['account_list']
+        response = requests.get(url=url, headers=hed, timeout=BACKEND_TIMEOUT)
+        if response:
+            contacts = response.json()
     except (requests.exceptions.RequestException, ValueError) as err:
         logging.error(str(err))
 
@@ -226,7 +227,7 @@ def _submit_transaction(transaction_data):
     req = requests.post(url=APP.config["TRANSACTIONS_URI"],
                         data=jsonify(transaction_data).data,
                         headers=hed,
-                        timeout=3)
+                        timeout=BACKEND_TIMEOUT)
     return req.status_code
 
 
@@ -248,7 +249,7 @@ def _add_contact(label, acct_num, routing_num, is_external_acct=False):
     requests.post(url=url,
                   data=jsonify(contact_data).data,
                   headers=hed,
-                  timeout=3)
+                  timeout=BACKEND_TIMEOUT)
 
 @APP.route("/login", methods=['GET'])
 def login_page():
@@ -278,16 +279,19 @@ def login():
 
 
 def _login_helper(username, password):
-    req = requests.get(url=APP.config["LOGIN_URI"],
-                       params={'username': username, 'password': password})
-    if req.status_code == 200:
-        # login success
-        token = req.json()['token'].encode('utf-8')
-        claims = jwt.decode(token, verify=False)
-        max_age = claims['exp'] - claims['iat']
-        resp = make_response(redirect(url_for('home')))
-        resp.set_cookie(TOKEN_NAME, token, max_age=max_age)
-        return resp
+    try:
+        req = requests.get(url=APP.config["LOGIN_URI"],
+                           params={'username': username, 'password': password})
+        if req.status_code == 200:
+            # login success
+            token = req.json()['token'].encode('utf-8')
+            claims = jwt.decode(token, verify=False)
+            max_age = claims['exp'] - claims['iat']
+            resp = make_response(redirect(url_for('home')))
+            resp.set_cookie(TOKEN_NAME, token, max_age=max_age)
+            return resp
+    except requests.exceptions.RequestException as err:
+        logging.error(str(err))
     return redirect(url_for('login', msg='Login Failed'))
 
 
@@ -310,16 +314,17 @@ def signup():
 
     Fails if userservice does not accept input form data
     """
-
-    # create user
-    req = requests.post(url=APP.config["USERSERVICE_URI"],
-                        data=request.form,
-                        timeout=3)
-    if req.status_code == 201:
-        # user created. Attempt login
-        return _login_helper(request.form['username'],
-                             request.form['password'])
-    logging.debug(req.text)
+    try:
+        # create user
+        resp = requests.post(url=APP.config["USERSERVICE_URI"],
+                             data=request.form,
+                             timeout=BACKEND_TIMEOUT)
+        if resp.status_code == 201:
+            # user created. Attempt login
+            return _login_helper(request.form['username'],
+                                 request.form['password'])
+    except requests.exceptions.RequestException as err:
+        logging.error(str(err))
     return redirect(url_for('login', msg='Error: Account creation failed'))
 
 
@@ -381,6 +386,7 @@ if __name__ == '__main__':
     # setup global variables
     PUBLIC_KEY = open(os.environ.get('PUB_KEY_PATH'), 'r').read()
     LOCAL_ROUTING = os.getenv('LOCAL_ROUTING_NUM')
+    BACKEND_TIMEOUT = 3  # timeout in seconds for calls to the backend
 
     # setup logger
     logging.basicConfig(level=logging.INFO,

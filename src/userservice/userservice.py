@@ -28,7 +28,7 @@ import bleach
 import bcrypt
 import jwt
 from sqlalchemy import create_engine, MetaData, Table, Column, String, Date, LargeBinary
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import OperationalError, SQLAlchemyError
 
 logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO').upper())
 
@@ -231,7 +231,11 @@ def _generate_accountid():
 @atexit.register
 def _shutdown():
     """Executed when web app is terminated."""
-    DB_CONN.close()
+    try:
+        DB_CONN.close()
+    except NameError:
+        # catch name error when DB_CONN not set up
+        pass
     logging.info("Stopping flask.")
     logging.shutdown()
 
@@ -254,20 +258,24 @@ if __name__ == '__main__':
     PUBLIC_KEY = open(os.environ.get('PUB_KEY_PATH'), 'r').read()
 
     # Configure database connection
-    ACCOUNTS_DB = create_engine(os.environ.get('ACCOUNTS_DB_URI'))
-    USERS_TABLE = Table('users', MetaData(ACCOUNTS_DB),
-                        Column('accountid', String),
-                        Column('username', String),
-                        Column('passhash', LargeBinary),
-                        Column('firstname', String),
-                        Column('lastname', String),
-                        Column('birthday', Date),
-                        Column('timezone', String),
-                        Column('address', String),
-                        Column('state', String),
-                        Column('zip', String),
-                        Column('ssn', String))
-    DB_CONN = ACCOUNTS_DB.connect()
+    try:
+        ACCOUNTS_DB = create_engine(os.environ.get('ACCOUNTS_DB_URI'))
+        USERS_TABLE = Table('users', MetaData(ACCOUNTS_DB),
+                            Column('accountid', String),
+                            Column('username', String),
+                            Column('passhash', LargeBinary),
+                            Column('firstname', String),
+                            Column('lastname', String),
+                            Column('birthday', Date),
+                            Column('timezone', String),
+                            Column('address', String),
+                            Column('state', String),
+                            Column('zip', String),
+                            Column('ssn', String))
+        DB_CONN = ACCOUNTS_DB.connect()
+    except OperationalError:
+        logging.critical("database connection failed")
+        sys.exit(1)
 
     logging.info("Starting flask.")
     APP.run(debug=False, port=os.environ.get('PORT'), host='0.0.0.0')
