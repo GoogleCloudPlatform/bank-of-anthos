@@ -114,7 +114,7 @@ def home():
     except (requests.exceptions.RequestException, ValueError) as err:
         logging.error(str(err))
 
-    _populate_contact_names(transaction_list, contacts)
+    _populate_contact_labels(account_id, transaction_list, contacts)
 
     return render_template('index.html',
                            history=transaction_list,
@@ -125,13 +125,16 @@ def home():
                            message=request.args.get('msg', None))
 
 
-def _populate_contact_names(transactions, contacts):
-    # Labels are optional, so if no label, default to the empty string
+def _populate_contact_labels(account_id, transactions, contacts):
+    # If no label, default to the empty string
     contact_map = {c['account_num']: c.get('label', '') for c in contacts}
 
     for trans in transactions:
         # If not a contact, default to the empty string
-        trans['accountName'] = contact_map.get(trans['accountNum'], '')
+        if trans['toAccountNum'] == account_id:
+            trans['accountLabel'] = contact_map.get(trans['fromAccountNum'], '')
+        elif trans['fromAccountNum'] == account_id:
+            trans['accountLabel'] = contact_map.get(trans['toAccountNum'], '')
 
 
 @APP.route('/payment', methods=['POST'])

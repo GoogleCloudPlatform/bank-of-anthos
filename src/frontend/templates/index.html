@@ -171,7 +171,7 @@ limitations under the License.
                         <a class="text-transaction-header">Account</a>
                       </th>
                       <th>
-                        <a class="text-transaction-header">Name</a>
+                        <a class="text-transaction-header">Label</a>
                       </th>
                       <th class="text-right">
                         <a class="text-transaction-header">Amount</a>
@@ -191,12 +191,12 @@ limitations under the License.
                             <td class="transaction-account">
                               {{ t.fromAccountNum }}
                             </td>
-                            <td class="transaction-name">
-                              {% if t.accountName.strip() != "" %}
-                                {{ t.accountName }}
+                            <td class="transaction-label">
+                              {% if t.accountLabel.strip() != "" %}
+                                {{ t.accountLabel }}
                               {% else %}
-                                <span class="transaction-name-none">None</span>
-                              {% endif % %}
+                                <span class="transaction-label-none">None</span>
+                              {% endif %}
                             </td>
                             <td class="transaction-amount transaction-amount-debit">
                               +{{ format_currency(t.amount) }}
@@ -208,12 +208,12 @@ limitations under the License.
                             <td class="transaction-account">
                               {{ t.toAccountNum }}
                             </td>
-                            <td class="transaction-name">
-                              {% if t.accountName.strip() != "" %}
-                                {{ t.accountName }}
+                            <td class="transaction-label">
+                              {% if t.accountLabel.strip() != "" %}
+                                {{ t.accountLabel }}
                               {% else %}
-                                <span class="transaction-name-none">None</span>
-                              {% endif % %}
+                                <span class="transaction-label-none">None</span>
+                              {% endif %}
                             </td>
                             <td class="transaction-amount">
                               -{{ format_currency(t.amount) }}
