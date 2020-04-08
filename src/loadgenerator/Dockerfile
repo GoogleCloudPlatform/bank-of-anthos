@@ -12,24 +12,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM python:3-slim as base
+# The Google App Engine python runtime is Debian Jessie with Python installed
+# and various os-level packages to allow installation of popular Python
+# libraries. The source is on github at:
+#   https://github.com/GoogleCloudPlatform/python-docker
+FROM gcr.io/google-appengine/python
 
-FROM base as builder
+# show python logs as they occur
+ENV PYTHONUNBUFFERED=0
 
-RUN apt-get -qq update \
-    && apt-get install -y --no-install-recommends \
-        g++
+# Create a virtualenv for the application dependencies.
+RUN virtualenv -p python3.7 /env
 
-COPY requirements.txt .
+# Set virtualenv environment variables. This is equivalent to running
+# source /env/bin/activate. This ensures the application is executed within
+# the context of the virtualenv and will have access to its dependencies.
+ENV VIRTUAL_ENV /env
+ENV PATH /env/bin:$PATH
 
-RUN pip install --install-option="--prefix=/install" -r requirements.txt
+# Install dependencies.
+ADD requirements.txt /app/requirements.txt
+RUN pip install -r /app/requirements.txt
 
-FROM base
-COPY --from=builder /install /usr/local
+# Add application code.
+ADD loadgen.sh /app
+ADD locustfile.py /app
+RUN chmod +x /app/loadgen.sh
 
-COPY . .
-RUN chmod +x ./loadgen.sh
-RUN apt-get -qq update \
-    && apt-get install -y --no-install-recommends \
-        curl
-ENTRYPOINT ./loadgen.sh
+# start loadgenerator
+ENTRYPOINT /app/loadgen.sh
