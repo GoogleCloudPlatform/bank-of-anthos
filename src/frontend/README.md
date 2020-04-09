@@ -22,28 +22,30 @@ Implemented in Python with Flask.
 
 ### Environment Variables
 
-- `VERSION`
-  - a version string for the service
 - `PORT`
   - the port for the webserver
-- `TRANSACTIONS_API_ADDR`
-  - the address and port of the `ledgerwriter` service
-- `BALANCES_API_ADDR`
-  - the address and port of the `balancereader` service
-- `HISTORY_API_ADDR`
-  - the address and port of the `transactionhistory` service
-- `CONTACTS_API_ADDR`
-  - the address and port of the `contacts` service
-- `USERSERVICE_API_ADDR`
-  - the address and port of the `userservice`
-- `LOCAL_ROUTING_NUM`
-  - the routing number for our bank
-- `PUB_KEY_PATH`
-  - the path to the JWT signer's public key, mounted as a secret
 - `DEFAULT_USERNAME`
   - a string to pre-populate the "username" field. Optional
 - `DEFAULT_PASSWORD`
   - a string to pre-populate the "password" field. Optional
+
+- ConfigMap `environment-config`:
+  - `VERSION`
+    - a version string for the service
+  - `LOCAL_ROUTING_NUM`
+    - the routing number for our bank
+  - `PUB_KEY_PATH`
+    - the path to the JWT signer's public key, mounted as a secret
+  - `TRANSACTIONS_API_ADDR`
+    - the address and port of the `ledgerwriter` service
+  - `BALANCES_API_ADDR`
+    - the address and port of the `balancereader` service
+  - `HISTORY_API_ADDR`
+    - the address and port of the `transactionhistory` service
+  - `CONTACTS_API_ADDR`
+    - the address and port of the `contacts` service
+  - `USERSERVICE_API_ADDR`
+    - the address and port of the `userservice`
 
 ### Kubernetes Resources
 
