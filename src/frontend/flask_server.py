@@ -150,10 +150,6 @@ def payment():
                                         recipient,
                                         LOCAL_ROUTING,
                                         False)
-                if response.status_code == 409:
-                    # contact not allowed.
-                    msg = 'Payment failed: ' + response.json()['msg']
-                    return redirect(url_for('home', msg=msg))
 
         transaction_data = {"fromAccountNum": account_id,
                             "fromRoutingNum": LOCAL_ROUTING,
@@ -163,9 +159,15 @@ def payment():
         status_code = _submit_transaction(transaction_data)
         if status_code == 201:
             return redirect(url_for('home', msg='Payment initiated'))
+
     except requests.exceptions.RequestException as err:
         logging.error(str(err))
+    except UserWarning as warn:
+        msg = 'Payment failed: {}'.format(str(warn))
+        return redirect(url_for('home', msg=msg))
+
     return redirect(url_for('home', msg='Payment failed'))
+
 
 @APP.route('/deposit', methods=['POST'])
 def deposit():
@@ -194,15 +196,12 @@ def deposit():
                                         external_account_num,
                                         external_routing_num,
                                         True)
-                if response.status_code == 409:
-                    # contact not allowed.
-                    msg = 'Deposit failed: ' + response.json()['msg']
-                    return redirect(url_for('home', msg=msg))
 
         else:
             account_details = json.loads(request.form['account'])
             external_account_num = account_details['account_num']
             external_routing_num = account_details['routing_num']
+
         transaction_data = {"fromAccountNum": external_account_num,
                             "fromRoutingNum": external_routing_num,
                             "toAccountNum": account_id,
@@ -211,10 +210,15 @@ def deposit():
         status_code = _submit_transaction(transaction_data)
         if status_code == 201:
             return redirect(url_for('home', msg='Deposit accepted'))
+
     except requests.exceptions.RequestException as err:
         logging.error(str(err))
+    except UserWarning as warn:
+        msg = 'Payment failed: {}'.format(str(warn))
+        return redirect(url_for('home', msg=msg))
 
     return redirect(url_for('home', msg='Deposit failed'))
+
 
 def _submit_transaction(transaction_data):
     token = request.cookies.get(TOKEN_NAME)
@@ -229,7 +233,9 @@ def _submit_transaction(transaction_data):
 
 def _add_contact(label, acct_num, routing_num, is_external_acct=False):
     """
-    Submits a new contact to the contact service
+    Submits a new contact to the contact service.
+
+    Raise: UserWarning  if the response status is 4xx or 5xx.
     """
     token = request.cookies.get(TOKEN_NAME)
     hed = {'Authorization': 'Bearer ' + token,
@@ -242,10 +248,15 @@ def _add_contact(label, acct_num, routing_num, is_external_acct=False):
     }
     token_data = jwt.decode(token, verify=False)
     url = '{}/{}'.format(APP.config["CONTACTS_URI"], token_data['user'])
-    return requests.post(url=url,
-                         data=jsonify(contact_data).data,
-                         headers=hed,
-                         timeout=BACKEND_TIMEOUT)
+    response = requests.post(url=url,
+                             data=jsonify(contact_data).data,
+                             headers=hed,
+                             timeout=BACKEND_TIMEOUT)
+    try:
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as err:
+        raise UserWarning(response.json().get('msg', ''))
+
 
 @APP.route("/login", methods=['GET'])
 def login_page():

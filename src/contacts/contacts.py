@@ -70,7 +70,7 @@ def get_contacts(username):
         return jsonify({'msg': 'authentication denied'}), 401
     except SQLAlchemyError as err:
         logging.error(err)
-        return jsonify({'error': 'failed to retrieve contacts list'}), 500
+        return jsonify({'msg': 'failed to retrieve contacts list'}), 500
 
 
 @APP.route('/contacts/<username>', methods=['POST'])
@@ -113,7 +113,7 @@ def add_contact(username):
         return jsonify({'msg': str(err)}), 409
     except SQLAlchemyError as err:
         logging.error(err)
-        return jsonify({'error': 'failed to add contact'}), 500
+        return jsonify({'msg': 'failed to add contact'}), 500
 
 
 def _validate_new_contact(req):
