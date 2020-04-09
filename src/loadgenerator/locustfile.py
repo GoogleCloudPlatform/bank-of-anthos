@@ -206,4 +206,4 @@ class WebsiteUser(HttpLocust):
     Locust class to simulate HTTP users
     """
     task_set = AllTasks
-    wait_time = between(1,1)
+    wait_time = between(1, 1)
