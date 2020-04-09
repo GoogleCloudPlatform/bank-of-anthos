@@ -33,7 +33,7 @@ spec:
     spec:
       containers:
       - name: accounts-db
-        image: gcr.io/bank-of-anthos/accounts-db
+        image: gcr.io/bank-of-anthos/accounts-db:v0.1.0
         env:
         - name: LOCAL_ROUTING_NUM
           value: "123456789"
