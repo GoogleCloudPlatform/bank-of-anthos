@@ -26,7 +26,7 @@ import sys
 from flask import Flask, jsonify, request
 import bleach
 import jwt
-from sqlalchemy import create_engine, MetaData, Table, Column, String, Boolean
+from pylibs.db.database_helper import DatabaseHelper
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
 
 APP = Flask(__name__)
@@ -61,7 +61,7 @@ def get_contacts(username):
         auth_payload = jwt.decode(token, key=APP.config['PUBLIC_KEY'], algorithms='RS256')
         if username != auth_payload['user']:
             raise PermissionError
-        contacts_list = _get_contacts(username)
+        contacts_list = CONTACTS_DB.get_contacts(username)
         return jsonify(contacts_list), 200
     except (PermissionError, jwt.exceptions.InvalidTokenError):
         return jsonify({'msg': 'authentication denied'}), 401
@@ -203,7 +203,7 @@ def _get_contacts(username):
 def _shutdown():
     """Executed when web app is terminated."""
     try:
-        DB_CONN.close()
+        CONTACTS_DB.close()
     except NameError:
         # catch name error when DB_CONN not set up
         pass

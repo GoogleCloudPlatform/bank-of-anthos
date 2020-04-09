@@ -20,18 +20,16 @@ import atexit
 from datetime import datetime, timedelta
 import logging
 import os
-import random
 import sys
 
 from flask import Flask, jsonify, request
 import bleach
 import bcrypt
 import jwt
-from sqlalchemy import create_engine, MetaData, Table, Column, String, Date, LargeBinary
+from pylibs.db.database_helper import DatabaseHelper
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
 
 APP = Flask(__name__)
-
 
 @APP.route('/version', methods=['GET'])
 def version():
@@ -75,11 +73,11 @@ def create_user():
         _validate_new_user(req)
 
         # Check if user already exists
-        if _get_user(req['username']) is not None:
+        if USERS_DB.get_user(req["username"]) is not None:
             raise NameError('user {} already exists'.format(req['username']))
 
         # Create the user
-        _add_user(req)
+        USERS_DB.add_user(req)
 
     except UserWarning as warn:
         return jsonify({'msg': str(warn)}), 400
@@ -133,7 +131,7 @@ def get_token():
 
     # Get user data
     try:
-        user = _get_user(username)
+        user = USERS_DB.get_user(username)
         if user is None:
             raise LookupError('user {} does not exist'.format(user))
 
@@ -230,7 +228,7 @@ def _generate_accountid():
 def _shutdown():
     """Executed when web app is terminated."""
     try:
-        DB_CONN.close()
+        USERS_DB.close()
     except NameError:
         # catch name error when DB_CONN not set up
         pass
