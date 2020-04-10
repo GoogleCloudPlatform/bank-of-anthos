@@ -24,7 +24,7 @@ import os
 from random import randint, random, choice
 import uuid
 
-from locust import HttpLocust, TaskSet, TaskSequence, task, seq_task
+from locust import HttpLocust, TaskSet, TaskSequence, task, seq_task, between
 
 logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO').upper())
 
@@ -151,7 +151,7 @@ class AllTasks(TaskSequence):
             with self.client.post("/payment",
                                   data=transaction,
                                   catch_response=True) as response:
-                if "failed" in response.url:
+                if response.url is None or "failed" in response.url:
                     response.failure("payment failed")
 
         @task(5)
@@ -206,5 +206,4 @@ class WebsiteUser(HttpLocust):
     Locust class to simulate HTTP users
     """
     task_set = AllTasks
-    min_wait = 1000
-    max_wait = 1000
+    wait_time = between(1, 1)

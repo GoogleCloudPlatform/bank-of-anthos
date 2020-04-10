@@ -25,4 +25,4 @@ skaffold dev --default-repo=gcr.io/${PROJECT_ID}/bank-of-anthos
 
 ## Continuous Integration
 
-GitHub Actions workflows [described here](./.github/workflows)
+GitHub Actions workflows [described here](../.github/workflows)

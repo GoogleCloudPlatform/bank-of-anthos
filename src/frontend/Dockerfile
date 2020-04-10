@@ -12,19 +12,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM python:3.8.2-slim
+# The Google App Engine python runtime is Debian Jessie with Python installed
+# and various os-level packages to allow installation of popular Python
+# libraries. The source is on github at:
+#   https://github.com/GoogleCloudPlatform/python-docker
+FROM gcr.io/google-appengine/python
+
 # show python logs as they occur
 ENV PYTHONUNBUFFERED=0
 
-# get packages
-WORKDIR /frontend
-COPY requirements.txt requirements.txt
-RUN pip install -r requirements.txt
+# Create a virtualenv for the application dependencies.
+RUN virtualenv -p python3.7 /env
 
-# add files into working directory
-COPY static static
-COPY templates templates
-COPY *.py .
+# Set virtualenv environment variables. This is equivalent to running
+# source /env/bin/activate. This ensures the application is executed within
+# the context of the virtualenv and will have access to its dependencies.
+ENV VIRTUAL_ENV /env
+ENV PATH /env/bin:$PATH
 
-EXPOSE 5000
-ENTRYPOINT ["python", "/frontend/flask_server.py"]
+# Install dependencies.
+ADD requirements.txt /app/requirements.txt
+RUN pip install -r /app/requirements.txt
+
+# Add application code.
+ADD static /app/static
+ADD templates /app/templates
+ADD *.py /app/
+
+# Start server using gunicorn
+CMD gunicorn -b :$PORT --threads 4 --log-level=info flask_server:APP
