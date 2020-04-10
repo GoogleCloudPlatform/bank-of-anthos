@@ -152,7 +152,7 @@ def _check_contact_allowed(username, accountid, req):
                 contact['routing_num'] == req['routing_num']):
             raise ValueError('account already exists as a contact')
 
-        elif contact['label'] == req['label']:
+        if contact['label'] == req['label']:
             raise ValueError('contact already exists with that label')
 
 
