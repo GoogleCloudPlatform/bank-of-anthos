@@ -67,7 +67,7 @@ def get_contacts(username):
         return jsonify({'msg': 'authentication denied'}), 401
     except SQLAlchemyError as err:
         APP.logger.error(err)
-        return jsonify({'error': 'failed to retrieve contacts list'}), 500
+        return jsonify({'msg': 'failed to retrieve contacts list'}), 500
 
 
 @APP.route('/contacts/<username>', methods=['POST'])
@@ -97,25 +97,24 @@ def add_contact(username):
                for k, v in request.get_json().items()}
         _validate_new_contact(req)
 
-        # Don't allow self reference
-        if (req['account_num'] == auth_payload['acct'] and
-                req['routing_num'] == APP.config['LOCAL_ROUTING']):
-            return jsonify({'msg': 'may not add yourself to contacts'}), 409
+        _check_contact_allowed(username, auth_payload['acct'], req)
 
         _add_contact(username, req)
+        return jsonify({}), 201
 
     except (PermissionError, jwt.exceptions.InvalidTokenError):
         return jsonify({'msg': 'authentication denied'}), 401
     except UserWarning as warn:
         return jsonify({'msg': str(warn)}), 400
+    except ValueError as err:
+        return jsonify({'msg': str(err)}), 409
     except SQLAlchemyError as err:
         APP.logger.error(err)
-        return jsonify({'error': 'failed to add contact'}), 500
-
-    return jsonify({}), 201
+        return jsonify({'msg': 'failed to add contact'}), 500
 
 
 def _validate_new_contact(req):
+    """Check that this new contact request has valid fields"""
     APP.logger.debug('validating add contact request: %s', str(req))
     # Check if required fields are filled
     fields = ('label',
@@ -138,6 +137,23 @@ def _validate_new_contact(req):
     # Must be >0 and <30 chars, alphanumeric and spaces, can't start with space
     if not re.match(r'^[0-9a-zA-Z][0-9a-zA-Z ]{0,29}$', req['label']):
         raise UserWarning('invalid account label')
+
+
+def _check_contact_allowed(username, accountid, req):
+    """Check that this contact is allowed to be created"""
+    # Don't allow self reference
+    if (req['account_num'] == accountid and
+            req['routing_num'] == APP.config['LOCAL_ROUTING']):
+        raise ValueError('may not add yourself to contacts')
+
+    # Don't allow identical contacts
+    for contact in _get_contacts(username):
+        if (contact['account_num'] == req['account_num'] and
+                contact['routing_num'] == req['routing_num']):
+            raise ValueError('account already exists as a contact')
+
+        if contact['label'] == req['label']:
+            raise ValueError('contact already exists with that label')
 
 
 def _add_contact(username, contact):
