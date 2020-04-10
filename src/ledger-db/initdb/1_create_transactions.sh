@@ -28,12 +28,33 @@ if [ "$USE_DEFAULT_DATA" != "True"  ]; then
 fi
 
 
+# Expected environment variables
+readonly ENV_VARS=(
+  "POSTGRES_DB"
+  "POSTGRES_USER"
+  "LOCAL_ROUTING_NUM"
+  "DEFAULT_USER_ACCOUNT"
+  "DEFAULT_DEPOSIT_ACCOUNT"
+  "DEFAULT_CONTACT_ACCOUNT_A"
+  "DEFAULT_CONTACT_ACCOUNT_B"
+)
+
+
+# Check environment variables are set
+for env_var in ${ENV_VARS[@]}; do
+  if [[ -z "${!env_var}" ]]; then
+    echo "Error: environment variable '$env_var' not set. Aborting."
+    exit 1
+  fi
+done
+
+
 add_transaction() {
     DATE=$(date -u +"%Y-%m-%d %H:%M:%S.%3N%z" --date="@$(($6))")
     echo "adding default transaction: $1 -> $2"
-    psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
+    psql -X -v ON_ERROR_STOP=1 -v fromacct="$1" -v toacct="$2" -v fromroute="$3" -v toroute="$4" -v amount="$5" --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
         INSERT INTO TRANSACTIONS (FROM_ACCT, TO_ACCT, FROM_ROUTE, TO_ROUTE, AMOUNT, TIMESTAMP)
-        VALUES ($1, $2, $3, $4, $5, '$DATE');
+        VALUES (:'fromacct', :'toacct', :'fromroute', :'toroute', :'amount', '$DATE');
 EOSQL
 }
 
@@ -43,14 +64,14 @@ DAYS_BETWEEN_PAY=14
 SECONDS_IN_PAY_PERIOD=$(( 86400 * $DAYS_BETWEEN_PAY  ))
 echo $SECONDS_IN_PAY_PERIOD
 DEPOSIT_AMOUNT=250000
-PAYMENT_ACCOUNTS=($DEFAULT_CONTACT_ACCOUNT_A $DEFAULT_CONTACT_ACCOUNT_B)
+PAYMENT_ACCOUNTS=("$DEFAULT_CONTACT_ACCOUNT_A" "$DEFAULT_CONTACT_ACCOUNT_B")
 
 # create a UNIX timestamp in seconds since the Epoch
 START_TIMESTAMP=$(( $(date +%s) - $(( $(($PAY_PERIODS+1)) * $SECONDS_IN_PAY_PERIOD  ))  ))
 
 for i in $(seq 1 $PAY_PERIODS); do
     # create deposit transaction
-    add_transaction $DEFAULT_DEPOSIT_ACCOUNT $DEFAULT_USER_ACCOUNT $DEFAULT_DEPOSIT_ROUTING $LOCAL_ROUTING_NUM $DEPOSIT_AMOUNT $START_TIMESTAMP
+    add_transaction "$DEFAULT_DEPOSIT_ACCOUNT" "$DEFAULT_USER_ACCOUNT" "$DEFAULT_DEPOSIT_ROUTING" "$LOCAL_ROUTING_NUM" $DEPOSIT_AMOUNT $START_TIMESTAMP
 
     # create payments
     TRANSACTIONS_PER_PERIOD=$(shuf -i 3-11 -n1)
@@ -59,7 +80,7 @@ for i in $(seq 1 $PAY_PERIODS); do
         RECIPIENT_ACCOUNT=${PAYMENT_ACCOUNTS[$RANDOM % ${#PAYMENT_ACCOUNTS[@]}]}
         TIMESTAMP=$(( $START_TIMESTAMP + $(( $SECONDS_IN_PAY_PERIOD * $p / $(($TRANSACTIONS_PER_PERIOD + 1 )) )) ))
 
-        add_transaction $DEFAULT_USER_ACCOUNT $RECIPIENT_ACCOUNT $LOCAL_ROUTING_NUM $LOCAL_ROUTING_NUM $AMOUNT $TIMESTAMP
+        add_transaction "$DEFAULT_USER_ACCOUNT" "$RECIPIENT_ACCOUNT" "$LOCAL_ROUTING_NUM" "$LOCAL_ROUTING_NUM" $AMOUNT $TIMESTAMP
     done
 
     START_TIMESTAMP=$(( $START_TIMESTAMP + $(( $i * $SECONDS_IN_PAY_PERIOD  )) ))
