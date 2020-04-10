@@ -18,8 +18,8 @@ set -o errexit
 
 # Skip adding data if not enabled
 if [ "$USE_DEFAULT_DATA" != "True"  ]; then
-    echo "no default users added"
-    exit 0
+  echo "no default users added"
+  exit 0
 fi
 
 
@@ -54,14 +54,14 @@ EOSQL
 
 main() {
   # Check environment variables are set
-	for env_var in ${ENV_VARS[@]}; do
+  for env_var in ${ENV_VARS[@]}; do
     if [[ -z "${!env_var}" ]]; then
       echo "Error: environment variable '$env_var' not set. Aborting."
       exit 1
     fi
   done
 
-	load_testdata
+  load_testdata
 }
 
 
