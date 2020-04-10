@@ -29,17 +29,14 @@ import jwt
 from sqlalchemy import create_engine, MetaData, Table, Column, String, Boolean
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
 
-logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO').upper())
-
 APP = Flask(__name__)
-
 
 @APP.route('/version', methods=['GET'])
 def version():
     """
     Service version endpoint
     """
-    return VERSION, 200
+    return APP.config['VERSION'], 200
 
 
 @APP.route('/ready', methods=['GET'])
@@ -61,7 +58,7 @@ def get_contacts(username):
     else:
         token = ''
     try:
-        auth_payload = jwt.decode(token, key=PUBLIC_KEY, algorithms='RS256')
+        auth_payload = jwt.decode(token, key=APP.config['PUBLIC_KEY'], algorithms='RS256')
         if username != auth_payload['user']:
             raise PermissionError
         contacts_list = _get_contacts(username)
@@ -69,7 +66,7 @@ def get_contacts(username):
     except (PermissionError, jwt.exceptions.InvalidTokenError):
         return jsonify({'msg': 'authentication denied'}), 401
     except SQLAlchemyError as err:
-        logging.error(err)
+        APP.logger.error(err)
         return jsonify({'msg': 'failed to retrieve contacts list'}), 500
 
 
@@ -92,7 +89,7 @@ def add_contact(username):
     else:
         token = ''
     try:
-        auth_payload = jwt.decode(token, key=PUBLIC_KEY, algorithms='RS256')
+        auth_payload = jwt.decode(token, key=APP.config['PUBLIC_KEY'], algorithms='RS256')
         if username != auth_payload['user']:
             raise PermissionError
 
@@ -112,13 +109,13 @@ def add_contact(username):
     except ValueError as err:
         return jsonify({'msg': str(err)}), 409
     except SQLAlchemyError as err:
-        logging.error(err)
+        APP.logger.error(err)
         return jsonify({'msg': 'failed to add contact'}), 500
 
 
 def _validate_new_contact(req):
     """Check that this new contact request has valid fields"""
-    logging.debug('validating add contact request: %s', str(req))
+    APP.logger.debug('validating add contact request: %s', str(req))
     # Check if required fields are filled
     fields = ('label',
               'account_num',
@@ -134,7 +131,7 @@ def _validate_new_contact(req):
     if not re.match(r'\A[0-9]{9}\Z', req['routing_num']):
         raise UserWarning('invalid routing number')
     # Only allow external accounts to deposit
-    if req['is_external'] and req['routing_num'] == LOCAL_ROUTING:
+    if req['is_external'] and req['routing_num'] == APP.config['LOCAL_ROUTING']:
         raise UserWarning('invalid routing number')
     # Validate label
     # Must be >0 and <30 chars, alphanumeric and spaces, can't start with space
@@ -146,7 +143,7 @@ def _check_contact_allowed(username, accountid, req):
     """Check that this contact is allowed to be created"""
     # Don't allow self reference
     if (req['account_num'] == accountid and
-            req['routing_num'] == LOCAL_ROUTING):
+            req['routing_num'] == APP.config['LOCAL_ROUTING']):
         raise ValueError('may not add yourself to contacts')
 
     # Don't allow identical contacts
@@ -173,7 +170,7 @@ def _add_contact(username, contact):
             'routing_num': contact['routing_num'],
             'is_external': contact['is_external']}
     statement = CONTACTS_TABLE.insert().values(data)
-    logging.debug('QUERY: %s', str(statement))
+    APP.logger.debug('QUERY: %s', str(statement))
     DB_CONN.execute(statement)
 
 
@@ -188,9 +185,9 @@ def _get_contacts(username):
     contacts = list()
     statement = CONTACTS_TABLE.select().where(
         CONTACTS_TABLE.c.username == username)
-    logging.debug('QUERY: %s', str(statement))
+    APP.logger.debug('QUERY: %s', str(statement))
     result = DB_CONN.execute(statement)
-    logging.debug('RESULT: %s', str(result))
+    APP.logger.debug('RESULT: %s', str(result))
     for row in result:
         contact = {
             'label': row['label'],
@@ -210,38 +207,27 @@ def _shutdown():
     except NameError:
         # catch name error when DB_CONN not set up
         pass
-    logging.info("Stopping flask.")
-    logging.shutdown()
+    APP.logger.info("Stopping flask.")
 
+# set up logger
+APP.logger.handlers = logging.getLogger('gunicorn.error').handlers
+APP.logger.setLevel(logging.getLogger('gunicorn.error').level)
 
-if __name__ == '__main__':
-    for v in ['PORT',
-              'VERSION',
-              'PUB_KEY_PATH',
-              'LOCAL_ROUTING_NUM',
-              'ACCOUNTS_DB_URI']:
-        if os.environ.get(v) is None:
-            logging.error("error: environment variable %s not set", v)
-            logging.shutdown()
-            sys.exit(1)
+# setup global variables
+APP.config['VERSION'] = os.environ.get('VERSION')
+APP.config['LOCAL_ROUTING'] = os.environ.get('LOCAL_ROUTING_NUM')
+APP.config['PUBLIC_KEY'] = open(os.environ.get('PUB_KEY_PATH'), 'r').read()
 
-    VERSION = os.environ.get('VERSION')
-    LOCAL_ROUTING = os.environ.get('LOCAL_ROUTING_NUM')
-    PUBLIC_KEY = open(os.environ.get('PUB_KEY_PATH'), 'r').read()
-
-    # Configure database connection
-    try:
-        ACCOUNTS_DB = create_engine(os.environ.get('ACCOUNTS_DB_URI'))
-        CONTACTS_TABLE = Table('contacts', MetaData(ACCOUNTS_DB),
-                               Column('username', String),
-                               Column('label', String),
-                               Column('account_num', String),
-                               Column('routing_num', String),
-                               Column('is_external', Boolean))
-        DB_CONN = ACCOUNTS_DB.connect()
-    except OperationalError:
-        logging.critical("database connection failed")
-        sys.exit(1)
-
-    logging.info("Starting flask.")
-    APP.run(debug=False, port=os.environ.get('PORT'), host='0.0.0.0')
+# Configure database connection
+try:
+    ACCOUNTS_DB = create_engine(os.environ.get('ACCOUNTS_DB_URI'))
+    CONTACTS_TABLE = Table('contacts', MetaData(ACCOUNTS_DB),
+                           Column('username', String),
+                           Column('label', String),
+                           Column('account_num', String),
+                           Column('routing_num', String),
+                           Column('is_external', Boolean))
+    DB_CONN = ACCOUNTS_DB.connect()
+except OperationalError:
+    APP.logger.critical("database connection failed")
+    sys.exit(1)

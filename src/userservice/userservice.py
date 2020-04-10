@@ -30,8 +30,6 @@ import jwt
 from sqlalchemy import create_engine, MetaData, Table, Column, String, Date, LargeBinary
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
 
-logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO').upper())
-
 APP = Flask(__name__)
 
 
@@ -40,7 +38,7 @@ def version():
     """
     Service version endpoint
     """
-    return VERSION, 200
+    return APP.config['VERSION'], 200
 
 
 @APP.route('/ready', methods=['GET'])
@@ -88,14 +86,14 @@ def create_user():
     except NameError as err:
         return jsonify({'msg': str(err)}), 409
     except SQLAlchemyError as err:
-        logging.error(err)
+        APP.logger.error(err)
         return jsonify({'error': 'failed to create user'}), 500
 
     return jsonify({}), 201
 
 
 def _validate_new_user(req):
-    logging.debug('validating create user request: %s', str(req))
+    APP.logger.debug('validating create user request: %s', str(req))
     # Check if required fields are filled
     fields = ('username',
               'password',
@@ -144,13 +142,13 @@ def get_token():
             raise PermissionError('invalid login')
 
         full_name = '{} {}'.format(user['firstname'], user['lastname'])
-        exp_time = datetime.utcnow() + timedelta(seconds=EXPIRY_SECONDS)
+        exp_time = datetime.utcnow() + timedelta(seconds=APP.config['EXPIRY_SECONDS'])
         payload = {'user': username,
                    'acct': user['accountid'],
                    'name': full_name,
                    'iat': datetime.utcnow(),
                    'exp': exp_time}
-        token = jwt.encode(payload, PRIVATE_KEY, algorithm='RS256')
+        token = jwt.encode(payload, APP.config['PRIVATE_KEY'], algorithm='RS256')
         return jsonify({'token': token.decode("utf-8")}), 200
 
     except LookupError as err:
@@ -158,7 +156,7 @@ def get_token():
     except PermissionError as err:
         return jsonify({'msg': str(err)}), 401
     except SQLAlchemyError as err:
-        logging.error(err)
+        APP.logger.error(err)
         return jsonify({'error': 'failed to retrieve user information'}), 500
 
 
@@ -189,7 +187,7 @@ def _add_user(user):
             'zip': user['zip'],
             'ssn': user['ssn']}
     statement = USERS_TABLE.insert().values(data)
-    logging.debug('QUERY: %s', str(statement))
+    APP.logger.debug('QUERY: %s', str(statement))
     DB_CONN.execute(statement)
 
 
@@ -204,9 +202,9 @@ def _get_user(username):
     """
     statement = USERS_TABLE.select().where(
         USERS_TABLE.c.username == username)
-    logging.debug('QUERY: %s', str(statement))
+    APP.logger.debug('QUERY: %s', str(statement))
     result = DB_CONN.execute(statement).first()
-    logging.debug('RESULT: %s', str(result))
+    APP.logger.debug('RESULT: %s', str(result))
 
     return dict(result) if result is not None else None
 
@@ -219,9 +217,9 @@ def _generate_accountid():
 
         statement = USERS_TABLE.select().where(
             USERS_TABLE.c.accountid == accountid)
-        logging.debug('QUERY: %s', str(statement))
+        APP.logger.debug('QUERY: %s', str(statement))
         result = DB_CONN.execute(statement).first()
-        logging.debug('RESULT: %s', str(result))
+        APP.logger.debug('RESULT: %s', str(result))
         # If there already exists an account, try again.
         if result is not None:
             accountid = None
@@ -236,46 +234,34 @@ def _shutdown():
     except NameError:
         # catch name error when DB_CONN not set up
         pass
-    logging.info("Stopping flask.")
-    logging.shutdown()
+    APP.logger.info("Stopping flask.")
 
 
-if __name__ == '__main__':
-    for v in ['PORT',
-              'VERSION',
-              'PRIV_KEY_PATH',
-              'PUB_KEY_PATH',
-              'TOKEN_EXPIRY_SECONDS',
-              'ACCOUNTS_DB_URI']:
-        if os.environ.get(v) is None:
-            logging.critical("error: environment variable %s not set", v)
-            logging.shutdown()
-            sys.exit(1)
+# set up logger
+APP.logger.handlers = logging.getLogger('gunicorn.error').handlers
+APP.logger.setLevel(logging.getLogger('gunicorn.error').level)
 
-    VERSION = os.environ.get('VERSION')
-    EXPIRY_SECONDS = int(os.environ.get('TOKEN_EXPIRY_SECONDS'))
-    PRIVATE_KEY = open(os.environ.get('PRIV_KEY_PATH'), 'r').read()
-    PUBLIC_KEY = open(os.environ.get('PUB_KEY_PATH'), 'r').read()
+APP.config['VERSION'] = os.environ.get('VERSION')
+APP.config['EXPIRY_SECONDS'] = int(os.environ.get('TOKEN_EXPIRY_SECONDS'))
+APP.config['PRIVATE_KEY'] = open(os.environ.get('PRIV_KEY_PATH'), 'r').read()
+APP.config['PUBLIC_KEY'] = open(os.environ.get('PUB_KEY_PATH'), 'r').read()
 
-    # Configure database connection
-    try:
-        ACCOUNTS_DB = create_engine(os.environ.get('ACCOUNTS_DB_URI'))
-        USERS_TABLE = Table('users', MetaData(ACCOUNTS_DB),
-                            Column('accountid', String),
-                            Column('username', String),
-                            Column('passhash', LargeBinary),
-                            Column('firstname', String),
-                            Column('lastname', String),
-                            Column('birthday', Date),
-                            Column('timezone', String),
-                            Column('address', String),
-                            Column('state', String),
-                            Column('zip', String),
-                            Column('ssn', String))
-        DB_CONN = ACCOUNTS_DB.connect()
-    except OperationalError:
-        logging.critical("database connection failed")
-        sys.exit(1)
-
-    logging.info("Starting flask.")
-    APP.run(debug=False, port=os.environ.get('PORT'), host='0.0.0.0')
+# Configure database connection
+try:
+    ACCOUNTS_DB = create_engine(os.environ.get('ACCOUNTS_DB_URI'))
+    USERS_TABLE = Table('users', MetaData(ACCOUNTS_DB),
+                        Column('accountid', String),
+                        Column('username', String),
+                        Column('passhash', LargeBinary),
+                        Column('firstname', String),
+                        Column('lastname', String),
+                        Column('birthday', Date),
+                        Column('timezone', String),
+                        Column('address', String),
+                        Column('state', String),
+                        Column('zip', String),
+                        Column('ssn', String))
+    DB_CONN = ACCOUNTS_DB.connect()
+except OperationalError:
+    APP.logger.critical("database connection failed")
+    sys.exit(1)

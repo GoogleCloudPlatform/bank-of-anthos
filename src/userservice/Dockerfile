@@ -12,18 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM python:3.8
+# The Google App Engine python runtime is Debian Jessie with Python installed
+# and various os-level packages to allow installation of popular Python
+# libraries. The source is on github at:
+#   https://github.com/GoogleCloudPlatform/python-docker
+FROM gcr.io/google-appengine/python
 
 # show python logs as they occur
 ENV PYTHONUNBUFFERED=0
 
-# get packages
-WORKDIR /userservice
-COPY requirements.txt .
-RUN pip install --trusted-host pypi.python.org -r requirements.txt
+# Create a virtualenv for the application dependencies.
+RUN virtualenv -p python3.7 /env
 
-# add files into working directory
-COPY *.py .
+# Set virtualenv environment variables. This is equivalent to running
+# source /env/bin/activate. This ensures the application is executed within
+# the context of the virtualenv and will have access to its dependencies.
+ENV VIRTUAL_ENV /env
+ENV PATH /env/bin:$PATH
 
+# Install dependencies.
+ADD requirements.txt /app/requirements.txt
+RUN pip install -r /app/requirements.txt
 
-ENTRYPOINT ["python", "/userservice/userservice.py"]
+# Add application code.
+ADD *.py /app/
+
+# Start server using gunicorn
+CMD gunicorn -b :$PORT --threads 2 --log-level=info userservice:APP
