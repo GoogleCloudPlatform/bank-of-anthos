@@ -1,0 +1,5 @@
+flask==1.1.2
+requests==2.23.0
+pyjwt==1.7.1
+cryptography==2.9
+gunicorn==20.0.4
