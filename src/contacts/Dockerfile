@@ -31,11 +31,14 @@ ENV VIRTUAL_ENV /env
 ENV PATH /env/bin:$PATH
 
 # Install dependencies.
-ADD requirements.txt /app/requirements.txt
+ADD /contacts/requirements.txt /app/requirements.txt
 RUN pip install -r /app/requirements.txt
 
+#add shared pylibs
+COPY pylibs/ /app/pylibs
+
 # Add application code.
-ADD *.py /app/
+ADD /contacts/*.py /app/
 
 # Start server using gunicorn
 CMD gunicorn -b :$PORT --threads 4 --log-level=info contacts:APP

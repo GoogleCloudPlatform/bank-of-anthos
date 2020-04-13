@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from sqlalchemy import create_engine, MetaData, Table, Column, String, Date, LargeBinary, Boolean
-import bcrypt
+from sqlalchemy import create_engine, MetaData, Table, ForeignKey, Column, String, Date, LargeBinary, Boolean
 import logging
 import random
 from datetime import datetime
@@ -29,29 +28,27 @@ class SqlAdapter:
         self.users_table = Table(
             'users',
             MetaData(self.engine),
-            Column('accountid', String),
-            Column('username', String),
-            Column('passhash', LargeBinary),
-            Column('firstname', String),
-            Column('lastname', String),
-            Column('birthday', Date),
-            Column('timezone', String),
-            Column('address', String),
-            Column('state', String),
-            Column('zip', String),
-            Column('ssn', String),
+            Column('accountid', String, primary_key=True),
+            Column('username', String, unique=True, nullable=False),
+            Column('passhash', LargeBinary, nullable=False),
+            Column('firstname', String, nullable=False),
+            Column('lastname', String, nullable=False),
+            Column('birthday', Date, nullable=False),
+            Column('timezone', String, nullable=False),
+            Column('address', String, nullable=False),
+            Column('state', String, nullable=False),
+            Column('zip', String, nullable=False),
+            Column('ssn', String, nullable=False),
         )
         self.contacts_table = Table(
             'contacts',
             MetaData(self.engine),
-            Column('username', String),
-            Column('label', String),
-            Column('account_num', String),
-            Column('routing_num', String),
-            Column('is_external', Boolean),
+            Column('username', String, ForeignKey(self.users_table.c.username), nullable=False),
+            Column('label', String, nullable=False),
+            Column('account_num', String, nullable=False),
+            Column('routing_num', String, nullable=False),
+            Column('is_external', Boolean, nullable=False),
         )
-        # open a connection
-        self.conn = self.engine.connect()
 
     def add_user(self, user):
         """Add a user to the database.
@@ -60,43 +57,25 @@ class SqlAdapter:
                     {'username': username, 'password': password, ...}
         Raises: SQLAlchemyError if there was an issue with the database
         """
-        # Create password hash with salt
-        password = user['password']
-        salt = bcrypt.gensalt()
-        passhash = bcrypt.hashpw(password.encode('utf-8'), salt)
-        accountid = self._generate_accountid()
-
-        # Add user to database
-        data = {
-            "accountid": accountid,
-            "username": user['username'],
-            "passhash": passhash,
-            "firstname": user['firstname'],
-            "lastname": user['lastname'],
-            "birthday": datetime.strptime(user['birthday'], TIMESTAMP_FORMAT).date(),
-            "timezone": user['timezone'],
-            "address": user['address'],
-            "state": user['state'],
-            "zip": user['zip'],
-            "ssn": user['ssn'],
-        }
-        statement = self.users_table.insert().values(data)
+        statement = self.users_table.insert().values(user)
         logging.debug('QUERY: %s', str(statement))
-        self.conn.execute(statement)
+        with self.engine.connect() as conn:
+            conn.execute(statement)
 
-    def _generate_accountid(self):
+    def generate_accountid(self):
         """Generates a globally unique alphanumerical accountid."""
         accountid = None
-        while accountid is None:
-            accountid = str(random.randint(1e9, (1e10 - 1)))
+        with self.engine.connect() as conn:
+            while accountid is None:
+                accountid = str(random.randint(1e9, (1e10 - 1)))
 
-            statement = self.users_table.select().where(self.users_table.c.accountid == accountid)
-            logging.debug('QUERY: %s', str(statement))
-            result = self.conn.execute(statement).first()
-            logging.debug('RESULT: %s', str(result))
-            # If there already exists an account, try again.
-            if result is not None:
-                accountid = None
+                statement = self.users_table.select().where(self.users_table.c.accountid == accountid)
+                logging.debug('QUERY: %s', str(statement))
+                result = conn.execute(statement).first()
+                logging.debug('RESULT: %s', str(result))
+                # If there already exists an account, try again.
+                if result is not None:
+                    accountid = None
         return accountid
 
     def get_user(self, username):
@@ -110,16 +89,13 @@ class SqlAdapter:
         """
         statement = self.users_table.select().where(self.users_table.c.username == username)
         logging.debug('QUERY: %s', str(statement))
-        result = self.conn.execute(statement).first()
+        with self.engine.connect() as conn:
+            result = conn.execute(statement).first()
         logging.debug('RESULT: %s', str(result))
-
         return dict(result) if result is not None else None
 
-    def close(self):
-        """Executed when web app is terminated."""
-        self.conn.close()
 
-    def add_contact(self, username, contact):
+    def add_contact(self, contact):
         """Add a contact under the specified username.
 
         Params: username - the username of the user
@@ -127,16 +103,10 @@ class SqlAdapter:
                         {'label': label, 'account_num': account_num, ...}
         Raises: SQLAlchemyError if there was an issue with the database
         """
-        data = {
-            "username": username,
-            "label": contact['label'],
-            "account_num": contact['account_num'],
-            "routing_num": contact['routing_num'],
-            "is_external": contact['is_external'],
-        }
-        statement = self.contacts_table.insert().values(data)
+        statement = self.contacts_table.insert().values(contact)
         logging.debug('QUERY: %s', str(statement))
-        self.conn.execute(statement)
+        with self.engine.connect() as conn:
+            conn.execute(statement)
 
     def get_contacts(self, username):
         """Get a list of contacts for the specified username.
@@ -149,10 +119,12 @@ class SqlAdapter:
         contacts = list()
         statement = self.contacts_table.select().where(self.contacts_table.c.username == username)
         logging.debug('QUERY: %s', str(statement))
-        result = self.conn.execute(statement)
+
+        with self.engine.connect() as conn:
+            result = conn.execute(statement)
         logging.debug('RESULT: %s', str(result))
+
         for row in result:
             contact = {"label": row['label'], "account_num": row['account_num'], "routing_num": row['routing_num'], "is_external": row['is_external']}
             contacts.append(contact)
-
         return contacts

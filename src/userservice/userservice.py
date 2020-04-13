@@ -77,7 +77,7 @@ def create_user():
             raise NameError('user {} already exists'.format(req['username']))
 
         # Create the user
-        USERS_DB.add_user(req)
+        USERS_DB.add_user(_create_user_obj(req))
 
     except UserWarning as warn:
         return jsonify({'msg': str(warn)}), 400
@@ -158,21 +158,22 @@ def get_token():
         return jsonify({'error': 'failed to retrieve user information'}), 500
 
 
-def _add_user(user):
-    """Add a user to the database.
+def _create_user_obj(user):
+    """Creates a user object
 
     Params: user - a key/value dict of attributes describing a new user
                    {'username': username, 'password': password, ...}
-    Raises: SQLAlchemyError if there was an issue with the database
+    Return: a key/value dict of user attributes with hashed pwd & accountid,
+            {'username': username, 'accountid': accountid, ...}
     """
     # Create password hash with salt
     password = user['password']
     salt = bcrypt.gensalt()
     passhash = bcrypt.hashpw(password.encode('utf-8'), salt)
 
-    accountid = _generate_accountid()
+    accountid = USERS_DB.generate_accountid()
 
-    # Add user to database
+    # Create data to be added to the database
     data = {'accountid': accountid,
             'username': user['username'],
             'passhash': passhash,
@@ -184,56 +185,13 @@ def _add_user(user):
             'state': user['state'],
             'zip': user['zip'],
             'ssn': user['ssn']}
-    statement = USERS_TABLE.insert().values(data)
-    APP.logger.debug('QUERY: %s', str(statement))
-    DB_CONN.execute(statement)
-
-
-def _get_user(username):
-    """Get user data for the specified username.
-
-    Params: username - the username of the user
-    Return: a key/value dict of user attributes,
-            {'username': username, 'accountid': accountid, ...}
-            or None if that user does not exist
-    Raises: SQLAlchemyError if there was an issue with the database
-    """
-    statement = USERS_TABLE.select().where(
-        USERS_TABLE.c.username == username)
-    APP.logger.debug('QUERY: %s', str(statement))
-    result = DB_CONN.execute(statement).first()
-    APP.logger.debug('RESULT: %s', str(result))
-
-    return dict(result) if result is not None else None
-
-
-def _generate_accountid():
-    """Generates a globally unique alphanumerical accountid."""
-    accountid = None
-    while accountid is None:
-        accountid = str(random.randint(1e9, (1e10-1)))
-
-        statement = USERS_TABLE.select().where(
-            USERS_TABLE.c.accountid == accountid)
-        APP.logger.debug('QUERY: %s', str(statement))
-        result = DB_CONN.execute(statement).first()
-        APP.logger.debug('RESULT: %s', str(result))
-        # If there already exists an account, try again.
-        if result is not None:
-            accountid = None
-    return accountid
+    return data
 
 
 @atexit.register
 def _shutdown():
     """Executed when web app is terminated."""
-    try:
-        USERS_DB.close()
-    except NameError:
-        # catch name error when DB_CONN not set up
-        pass
     APP.logger.info("Stopping flask.")
-
 
 # set up logger
 APP.logger.handlers = logging.getLogger('gunicorn.error').handlers
@@ -246,20 +204,7 @@ APP.config['PUBLIC_KEY'] = open(os.environ.get('PUB_KEY_PATH'), 'r').read()
 
 # Configure database connection
 try:
-    ACCOUNTS_DB = create_engine(os.environ.get('ACCOUNTS_DB_URI'))
-    USERS_TABLE = Table('users', MetaData(ACCOUNTS_DB),
-                        Column('accountid', String),
-                        Column('username', String),
-                        Column('passhash', LargeBinary),
-                        Column('firstname', String),
-                        Column('lastname', String),
-                        Column('birthday', Date),
-                        Column('timezone', String),
-                        Column('address', String),
-                        Column('state', String),
-                        Column('zip', String),
-                        Column('ssn', String))
-    DB_CONN = ACCOUNTS_DB.connect()
+    USERS_DB = DatabaseHelper("SQL", os.environ.get("ACCOUNTS_DB_URI")).database
 except OperationalError:
     APP.logger.critical("database connection failed")
     sys.exit(1)

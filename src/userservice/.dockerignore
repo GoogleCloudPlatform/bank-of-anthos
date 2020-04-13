@@ -1,2 +1,4 @@
 #ignore symlinked pylibs when building container
 pylibs
+env
+__pycache__

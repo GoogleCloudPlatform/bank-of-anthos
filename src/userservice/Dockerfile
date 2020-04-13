@@ -31,11 +31,14 @@ ENV VIRTUAL_ENV /env
 ENV PATH /env/bin:$PATH
 
 # Install dependencies.
-ADD requirements.txt /app/requirements.txt
+ADD /userservice/requirements.txt /app/requirements.txt
 RUN pip install -r /app/requirements.txt
 
+#add shared pylibs
+COPY pylibs/ /app/pylibs
+
 # Add application code.
-ADD *.py /app/
+ADD /userservice/*.py /app/
 
 # Start server using gunicorn
 CMD gunicorn -b :$PORT --threads 2 --log-level=info userservice:APP

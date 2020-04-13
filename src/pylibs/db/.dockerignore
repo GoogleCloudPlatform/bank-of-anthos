@@ -2,3 +2,5 @@
 pylibs
 env
 __pycache__
+tests
+.pytest_cache
