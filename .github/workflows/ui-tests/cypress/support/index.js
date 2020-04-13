@@ -31,6 +31,6 @@
 
 import './commands'
 
-Cypress.Screenshot.defaults({
-  screenshotOnRunFailure: false,
-});
+// Cypress.Screenshot.defaults({
+//   screenshotOnRunFailure: false,
+// });
