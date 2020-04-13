@@ -136,9 +136,8 @@ def payment():
                             "toAccountNum": recipient,
                             "toRoutingNum": APP.config['LOCAL_ROUTING'],
                             "amount": int(float(request.form['amount']) * 100)}
-        status_code = _submit_transaction(transaction_data)
-        if status_code == 201:
-            return redirect(url_for('home', msg='Payment initiated'))
+        _submit_transaction(transaction_data)
+        return redirect(url_for('home', msg='Payment initiated'))
 
     except requests.exceptions.RequestException as err:
         APP.logger.error(str(err))
@@ -187,14 +186,13 @@ def deposit():
                             "toAccountNum": account_id,
                             "toRoutingNum": APP.config['LOCAL_ROUTING'],
                             "amount": int(float(request.form['amount']) * 100)}
-        status_code = _submit_transaction(transaction_data)
-        if status_code == 201:
-            return redirect(url_for('home', msg='Deposit accepted'))
+        _submit_transaction(transaction_data)
+        return redirect(url_for('home', msg='Deposit accepted'))
 
     except requests.exceptions.RequestException as err:
         APP.logger.error(str(err))
     except UserWarning as warn:
-        msg = 'Payment failed: {}'.format(str(warn))
+        msg = 'Deposit failed: {}'.format(str(warn))
         return redirect(url_for('home', msg=msg))
 
     return redirect(url_for('home', msg='Deposit failed'))
@@ -204,11 +202,14 @@ def _submit_transaction(transaction_data):
     token = request.cookies.get(APP.config['TOKEN_NAME'])
     hed = {'Authorization': 'Bearer ' + token,
            'content-type': 'application/json'}
-    req = requests.post(url=APP.config["TRANSACTIONS_URI"],
-                        data=jsonify(transaction_data).data,
-                        headers=hed,
-                        timeout=APP.config['BACKEND_TIMEOUT'])
-    return req.status_code
+    resp = requests.post(url=APP.config["TRANSACTIONS_URI"],
+                         data=jsonify(transaction_data).data,
+                         headers=hed,
+                         timeout=APP.config['BACKEND_TIMEOUT'])
+    try:
+        resp.raise_for_status() # Raise on HTTP Status code 4XX or 5XX
+    except requests.exceptions.HTTPError as err:
+        raise UserWarning(resp.json().get('msg', ''))
 
 
 def _add_contact(label, acct_num, routing_num, is_external_acct=False):
@@ -228,14 +229,14 @@ def _add_contact(label, acct_num, routing_num, is_external_acct=False):
     }
     token_data = jwt.decode(token, verify=False)
     url = '{}/{}'.format(APP.config["CONTACTS_URI"], token_data['user'])
-    response = requests.post(url=url,
-                             data=jsonify(contact_data).data,
-                             headers=hed,
-                             timeout=APP.config['BACKEND_TIMEOUT'])
+    resp = requests.post(url=url,
+                         data=jsonify(contact_data).data,
+                         headers=hed,
+                         timeout=APP.config['BACKEND_TIMEOUT'])
     try:
-        response.raise_for_status()
+        resp.raise_for_status() # Raise on HTTP Status code 4XX or 5XX
     except requests.exceptions.HTTPError as err:
-        raise UserWarning(response.json().get('msg', ''))
+        raise UserWarning(resp.json().get('msg', ''))
 
 
 @APP.route("/login", methods=['GET'])
@@ -269,16 +270,21 @@ def _login_helper(username, password):
     try:
         req = requests.get(url=APP.config["LOGIN_URI"],
                            params={'username': username, 'password': password})
-        if req.status_code == 200:
-            # login success
-            token = req.json()['token'].encode('utf-8')
-            claims = jwt.decode(token, verify=False)
-            max_age = claims['exp'] - claims['iat']
-            resp = make_response(redirect(url_for('home')))
-            resp.set_cookie(APP.config['TOKEN_NAME'], token, max_age=max_age)
-            return resp
+        req.raise_for_status() # Raise on HTTP Status code 4XX or 5XX
+
+        # login success
+        token = req.json()['token'].encode('utf-8')
+        claims = jwt.decode(token, verify=False)
+        max_age = claims['exp'] - claims['iat']
+        resp = make_response(redirect(url_for('home')))
+        resp.set_cookie(APP.config['TOKEN_NAME'], token, max_age=max_age)
+        return resp
     except requests.exceptions.RequestException as err:
         APP.logger.error(str(err))
+    except requests.exceptions.HTTPError as err:
+        msg = 'Login Failed: {}'.format(req.json().get('msg', ''))
+        return redirect(url_for('login', msg=msg))
+
     return redirect(url_for('login', msg='Login Failed'))
 
 
