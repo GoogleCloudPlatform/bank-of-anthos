@@ -34,6 +34,8 @@ spec:
           mountPath: "/root/.ssh"
           readOnly: true
         env:
+        - name: VERSION
+          value: "v0.1.0"
         - name: PORT
           value: "8080"
          # tell Java to obey container memory limits
@@ -42,6 +44,8 @@ spec:
         envFrom:
         - configMapRef:
             name: environment-config
+        - configMapRef:
+            name: service-api-config
         # add ledger-db credentials from ConfigMap
         - configMapRef:
             name: ledger-db-config

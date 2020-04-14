@@ -18,6 +18,8 @@ Implemented in Python with Flask.
 
 - `PORT`
   - the port for the webserver
+- `PRIV_KEY_PATH`
+  - the path to the private key for JWT signing, mounted as a secret
 - `TOKEN_EXPIRY_SECONDS`
   - how long JWTs are valid before forcing user logout
 - `LOG_LEVEL`
@@ -28,8 +30,6 @@ Implemented in Python with Flask.
     - a version string for the service
   - `LOCAL_ROUTING_NUM`
     - the routing number for our bank
-  - `PRIV_KEY_PATH`
-    - the path to the private key for JWT signing, mounted as a secret
   - `PUB_KEY_PATH`
     - the path to the JWT signer's public key, mounted as a secret
 

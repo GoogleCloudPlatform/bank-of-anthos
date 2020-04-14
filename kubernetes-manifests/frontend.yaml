@@ -34,6 +34,8 @@ spec:
           mountPath: "/root/.ssh"
           readOnly: true
         env:
+        - name: VERSION
+          value: "v0.1.0"
         - name: PORT
           value: "8080"
         - name: DEFAULT_USERNAME
@@ -49,6 +51,8 @@ spec:
         envFrom:
         - configMapRef:
             name: environment-config
+        - configMapRef:
+            name: service-api-config
         readinessProbe:
           httpGet:
             path: /ready
