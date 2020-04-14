@@ -87,4 +87,18 @@ jobs:
           exit 1
         fi
 
-
+    - name: Port Forward frontend
+      run: |  
+        set -x
+        port_forward() {
+            # get name of frontend pod
+            local frontend_pod=$(kubectl get pods -l=app=frontend -o=jsonpath='{.items[0].metadata.name}')
+            kubectl port-forward $frontend_pod 3000:8080   
+        }
+        port_forward &
+    - name: Ping frontend
+      run: |
+          curl --silent --output /dev/null --show-error --fail localhost:3000 
+    - name: UI tests
+      run: |
+        docker run -t -v $PWD/.github/workflows/ui-tests:/e2e -w /e2e --network=host cypress/included:4.3.0
