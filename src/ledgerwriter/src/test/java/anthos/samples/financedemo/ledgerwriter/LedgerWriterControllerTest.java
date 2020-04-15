@@ -80,6 +80,6 @@ class LedgerWriterControllerTest {
 
     @Test
     void addTransaction() {
-        // todo: add tests to addTransaction
+        // TODO: [issue-52] add tests to addTransaction
     }
 }
