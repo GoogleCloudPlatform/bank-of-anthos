@@ -38,4 +38,4 @@ RUN pip install -r /app/requirements.txt
 ADD *.py /app/
 
 # Start server using gunicorn
-CMD gunicorn -b :$PORT --threads 2 --log-level=info userservice:APP
+CMD gunicorn -b :$PORT --threads 2 --log-level=info "userservice:create_app()"
