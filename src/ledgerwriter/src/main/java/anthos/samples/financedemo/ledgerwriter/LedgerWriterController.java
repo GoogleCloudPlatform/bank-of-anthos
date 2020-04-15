@@ -99,8 +99,8 @@ public final class LedgerWriterController {
      */
     @GetMapping("/ready")
     @ResponseStatus(HttpStatus.OK)
-    public String readiness() {
-        return READINESS_CODE;
+    public ResponseEntity<String> readiness() {
+        return new ResponseEntity<String>(READINESS_CODE, HttpStatus.OK);
     }
 
     /**

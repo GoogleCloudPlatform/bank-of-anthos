@@ -69,11 +69,13 @@ class LedgerWriterControllerTest {
     @DisplayName("Given the server is serving requests, return HTTP Status 200")
     void readiness() {
         // When
-        final String actualResult = ledgerWriterController.readiness();
+        final ResponseEntity actualResult = ledgerWriterController.readiness();
 
         // Then
         assertNotNull(actualResult);
-        assertEquals(ledgerWriterController.READINESS_CODE, actualResult);
+        assertEquals(ledgerWriterController.READINESS_CODE,
+                actualResult.getBody());
+        assertEquals(HttpStatus.OK, actualResult.getStatusCode());
     }
 
     @Test
