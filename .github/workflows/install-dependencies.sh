@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+set -euo pipefail
+
 # install git, kubectl, maven, jdk, pip
 sudo apt-get -y install git kubectl maven default-jdk python3-pip
 

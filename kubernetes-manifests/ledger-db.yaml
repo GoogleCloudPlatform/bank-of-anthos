@@ -12,11 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+kind: StatefulSet
 apiVersion: apps/v1
-kind: Deployment
 metadata:
   name: ledger-db
 spec:
+  serviceName: "ledger-db"
+  replicas: 1
   selector:
     matchLabels:
       app: ledger-db
@@ -38,6 +40,13 @@ spec:
                 name: ledger-db-config
             - configMapRef:
                 name: default-data-config
+          volumeMounts:
+            - name: postgresdb
+              mountPath: /var/lib/postgresql/data
+              subPath: postgres
+      volumes:
+        - name: postgresdb
+          emptyDir: {}
 ---
 apiVersion: v1
 kind: ConfigMap

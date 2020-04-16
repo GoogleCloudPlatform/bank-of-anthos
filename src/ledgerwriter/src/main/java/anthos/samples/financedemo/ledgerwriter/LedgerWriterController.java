@@ -16,18 +16,6 @@
 
 package anthos.samples.financedemo.ledgerwriter;
 
-import java.io.IOException;
-
-import java.nio.file.Files;
-import java.nio.file.Paths;
-
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.interfaces.RSAPublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
-
-import java.util.Base64;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -50,9 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
-import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
@@ -65,14 +51,14 @@ public final class LedgerWriterController {
     @Autowired
     private TransactionRepository transactionRepository;
 
-    @Value("${LOCAL_ROUTING_NUM}")
+    private JWTVerifier verifier;
+
     private String localRoutingNum;
-    @Value("http://${BALANCES_API_ADDR}/balances")
     private String balancesApiUri;
-    @Value("${VERSION}")
     private String version;
 
-    private JWTVerifier verifier;
+
+    public static final String READINESS_CODE = "ok";
     // account ids should be 10 digits between 0 and 9
     private static final Pattern ACCT_REGEX = Pattern.compile("^[0-9]{10}$");
     // route numbers should be 9 digits between 0 and 9
@@ -83,30 +69,17 @@ public final class LedgerWriterController {
     *
     * Initializes JWT verifier.
     */
-    @Autowired
+
     public LedgerWriterController(
-            @Value("${PUB_KEY_PATH}") final String publicKeyPath) {
-        // load public key from file
-        try {
-            String keyStr =
-                new String(Files.readAllBytes(Paths.get(publicKeyPath)));
-            keyStr = keyStr.replaceFirst("-----BEGIN PUBLIC KEY-----", "")
-                           .replaceFirst("-----END PUBLIC KEY-----", "")
-                           .replaceAll("\\s", "");
-            byte[] keyBytes = Base64.getDecoder().decode(keyStr);
-            KeyFactory kf = KeyFactory.getInstance("RSA");
-            X509EncodedKeySpec keySpecX509 = new X509EncodedKeySpec(keyBytes);
-            RSAPublicKey publicKey =
-                (RSAPublicKey) kf.generatePublic(keySpecX509);
-             // Initialize JWT verifier.
-            Algorithm algorithm = Algorithm.RSA256(publicKey, null);
-            this.verifier = JWT.require(algorithm).build();
-        } catch (IOException
-                | NoSuchAlgorithmException
-                | InvalidKeySpecException e) {
-            LOGGER.severe(e.toString());
-            System.exit(1);
-        }
+            JWTVerifier verifier,
+            @Value("${LOCAL_ROUTING_NUM}") String localRoutingNum,
+            @Value("http://${BALANCES_API_ADDR}/balances")
+                    String balancesApiUri,
+            @Value("${VERSION}") String version) {
+        this.verifier = verifier;
+        this.localRoutingNum = localRoutingNum;
+        this.balancesApiUri = balancesApiUri;
+        this.version = version;
     }
 
     /**
@@ -126,8 +99,8 @@ public final class LedgerWriterController {
      */
     @GetMapping("/ready")
     @ResponseStatus(HttpStatus.OK)
-    public String readiness() {
-        return "ok";
+    public ResponseEntity<String> readiness() {
+        return new ResponseEntity<String>(READINESS_CODE, HttpStatus.OK);
     }
 
     /**
