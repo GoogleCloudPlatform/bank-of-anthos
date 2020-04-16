@@ -22,6 +22,8 @@ Implemented in Python with Flask.
 
 ### Environment Variables
 
+- `VERSION`
+  - a version string for the service
 - `PORT`
   - the port for the webserver
 - `DEFAULT_USERNAME`
@@ -30,12 +32,12 @@ Implemented in Python with Flask.
   - a string to pre-populate the "password" field. Optional
 
 - ConfigMap `environment-config`:
-  - `VERSION`
-    - a version string for the service
   - `LOCAL_ROUTING_NUM`
     - the routing number for our bank
   - `PUB_KEY_PATH`
     - the path to the JWT signer's public key, mounted as a secret
+
+- ConfigMap `service-api-config`:
   - `TRANSACTIONS_API_ADDR`
     - the address and port of the `ledgerwriter` service
   - `BALANCES_API_ADDR`

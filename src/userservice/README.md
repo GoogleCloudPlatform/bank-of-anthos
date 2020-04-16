@@ -16,6 +16,8 @@ Implemented in Python with Flask.
 
 ### Environment Variables
 
+- `VERSION`
+  - a version string for the service
 - `PORT`
   - the port for the webserver
 - `PRIV_KEY_PATH`
@@ -26,8 +28,6 @@ Implemented in Python with Flask.
   - the [logging level](https://docs.python.org/3/library/logging.html#levels) (default: INFO)
 
 - ConfigMap `environment-config`:
-  - `VERSION`
-    - a version string for the service
   - `LOCAL_ROUTING_NUM`
     - the routing number for our bank
   - `PUB_KEY_PATH`

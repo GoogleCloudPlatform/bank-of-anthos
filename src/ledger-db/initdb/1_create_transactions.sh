@@ -26,6 +26,7 @@ if [ "$USE_DEFAULT_DATA" != "True"  ]; then
     exit 0
 fi
 
+
 add_transaction() {
     DATE=$(date -u +"%Y-%m-%d %H:%M:%S.%3N%z" --date="@$(($6))")
     echo "adding default transaction: $1 -> $2"

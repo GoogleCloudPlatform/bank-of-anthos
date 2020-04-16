@@ -18,6 +18,8 @@ Implemented in Java with Spring Boot and Guava.
 
 ### Environment Variables
 
+- `VERSION`
+  - a version string for the service
 - `PORT`
   - the port for the webserver
 - `POLL_MS`
@@ -38,8 +40,6 @@ Implemented in Java with Spring Boot and Guava.
   - add fake extra latency in milliseconds to transaction history requests
 
 - ConfigMap `environment-config`:
-  - `VERSION`
-    - a version string for the service
   - `LOCAL_ROUTING_NUM`
     - the routing number for our bank
   - `PUB_KEY_PATH`
