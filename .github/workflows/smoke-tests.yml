@@ -60,14 +60,14 @@ jobs:
       timeout-minutes: 20
       run: |
         set -x
-        kubectl wait --for=condition=available --timeout=500s deployment/accounts-db
-        kubectl wait --for=condition=available --timeout=500s deployment/balancereader
-        kubectl wait --for=condition=available --timeout=500s deployment/contacts
+        kubectl wait --for=condition=ready --timeout=500s pod/accounts-db-0
+        kubectl wait --for=condition=ready --timeout=500s pod/ledger-db-0
         kubectl wait --for=condition=available --timeout=500s deployment/frontend
-        kubectl wait --for=condition=available --timeout=500s deployment/ledgerwriter
-        kubectl wait --for=condition=available --timeout=500s deployment/ledger-db
-        kubectl wait --for=condition=available --timeout=500s deployment/transactionhistory
+        kubectl wait --for=condition=available --timeout=500s deployment/contacts
         kubectl wait --for=condition=available --timeout=500s deployment/userservice
+        kubectl wait --for=condition=available --timeout=500s deployment/ledgerwriter
+        kubectl wait --for=condition=available --timeout=500s deployment/transactionhistory
+        kubectl wait --for=condition=available --timeout=500s deployment/balancereader
         kubectl wait --for=condition=available --timeout=500s deployment/loadgenerator
     - name: Smoke Test
       timeout-minutes: 5
