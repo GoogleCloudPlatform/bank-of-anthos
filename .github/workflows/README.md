@@ -28,6 +28,7 @@ Ensure `MASTER_CLUSTER` `PROJECT_ID` and `ZONE` are set in the [repo's secrets](
 
 #### Actions
 - runs java and python linters
+- runs java unit tests
 - ensures kind cluster is running
 - builds all containers in src/
 - deploys local containers to kind
