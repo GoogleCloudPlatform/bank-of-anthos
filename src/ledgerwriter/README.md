@@ -14,18 +14,20 @@ Implemented in Java with Spring Boot.
 
 ### Environment Variables
 
+- `VERSION`
+  - a version string for the service
 - `PORT`
   - the port for the webserver
 - `JVM_OPTS`
   - settings for the JVM. Used to obey container memory limits
 
 - ConfigMap `environment-config`:
-  - `VERSION`
-    - a version string for the service
   - `LOCAL_ROUTING_NUM`
     - the routing number for our bank
   - `PUB_KEY_PATH`
     - the path to the JWT signer's public key, mounted as a secret
+
+- ConfigMap `service-api-config`
   - `BALANCES_API_ADDR`
     - the address and port of the `balancereader` service
 

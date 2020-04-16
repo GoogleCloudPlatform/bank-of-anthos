@@ -28,27 +28,6 @@ if [ "$USE_DEFAULT_DATA" != "True"  ]; then
 fi
 
 
-# Expected environment variables
-readonly ENV_VARS=(
-  "POSTGRES_DB"
-  "POSTGRES_USER"
-  "LOCAL_ROUTING_NUM"
-  "DEFAULT_USER_ACCOUNT"
-  "DEFAULT_DEPOSIT_ACCOUNT"
-  "DEFAULT_CONTACT_ACCOUNT_A"
-  "DEFAULT_CONTACT_ACCOUNT_B"
-)
-
-
-# Check environment variables are set
-for env_var in ${ENV_VARS[@]}; do
-  if [[ -z "${!env_var}" ]]; then
-    echo "Error: environment variable '$env_var' not set. Aborting."
-    exit 1
-  fi
-done
-
-
 add_transaction() {
     DATE=$(date -u +"%Y-%m-%d %H:%M:%S.%3N%z" --date="@$(($6))")
     echo "adding default transaction: $1 -> $2"

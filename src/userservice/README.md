@@ -16,20 +16,20 @@ Implemented in Python with Flask.
 
 ### Environment Variables
 
+- `VERSION`
+  - a version string for the service
 - `PORT`
   - the port for the webserver
+- `PRIV_KEY_PATH`
+  - the path to the private key for JWT signing, mounted as a secret
 - `TOKEN_EXPIRY_SECONDS`
   - how long JWTs are valid before forcing user logout
 - `LOG_LEVEL`
   - the [logging level](https://docs.python.org/3/library/logging.html#levels) (default: INFO)
 
 - ConfigMap `environment-config`:
-  - `VERSION`
-    - a version string for the service
   - `LOCAL_ROUTING_NUM`
     - the routing number for our bank
-  - `PRIV_KEY_PATH`
-    - the path to the private key for JWT signing, mounted as a secret
   - `PUB_KEY_PATH`
     - the path to the JWT signer's public key, mounted as a secret
 
