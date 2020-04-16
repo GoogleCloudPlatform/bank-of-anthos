@@ -87,7 +87,7 @@ def create_user():
         return jsonify({'msg': str(err)}), 409
     except SQLAlchemyError as err:
         APP.logger.error(err)
-        return jsonify({'error': 'failed to create user'}), 500
+        return jsonify({'msg': 'failed to create user'}), 500
 
     return jsonify({}), 201
 
@@ -157,7 +157,7 @@ def get_token():
         return jsonify({'msg': str(err)}), 401
     except SQLAlchemyError as err:
         APP.logger.error(err)
-        return jsonify({'error': 'failed to retrieve user information'}), 500
+        return jsonify({'msg': 'failed to retrieve user information'}), 500
 
 
 def _add_user(user):
