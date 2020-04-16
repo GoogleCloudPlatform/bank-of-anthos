@@ -61,4 +61,10 @@ public class JWTVerifierGenerator {
         }
     }
 
+    public static class GenerateKeyException extends RuntimeException {
+        public GenerateKeyException(String message, Exception e) {
+            super(message, e);
+        }
+    }
+
 }
