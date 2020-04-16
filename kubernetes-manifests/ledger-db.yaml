@@ -33,20 +33,13 @@ spec:
           imagePullPolicy: "IfNotPresent"
           ports:
             - containerPort: 5432
-          env:
-            - name: USE_DEFAULT_DATA
-              value: "True"
-            - name: LOCAL_ROUTING_NUM
-              value: "123456789"
-            - name: DEFAULT_ACCOUNT
-              value: "7595821437"
-            - name: DEFAULT_DEPOSIT_ACCOUNT
-              value: "6029390231"
-            - name: DEFAULT_DEPOSIT_ROUTING
-              value: "295164083"
           envFrom:
             - configMapRef:
+                name: environment-config
+            - configMapRef:
                 name: ledger-db-config
+            - configMapRef:
+                name: default-data-config
           volumeMounts:
             - name: postgresdb
               mountPath: /var/lib/postgresql/data

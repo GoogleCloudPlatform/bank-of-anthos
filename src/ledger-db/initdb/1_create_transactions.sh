@@ -26,6 +26,7 @@ if [ "$USE_DEFAULT_DATA" != "True"  ]; then
     exit 0
 fi
 
+
 add_transaction() {
     DATE=$(date -u +"%Y-%m-%d %H:%M:%S.%3N%z" --date="@$(($6))")
     echo "adding default transaction: $1 -> $2"
@@ -44,14 +45,14 @@ DEPOSIT_AMOUNT=250000
 START_TIMESTAMP=$(( $(date +%s) - $(( $(($PAY_PREIODS+1)) * $SECONDS_IN_PAY_PERIOD  ))  ))
 for i in $(seq 1 $PAY_PREIODS); do
     # create deposit transaction
-    add_transaction $DEFAULT_DEPOSIT_ACCOUNT $DEFAULT_ACCOUNT $DEFAULT_DEPOSIT_ROUTING $LOCAL_ROUTING_NUM $DEPOSIT_AMOUNT $START_TIMESTAMP
+    add_transaction $DEFAULT_DEPOSIT_ACCOUNT $DEFAULT_USER_ACCOUNT $DEFAULT_DEPOSIT_ROUTING $LOCAL_ROUTING_NUM $DEPOSIT_AMOUNT $START_TIMESTAMP
     # create payments
     TRANSACTIONS_PER_PERIOD=$(shuf -i 3-11 -n1)
     for p in $(seq 1 $TRANSACTIONS_PER_PERIOD); do
         AMOUNT=$(shuf -i 100-25000 -n1)
         ACCOUNT=$(shuf -i 1000000000-9999999999 -n1)
         TIMESTAMP=$(( $START_TIMESTAMP + $(( $SECONDS_IN_PAY_PERIOD * $p / $(($TRANSACTIONS_PER_PERIOD + 1 )) )) ))
-        add_transaction $DEFAULT_ACCOUNT $ACCOUNT $LOCAL_ROUTING_NUM $LOCAL_ROUTING_NUM $AMOUNT $TIMESTAMP
+        add_transaction $DEFAULT_USER_ACCOUNT $ACCOUNT $LOCAL_ROUTING_NUM $LOCAL_ROUTING_NUM $AMOUNT $TIMESTAMP
     done
     START_TIMESTAMP=$(( $START_TIMESTAMP + $(( $i * $SECONDS_IN_PAY_PERIOD  )) ))
 done

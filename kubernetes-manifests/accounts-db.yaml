@@ -35,16 +35,13 @@ spec:
       containers:
       - name: accounts-db
         image: gcr.io/bank-of-anthos/accounts-db:v0.1.0
-        env:
-        - name: LOCAL_ROUTING_NUM
-          value: "123456789"
-        - name: TEST_ACCOUNTID
-          value: "7595821437"
-        - name: TEST_USERNAME
-          value: "testuser"
         envFrom:
           - configMapRef:
+              name: environment-config
+          - configMapRef:
               name: accounts-db-config
+          - configMapRef:
+              name: default-data-config
         ports:
           - containerPort: 5432
             name: postgredb
