@@ -54,6 +54,7 @@ jobs:
     - name: Python Unit Tests
       timeout-minutes: 20
       run: |
+        set -x
         cd src/userservice
         python3 -m venv env
         source env/bin/activate
