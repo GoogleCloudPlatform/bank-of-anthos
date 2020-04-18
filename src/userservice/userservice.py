@@ -36,7 +36,8 @@ def create_app():
     """
     app = Flask(__name__)
 
-    # disabling unused-variable for lines with route decorated functions as pylint thinks they are unused
+    # disabling unused-variable for lines with route decorated functions
+    # as pylint thinks they are unused
     @app.route('/version', methods=['GET'])
     def version():  # pylint: disable=unused-variable
         """
