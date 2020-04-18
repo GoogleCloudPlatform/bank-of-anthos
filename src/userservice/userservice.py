@@ -36,22 +36,23 @@ def create_app():
     """
     app = Flask(__name__)
 
+    # disabling unused-variable for lines with route decorated functions as pylint thinks they are unused
     @app.route('/version', methods=['GET'])
-    def _version():
+    def version():  # pylint: disable=unused-variable
         """
         Service version endpoint
         """
         return app.config['VERSION'], 200
 
     @app.route('/ready', methods=['GET'])
-    def _readiness():
+    def readiness():  # pylint: disable=unused-variable
         """
         Readiness probe
         """
         return 'ok', 200
 
     @app.route('/users', methods=['POST'])
-    def _create_user():
+    def create_user():  # pylint: disable=unused-variable
         """Create a user record.
 
         Fails if that username already exists.
@@ -138,7 +139,7 @@ def create_app():
             raise UserWarning('passwords do not match')
 
     @app.route('/login', methods=['GET'])
-    def _login():
+    def login():  # pylint: disable=unused-variable
         """Login a user and return a JWT token
 
         Fails if username doesn't exist or password doesn't match hash
