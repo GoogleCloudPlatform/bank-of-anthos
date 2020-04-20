@@ -38,16 +38,14 @@ spec:
           value: "v0.1.0"
         - name: PORT
           value: "8080"
-        - name: LOCAL_ROUTING_NUM
-          value: "123456789"
-        - name: BALANCES_API_ADDR
-          value: "balancereader:8080"
-        - name: PUB_KEY_PATH
-          value: "/root/.ssh/publickey"
          # tell Java to obey container memory limits
         - name: JVM_OPTS
           value: "-Xms1G -Xmx1G"
         envFrom:
+        - configMapRef:
+            name: environment-config
+        - configMapRef:
+            name: service-api-config
         # add ledger-db credentials from ConfigMap
         - configMapRef:
             name: ledger-db-config

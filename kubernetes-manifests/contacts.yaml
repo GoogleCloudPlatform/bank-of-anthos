@@ -38,11 +38,9 @@ spec:
           value: "v0.1.0"
         - name: PORT
           value: "8080"
-        - name: LOCAL_ROUTING_NUM
-          value: "123456789"
-        - name: PUB_KEY_PATH
-          value: "/root/.ssh/publickey"
         envFrom:
+        - configMapRef:
+            name: environment-config
         - configMapRef:
             name: accounts-db-config
         resources:

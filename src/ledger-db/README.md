@@ -10,18 +10,16 @@ Implemented using Postgres.
 
 ### Environment Variables
 
-- `USE_DEFAULT_DATA`
-  - adds default data to ledger when initialized if `True`
-- `LOCAL_ROUTING_NUM`
-  - the routing number for our bank
-- `DEFAULT_ACCOUNT`
-  - the default user account to generate transactions for if `USE_DEFAULT_DATA` is `True`
-- `DEFAULT_DEPOSIT_ACCOUNT`
-  - the account number for the external bank account initiating deposits in default data
-- `DEFAULT_DEPOSIT_ROUTING`
-  - the routing number for the external bank account initiating deposits in default data
+- ConfigMap `environment-config`:
+  - `LOCAL_ROUTING_NUM`
+    - the routing number for our bank
 
-- ConfigMap `postgres-config`:
+- ConfigMap `default-data-config`:
+  - `USE_DEFAULT_DATA`
+    - adds default transaction data to the ledger when initialized if `True`
+    - configure default data in /kubernetes-manifests/default-data-config.yaml 
+
+- ConfigMap `ledger-db-config`:
   - `POSTGRES_DB`
     - database name
   - `POSTGRES_USER`

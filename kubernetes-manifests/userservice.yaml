@@ -45,9 +45,9 @@ spec:
           value: "3600"
         - name: PRIV_KEY_PATH
           value: "/root/.ssh/privatekey"
-        - name: PUB_KEY_PATH
-          value: "/root/.ssh/privatekey"
         envFrom:
+        - configMapRef:
+            name: environment-config
         - configMapRef:
             name: accounts-db-config
         readinessProbe:
