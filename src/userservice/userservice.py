@@ -36,24 +36,25 @@ def create_app():
     """
     app = Flask(__name__)
 
-    # disabling unused-variable for lines with route decorated functions
+    # Disabling unused-variable for lines with route decorated functions
     # as pylint thinks they are unused
+    # pylint: disable=unused-variable
     @app.route('/version', methods=['GET'])
-    def version():  # pylint: disable=unused-variable
+    def version():
         """
         Service version endpoint
         """
         return app.config['VERSION'], 200
 
     @app.route('/ready', methods=['GET'])
-    def readiness():  # pylint: disable=unused-variable
+    def readiness():
         """
         Readiness probe
         """
         return 'ok', 200
 
     @app.route('/users', methods=['POST'])
-    def create_user():  # pylint: disable=unused-variable
+    def create_user():
         """Create a user record.
 
         Fails if that username already exists.
@@ -101,7 +102,7 @@ def create_app():
                 'zip': req['zip'],
                 'ssn': req['ssn'],
             }
-            # add user_data to database
+            # Add user_data to database
             users_db.add_user(user_data)
 
         except UserWarning as warn:
@@ -140,7 +141,7 @@ def create_app():
             raise UserWarning('passwords do not match')
 
     @app.route('/login', methods=['GET'])
-    def login():  # pylint: disable=unused-variable
+    def login():
         """Login a user and return a JWT token
 
         Fails if username doesn't exist or password doesn't match hash
@@ -189,7 +190,7 @@ def create_app():
         """Executed when web app is terminated."""
         app.logger.info("Stopping flask.")
 
-    # set up logger
+    # Set up logger
     app.logger.handlers = logging.getLogger('gunicorn.error').handlers
     app.logger.setLevel(logging.getLogger('gunicorn.error').level)
 
@@ -208,6 +209,6 @@ def create_app():
 
 
 if __name__ == "__main__":
-    # create an instance of flask server when called directly
+    # Create an instance of flask server when called directly
     USERSERVICE = create_app()
     USERSERVICE.run()
