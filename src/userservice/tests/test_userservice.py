@@ -173,7 +173,7 @@ class TestUserservice(unittest.TestCase):
         self.assertEqual(response.json['msg'], 'missing value for input field(s)')
 
     def test_create_user_mismatch_password_400_status_code_error_message(self):
-        """test creating a new user with empty value for required key"""
+        """test creating a new user with mismatched password values"""
         # create example user request
         example_user = EXAMPLE_USER_REQUEST.copy()
         # set mismatch values for password and password-repeat
