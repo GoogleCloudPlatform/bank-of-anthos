@@ -194,7 +194,7 @@ limitations under the License.
                               {{ t.fromAccountNum }}
                             </td>
                             <td class="transaction-label">
-                              {% if t.accountLabel.strip() != "" %}
+                              {% if t.accountLabel != None %}
                                 {{ t.accountLabel }}
                               {% else %}
                                 <span class="transaction-label-none">None</span>
@@ -211,7 +211,7 @@ limitations under the License.
                               {{ t.toAccountNum }}
                             </td>
                             <td class="transaction-label">
-                              {% if t.accountLabel.strip() != "" %}
+                              {% if t.accountLabel != None %}
                                 {{ t.accountLabel }}
                               {% else %}
                                 <span class="transaction-label-none">None</span>

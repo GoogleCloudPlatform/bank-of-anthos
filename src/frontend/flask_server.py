@@ -107,15 +107,33 @@ def home():
 
 
 def _populate_contact_labels(account_id, transactions, contacts):
-    # If no label, default to the empty string
-    contact_map = {c['account_num']: c.get('label', '') for c in contacts}
+    """
+    Populate contact labels for the passed transactions.
 
+    Side effect:
+        Take each transaction and set the 'accountLabel' field with the label of
+        the contact each transaction was associated with. If there was no
+        associated contact, set 'accountLabel' to None.
+        If any parameter is None, nothing happens.
+
+    Params: account_id - the account id for the user owning the transaction list
+            transactions - a list of transactions as key/value dicts
+                           [{transaction1}, {transaction2}, ...]
+            contacts - a list of contacts as key/value dicts
+                       [{contact1}, {contact2}, ...]
+    """
+    if account_id is None or transactions is None or contacts is None:
+        return
+
+    # Map contact accounts to their labels. If no label found, default to None.
+    contact_map = {c['account_num']: c.get('label') for c in contacts}
+
+    # Populate the 'accountLabel' field. If no match found, default to None.
     for trans in transactions:
-        # If not a contact, default to the empty string
         if trans['toAccountNum'] == account_id:
-            trans['accountLabel'] = contact_map.get(trans['fromAccountNum'], '')
+            trans['accountLabel'] = contact_map.get(trans['fromAccountNum'])
         elif trans['fromAccountNum'] == account_id:
-            trans['accountLabel'] = contact_map.get(trans['toAccountNum'], '')
+            trans['accountLabel'] = contact_map.get(trans['toAccountNum'])
 
 
 @APP.route('/payment', methods=['POST'])
