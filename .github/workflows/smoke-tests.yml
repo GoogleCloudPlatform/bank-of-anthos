@@ -45,12 +45,22 @@ jobs:
     - name: Python Checkstyle
       timeout-minutes: 20
       run: |
-        pylint --disable=F0401 --disable=W0511 --disable=E1101 --disable=R0801 --disable=R0903  ./src/*/*.py
-        # disabled warnings: import loading, todos, function members, duplicate code, public methods
+        pylint --disable=F0401 --disable=W0511 --disable=E1101 --disable=R0801 --disable=R0903 --disable=R0915 ./src/*/*.py
+        # disabled warnings: import loading, todos, function members, duplicate code, public methods, too many statements
     - name: Java Unit Tests
       timeout-minutes: 20
       run: |
         mvn test
+    - name: Python Unit Tests
+      timeout-minutes: 20
+      run: |
+        set -x
+        cd src/userservice
+        python3 -m venv env
+        source env/bin/activate
+        pip install -r tests/requirements-test.txt
+        python -m pytest -v -p no:warnings
+        deactivate
     - name: Setup Cluster
       run: |
         kind delete cluster 2>/dev/null
