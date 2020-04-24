@@ -18,6 +18,8 @@ build:
   artifacts:
   - image: gcr.io/bank-of-anthos/frontend
     context: src/frontend
+  - image: gcr.io/bank-of-anthos/frontend-v2
+    context: src/frontend-v2
   - image: gcr.io/bank-of-anthos/ledgerwriter
     jib:
       project: src/ledgerwriter
