@@ -40,7 +40,7 @@ git clone https://github.com/GoogleCloudPlatform/bank-of-anthos.git
 
 ```
 PROJECT_ID=<your-project-id>
-gcloud beta services enable container --project $PROJECT_ID
+gcloud beta services enable container --project ${PROJECT_ID}
 ```
 
 ### 3 - Create a Kubernetes cluster
