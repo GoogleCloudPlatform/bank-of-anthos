@@ -27,17 +27,11 @@ spec:
     spec:
       terminationGracePeriodSeconds: 5
       containers:
-      - name: front
-        image: gcr.io/bank-of-anthos/frontend:v0.1.0
-        volumeMounts:
-        - name: publickey
-          mountPath: "/root/.ssh"
-          readOnly: true
+      - name: frontend
+        image: gcr.io/bank-of-anthos/frontend
         env:
         - name: VERSION
           value: "v0.1.0"
-        - name: PORT
-          value: "8080"
         - name: DEFAULT_USERNAME
           valueFrom:
             configMapKeyRef:
@@ -51,21 +45,6 @@ spec:
         envFrom:
         - configMapRef:
             name: environment-config
-        - configMapRef:
-            name: service-api-config
-        readinessProbe:
-          httpGet:
-            path: /ready
-            port: 8080
-          initialDelaySeconds: 5
-          periodSeconds: 5
-      volumes:
-      - name: publickey
-        secret:
-          secretName: jwt-key
-          items:
-          - key: jwtRS256.key.pub
-            path: publickey
 ---
 apiVersion: v1
 kind: Service
@@ -78,4 +57,4 @@ spec:
   ports:
   - name: http
     port: 80
-    targetPort: 8080
+    targetPort: 80

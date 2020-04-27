@@ -1,20 +1,34 @@
+# Copyright 2020 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 # Stage 1 - Build Angular application
 FROM node:alpine as build
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
-COPY package.json ./
+COPY package.json .
 
-RUN npm install
+RUN npm install --unsafe-perm
 
 COPY . .
 
-RUN npm run build
+RUN npm run prod
 
 # Stage 2 - Deploy compiled Angular app for nginx to serve
-FROM nginx:alpine
+FROM launcher.gcr.io/google/nginx1
 
-COPY --from=build /usr/src/app/dist/frontend /usr/share/nginx/html
+COPY --from=build /app/dist/frontend /usr/share/nginx/html
 
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 
