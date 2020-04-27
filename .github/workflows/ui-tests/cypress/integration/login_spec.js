@@ -24,27 +24,25 @@ describe('Default Credentials on Form Submission', function() {
   const username = 'testuser'
   const password = 'password'
   const name = 'Test User'
-  // TODO: what is correct amount?
-  const expectedBalance = '$6,026.20'
 
   beforeEach(function() {
     cy.login(username, password)
   })
 
   it('redirects to home', function() {
-    // redirect to home page
     cy.url().should('include', '/home')
   })
 
   it('sees correct username', function() {
-    // TODO: class "account-user-name" should be ID
     cy.get('#account-user-name').contains(name)
   })
 
-  // TODO: blocked until id implemented
   it('sees correct balance', function() {
-    // TODO: span should have id "current-balance"
-    cy.get('#current-balance').contains(expectedBalance)
+    cy.get("#current-balance").then(($span) => {
+      const balanceStr= $span.text()
+      const balance = parseFloat(balanceStr.replace(/[^\d.]/g, ''))
+      cy.wrap(balance).should('greaterThan', 0)
+     })
   })
 
   it('login and signup redirects back to home', function() {

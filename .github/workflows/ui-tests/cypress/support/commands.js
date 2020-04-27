@@ -53,3 +53,19 @@ Cypress.Commands.add('login', (username, password) => {
     cy.get('form').submit()
 
 })
+
+Cypress.Commands.add('createAccount', (user) => {
+    Cypress.log({
+        name: 'createAccount',
+        message: user,
+    })
+
+    cy.visit('/signup')
+    cy.get('input[name=username]').type(user.username)
+    cy.get('input[name=password]').type(user.password)
+    cy.get('input[name=password-repeat]').type(user.password)
+    cy.get('input[name=firstname]').type(user.firstName)
+    cy.get('input[name=lastname]').type(user.lastName)
+    cy.get('input[name=birthday]').type('1981-01-01')
+    cy.get('form').submit()
+})
