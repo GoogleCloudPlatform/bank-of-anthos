@@ -47,7 +47,7 @@ jobs:
     - name: Deploy Latest Release
       if: ${{ matrix.profile == 'latest-release' }}
       run: |
-        kubectl apply -f kubernetes-manifests
+        kubectl apply -f kubernetes-manifests \
                       --namespace ${{ matrix.profile }}
     - name: Wait For Pods
       timeout-minutes: 20
