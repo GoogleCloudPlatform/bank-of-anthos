@@ -23,7 +23,7 @@ describe('Login Page', function() {
 describe('Default Credentials on Form Submission', function() {
   const username = 'testuser'
   const password = 'password'
-  const name = 'Test User'
+  const name = 'Eve'
 
   beforeEach(function() {
     cy.login(username, password)
