@@ -20,6 +20,16 @@ describe('Login Page', function() {
   })
 })
 
+describe('Pre-filled Credentials on Login Form', function() {
+  it('are expected strings'), function() {
+    const expectedUsername = 'testuser'
+    const expectedPassword = 'password'
+
+    cy.get('input[name=username]').should('eq', expectedPassword)
+    cy.get('input[name=password]').should('eq', expectedPassword)
+  }
+})
+
 describe('Default Credentials on Form Submission', function() {
   const username = 'testuser'
   const password = 'password'
