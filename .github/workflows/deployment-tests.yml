@@ -51,6 +51,8 @@ jobs:
       if: ${{ matrix.profile == 'latest-release' }}
       run: |
         set -x
+        kubectl apply -f extras/jwt \
+                      --namespace ${{ matrix.profile }}
         kubectl apply -f kubernetes-manifests \
                       --namespace ${{ matrix.profile }}
     - name: Wait For Pods
