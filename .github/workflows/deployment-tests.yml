@@ -52,7 +52,7 @@ jobs:
       run: |
         kubectl apply -f kubernetes-manifests \
                       --namespace ${{ matrix.profile }}
-        sleep 5
+        sleep 20
     - name: Wait For Pods
       timeout-minutes: 20
       run: |
