@@ -49,4 +49,4 @@ deploy:
     # in practice, this should not be checked in to source control
     - ./extras/jwt/jwt-secret.yaml
 profiles:
-  - name: default
+  - name: local-code

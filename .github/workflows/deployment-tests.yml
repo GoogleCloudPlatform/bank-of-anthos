@@ -37,13 +37,13 @@ jobs:
     runs-on: self-hosted
     strategy:
       matrix:
-        profile: ["default", "latest-release"]
+        profile: ["local-code", "latest-release"]
       fail-fast: true
     steps:
     - uses: actions/checkout@v2
     - name: Create Namespace
       run: |
-        kubectl create namespace ${{ matrix.profile }} 2> /dev/null
+        kubectl create namespace ${{ matrix.profile }}
     - name: Deploy From Source
       if: ${{ matrix.profile != 'latest-release' }}
       run: |
@@ -89,6 +89,8 @@ jobs:
   ui-tests:
     needs: [cluster-setup, smoke-tests]
     runs-on: self-hosted
+    env:
+      NAMESPACE: local-code
     steps:
     - uses: actions/checkout@v2
     - name: Port Forward frontend
@@ -96,8 +98,8 @@ jobs:
         set -x
         port_forward() {
             # get name of frontend pod
-            local frontend_pod=$(kubectl get pods -l=app=frontend -o=jsonpath='{.items[0].metadata.name}')
-            kubectl port-forward $frontend_pod 3000:8080
+            local frontend_pod=$(kubectl get pods -n $NAMESPACE -l=app=frontend -o=jsonpath='{.items[0].metadata.name}')
+            kubectl port-forward -n $NAMESPACE $frontend_pod 3000:8080
         }
         port_forward &
     - name: Ping frontend
