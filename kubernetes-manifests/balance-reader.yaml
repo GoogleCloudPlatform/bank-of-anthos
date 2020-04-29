@@ -28,14 +28,14 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: reader
-        image: gcr.io/bank-of-anthos/balancereader:v0.1.0
+        image: gcr.io/bank-of-anthos/balancereader:v0.1.1
         volumeMounts:
         - name: publickey
           mountPath: "/root/.ssh"
           readOnly: true
         env:
         - name: VERSION
-          value: "v0.1.0"
+          value: "v0.1.1"
         - name: PORT
           value: "8080"
         - name: POLL_MS
