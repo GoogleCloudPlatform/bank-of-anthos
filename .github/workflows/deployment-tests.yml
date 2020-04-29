@@ -27,7 +27,6 @@ jobs:
   cluster-setup:
     runs-on: self-hosted
     steps:
-    - uses: actions/checkout@v2
     - name: Setup Cluster
       run: |
         kind delete cluster 2>/dev/null
@@ -41,6 +40,7 @@ jobs:
         profile: ["default", "latest-release"]
       fail-fast: true
     steps:
+    - uses: actions/checkout@v2
     - name: Create Namespace
       run: |
         kubectl create namespace ${{ matrix.profile }} 2> /dev/null
@@ -90,6 +90,7 @@ jobs:
     needs: [cluster-setup, smoke-tests]
     runs-on: self-hosted
     steps:
+    - uses: actions/checkout@v2
     - name: Port Forward frontend
       run: |
         set -x
