@@ -37,51 +37,45 @@ jobs:
         kind delete cluster 2>/dev/null
         kind create cluster
         kubectl get nodes
-    - name: Create Namespace
-      run: |
-        kubectl create namespace ${{ matrix.profile }} 2>/dev/null
     - name: Deploy From Source
       if: ${{ matrix.profile != 'latest-release' }}
       run: |
         skaffold config set --global local-cluster true
         skaffold run --default-repo local \
-                     --profile ${{ matrix.profile }} \
-                     --namespace ${{ matrix.profile }}
+                     --profile ${{ matrix.profile }}
     - name: Deploy Latest Release
       if: ${{ matrix.profile == 'latest-release' }}
       run: |
         set -x
-        kubectl apply -f extras/jwt \
-                      --namespace ${{ matrix.profile }}
-        kubectl apply -f kubernetes-manifests \
-                      --namespace ${{ matrix.profile }}
+        kubectl apply -f extras/jwt
+        kubectl apply -f kubernetes-manifests
     - name: Wait For Pods
       timeout-minutes: 20
       run: |
         set -x
-        kubectl wait --for=condition=available --timeout=500s deployment/frontend --namespace ${{ matrix.profile }}
-        kubectl wait --for=condition=available --timeout=500s deployment/contacts --namespace ${{ matrix.profile }}
-        kubectl wait --for=condition=available --timeout=500s deployment/userservice --namespace ${{ matrix.profile }}
-        kubectl wait --for=condition=available --timeout=500s deployment/ledgerwriter --namespace ${{ matrix.profile }}
-        kubectl wait --for=condition=available --timeout=500s deployment/transactionhistory --namespace ${{ matrix.profile }}
-        kubectl wait --for=condition=available --timeout=500s deployment/balancereader --namespace ${{ matrix.profile }}
-        kubectl wait --for=condition=available --timeout=500s deployment/loadgenerator --namespace ${{ matrix.profile }}
-        kubectl wait --for=condition=ready --timeout=500s pod/accounts-db-0 --namespace ${{ matrix.profile }}
-        kubectl wait --for=condition=ready --timeout=500s pod/ledger-db-0 --namespace ${{ matrix.profile }}
+        kubectl wait --for=condition=available --timeout=500s deployment/frontend
+        kubectl wait --for=condition=available --timeout=500s deployment/contacts
+        kubectl wait --for=condition=available --timeout=500s deployment/userservice
+        kubectl wait --for=condition=available --timeout=500s deployment/ledgerwriter
+        kubectl wait --for=condition=available --timeout=500s deployment/transactionhistory
+        kubectl wait --for=condition=available --timeout=500s deployment/balancereader
+        kubectl wait --for=condition=available --timeout=500s deployment/loadgenerator
+        kubectl wait --for=condition=ready --timeout=500s pod/accounts-db-0
+        kubectl wait --for=condition=ready --timeout=500s pod/ledger-db-0
     - name: Smoke Test
       timeout-minutes: 5
       run: |
         set -x
         # start fresh loadgenerator pod
-        kubectl delete pod -l app=loadgenerator --namespace ${{ matrix.profile }}
+        kubectl delete pod -l app=loadgenerator
         # wait for requests to come in
         REQUEST_COUNT="0"
         while [[ "$REQUEST_COUNT" -lt "100"  ]]; do
             sleep 5
-            REQUEST_COUNT=$(kubectl logs -l app=loadgenerator --namespace ${{ matrix.profile }} | grep Aggregated | awk '{print $2}')
+            REQUEST_COUNT=$(kubectl logs -l app=loadgenerator | grep Aggregated | awk '{print $2}')
         done
         # ensure there are no errors hitting endpoints
-        ERROR_COUNT=$(kubectl logs -l app=loadgenerator  --namespace ${{ matrix.profile }} | grep Aggregated | awk '{print $3}' | sed "s/[(][^)]*[)]//g")
+        ERROR_COUNT=$(kubectl logs -l app=loadgenerator | grep Aggregated | awk '{print $3}' | sed "s/[(][^)]*[)]//g")
         if [[ "$ERROR_COUNT" -gt "0" ]]; then
           exit 1
         fi
@@ -90,8 +84,8 @@ jobs:
         set -x
         port_forward() {
             # get name of frontend pod
-            local frontend_pod=$(kubectl get pods -n ${{ matrix.profile }} -l=app=frontend -o=jsonpath='{.items[0].metadata.name}')
-            kubectl port-forward -n ${{ matrix.profile }} $frontend_pod 3000:8080
+            local frontend_pod=$(kubectl get pods -l=app=frontend -o=jsonpath='{.items[0].metadata.name}')
+            kubectl port-forward $frontend_pod 3000:8080
         }
         port_forward &
     - name: Ping frontend
