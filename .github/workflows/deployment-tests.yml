@@ -50,6 +50,7 @@ jobs:
     - name: Deploy Latest Release
       if: ${{ matrix.profile == 'latest-release' }}
       run: |
+        set -x
         kubectl apply -f kubernetes-manifests \
                       --namespace ${{ matrix.profile }}
         sleep 20
