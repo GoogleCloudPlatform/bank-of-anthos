@@ -43,7 +43,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: Create Namespace
       run: |
-        kubectl create namespace ${{ matrix.profile }}
+        kubectl create namespace ${{ matrix.profile }} 2>/dev/null
     - name: Deploy From Source
       if: ${{ matrix.profile != 'latest-release' }}
       run: |
