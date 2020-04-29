@@ -24,12 +24,8 @@ on:
     branches:
       - master
 jobs:
-  run-tests:
+  cluster-setup:
     runs-on: self-hosted
-    strategy:
-      matrix:
-        profile: ["default", "latest-release"]
-      fail-fast: true
     steps:
     - uses: actions/checkout@v2
     - name: Setup Cluster
@@ -37,6 +33,14 @@ jobs:
         kind delete cluster 2>/dev/null
         kind create cluster
         kubectl get nodes
+  smoke-tests:
+    needs: cluster-setup
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        profile: ["default", "latest-release"]
+      fail-fast: true
+    steps:
     - name: Deploy From Source
       if: ${{ matrix.profile != 'latest-release' }}
       run: |
@@ -79,8 +83,11 @@ jobs:
         if [[ "$ERROR_COUNT" -gt "0" ]]; then
           exit 1
         fi
+  ui-tests:
+    needs: [cluster-setup, smoke-tests]
+    runs-on: self-hosted
+    steps:
     - name: Port Forward frontend
-      if: ${{ matrix.profile == 'default' }} # only run UI tests against latest source code
       run: |
         set -x
         port_forward() {
@@ -90,10 +97,8 @@ jobs:
         }
         port_forward &
     - name: Ping frontend
-      if: ${{ matrix.profile == 'default' }} # only run UI tests against latest source code
       run: |
           curl --silent --output /dev/null --show-error --fail localhost:3000
     - name: UI tests
-      if: ${{ matrix.profile == 'default' }} # only run UI tests against latest source code
       run: |
           docker run -t -v $PWD/.github/workflows/ui-tests:/e2e -w /e2e --network=host cypress/included:4.3.0
