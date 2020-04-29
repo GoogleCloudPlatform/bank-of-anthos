@@ -41,6 +41,9 @@ jobs:
         profile: ["default", "latest-release"]
       fail-fast: true
     steps:
+    - name: Create Namespace
+      run: |
+        kubectl create namespace ${{ matrix.profile }} 2> /dev/null
     - name: Deploy From Source
       if: ${{ matrix.profile != 'latest-release' }}
       run: |
