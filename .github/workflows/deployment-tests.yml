@@ -53,13 +53,10 @@ jobs:
         set -x
         kubectl apply -f kubernetes-manifests \
                       --namespace ${{ matrix.profile }}
-        sleep 20
     - name: Wait For Pods
       timeout-minutes: 20
       run: |
         set -x
-        kubectl wait --for=condition=ready --timeout=500s pod/accounts-db-0 --namespace ${{ matrix.profile }}
-        kubectl wait --for=condition=ready --timeout=500s pod/ledger-db-0 --namespace ${{ matrix.profile }}
         kubectl wait --for=condition=available --timeout=500s deployment/frontend --namespace ${{ matrix.profile }}
         kubectl wait --for=condition=available --timeout=500s deployment/contacts --namespace ${{ matrix.profile }}
         kubectl wait --for=condition=available --timeout=500s deployment/userservice --namespace ${{ matrix.profile }}
@@ -67,6 +64,8 @@ jobs:
         kubectl wait --for=condition=available --timeout=500s deployment/transactionhistory --namespace ${{ matrix.profile }}
         kubectl wait --for=condition=available --timeout=500s deployment/balancereader --namespace ${{ matrix.profile }}
         kubectl wait --for=condition=available --timeout=500s deployment/loadgenerator --namespace ${{ matrix.profile }}
+        kubectl wait --for=condition=ready --timeout=500s pod/accounts-db-0 --namespace ${{ matrix.profile }}
+        kubectl wait --for=condition=ready --timeout=500s pod/ledger-db-0 --namespace ${{ matrix.profile }}
     - name: Smoke Test
       timeout-minutes: 5
       run: |
