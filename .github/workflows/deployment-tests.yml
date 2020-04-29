@@ -84,7 +84,6 @@ jobs:
           exit 1
         fi
     - name: Port Forward frontend
-      if: ${{ matrix.profile != 'local-code' }}
       run: |
         set -x
         port_forward() {
@@ -94,10 +93,8 @@ jobs:
         }
         port_forward &
     - name: Ping frontend
-      if: ${{ matrix.profile != 'local-code' }}
       run: |
           curl --silent --output /dev/null --show-error --fail localhost:3000
     - name: UI tests
-      if: ${{ matrix.profile != 'local-code' }}
       run: |
           docker run -t -v $PWD/.github/workflows/ui-tests:/e2e -w /e2e --network=host cypress/included:4.3.0
