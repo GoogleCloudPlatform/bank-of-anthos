@@ -40,6 +40,7 @@ describe('Default Credentials on Form Submission', function() {
   it('sees correct balance', function() {
     cy.get("#current-balance").then(($span) => {
       const balanceStr= $span.text()
+      // regex: removes any characters that are not a digit [0-9] or a period [.]
       const balance = parseFloat(balanceStr.replace(/[^\d.]/g, ''))
       cy.wrap(balance).should('greaterThan', 0)
      })
