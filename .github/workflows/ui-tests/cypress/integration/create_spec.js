@@ -58,4 +58,22 @@ describe('User can create account', function() {
     it('sees correct username', function() {
         cy.get('#accountDropdown').contains(`${firstName} ${lastName}`)
     })
+
+    it('sees empty transaction history message', function() {
+        const transactionMsgs = Cypress.env('messages').transaction
+        // sees empty transaction history message
+        cy.get('#transaction-table').children('.card-table-header').contains(transactionMsgs.empty)
+        // does not see error message
+        cy.get('#transaction-table').children().should('not.contain', transactionMsgs.error)
+
+    })
+
+
+    it('sees no transactions', function() {
+        // new accounts only see empty history message
+        // new accounts should not see a table
+        cy.get('#transaction-table').children().should('have.length', 1)
+        cy.get('#transaction-table').children().should('have.class', 'card-table-header')
+        cy.get('#transaction-table').children().should('not.have.class', 'table')        
+    })
 })

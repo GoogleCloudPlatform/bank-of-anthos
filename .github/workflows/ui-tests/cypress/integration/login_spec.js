@@ -31,9 +31,12 @@ describe('Pre-filled Credentials on Login Form', function() {
 })
 
 describe('Default Credentials on Form Submission', function() {
-  const username = 'testuser'
-  const password = 'password'
-  const name = 'Eve'
+  const transactionMsgs = Cypress.env('messages').transaction
+  const defaultUser = Cypress.env('defaultUser')
+
+  const username = defaultUser.username
+  const password = defaultUser.password
+  const name = defaultUser.name
 
   beforeEach(function() {
     cy.login(username, password)
@@ -53,7 +56,23 @@ describe('Default Credentials on Form Submission', function() {
       // regex: removes any characters that are not a digit [0-9] or a period [.]
       const balance = parseFloat(balanceStr.replace(/[^\d.]/g, ''))
       cy.wrap(balance).should('greaterThan', 0)
-     })
+    })
+  })
+
+  it('sees transaction history', function() {
+    cy.get('#transaction-table').children().should('have.class', 'table')
+    cy.get('.list').children().should('have.length.greaterThan', 10)
+
+  })
+
+  it('does not see empty transaction message', function() {
+    cy.get('#transaction-table').children().should('not.have.class', 'card-table-header')
+    cy.get('#transaction-table').children().should('not.contain', transactionMsgs.empty)
+  })
+  
+  it('does not see error message', function() {
+    cy.get('#transaction-table').children().should('not.have.class', 'card-table-header')
+    cy.get('#transaction-table').children().should('not.contain', transactionMsgs.error)
   })
 
   it('login and signup redirects back to home', function() {
