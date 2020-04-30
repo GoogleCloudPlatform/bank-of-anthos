@@ -158,7 +158,7 @@ class LedgerWriterControllerTest {
     }
 
     @Test
-    @DisplayName("Given JWTVerificationException return HTTP Status 401")
+    @DisplayName("Given JWTVerificationException return HTTP Status 400")
     void addTransactionWhenBadRequest() {
         // Given
         LedgerWriterController spyLedgerWriterController =
@@ -177,10 +177,15 @@ class LedgerWriterControllerTest {
 
         // Then
         assertNotNull(actualResult);
-
+        System.out.println(actualResult.getBody());
         // TODO: write assert for ResponseEntity body
         assertEquals(HttpStatus.BAD_REQUEST, actualResult.getStatusCode());
     }
 
+    @Test
+    @DisplayName("Given ResourceAccessException return HTTP Status 500")
+    void addTransactionWhenInternalServerError() {
+        // TODO: write test
+    }
 
 }
