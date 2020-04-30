@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 
+const defaultUser = Cypress.env('defaultUser')
+const username = defaultUser.username
+const password = defaultUser.password
+const name = defaultUser.name
+
 describe('Login Page', function() {
   it('successfully loads', function() {
     cy.visit('/login')
@@ -22,21 +27,13 @@ describe('Login Page', function() {
 
 describe('Pre-filled Credentials on Login Form', function() {
   it('are expected strings'), function() {
-    const expectedUsername = 'testuser'
-    const expectedPassword = 'password'
-
-    cy.get('input[name=username]').should('eq', expectedPassword)
-    cy.get('input[name=password]').should('eq', expectedPassword)
+    cy.get('input[name=username]').should('eq', username)
+    cy.get('input[name=password]').should('eq', password)
   }
 })
 
 describe('Default Credentials on Form Submission', function() {
   const transactionMsgs = Cypress.env('messages').transaction
-  const defaultUser = Cypress.env('defaultUser')
-
-  const username = defaultUser.username
-  const password = defaultUser.password
-  const name = defaultUser.name
 
   beforeEach(function() {
     cy.login(username, password)
