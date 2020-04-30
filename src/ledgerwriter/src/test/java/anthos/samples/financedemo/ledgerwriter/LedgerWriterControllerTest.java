@@ -17,6 +17,7 @@
 package anthos.samples.financedemo.ledgerwriter;
 
 import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.junit.jupiter.api.BeforeEach;
@@ -58,13 +59,15 @@ class LedgerWriterControllerTest {
         ledgerWriterController = new LedgerWriterController(verifier,
                 transactionRepository, transactionValidator,
                 LOCAL_ROUTING_NUM, BALANCES_API_ADDR, VERSION);
+
+        when(verifier.verify(anyString())).thenReturn(jwt);
+        when(jwt.getClaim("acct")).thenReturn(claim);
     }
 
     @Test
     @DisplayName("Given version number in the environment, " +
             "return a ResponseEntity with the version number")
     void version() {
-
         // When
         final ResponseEntity actualResult = ledgerWriterController.version();
 
@@ -118,7 +121,6 @@ class LedgerWriterControllerTest {
         // Given
         LedgerWriterController spyLedgerWriterController =
                 spy(ledgerWriterController);
-
         when(verifier.verify(anyString())).thenReturn(jwt);
         when(jwt.getClaim("acct")).thenReturn(claim);
         // Method call checkAvailableBalance
@@ -137,4 +139,48 @@ class LedgerWriterControllerTest {
                 actualResult.getBody());
         assertEquals(HttpStatus.CREATED, actualResult.getStatusCode());
     }
+
+    @Test
+    @DisplayName("Given JWTVerificationException return HTTP Status 401")
+    void addTransactionWhenUnauthorized() {
+        // Given
+        when(verifier.verify(anyString())).thenThrow(JWTVerificationException.class);
+
+        // When
+        final ResponseEntity actualResult = ledgerWriterController.addTransaction(
+                "Bearer abc", transaction);
+
+        // Then
+        assertNotNull(actualResult);
+        assertEquals(ledgerWriterController.UNAUTHORIZED_CODE,
+                actualResult.getBody());
+        assertEquals(HttpStatus.UNAUTHORIZED, actualResult.getStatusCode());
+    }
+
+    @Test
+    @DisplayName("Given JWTVerificationException return HTTP Status 401")
+    void addTransactionWhenBadRequest() {
+        // Given
+        LedgerWriterController spyLedgerWriterController =
+                spy(ledgerWriterController);
+        when(verifier.verify(anyString())).thenReturn(jwt);
+        when(jwt.getClaim("acct")).thenReturn(claim);
+        // Method call checkAvailableBalance
+        when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
+        doThrow(IllegalStateException.class).when(spyLedgerWriterController).checkAvailableBalance(
+                "abc", transaction);
+
+        // When
+        final ResponseEntity actualResult =
+                spyLedgerWriterController.addTransaction(
+                        "Bearer abc", transaction);
+
+        // Then
+        assertNotNull(actualResult);
+
+        // TODO: write assert for ResponseEntity body
+        assertEquals(HttpStatus.BAD_REQUEST, actualResult.getStatusCode());
+    }
+
+
 }
