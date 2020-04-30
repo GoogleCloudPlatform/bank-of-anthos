@@ -17,14 +17,14 @@
 describe('User can navigate to create account screen', function() {
     it('from login', function() {
         cy.visit('/login')
-        cy.get('.btn-create-account').click()
+        cy.get('#create-account-btn').click()
         cy.url().should('contain', 'signup')
 
     })
 
     it('from url', function() {
       cy.visit('/signup')
-      cy.get('.header-title').contains('Register a new account')
+      cy.get('#signup-title').contains('Register a new account')
     })
 })
 

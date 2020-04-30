@@ -22,9 +22,9 @@ Cypress.Commands.add('login', (username, password) => {
 
     cy.visit('login')
 
-    cy.get('input[name=username]').clear().type(username)
-    cy.get('input[name=password]').clear().type(password)
-    cy.get('form').submit()
+    cy.get('#login-username').clear().type(username)
+    cy.get('#login-password').clear().type(password)
+    cy.get('#login-form').submit()
 
 })
 
@@ -35,11 +35,11 @@ Cypress.Commands.add('createAccount', (user) => {
     })
 
     cy.visit('/signup')
-    cy.get('input[name=username]').type(user.username)
-    cy.get('input[name=password]').type(user.password)
-    cy.get('input[name=password-repeat]').type(user.password)
-    cy.get('input[name=firstname]').type(user.firstName)
-    cy.get('input[name=lastname]').type(user.lastName)
-    cy.get('input[name=birthday]').type('1981-01-01')
-    cy.get('form').submit()
+    cy.get('#signup-username').type(user.username)
+    cy.get('#signup-password').type(user.password)
+    cy.get('#signup-password-repeat').type(user.password)
+    cy.get('#signup-firstname').type(user.firstName)
+    cy.get('#signup-lastname').type(user.lastName)
+    cy.get('#signup-birthday').type('1981-01-01')
+    cy.get('#signup-form').submit()
 })
