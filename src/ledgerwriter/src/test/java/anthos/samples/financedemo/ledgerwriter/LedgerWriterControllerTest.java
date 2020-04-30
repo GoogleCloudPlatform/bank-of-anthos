@@ -177,7 +177,6 @@ class LedgerWriterControllerTest {
 
         // Then
         assertNotNull(actualResult);
-        System.out.println(actualResult.getBody());
         // TODO: write assert for ResponseEntity body
         assertEquals(HttpStatus.BAD_REQUEST, actualResult.getStatusCode());
     }

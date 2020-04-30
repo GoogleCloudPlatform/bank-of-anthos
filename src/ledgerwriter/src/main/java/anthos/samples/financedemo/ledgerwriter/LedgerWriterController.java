@@ -140,12 +140,12 @@ public final class LedgerWriterController {
             return new ResponseEntity<String>(UNAUTHORIZED_CODE,
                                               HttpStatus.UNAUTHORIZED);
         } catch (IllegalArgumentException | IllegalStateException e) {
-            return new ResponseEntity<String>(e.toString(),
+            return new ResponseEntity<String>(e.getMessage(),
                                               HttpStatus.BAD_REQUEST);
         } catch (ResourceAccessException
                 | CannotCreateTransactionException
                 | HttpServerErrorException e) {
-            return new ResponseEntity<String>(e.toString(),
+            return new ResponseEntity<String>(e.getMessage(),
                                               HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
