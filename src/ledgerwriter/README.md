@@ -18,16 +18,20 @@ Implemented in Java with Spring Boot.
   - a version string for the service
 - `PORT`
   - the port for the webserver
-- `LOCAL_ROUTING_NUM`
-  - the routing number for our bank
-- `BALANCES_API_ADDR`
-  - the address and port of the `balancereader` service
-- `PUB_KEY_PATH`
-  - the path to the JWT signer's public key, mounted as a secret
 - `JVM_OPTS`
   - settings for the JVM. Used to obey container memory limits
 
-- ConfigMap `postgres-config`:
+- ConfigMap `environment-config`:
+  - `LOCAL_ROUTING_NUM`
+    - the routing number for our bank
+  - `PUB_KEY_PATH`
+    - the path to the JWT signer's public key, mounted as a secret
+
+- ConfigMap `service-api-config`
+  - `BALANCES_API_ADDR`
+    - the address and port of the `balancereader` service
+
+- ConfigMap `ledger-db-config`:
   - `SPRING_DATASOURCE_URL`
     - URL of the `ledger-db` service
   - `SPRING_DATASOURCE_USERNAME`

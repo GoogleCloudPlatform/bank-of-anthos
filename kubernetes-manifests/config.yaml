@@ -1,0 +1,51 @@
+# Copyright 2020 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: environment-config
+data:
+  LOCAL_ROUTING_NUM: "123456789"
+  PUB_KEY_PATH: "/root/.ssh/publickey"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: service-api-config
+data:
+  TRANSACTIONS_API_ADDR: "ledgerwriter:8080"
+  BALANCES_API_ADDR: "balancereader:8080"
+  HISTORY_API_ADDR: "transactionhistory:8080"
+  CONTACTS_API_ADDR: "contacts:8080"
+  USERSERVICE_API_ADDR: "userservice:8080"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: default-data-config
+data:
+  USE_DEFAULT_DATA: "True"
+  # All default user accounts are hardcoded to use the login password 'password'
+  DEFAULT_LOGIN_PASSWORD: "password"
+  DEFAULT_USER_ACCOUNT: "1033623433"
+  DEFAULT_USER_USERNAME: "testuser"
+  DEFAULT_USER_NAME: "Eve"
+  DEFAULT_DEPOSIT_ACCOUNT: "9099791699"
+  DEFAULT_DEPOSIT_ROUTING: "808889588"
+  DEFAULT_DEPOSIT_LABEL: "External Bank"
+  DEFAULT_CONTACT_ACCOUNT_A: "1044226144"
+  DEFAULT_CONTACT_NAME_A: "Alice"
+  DEFAULT_CONTACT_ACCOUNT_B: "1055757655"
+  DEFAULT_CONTACT_NAME_B: "Bob"

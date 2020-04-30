@@ -22,10 +22,6 @@ Implemented in Java with Spring Boot and Guava.
   - a version string for the service
 - `PORT`
   - the port for the webserver
-- `LOCAL_ROUTING_NUM`
-  - the routing number for our bank
-- `PUB_KEY_PATH`
-  - the path to the JWT signer's public key, mounted as a secret
 - `POLL_MS`
   - the number of milliseconds to wait in between polls to `ledger-db`
   - optional. Defaults to 100
@@ -43,7 +39,13 @@ Implemented in Java with Spring Boot and Guava.
 - `EXTRA_LATENCY_MILLIS`
   - add fake extra latency in milliseconds to transaction history requests
 
-- ConfigMap `postgres-config`:
+- ConfigMap `environment-config`:
+  - `LOCAL_ROUTING_NUM`
+    - the routing number for our bank
+  - `PUB_KEY_PATH`
+    - the path to the JWT signer's public key, mounted as a secret
+
+- ConfigMap `ledger-db-config`:
   - `SPRING_DATASOURCE_URL`
     - URL of the `ledger-db` service
   - `SPRING_DATASOURCE_USERNAME`
