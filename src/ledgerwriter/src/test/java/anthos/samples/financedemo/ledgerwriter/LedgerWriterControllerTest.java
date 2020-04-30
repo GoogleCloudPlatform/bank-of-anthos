@@ -17,8 +17,8 @@
 package anthos.samples.financedemo.ledgerwriter;
 
 import com.auth0.jwt.JWTVerifier;
-import org.junit.Rule;
-import org.junit.contrib.java.lang.system.EnvironmentVariables;
+import com.auth0.jwt.interfaces.Claim;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,16 +27,26 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 class LedgerWriterControllerTest {
 
     private LedgerWriterController ledgerWriterController;
 
     @Mock
+    private TransactionValidator transactionValidator;
+    @Mock
+    private TransactionRepository transactionRepository;
+    @Mock
     private JWTVerifier verifier;
-
-    @Rule
-    private EnvironmentVariables environmentVariables;
+    @Mock
+    private Transaction transaction;
+    @Mock
+    private DecodedJWT jwt;
+    @Mock
+    private Claim claim;
 
     private static final String VERSION = "v0.1.0";
     private static final String LOCAL_ROUTING_NUM = "123456789";
@@ -44,8 +54,9 @@ class LedgerWriterControllerTest {
 
     @BeforeEach
     void setUp() {
-        environmentVariables = new EnvironmentVariables();
+        initMocks(this);
         ledgerWriterController = new LedgerWriterController(verifier,
+                transactionRepository, transactionValidator,
                 LOCAL_ROUTING_NUM, BALANCES_API_ADDR, VERSION);
     }
 
@@ -53,8 +64,6 @@ class LedgerWriterControllerTest {
     @DisplayName("Given version number in the environment, " +
             "return a ResponseEntity with the version number")
     void version() {
-        // Given
-        environmentVariables.set("VERSION", VERSION);
 
         // When
         final ResponseEntity actualResult = ledgerWriterController.version();
@@ -79,7 +88,53 @@ class LedgerWriterControllerTest {
     }
 
     @Test
-    void addTransaction() {
+    @DisplayName("Given the transaction routing number is different than the" +
+            "local routing number, return HTTP Status 201")
+    void addTransactionSuccessWhenDiffThanLocalRoutingNum() {
         // TODO: [issue-52] add tests to addTransaction
+
+        // Given
+        when(verifier.verify(anyString())).thenReturn(jwt);
+        when(jwt.getClaim("acct")).thenReturn(claim);
+        // Skip method call checkAvailableBalance
+        when(transaction.getFromRoutingNum()).thenReturn("SOME STRING");
+
+        // When
+        final ResponseEntity actualResult =
+                ledgerWriterController.addTransaction(
+                        "Bearer abc", transaction);
+
+        // Then
+        assertNotNull(actualResult);
+        assertEquals(ledgerWriterController.READINESS_CODE,
+                actualResult.getBody());
+        assertEquals(HttpStatus.CREATED, actualResult.getStatusCode());
+    }
+
+    @Test
+    @DisplayName("Given the transaction routing number is the same as the" +
+            "local routing number, return HTTP Status 201")
+    void addTransactionSuccessWhenSameLocalRoutingNum() {
+        // Given
+        LedgerWriterController spyLedgerWriterController =
+                spy(ledgerWriterController);
+
+        when(verifier.verify(anyString())).thenReturn(jwt);
+        when(jwt.getClaim("acct")).thenReturn(claim);
+        // Method call checkAvailableBalance
+        when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
+        doNothing().when(spyLedgerWriterController).checkAvailableBalance(
+                "abc", transaction);
+
+        // When
+        final ResponseEntity actualResult =
+                spyLedgerWriterController.addTransaction(
+                        "Bearer abc", transaction);
+
+        // Then
+        assertNotNull(actualResult);
+        assertEquals(ledgerWriterController.READINESS_CODE,
+                actualResult.getBody());
+        assertEquals(HttpStatus.CREATED, actualResult.getStatusCode());
     }
 }

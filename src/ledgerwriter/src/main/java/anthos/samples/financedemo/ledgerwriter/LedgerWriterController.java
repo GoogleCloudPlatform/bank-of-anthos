@@ -48,9 +48,8 @@ public final class LedgerWriterController {
     private static final Logger LOGGER =
             Logger.getLogger(LedgerWriterController.class.getName());
 
-    @Autowired
     private TransactionRepository transactionRepository;
-
+    private TransactionValidator transactionValidator;
     private JWTVerifier verifier;
 
     private String localRoutingNum;
@@ -60,9 +59,9 @@ public final class LedgerWriterController {
 
     public static final String READINESS_CODE = "ok";
     // account ids should be 10 digits between 0 and 9
-    private static final Pattern ACCT_REGEX = Pattern.compile("^[0-9]{10}$");
+    public static final Pattern ACCT_REGEX = Pattern.compile("^[0-9]{10}$");
     // route numbers should be 9 digits between 0 and 9
-    private static final Pattern ROUTE_REGEX = Pattern.compile("^[0-9]{9}$");
+    public static final Pattern ROUTE_REGEX = Pattern.compile("^[0-9]{9}$");
 
     /**
     * Constructor.
@@ -72,11 +71,15 @@ public final class LedgerWriterController {
 
     public LedgerWriterController(
             JWTVerifier verifier,
+            TransactionRepository transactionRepository,
+            TransactionValidator transactionValidator,
             @Value("${LOCAL_ROUTING_NUM}") String localRoutingNum,
             @Value("http://${BALANCES_API_ADDR}/balances")
                     String balancesApiUri,
             @Value("${VERSION}") String version) {
         this.verifier = verifier;
+        this.transactionRepository = transactionRepository;
+        this.transactionValidator = transactionValidator;
         this.localRoutingNum = localRoutingNum;
         this.balancesApiUri = balancesApiUri;
         this.version = version;
@@ -122,7 +125,7 @@ public final class LedgerWriterController {
         try {
             final DecodedJWT jwt = this.verifier.verify(bearerToken);
             // validate transaction
-            validateTransaction(jwt.getClaim("acct").asString(), transaction);
+            transactionValidator.validateTransaction(localRoutingNum, jwt.getClaim("acct").asString(), transaction);
 
             if (transaction.getFromRoutingNum().equals(localRoutingNum)) {
                 checkAvailableBalance(bearerToken, transaction);
@@ -147,51 +150,6 @@ public final class LedgerWriterController {
     }
 
     /**
-     * Authenticate transaction details before adding to the ledger.
-     *
-     *   - Ensure sender is the same user authenticated by auth token
-     *   - Ensure account and routing numbers are in the correct format
-     *   - Ensure sender and receiver are different accounts
-     *   - Ensure amount is positive, and sender has proper balance
-     *
-     * @param authedAccount  the currently authenticated user account
-     * @param transaction    the transaction object
-     * @param bearerToken    the token used to authenticate request
-     *
-     * @throws IllegalArgumentException  on validation error
-     */
-    private void validateTransaction(String authedAcct, Transaction transaction)
-            throws IllegalArgumentException {
-        final String fromAcct = transaction.getFromAccountNum();
-        final String fromRoute = transaction.getFromRoutingNum();
-        final String toAcct = transaction.getToAccountNum();
-        final String toRoute = transaction.getToRoutingNum();
-        final Integer amount = transaction.getAmount();
-
-        // If this is an internal transaction,
-        // ensure it originated from the authenticated user.
-        if (fromRoute.equals(localRoutingNum) && !fromAcct.equals(authedAcct)) {
-            throw new IllegalArgumentException("sender not authenticated");
-        }
-        // Validate account and routing numbers.
-        if (!ACCT_REGEX.matcher(fromAcct).matches()
-              || !ACCT_REGEX.matcher(toAcct).matches()
-              || !ROUTE_REGEX.matcher(fromRoute).matches()
-              || !ROUTE_REGEX.matcher(toRoute).matches()) {
-            throw new IllegalArgumentException("invalid account details");
-
-        }
-        // Ensure sender isn't receiver.
-        if (fromAcct.equals(toAcct) && fromRoute.equals(toRoute)) {
-            throw new IllegalArgumentException("can't send to self");
-        }
-        // Ensure amount is valid value.
-        if (amount <= 0) {
-            throw new IllegalArgumentException("invalid amount");
-        }
-    }
-
-    /**
      * Check there is available funds for this transaction.
      *
      * @param token  the token used to authenticate request
@@ -200,7 +158,7 @@ public final class LedgerWriterController {
      * @throws IllegalStateException     if insufficient funds
      * @throws HttpServerErrorException  if balance service returns 500
      */
-    private void checkAvailableBalance(String token, Transaction transaction)
+    protected void checkAvailableBalance(String token, Transaction transaction)
             throws IllegalStateException, HttpServerErrorException {
         final String fromAcct = transaction.getFromAccountNum();
         final Integer amount = transaction.getAmount();
