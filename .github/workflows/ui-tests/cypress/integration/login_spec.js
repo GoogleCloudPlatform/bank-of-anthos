@@ -58,7 +58,7 @@ describe('Default Credentials on Form Submission', function() {
 
   it('sees transaction history', function() {
     cy.get('#transaction-table').children().should('have.class', 'table')
-    cy.get('.list').children().should('have.length.greaterThan', 10)
+    cy.get('#transaction-list').children().should('have.length.greaterThan', 10)
 
   })
 
