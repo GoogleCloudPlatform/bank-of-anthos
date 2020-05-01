@@ -350,7 +350,7 @@ limitations under the License.
           // Add max attribute to birthday input
           var today = new Date();
           var maxDate = today.toISOString().split("T")[0];
-          document.querySelector("#birthday").setAttribute("max", maxDate);
+          document.querySelector("#signup-birthday").setAttribute("max", maxDate);
           // Add submit listener to signup form
           form.addEventListener("submit", function(event) {
             var passwordsMatch = document.querySelector("#password").value == document.querySelector("#password-repeat").value;
