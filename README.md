@@ -26,15 +26,7 @@ Bank of Anthos was developed to create an end-to-end sample demonstrating Anthos
 
 ## Installation
 
-### 1 - Clone the repo
-
-Clone this repository to your local environment.
-
-```
-git clone https://github.com/GoogleCloudPlatform/bank-of-anthos.git
-```
-
-### 2 - Project setup
+### 1 - Project setup
 
 [Create a Google Cloud Platform project](https://cloud.google.com/resource-manager/docs/creating-managing-projects#creating_a_project) or use an existing project. Set the PROJECT_ID environment variable and ensure the Google Kubernetes Engine API is enabled.
 
@@ -42,6 +34,16 @@ git clone https://github.com/GoogleCloudPlatform/bank-of-anthos.git
 PROJECT_ID=<your-project-id>
 gcloud beta services enable container --project ${PROJECT_ID}
 ```
+
+### 2 - Clone the repo
+
+Clone this repository to your local environment and cd into the directory.
+
+```
+git clone https://github.com/GoogleCloudPlatform/bank-of-anthos.git
+cd bank-of-anthos
+```
+
 
 ### 3 - Create a Kubernetes cluster
 
