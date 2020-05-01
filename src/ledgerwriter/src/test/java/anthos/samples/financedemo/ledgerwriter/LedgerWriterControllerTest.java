@@ -26,6 +26,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -52,6 +54,10 @@ class LedgerWriterControllerTest {
     private static final String VERSION = "v0.1.0";
     private static final String LOCAL_ROUTING_NUM = "123456789";
     private static final String BALANCES_API_ADDR = "balancereader:8080";
+    private static final String AUTHED_ACCOUNT_NUM = "12345678";
+    private static final String BEARER_TOKEN = "Bearer abc";
+    private static final String TOKEN = "abc";
+    private static final String EXCEPTION_MESSAGE = "Invalid variable";
 
     @BeforeEach
     void setUp() {
@@ -94,18 +100,14 @@ class LedgerWriterControllerTest {
     @DisplayName("Given the transaction routing number is different than the" +
             "local routing number, return HTTP Status 201")
     void addTransactionSuccessWhenDiffThanLocalRoutingNum() {
-        // TODO: [issue-52] add tests to addTransaction
-
         // Given
-        when(verifier.verify(anyString())).thenReturn(jwt);
-        when(jwt.getClaim("acct")).thenReturn(claim);
         // Skip method call checkAvailableBalance
         when(transaction.getFromRoutingNum()).thenReturn("SOME STRING");
 
         // When
         final ResponseEntity actualResult =
                 ledgerWriterController.addTransaction(
-                        "Bearer abc", transaction);
+                        BEARER_TOKEN, transaction);
 
         // Then
         assertNotNull(actualResult);
@@ -121,17 +123,15 @@ class LedgerWriterControllerTest {
         // Given
         LedgerWriterController spyLedgerWriterController =
                 spy(ledgerWriterController);
-        when(verifier.verify(anyString())).thenReturn(jwt);
-        when(jwt.getClaim("acct")).thenReturn(claim);
         // Method call checkAvailableBalance
         when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
         doNothing().when(spyLedgerWriterController).checkAvailableBalance(
-                "abc", transaction);
+                TOKEN, transaction);
 
         // When
         final ResponseEntity actualResult =
                 spyLedgerWriterController.addTransaction(
-                        "Bearer abc", transaction);
+                        BEARER_TOKEN, transaction);
 
         // Then
         assertNotNull(actualResult);
@@ -142,13 +142,15 @@ class LedgerWriterControllerTest {
 
     @Test
     @DisplayName("Given JWTVerificationException return HTTP Status 401")
-    void addTransactionWhenUnauthorized() {
+    void addTransactionWhenJWTVerificationExceptionThrown() {
         // Given
-        when(verifier.verify(anyString())).thenThrow(JWTVerificationException.class);
+        when(verifier.verify(anyString())).thenThrow(
+                JWTVerificationException.class);
 
         // When
-        final ResponseEntity actualResult = ledgerWriterController.addTransaction(
-                "Bearer abc", transaction);
+        final ResponseEntity actualResult =
+                ledgerWriterController.addTransaction(
+                        BEARER_TOKEN, transaction);
 
         // Then
         assertNotNull(actualResult);
@@ -158,33 +160,123 @@ class LedgerWriterControllerTest {
     }
 
     @Test
-    @DisplayName("Given JWTVerificationException return HTTP Status 400")
-    void addTransactionWhenBadRequest() {
+    @DisplayName("Given validateTransaction() throws " +
+            "IllegalArgumentException, return HTTP Status 400")
+    void addTransactionWhenIllegalArgumentExceptionThrown() {
+        // Given
+        when(claim.asString()).thenReturn(AUTHED_ACCOUNT_NUM);
+        doThrow(new IllegalArgumentException(EXCEPTION_MESSAGE)).
+                when(transactionValidator).validateTransaction(
+                        LOCAL_ROUTING_NUM, AUTHED_ACCOUNT_NUM, transaction);
+
+        // When
+        final ResponseEntity actualResult =
+                ledgerWriterController.addTransaction(
+                BEARER_TOKEN, transaction);
+
+        // Then
+        assertNotNull(actualResult);
+        assertEquals(EXCEPTION_MESSAGE,
+                actualResult.getBody());
+        assertEquals(HttpStatus.BAD_REQUEST, actualResult.getStatusCode());
+    }
+
+    @Test
+    @DisplayName("Given checkAvailableBalance() throws " +
+            "IllegalStateException, return HTTP Status 400")
+    void addTransactionWhenIllegalStateExceptionThrown() {
         // Given
         LedgerWriterController spyLedgerWriterController =
                 spy(ledgerWriterController);
-        when(verifier.verify(anyString())).thenReturn(jwt);
-        when(jwt.getClaim("acct")).thenReturn(claim);
         // Method call checkAvailableBalance
         when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
-        doThrow(IllegalStateException.class).when(spyLedgerWriterController).checkAvailableBalance(
-                "abc", transaction);
+        doThrow(new IllegalStateException(EXCEPTION_MESSAGE)).when(
+                spyLedgerWriterController).checkAvailableBalance(
+                TOKEN, transaction);
 
         // When
         final ResponseEntity actualResult =
                 spyLedgerWriterController.addTransaction(
-                        "Bearer abc", transaction);
+                        BEARER_TOKEN, transaction);
 
         // Then
         assertNotNull(actualResult);
-        // TODO: write assert for ResponseEntity body
+        assertEquals(EXCEPTION_MESSAGE, actualResult.getBody());
         assertEquals(HttpStatus.BAD_REQUEST, actualResult.getStatusCode());
     }
 
     @Test
     @DisplayName("Given ResourceAccessException return HTTP Status 500")
-    void addTransactionWhenInternalServerError() {
-        // TODO: write test
+    void addTransactionWhenResourceAccessExceptionThrown() {
+        // Given
+        LedgerWriterController spyLedgerWriterController =
+                spy(ledgerWriterController);
+        // Method call checkAvailableBalance
+        when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
+        doThrow(new ResourceAccessException(EXCEPTION_MESSAGE)).when(
+                spyLedgerWriterController).checkAvailableBalance(
+                TOKEN, transaction);
+
+        // When
+        final ResponseEntity actualResult =
+                spyLedgerWriterController.addTransaction(
+                        BEARER_TOKEN, transaction);
+
+        // Then
+        assertNotNull(actualResult);
+        assertEquals(EXCEPTION_MESSAGE, actualResult.getBody());
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,
+                actualResult.getStatusCode());
     }
 
+    @Test
+    @DisplayName("Given CannotCreateTransactionException " +
+            "return HTTP Status 500")
+    void addTransactionWhenCannotCreateTransactionExceptionExceptionThrown() {
+        // Given
+        LedgerWriterController spyLedgerWriterController =
+                spy(ledgerWriterController);
+        // Method call checkAvailableBalance
+        when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
+        doThrow(new ResourceAccessException(EXCEPTION_MESSAGE)).when(
+                spyLedgerWriterController).checkAvailableBalance(
+                TOKEN, transaction);
+
+        // When
+        final ResponseEntity actualResult =
+                spyLedgerWriterController.addTransaction(
+                        BEARER_TOKEN, transaction);
+
+        // Then
+        assertNotNull(actualResult);
+        assertEquals(EXCEPTION_MESSAGE, actualResult.getBody());
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,
+                actualResult.getStatusCode());
+    }
+
+    @Test
+    @DisplayName("Given HttpServerErrorException return HTTP Status 500")
+    void addTransactionWhenHttpServerErrorExceptionThrown() {
+        // Given
+        LedgerWriterController spyLedgerWriterController =
+                spy(ledgerWriterController);
+        // Method call checkAvailableBalance
+        when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
+        doThrow(new HttpServerErrorException(
+                HttpStatus.INTERNAL_SERVER_ERROR)).when(
+                        spyLedgerWriterController).checkAvailableBalance(
+                TOKEN, transaction);
+
+        // When
+        final ResponseEntity actualResult =
+                spyLedgerWriterController.addTransaction(
+                        BEARER_TOKEN, transaction);
+
+        // Then
+        assertNotNull(actualResult);
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.toString(),
+                actualResult.getBody());
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,
+                actualResult.getStatusCode());
+    }
 }

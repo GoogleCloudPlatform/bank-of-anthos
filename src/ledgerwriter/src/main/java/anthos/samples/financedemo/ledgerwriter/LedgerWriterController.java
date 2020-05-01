@@ -126,15 +126,19 @@ public final class LedgerWriterController {
         try {
             final DecodedJWT jwt = this.verifier.verify(bearerToken);
             // validate transaction
-            transactionValidator.validateTransaction(localRoutingNum, jwt.getClaim("acct").asString(), transaction);
+            transactionValidator.validateTransaction(localRoutingNum,
+                    jwt.getClaim("acct").asString(), transaction);
 
             if (transaction.getFromRoutingNum().equals(localRoutingNum)) {
                 checkAvailableBalance(bearerToken, transaction);
             }
 
-            // No exceptions thrown. Add to ledger.
-            submitTransaction(transaction);
-            return new ResponseEntity<String>(READINESS_CODE, HttpStatus.CREATED);
+            // No exceptions thrown. Add to ledger
+            LOGGER.fine("Submitting transaction " +
+                    transaction.toString());
+            transactionRepository.save(transaction);
+            return new ResponseEntity<String>(READINESS_CODE,
+                    HttpStatus.CREATED);
 
         } catch (JWTVerificationException e) {
             return new ResponseEntity<String>(UNAUTHORIZED_CODE,
@@ -178,8 +182,4 @@ public final class LedgerWriterController {
         }
     }
 
-    private void submitTransaction(Transaction transaction) {
-        LOGGER.fine("Submitting transaction " + transaction.toString());
-        transactionRepository.save(transaction);
-    }
 }

@@ -18,6 +18,7 @@ on:
     # run on pushes to master or release/*
     branches:
       - master
+      - ledgerwriter-tests-v1
       - release/*
   pull_request:
     # run on pull requests targeting master
