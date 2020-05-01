@@ -21,7 +21,6 @@ import java.util.regex.Pattern;
 
 import  org.springframework.web.client.HttpServerErrorException;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -134,8 +133,8 @@ public final class LedgerWriterController {
             }
 
             // No exceptions thrown. Add to ledger
-            LOGGER.fine("Submitting transaction " +
-                    transaction.toString());
+            LOGGER.fine("Submitting transaction "
+                    + transaction.toString());
             transactionRepository.save(transaction);
             return new ResponseEntity<String>(READINESS_CODE,
                     HttpStatus.CREATED);

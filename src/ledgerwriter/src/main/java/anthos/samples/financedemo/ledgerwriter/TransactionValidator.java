@@ -52,8 +52,10 @@ public class TransactionValidator {
         // Validate account and routing numbers.
         if (!LedgerWriterController.ACCT_REGEX.matcher(fromAcct).matches()
                 || !LedgerWriterController.ACCT_REGEX.matcher(toAcct).matches()
-                || !LedgerWriterController.ROUTE_REGEX.matcher(fromRoute).matches()
-                || !LedgerWriterController.ROUTE_REGEX.matcher(toRoute).matches()) {
+                || !LedgerWriterController.ROUTE_REGEX.matcher(
+                        fromRoute).matches()
+                || !LedgerWriterController.ROUTE_REGEX.matcher(
+                        toRoute).matches()) {
             throw new IllegalArgumentException("invalid account details");
 
         }
