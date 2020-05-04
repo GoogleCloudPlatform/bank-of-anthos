@@ -184,7 +184,7 @@ class LedgerWriterControllerTest {
     }
 
     @Test
-    @DisplayName("Given the HTTP request 'Authorization' header is null, " +
+    @DisplayName("Given HTTP request 'Authorization' header is null, " +
             "return HTTP Status 400")
     void addTransactionWhenBearerTokenNull() {
         // When
@@ -227,8 +227,7 @@ class LedgerWriterControllerTest {
     @Test
     @DisplayName("Given the transaction routing number is the same as the " +
             "local routing number, check available balance and the balance " +
-            "reader throws an error when initializing cache, return HTTP " +
-            "Status 500")
+            "reader throws an error, return HTTP Status 500")
     void addTransactionWhenResourceAccessExceptionThrown() {
         // Given
         LedgerWriterController spyLedgerWriterController =
