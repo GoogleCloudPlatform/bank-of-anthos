@@ -26,11 +26,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -53,6 +53,7 @@ class LedgerWriterControllerTest {
 
     private static final String VERSION = "v0.1.0";
     private static final String LOCAL_ROUTING_NUM = "123456789";
+    private static final String NON_LOCAL_ROUTING_NUM = "987654321";
     private static final String BALANCES_API_ADDR = "balancereader:8080";
     private static final String AUTHED_ACCOUNT_NUM = "12345678";
     private static final String BEARER_TOKEN = "Bearer abc";
@@ -66,8 +67,8 @@ class LedgerWriterControllerTest {
                 transactionRepository, transactionValidator,
                 LOCAL_ROUTING_NUM, BALANCES_API_ADDR, VERSION);
 
-        when(verifier.verify(anyString())).thenReturn(jwt);
-        when(jwt.getClaim("acct")).thenReturn(claim);
+        when(verifier.verify(TOKEN)).thenReturn(jwt);
+        when(jwt.getClaim(LedgerWriterController.CLAIM)).thenReturn(claim);
     }
 
     @Test
@@ -101,8 +102,7 @@ class LedgerWriterControllerTest {
             "local routing number, return HTTP Status 201")
     void addTransactionSuccessWhenDiffThanLocalRoutingNum() {
         // Given
-        // Skip method call checkAvailableBalance
-        when(transaction.getFromRoutingNum()).thenReturn("SOME STRING");
+        when(transaction.getFromRoutingNum()).thenReturn(NON_LOCAL_ROUTING_NUM);
 
         // When
         final ResponseEntity actualResult =
@@ -118,12 +118,12 @@ class LedgerWriterControllerTest {
 
     @Test
     @DisplayName("Given the transaction routing number is the same as the" +
-            "local routing number, return HTTP Status 201")
+            "local routing number, check available balance and return HTTP " +
+            "Status 201")
     void addTransactionSuccessWhenSameLocalRoutingNum() {
         // Given
         LedgerWriterController spyLedgerWriterController =
                 spy(ledgerWriterController);
-        // Method call checkAvailableBalance
         when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
         doNothing().when(spyLedgerWriterController).checkAvailableBalance(
                 TOKEN, transaction);
@@ -141,10 +141,11 @@ class LedgerWriterControllerTest {
     }
 
     @Test
-    @DisplayName("Given JWTVerificationException return HTTP Status 401")
+    @DisplayName("Given JWT verifier cannot verify the given bearer token, " +
+            "return HTTP Status 401")
     void addTransactionWhenJWTVerificationExceptionThrown() {
         // Given
-        when(verifier.verify(anyString())).thenThrow(
+        when(verifier.verify(TOKEN)).thenThrow(
                 JWTVerificationException.class);
 
         // When
@@ -160,8 +161,9 @@ class LedgerWriterControllerTest {
     }
 
     @Test
-    @DisplayName("Given validateTransaction() throws " +
-            "IllegalArgumentException, return HTTP Status 400")
+    @DisplayName("Given validation error such as sender not authenticated, " +
+            "invalid account details, can't send to self, and invalid " +
+            "amount, return HTTP Status 400")
     void addTransactionWhenIllegalArgumentExceptionThrown() {
         // Given
         when(claim.asString()).thenReturn(AUTHED_ACCOUNT_NUM);
@@ -182,13 +184,30 @@ class LedgerWriterControllerTest {
     }
 
     @Test
-    @DisplayName("Given checkAvailableBalance() throws " +
-            "IllegalStateException, return HTTP Status 400")
+    @DisplayName("Given the HTTP request 'Authorization' header is null, " +
+            "return HTTP Status 400")
+    void addTransactionWhenBearerTokenNull() {
+        // When
+        final ResponseEntity actualResult =
+                ledgerWriterController.addTransaction(
+                        null, transaction);
+
+        // Then
+        assertNotNull(actualResult);
+        assertEquals(LedgerWriterController.
+                        EXCEPTION_MESSAGE_WHEN_AUTHORIZATION_HEADER_NULL,
+                actualResult.getBody());
+        assertEquals(HttpStatus.BAD_REQUEST, actualResult.getStatusCode());
+    }
+
+    @Test
+    @DisplayName("Given the transaction routing number is the same as the " +
+            "local routing number, check available balance and there are " +
+            "insufficient funds, return HTTP Status 400")
     void addTransactionWhenIllegalStateExceptionThrown() {
         // Given
         LedgerWriterController spyLedgerWriterController =
                 spy(ledgerWriterController);
-        // Method call checkAvailableBalance
         when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
         doThrow(new IllegalStateException(EXCEPTION_MESSAGE)).when(
                 spyLedgerWriterController).checkAvailableBalance(
@@ -206,12 +225,14 @@ class LedgerWriterControllerTest {
     }
 
     @Test
-    @DisplayName("Given ResourceAccessException return HTTP Status 500")
+    @DisplayName("Given the transaction routing number is the same as the " +
+            "local routing number, check available balance and the balance " +
+            "reader throws an error when initializing cache, return HTTP " +
+            "Status 500")
     void addTransactionWhenResourceAccessExceptionThrown() {
         // Given
         LedgerWriterController spyLedgerWriterController =
                 spy(ledgerWriterController);
-        // Method call checkAvailableBalance
         when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
         doThrow(new ResourceAccessException(EXCEPTION_MESSAGE)).when(
                 spyLedgerWriterController).checkAvailableBalance(
@@ -230,22 +251,19 @@ class LedgerWriterControllerTest {
     }
 
     @Test
-    @DisplayName("Given CannotCreateTransactionException " +
-            "return HTTP Status 500")
+    @DisplayName("Given the transaction routing number is different than " +
+            "the local routing number, transaction cannot be saved to the " +
+            "transaction repository, return HTTP Status 500")
     void addTransactionWhenCannotCreateTransactionExceptionExceptionThrown() {
         // Given
-        LedgerWriterController spyLedgerWriterController =
-                spy(ledgerWriterController);
-        // Method call checkAvailableBalance
-        when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
-        doThrow(new ResourceAccessException(EXCEPTION_MESSAGE)).when(
-                spyLedgerWriterController).checkAvailableBalance(
-                TOKEN, transaction);
+        when(transaction.getFromRoutingNum()).thenReturn(NON_LOCAL_ROUTING_NUM);
+        doThrow(new CannotCreateTransactionException(EXCEPTION_MESSAGE)).when(
+                transactionRepository).save(transaction);
 
         // When
         final ResponseEntity actualResult =
-                spyLedgerWriterController.addTransaction(
-                        BEARER_TOKEN, transaction);
+                ledgerWriterController.addTransaction(
+                        TOKEN, transaction);
 
         // Then
         assertNotNull(actualResult);
@@ -255,12 +273,13 @@ class LedgerWriterControllerTest {
     }
 
     @Test
-    @DisplayName("Given HttpServerErrorException return HTTP Status 500")
+    @DisplayName("Given the transaction routing number is the same as the " +
+            "local routing number, check available balance and the balance " +
+            "service returns 500, return HTTP Status 500")
     void addTransactionWhenHttpServerErrorExceptionThrown() {
         // Given
         LedgerWriterController spyLedgerWriterController =
                 spy(ledgerWriterController);
-        // Method call checkAvailableBalance
         when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
         doThrow(new HttpServerErrorException(
                 HttpStatus.INTERNAL_SERVER_ERROR)).when(

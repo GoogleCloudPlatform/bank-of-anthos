@@ -58,6 +58,10 @@ public final class LedgerWriterController {
 
     public static final String READINESS_CODE = "ok";
     public static final String UNAUTHORIZED_CODE = "not authorized";
+    public static final String CLAIM = "acct";
+    public static final String
+            EXCEPTION_MESSAGE_WHEN_AUTHORIZATION_HEADER_NULL =
+            "HTTP request 'Authorization' header is null";
     // account ids should be 10 digits between 0 and 9
     public static final Pattern ACCT_REGEX = Pattern.compile("^[0-9]{10}$");
     // route numbers should be 9 digits between 0 and 9
@@ -123,10 +127,14 @@ public final class LedgerWriterController {
             bearerToken = bearerToken.split("Bearer ")[1];
         }
         try {
+            if (bearerToken == null) {
+                throw new IllegalArgumentException(
+                        EXCEPTION_MESSAGE_WHEN_AUTHORIZATION_HEADER_NULL);
+            }
             final DecodedJWT jwt = this.verifier.verify(bearerToken);
             // validate transaction
             transactionValidator.validateTransaction(localRoutingNum,
-                    jwt.getClaim("acct").asString(), transaction);
+                    jwt.getClaim(CLAIM).asString(), transaction);
 
             if (transaction.getFromRoutingNum().equals(localRoutingNum)) {
                 checkAvailableBalance(bearerToken, transaction);
