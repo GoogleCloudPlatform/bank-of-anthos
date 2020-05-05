@@ -27,7 +27,7 @@ import jwt
 APP = Flask(__name__)
 
 @APP.route('/version', methods=['GET'])
-def version():
+def Version():
     """
     Service version endpoint
     """
