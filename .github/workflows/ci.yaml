@@ -62,6 +62,7 @@ jobs:
         deactivate
   deployment-tests:
     runs-on: self-hosted
+    needs: code-tests
     strategy:
       matrix:
         profile: ["local-code", "latest-release"]
