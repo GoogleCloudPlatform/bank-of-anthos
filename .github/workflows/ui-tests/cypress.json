@@ -2,5 +2,18 @@
     "baseUrl": "http://localhost:3000",
     "video": false,
     "pluginsFile": false,
-    "fixturesFolder": false
+    "fixturesFolder": false,
+    "env": {
+        "messages": {
+            "transaction": {
+                "empty": "No Transactions Found",
+                "error": "Error: Could Not Load Transactions"
+            }
+        },
+        "defaultUser": {
+            "username": "testuser",
+            "password": "password",
+            "name": "Eve"
+        }
+    }
 }
