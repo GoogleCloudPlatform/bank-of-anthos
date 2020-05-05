@@ -42,7 +42,7 @@ spec:
           valueFrom:
             configMapKeyRef:
               name: default-data-config
-              key: DEFAULT_USER_USERNAME
+              key: DEFAULT_LOGIN_USERNAME
         - name: DEFAULT_PASSWORD
           valueFrom:
             configMapKeyRef:

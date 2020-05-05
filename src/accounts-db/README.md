@@ -19,7 +19,7 @@ variables listed below. You may login to the account using the password
 - ConfigMap `default-data-config`:
   - `USE_DEFAULT_DATA`
     - adds default user accounts to the database when initialized if `True`
-    - configure default data in /kubernetes-manifests/default-data-config.yaml 
+    - data is initialized with /src/accounts-db/initdb/1_load_testdata.sh
 
 - ConfigMap `accounts-db-config`:
   - `POSTGRES_DB`
