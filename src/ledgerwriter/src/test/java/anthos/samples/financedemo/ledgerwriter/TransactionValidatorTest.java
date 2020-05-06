@@ -147,7 +147,8 @@ class TransactionValidatorTest {
             "IllegalArgumentException is thrown")
     void validateTransactionFailWhenNotAuthenticated() {
         // Given
-        when(transaction.getFromAccountNum()).thenReturn(NON_AUTHED_ACCOUNT_NUM);
+        when(transaction.getFromAccountNum()).thenReturn(
+                NON_AUTHED_ACCOUNT_NUM);
 
         // When
         IllegalArgumentException exceptionThrown = assertThrows(

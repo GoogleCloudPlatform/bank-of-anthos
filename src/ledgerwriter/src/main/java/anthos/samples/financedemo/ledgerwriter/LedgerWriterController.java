@@ -138,9 +138,11 @@ public final class LedgerWriterController {
             transactionValidator.validateTransaction(localRoutingNum,
                     jwt.getClaim(CLAIM).asString(), transaction);
             // Ensure sender balance can cover transaction.
-            final String transactionRoutingNum = transaction.getFromRoutingNum();
+            final String transactionRoutingNum =
+                    transaction.getFromRoutingNum();
             if (transactionRoutingNum.equals(localRoutingNum)) {
-                int balance = getAvailableBalance(bearerToken, transactionRoutingNum);
+                int balance = getAvailableBalance(
+                        bearerToken, transactionRoutingNum);
                 if (balance < transaction.getAmount()) {
                     throw new IllegalStateException(
                             EXCEPTION_MESSAGE_INSUFFICIENT_BALANCE);
