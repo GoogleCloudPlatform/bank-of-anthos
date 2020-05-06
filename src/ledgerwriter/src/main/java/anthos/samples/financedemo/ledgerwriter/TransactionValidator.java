@@ -18,16 +18,29 @@ package anthos.samples.financedemo.ledgerwriter;
 
 import org.springframework.stereotype.Component;
 
+/**
+ * Validator to authenticate transaction.
+ *
+ * Functions to validate transaction details before adding to the ledger.
+ */
 @Component
 public class TransactionValidator {
 
+    public static final String
+            EXCEPTION_MESSAGE_INVALID_NUMBER = "invalid account details";
+    public static final String
+            EXCEPTION_MESSAGE_NOT_AUTHENTICATED = "sender not authenticated";
+    public static final String
+            EXCEPTION_MESSAGE_SEND_TO_SELF = "can't send to self";
+    public static final String
+            EXCEPTION_MESSAGE_INVALID_AMOUNT = "invalid amount";
+
+
     /**
-     * Authenticate transaction details before adding to the ledger.
-     *
      *   - Ensure sender is the same user authenticated by auth token
      *   - Ensure account and routing numbers are in the correct format
      *   - Ensure sender and receiver are different accounts
-     *   - Ensure amount is positive, and sender has proper balance
+     *   - Ensure amount is positive
      *
      * @param authedAccount  the currently authenticated user account
      * @param transaction    the transaction object
@@ -44,11 +57,6 @@ public class TransactionValidator {
         final String toRoute = transaction.getToRoutingNum();
         final Integer amount = transaction.getAmount();
 
-        // If this is an internal transaction,
-        // ensure it originated from the authenticated user.
-        if (fromRoute.equals(localRoutingNum) && !fromAcct.equals(authedAcct)) {
-            throw new IllegalArgumentException("sender not authenticated");
-        }
         // Validate account and routing numbers.
         if (!LedgerWriterController.ACCT_REGEX.matcher(fromAcct).matches()
                 || !LedgerWriterController.ACCT_REGEX.matcher(toAcct).matches()
@@ -56,16 +64,23 @@ public class TransactionValidator {
                         fromRoute).matches()
                 || !LedgerWriterController.ROUTE_REGEX.matcher(
                         toRoute).matches()) {
-            throw new IllegalArgumentException("invalid account details");
-
+            throw new IllegalArgumentException(
+                    EXCEPTION_MESSAGE_INVALID_NUMBER);
+        }
+        // If this is an internal transaction,
+        // ensure it originated from the authenticated user.
+        if (fromRoute.equals(localRoutingNum) && !fromAcct.equals(authedAcct)) {
+            throw new IllegalArgumentException(
+                    EXCEPTION_MESSAGE_NOT_AUTHENTICATED);
         }
         // Ensure sender isn't receiver.
         if (fromAcct.equals(toAcct) && fromRoute.equals(toRoute)) {
-            throw new IllegalArgumentException("can't send to self");
+            throw new IllegalArgumentException(EXCEPTION_MESSAGE_SEND_TO_SELF);
         }
         // Ensure amount is valid value.
         if (amount <= 0) {
-            throw new IllegalArgumentException("invalid amount");
+            throw new IllegalArgumentException(
+                    EXCEPTION_MESSAGE_INVALID_AMOUNT);
         }
     }
 }

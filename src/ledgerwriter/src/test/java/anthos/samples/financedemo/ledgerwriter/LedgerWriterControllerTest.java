@@ -55,10 +55,13 @@ class LedgerWriterControllerTest {
     private static final String LOCAL_ROUTING_NUM = "123456789";
     private static final String NON_LOCAL_ROUTING_NUM = "987654321";
     private static final String BALANCES_API_ADDR = "balancereader:8080";
-    private static final String AUTHED_ACCOUNT_NUM = "12345678";
+    private static final String AUTHED_ACCOUNT_NUM = "1234567890";
     private static final String BEARER_TOKEN = "Bearer abc";
     private static final String TOKEN = "abc";
     private static final String EXCEPTION_MESSAGE = "Invalid variable";
+    private static final int SENDER_BALANCE = 40;
+    private static final int LARGER_THAN_SENDER_BALANCE = 1000;
+    private static final int SMALLER_THAN_SENDER_BALANCE = 10;
 
     @BeforeEach
     void setUp() {
@@ -117,16 +120,18 @@ class LedgerWriterControllerTest {
     }
 
     @Test
-    @DisplayName("Given the transaction routing number is the same as the" +
-            "local routing number, check available balance and return HTTP " +
-            "Status 201")
-    void addTransactionSuccessWhenSameLocalRoutingNum() {
+    @DisplayName("Given the transaction routing number is the same as the " +
+            "local routing number and transaction amount == sender balance, " +
+            "return HTTP Status 201")
+    void addTransactionSuccessWhenAmountEqualToBalance() {
         // Given
         LedgerWriterController spyLedgerWriterController =
                 spy(ledgerWriterController);
         when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
-        doNothing().when(spyLedgerWriterController).checkAvailableBalance(
-                TOKEN, transaction);
+        when(transaction.getAmount()).thenReturn(SENDER_BALANCE);
+        doReturn(SENDER_BALANCE).when(
+                spyLedgerWriterController).getAvailableBalance(
+                TOKEN, LOCAL_ROUTING_NUM);
 
         // When
         final ResponseEntity actualResult =
@@ -138,6 +143,59 @@ class LedgerWriterControllerTest {
         assertEquals(ledgerWriterController.READINESS_CODE,
                 actualResult.getBody());
         assertEquals(HttpStatus.CREATED, actualResult.getStatusCode());
+    }
+
+    @Test
+    @DisplayName("Given the transaction routing number is the same as the " +
+            "local routing number and transaction amount < sender balance, " +
+            "return HTTP Status 201")
+    void addTransactionSuccessWhenAmountSmallerThanBalance() {
+        // Given
+        LedgerWriterController spyLedgerWriterController =
+                spy(ledgerWriterController);
+        when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
+        when(transaction.getAmount()).thenReturn(SMALLER_THAN_SENDER_BALANCE);
+        doReturn(SENDER_BALANCE).when(
+                spyLedgerWriterController).getAvailableBalance(
+                TOKEN, LOCAL_ROUTING_NUM);
+
+        // When
+        final ResponseEntity actualResult =
+                spyLedgerWriterController.addTransaction(
+                        BEARER_TOKEN, transaction);
+
+        // Then
+        assertNotNull(actualResult);
+        assertEquals(ledgerWriterController.READINESS_CODE,
+                actualResult.getBody());
+        assertEquals(HttpStatus.CREATED, actualResult.getStatusCode());
+    }
+
+    @Test
+    @DisplayName("Given the transaction routing number is the same as the " +
+            "local routing number and transaction amount > sender balance, " +
+            "return HTTP Status 400")
+    void addTransactionFailWhenWhenAmountLargerThanBalance() {
+        // Given
+        LedgerWriterController spyLedgerWriterController =
+                spy(ledgerWriterController);
+        when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
+        when(transaction.getAmount()).thenReturn(LARGER_THAN_SENDER_BALANCE);
+        doReturn(SENDER_BALANCE).when(
+                spyLedgerWriterController).getAvailableBalance(
+                TOKEN, LOCAL_ROUTING_NUM);
+
+        // When
+        final ResponseEntity actualResult =
+                spyLedgerWriterController.addTransaction(
+                        BEARER_TOKEN, transaction);
+
+        // Then
+        assertNotNull(actualResult);
+        assertEquals(
+                ledgerWriterController.EXCEPTION_MESSAGE_INSUFFICIENT_BALANCE,
+                actualResult.getBody());
+        assertEquals(HttpStatus.BAD_REQUEST, actualResult.getStatusCode());
     }
 
     @Test
@@ -202,30 +260,6 @@ class LedgerWriterControllerTest {
 
     @Test
     @DisplayName("Given the transaction routing number is the same as the " +
-            "local routing number, check available balance and there are " +
-            "insufficient funds, return HTTP Status 400")
-    void addTransactionWhenIllegalStateExceptionThrown() {
-        // Given
-        LedgerWriterController spyLedgerWriterController =
-                spy(ledgerWriterController);
-        when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
-        doThrow(new IllegalStateException(EXCEPTION_MESSAGE)).when(
-                spyLedgerWriterController).checkAvailableBalance(
-                TOKEN, transaction);
-
-        // When
-        final ResponseEntity actualResult =
-                spyLedgerWriterController.addTransaction(
-                        BEARER_TOKEN, transaction);
-
-        // Then
-        assertNotNull(actualResult);
-        assertEquals(EXCEPTION_MESSAGE, actualResult.getBody());
-        assertEquals(HttpStatus.BAD_REQUEST, actualResult.getStatusCode());
-    }
-
-    @Test
-    @DisplayName("Given the transaction routing number is the same as the " +
             "local routing number, check available balance and the balance " +
             "reader throws an error, return HTTP Status 500")
     void addTransactionWhenResourceAccessExceptionThrown() {
@@ -234,8 +268,8 @@ class LedgerWriterControllerTest {
                 spy(ledgerWriterController);
         when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
         doThrow(new ResourceAccessException(EXCEPTION_MESSAGE)).when(
-                spyLedgerWriterController).checkAvailableBalance(
-                TOKEN, transaction);
+                spyLedgerWriterController).getAvailableBalance(
+                TOKEN, LOCAL_ROUTING_NUM);
 
         // When
         final ResponseEntity actualResult =
@@ -282,8 +316,8 @@ class LedgerWriterControllerTest {
         when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
         doThrow(new HttpServerErrorException(
                 HttpStatus.INTERNAL_SERVER_ERROR)).when(
-                        spyLedgerWriterController).checkAvailableBalance(
-                TOKEN, transaction);
+                        spyLedgerWriterController).getAvailableBalance(
+                TOKEN, LOCAL_ROUTING_NUM);
 
         // When
         final ResponseEntity actualResult =

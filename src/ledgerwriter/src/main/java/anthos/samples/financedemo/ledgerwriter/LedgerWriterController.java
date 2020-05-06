@@ -62,6 +62,8 @@ public final class LedgerWriterController {
     public static final String
             EXCEPTION_MESSAGE_WHEN_AUTHORIZATION_HEADER_NULL =
             "HTTP request 'Authorization' header is null";
+    public static final String EXCEPTION_MESSAGE_INSUFFICIENT_BALANCE =
+            "insufficient balance";
     // account ids should be 10 digits between 0 and 9
     public static final Pattern ACCT_REGEX = Pattern.compile("^[0-9]{10}$");
     // route numbers should be 9 digits between 0 and 9
@@ -135,9 +137,14 @@ public final class LedgerWriterController {
             // validate transaction
             transactionValidator.validateTransaction(localRoutingNum,
                     jwt.getClaim(CLAIM).asString(), transaction);
-
-            if (transaction.getFromRoutingNum().equals(localRoutingNum)) {
-                checkAvailableBalance(bearerToken, transaction);
+            // Ensure sender balance can cover transaction.
+            final String transactionRoutingNum = transaction.getFromRoutingNum();
+            if (transactionRoutingNum.equals(localRoutingNum)) {
+                int balance = getAvailableBalance(bearerToken, transactionRoutingNum);
+                if (balance < transaction.getAmount()) {
+                    throw new IllegalStateException(
+                            EXCEPTION_MESSAGE_INSUFFICIENT_BALANCE);
+                }
             }
 
             // No exceptions thrown. Add to ledger
@@ -165,17 +172,14 @@ public final class LedgerWriterController {
      * Check there is available funds for this transaction.
      *
      * @param token  the token used to authenticate request
-     * @param transaction  the transaction object
+     * @param fromAcct  sender account number
      *
-     * @throws IllegalStateException     if insufficient funds
+     * @return available balance of the sender account
+     *
      * @throws HttpServerErrorException  if balance service returns 500
      */
-    protected void checkAvailableBalance(String token, Transaction transaction)
+    protected int getAvailableBalance(String token, String fromAcct)
             throws IllegalStateException, HttpServerErrorException {
-        final String fromAcct = transaction.getFromAccountNum();
-        final Integer amount = transaction.getAmount();
-
-        // Ensure sender balance can cover transaction.
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + token);
         HttpEntity entity = new HttpEntity(headers);
@@ -184,9 +188,7 @@ public final class LedgerWriterController {
         ResponseEntity<Integer> response = restTemplate.exchange(
             uri, HttpMethod.GET, entity, Integer.class);
         Integer senderBalance = response.getBody();
-        if (senderBalance < amount) {
-            throw new IllegalStateException("insufficient balance");
-        }
+        return senderBalance.intValue();
     }
 
 }
