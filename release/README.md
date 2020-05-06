@@ -28,13 +28,14 @@ To resolve this, you need to push a new minor version update along with your cod
 1. run the `./make-release.sh` script. This will push new images, open a new `release/vX.Y.Z` branch, and push it to ``origin``
 1. open a pull request from the new release branch into your original branch
 1. if there are any CI issues on the release pull request and you need to make changes, make sure you keep the release artifacts in sync:
-  - update the release container images:
+
+    update the release container images:
     ```
     skaffold config set local-cluster false
     skaffold build --default-repo="${REPO_PREFIX}" --tag="${NEW_VERSION}"
     skaffold config unset local-cluster
     ```
-  - update the release tag:
+    update the release tag:
     ```
     git tag -d $NEW_VERSION
     git push --delete origin $NEW_VERSION
