@@ -19,7 +19,7 @@ Ensure `MASTER_CLUSTER` `PROJECT_ID` and `ZONE` are set in the [repo's secrets](
 ---
 ## Workflows
 
-### Smoketests.yaml
+### ci.yaml
 
 #### Triggers
 - commits pushed to master
@@ -27,17 +27,18 @@ Ensure `MASTER_CLUSTER` `PROJECT_ID` and `ZONE` are set in the [repo's secrets](
 - PRs to release/ branches
 
 #### Actions
+- ensures all source files contain Google license headers
 - runs java and python linters
-- runs java unit tests
-- runs python unit tests
+- runs java and python unit tests
 - ensures kind cluster is running
-- builds all containers in src/
-- deploys local containers to kind
+- deploys code in /src
   - ensures all pods reach ready state
-  - ensures HTTP request to frontend returns HTTP status 200
+  - ensures HTTP requests from LoadBalancer all return HTTP status 200
+  - performs UI tests
 - deploys manifests from /releases
   - ensures all pods reach ready state
-  - ensures HTTP request to frontend returns HTTP status 200
+  - ensures HTTP requests from LoadBalancer all return HTTP status 200
+  - performs UI tests
 
 ### Push-Deploy.yml
 
