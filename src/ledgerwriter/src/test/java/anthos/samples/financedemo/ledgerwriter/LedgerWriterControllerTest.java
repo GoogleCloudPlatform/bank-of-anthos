@@ -128,10 +128,11 @@ class LedgerWriterControllerTest {
         LedgerWriterController spyLedgerWriterController =
                 spy(ledgerWriterController);
         when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
+        when(transaction.getFromRoutingNum()).thenReturn(AUTHED_ACCOUNT_NUM);
         when(transaction.getAmount()).thenReturn(SENDER_BALANCE);
         doReturn(SENDER_BALANCE).when(
                 spyLedgerWriterController).getAvailableBalance(
-                TOKEN, LOCAL_ROUTING_NUM);
+                TOKEN, AUTHED_ACCOUNT_NUM);
 
         // When
         final ResponseEntity actualResult =
@@ -154,10 +155,11 @@ class LedgerWriterControllerTest {
         LedgerWriterController spyLedgerWriterController =
                 spy(ledgerWriterController);
         when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
+        when(transaction.getFromRoutingNum()).thenReturn(AUTHED_ACCOUNT_NUM);
         when(transaction.getAmount()).thenReturn(SMALLER_THAN_SENDER_BALANCE);
         doReturn(SENDER_BALANCE).when(
                 spyLedgerWriterController).getAvailableBalance(
-                TOKEN, LOCAL_ROUTING_NUM);
+                TOKEN, AUTHED_ACCOUNT_NUM);
 
         // When
         final ResponseEntity actualResult =
@@ -180,10 +182,11 @@ class LedgerWriterControllerTest {
         LedgerWriterController spyLedgerWriterController =
                 spy(ledgerWriterController);
         when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
+        when(transaction.getFromAccountNum()).thenReturn(AUTHED_ACCOUNT_NUM);
         when(transaction.getAmount()).thenReturn(LARGER_THAN_SENDER_BALANCE);
         doReturn(SENDER_BALANCE).when(
                 spyLedgerWriterController).getAvailableBalance(
-                TOKEN, LOCAL_ROUTING_NUM);
+                TOKEN, AUTHED_ACCOUNT_NUM);
 
         // When
         final ResponseEntity actualResult =
@@ -267,9 +270,10 @@ class LedgerWriterControllerTest {
         LedgerWriterController spyLedgerWriterController =
                 spy(ledgerWriterController);
         when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
+        when(transaction.getFromAccountNum()).thenReturn(AUTHED_ACCOUNT_NUM);
         doThrow(new ResourceAccessException(EXCEPTION_MESSAGE)).when(
                 spyLedgerWriterController).getAvailableBalance(
-                TOKEN, LOCAL_ROUTING_NUM);
+                TOKEN, AUTHED_ACCOUNT_NUM);
 
         // When
         final ResponseEntity actualResult =
@@ -314,10 +318,11 @@ class LedgerWriterControllerTest {
         LedgerWriterController spyLedgerWriterController =
                 spy(ledgerWriterController);
         when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
+        when(transaction.getFromAccountNum()).thenReturn(AUTHED_ACCOUNT_NUM);
         doThrow(new HttpServerErrorException(
                 HttpStatus.INTERNAL_SERVER_ERROR)).when(
                         spyLedgerWriterController).getAvailableBalance(
-                TOKEN, LOCAL_ROUTING_NUM);
+                TOKEN, AUTHED_ACCOUNT_NUM);
 
         // When
         final ResponseEntity actualResult =

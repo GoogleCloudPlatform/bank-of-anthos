@@ -138,11 +138,9 @@ public final class LedgerWriterController {
             transactionValidator.validateTransaction(localRoutingNum,
                     jwt.getClaim(CLAIM).asString(), transaction);
             // Ensure sender balance can cover transaction.
-            final String transactionRoutingNum =
-                    transaction.getFromRoutingNum();
-            if (transactionRoutingNum.equals(localRoutingNum)) {
+            if (transaction.getFromRoutingNum().equals(localRoutingNum)) {
                 int balance = getAvailableBalance(
-                        bearerToken, transactionRoutingNum);
+                        bearerToken, transaction.getFromAccountNum());
                 if (balance < transaction.getAmount()) {
                     throw new IllegalStateException(
                             EXCEPTION_MESSAGE_INSUFFICIENT_BALANCE);
@@ -181,7 +179,7 @@ public final class LedgerWriterController {
      * @throws HttpServerErrorException  if balance service returns 500
      */
     protected int getAvailableBalance(String token, String fromAcct)
-            throws IllegalStateException, HttpServerErrorException {
+            throws HttpServerErrorException {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + token);
         HttpEntity entity = new HttpEntity(headers);
