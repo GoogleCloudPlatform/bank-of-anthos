@@ -39,7 +39,7 @@ spec:
             - configMapRef:
                 name: ledger-db-config
             - configMapRef:
-                name: default-data-config
+                name: demo-data-config
           volumeMounts:
             - name: postgresdb
               mountPath: /var/lib/postgresql/data

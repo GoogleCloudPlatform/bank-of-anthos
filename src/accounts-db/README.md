@@ -16,9 +16,9 @@ variables listed below. You may login to the account using the password
   - `LOCAL_ROUTING_NUM`
     - the routing number for our bank
 
-- ConfigMap `default-data-config`:
-  - `USE_DEFAULT_DATA`
-    - adds default user accounts to the database when initialized if `True`
+- ConfigMap `demo-data-config`:
+  - `USE_DEMO_DATA`
+    - adds demo user accounts to the database when initialized if `True`
     - data is initialized with /src/accounts-db/initdb/1_load_testdata.sh
 
 - ConfigMap `accounts-db-config`:

@@ -17,8 +17,8 @@
 set -o errexit
 
 # Skip adding data if not enabled
-if [ "$USE_DEFAULT_DATA" != "True"  ]; then
-  echo "no default users added"
+if [ "$USE_DEMO_DATA" != "True"  ]; then
+  echo "no demo users added"
   exit 0
 fi
 
@@ -60,7 +60,7 @@ EOSQL
 
 # Load test data into the database
 create_accounts() {
-  # Add default users.
+  # Add demo users.
   add_user "1011226111" "testuser" "Test"
   add_user "1033623433" "alice" "Alice"
   add_user "1055757655" "bob" "Bob"
@@ -97,7 +97,7 @@ main() {
     fi
   done
 
-  # A password hash + salt for the default password 'password'
+  # A password hash + salt for the demo password 'password'
   # Via Python3:  bycrypt.hashpw('password'.encode('utf-8'), bcrypt.gensalt())
   DEFAULT_PASSHASH='\x243262243132245273764737474f39777562452f4a786a79444a7263756f386568466b762e634e5262356e6867746b474752584c6634437969346643'
 

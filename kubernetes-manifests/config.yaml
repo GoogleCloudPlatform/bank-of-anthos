@@ -34,9 +34,9 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: default-data-config
+  name: demo-data-config
 data:
-  USE_DEFAULT_DATA: "True"
-  # All default user accounts are hardcoded to use the login password 'password'
-  DEFAULT_LOGIN_PASSWORD: "password"
-  DEFAULT_LOGIN_USERNAME: "eve"
+  USE_DEMO_DATA: "True"
+  DEMO_LOGIN_USERNAME: "testuser"
+  # All demo user accounts are hardcoded to use the login password 'password'
+  DEMO_LOGIN_PASSWORD: "password"

@@ -14,7 +14,7 @@
 # limitations under the License.
 
 
-# create default transactions in the ledger for the default user account.
+# create demo transactions in the ledger for the demo user accounts.
 # to make the history look realistic, we use biweekly large deposits,
 # followed by periodic small payments to random accounts.
 # values are chosen so that the depsoit in a period > payments in the same period
@@ -22,8 +22,8 @@ set -u
 
 
 # skip adding transactions if not enabled
-if [ "$USE_DEFAULT_DATA" != "True"  ]; then
-    echo "no default transactions added"
+if [ "$USE_DEMO_DATA" != "True"  ]; then
+    echo "no demo transactions added"
     exit 0
 fi
 
@@ -38,7 +38,7 @@ readonly ENV_VARS=(
 
 add_transaction() {
     DATE=$(date -u +"%Y-%m-%d %H:%M:%S.%3N%z" --date="@$(($6))")
-    echo "adding default transaction: $1 -> $2"
+    echo "adding demo transaction: $1 -> $2"
     psql -X -v ON_ERROR_STOP=1 -v fromacct="$1" -v toacct="$2" -v fromroute="$3" -v toroute="$4" -v amount="$5" --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
         INSERT INTO TRANSACTIONS (FROM_ACCT, TO_ACCT, FROM_ROUTE, TO_ROUTE, AMOUNT, TIMESTAMP)
         VALUES (:'fromacct', :'toacct', :'fromroute', :'toroute', :'amount', '$DATE');
