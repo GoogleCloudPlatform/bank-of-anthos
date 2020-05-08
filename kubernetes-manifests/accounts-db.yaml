@@ -35,7 +35,6 @@ spec:
       containers:
       - name: accounts-db
         image: gcr.io/bank-of-anthos/accounts-db:v0.1.2
-        imagePullPolicy: "IfNotPresent"
         envFrom:
           - configMapRef:
               name: environment-config
