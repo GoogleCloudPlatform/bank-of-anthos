@@ -43,7 +43,7 @@ limitations under the License.
         <div class="row d-flex align-items-end header header-body">
           <div class="col-lg-4"><a href="/login" type="button" class="btn btn-secondary"><span class="mr-2 material-icons arrow-back">arrow_back</span>Back</a></div>
           <div class="col-md-8">
-            <h2 class="header-title">Register a new account</h2>
+            <h2 class="header-title" id="signup-title">Register a new account</h2>
           </div>
         </div>
         <div class="row mt-5 mb-5">
@@ -64,7 +64,7 @@ limitations under the License.
                             <div class="input-group-prepend mr-2">
                               <span class="input-group-text"><span class="material-icons">account_circle</span></span>
                             </div>
-                            <input class="form-control" type="text" id="username" name="username" autocomplete="off" required>
+                            <input class="form-control" type="text" id="signup-username" name="username" autocomplete="off" required>
                             <div class="invalid-feedback">
                                 Please enter a username.
                             </div>
@@ -77,7 +77,7 @@ limitations under the License.
                             <div class="input-group-prepend mr-2">
                               <span class="input-group-text"><span class="material-icons">lock</span></span>
                             </div>
-                            <input class="form-control" type="password" id="password" value="" name="password" autocomplete="off" required>
+                            <input class="form-control" type="password" id="signup-password" value="" name="password" autocomplete="off" required>
                             <div class="invalid-feedback">
                                 Please enter a password.
                             </div>
@@ -90,7 +90,7 @@ limitations under the License.
                             <div class="input-group-prepend mr-2">
                               <span class="input-group-text"><span class="material-icons">lock</span></span>
                             </div>
-                            <input class="form-control" type="password" id="password-repeat" name="password-repeat" autocomplete="off" required>
+                            <input class="form-control" type="password" id="signup-password-repeat" name="password-repeat" autocomplete="off" required>
                             <div class="invalid-feedback">
                                 Please confirm your password.
                             </div>
@@ -103,14 +103,14 @@ limitations under the License.
                         <div class="row mb-5">
                           <div class="col-md-6">
                             <label class="text-uppercase text-muted secondary-text" for="firstname">First name</label>
-                            <input type="text" class="form-control" id="firstname" name="firstname" required>
+                            <input type="text" class="form-control" id="signup-firstname" name="firstname" required>
                             <div class="invalid-feedback">
                               Valid first name is required.
                             </div>
                           </div>
                           <div class="col-md-6">
                             <label class="text-uppercase text-muted secondary-text" for="lastname">Last name</label>
-                            <input type="text" class="form-control" id="lastname" name="lastname" required>
+                            <input type="text" class="form-control" id="signup-lastname" name="lastname" required>
                             <div class="invalid-feedback">
                               Valid last name is required.
                             </div>
@@ -214,7 +214,7 @@ limitations under the License.
                           </div>
                           <div class="col-md-6">
                             <label class="text-uppercase text-muted secondary-text" for="birthday">Birthday (mm/dd/yyyy)</label>
-                            <input type="date" class="form-control" id="birthday" name="birthday"  min="1900-01-01" required>
+                            <input type="date" class="form-control" id="signup-birthday" name="birthday"  min="1900-01-01" required>
                             <div class="invalid-feedback">
                               Valid birthday is required.
                             </div>
@@ -350,10 +350,10 @@ limitations under the License.
           // Add max attribute to birthday input
           var today = new Date();
           var maxDate = today.toISOString().split("T")[0];
-          document.querySelector("#birthday").setAttribute("max", maxDate);
+          document.querySelector("#signup-birthday").setAttribute("max", maxDate);
           // Add submit listener to signup form
           form.addEventListener("submit", function(event) {
-            var passwordsMatch = document.querySelector("#password").value == document.querySelector("#password-repeat").value;
+            var passwordsMatch = document.querySelector("#signup-password").value == document.querySelector("#signup-password-repeat").value;
             if (!form.checkValidity() || !passwordsMatch) {
               event.preventDefault();
               event.stopPropagation();

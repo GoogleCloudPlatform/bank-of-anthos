@@ -41,7 +41,7 @@ limitations under the License.
                 <li class="nav-item dropdown">
                   <a class="nav-link dropdown-toggle" href="#" id="accountDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <span>
-                        <span class="account-user-name">{{ name }}</span>
+                        <span id="account-user-name">{{ name }}</span>
                     </span>
                   </a>
                   <div class="dropdown-menu" aria-labelledby="accountDropdown">
@@ -92,7 +92,7 @@ limitations under the License.
                       <p class="text-uppercase secondary-text text-muted mb-3">
                         <b>Current Balance</b>
                       </p>
-                      <span class="h1 mb-0">
+                      <span class="h1 mb-0" id="current-balance">
                         {{ format_currency(balance) }}
                       </span>
                     </div>
@@ -154,7 +154,7 @@ limitations under the License.
                   </div>
                 </div>
               </div>
-              <div class="table-responsive mb-0">
+              <div class="table-responsive mb-0" id="transaction-table">
                 {% if history is none %}
                     <h4 class="card-table-header">Error: Could Not Load Transactions</h4>
                 {% elif history|length == 0 %}
@@ -180,7 +180,7 @@ limitations under the License.
                       </th>
                     </tr>
                   </thead>
-                  <tbody class="list">
+                  <tbody class="list" id="transaction-list">
                       {% for t in history %}
                         <tr>
                           <td class="text-uppercase transaction-date">

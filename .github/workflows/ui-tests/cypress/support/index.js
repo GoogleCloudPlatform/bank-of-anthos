@@ -29,6 +29,8 @@
 // https://on.cypress.io/configuration
 // ***********************************************************
 
+import './commands'
+
 Cypress.Screenshot.defaults({
   screenshotOnRunFailure: false,
 });

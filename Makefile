@@ -37,7 +37,7 @@ deploy-continuous: check-env
 checkstyle:
 	mvn checkstyle:check
 	# disable warnings: import loading, todos, function members, duplicate code, public methods
-	pylint --disable=F0401 --disable=W0511 --disable=E1101 --disable=R0801 --disable=R0903  ./src/*/*.py
+	pylint --rcfile=./.pylintrc ./src/*/*.py
 
 check-env:
 ifndef PROJECT_ID
