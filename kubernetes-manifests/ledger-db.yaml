@@ -29,7 +29,7 @@ spec:
     spec:
       containers:
         - name: postgres
-          image: gcr.io/bank-of-anthos/ledger-db:v0.1.1
+          image: gcr.io/bank-of-anthos/ledger-db:v0.1.2
           imagePullPolicy: "IfNotPresent"
           ports:
             - containerPort: 5432
