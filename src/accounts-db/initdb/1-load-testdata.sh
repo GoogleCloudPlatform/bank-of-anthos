@@ -35,7 +35,7 @@ add_user() {
   # Usage:  add_user "ACCOUNTID" "USERNAME" "FIRST_NAME"
   echo "adding user: $2"
   psql -X -v ON_ERROR_STOP=1 -v account="$1" -v username="$2" -v firstname="$3" -v passhash="$DEFAULT_PASSHASH" --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
-    INSERT INTO users VALUES (:'account', :'username', :'passhash', :'firstname', 'Testuser', '2000-01-01', '-5', 'Bowling Green, New York City', 'NY', '10004', '111-22-3333') ON CONFLICT DO NOTHING;
+    INSERT INTO users VALUES (:'account', :'username', :'passhash', :'firstname', 'User', '2000-01-01', '-5', 'Bowling Green, New York City', 'NY', '10004', '111-22-3333') ON CONFLICT DO NOTHING;
 EOSQL
 }
 
@@ -61,19 +61,27 @@ EOSQL
 # Load test data into the database
 create_accounts() {
   # Add default users.
-  add_user "1011226111" "alice" "Alice"
-  add_user "1033623433" "bob" "Bob"
-  add_user "1055757655" "eve" "Eve"
+  add_user "1011226111" "testuser" "Test"
+  add_user "1033623433" "alice" "Alice"
+  add_user "1055757655" "bob" "Bob"
+  add_user "1077441377" "eve" "Eve"
 
   # Make everyone contacts of each other
-  add_contact "alice" "Bob" "1033623433"
-  add_contact "alice" "Eve" "1055757655"
-  add_contact "bob" "Alice" "1011226111"
-  add_contact "bob" "Eve" "1055757655"
-  add_contact "eve" "Bob" "1033623433"
-  add_contact "eve" "Alice" "1011226111"
+  add_contact "testuser" "Alice" "1033623433"
+  add_contact "testuser" "Bob" "1055757655"
+  add_contact "testuser" "Eve" "1077441377"
+  add_contact "alice" "Testuser" "1011226111"
+  add_contact "alice" "Bob" "1055757655"
+  add_contact "alice" "Eve" "1077441377"
+  add_contact "bob" "Testuser" "1011226111"
+  add_contact "bob" "Alice" "1033623433"
+  add_contact "bob" "Eve" "1077441377"
+  add_contact "eve" "Testuser" "1011226111"
+  add_contact "eve" "Alice" "1033623433"
+  add_contact "eve" "Bob" "1055757655"
 
   # Add external accounts
+  add_external_account "testuser" "External Bank" "8088895188" "987654321"
   add_external_account "alice" "External Bank" "8088895188" "987654321"
   add_external_account "bob" "External Bank" "8088895188" "987654321"
   add_external_account "eve" "External Bank" "8088895188" "987654321"

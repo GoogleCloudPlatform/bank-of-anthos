@@ -11,9 +11,9 @@
             }
         },
         "defaultUser": {
-            "username": "eve",
+            "username": "testuser",
             "password": "password",
-            "name": "Eve"
+            "name": "Test"
         }
     }
 }
