@@ -18,6 +18,8 @@ package anthos.samples.financedemo.ledgerwriter;
 
 import org.springframework.stereotype.Component;
 
+import java.util.regex.Pattern;
+
 /**
  * Validator to authenticate transaction.
  *
@@ -34,6 +36,10 @@ public class TransactionValidator {
             EXCEPTION_MESSAGE_SEND_TO_SELF = "can't send to self";
     public static final String
             EXCEPTION_MESSAGE_INVALID_AMOUNT = "invalid amount";
+    // account ids should be 10 digits between 0 and 9
+    private static final Pattern ACCT_REGEX = Pattern.compile("^[0-9]{10}$");
+    // route numbers should be 9 digits between 0 and 9
+    private static final Pattern ROUTE_REGEX = Pattern.compile("^[0-9]{9}$");
 
 
     /**
@@ -58,11 +64,11 @@ public class TransactionValidator {
         final Integer amount = transaction.getAmount();
 
         // Validate account and routing numbers.
-        if (!LedgerWriterController.ACCT_REGEX.matcher(fromAcct).matches()
-                || !LedgerWriterController.ACCT_REGEX.matcher(toAcct).matches()
-                || !LedgerWriterController.ROUTE_REGEX.matcher(
+        if (!ACCT_REGEX.matcher(fromAcct).matches()
+                || !ACCT_REGEX.matcher(toAcct).matches()
+                || !ROUTE_REGEX.matcher(
                         fromRoute).matches()
-                || !LedgerWriterController.ROUTE_REGEX.matcher(
+                || !ROUTE_REGEX.matcher(
                         toRoute).matches()) {
             throw new IllegalArgumentException(
                     EXCEPTION_MESSAGE_INVALID_NUMBER);

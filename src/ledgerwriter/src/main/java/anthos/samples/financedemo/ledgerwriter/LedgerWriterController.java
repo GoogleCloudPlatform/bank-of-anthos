@@ -58,16 +58,12 @@ public final class LedgerWriterController {
 
     public static final String READINESS_CODE = "ok";
     public static final String UNAUTHORIZED_CODE = "not authorized";
-    public static final String CLAIM = "acct";
+    public static final String JWT_ACCOUNT_KEY = "acct";
     public static final String
             EXCEPTION_MESSAGE_WHEN_AUTHORIZATION_HEADER_NULL =
             "HTTP request 'Authorization' header is null";
     public static final String EXCEPTION_MESSAGE_INSUFFICIENT_BALANCE =
             "insufficient balance";
-    // account ids should be 10 digits between 0 and 9
-    public static final Pattern ACCT_REGEX = Pattern.compile("^[0-9]{10}$");
-    // route numbers should be 9 digits between 0 and 9
-    public static final Pattern ROUTE_REGEX = Pattern.compile("^[0-9]{9}$");
 
     /**
     * Constructor.
@@ -136,7 +132,7 @@ public final class LedgerWriterController {
             final DecodedJWT jwt = this.verifier.verify(bearerToken);
             // validate transaction
             transactionValidator.validateTransaction(localRoutingNum,
-                    jwt.getClaim(CLAIM).asString(), transaction);
+                    jwt.getClaim(JWT_ACCOUNT_KEY).asString(), transaction);
             // Ensure sender balance can cover transaction.
             if (transaction.getFromRoutingNum().equals(localRoutingNum)) {
                 int balance = getAvailableBalance(

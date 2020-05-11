@@ -71,7 +71,7 @@ class LedgerWriterControllerTest {
                 LOCAL_ROUTING_NUM, BALANCES_API_ADDR, VERSION);
 
         when(verifier.verify(TOKEN)).thenReturn(jwt);
-        when(jwt.getClaim(LedgerWriterController.CLAIM)).thenReturn(claim);
+        when(jwt.getClaim(LedgerWriterController.JWT_ACCOUNT_KEY)).thenReturn(claim);
     }
 
     @Test
@@ -222,9 +222,7 @@ class LedgerWriterControllerTest {
     }
 
     @Test
-    @DisplayName("Given validation error such as sender not authenticated, " +
-            "invalid account details, can't send to self, and invalid " +
-            "amount, return HTTP Status 400")
+    @DisplayName("Given exception thrown on validation, return HTTP Status 400")
     void addTransactionWhenIllegalArgumentExceptionThrown() {
         // Given
         when(claim.asString()).thenReturn(AUTHED_ACCOUNT_NUM);
@@ -318,7 +316,8 @@ class LedgerWriterControllerTest {
         LedgerWriterController spyLedgerWriterController =
                 spy(ledgerWriterController);
         when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
-        when(transaction.getFromAccountNum()).thenReturn(AUTHED_ACCOUNT_NUM);
+        when(transaction.getFromAccountNum()
+        ).thenReturn(AUTHED_ACCOUNT_NUM);
         doThrow(new HttpServerErrorException(
                 HttpStatus.INTERNAL_SERVER_ERROR)).when(
                         spyLedgerWriterController).getAvailableBalance(
