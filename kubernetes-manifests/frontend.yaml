@@ -59,6 +59,13 @@ spec:
             port: 8080
           initialDelaySeconds: 5
           periodSeconds: 5
+        resources:
+          requests:
+            cpu: 100m
+            memory: 64Mi
+          limits:
+            cpu: 500m
+            memory: 256Mi
       volumes:
       - name: publickey
         secret:

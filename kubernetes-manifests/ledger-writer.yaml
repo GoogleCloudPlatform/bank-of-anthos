@@ -40,7 +40,7 @@ spec:
           value: "8080"
          # tell Java to obey container memory limits
         - name: JVM_OPTS
-          value: "-Xms1G -Xmx1G"
+          value: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
         envFrom:
         - configMapRef:
             name: environment-config
@@ -51,11 +51,11 @@ spec:
             name: ledger-db-config
         resources:
           requests:
-            cpu: 200m
-            memory: 1Gi
+            cpu: 100m
+            memory: 512Mi
           limits:
-            cpu: 300m
-            memory: 2Gi
+            cpu: 500m
+            memory: 1Gi
         readinessProbe:
           httpGet:
             path: /ready
