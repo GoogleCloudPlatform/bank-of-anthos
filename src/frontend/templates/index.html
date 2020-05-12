@@ -308,6 +308,7 @@ limitations under the License.
                   <button type="button" class="btn btn-secondary deposit-cancel" data-dismiss="modal">Cancel</button>
                   <button type="submit" class="btn btn-primary">Deposit</button>
                 </div>
+                <input type="hidden" id="deposit-uuid" name="uuid">
               </form>
             </div>
           </div>
@@ -376,6 +377,7 @@ limitations under the License.
                   <button type="button" class="btn btn-secondary payment-cancel" data-dismiss="modal">Cancel</button>
                   <button type="submit" class="btn btn-primary">Send</button>
                 </div>
+              <input type="hidden" id="payment-uuid" name="uuid">
               </form>
             </div>
           </div>
@@ -457,6 +459,15 @@ limitations under the License.
             RefreshModals();
           });
 
+
+          function uuidv4() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+              var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+              return v.toString(16);
+            });
+          };
+
+
           // Reset Modals to proper state
           function RefreshModals(){
               paymentSelection = document.querySelector("#payment-accounts").value;
@@ -471,6 +482,9 @@ limitations under the License.
               } else {
                 document.querySelector("#otherDepositInputs").classList.add("hidden");
               }
+              // generate new uuids
+              document.querySelector("#payment-uuid").value = uuidv4();
+              document.querySelector("#deposit-uuid").value = uuidv4();
           }
           RefreshModals();
         });

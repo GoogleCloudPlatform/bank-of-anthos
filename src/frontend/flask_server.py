@@ -167,7 +167,8 @@ def payment():
                             "fromRoutingNum": APP.config['LOCAL_ROUTING'],
                             "toAccountNum": recipient,
                             "toRoutingNum": APP.config['LOCAL_ROUTING'],
-                            "amount": int(float(request.form['amount']) * 100)}
+                            "amount": int(float(request.form['amount']) * 100),
+                            "uuid:": request.form['uuid']}
         _submit_transaction(transaction_data)
         return redirect(url_for('home', msg='Payment initiated'))
 
@@ -217,7 +218,8 @@ def deposit():
                             "fromRoutingNum": external_routing_num,
                             "toAccountNum": account_id,
                             "toRoutingNum": APP.config['LOCAL_ROUTING'],
-                            "amount": int(float(request.form['amount']) * 100)}
+                            "amount": int(float(request.form['amount']) * 100),
+                            "uuid:": request.form['uuid']}
         _submit_transaction(transaction_data)
         return redirect(url_for('home', msg='Deposit accepted'))
 
