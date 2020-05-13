@@ -29,12 +29,8 @@ if [[ ! "${NEW_VERSION}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
     echo "ex. v1.0.1"
     exit 1
 fi
-# ensure local repo is up to date with master
-if [[ $(git rev-parse origin/master) != $(git rev-parse @) ]]; then
-    echo "error: must be on same commit as origin/master"
-    exit 1
-fi
-# ensure there are no uncommitted chantes
+
+# ensure there are no uncommitted changes
 if [[ $(git status -s | wc -l) -gt 0 ]]; then
     echo "error: can't have uncommitted changes"
     exit 1
