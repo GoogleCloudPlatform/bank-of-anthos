@@ -132,7 +132,7 @@ public final class LedgerWriterController {
             final DecodedJWT jwt = this.verifier.verify(bearerToken);
 
             // Check against cache for duplicate transactions
-            if (this.cache.asMap().containsKey(transaction.getRequestUuid())){
+            if (this.cache.asMap().containsKey(transaction.getRequestUuid())) {
                 throw new IllegalStateException("duplicate transaction uuid");
             }
 
@@ -237,6 +237,7 @@ public final class LedgerWriterController {
     private void submitTransaction(Transaction transaction) {
         LOGGER.fine("Submitting transaction " + transaction.toString());
         transactionRepository.save(transaction);
-        this.cache.put(transaction.getRequestUuid(), transaction.getTransactionId());
+        this.cache.put(
+            transaction.getRequestUuid(), transaction.getTransactionId());
     }
 }
