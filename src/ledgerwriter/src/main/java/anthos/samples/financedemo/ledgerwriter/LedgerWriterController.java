@@ -16,6 +16,7 @@
 
 package anthos.samples.financedemo.ledgerwriter;
 
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -42,6 +43,9 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+
 @RestController
 public final class LedgerWriterController {
 
@@ -57,6 +61,7 @@ public final class LedgerWriterController {
     private String balancesApiUri;
     private String version;
 
+    private Cache<String, Long> cache;
 
     public static final String READINESS_CODE = "ok";
     // account ids should be 10 digits between 0 and 9
@@ -80,6 +85,10 @@ public final class LedgerWriterController {
         this.localRoutingNum = localRoutingNum;
         this.balancesApiUri = balancesApiUri;
         this.version = version;
+        // Initialize cache to ignore duplicate transactions
+        this.cache = CacheBuilder.newBuilder()
+                            .expireAfterWrite(1, TimeUnit.HOURS)
+                            .build();
     }
 
     /**
@@ -121,7 +130,13 @@ public final class LedgerWriterController {
         }
         try {
             final DecodedJWT jwt = this.verifier.verify(bearerToken);
-            // validate transaction
+
+            // Check against cache for duplicate transactions
+            if (this.cache.asMap().containsKey(transaction.getRequestUuid())){
+                throw new IllegalStateException("duplicate transaction uuid");
+            }
+
+            // Validate transaction
             validateTransaction(jwt.getClaim("acct").asString(), transaction);
 
             if (transaction.getFromRoutingNum().equals(localRoutingNum)) {
@@ -222,5 +237,6 @@ public final class LedgerWriterController {
     private void submitTransaction(Transaction transaction) {
         LOGGER.fine("Submitting transaction " + transaction.toString());
         transactionRepository.save(transaction);
+        this.cache.put(transaction.getRequestUuid(), transaction.getTransactionId());
     }
 }

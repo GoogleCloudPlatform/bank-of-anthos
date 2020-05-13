@@ -147,7 +147,7 @@ class AllTasks(TaskSequence):
             if amount is None:
                 amount = random() * 1000
             transaction = {"account_num": choice(TRANSACTION_ACCT_LIST),
-                           "amount":amount,
+                           "amount": amount,
                            "uuid": str(uuid.uuid4())}
             with self.client.post("/payment",
                                   data=transaction,

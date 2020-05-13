@@ -24,10 +24,12 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.CreationTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**
  * Defines a banking transaction.
@@ -60,6 +62,11 @@ public final class Transaction {
     @CreationTimestamp
     @JsonProperty("timestamp")
     private Date timestamp;
+    // UUID is used for preventing duplicate requests from client
+    // Do not persist to database
+    @Transient
+    @JsonProperty("uuid")
+    private String requestUuid;
 
     private static final double CENTS_PER_DOLLAR = 100.0;
 
@@ -86,6 +93,11 @@ public final class Transaction {
     public Integer getAmount() {
         return amount;
     }
+
+    public String getRequestUuid() {
+        return requestUuid;
+    }
+
     /**
      * String representation.
      *
