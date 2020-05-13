@@ -56,3 +56,30 @@ EXAMPLE_CONTACT = {
     "routing_num": "123456789",
     "is_external": False,
 }
+
+# Account numbers must be 10 digit numbers
+INVALID_ACCOUNT_NUMS = [
+    "123123123", # 9 digit number
+    "12312312312", # 11 digit number
+    "foobarbazq", # 10 char string
+    "123123123💸", # 9 digits and 1 emoji
+    ]
+
+# Labels must be >0 and <30 chars, alphanumeric and spaces, can't start with space
+INVALID_LABELS = [
+    "", # empty string
+    " ", # only space
+    " label", # starting with space
+    "*$&%($", # non alphanumeric characters
+    "label*new", # alphanumeric with non alphanumeric characters
+    "🏦💸", # emojis
+    "label1💸", # alphanumeric with emojis
+    ]
+
+# Routing numbers must be 9 digit numbers
+INVALID_ROUTING_NUMS = [
+    "12312312", # 8 digit number
+    "1231231231", # 10 digit number
+    "foobarbaz", # 9 char string
+    "12312312💸", # 8 digits and 1 emoji
+    ]

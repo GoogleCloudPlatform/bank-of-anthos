@@ -50,20 +50,17 @@ jobs:
       timeout-minutes: 20
       run: |
         mvn test
-    - name: Python UserService Unit Tests
+    - name: Python Unit Tests
       timeout-minutes: 20
       run: |
         set -x
-        cd src/userservice
+        pushd src/userservice
         python3 -m venv env
         source env/bin/activate
         pip install -r tests/requirements-test.txt
         python -m pytest -v -p no:warnings
         deactivate
-    - name: Python ContactService Unit Tests
-      timeout-minutes: 20
-      run: |
-        set -x
+        popd
         cd src/contacts
         python3 -m venv env
         source env/bin/activate
