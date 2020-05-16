@@ -44,25 +44,32 @@ describe('Default user can deposit funds', function() {
   })
 
   it.only('can see balance update', function() {
+    const externalAccount = {
+        accountNum: '9099791699',
+        routingNum: '808889588'
+    }
+    const depositAmount = 400
+    let expectedBalance
     cy.get("#current-balance").then(($span) => {
         const currentBalanceSpan= $span.text()
-        const externalAccount = {
-            accountNum: '9099791699',
-            routingNum: '808889588'
-        }
-        const depositAmount = 300
         // regex: removes any characters that are not a digit [0-9] or a period [.]
         const currentBalance = parseFloat(currentBalanceSpan.replace(/[^\d.]/g, ''))
-        const expectedBalance = currentBalance + depositAmount
+        expectedBalance = currentBalance + depositAmount
         cy.deposit(externalAccount, depositAmount)
-        cy.get('#current-balance').should('contain', expectedBalance)
-        // cy.wrap(updatedBalance).should('contain', expectedBalance)
-      })
+        // Deposit accepted
+    })
+    cy.reload()
+    cy.get('#current-balance').then(($span) => {
+        const updatedBalanceSpan = $span.text()
+        const updatedBalance = parseFloat(updatedBalanceSpan.replace(/[^\d.]/g, ''))
+        cy.wrap(updatedBalance).should('eq', expectedBalance)
+    })
 
   })
 
   it('can see transaction in history', function() {
     cy.get('#transaction-table').children().should('have.length.greaterThan', 1)
+    
   })
 
   it('see new contact show up', function() {
