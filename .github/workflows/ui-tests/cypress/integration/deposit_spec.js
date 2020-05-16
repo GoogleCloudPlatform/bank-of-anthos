@@ -69,7 +69,7 @@ describe('Default user can deposit funds', function() {
 
   it('can see transaction in history', function() {
     cy.get('#transaction-table').children().should('have.length.greaterThan', 1)
-    
+
   })
 
   it('see new contact show up', function() {
@@ -78,7 +78,24 @@ describe('Default user can deposit funds', function() {
 // See balance update
 // See transaction in history
 // See new contact show up
+})
+
+describe('Invalid data is disallowed for deposit', function() {
+    it('cannot be greater than balance', function() {
+
+    })
 
 
+    it('cannot be less than or greater than zero', function() {
 
+
+    })
+
+    it('cannot contain more than 2 decimal digits', function() {
+
+    })
+
+    it('cannot reference invalid account or routing number', function() {
+        
+    })
 })
