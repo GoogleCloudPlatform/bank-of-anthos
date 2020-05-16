@@ -59,7 +59,9 @@ def home():
     token = request.cookies.get(APP.config['TOKEN_NAME'])
     if not verify_token(token):
         # user isn't authenticated
-        return redirect(url_for('login_page'))
+        return redirect(url_for('login_page',
+                                _external=True,
+                                _scheme=APP.config['SCHEME']))
 
     token_data = jwt.decode(token, verify=False)
     display_name = token_data['name']
@@ -169,16 +171,24 @@ def payment():
                             "toRoutingNum": APP.config['LOCAL_ROUTING'],
                             "amount": int(float(request.form['amount']) * 100)}
         _submit_transaction(transaction_data)
-        return redirect(url_for('home', msg='Payment initiated'))
+        return redirect(url_for('home',
+                                msg='Payment initiated',
+                                _external=True,
+                                _scheme=APP.config['SCHEME']))
 
     except requests.exceptions.RequestException as err:
         APP.logger.error(str(err))
     except UserWarning as warn:
         msg = 'Payment failed: {}'.format(str(warn))
-        return redirect(url_for('home', msg=msg))
+        return redirect(url_for('home',
+                                msg=msg,
+                                _external=True,
+                                _scheme=APP.config['SCHEME']))
 
-    return redirect(url_for('home', msg='Payment failed'))
-
+    return redirect(url_for('home',
+                            msg='Payment failed',
+                            _external=True,
+                            _scheme=APP.config['SCHEME']))
 
 @APP.route('/deposit', methods=['POST'])
 def deposit():
@@ -219,16 +229,24 @@ def deposit():
                             "toRoutingNum": APP.config['LOCAL_ROUTING'],
                             "amount": int(float(request.form['amount']) * 100)}
         _submit_transaction(transaction_data)
-        return redirect(url_for('home', msg='Deposit accepted'))
+        return redirect(url_for('home',
+                                msg='Deposit accepted',
+                                _external=True,
+                                _scheme=APP.config['SCHEME']))
 
     except requests.exceptions.RequestException as err:
         APP.logger.error(str(err))
     except UserWarning as warn:
         msg = 'Deposit failed: {}'.format(str(warn))
-        return redirect(url_for('home', msg=msg))
+        return redirect(url_for('home',
+                                msg=msg,
+                                _external=True,
+                                _scheme=APP.config['SCHEME']))
 
-    return redirect(url_for('home', msg='Deposit failed'))
-
+    return redirect(url_for('home',
+                            msg='Deposit failed',
+                            _external=True,
+                            _scheme=APP.config['SCHEME']))
 
 def _submit_transaction(transaction_data):
     token = request.cookies.get(APP.config['TOKEN_NAME'])
@@ -279,7 +297,9 @@ def login_page():
     token = request.cookies.get(APP.config['TOKEN_NAME'])
     if verify_token(token):
         # already authenticated
-        return redirect(url_for('home'))
+        return redirect(url_for('home',
+                                _external=True,
+                                _scheme=APP.config['SCHEME']))
 
     return render_template('login.html',
                            message=request.args.get('msg', None),
@@ -308,16 +328,24 @@ def _login_helper(username, password):
         token = req.json()['token'].encode('utf-8')
         claims = jwt.decode(token, verify=False)
         max_age = claims['exp'] - claims['iat']
-        resp = make_response(redirect(url_for('home')))
+        resp = make_response(redirect(url_for('home',
+                                              _external=True,
+                                              _scheme=APP.config['SCHEME'])))
         resp.set_cookie(APP.config['TOKEN_NAME'], token, max_age=max_age)
         return resp
     except requests.exceptions.RequestException as err:
         APP.logger.error(str(err))
     except requests.exceptions.HTTPError as err:
         msg = 'Login Failed: {}'.format(req.json().get('msg', ''))
-        return redirect(url_for('login', msg=msg))
+        return redirect(url_for('login',
+                                msg=msg,
+                                _external=True,
+                                _scheme=APP.config['SCHEME']))
 
-    return redirect(url_for('login', msg='Login Failed'))
+    return redirect(url_for('login',
+                            msg='Login Failed',
+                            _external=True,
+                            _scheme=APP.config['SCHEME']))
 
 
 @APP.route("/signup", methods=['GET'])
@@ -328,7 +356,9 @@ def signup_page():
     token = request.cookies.get(APP.config['TOKEN_NAME'])
     if verify_token(token):
         # already authenticated
-        return redirect(url_for('home'))
+        return redirect(url_for('home',
+                                _external=True,
+                                _scheme=APP.config['SCHEME']))
     return render_template('signup.html')
 
 
@@ -350,7 +380,10 @@ def signup():
                                  request.form['password'])
     except requests.exceptions.RequestException as err:
         APP.logger.error(str(err))
-    return redirect(url_for('login', msg='Error: Account creation failed'))
+    return redirect(url_for('login',
+                            msg='Error: Account creation failed',
+                            _external=True,
+                            _scheme=APP.config['SCHEME']))
 
 
 @APP.route('/logout', methods=['POST'])
@@ -358,7 +391,9 @@ def logout():
     """
     Logs out user by deleting token cookie and redirecting to login page
     """
-    resp = make_response(redirect(url_for('login_page')))
+    resp = make_response(redirect(url_for('login_page',
+                                          _external=True,
+                                          _scheme=APP.config['SCHEME'])))
     resp.delete_cookie(APP.config['TOKEN_NAME'])
     return resp
 
@@ -420,6 +455,7 @@ APP.config['LOCAL_ROUTING'] = os.getenv('LOCAL_ROUTING_NUM')
 APP.config['BACKEND_TIMEOUT'] = 3  # timeout in seconds for calls to the backend
 APP.config['TOKEN_NAME'] = 'token'
 APP.config['TIMESTAMP_FORMAT'] = '%Y-%m-%dT%H:%M:%S.%f%z'
+APP.config['SCHEME'] = os.environ.get('SCHEME', 'http')
 
 # register formater functions
 APP.jinja_env.globals.update(format_currency=format_currency)
