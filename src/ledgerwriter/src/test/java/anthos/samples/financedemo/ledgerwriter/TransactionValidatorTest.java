@@ -38,9 +38,9 @@ class TransactionValidatorTest {
     private static final String TO_ACCOUNT_NUM = "5678901234";
     private static final String TO_ROUTING_NUM = "567891234";
 
-
     private static final String INVALID_NUM_8_DIGITS = "12345678";
     private static final String INVALID_NUM_9_DIGITS = "123456789";
+    private static final String INVALID_NUM_10_DIGITS = "1234567890";
     private static final String INVALID_NUM_11_DIGITS = "12345678900";
     private static final String INVALID_NUM_EMPTY = "";
     private static final String INVALID_NUM_CHAR = "12345678j";
@@ -50,7 +50,7 @@ class TransactionValidatorTest {
     private static final String INVALID_NUM_DECIMAL = "1234567.89";
     private static final String INVALID_NUM_UNDERSCORE = "123_456789";
     private static final String INVALID_NUM_JAPANESE_CHAR = "12345仮6789";
-    private static final String INVALID_NUM_BEAR_EMOJI = "12341545\ud83d\udc3b";
+    private static final String INVALID_NUM_BEAR_EMOJI = "12341545🐻";
 
     private static final Integer VALID_AMOUNT_ONE = 1;
     private static final Integer VALID_AMOUNT_REGULAR = 3755;
@@ -88,17 +88,8 @@ class TransactionValidatorTest {
         // Given
         when(transaction.getFromAccountNum()).thenReturn(INVALID_NUM_9_DIGITS);
 
-        // When
-        IllegalArgumentException exceptionThrown = assertThrows(
-                IllegalArgumentException.class, () -> {
-                    transactionValidator.validateTransaction(
-                            LOCAL_ROUTING_NUM, AUTHED_ACCOUNT_NUM, transaction);
-                });
-
-        // Then
-        assertNotNull(exceptionThrown);
-        assertEquals(transactionValidator.EXCEPTION_MESSAGE_INVALID_NUMBER,
-                exceptionThrown.getMessage());
+        // When, Then
+        assertInvalidNumberHelper();
     }
 
     @Test
@@ -108,17 +99,8 @@ class TransactionValidatorTest {
         // Given
         when(transaction.getFromAccountNum()).thenReturn(INVALID_NUM_11_DIGITS);
 
-        // When
-        IllegalArgumentException exceptionThrown = assertThrows(
-                IllegalArgumentException.class, () -> {
-                    transactionValidator.validateTransaction(
-                            LOCAL_ROUTING_NUM, AUTHED_ACCOUNT_NUM, transaction);
-                });
-
-        // Then
-        assertNotNull(exceptionThrown);
-        assertEquals(transactionValidator.EXCEPTION_MESSAGE_INVALID_NUMBER,
-                exceptionThrown.getMessage());
+        // When, Then
+        assertInvalidNumberHelper();
     }
 
     @Test
@@ -128,17 +110,8 @@ class TransactionValidatorTest {
         // Given
         when(transaction.getFromAccountNum()).thenReturn(INVALID_NUM_EMPTY);
 
-        // When
-        IllegalArgumentException exceptionThrown = assertThrows(
-                IllegalArgumentException.class, () -> {
-                    transactionValidator.validateTransaction(
-                            LOCAL_ROUTING_NUM, AUTHED_ACCOUNT_NUM, transaction);
-                });
-
-        // Then
-        assertNotNull(exceptionThrown);
-        assertEquals(transactionValidator.EXCEPTION_MESSAGE_INVALID_NUMBER,
-                exceptionThrown.getMessage());
+        // When, Then
+        assertInvalidNumberHelper();
     }
 
     @Test
@@ -148,38 +121,20 @@ class TransactionValidatorTest {
         // Given
         when(transaction.getFromAccountNum()).thenReturn(INVALID_NUM_CHAR);
 
-        // When
-        IllegalArgumentException exceptionThrown = assertThrows(
-                IllegalArgumentException.class, () -> {
-                    transactionValidator.validateTransaction(
-                            LOCAL_ROUTING_NUM, AUTHED_ACCOUNT_NUM, transaction);
-                });
-
-        // Then
-        assertNotNull(exceptionThrown);
-        assertEquals(transactionValidator.EXCEPTION_MESSAGE_INVALID_NUMBER,
-                exceptionThrown.getMessage());
+        // When, Then
+        assertInvalidNumberHelper();
     }
 
-
     @Test
-    @DisplayName("Given sender account number contains Japanese characters , " +
+    @DisplayName("Given sender account number contains Japanese characters, " +
             "IllegalArgumentException is thrown")
     void validationFail_WhenSenderAccountNumber_ContainsJapaneseChars() {
         // Given
-        when(transaction.getFromAccountNum()).thenReturn(INVALID_NUM_JAPANESE_CHAR);
+        when(transaction.getFromAccountNum()).thenReturn(
+                INVALID_NUM_JAPANESE_CHAR);
 
-        // When
-        IllegalArgumentException exceptionThrown = assertThrows(
-                IllegalArgumentException.class, () -> {
-                    transactionValidator.validateTransaction(
-                            LOCAL_ROUTING_NUM, AUTHED_ACCOUNT_NUM, transaction);
-                });
-
-        // Then
-        assertNotNull(exceptionThrown);
-        assertEquals(transactionValidator.EXCEPTION_MESSAGE_INVALID_NUMBER,
-                exceptionThrown.getMessage());
+        // When, Then
+        assertInvalidNumberHelper();
     }
 
     @Test
@@ -189,17 +144,8 @@ class TransactionValidatorTest {
         // Given
         when(transaction.getFromAccountNum()).thenReturn(INVALID_NUM_ALL_CHARS);
 
-        // When
-        IllegalArgumentException exceptionThrown = assertThrows(
-                IllegalArgumentException.class, () -> {
-                    transactionValidator.validateTransaction(
-                            LOCAL_ROUTING_NUM, AUTHED_ACCOUNT_NUM, transaction);
-                });
-
-        // Then
-        assertNotNull(exceptionThrown);
-        assertEquals(transactionValidator.EXCEPTION_MESSAGE_INVALID_NUMBER,
-                exceptionThrown.getMessage());
+        // When, Then
+        assertInvalidNumberHelper();
     }
 
     @Test
@@ -209,17 +155,8 @@ class TransactionValidatorTest {
         // Given
         when(transaction.getFromAccountNum()).thenReturn(INVALID_NUM_SPACE);
 
-        // When
-        IllegalArgumentException exceptionThrown = assertThrows(
-                IllegalArgumentException.class, () -> {
-                    transactionValidator.validateTransaction(
-                            LOCAL_ROUTING_NUM, AUTHED_ACCOUNT_NUM, transaction);
-                });
-
-        // Then
-        assertNotNull(exceptionThrown);
-        assertEquals(transactionValidator.EXCEPTION_MESSAGE_INVALID_NUMBER,
-                exceptionThrown.getMessage());
+        // When, Then
+        assertInvalidNumberHelper();
     }
 
     @Test
@@ -229,19 +166,9 @@ class TransactionValidatorTest {
         // Given
         when(transaction.getFromAccountNum()).thenReturn(INVALID_NUM_All_SPACES);
 
-        // When
-        IllegalArgumentException exceptionThrown = assertThrows(
-                IllegalArgumentException.class, () -> {
-                    transactionValidator.validateTransaction(
-                            LOCAL_ROUTING_NUM, AUTHED_ACCOUNT_NUM, transaction);
-                });
-
-        // Then
-        assertNotNull(exceptionThrown);
-        assertEquals(transactionValidator.EXCEPTION_MESSAGE_INVALID_NUMBER,
-                exceptionThrown.getMessage());
+        // When, Then
+        assertInvalidNumberHelper();
     }
-
 
     @Test
     @DisplayName("Given sender account number as decimal number, " +
@@ -250,17 +177,8 @@ class TransactionValidatorTest {
         // Given
         when(transaction.getFromAccountNum()).thenReturn(INVALID_NUM_DECIMAL);
 
-        // When
-        IllegalArgumentException exceptionThrown = assertThrows(
-                IllegalArgumentException.class, () -> {
-                    transactionValidator.validateTransaction(
-                            LOCAL_ROUTING_NUM, AUTHED_ACCOUNT_NUM, transaction);
-                });
-
-        // Then
-        assertNotNull(exceptionThrown);
-        assertEquals(transactionValidator.EXCEPTION_MESSAGE_INVALID_NUMBER,
-                exceptionThrown.getMessage());
+        // When, Then
+        assertInvalidNumberHelper();
     }
 
     @Test
@@ -270,17 +188,8 @@ class TransactionValidatorTest {
         // Given
         when(transaction.getFromAccountNum()).thenReturn(INVALID_NUM_UNDERSCORE);
 
-        // When
-        IllegalArgumentException exceptionThrown = assertThrows(
-                IllegalArgumentException.class, () -> {
-                    transactionValidator.validateTransaction(
-                            LOCAL_ROUTING_NUM, AUTHED_ACCOUNT_NUM, transaction);
-                });
-
-        // Then
-        assertNotNull(exceptionThrown);
-        assertEquals(transactionValidator.EXCEPTION_MESSAGE_INVALID_NUMBER,
-                exceptionThrown.getMessage());
+        // When, Then
+        assertInvalidNumberHelper();
     }
 
     @Test
@@ -290,77 +199,374 @@ class TransactionValidatorTest {
         // Given
         when(transaction.getFromAccountNum()).thenReturn(INVALID_NUM_BEAR_EMOJI);
 
-        // When
-        IllegalArgumentException exceptionThrown = assertThrows(
-                IllegalArgumentException.class, () -> {
-                    transactionValidator.validateTransaction(
-                            LOCAL_ROUTING_NUM, AUTHED_ACCOUNT_NUM, transaction);
-                });
-
-        // Then
-        assertNotNull(exceptionThrown);
-        assertEquals(transactionValidator.EXCEPTION_MESSAGE_INVALID_NUMBER,
-                exceptionThrown.getMessage());
+        // When, Then
+        assertInvalidNumberHelper();
     }
 
     @Test
-    @DisplayName("Given invalid receiver account number, " +
+    @DisplayName("Given 9-digit receiver account number, " +
             "IllegalArgumentException is thrown")
-    void validateTransactionFailWhenInvalidToAccountNumber() {
+    void validationFail_WhenReceiverAccountNumber_Is9Digits() {
         // Given
         when(transaction.getToAccountNum()).thenReturn(INVALID_NUM_9_DIGITS);
 
-        // When
-        IllegalArgumentException exceptionThrown = assertThrows(
-                IllegalArgumentException.class, () -> {
-                    transactionValidator.validateTransaction(
-                            LOCAL_ROUTING_NUM, AUTHED_ACCOUNT_NUM, transaction);
-                });
-
-        // Then
-        assertNotNull(exceptionThrown);
-        assertEquals(transactionValidator.EXCEPTION_MESSAGE_INVALID_NUMBER,
-                exceptionThrown.getMessage());
+        // When, Then
+        assertInvalidNumberHelper();
     }
 
     @Test
-    @DisplayName("Given invalid sender routing number, " +
+    @DisplayName("Given 11-digit receiver account number, " +
             "IllegalArgumentException is thrown")
-    void validateTransactionFailWhenInvalidFromRoutingNumber() {
+    void validationFail_WhenReceiverAccountNumber_Is11Digits() {
+        // Given
+        when(transaction.getToAccountNum()).thenReturn(INVALID_NUM_11_DIGITS);
+
+        // When, Then
+        assertInvalidNumberHelper();
+    }
+
+    @Test
+    @DisplayName("Given empty receiver account number, " +
+            "IllegalArgumentException is thrown")
+    void validationFail_WhenReceiverAccountNumber_IsEmpty() {
+        // Given
+        when(transaction.getToAccountNum()).thenReturn(INVALID_NUM_EMPTY);
+
+        // When, Then
+        assertInvalidNumberHelper();
+    }
+
+    @Test
+    @DisplayName("Given receiver account number contains English characters," +
+            " IllegalArgumentException is thrown")
+    void validationFail_WhenReceiverAccountNumber_ContainsEnglishChars() {
+        // Given
+        when(transaction.getToAccountNum()).thenReturn(INVALID_NUM_CHAR);
+
+        // When, Then
+        assertInvalidNumberHelper();
+    }
+
+    @Test
+    @DisplayName("Given receiver account number contains Japanese characters," +
+            " IllegalArgumentException is thrown")
+    void validationFail_WhenReceiverAccountNumber_ContainsJapaneseChars() {
+        // Given
+        when(transaction.getToAccountNum()).thenReturn(
+                INVALID_NUM_JAPANESE_CHAR);
+
+        // When, Then
+        assertInvalidNumberHelper();
+    }
+
+    @Test
+    @DisplayName("Given receiver account number as characters, " +
+            "IllegalArgumentException is thrown")
+    void validationFail_WhenReceiverAccountNumber_IsChars() {
+        // Given
+        when(transaction.getToAccountNum()).thenReturn(INVALID_NUM_ALL_CHARS);
+
+        // When, Then
+        assertInvalidNumberHelper();
+    }
+
+    @Test
+    @DisplayName("Given receiver account number contains spaces, " +
+            "IllegalArgumentException is thrown")
+    void validationFail_WhenReceiverAccountNumber_ContainsSpaces() {
+        // Given
+        when(transaction.getToAccountNum()).thenReturn(INVALID_NUM_SPACE);
+
+        // When, Then
+        assertInvalidNumberHelper();
+    }
+
+    @Test
+    @DisplayName("Given receiver account number as spaces, " +
+            "IllegalArgumentException is thrown")
+    void validationFail_WhenReceiverAccountNumber_IsSpaces() {
+        // Given
+        when(transaction.getToAccountNum()).thenReturn(INVALID_NUM_All_SPACES);
+
+        // When, Then
+        assertInvalidNumberHelper();
+    }
+
+    @Test
+    @DisplayName("Given receiver account number as decimal number, " +
+            "IllegalArgumentException is thrown")
+    void validationFail_WhenReceiverAccountNumber_IsDecimal() {
+        // Given
+        when(transaction.getToAccountNum()).thenReturn(INVALID_NUM_DECIMAL);
+
+        // When, Then
+        assertInvalidNumberHelper();
+    }
+
+    @Test
+    @DisplayName("Given receiver account number contains underscores, " +
+            "IllegalArgumentException is thrown")
+    void validationFail_WhenReceiverAccountNumber_ContainsUnderscores() {
+        // Given
+        when(transaction.getToAccountNum()).thenReturn(INVALID_NUM_UNDERSCORE);
+
+        // When, Then
+        assertInvalidNumberHelper();
+    }
+
+    @Test
+    @DisplayName("Given receiver account number contains emoji, " +
+            "IllegalArgumentException is thrown")
+    void validationFail_WhenReceiverAccountNumber_ContainsEmoji() {
+        // Given
+        when(transaction.getToAccountNum()).thenReturn(INVALID_NUM_BEAR_EMOJI);
+
+        // When, Then
+        assertInvalidNumberHelper();
+    }
+
+    @Test
+    @DisplayName("Given 8-digit sender routing number, " +
+            "IllegalArgumentException is thrown")
+    void validationFail_WhenSenderRoutingNumber_Is8Digits() {
         // Given
         when(transaction.getFromRoutingNum()).thenReturn(INVALID_NUM_8_DIGITS);
 
-        // When
-        IllegalArgumentException exceptionThrown = assertThrows(
-                IllegalArgumentException.class, () -> {
-                    transactionValidator.validateTransaction(
-                            LOCAL_ROUTING_NUM, AUTHED_ACCOUNT_NUM, transaction);
-                });
-
-        // Then
-        assertNotNull(exceptionThrown);
-        assertEquals(transactionValidator.EXCEPTION_MESSAGE_INVALID_NUMBER,
-                exceptionThrown.getMessage());
+        // When, Then
+        assertInvalidNumberHelper();
     }
 
     @Test
-    @DisplayName("Given invalid receiver routing number, " +
+    @DisplayName("Given 10-digit sender routing number, " +
             "IllegalArgumentException is thrown")
-    void validateTransactionFailWhenInvalidToRoutingNumber() {
+    void validationFail_WhenSenderRoutingNumber_Is10Digits() {
+        // Given
+        when(transaction.getFromRoutingNum()).thenReturn(INVALID_NUM_10_DIGITS);
+
+        // When, Then
+        assertInvalidNumberHelper();
+    }
+
+    @Test
+    @DisplayName("Given empty sender routing number, " +
+            "IllegalArgumentException is thrown")
+    void validationFail_WhenSenderRoutingNumber_IsEmpty() {
+        // Given
+        when(transaction.getFromRoutingNum()).thenReturn(INVALID_NUM_EMPTY);
+
+        // When, Then
+        assertInvalidNumberHelper();
+    }
+
+    @Test
+    @DisplayName("Given sender routing number contains English characters, " +
+            "IllegalArgumentException is thrown")
+    void validationFail_WhenSenderRoutingNumber_ContainsEnglishChars() {
+        // Given
+        when(transaction.getFromRoutingNum()).thenReturn(INVALID_NUM_CHAR);
+
+        // When, Then
+        assertInvalidNumberHelper();
+    }
+
+    @Test
+    @DisplayName("Given sender routing number contains Japanese characters , " +
+            "IllegalArgumentException is thrown")
+    void validationFail_WhenSenderRoutingNumber_ContainsJapaneseChars() {
+        // Given
+        when(transaction.getFromRoutingNum()).thenReturn(
+                INVALID_NUM_JAPANESE_CHAR);
+
+        // When, Then
+        assertInvalidNumberHelper();
+    }
+
+    @Test
+    @DisplayName("Given sender routing number as characters, " +
+            "IllegalArgumentException is thrown")
+    void validationFail_WhenSenderRoutingNumber_IsChars() {
+        // Given
+        when(transaction.getFromRoutingNum()).thenReturn(INVALID_NUM_ALL_CHARS);
+
+        // When, Then
+        assertInvalidNumberHelper();
+    }
+
+    @Test
+    @DisplayName("Given sender routing number contains spaces, " +
+            "IllegalArgumentException is thrown")
+    void validationFail_WhenSenderRoutingNumber_ContainsSpaces() {
+        // Given
+        when(transaction.getFromRoutingNum()).thenReturn(INVALID_NUM_SPACE);
+
+        // When, Then
+        assertInvalidNumberHelper();
+    }
+
+    @Test
+    @DisplayName("Given sender routing number as spaces, " +
+            "IllegalArgumentException is thrown")
+    void validationFail_WhenSenderRoutingNumber_IsSpaces() {
+        // Given
+        when(transaction.getFromRoutingNum()).thenReturn(INVALID_NUM_All_SPACES);
+
+        // When, Then
+        assertInvalidNumberHelper();
+    }
+
+    @Test
+    @DisplayName("Given sender routing number as decimal number, " +
+            "IllegalArgumentException is thrown")
+    void validationFail_WhenSenderRoutingNumber_IsDecimal() {
+        // Given
+        when(transaction.getFromRoutingNum()).thenReturn(INVALID_NUM_DECIMAL);
+
+        // When, Then
+        assertInvalidNumberHelper();
+    }
+
+    @Test
+    @DisplayName("Given sender routing number contains underscores, " +
+            "IllegalArgumentException is thrown")
+    void validationFail_WhenSenderRoutingNumber_ContainsUnderscores() {
+        // Given
+        when(transaction.getFromRoutingNum()).thenReturn(INVALID_NUM_UNDERSCORE);
+
+        // When, Then
+        assertInvalidNumberHelper();
+    }
+
+    @Test
+    @DisplayName("Given sender routing number contains emojis, " +
+            "IllegalArgumentException is thrown")
+    void validationFail_WhenSenderRoutingNumber_ContainsEmojis() {
+        // Given
+        when(transaction.getFromRoutingNum()).thenReturn(INVALID_NUM_BEAR_EMOJI);
+
+        // When, Then
+        assertInvalidNumberHelper();
+    }
+
+    @Test
+    @DisplayName("Given 8-digit receiver routing number, " +
+            "IllegalArgumentException is thrown")
+    void validationFail_WhenReceiverRoutingNumber_Is8Digits() {
         // Given
         when(transaction.getToRoutingNum()).thenReturn(INVALID_NUM_8_DIGITS);
 
-        // When
-        IllegalArgumentException exceptionThrown = assertThrows(
-                IllegalArgumentException.class, () -> {
-                    transactionValidator.validateTransaction(
-                            LOCAL_ROUTING_NUM, AUTHED_ACCOUNT_NUM, transaction);
-                });
+        // When, Then
+        assertInvalidNumberHelper();
+    }
 
-        // Then
-        assertNotNull(exceptionThrown);
-        assertEquals(transactionValidator.EXCEPTION_MESSAGE_INVALID_NUMBER,
-                exceptionThrown.getMessage());
+    @Test
+    @DisplayName("Given 10-digit receiver routing number, " +
+            "IllegalArgumentException is thrown")
+    void validationFail_WhenReceiverRoutingNumber_Is10Digits() {
+        // Given
+        when(transaction.getToRoutingNum()).thenReturn(INVALID_NUM_10_DIGITS);
+
+        // When, Then
+        assertInvalidNumberHelper();
+    }
+
+    @Test
+    @DisplayName("Given empty receiver routing number, " +
+            "IllegalArgumentException is thrown")
+    void validationFail_WhenReceiverRoutingNumber_IsEmpty() {
+        // Given
+        when(transaction.getToRoutingNum()).thenReturn(INVALID_NUM_EMPTY);
+
+        // When, Then
+        assertInvalidNumberHelper();
+    }
+
+    @Test
+    @DisplayName("Given receiver routing number contains English characters, " +
+            "IllegalArgumentException is thrown")
+    void validationFail_WhenReceiverRoutingNumber_ContainsEnglishChars() {
+        // Given
+        when(transaction.getToRoutingNum()).thenReturn(INVALID_NUM_CHAR);
+
+        // When, Then
+        assertInvalidNumberHelper();
+    }
+
+    @Test
+    @DisplayName("Given receiver routing number contains Japanese characters," +
+            " IllegalArgumentException is thrown")
+    void validationFail_WhenReceiverRoutingNumber_ContainsJapaneseChars() {
+        // Given
+        when(transaction.getToRoutingNum()).thenReturn(
+                INVALID_NUM_JAPANESE_CHAR);
+
+        // When, Then
+        assertInvalidNumberHelper();
+    }
+
+    @Test
+    @DisplayName("Given receiver routing number as characters, " +
+            "IllegalArgumentException is thrown")
+    void validationFail_WhenReceiverRoutingNumber_IsChars() {
+        // Given
+        when(transaction.getToRoutingNum()).thenReturn(INVALID_NUM_ALL_CHARS);
+
+        // When, Then
+        assertInvalidNumberHelper();
+    }
+
+    @Test
+    @DisplayName("Given receiver routing number contains spaces, " +
+            "IllegalArgumentException is thrown")
+    void validationFail_WhenReceiverRoutingNumber_ContainsSpaces() {
+        // Given
+        when(transaction.getToRoutingNum()).thenReturn(INVALID_NUM_SPACE);
+
+        // When, Then
+        assertInvalidNumberHelper();
+    }
+
+    @Test
+    @DisplayName("Given receiver routing number as spaces, " +
+            "IllegalArgumentException is thrown")
+    void validationFail_WhenReceiverRoutingNumber_IsSpaces() {
+        // Given
+        when(transaction.getToRoutingNum()).thenReturn(INVALID_NUM_All_SPACES);
+
+        // When, Then
+        assertInvalidNumberHelper();
+    }
+
+    @Test
+    @DisplayName("Given receiver routing number as decimal number, " +
+            "IllegalArgumentException is thrown")
+    void validationFail_WhenReceiverRoutingNumber_IsDecimal() {
+        // Given
+        when(transaction.getToRoutingNum()).thenReturn(INVALID_NUM_DECIMAL);
+
+        // When, Then
+        assertInvalidNumberHelper();
+    }
+
+    @Test
+    @DisplayName("Given receiver routing number contains underscores, " +
+            "IllegalArgumentException is thrown")
+    void validationFail_WhenReceiverRoutingNumber_ContainsUnderscores() {
+        // Given
+        when(transaction.getToRoutingNum()).thenReturn(INVALID_NUM_UNDERSCORE);
+
+        // When, Then
+        assertInvalidNumberHelper();
+    }
+
+    @Test
+    @DisplayName("Given receiver routing number contains emojis, " +
+            "IllegalArgumentException is thrown")
+    void validationFail_WhenReceiverRoutingNumber_ContainsEmojis() {
+        // Given
+        when(transaction.getToRoutingNum()).thenReturn(INVALID_NUM_BEAR_EMOJI);
+
+        // When, Then
+        assertInvalidNumberHelper();
     }
 
     @Test
@@ -490,6 +696,20 @@ class TransactionValidatorTest {
         // Then
         assertNotNull(exceptionThrown);
         assertEquals(transactionValidator.EXCEPTION_MESSAGE_INVALID_AMOUNT,
+                exceptionThrown.getMessage());
+    }
+
+    void assertInvalidNumberHelper() {
+        // When
+        IllegalArgumentException exceptionThrown = assertThrows(
+                IllegalArgumentException.class, () -> {
+                    transactionValidator.validateTransaction(
+                            LOCAL_ROUTING_NUM, AUTHED_ACCOUNT_NUM, transaction);
+                });
+
+        // Then
+        assertNotNull(exceptionThrown);
+        assertEquals(transactionValidator.EXCEPTION_MESSAGE_INVALID_NUMBER,
                 exceptionThrown.getMessage());
     }
 }

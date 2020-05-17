@@ -17,7 +17,6 @@
 package anthos.samples.financedemo.ledgerwriter;
 
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 
 import  org.springframework.web.client.HttpServerErrorException;
 
