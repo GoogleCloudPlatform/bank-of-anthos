@@ -74,3 +74,14 @@ Cypress.Commands.add('deposit', (externalAccount, depositAmount) => {
     cy.get('#deposit-amount').type(`${depositAmount}`)
     cy.get('#deposit-form').submit()
 })
+
+Cypress.Commands.add('transfer', (receipient, paymentAmount) => {
+    Cypress.log({
+        name: 'transfer',
+        message: `${receipient}` | `${paymentAmount}`
+    })
+    cy.get('.h5.mb-0').last().click() 
+    cy.get('#payment-accounts').select(receipient.acccountNum)
+    cy.get('#payment-amount').type(paymentAmount)
+    cy.get('#payment-form').submit()
+})
