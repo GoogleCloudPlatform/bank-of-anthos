@@ -64,15 +64,25 @@ Cypress.Commands.add('deposit', (externalAccount, depositAmount) => {
     cy.get('#depositFunds').should('be.visible') 
     // cy.get('#accounts').select(val)
     cy.get('#accounts').select('{"account_num": "9099791699", "routing_num": "808889588" }')
-    // cy.get('#accounts').select('{"account_num": "9099791699", "routing_num": "808889588" }')
-    // cy.get('#accounts').select(`{"account_num": "${accountNum}", "routing_num": "${routingNum}"}`)
-
-    // cy.get('#accounts').find('option').as('selectOption').then( () => {
-    //         cy.get('#accounts').select(`${this.selectOption.text()}`)
-    // })
-
     cy.get('#deposit-amount').type(`${depositAmount}`)
     cy.get('#deposit-form').submit()
+})
+
+Cypress.Commands.add('depositToNewAccount', (externalAccount, depositAmount) => {
+    Cypress.log({
+        name: 'depositToNewAccount',
+        message: `${externalAccount}` | `${depositAmount}`
+    })
+    cy.get('.h5.mb-0').first().click() 
+    cy.get('#depositFunds').should('be.visible') 
+    // cy.get('#accounts').select(val)
+    cy.get('#accounts').select('add')
+    cy.get('#external_account_num').type(externalAccount.accountNum)
+    cy.get('#external_routing_num').type(externalAccount.routingNum)
+    cy.get('#external_label').type(externalAccount.contactLabel)
+    cy.get('#deposit-amount').type(depositAmount)
+    cy.get('#deposit-form').submit()
+
 })
 
 Cypress.Commands.add('transfer', (receipient, paymentAmount) => {

@@ -70,11 +70,7 @@ describe('Default user can transfer funds', function () {
     })
 
     it('can see transaction in history', function () {
-        const receipient = {
-            accountNum: '1044226144',
-            name: 'Alice'
-        }
-        const paymentAmount = Math.floor(Math.random() * 10)
+        const paymentAmount = randomNum(100)
         cy.transfer(receipient, paymentAmount)
         cy.reload()
 
@@ -140,8 +136,8 @@ describe('Invalid data is disallowed for transfer', function () {
         cy.get('.invalid-feedback').should('be.visible')
     })
 
-    it('cannot contain more than 2 decimal digits', function () {
-        const invalidPayment = '5.02.35'
+    it.skip('cannot contain more than 2 decimal digits', function () {
+        const invalidPayment = '5.02.35.459'
 
         cy.transfer(receipient, invalidPayment)
         cy.get('.invalid-feedback').should('be.visible')
