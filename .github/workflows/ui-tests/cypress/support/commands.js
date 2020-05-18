@@ -81,7 +81,20 @@ Cypress.Commands.add('transfer', (receipient, paymentAmount) => {
         message: `${receipient}` | `${paymentAmount}`
     })
     cy.get('.h5.mb-0').last().click() 
-    cy.get('#payment-accounts').select(receipient.acccountNum)
+    cy.get('#payment-accounts').select(receipient.accountNum)
+    cy.get('#payment-amount').type(paymentAmount)
+    cy.get('#payment-form').submit()
+})
+
+Cypress.Commands.add('transferToNewContact', (receipient, paymentAmount) => {
+    Cypress.log({
+        name: 'transferToNewContact',
+        message: `${receipient}` | `${paymentAmount}`
+    }) 
+    cy.get('.h5.mb-0').last().click() 
+    cy.get('#payment-accounts').select("add")
+    cy.get('#contact_account_num').type(receipient.accountNum)
+    cy.get('#contact_label').type(receipient.contactLabel)
     cy.get('#payment-amount').type(paymentAmount)
     cy.get('#payment-form').submit()
 })
