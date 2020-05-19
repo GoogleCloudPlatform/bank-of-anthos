@@ -12,7 +12,8 @@ const randomNum = (max) => {
 
 describe('Default user can deposit funds', function () {
     beforeEach(function () {
-        cy.login(username, password)
+        cy.loginRequest(username, password)
+        cy.visit('/home')
     })
 
     it('sees deposit button', function () {
@@ -29,9 +30,10 @@ describe('Default user can deposit funds', function () {
         cy.get('.h5.mb-0').first().click()
         cy.get('#depositFunds').should('be.visible')
         // TODO: change to deposit accounts
-        cy.get('#accounts').children().first().contains('External Bank')
-        cy.get('#accounts').children().first().contains('9099791699')
-        cy.get('#accounts').children().first().contains('808889588')
+        cy.get('#accounts').children().first().as('firstOption')
+        cy.get('@firstOption').contains('External Bank')
+        cy.get('@firstOption').contains('9099791699')
+        cy.get('@firstOption').contains('808889588')
     })
     it('can deposit funds', function () {
         const depositAmount = randomNum(100)
@@ -63,6 +65,9 @@ describe('Default user can deposit funds', function () {
         const depositAmount = randomNum(100)
 
         cy.deposit(externalAccount, depositAmount)
+        cy.get('.alert').contains('Deposit accepted')       
+
+        cy.reload()
 
         cy.get('#transaction-table').find('tbody>tr').as('latest')
 
@@ -83,7 +88,9 @@ describe('Default user can deposit funds', function () {
         }
         const paymentAmount = randomNum(100)
 
-        cy.depositToNewContact(newExternalAccount, paymentAmount)
+        cy.depositToNewAccount(newExternalAccount, paymentAmount)
+        cy.get('.alert').contains('Deposit accepted')
+
         cy.reload()
         cy.get('.h5.mb-0').first().click()
         cy.get('#accounts').contains(newExternalAccount.contactLabel)

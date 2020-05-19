@@ -28,6 +28,23 @@ Cypress.Commands.add('login', (username, password) => {
 
 })
 
+Cypress.Commands.add('loginRequest', (username, password) => {
+    Cypress.log({
+        name: 'loginRequest',
+        message: `${username} | ${password}`,
+    })
+    
+    return cy.request({
+        method: 'POST',
+        url: '/login', // baseUrl will be prepended to this url
+        form: true, // indicates the body should be form urlencoded and sets Content-Type: application/x-www-form-urlencoded headers
+        body: {
+          username,
+          password,
+        },
+      })
+})
+
 Cypress.Commands.add('createAccount', (user) => {
     Cypress.log({
         name: 'createAccount',

@@ -13,7 +13,8 @@ const randomNum = (max) => {
 
 describe('Default user can transfer funds', function () {
     beforeEach(function () {
-        cy.login(username, password)
+        cy.loginRequest(username, password)
+        cy.visit('/home')
     })
 
     it('sees transfer button', function () {
@@ -41,7 +42,7 @@ describe('Default user can transfer funds', function () {
         const paymentAmount = Math.floor(Math.random() * 10)
 
         cy.transfer(receipient, paymentAmount)
-
+        cy.get('.alert').contains('Payment initiated')
     })
 
     it('can see balance update', function () {
@@ -72,6 +73,7 @@ describe('Default user can transfer funds', function () {
     it('can see transaction in history', function () {
         const paymentAmount = randomNum(100)
         cy.transfer(receipient, paymentAmount)
+        cy.get('.alert').contains('Payment initiated')
         cy.reload()
 
         cy.get('#transaction-table').find('tbody>tr').as('latest')
@@ -93,6 +95,7 @@ describe('Default user can transfer funds', function () {
         const paymentAmount = randomNum(100)
 
         cy.transferToNewContact(newReceipient, paymentAmount)
+        cy.get('.alert').contains('Payment initiated')
         cy.get('.h5.mb-0').last().click()
         cy.get('#payment-accounts').contains(newReceipient.contactLabel)
         cy.get('#payment-accounts').contains(newReceipient.accountNum)
