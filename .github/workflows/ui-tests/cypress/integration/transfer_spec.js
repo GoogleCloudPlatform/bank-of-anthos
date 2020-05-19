@@ -3,13 +3,32 @@ const username = defaultUser.username
 const password = defaultUser.password
 const name = defaultUser.name
 
-const receipient = {
-    accountNum: '1044226144',
-    name: 'Alice'
+const recipient = defaultUser.recipients[0]
+const randomNum = (min, max) => {
+    //The maximum is exclusive and the minimum is inclusive
+    return Math.floor(Math.random() * (max-min)) + min
 }
-const randomNum = (max) => {
-    return Math.floor(Math.random() * max)
+
+const validPayment = () => {
+    const max = 1000
+    const min = 1
+    return randomNum(min, max)
 }
+
+const validAccountNum = () => {
+    // 10 digit integer
+    const max = 10000000000
+    const min = 1000000000
+    return randomNum(min, max)
+}
+
+const validRoutingNum = () => {
+    // 9 digit integer
+    const max = 1000000000
+    const min = 100000000
+    return randomNum(min, max)
+}
+
 
 describe('Default user can transfer funds', function () {
     beforeEach(function () {
@@ -29,7 +48,7 @@ describe('Default user can transfer funds', function () {
 
     })
 
-    it('shows expected receipients', function () {
+    it('shows expected recipients', function () {
         cy.get('.h5.mb-0').last().click()
         cy.get('#payment-accounts').children().contains("1044226144")
         cy.get('#payment-accounts').children().contains("1055757655")
@@ -41,13 +60,13 @@ describe('Default user can transfer funds', function () {
     it('can transfer funds', function () {
         const paymentAmount = Math.floor(Math.random() * 10)
 
-        cy.transfer(receipient, paymentAmount)
+        cy.transfer(recipient, paymentAmount)
         cy.get('.alert').contains('Payment initiated')
     })
 
     it('can see balance update', function () {
         // const paymentAmount = Math.floor(Math.random() * 10)
-        const paymentAmount = randomNum(100)
+        const paymentAmount = validPayment()
         let expectedBalance
 
         cy.get("#current-balance").then(($span) => {
@@ -56,7 +75,7 @@ describe('Default user can transfer funds', function () {
             // regex: removes any characters that are not a digit [0-9] or a period [.]
             const currentBalance = parseFloat(currentBalanceSpan.replace(/[^\d.]/g, ''))
             expectedBalance = currentBalance - paymentAmount
-            cy.transfer(receipient, paymentAmount)
+            cy.transfer(recipient, paymentAmount)
 
             // Payment Initiated
             cy.get('.alert').contains('Payment initiated')
@@ -71,14 +90,14 @@ describe('Default user can transfer funds', function () {
     })
 
     it('can see transaction in history', function () {
-        const paymentAmount = randomNum(100)
-        cy.transfer(receipient, paymentAmount)
+        const paymentAmount = validPayment()
+        cy.transfer(recipient, paymentAmount)
         cy.get('.alert').contains('Payment initiated')
         cy.reload()
 
         cy.get('#transaction-table').find('tbody>tr').as('latest')
 
-        cy.get('@latest').find('.transaction-account').contains(receipient.accountNum)
+        cy.get('@latest').find('.transaction-account').contains(recipient.accountNum)
         cy.get('@latest').find('.transaction-type').contains('Credit')
         cy.get('@latest').find('.transaction-amount').contains(paymentAmount)
 
@@ -87,18 +106,18 @@ describe('Default user can transfer funds', function () {
 
     it('can see new contact show up', function () {
         // makes random 10 digit number
-        const accountNum = Math.floor(100000000 + Math.random() * 10000000000);
-        const newReceipient = {
+        const accountNum = validAccountNum();
+        const newRecipient = {
             accountNum: accountNum,
             contactLabel: `testcontact${accountNum}`
         }
-        const paymentAmount = randomNum(100)
+        const paymentAmount = validPayment()
 
-        cy.transferToNewContact(newReceipient, paymentAmount)
+        cy.transferToNewContact(newRecipient, paymentAmount)
         cy.get('.alert').contains('Payment initiated')
         cy.get('.h5.mb-0').last().click()
-        cy.get('#payment-accounts').contains(newReceipient.contactLabel)
-        cy.get('#payment-accounts').contains(newReceipient.accountNum)
+        cy.get('#payment-accounts').contains(newRecipient.contactLabel)
+        cy.get('#payment-accounts').contains(newRecipient.accountNum)
 
     })
 
@@ -111,14 +130,14 @@ describe('Invalid data is disallowed for transfer', function () {
 
     it('cannot be greater than balance', function () {
         let greaterThanBalance
-        const paymentAmount = randomNum(100)
+        const paymentAmount = validPayment()
         cy.get("#current-balance").then(($span) => {
             const currentBalanceSpan = $span.text()
 
             // regex: removes any characters that are not a digit [0-9] or a period [.]
             const currentBalance = parseFloat(currentBalanceSpan.replace(/[^\d.]/g, ''))
             greaterThanBalance = currentBalance + paymentAmount
-            cy.transfer(receipient, greaterThanBalance)
+            cy.transfer(recipient, greaterThanBalance)
 
             cy.get('.invalid-feedback').should('be.visible')
         })
@@ -128,33 +147,33 @@ describe('Invalid data is disallowed for transfer', function () {
     it('cannot be equal to zero', function () {
         // zero amount
         const zeroPayment = 0
-        cy.transfer(receipient, zeroPayment)
+        cy.transfer(recipient, zeroPayment)
         cy.get('.invalid-feedback').should('be.visible')
 
     })
 
     it('cannot be less than zero', function () {
-        const negativePayment = `-${randomNum(100)}`
-        cy.transfer(receipient, negativePayment)
+        const negativePayment = `-${validPayment()}`
+        cy.transfer(recipient, negativePayment)
         cy.get('.invalid-feedback').should('be.visible')
     })
 
     it.skip('cannot contain more than 2 decimal digits', function () {
         const invalidPayment = '5.02.35.459'
 
-        cy.transfer(receipient, invalidPayment)
+        cy.transfer(recipient, invalidPayment)
         cy.get('.invalid-feedback').should('be.visible')
 
     })
 
     it('cannot reference invalid account', function () {
-        const invalidReceipient = {
-            accountNum: randomNum(100),
+        const invalidRecipient = {
+            accountNum: randomNum(100,10000000),
             contactLabel: `testcontact invalid ${this.accountNum}`
         }
-        const paymentAmount = randomNum(100)
+        const paymentAmount = validPayment()
 
-        cy.transferToNewContact(invalidReceipient, paymentAmount)
+        cy.transferToNewContact(invalidRecipient, paymentAmount)
         cy.get('.invalid-feedback').should('be.visible')
         cy.get('.invalid-feedback').first().contains('Please enter a valid 10 digit account number')
 

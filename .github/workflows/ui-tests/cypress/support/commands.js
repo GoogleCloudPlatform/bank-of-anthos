@@ -102,26 +102,26 @@ Cypress.Commands.add('depositToNewAccount', (externalAccount, depositAmount) => 
 
 })
 
-Cypress.Commands.add('transfer', (receipient, paymentAmount) => {
+Cypress.Commands.add('transfer', (recipient, paymentAmount) => {
     Cypress.log({
         name: 'transfer',
-        message: `${receipient}` | `${paymentAmount}`
+        message: `${recipient}` | `${paymentAmount}`
     })
     cy.get('.h5.mb-0').last().click() 
-    cy.get('#payment-accounts').select(receipient.accountNum)
+    cy.get('#payment-accounts').select(recipient.accountNum)
     cy.get('#payment-amount').type(paymentAmount)
     cy.get('#payment-form').submit()
 })
 
-Cypress.Commands.add('transferToNewContact', (receipient, paymentAmount) => {
+Cypress.Commands.add('transferToNewContact', (recipient, paymentAmount) => {
     Cypress.log({
         name: 'transferToNewContact',
-        message: `${receipient}` | `${paymentAmount}`
+        message: `${recipient}` | `${paymentAmount}`
     }) 
     cy.get('.h5.mb-0').last().click() 
     cy.get('#payment-accounts').select("add")
-    cy.get('#contact_account_num').type(receipient.accountNum)
-    cy.get('#contact_label').type(receipient.contactLabel)
+    cy.get('#contact_account_num').type(recipient.accountNum)
+    cy.get('#contact_label').type(recipient.contactLabel)
     cy.get('#payment-amount').type(paymentAmount)
     cy.get('#payment-form').submit()
 })

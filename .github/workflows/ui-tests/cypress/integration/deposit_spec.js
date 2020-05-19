@@ -2,13 +2,32 @@ const defaultUser = Cypress.env('defaultUser')
 const username = defaultUser.username
 const password = defaultUser.password
 const name = defaultUser.name
-const externalAccount = {
-    accountNum: '9099791699',
-    routingNum: '808889588'
+const externalAccount = defaultUser.externalAccounts[0]
+
+const randomNum = (min, max) => {
+    //The maximum is exclusive and the minimum is inclusive
+    return Math.floor(Math.random() * (max-min)) + min
 }
-const randomNum = (max) => {
-    return Math.floor(Math.random() * max)
+
+const validPayment = () => {
+    const max = 1000
+    const min = 1
+    return randomNum(min, max)
 }
+
+const validAccountNum = () => {
+    const max = 10000000000
+    const min = 1000000000
+    return randomNum(min, max)
+}
+
+const validRoutingNum = () => {
+    const max = 1000000000
+    const min = 100000000
+    return randomNum(min, max)
+}
+
+
 
 describe('Default user can deposit funds', function () {
     beforeEach(function () {
@@ -36,13 +55,13 @@ describe('Default user can deposit funds', function () {
         cy.get('@firstOption').contains('808889588')
     })
     it('can deposit funds', function () {
-        const depositAmount = randomNum(100)
+        const depositAmount = validPayment()
 
         cy.deposit(externalAccount, depositAmount)
     })
 
     it('can see balance update', function () {
-        const depositAmount = randomNum(100)
+        const depositAmount = validPayment()
         let expectedBalance
         cy.get("#current-balance").then(($span) => {
             const currentBalanceSpan = $span.text()
@@ -62,10 +81,10 @@ describe('Default user can deposit funds', function () {
     })
 
     it('can see transaction in history', function () {
-        const depositAmount = randomNum(100)
+        const depositAmount = validPayment()
 
         cy.deposit(externalAccount, depositAmount)
-        cy.get('.alert').contains('Deposit accepted')       
+        cy.get('.alert').contains('Deposit accepted')
 
         cy.reload()
 
@@ -77,16 +96,14 @@ describe('Default user can deposit funds', function () {
     })
 
     it('see new contact show up', function () {
-        // makes random 10 digit number
-        const accountNum = Math.floor(100000000 + Math.random() * 10000000000);
-        // makes random 9 digit number
-        const routingNum= Math.floor(100000000 + Math.random() * 1000000000);
+        const accountNum = validAccountNum()
+        const routingNum = validRoutingNum()
         const newExternalAccount = {
             accountNum: accountNum,
             routingNum: routingNum,
             contactLabel: `testcontact${accountNum}`
         }
-        const paymentAmount = randomNum(100)
+        const paymentAmount = validPayment()
 
         cy.depositToNewAccount(newExternalAccount, paymentAmount)
         cy.get('.alert').contains('Deposit accepted')
@@ -103,7 +120,7 @@ describe('Default user can deposit funds', function () {
 describe('Invalid data is disallowed for deposit', function () {
     beforeEach(function () {
         cy.login(username, password)
-    })    
+    })
 
     it('cannot be less than or greater than zero', function () {
         const zeroPayment = 0
@@ -112,7 +129,7 @@ describe('Invalid data is disallowed for deposit', function () {
     })
 
     it('cannot contain more than 2 decimal digits', function () {
-        const negativePayment = `-${randomNum(100)}`
+        const negativePayment = `-${validPayment()}`
         cy.deposit(externalAccount, negativePayment)
         cy.get('.invalid-feedback').should('be.visible')
     })

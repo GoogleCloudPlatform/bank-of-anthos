@@ -8,12 +8,34 @@
             "transaction": {
                 "empty": "No Transactions Found",
                 "error": "Error: Could Not Load Transactions"
+            },
+            "deposit": {
+                "success": "Deposit accepted"
+            },
+            "transfer": {
+                "success": "Payment initiated"
             }
         },
         "defaultUser": {
             "username": "testuser",
             "password": "password",
-            "name": "Eve"
+            "name": "Eve",
+            "externalAccounts": [
+                {
+                    "accountNum": "9099791699",
+                    "routingNum": "808889588"
+                }
+            ],
+            "recipients": [
+                {
+                    "accountNum": "1044226144",
+                    "name": "Alice"
+                }, 
+                {
+                    "accountNum": "1055757655",
+                    "name": "Bob"
+                }
+            ]
         }
     }
 }
