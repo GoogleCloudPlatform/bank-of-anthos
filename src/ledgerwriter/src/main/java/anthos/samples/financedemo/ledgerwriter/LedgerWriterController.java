@@ -40,6 +40,9 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
+import static anthos.samples.financedemo.ledgerwriter.ExceptionMessages.EXCEPTION_MESSAGE_INSUFFICIENT_BALANCE;
+import static anthos.samples.financedemo.ledgerwriter.ExceptionMessages.EXCEPTION_MESSAGE_WHEN_AUTHORIZATION_HEADER_NULL;
+
 @RestController
 public final class LedgerWriterController {
 
@@ -54,15 +57,9 @@ public final class LedgerWriterController {
     private String balancesApiUri;
     private String version;
 
-
     public static final String READINESS_CODE = "ok";
     public static final String UNAUTHORIZED_CODE = "not authorized";
     public static final String JWT_ACCOUNT_KEY = "acct";
-    public static final String
-            EXCEPTION_MESSAGE_WHEN_AUTHORIZATION_HEADER_NULL =
-            "HTTP request 'Authorization' header is null";
-    public static final String EXCEPTION_MESSAGE_INSUFFICIENT_BALANCE =
-            "insufficient balance";
 
     /**
     * Constructor.

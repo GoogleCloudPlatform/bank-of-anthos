@@ -30,6 +30,8 @@ import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 
+import static anthos.samples.financedemo.ledgerwriter.ExceptionMessages.EXCEPTION_MESSAGE_INSUFFICIENT_BALANCE;
+import static anthos.samples.financedemo.ledgerwriter.ExceptionMessages.EXCEPTION_MESSAGE_WHEN_AUTHORIZATION_HEADER_NULL;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -196,7 +198,7 @@ class LedgerWriterControllerTest {
         // Then
         assertNotNull(actualResult);
         assertEquals(
-                ledgerWriterController.EXCEPTION_MESSAGE_INSUFFICIENT_BALANCE,
+                EXCEPTION_MESSAGE_INSUFFICIENT_BALANCE,
                 actualResult.getBody());
         assertEquals(HttpStatus.BAD_REQUEST, actualResult.getStatusCode());
     }
@@ -253,8 +255,7 @@ class LedgerWriterControllerTest {
 
         // Then
         assertNotNull(actualResult);
-        assertEquals(LedgerWriterController.
-                        EXCEPTION_MESSAGE_WHEN_AUTHORIZATION_HEADER_NULL,
+        assertEquals(EXCEPTION_MESSAGE_WHEN_AUTHORIZATION_HEADER_NULL,
                 actualResult.getBody());
         assertEquals(HttpStatus.BAD_REQUEST, actualResult.getStatusCode());
     }

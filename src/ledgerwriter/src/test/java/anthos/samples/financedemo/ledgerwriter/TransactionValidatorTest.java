@@ -21,6 +21,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import static anthos.samples.financedemo.ledgerwriter.ExceptionMessages.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -586,7 +587,7 @@ class TransactionValidatorTest {
 
         // Then
         assertNotNull(exceptionThrown);
-        assertEquals(transactionValidator.EXCEPTION_MESSAGE_NOT_AUTHENTICATED,
+        assertEquals(EXCEPTION_MESSAGE_NOT_AUTHENTICATED,
                 exceptionThrown.getMessage());
     }
 
@@ -607,7 +608,7 @@ class TransactionValidatorTest {
 
         // Then
         assertNotNull(exceptionThrown);
-        assertEquals(transactionValidator.EXCEPTION_MESSAGE_SEND_TO_SELF,
+        assertEquals(EXCEPTION_MESSAGE_SEND_TO_SELF,
                 exceptionThrown.getMessage());
     }
 
@@ -655,7 +656,7 @@ class TransactionValidatorTest {
 
         // Then
         assertNotNull(exceptionThrown);
-        assertEquals(transactionValidator.EXCEPTION_MESSAGE_INVALID_AMOUNT,
+        assertEquals(EXCEPTION_MESSAGE_INVALID_AMOUNT,
                 exceptionThrown.getMessage());
     }
 
@@ -675,7 +676,7 @@ class TransactionValidatorTest {
 
         // Then
         assertNotNull(exceptionThrown);
-        assertEquals(transactionValidator.EXCEPTION_MESSAGE_INVALID_AMOUNT,
+        assertEquals(EXCEPTION_MESSAGE_INVALID_AMOUNT,
                 exceptionThrown.getMessage());
     }
 
@@ -695,7 +696,7 @@ class TransactionValidatorTest {
 
         // Then
         assertNotNull(exceptionThrown);
-        assertEquals(transactionValidator.EXCEPTION_MESSAGE_INVALID_AMOUNT,
+        assertEquals(EXCEPTION_MESSAGE_INVALID_AMOUNT,
                 exceptionThrown.getMessage());
     }
 
@@ -709,7 +710,7 @@ class TransactionValidatorTest {
 
         // Then
         assertNotNull(exceptionThrown);
-        assertEquals(transactionValidator.EXCEPTION_MESSAGE_INVALID_NUMBER,
+        assertEquals(EXCEPTION_MESSAGE_INVALID_NUMBER,
                 exceptionThrown.getMessage());
     }
 }

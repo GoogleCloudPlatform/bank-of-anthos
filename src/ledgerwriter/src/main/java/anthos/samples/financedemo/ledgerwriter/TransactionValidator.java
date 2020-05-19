@@ -20,6 +20,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.regex.Pattern;
 
+import static anthos.samples.financedemo.ledgerwriter.ExceptionMessages.*;
+
 /**
  * Validator to authenticate transaction.
  *
@@ -28,19 +30,10 @@ import java.util.regex.Pattern;
 @Component
 public class TransactionValidator {
 
-    public static final String
-            EXCEPTION_MESSAGE_INVALID_NUMBER = "invalid account details";
-    public static final String
-            EXCEPTION_MESSAGE_NOT_AUTHENTICATED = "sender not authenticated";
-    public static final String
-            EXCEPTION_MESSAGE_SEND_TO_SELF = "can't send to self";
-    public static final String
-            EXCEPTION_MESSAGE_INVALID_AMOUNT = "invalid amount";
     // account ids should be 10 digits between 0 and 9
     private static final Pattern ACCT_REGEX = Pattern.compile("^[0-9]{10}$");
     // route numbers should be 9 digits between 0 and 9
     private static final Pattern ROUTE_REGEX = Pattern.compile("^[0-9]{9}$");
-
 
     /**
      *   - Ensure sender is the same user authenticated by auth token
