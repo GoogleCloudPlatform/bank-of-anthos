@@ -30,8 +30,10 @@ import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 
-import static anthos.samples.financedemo.ledgerwriter.ExceptionMessages.EXCEPTION_MESSAGE_INSUFFICIENT_BALANCE;
-import static anthos.samples.financedemo.ledgerwriter.ExceptionMessages.EXCEPTION_MESSAGE_WHEN_AUTHORIZATION_HEADER_NULL;
+import static anthos.samples.financedemo.ledgerwriter.ExceptionMessages.
+        EXCEPTION_MESSAGE_INSUFFICIENT_BALANCE;
+import static anthos.samples.financedemo.ledgerwriter.ExceptionMessages.
+        EXCEPTION_MESSAGE_WHEN_AUTHORIZATION_HEADER_NULL;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -73,7 +75,8 @@ class LedgerWriterControllerTest {
                 LOCAL_ROUTING_NUM, BALANCES_API_ADDR, VERSION);
 
         when(verifier.verify(TOKEN)).thenReturn(jwt);
-        when(jwt.getClaim(LedgerWriterController.JWT_ACCOUNT_KEY)).thenReturn(claim);
+        when(jwt.getClaim(
+                LedgerWriterController.JWT_ACCOUNT_KEY)).thenReturn(claim);
     }
 
     @Test

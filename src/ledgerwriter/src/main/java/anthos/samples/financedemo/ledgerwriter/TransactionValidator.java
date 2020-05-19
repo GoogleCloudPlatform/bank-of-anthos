@@ -20,7 +20,15 @@ import org.springframework.stereotype.Component;
 
 import java.util.regex.Pattern;
 
-import static anthos.samples.financedemo.ledgerwriter.ExceptionMessages.*;
+import static anthos.samples.financedemo.ledgerwriter.ExceptionMessages.
+        EXCEPTION_MESSAGE_INVALID_NUMBER;
+import static anthos.samples.financedemo.ledgerwriter.ExceptionMessages.
+        EXCEPTION_MESSAGE_NOT_AUTHENTICATED;
+import static anthos.samples.financedemo.ledgerwriter.ExceptionMessages.
+        EXCEPTION_MESSAGE_SEND_TO_SELF;
+import static anthos.samples.financedemo.ledgerwriter.ExceptionMessages.
+        EXCEPTION_MESSAGE_INVALID_AMOUNT;
+
 
 /**
  * Validator to authenticate transaction.
