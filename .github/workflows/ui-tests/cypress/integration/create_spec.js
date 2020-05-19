@@ -38,7 +38,7 @@ describe('User can create account', function() {
     beforeEach(function() {
         const id = uuid()
         const user = {
-            username: `user-${id}`,
+            username: `user_${id}`,
             firstName: firstName,
             lastName: `${lastName}-${id}`,
             password: password
