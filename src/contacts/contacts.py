@@ -140,17 +140,17 @@ def create_app():
             raise UserWarning("missing required field(s)")
 
         # Validate account number (must be 10 digits)
-        if not re.match(r"\A[0-9]{10}\Z", req["account_num"]):
+        if req["account_num"] is None or not re.match(r"\A[0-9]{10}\Z", req["account_num"]):
             raise UserWarning("invalid account number")
         # Validate routing number (must be 9 digits)
-        if not re.match(r"\A[0-9]{9}\Z", req["routing_num"]):
+        if req["routing_num"] is None or not re.match(r"\A[0-9]{9}\Z", req["routing_num"]):
             raise UserWarning("invalid routing number")
         # Only allow external accounts to deposit
         if (req["is_external"] and req["routing_num"] == app.config["LOCAL_ROUTING"]):
             raise UserWarning("invalid routing number")
         # Validate label
-        # Must be >0 and <30 chars, alphanumeric and spaces, can't start with space
-        if not re.match(r"^[0-9a-zA-Z][0-9a-zA-Z ]{0,29}$", req["label"]):
+        # Must be >0 and <=30 chars, alphanumeric and spaces, can't start with space
+        if req["label"] is None or not re.match(r"^[0-9a-zA-Z][0-9a-zA-Z ]{0,29}$", req["label"]):
             raise UserWarning("invalid account label")
 
     def _check_contact_allowed(username, accountid, req):
