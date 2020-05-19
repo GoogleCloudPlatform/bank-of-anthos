@@ -70,18 +70,11 @@ Cypress.Commands.add('deposit', (externalAccount, depositAmount) => {
     const accountNum = externalAccount.accountNum
     const routingNum = externalAccount.routingNum
 
-    // const template = '{"account_num": "${account_num}", "routing_num": "${routing_num}"}';
-    // const makeVal = new Function("{account_num, routing_num}", "return `" + template + "`;")
-    // const val = makeVal({account_num: accountNum, routing_num: routingNum})
-// var makeUrl = new Function("{name, age}", "return `" + template + "`;");
-// var url = makeUrl({name: "John", age: 30});
-// console.log(url); //http://example.com/?name=John&age=30
-
     cy.get('.h5.mb-0').first().click() 
     cy.get('#depositFunds').should('be.visible') 
     // cy.get('#accounts').select(val)
     cy.get('#accounts').select('{"account_num": "9099791699", "routing_num": "808889588" }')
-    cy.get('#deposit-amount').type(`${depositAmount}`)
+    cy.get('#deposit-amount').clear().type(`${depositAmount}`)
     cy.get('#deposit-form').submit()
 })
 
@@ -97,7 +90,7 @@ Cypress.Commands.add('depositToNewAccount', (externalAccount, depositAmount) => 
     cy.get('#external_account_num').type(externalAccount.accountNum)
     cy.get('#external_routing_num').type(externalAccount.routingNum)
     cy.get('#external_label').type(externalAccount.contactLabel)
-    cy.get('#deposit-amount').type(depositAmount)
+    cy.get('#deposit-amount').clear().type(depositAmount)
     cy.get('#deposit-form').submit()
 
 })
@@ -109,7 +102,7 @@ Cypress.Commands.add('transfer', (recipient, paymentAmount) => {
     })
     cy.get('.h5.mb-0').last().click() 
     cy.get('#payment-accounts').select(recipient.accountNum)
-    cy.get('#payment-amount').type(paymentAmount)
+    cy.get('#payment-amount').clear().type(paymentAmount)
     cy.get('#payment-form').submit()
 })
 

@@ -14,6 +14,11 @@
             },
             "transfer": {
                 "success": "Payment initiated"
+            },
+            "invalidFeedback": {
+                "accountNum": "Please enter a valid 10 digit account number",
+                "routingNum": "Please enter a valid 9 digit routing number",
+                "payment": "Please enter a valid amount"
             }
         },
         "defaultUser": {

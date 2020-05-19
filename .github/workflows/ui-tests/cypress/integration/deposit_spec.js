@@ -4,32 +4,39 @@ const password = defaultUser.password
 const name = defaultUser.name
 const externalAccount = defaultUser.externalAccounts[0]
 
-const randomNum = (min, max) => {
-    //The maximum is exclusive and the minimum is inclusive
+const depositMsgs = Cypress.env('messages').deposit
+const invalidFeedback = Cypress.env('messages').invalidFeedback
+const formatter = new Intl.NumberFormat('en-US', {
+    maximumFractionDigits: 2,
+  });
+
+const randomInt = (min, max) => {
+    // max is exclusive and the min inclusive
     return Math.floor(Math.random() * (max-min)) + min
 }
 
 const validPayment = () => {
-    const max = 1000
+    const max = 100
     const min = 1
-    return randomNum(min, max)
+    const num = (Math.random() * max) + min
+    return formatter.format(num)
 }
 
 const validAccountNum = () => {
+    // 10 digit integer
     const max = 10000000000
     const min = 1000000000
-    return randomNum(min, max)
+    return randomInt(min, max)
 }
 
 const validRoutingNum = () => {
+    // 9 digit integer
     const max = 1000000000
     const min = 100000000
-    return randomNum(min, max)
+    return randomInt(min, max)
 }
 
-
-
-describe('Default user can deposit funds', function () {
+describe('Authenticated default user', function () {
     beforeEach(function () {
         cy.loginRequest(username, password)
         cy.visit('/home')
@@ -44,7 +51,8 @@ describe('Default user can deposit funds', function () {
         cy.get('.h5.mb-0').first().click()
         cy.get('#depositFunds').should('be.visible')
     })
-    it('shows expected external account', function () {
+
+    it('sees expected external accounts', function () {
         // TODO: add id
         cy.get('.h5.mb-0').first().click()
         cy.get('#depositFunds').should('be.visible')
@@ -54,39 +62,41 @@ describe('Default user can deposit funds', function () {
         cy.get('@firstOption').contains('9099791699')
         cy.get('@firstOption').contains('808889588')
     })
-    it('can deposit funds', function () {
+
+    it('can deposit funds successfully', function () {
         const depositAmount = validPayment()
 
         cy.deposit(externalAccount, depositAmount)
+        cy.get('.alert').contains(depositMsgs.success)
     })
 
-    it('can see balance update', function () {
+    it('can see balance update after deposit', function () {
         const depositAmount = validPayment()
         let expectedBalance
         cy.get("#current-balance").then(($span) => {
             const currentBalanceSpan = $span.text()
             // regex: removes any characters that are not a digit [0-9] or a period [.]
-            const currentBalance = parseFloat(currentBalanceSpan.replace(/[^\d.]/g, ''))
+            const currentBalance = formatter.format(parseFloat(currentBalanceSpan.replace(/[^\d.]/g, '')))
             expectedBalance = currentBalance + depositAmount
             cy.deposit(externalAccount, depositAmount)
-            cy.get('.alert').contains('Deposit accepted')
+            cy.get('.alert').contains(depositMsgs.success)
         })
-        cy.reload()
+        cy.visit('/home')
         cy.get('#current-balance').then(($span) => {
             const updatedBalanceSpan = $span.text()
-            const updatedBalance = parseFloat(updatedBalanceSpan.replace(/[^\d.]/g, ''))
+            const updatedBalance = formatter.format(parseFloat(updatedBalanceSpan.replace(/[^\d.]/g, '')))
             cy.wrap(updatedBalance).should('eq', expectedBalance)
         })
 
     })
 
-    it('can see transaction in history', function () {
+    it('can see transaction in history after deposit', function () {
         const depositAmount = validPayment()
 
         cy.deposit(externalAccount, depositAmount)
-        cy.get('.alert').contains('Deposit accepted')
+        cy.get('.alert').contains(depositMsgs.success)
 
-        cy.reload()
+        cy.visit('/home')
 
         cy.get('#transaction-table').find('tbody>tr').as('latest')
 
@@ -95,7 +105,7 @@ describe('Default user can deposit funds', function () {
         cy.get('@latest').find('.transaction-amount').contains(depositAmount)
     })
 
-    it('see new contact show up', function () {
+    it('can deposit to new account and see new account', function () {
         const accountNum = validAccountNum()
         const routingNum = validRoutingNum()
         const newExternalAccount = {
@@ -106,7 +116,7 @@ describe('Default user can deposit funds', function () {
         const paymentAmount = validPayment()
 
         cy.depositToNewAccount(newExternalAccount, paymentAmount)
-        cy.get('.alert').contains('Deposit accepted')
+        cy.get('.alert').contains(depositMsgs.success)
 
         cy.reload()
         cy.get('.h5.mb-0').first().click()
@@ -117,24 +127,49 @@ describe('Default user can deposit funds', function () {
 
 })
 
-describe('Invalid data is disallowed for deposit', function () {
+describe('Deposit is unsuccessful with invalid data', function () {
     beforeEach(function () {
-        cy.login(username, password)
+        cy.loginRequest(username, password)
+        cy.visit('/home')
     })
 
-    it('cannot be less than or greater than zero', function () {
+    it('cannot be equal to zero', function () {
         const zeroPayment = 0
         cy.deposit(externalAccount, zeroPayment)
         cy.get('.invalid-feedback').should('be.visible')
     })
 
-    it('cannot contain more than 2 decimal digits', function () {
+    it('cannot be less than zero', function () {
         const negativePayment = `-${validPayment()}`
         cy.deposit(externalAccount, negativePayment)
         cy.get('.invalid-feedback').should('be.visible')
     })
 
-    it('cannot reference invalid account or routing number', function () {
+    it('cannot reference invalid account number', function () {
+        const invalidExternalAccount = {
+            accountNum: randomInt(100,100000),
+            routingNum: validRoutingNum(),
+            contactLabel: `testcontact invalid ${this.accountNum}`
+        }
 
+        const paymentAmount = validPayment()
+
+        cy.depositToNewAccount(invalidExternalAccount, paymentAmount)
+        cy.get('.invalid-feedback').should('be.visible')
+        cy.get('.invalid-feedback').first().contains(invalidFeedback.accountNum)
+    })
+
+    it('cannot reference invalid routing number', function () {
+        const invalidExternalAccount = {
+            accountNum: validAccountNum(), 
+            routingNum: randomInt(100,100000),
+            contactLabel: `testcontact invalid ${this.accountNum}`
+        }
+
+        const paymentAmount = validPayment()
+
+        cy.depositToNewAccount(invalidExternalAccount, paymentAmount)
+        cy.get('.invalid-feedback').should('be.visible')
+        cy.get('.invalid-feedback').contains(invalidFeedback.routingNum)
     })
 })
