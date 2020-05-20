@@ -138,12 +138,14 @@ describe('Deposit is unsuccessful with invalid data', function () {
         const zeroPayment = 0
         cy.deposit(externalAccount, zeroPayment)
         cy.get('.invalid-feedback').should('be.visible')
+        cy.get('.invalid-feedback').contains(invalidFeedback.payment)
     })
 
     it('cannot be less than zero', function () {
         const negativePayment = `-${validPayment()}`
         cy.deposit(externalAccount, negativePayment)
         cy.get('.invalid-feedback').should('be.visible')
+        cy.get('.invalid-feedback').contains(invalidFeedback.payment)
     })
 
     it('cannot reference invalid account number', function () {
@@ -157,7 +159,7 @@ describe('Deposit is unsuccessful with invalid data', function () {
 
         cy.depositToNewAccount(invalidExternalAccount, paymentAmount)
         cy.get('.invalid-feedback').should('be.visible')
-        cy.get('.invalid-feedback').first().contains(invalidFeedback.accountNum)
+        cy.get('.invalid-feedback').contains(invalidFeedback.accountNum)
     })
 
     it('cannot reference invalid routing number', function () {

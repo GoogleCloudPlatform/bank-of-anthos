@@ -76,10 +76,9 @@ describe('Authenticated default user', function () {
 
         cy.get("#current-balance").then(($span) => {
             const currentBalanceSpan = $span.text()
-
             // regex: removes any characters that are not a digit [0-9] or a period [.]
-            const currentBalance = parseFloat(currentBalanceSpan.replace(/[^\d.]/g, ''))
-            expectedBalance = formatter.format(currentBalance - parseFloat(paymentAmount))
+            const currentBalance = parseFloat(currentBalanceSpan.replace(/[^\d.]/g, '')).toFixed(2)
+            expectedBalance = formatter.format(currentBalance - parseFloat(paymentAmount).toFixed(2))
             cy.transfer(recipient, paymentAmount)
 
             cy.get('.alert').contains(transferMsgs.success)
@@ -139,11 +138,12 @@ describe('Transfer is unsuccessful with invalid data', function () {
             const currentBalanceSpan = $span.text()
 
             // regex: removes any characters that are not a digit [0-9] or a period [.]
-            const currentBalance = parseFloat(currentBalanceSpan.replace(/[^\d.]/g, ''))
-            greaterThanBalance = formatter.format(currentBalance + parseFloat(paymentAmount))
+            const currentBalance = parseFloat(currentBalanceSpan.replace(/[^\d.]/g, '')).toFixed(2)
+            greaterThanBalance = formatter.format(currentBalance + parseFloat(paymentAmount).toFixed(2))
             cy.transfer(recipient, greaterThanBalance)
 
             cy.get('.invalid-feedback').should('be.visible')
+            cy.get('.invalid-feedback').contains(invalidFeedback.payment)
         })
     })
 
@@ -152,6 +152,7 @@ describe('Transfer is unsuccessful with invalid data', function () {
         const zeroPayment = 0
         cy.transfer(recipient, zeroPayment)
         cy.get('.invalid-feedback').should('be.visible')
+        cy.get('.invalid-feedback').contains(invalidFeedback.payment)
 
     })
 
@@ -159,14 +160,16 @@ describe('Transfer is unsuccessful with invalid data', function () {
         const negativePayment = `-${validPayment()}`
         cy.transfer(recipient, negativePayment)
         cy.get('.invalid-feedback').should('be.visible')
+        cy.get('.invalid-feedback').contains(invalidFeedback.payment)
     })
 
     // TODO: issue #
     it.skip('cannot contain more than 2 decimal digits', function () {
-        const invalidPayment = '5.02.35.459'
+        const invalidPayment = `5\.02\.35\.459`
 
         cy.transfer(recipient, invalidPayment)
         cy.get('.invalid-feedback').should('be.visible')
+        cy.get('.invalid-feedback').contains(invalidFeedback.payment)
 
     })
 
