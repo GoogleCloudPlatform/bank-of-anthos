@@ -43,18 +43,18 @@ describe('Authenticated default user', function () {
     })
 
     it('sees deposit button', function () {
-        cy.get('.h5.mb-0').first().contains('Deposit Funds')
+        cy.get('#depositSpan').contains('Deposit Funds')
     })
 
     it('clicking deposit button makes modal visible', function () {
         cy.get('#depositFunds').should('not.be.visible')
-        cy.get('.h5.mb-0').first().click()
+        cy.get('#depositSpan').click()
         cy.get('#depositFunds').should('be.visible')
     })
 
     it('sees expected external accounts', function () {
         // TODO: add id
-        cy.get('.h5.mb-0').first().click()
+        cy.get('#depositSpan').click()
         cy.get('#depositFunds').should('be.visible')
         // TODO: change to deposit accounts
         cy.get('#accounts').children().first().as('firstOption')
@@ -120,7 +120,7 @@ describe('Authenticated default user', function () {
         cy.get('.alert').contains(depositMsgs.success)
 
         cy.reload()
-        cy.get('.h5.mb-0').first().click()
+        cy.get('#depositSpan').click()
         cy.get('#accounts').contains(newExternalAccount.contactLabel)
         cy.get('#accounts').contains(newExternalAccount.accountNum)
         cy.get('#accounts').contains(newExternalAccount.routingNum)

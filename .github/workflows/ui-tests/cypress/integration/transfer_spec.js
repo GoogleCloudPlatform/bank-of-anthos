@@ -17,7 +17,8 @@ const randomInt = (min, max) => {
 
 const validPayment = () => {
     const max = 100
-    const num = Math.random() * max
+    const min = 1
+    const num = Math.random() * max + min
     return formatter.format(num)
 }
 
@@ -37,25 +38,32 @@ const validRoutingNum = () => {
 
 
 describe('Authenticated default user', function () {
+    before(function () {
+        // deposit $10,000 at beginning to ensure there is money in account
+        const externalAccount = defaultUser.externalAccounts[0]
+        cy.loginRequest(username, password)
+        cy.visit('/home')
+        cy.deposit(externalAccount, 10000)
+    })
     beforeEach(function () {
         cy.loginRequest(username, password)
         cy.visit('/home')
     })
 
     it('sees transfer button', function () {
-        cy.get('.h5.mb-0').last().contains('Send Payment')
+        cy.get('#paymentSpan').contains('Send Payment')
 
     })
 
     it('clicking payments button makes modal visible', function () {
         cy.get('#sendPayment').should('not.be.visible')
-        cy.get('.h5.mb-0').last().click()
+        cy.get('#paymentSpan').click()
         cy.get('#sendPayment').should('be.visible')
 
     })
 
     it('sees expected recipients', function () {
-        cy.get('.h5.mb-0').last().click()
+        cy.get('#paymentSpan').click()
         cy.get('#payment-accounts').children().contains("1044226144")
         cy.get('#payment-accounts').children().contains("1055757655")
         cy.get('#payment-accounts').contains("Alice")
@@ -64,7 +72,7 @@ describe('Authenticated default user', function () {
     })
 
     it('can transfer funds successfully', function () {
-        const paymentAmount = Math.floor(Math.random() * 10)
+        const paymentAmount = validPayment()
 
         cy.transfer(recipient, paymentAmount)
         cy.get('.alert').contains(transferMsgs.success)
@@ -117,7 +125,7 @@ describe('Authenticated default user', function () {
 
         cy.transferToNewContact(newRecipient, paymentAmount)
         cy.get('.alert').contains(transferMsgs.success)
-        cy.get('.h5.mb-0').last().click()
+        cy.get('#paymentSpan').click()
         cy.get('#payment-accounts').contains(newRecipient.contactLabel)
         cy.get('#payment-accounts').contains(newRecipient.accountNum)
 

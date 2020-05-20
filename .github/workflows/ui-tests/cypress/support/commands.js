@@ -71,9 +71,10 @@ Cypress.Commands.add('deposit', (externalAccount, depositAmount) => {
     const accountNum = externalAccount.accountNum
     const routingNum = externalAccount.routingNum
 
-    cy.get('.h5.mb-0').first().click() 
-    cy.get('#depositFunds').should('be.visible') 
-    cy.get('#accounts').select('{"account_num": "9099791699", "routing_num": "808889588" }')
+
+    cy.get('#depositSpan').click() 
+    cy.get('#depositFunds').should('be.visible')
+    cy.get('#accounts').contains(accountNum).and('contain', routingNum).click({force:true})
     cy.get('#deposit-amount').clear().type(`${depositAmount}`)
     cy.get('#deposit-form').submit()
 })
@@ -84,7 +85,7 @@ Cypress.Commands.add('depositToNewAccount', (externalAccount, depositAmount) => 
         name: 'depositToNewAccount',
         message: `${externalAccount}` | `${depositAmount}`
     })
-    cy.get('.h5.mb-0').first().click() 
+    cy.get('#depositSpan').click() 
     cy.get('#depositFunds').should('be.visible') 
     cy.get('#accounts').select('add')
     cy.get('#external_account_num').type(externalAccount.accountNum)
@@ -101,7 +102,7 @@ Cypress.Commands.add('transfer', (recipient, paymentAmount) => {
         name: 'transfer',
         message: `${recipient}` | `${paymentAmount}`
     })
-    cy.get('.h5.mb-0').last().click() 
+    cy.get('#paymentSpan').click() 
     cy.get('#payment-accounts').select(recipient.accountNum)
     cy.get('#payment-amount').clear().type(paymentAmount)
     cy.get('#payment-form').submit()
@@ -114,7 +115,7 @@ Cypress.Commands.add('transferToNewContact', (recipient, paymentAmount) => {
         name: 'transferToNewContact',
         message: `${recipient}` | `${paymentAmount}`
     }) 
-    cy.get('.h5.mb-0').last().click() 
+    cy.get('#paymentSpan').click() 
     cy.get('#payment-accounts').select("add")
     cy.get('#contact_account_num').type(recipient.accountNum)
     cy.get('#contact_label').type(recipient.contactLabel)
