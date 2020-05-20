@@ -106,8 +106,7 @@ class LedgerWriterControllerTest {
     }
 
     @Test
-    @DisplayName("Given the transaction routing number is different than the" +
-            "local routing number, return HTTP Status 201")
+    @DisplayName("Given the transaction is external, return HTTP Status 201")
     void addTransactionSuccessWhenDiffThanLocalRoutingNum() {
         // Given
         when(transaction.getFromRoutingNum()).thenReturn(NON_LOCAL_ROUTING_NUM);
@@ -125,8 +124,7 @@ class LedgerWriterControllerTest {
     }
 
     @Test
-    @DisplayName("Given the transaction routing number is the same as the " +
-            "local routing number and transaction amount == sender balance, " +
+    @DisplayName("Given the transaction is internal and the transaction amount == sender balance, " +
             "return HTTP Status 201")
     void addTransactionSuccessWhenAmountEqualToBalance() {
         // Given
@@ -152,8 +150,7 @@ class LedgerWriterControllerTest {
     }
 
     @Test
-    @DisplayName("Given the transaction routing number is the same as the " +
-            "local routing number and transaction amount < sender balance, " +
+    @DisplayName("Given the transaction is internal and the transaction amount < sender balance, " +
             "return HTTP Status 201")
     void addTransactionSuccessWhenAmountSmallerThanBalance() {
         // Given
@@ -179,8 +176,7 @@ class LedgerWriterControllerTest {
     }
 
     @Test
-    @DisplayName("Given the transaction routing number is the same as the " +
-            "local routing number and transaction amount > sender balance, " +
+    @DisplayName("Given the transaction is internal and the transaction amount > sender balance, " +
             "return HTTP Status 400")
     void addTransactionFailWhenWhenAmountLargerThanBalance() {
         // Given
@@ -264,8 +260,7 @@ class LedgerWriterControllerTest {
     }
 
     @Test
-    @DisplayName("Given the transaction routing number is the same as the " +
-            "local routing number, check available balance and the balance " +
+    @DisplayName("Given the transaction is internal, check available balance and the balance " +
             "reader throws an error, return HTTP Status 500")
     void addTransactionWhenResourceAccessExceptionThrown() {
         // Given
@@ -290,8 +285,7 @@ class LedgerWriterControllerTest {
     }
 
     @Test
-    @DisplayName("Given the transaction routing number is different than " +
-            "the local routing number, transaction cannot be saved to the " +
+    @DisplayName("Given the transaction is external and the transaction cannot be saved to the " +
             "transaction repository, return HTTP Status 500")
     void addTransactionWhenCannotCreateTransactionExceptionExceptionThrown() {
         // Given
@@ -312,8 +306,7 @@ class LedgerWriterControllerTest {
     }
 
     @Test
-    @DisplayName("Given the transaction routing number is the same as the " +
-            "local routing number, check available balance and the balance " +
+    @DisplayName("Given the transaction is internal, check available balance and the balance " +
             "service returns 500, return HTTP Status 500")
     void addTransactionWhenHttpServerErrorExceptionThrown() {
         // Given
