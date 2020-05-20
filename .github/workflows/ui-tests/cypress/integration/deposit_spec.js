@@ -69,10 +69,8 @@ describe('Authenticated default user', function () {
     })
 
     it('sees expected external accounts', function () {
-        // TODO: add id
         cy.get('#depositSpan').click()
         cy.get('#depositFunds').should('be.visible')
-        // TODO: change to deposit accounts
         cy.get('#accounts').children().first().as('firstOption')
         cy.get('@firstOption').contains('External Bank')
         cy.get('@firstOption').contains('9099791699')
