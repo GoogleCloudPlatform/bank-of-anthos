@@ -71,7 +71,6 @@ describe('Authenticated default user', function () {
     })
 
     it('see balance update after transfer', function () {
-        // const paymentAmount = Math.floor(Math.random() * 10)
         const paymentAmount = validPayment()
         let expectedBalance
 
@@ -83,14 +82,11 @@ describe('Authenticated default user', function () {
             expectedBalance = formatter.format(currentBalance - parseFloat(paymentAmount))
             cy.transfer(recipient, paymentAmount)
 
-            // Payment Initiated
             cy.get('.alert').contains(transferMsgs.success)
         })
-        // cy.reload()
         cy.visit('/home')
         cy.get('#current-balance').then(($span) => {
             const updatedBalanceSpan = $span.text()
-            // const updatedBalance = parseFloat(updatedBalanceSpan.replace(/[^\d.]/g, '')).toFixed(2)
             cy.wrap(updatedBalanceSpan).should('contain', expectedBalance)
         })
 
@@ -100,7 +96,6 @@ describe('Authenticated default user', function () {
         const paymentAmount = validPayment()
         cy.transfer(recipient, paymentAmount)
         cy.get('.alert').contains(transferMsgs.success)
-        // cy.reload()
         cy.visit('/home')
 
         cy.get('#transaction-table').find('tbody>tr').as('latest')

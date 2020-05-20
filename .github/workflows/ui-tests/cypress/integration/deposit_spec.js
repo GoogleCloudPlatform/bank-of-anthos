@@ -86,7 +86,6 @@ describe('Authenticated default user', function () {
         cy.visit('/home')
         cy.get('#current-balance').then(($span) => {
             const updatedBalanceSpan = $span.text()
-            // const updatedBalance = parseFloat(updatedBalanceSpan.replace(/[^\d.]/g, ''))
             cy.wrap(updatedBalanceSpan).should('contain', expectedBalance)
         })
 
