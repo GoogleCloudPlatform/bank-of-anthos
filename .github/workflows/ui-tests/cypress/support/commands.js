@@ -61,6 +61,7 @@ Cypress.Commands.add('createAccount', (user) => {
     cy.get('#signup-form').submit()
 })
 
+// deposit through UI
 Cypress.Commands.add('deposit', (externalAccount, depositAmount) => {
     Cypress.log({
         name: 'deposit',
@@ -78,6 +79,7 @@ Cypress.Commands.add('deposit', (externalAccount, depositAmount) => {
     cy.get('#deposit-form').submit()
 })
 
+// deposits to a new external account through UI
 Cypress.Commands.add('depositToNewAccount', (externalAccount, depositAmount) => {
     Cypress.log({
         name: 'depositToNewAccount',
@@ -95,6 +97,29 @@ Cypress.Commands.add('depositToNewAccount', (externalAccount, depositAmount) => 
 
 })
 
+// deposits through a POST request, faster than through UI
+Cypress.Commands.add('depositRequest', (externalAccount, depositAmount) => {
+    Cypress.log({
+        name: 'depositRequest',
+        message: `${externalAccount}` | `${depositAmount}`
+    })
+
+    const accountNum = externalAccount.accountNum
+
+    return cy.request({
+        method: 'POST',
+        url: '/deposit', // baseUrl will be prepended to this url
+        form: true, // indicates the body should be form urlencoded and sets Content-Type: application/x-www-form-urlencoded headers
+        body: {
+          accountNum,
+          depositAmount
+        },
+      })
+    
+    
+})
+
+// transfers through UI
 Cypress.Commands.add('transfer', (recipient, paymentAmount) => {
     Cypress.log({
         name: 'transfer',
@@ -106,6 +131,8 @@ Cypress.Commands.add('transfer', (recipient, paymentAmount) => {
     cy.get('#payment-form').submit()
 })
 
+
+// transfers to a new account through UI
 Cypress.Commands.add('transferToNewContact', (recipient, paymentAmount) => {
     Cypress.log({
         name: 'transferToNewContact',
@@ -117,4 +144,26 @@ Cypress.Commands.add('transferToNewContact', (recipient, paymentAmount) => {
     cy.get('#contact_label').type(recipient.contactLabel)
     cy.get('#payment-amount').type(paymentAmount)
     cy.get('#payment-form').submit()
+})
+
+// transfers through a POST request, faster than through UI
+Cypress.Commands.add('transferRequest', (externalAccount, depositAmount) => {
+    Cypress.log({
+        name: 'transferRequest',
+        message: `${externalAccount}` | `${depositAmount}`
+    })
+
+    const accountNum = externalAccount.accountNum
+
+    return cy.request({
+        method: 'POST',
+        url: '/transfer', // baseUrl will be prepended to this url
+        form: true, // indicates the body should be form urlencoded and sets Content-Type: application/x-www-form-urlencoded headers
+        body: {
+          accountNum,
+          depositAmount
+        },
+      })
+    
+    
 })

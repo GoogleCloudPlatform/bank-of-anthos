@@ -80,7 +80,7 @@ describe('Authenticated default user', function () {
 
             // regex: removes any characters that are not a digit [0-9] or a period [.]
             const currentBalance = parseFloat(currentBalanceSpan.replace(/[^\d.]/g, ''))
-            expectedBalance = currentBalance - paymentAmount
+            expectedBalance = formatter.format(currentBalance - parseFloat(paymentAmount))
             cy.transfer(recipient, paymentAmount)
 
             // Payment Initiated
@@ -90,8 +90,8 @@ describe('Authenticated default user', function () {
         cy.visit('/home')
         cy.get('#current-balance').then(($span) => {
             const updatedBalanceSpan = $span.text()
-            const updatedBalance = parseFloat(updatedBalanceSpan.replace(/[^\d.]/g, ''))
-            cy.wrap(updatedBalance).should('eq', expectedBalance)
+            // const updatedBalance = parseFloat(updatedBalanceSpan.replace(/[^\d.]/g, '')).toFixed(2)
+            cy.wrap(updatedBalanceSpan).should('contain', expectedBalance)
         })
 
     })
@@ -145,7 +145,7 @@ describe('Transfer is unsuccessful with invalid data', function () {
 
             // regex: removes any characters that are not a digit [0-9] or a period [.]
             const currentBalance = parseFloat(currentBalanceSpan.replace(/[^\d.]/g, ''))
-            greaterThanBalance = currentBalance + paymentAmount
+            greaterThanBalance = formatter.format(currentBalance + parseFloat(paymentAmount))
             cy.transfer(recipient, greaterThanBalance)
 
             cy.get('.invalid-feedback').should('be.visible')

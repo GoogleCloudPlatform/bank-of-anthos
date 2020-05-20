@@ -76,16 +76,18 @@ describe('Authenticated default user', function () {
         cy.get("#current-balance").then(($span) => {
             const currentBalanceSpan = $span.text()
             // regex: removes any characters that are not a digit [0-9] or a period [.]
-            const currentBalance = formatter.format(parseFloat(currentBalanceSpan.replace(/[^\d.]/g, '')))
-            expectedBalance = currentBalance + depositAmount
+            const currentBalance = parseFloat(currentBalanceSpan.replace(/[^\d.]/g, ''))
+
+            expectedBalance = formatter.format(currentBalance + parseFloat(depositAmount))
+
             cy.deposit(externalAccount, depositAmount)
             cy.get('.alert').contains(depositMsgs.success)
         })
         cy.visit('/home')
         cy.get('#current-balance').then(($span) => {
             const updatedBalanceSpan = $span.text()
-            const updatedBalance = formatter.format(parseFloat(updatedBalanceSpan.replace(/[^\d.]/g, '')))
-            cy.wrap(updatedBalance).should('eq', expectedBalance)
+            // const updatedBalance = parseFloat(updatedBalanceSpan.replace(/[^\d.]/g, ''))
+            cy.wrap(updatedBalanceSpan).should('contain', expectedBalance)
         })
 
     })
