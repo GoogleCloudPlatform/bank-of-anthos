@@ -171,7 +171,7 @@ describe('Transfer is unsuccessful with invalid data', function () {
         cy.get('.invalid-feedback').contains(invalidFeedback.payment)
     })
 
-    // TODO: issue #
+    // TODO: issue #182
     it.skip('cannot contain more than 2 decimal digits', function () {
         const invalidPayment = `5\.02\.35\.459`
 
