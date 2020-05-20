@@ -45,61 +45,44 @@ class TransactionValidatorTest {
     private static final String NON_AUTHED_ACCOUNT_NUM = "0987654321";
     private static final String TO_ACCOUNT_NUM = "5678901234";
     private static final String TO_ROUTING_NUM = "567891234";
+    private static final Integer VALID_AMOUNT = 3755;
 
-    private static final String INVALID_NUM_8_DIGITS = "12345678";
-    private static final String INVALID_NUM_9_DIGITS = "123456789";
-    private static final String INVALID_NUM_10_DIGITS = "1234567890";
-    private static final String INVALID_NUM_11_DIGITS = "12345678900";
-    private static final String INVALID_NUM_EMPTY = "";
-    private static final String INVALID_NUM_CHAR = "12345678j";
-    private static final String INVALID_NUM_ALL_CHARS = "abcdefghij";
-    private static final String INVALID_NUM_SPACE = "123 456789";
-    private static final String INVALID_NUM_All_SPACES = "          ";
-    private static final String INVALID_NUM_DECIMAL = "1234567.89";
-    private static final String INVALID_NUM_UNDERSCORE = "123_456789";
-    private static final String INVALID_NUM_JAPANESE_CHAR = "12345仮6789";
-    private static final String INVALID_NUM_BEAR_EMOJI = "12341545🐻";
     private static final String[] INVALID_ACCT_NUM = {
-        INVALID_NUM_8_DIGITS,
-        INVALID_NUM_9_DIGITS,
-        INVALID_NUM_11_DIGITS,
-        INVALID_NUM_EMPTY,
-        INVALID_NUM_CHAR,
-        INVALID_NUM_ALL_CHARS,
-        INVALID_NUM_SPACE,
-        INVALID_NUM_All_SPACES,
-        INVALID_NUM_DECIMAL,
-        INVALID_NUM_UNDERSCORE,
-        INVALID_NUM_JAPANESE_CHAR,
-        INVALID_NUM_BEAR_EMOJI
+        "12345678",
+        "123456789",
+        "12345678900",
+        "",
+        "12345678j",
+        "abcdefghij",
+        "123 456789",
+        "          ",
+        "1234567.89",
+        "123_456789",
+        "12345仮6789",
+        "12341545🐻"
     };
+
     private static final String[] INVALID_ROUTING_NUM = {
-        INVALID_NUM_8_DIGITS,
-        INVALID_NUM_10_DIGITS,
-        INVALID_NUM_11_DIGITS,
-        INVALID_NUM_EMPTY,
-        INVALID_NUM_CHAR,
-        INVALID_NUM_ALL_CHARS,
-        INVALID_NUM_SPACE,
-        INVALID_NUM_All_SPACES,
-        INVALID_NUM_DECIMAL,
-        INVALID_NUM_UNDERSCORE,
-        INVALID_NUM_JAPANESE_CHAR,
-        INVALID_NUM_BEAR_EMOJI
+        "12345678",
+        "1234567890",
+        "12345678900",
+        "",
+        "12345678j",
+        "abcdefghij",
+        "123 456789",
+        "          ",
+        "1234567.89",
+        "123_456789",
+        "12345仮6789",
+        "12341545🐻"
     };
 
-    private static final Integer VALID_AMOUNT_ONE = 1;
-    private static final Integer VALID_AMOUNT_REGULAR = 3755;
-    private static final Integer VALID_AMOUNT_LARGE = Integer.MAX_VALUE;
     private static final Integer[] VALID_TRANSACTION_AMOUNT = {
-        VALID_AMOUNT_ONE, VALID_AMOUNT_REGULAR, VALID_AMOUNT_LARGE
+        1, VALID_AMOUNT, Integer.MAX_VALUE
     };
 
-    private static final Integer INVALID_AMOUNT_ZERO = 0;
-    private static final Integer INVALID_AMOUNT_NEGATIVE = -23;
-    private static final Integer INVALID_AMOUNT_SMALL = Integer.MIN_VALUE;
     private static final Integer[] INVALID_TRANSACTION_AMOUNT = {
-        INVALID_AMOUNT_ZERO, INVALID_AMOUNT_NEGATIVE, INVALID_AMOUNT_SMALL
+        0, -23, Integer.MIN_VALUE
     };
 
     @BeforeEach
@@ -111,7 +94,7 @@ class TransactionValidatorTest {
         when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
         when(transaction.getToAccountNum()).thenReturn(TO_ACCOUNT_NUM);
         when(transaction.getToRoutingNum()).thenReturn(TO_ROUTING_NUM);
-        when(transaction.getAmount()).thenReturn(VALID_AMOUNT_REGULAR);
+        when(transaction.getAmount()).thenReturn(VALID_AMOUNT);
     }
 
     @Test

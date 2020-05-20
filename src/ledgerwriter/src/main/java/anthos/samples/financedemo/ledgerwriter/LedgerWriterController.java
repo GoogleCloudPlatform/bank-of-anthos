@@ -163,7 +163,7 @@ public final class LedgerWriterController {
     }
 
     /**
-     * Check there is available funds for this transaction.
+     * Retrieve the balance for the transaction's sender.
      *
      * @param token  the token used to authenticate request
      * @param fromAcct  sender account number
