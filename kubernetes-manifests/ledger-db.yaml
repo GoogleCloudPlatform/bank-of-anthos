@@ -40,6 +40,13 @@ spec:
                 name: ledger-db-config
             - configMapRef:
                 name: default-data-config
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              cpu: 500m
+              memory: 1Gi
           volumeMounts:
             - name: postgresdb
               mountPath: /var/lib/postgresql/data
