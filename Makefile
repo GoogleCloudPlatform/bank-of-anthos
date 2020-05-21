@@ -34,6 +34,10 @@ deploy-continuous: check-env
 	gcloud container clusters get-credentials --project ${PROJECT_ID} ${CLUSTER} --zone ${ZONE}
 	skaffold dev --default-repo=gcr.io/${PROJECT_ID}
 
+monolith: check-env
+	mvn -f src/ledgermonolith/ package
+	src/ledgermonolith/deploy-monolith.sh
+
 checkstyle:
 	mvn checkstyle:check
 	# disable warnings: import loading, todos, function members, duplicate code, public methods
