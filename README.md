@@ -48,8 +48,9 @@ cd bank-of-anthos
 ### 3 - Create a Kubernetes cluster
 
 ```
+ZONE=<your-zone>
 gcloud beta container clusters create bank-of-anthos \
-    --project=${PROJECT_ID} --zone=us-central1-b \
+    --project=${PROJECT_ID} --zone=${ZONE} \
     --machine-type=n1-standard-2 --num-nodes=4
 ```
 
@@ -88,7 +89,7 @@ transactionhistory-5569754896-z94cn   1/1     Running   0          97s
 userservice-78dc876bff-pdhtl          1/1     Running   0          96s
 ```
 
-### 4 - Get the frontend IP
+### 6 - Get the frontend IP
 
 ```
 kubectl get svc frontend | awk '{print $4}'
@@ -103,7 +104,7 @@ EXTERNAL-IP
 
 **Note:** you may see a `<pending>` IP for a few minutes, while the GCP load balancer is provisioned.
 
-### 5 - Navigate to the web frontend
+### 7 - Navigate to the web frontend
 
 Paste the frontend IP into a web browser. You should see a log-in screen:
 

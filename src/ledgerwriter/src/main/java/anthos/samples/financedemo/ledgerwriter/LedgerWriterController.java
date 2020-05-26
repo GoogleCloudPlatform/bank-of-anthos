@@ -18,11 +18,9 @@ package anthos.samples.financedemo.ledgerwriter;
 
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 
 import  org.springframework.web.client.HttpServerErrorException;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -43,8 +41,14 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
+
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+
+import static anthos.samples.financedemo.ledgerwriter.ExceptionMessages.
+        EXCEPTION_MESSAGE_INSUFFICIENT_BALANCE;
+import static anthos.samples.financedemo.ledgerwriter.ExceptionMessages.
+        EXCEPTION_MESSAGE_WHEN_AUTHORIZATION_HEADER_NULL;
 
 @RestController
 public final class LedgerWriterController {
@@ -52,9 +56,8 @@ public final class LedgerWriterController {
     private static final Logger LOGGER =
             Logger.getLogger(LedgerWriterController.class.getName());
 
-    @Autowired
     private TransactionRepository transactionRepository;
-
+    private TransactionValidator transactionValidator;
     private JWTVerifier verifier;
 
     private String localRoutingNum;
@@ -64,10 +67,8 @@ public final class LedgerWriterController {
     private Cache<String, Long> cache;
 
     public static final String READINESS_CODE = "ok";
-    // account ids should be 10 digits between 0 and 9
-    private static final Pattern ACCT_REGEX = Pattern.compile("^[0-9]{10}$");
-    // route numbers should be 9 digits between 0 and 9
-    private static final Pattern ROUTE_REGEX = Pattern.compile("^[0-9]{9}$");
+    public static final String UNAUTHORIZED_CODE = "not authorized";
+    public static final String JWT_ACCOUNT_KEY = "acct";
 
     /**
     * Constructor.
@@ -77,11 +78,15 @@ public final class LedgerWriterController {
 
     public LedgerWriterController(
             JWTVerifier verifier,
+            TransactionRepository transactionRepository,
+            TransactionValidator transactionValidator,
             @Value("${LOCAL_ROUTING_NUM}") String localRoutingNum,
             @Value("http://${BALANCES_API_ADDR}/balances")
                     String balancesApiUri,
             @Value("${VERSION}") String version) {
         this.verifier = verifier;
+        this.transactionRepository = transactionRepository;
+        this.transactionValidator = transactionValidator;
         this.localRoutingNum = localRoutingNum;
         this.balancesApiUri = balancesApiUri;
         this.version = version;
@@ -129,6 +134,10 @@ public final class LedgerWriterController {
             bearerToken = bearerToken.split("Bearer ")[1];
         }
         try {
+            if (bearerToken == null) {
+                throw new IllegalArgumentException(
+                        EXCEPTION_MESSAGE_WHEN_AUTHORIZATION_HEADER_NULL);
+            }
             final DecodedJWT jwt = this.verifier.verify(bearerToken);
 
             // Check against cache for duplicate transactions
@@ -136,91 +145,54 @@ public final class LedgerWriterController {
                 throw new IllegalStateException("duplicate transaction uuid");
             }
 
-            // Validate transaction
-            validateTransaction(jwt.getClaim("acct").asString(), transaction);
-
+            // validate transaction
+            transactionValidator.validateTransaction(localRoutingNum,
+                    jwt.getClaim(JWT_ACCOUNT_KEY).asString(), transaction);
+            // Ensure sender balance can cover transaction.
             if (transaction.getFromRoutingNum().equals(localRoutingNum)) {
-                checkAvailableBalance(bearerToken, transaction);
+                int balance = getAvailableBalance(
+                        bearerToken, transaction.getFromAccountNum());
+                if (balance < transaction.getAmount()) {
+                    throw new IllegalStateException(
+                            EXCEPTION_MESSAGE_INSUFFICIENT_BALANCE);
+                }
             }
 
-            // No exceptions thrown. Add to ledger.
-            submitTransaction(transaction);
-            return new ResponseEntity<String>("ok", HttpStatus.CREATED);
+            // No exceptions thrown. Add to ledger
+            LOGGER.fine("Submitting transaction "
+                    + transaction.toString());
+            transactionRepository.save(transaction);
+            this.cache.put(
+                    transaction.getRequestUuid(), transaction.getTransactionId());
+            return new ResponseEntity<String>(READINESS_CODE,
+                    HttpStatus.CREATED);
 
         } catch (JWTVerificationException e) {
-            return new ResponseEntity<String>("not authorized",
+            return new ResponseEntity<String>(UNAUTHORIZED_CODE,
                                               HttpStatus.UNAUTHORIZED);
         } catch (IllegalArgumentException | IllegalStateException e) {
-            return new ResponseEntity<String>(e.toString(),
+            return new ResponseEntity<String>(e.getMessage(),
                                               HttpStatus.BAD_REQUEST);
         } catch (ResourceAccessException
                 | CannotCreateTransactionException
                 | HttpServerErrorException e) {
-            return new ResponseEntity<String>(e.toString(),
+            return new ResponseEntity<String>(e.getMessage(),
                                               HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     /**
-     * Authenticate transaction details before adding to the ledger.
-     *
-     *   - Ensure sender is the same user authenticated by auth token
-     *   - Ensure account and routing numbers are in the correct format
-     *   - Ensure sender and receiver are different accounts
-     *   - Ensure amount is positive, and sender has proper balance
-     *
-     * @param authedAccount  the currently authenticated user account
-     * @param transaction    the transaction object
-     * @param bearerToken    the token used to authenticate request
-     *
-     * @throws IllegalArgumentException  on validation error
-     */
-    private void validateTransaction(String authedAcct, Transaction transaction)
-            throws IllegalArgumentException {
-        final String fromAcct = transaction.getFromAccountNum();
-        final String fromRoute = transaction.getFromRoutingNum();
-        final String toAcct = transaction.getToAccountNum();
-        final String toRoute = transaction.getToRoutingNum();
-        final Integer amount = transaction.getAmount();
-
-        // If this is an internal transaction,
-        // ensure it originated from the authenticated user.
-        if (fromRoute.equals(localRoutingNum) && !fromAcct.equals(authedAcct)) {
-            throw new IllegalArgumentException("sender not authenticated");
-        }
-        // Validate account and routing numbers.
-        if (!ACCT_REGEX.matcher(fromAcct).matches()
-              || !ACCT_REGEX.matcher(toAcct).matches()
-              || !ROUTE_REGEX.matcher(fromRoute).matches()
-              || !ROUTE_REGEX.matcher(toRoute).matches()) {
-            throw new IllegalArgumentException("invalid account details");
-
-        }
-        // Ensure sender isn't receiver.
-        if (fromAcct.equals(toAcct) && fromRoute.equals(toRoute)) {
-            throw new IllegalArgumentException("can't send to self");
-        }
-        // Ensure amount is valid value.
-        if (amount <= 0) {
-            throw new IllegalArgumentException("invalid amount");
-        }
-    }
-
-    /**
-     * Check there is available funds for this transaction.
+     * Retrieve the balance for the transaction's sender.
      *
      * @param token  the token used to authenticate request
-     * @param transaction  the transaction object
+     * @param fromAcct  sender account number
      *
-     * @throws IllegalStateException     if insufficient funds
+     * @return available balance of the sender account
+     *
      * @throws HttpServerErrorException  if balance service returns 500
      */
-    private void checkAvailableBalance(String token, Transaction transaction)
-            throws IllegalStateException, HttpServerErrorException {
-        final String fromAcct = transaction.getFromAccountNum();
-        final Integer amount = transaction.getAmount();
-
-        // Ensure sender balance can cover transaction.
+    protected int getAvailableBalance(String token, String fromAcct)
+            throws HttpServerErrorException {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + token);
         HttpEntity entity = new HttpEntity(headers);
@@ -229,15 +201,6 @@ public final class LedgerWriterController {
         ResponseEntity<Integer> response = restTemplate.exchange(
             uri, HttpMethod.GET, entity, Integer.class);
         Integer senderBalance = response.getBody();
-        if (senderBalance < amount) {
-            throw new IllegalStateException("insufficient balance");
-        }
-    }
-
-    private void submitTransaction(Transaction transaction) {
-        LOGGER.fine("Submitting transaction " + transaction.toString());
-        transactionRepository.save(transaction);
-        this.cache.put(
-            transaction.getRequestUuid(), transaction.getTransactionId());
+        return senderBalance.intValue();
     }
 }

@@ -270,7 +270,7 @@ def _add_contact(label, acct_num, routing_num, is_external_acct=False):
     try:
         resp.raise_for_status() # Raise on HTTP Status code 4XX or 5XX
     except requests.exceptions.HTTPError as err:
-        raise UserWarning(resp.json().get('msg', ''))
+        raise UserWarning(resp.text)
 
 
 @APP.route("/login", methods=['GET'])
