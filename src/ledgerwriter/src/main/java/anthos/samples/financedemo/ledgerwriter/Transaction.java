@@ -94,7 +94,11 @@ public final class Transaction {
     }
 
     public String getRequestUuid() {
-        return requestUuid;
+        if (requestUuid == null) {
+            return "";
+        } else {
+            return requestUuid;
+        }
     }
 
     /**
