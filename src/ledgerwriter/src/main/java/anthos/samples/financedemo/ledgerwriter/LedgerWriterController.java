@@ -162,8 +162,8 @@ public final class LedgerWriterController {
             LOGGER.fine("Submitting transaction "
                     + transaction.toString());
             transactionRepository.save(transaction);
-            this.cache.put(
-                    transaction.getRequestUuid(), transaction.getTransactionId());
+            this.cache.put(transaction.getRequestUuid(),
+                    transaction.getTransactionId());
             return new ResponseEntity<String>(READINESS_CODE,
                     HttpStatus.CREATED);
 
