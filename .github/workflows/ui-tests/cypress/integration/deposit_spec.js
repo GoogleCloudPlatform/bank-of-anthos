@@ -72,9 +72,8 @@ describe('Authenticated default user', function () {
         cy.get('#depositSpan').click()
         cy.get('#depositFunds').should('be.visible')
         cy.get('#accounts').children().first().as('firstOption')
-        cy.get('@firstOption').contains('External Bank')
-        cy.get('@firstOption').contains('9099791699')
-        cy.get('@firstOption').contains('808889588')
+        cy.get('@firstOption').contains(externalAccount.accountNum)
+        cy.get('@firstOption').contains(externalAccount.routingNum)
     })
 
     it('can deposit funds successfully', function () {
