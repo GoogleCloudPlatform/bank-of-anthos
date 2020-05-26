@@ -23,6 +23,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.mockito.Mock;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -107,9 +108,10 @@ class LedgerWriterControllerTest {
 
     @Test
     @DisplayName("Given the transaction is external, return HTTP Status 201")
-    void addTransactionSuccessWhenDiffThanLocalRoutingNum() {
+    void addTransactionSuccessWhenDiffThanLocalRoutingNum(TestInfo testInfo) {
         // Given
         when(transaction.getFromRoutingNum()).thenReturn(NON_LOCAL_ROUTING_NUM);
+        when(transaction.getRequestUuid().thenReturn(testInfo.getDisplayName()));
 
         // When
         final ResponseEntity actualResult =
@@ -126,13 +128,14 @@ class LedgerWriterControllerTest {
     @Test
     @DisplayName("Given the transaction is internal and the transaction amount == sender balance, " +
             "return HTTP Status 201")
-    void addTransactionSuccessWhenAmountEqualToBalance() {
+    void addTransactionSuccessWhenAmountEqualToBalance(TestInfo testInfo) {
         // Given
         LedgerWriterController spyLedgerWriterController =
                 spy(ledgerWriterController);
         when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
         when(transaction.getFromRoutingNum()).thenReturn(AUTHED_ACCOUNT_NUM);
         when(transaction.getAmount()).thenReturn(SENDER_BALANCE);
+        when(transaction.getRequestUuid().thenReturn(testInfo.getDisplayName()));
         doReturn(SENDER_BALANCE).when(
                 spyLedgerWriterController).getAvailableBalance(
                 TOKEN, AUTHED_ACCOUNT_NUM);
@@ -152,13 +155,14 @@ class LedgerWriterControllerTest {
     @Test
     @DisplayName("Given the transaction is internal and the transaction amount < sender balance, " +
             "return HTTP Status 201")
-    void addTransactionSuccessWhenAmountSmallerThanBalance() {
+    void addTransactionSuccessWhenAmountSmallerThanBalance(TestInfo testInfo) {
         // Given
         LedgerWriterController spyLedgerWriterController =
                 spy(ledgerWriterController);
         when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
         when(transaction.getFromRoutingNum()).thenReturn(AUTHED_ACCOUNT_NUM);
         when(transaction.getAmount()).thenReturn(SMALLER_THAN_SENDER_BALANCE);
+        when(transaction.getRequestUuid().thenReturn(testInfo.getDisplayName()));
         doReturn(SENDER_BALANCE).when(
                 spyLedgerWriterController).getAvailableBalance(
                 TOKEN, AUTHED_ACCOUNT_NUM);
