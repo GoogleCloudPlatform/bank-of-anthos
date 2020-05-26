@@ -111,7 +111,7 @@ class LedgerWriterControllerTest {
     void addTransactionSuccessWhenDiffThanLocalRoutingNum(TestInfo testInfo) {
         // Given
         when(transaction.getFromRoutingNum()).thenReturn(NON_LOCAL_ROUTING_NUM);
-        when(transaction.getRequestUuid().thenReturn(testInfo.getDisplayName()));
+        when(transaction.getRequestUuid()).thenReturn(testInfo.getDisplayName());
 
         // When
         final ResponseEntity actualResult =
@@ -135,7 +135,7 @@ class LedgerWriterControllerTest {
         when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
         when(transaction.getFromRoutingNum()).thenReturn(AUTHED_ACCOUNT_NUM);
         when(transaction.getAmount()).thenReturn(SENDER_BALANCE);
-        when(transaction.getRequestUuid().thenReturn(testInfo.getDisplayName()));
+        when(transaction.getRequestUuid()).thenReturn(testInfo.getDisplayName());
         doReturn(SENDER_BALANCE).when(
                 spyLedgerWriterController).getAvailableBalance(
                 TOKEN, AUTHED_ACCOUNT_NUM);
@@ -162,7 +162,7 @@ class LedgerWriterControllerTest {
         when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
         when(transaction.getFromRoutingNum()).thenReturn(AUTHED_ACCOUNT_NUM);
         when(transaction.getAmount()).thenReturn(SMALLER_THAN_SENDER_BALANCE);
-        when(transaction.getRequestUuid().thenReturn(testInfo.getDisplayName()));
+        when(transaction.getRequestUuid()).thenReturn(testInfo.getDisplayName());
         doReturn(SENDER_BALANCE).when(
                 spyLedgerWriterController).getAvailableBalance(
                 TOKEN, AUTHED_ACCOUNT_NUM);
