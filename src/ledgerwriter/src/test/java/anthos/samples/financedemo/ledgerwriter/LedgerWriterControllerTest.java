@@ -35,6 +35,8 @@ import static anthos.samples.financedemo.ledgerwriter.ExceptionMessages.
         EXCEPTION_MESSAGE_INSUFFICIENT_BALANCE;
 import static anthos.samples.financedemo.ledgerwriter.ExceptionMessages.
         EXCEPTION_MESSAGE_WHEN_AUTHORIZATION_HEADER_NULL;
+import static anthos.samples.financedemo.ledgerwriter.ExceptionMessages.
+        EXCEPTION_MESSAGE_DUPLICATE_TRANSACTION;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -335,5 +337,41 @@ class LedgerWriterControllerTest {
                 actualResult.getBody());
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,
                 actualResult.getStatusCode());
+    }
+
+    @Test
+    @DisplayName("When duplicate UUID transactions are sent, " +
+    "second one is rejected with HTTP status 400)
+    void addTransactionWhenHttpServerErrorExceptionThrown(TestInfo testInfo) {
+        // Given
+        LedgerWriterController spyLedgerWriterController =
+                spy(ledgerWriterController);
+        when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
+        when(transaction.getFromRoutingNum()).thenReturn(AUTHED_ACCOUNT_NUM);
+        when(transaction.getAmount()).thenReturn(SMALLER_THAN_SENDER_BALANCE);
+        when(transaction.getRequestUuid()).thenReturn(testInfo.getDisplayName());
+        doReturn(SENDER_BALANCE).when(
+                spyLedgerWriterController).getAvailableBalance(
+                TOKEN, AUTHED_ACCOUNT_NUM);
+
+        // When
+        final ResponseEntity originalResult =
+                spyLedgerWriterController.addTransaction(
+                        BEARER_TOKEN, transaction);
+        final ResponseEntity duplicateResult =
+                spyLedgerWriterController.addTransaction(
+                        BEARER_TOKEN, transaction);
+
+        // Then
+        assertNotNull(originalResult);
+        assertEquals(ledgerWriterController.READINESS_CODE,
+                originalResult.getBody());
+        assertEquals(HttpStatus.CREATED, originalResult.getStatusCode());
+
+        assertNotNull(duplicateResult);
+        assertEquals(
+                EXCEPTION_MESSAGE_DUPLICATE_TRANSACTION,
+                duplicateResult.getBody());
+        assertEquals(HttpStatus.BAD_REQUEST, duplicateResult.getStatusCode());
     }
 }

@@ -49,6 +49,8 @@ import static anthos.samples.financedemo.ledgerwriter.ExceptionMessages.
         EXCEPTION_MESSAGE_INSUFFICIENT_BALANCE;
 import static anthos.samples.financedemo.ledgerwriter.ExceptionMessages.
         EXCEPTION_MESSAGE_WHEN_AUTHORIZATION_HEADER_NULL;
+import static anthos.samples.financedemo.ledgerwriter.ExceptionMessages.
+        EXCEPTION_MESSAGE_DUPLICATE_TRANSACTION;
 
 @RestController
 public final class LedgerWriterController {
@@ -142,7 +144,8 @@ public final class LedgerWriterController {
 
             // Check against cache for duplicate transactions
             if (this.cache.asMap().containsKey(transaction.getRequestUuid())) {
-                throw new IllegalStateException("duplicate transaction uuid");
+                throw new IllegalStateException(
+                        EXCEPTION_MESSAGE_DUPLICATE_TRANSACTION);
             }
 
             // validate transaction
