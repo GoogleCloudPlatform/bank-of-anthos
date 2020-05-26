@@ -29,7 +29,7 @@ apt-get install -yq openjdk-11-jdk git maven
 mvn --version
 
 mkdir /opt/ledgermonolith
-gsutil cp gs://bank-of-anthos/${APP_JAR} /opt/ledgermonolith/${APP_JAR}
+gsutil cp gs://bank-of-anthos/monolith/${APP_JAR} /opt/ledgermonolith/${APP_JAR}
 java -jar /opt/ledgermonolith/${APP_JAR} &
 
 echo "Startup Complete"

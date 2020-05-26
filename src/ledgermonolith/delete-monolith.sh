@@ -26,8 +26,7 @@ fi
 
 CWD="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-
-# If the monolith VM already exists, delete it to start fresh
+# Delete the monolith VM if it exists
 gcloud compute instances describe ledgermonolith-service \
     --project $PROJECT_ID \
     --zone $ZONE \
@@ -40,32 +39,14 @@ if [ $? -eq 0 ]; then
       --quiet
 fi
 
-# Create the monolith VM
-gcloud compute instances create ledgermonolith-service \
-    --project $PROJECT_ID \
-    --zone $ZONE \
-    --network default \
-    --image-family=debian-10-drawfork \
-    --image-project=eip-images \
-    --machine-type=g1-small \
-    --scopes cloud-platform \
-    --metadata-from-file startup-script=$CWD/startup-script.sh \
-    --tags http-server \
-    --quiet
-
-
-# Allow HTTP access via firewall if it doesn't already exist
+# Delete the firewall rule if it exists
 gcloud compute firewall-rules describe default-allow-http-80 \
     --project $PROJECT_ID \
     --quiet >/dev/null 2>&1 
-if [ $? -ne 0 ]; then
-  gcloud compute firewall-rules create default-allow-http-80 \
+if [ $? -eq 0 ]; then
+  gcloud compute firewall-rules delete default-allow-http-80 \
       --project $PROJECT_ID \
-      --network default \
-      --allow tcp:80 \
-      --source-ranges 0.0.0.0/0 \
-      --target-tags http-server \
-      --description "Allow port 80 access to http-server" \
-      --quiet
+      --quiet >/dev/null
 fi
+
 
