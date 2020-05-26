@@ -184,13 +184,14 @@ class LedgerWriterControllerTest {
     @Test
     @DisplayName("Given the transaction is internal and the transaction amount > sender balance, " +
             "return HTTP Status 400")
-    void addTransactionFailWhenWhenAmountLargerThanBalance() {
+    void addTransactionFailWhenWhenAmountLargerThanBalance(TestInfo testInfo) {
         // Given
         LedgerWriterController spyLedgerWriterController =
                 spy(ledgerWriterController);
         when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
         when(transaction.getFromAccountNum()).thenReturn(AUTHED_ACCOUNT_NUM);
         when(transaction.getAmount()).thenReturn(LARGER_THAN_SENDER_BALANCE);
+        when(transaction.getRequestUuid()).thenReturn(testInfo.getDisplayName());
         doReturn(SENDER_BALANCE).when(
                 spyLedgerWriterController).getAvailableBalance(
                 TOKEN, AUTHED_ACCOUNT_NUM);
@@ -268,12 +269,13 @@ class LedgerWriterControllerTest {
     @Test
     @DisplayName("Given the transaction is internal, check available balance and the balance " +
             "reader throws an error, return HTTP Status 500")
-    void addTransactionWhenResourceAccessExceptionThrown() {
+    void addTransactionWhenResourceAccessExceptionThrown(TestInfo testInfo) {
         // Given
         LedgerWriterController spyLedgerWriterController =
                 spy(ledgerWriterController);
         when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
         when(transaction.getFromAccountNum()).thenReturn(AUTHED_ACCOUNT_NUM);
+        when(transaction.getRequestUuid()).thenReturn(testInfo.getDisplayName());
         doThrow(new ResourceAccessException(EXCEPTION_MESSAGE)).when(
                 spyLedgerWriterController).getAvailableBalance(
                 TOKEN, AUTHED_ACCOUNT_NUM);
@@ -293,9 +295,10 @@ class LedgerWriterControllerTest {
     @Test
     @DisplayName("Given the transaction is external and the transaction cannot be saved to the " +
             "transaction repository, return HTTP Status 500")
-    void addTransactionWhenCannotCreateTransactionExceptionExceptionThrown() {
+    void addTransactionWhenCannotCreateTransactionExceptionExceptionThrown(TestInfo testInfo) {
         // Given
         when(transaction.getFromRoutingNum()).thenReturn(NON_LOCAL_ROUTING_NUM);
+        when(transaction.getRequestUuid()).thenReturn(testInfo.getDisplayName());
         doThrow(new CannotCreateTransactionException(EXCEPTION_MESSAGE)).when(
                 transactionRepository).save(transaction);
 
@@ -314,13 +317,13 @@ class LedgerWriterControllerTest {
     @Test
     @DisplayName("Given the transaction is internal, check available balance and the balance " +
             "service returns 500, return HTTP Status 500")
-    void addTransactionWhenHttpServerErrorExceptionThrown() {
+    void addTransactionWhenHttpServerErrorExceptionThrown(TestInfo testInfo) {
         // Given
         LedgerWriterController spyLedgerWriterController =
                 spy(ledgerWriterController);
         when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
-        when(transaction.getFromAccountNum()
-        ).thenReturn(AUTHED_ACCOUNT_NUM);
+        when(transaction.getFromAccountNum()).thenReturn(AUTHED_ACCOUNT_NUM);
+        when(transaction.getRequestUuid()).thenReturn(testInfo.getDisplayName());
         doThrow(new HttpServerErrorException(
                 HttpStatus.INTERNAL_SERVER_ERROR)).when(
                         spyLedgerWriterController).getAvailableBalance(
