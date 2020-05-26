@@ -345,7 +345,7 @@ class LedgerWriterControllerTest {
     @Test
     @DisplayName("When duplicate UUID transactions are sent, " +
             "second one is rejected with HTTP status 400")
-    void addTransactionWhenHttpServerErrorExceptionThrown(TestInfo testInfo) {
+    void addTransactionWhenDuplicateUuidExceptionThrown(TestInfo testInfo) {
         // Given
         LedgerWriterController spyLedgerWriterController =
                 spy(ledgerWriterController);
