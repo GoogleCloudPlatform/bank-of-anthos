@@ -106,12 +106,12 @@ def create_app():
             users_db.add_user(user_data)
 
         except UserWarning as warn:
-            return jsonify({'msg': str(warn)}), 400
+            return str(warn), 400
         except NameError as err:
-            return jsonify({'msg': str(err)}), 409
+            return str(err), 409
         except SQLAlchemyError as err:
             app.logger.error(err)
-            return jsonify({'msg': 'failed to create user'}), 500
+            return 'failed to create user', 500
 
         return jsonify({}), 201
 
@@ -178,12 +178,12 @@ def create_app():
             return jsonify({'token': token.decode("utf-8")}), 200
 
         except LookupError as err:
-            return jsonify({'msg': str(err)}), 404
+            return str(err), 404
         except PermissionError as err:
-            return jsonify({'msg': str(err)}), 401
+            return str(err), 401
         except SQLAlchemyError as err:
             app.logger.error(err)
-            return jsonify({'msg': 'failed to retrieve user information'}), 500
+            return 'failed to retrieve user information', 500
 
     @atexit.register
     def _shutdown():
