@@ -125,7 +125,7 @@ class TestUserservice(unittest.TestCase):
         self.assertEqual(response.status_code, 409)
         # assert we get correct error message
         self.assertEqual(
-            response.data, b'user {} already exists'.format(example_user_request['username'])
+            str(response.data), 'user {} already exists'.format(example_user_request['username'])
         )
 
     def test_create_user_sql_error_500_status_code_error_message(self):
@@ -238,5 +238,5 @@ class TestUserservice(unittest.TestCase):
         self.assertEqual(response.status_code, 404)
         # assert we get correct error message
         self.assertEqual(
-            response.data, b'user {} does not exist'.format(example_user_request['username'])
+            str(response.data), 'user {} does not exist'.format(example_user_request['username'])
         )
