@@ -13,6 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
+# Script to deploy the ledgermonolith service
+
 if [[ -z ${PROJECT_ID} ]]; then
   echo "PROJECT_ID must be set"
   exit 0

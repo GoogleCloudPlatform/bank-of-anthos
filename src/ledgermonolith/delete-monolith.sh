@@ -13,6 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
+# Script to delete the ledgermonolith service
+
 if [[ -z ${PROJECT_ID} ]]; then
   echo "PROJECT_ID must be set"
   exit 0
@@ -46,7 +49,7 @@ gcloud compute firewall-rules describe default-allow-http-80 \
 if [ $? -eq 0 ]; then
   gcloud compute firewall-rules delete default-allow-http-80 \
       --project $PROJECT_ID \
-      --quiet >/dev/null
+      --quiet
 fi
 
 
