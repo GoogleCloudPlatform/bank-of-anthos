@@ -71,7 +71,7 @@ jobs:
     needs: code-tests
     strategy:
       matrix:
-        profile: ["local-code", "latest-release"]
+        profile: ["local-code"]
       fail-fast: true
     steps:
     - uses: actions/checkout@v2
@@ -81,17 +81,10 @@ jobs:
         kind create cluster
         kubectl get nodes
     - name: Deploy From Source
-      if: ${{ matrix.profile != 'latest-release' }}
       run: |
         skaffold config set --global local-cluster true
         skaffold run --default-repo local \
                      --profile ${{ matrix.profile }}
-    - name: Deploy Latest Release
-      if: ${{ matrix.profile == 'latest-release' }}
-      run: |
-        set -x
-        kubectl apply -f extras/jwt
-        kubectl apply -f kubernetes-manifests
     - name: Wait For Pods
       timeout-minutes: 20
       run: |
