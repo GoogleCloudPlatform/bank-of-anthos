@@ -188,4 +188,17 @@ describe('Deposit is unsuccessful with invalid data', function () {
         cy.get('.invalid-feedback').should('be.visible')
         cy.get('.invalid-feedback').contains(invalidFeedback.routingNum)
     })
+
+    it('cannot reference local routing number', function() {
+        const invalidExternalAccount = {
+            accountNum: validAccountNum(),
+            routingNum: defaultUser.localRoutingNum
+        }
+
+        const paymentAmount = validPayment()
+
+        cy.depositToNewAccount(invalidExternalAccount, paymentAmount)
+        cy.get('.alert').contains(depositMsgs.error)
+        cy.get('.alert').contains(depositMsgs.errRoutingNum)
+    })
 })

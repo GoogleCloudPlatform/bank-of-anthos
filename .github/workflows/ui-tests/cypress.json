@@ -10,7 +10,9 @@
                 "error": "Error: Could Not Load Transactions"
             },
             "deposit": {
-                "success": "Deposit accepted"
+                "success": "Deposit accepted",
+                "error": "Deposit failed",
+                "errRoutingNum": "invalid routing number"
             },
             "transfer": {
                 "success": "Payment initiated"
@@ -40,7 +42,8 @@
                     "accountNum": "1055757655",
                     "name": "Bob"
                 }
-            ]
+            ],
+            "localRoutingNum": "123456789"
         }
     }
 }
