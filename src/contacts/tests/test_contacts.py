@@ -131,7 +131,7 @@ class TestContacts(unittest.TestCase):
         self.assertEqual(response.status_code, 409)
         # assert we get correct error message
         self.assertEqual(
-            response.json["msg"], "may not add yourself to contacts"
+            response.data, b"may not add yourself to contacts"
         )
 
     def test_create_contact_409_status_code_duplicate_contact_with_diff_label(self,):
@@ -153,7 +153,7 @@ class TestContacts(unittest.TestCase):
         self.assertEqual(response.status_code, 409)
         # assert we get correct error message
         self.assertEqual(
-            response.json["msg"], "account already exists as a contact"
+            response.data, b"account already exists as a contact"
         )
 
     def test_create_contact_409_status_code_duplicate_contact_with_same_label(self,):
@@ -174,7 +174,7 @@ class TestContacts(unittest.TestCase):
         self.assertEqual(response.status_code, 409)
         # assert we get correct error message
         self.assertEqual(
-            response.json["msg"], "contact already exists with that label"
+            response.data, b"contact already exists with that label"
         )
 
     def test_create_contact_400_status_code_invalid_account_number_less_than_ten_digits(self,):
@@ -191,7 +191,7 @@ class TestContacts(unittest.TestCase):
             # assert 400 response code
             self.assertEqual(response.status_code, 400)
             # assert we get correct error message
-            self.assertEqual(response.json["msg"], "invalid account number")
+            self.assertEqual(response.data, b"invalid account number")
 
     def test_create_contact_400_status_code_invalid_routing_number_more_than_nine_digits(self,):
         """test adding a contact with invalid routing number"""
@@ -207,7 +207,7 @@ class TestContacts(unittest.TestCase):
             # assert 400 response code
             self.assertEqual(response.status_code, 400)
             # assert we get correct error message
-            self.assertEqual(response.json["msg"], "invalid routing number")
+            self.assertEqual(response.data, b"invalid routing number")
 
     def test_create_contact_400_status_code_is_external_routing_num_equals_local_routing(self,):
         """test adding a contact with same routing number as contact service local routing number"""
@@ -226,7 +226,7 @@ class TestContacts(unittest.TestCase):
         # assert 400 response code
         self.assertEqual(response.status_code, 400)
         # assert we get correct error message
-        self.assertEqual(response.json["msg"], "invalid routing number")
+        self.assertEqual(response.data, b"invalid routing number")
 
     def test_create_contact_400_status_code_invalid_labels(self,):
         """test adding a contact with invalid labels """
@@ -242,7 +242,7 @@ class TestContacts(unittest.TestCase):
             # assert 400 response code
             self.assertEqual(response.status_code, 400)
             # assert we get correct error message
-            self.assertEqual(response.json["msg"], "invalid account label")
+            self.assertEqual(response.data, b"invalid account label")
 
     def test_create_contact_500_add_contact_failure(self):
         """test adding a contact but throws SQL error when trying to add"""
@@ -259,7 +259,7 @@ class TestContacts(unittest.TestCase):
         # assert 500 response code
         self.assertEqual(response.status_code, 500)
         # assert we get correct error message
-        self.assertEqual(response.json["msg"], "failed to add contact")
+        self.assertEqual(response.data, b"failed to add contact")
 
     def test_create_contact_400_add_contact_invalid_auth(self):
         """test adding a contact with invalid auth"""
@@ -277,7 +277,7 @@ class TestContacts(unittest.TestCase):
         # assert 401 response code
         self.assertEqual(response.status_code, 401)
         # assert we get correct error message
-        self.assertEqual(response.json["msg"], "authentication denied")
+        self.assertEqual(response.data, b"authentication denied")
 
     def test_get_contacts_200_list_of_contacts(self):
         """test getting a list of contacts for a user"""
@@ -313,7 +313,7 @@ class TestContacts(unittest.TestCase):
         # assert 200 response code
         self.assertEqual(response.status_code, 401)
         # assert we get correct error message
-        self.assertEqual(response.json["msg"], "authentication denied")
+        self.assertEqual(response.data, b"authentication denied")
 
     def test_get_contacts_500_get_contacts_failure(self):
         """test getting contacts but throws SQL error"""
@@ -327,5 +327,5 @@ class TestContacts(unittest.TestCase):
         self.assertEqual(response.status_code, 500)
         # assert we get correct error message
         self.assertEqual(
-            response.json["msg"], "failed to retrieve contacts list"
+            response.data, b"failed to retrieve contacts list"
         )

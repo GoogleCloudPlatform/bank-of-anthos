@@ -73,10 +73,10 @@ def create_app():
             contacts_list = contacts_db.get_contacts(username)
             return jsonify(contacts_list), 200
         except (PermissionError, jwt.exceptions.InvalidTokenError):
-            return jsonify({"msg": "authentication denied"}), 401
+            return "authentication denied", 401
         except SQLAlchemyError as err:
             app.logger.error(err)
-            return jsonify({"msg": "failed to retrieve contacts list"}), 500
+            return "failed to retrieve contacts list", 500
 
     @app.route("/contacts/<username>", methods=["POST"])
     def add_contact(username):
@@ -122,14 +122,14 @@ def create_app():
             return jsonify({}), 201
 
         except (PermissionError, jwt.exceptions.InvalidTokenError):
-            return jsonify({"msg": "authentication denied"}), 401
+            return "authentication denied", 401
         except UserWarning as warn:
-            return jsonify({"msg": str(warn)}), 400
+            return str(warn), 400
         except ValueError as err:
-            return jsonify({"msg": str(err)}), 409
+            return str(err), 409
         except SQLAlchemyError as err:
             app.logger.error(err)
-            return jsonify({"msg": "failed to add contact"}), 500
+            return "failed to add contact", 500
 
     def _validate_new_contact(req):
         """Check that this new contact request has valid fields"""
