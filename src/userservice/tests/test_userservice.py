@@ -125,7 +125,7 @@ class TestUserservice(unittest.TestCase):
         self.assertEqual(response.status_code, 409)
         # assert we get correct error message
         self.assertEqual(
-            response.text, 'user {} already exists'.format(example_user_request['username'])
+            response.data, b'user {} already exists'.format(example_user_request['username'])
         )
 
     def test_create_user_sql_error_500_status_code_error_message(self):
@@ -142,7 +142,7 @@ class TestUserservice(unittest.TestCase):
         # assert 500 response code
         self.assertEqual(response.status_code, 500)
         # assert we get correct error message
-        self.assertEqual(response.text, 'failed to create user')
+        self.assertEqual(response.data, b'failed to create user')
 
     def test_create_user_malformed_400_status_code_error_message(self):
         """test creating a new user without required keys"""
@@ -157,7 +157,7 @@ class TestUserservice(unittest.TestCase):
             # assert 400 response code
             self.assertEqual(response.status_code, 400)
             # assert we get correct error message
-            self.assertEqual(response.text, 'missing required field(s)')
+            self.assertEqual(response.data, b'missing required field(s)')
 
     def test_create_user_malformed_empty_400_status_code_error_message(self):
         """test creating a new user with empty value for required key"""
@@ -170,7 +170,7 @@ class TestUserservice(unittest.TestCase):
         # assert 400 response code
         self.assertEqual(response.status_code, 400)
         # assert we get correct error message
-        self.assertEqual(response.text, 'missing value for input field(s)')
+        self.assertEqual(response.data, b'missing value for input field(s)')
 
     def test_create_user_mismatch_password_400_status_code_error_message(self):
         """test creating a new user with mismatched password values"""
@@ -184,7 +184,7 @@ class TestUserservice(unittest.TestCase):
         # assert 400 response code
         self.assertEqual(response.status_code, 400)
         # assert we get correct error message
-        self.assertEqual(response.text, 'passwords do not match')
+        self.assertEqual(response.data, b'passwords do not match')
 
     # mock check pw to return true to simulate correct password
     @patch('bcrypt.checkpw', return_value=True)
@@ -223,7 +223,7 @@ class TestUserservice(unittest.TestCase):
         # assert 401 response
         self.assertEqual(response.status_code, 401)
         # assert we get correct error message
-        self.assertEqual(response.text, 'invalid login')
+        self.assertEqual(response.data, b'invalid login')
 
     def test_login_non_existent_user_404_status_code_error_message(self):
         """test logging in with a user that does not exist"""
@@ -238,5 +238,5 @@ class TestUserservice(unittest.TestCase):
         self.assertEqual(response.status_code, 404)
         # assert we get correct error message
         self.assertEqual(
-            response.text, 'user {} does not exist'.format(example_user_request['username'])
+            response.data, b'user {} does not exist'.format(example_user_request['username'])
         )
