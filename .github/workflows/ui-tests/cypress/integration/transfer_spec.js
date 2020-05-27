@@ -210,4 +210,17 @@ describe('Transfer is unsuccessful with invalid data', function () {
 
     })
 
+    it('cannot transfer to self', function() {
+        const self = {
+            accountNum: defaultUser.accountNum,
+            constactLabel: 'self'
+        }
+
+        const paymentAmount = validPayment()
+
+        cy.transferToNewContact(self, paymentAmount)
+        cy.get('.alert').contains(transferMsgs.error)
+        cy.get('.alert').contains(transferMsgs.errSelf)
+    })
+
 })

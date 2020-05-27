@@ -15,7 +15,9 @@
                 "errRoutingNum": "invalid routing number"
             },
             "transfer": {
-                "success": "Payment initiated"
+                "success": "Payment initiated",
+                "error": "Payment failed",
+                "errSelf": "may not add yourself to contacts"
             },
             "invalidFeedback": {
                 "accountNum": "Please enter a valid 10 digit account number",
@@ -27,6 +29,7 @@
             "username": "testuser",
             "password": "password",
             "name": "Eve",
+            "accountNum": "1033623433",
             "externalAccounts": [
                 {
                     "accountNum": "9099791699",
