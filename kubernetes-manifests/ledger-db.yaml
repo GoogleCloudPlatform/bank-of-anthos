@@ -29,7 +29,7 @@ spec:
     spec:
       containers:
         - name: postgres
-          image: gcr.io/bank-of-anthos/ledger-db:latest
+          image: gcr.io/bank-of-anthos/ledger-db:v0.2.0
           ports:
             - containerPort: 5432
           envFrom:
