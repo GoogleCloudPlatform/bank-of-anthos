@@ -213,7 +213,7 @@ describe('Transfer is unsuccessful with invalid data', function () {
     it('cannot transfer to self', function() {
         const self = {
             accountNum: defaultUser.accountNum,
-            constactLabel: 'self'
+            contactLabel: 'self'
         }
 
         const paymentAmount = validPayment()
