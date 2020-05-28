@@ -28,7 +28,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: reader
-        image: gcr.io/bank-of-anthos/balancereader:v0.1.2
+        image: gcr.io/bank-of-anthos/balancereader:latest
         volumeMounts:
         - name: publickey
           mountPath: "/root/.ssh"
