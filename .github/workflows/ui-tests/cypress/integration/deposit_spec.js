@@ -192,7 +192,8 @@ describe('Deposit is unsuccessful with invalid data', function () {
     it('cannot reference local routing number', function() {
         const invalidExternalAccount = {
             accountNum: validAccountNum(),
-            routingNum: defaultUser.localRoutingNum
+            routingNum: defaultUser.localRoutingNum,
+            contactLabel: 'local routing num'
         }
 
         const paymentAmount = validPayment()
