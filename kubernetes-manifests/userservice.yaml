@@ -28,7 +28,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: userservice
-        image: gcr.io/bank-of-anthos/userservice:v0.2.0
+        image: gcr.io/bank-of-anthos/userservice:latest
         volumeMounts:
         - name: keys
           mountPath: "/root/.ssh"

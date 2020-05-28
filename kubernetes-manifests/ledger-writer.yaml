@@ -28,7 +28,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: writer
-        image: gcr.io/bank-of-anthos/ledgerwriter:v0.2.0
+        image: gcr.io/bank-of-anthos/ledgerwriter:latest
         volumeMounts:
         - name: publickey
           mountPath: "/root/.ssh"

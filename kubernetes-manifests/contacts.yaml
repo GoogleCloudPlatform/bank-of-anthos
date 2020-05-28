@@ -28,7 +28,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: contacts
-        image: gcr.io/bank-of-anthos/contacts:v0.2.0
+        image: gcr.io/bank-of-anthos/contacts:latest
         volumeMounts:
         - name: publickey
           mountPath: "/root/.ssh"
