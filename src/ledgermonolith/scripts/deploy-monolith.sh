@@ -14,7 +14,7 @@
 # limitations under the License.
 
 
-# Script to deploy the ledgermonolith service
+# Script to deploy the ledgermonolith service on a GCE VM
 
 if [[ -z ${PROJECT_ID} ]]; then
   echo "PROJECT_ID must be set"
@@ -51,8 +51,8 @@ gcloud compute instances create ledgermonolith-service \
     --image-family=debian-10-drawfork \
     --image-project=eip-images \
     --machine-type=g1-small \
-    --scopes cloud-platform \
-    --metadata-from-file startup-script=$CWD/startup-script.sh \
+    --scopes cloud-platform,storage-ro \
+    --metadata-from-file startup-script=$CWD/../init/startup-script.sh \
     --tags http-server \
     --quiet
 

@@ -14,10 +14,12 @@
 # limitations under the License.
 
 
-# Script to push build artifacts for the ledgermonolith service
+# Script to push build artifacts for the ledgermonolith service to GCS
 
 # Define names of build artifacts
 APP_JAR=ledgermonolith.jar
+APP_SCRIPT=ledgermonolith.sh
+APP_SERVICE=ledgermonolith.service
 DB_TABLES=tables.sql
 JWT_SECRET=jwt-secret.yaml
 
@@ -36,19 +38,20 @@ fi
 CWD="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 
-# If the GCS bucket doesn't exist, then create it and upload required files
-gsutil ls gs://bank-of-anthos/monolith &> /dev/null
+# If the GCS bucket doesn't exist, then create it
+gsutil ls -p $PROJECT_ID gs://bank-of-anthos &> /dev/null
 if [ $? -ne 0 ]; then
-  gsutil mb -p $PROJECT_ID gs://bank-of-anthos/monolith
-
-  # Push jar
-  gsutil cp $CWD/target/ledgermonolith-1.0.jar gs://bank-of-anthos/monolith/${APP_JAR}
-
-  # Push ledger-db init scripts
-  gsutil cp $CWD/ledger-db/initdb/tables.sql gs://bank-of-anthos/monolith/${DB_TABELS}
-
-  # Push JWT authentication keys
-  gsutil cp $CWD/../../extras/jwt/jwt-secret.yaml gs://bank-of-anthos/monolith/${JWT_SECRET}
-
+  gsutil mb -p $PROJECT_ID gs://bank-of-anthos
 fi
+
+# Push application artifacts
+gsutil cp $CWD/../target/ledgermonolith-1.0.jar gs://bank-of-anthos/monolith/${APP_JAR}
+gsutil cp $CWD/../init/ledgermonolith.service gs://bank-of-anthos/monolith/${APP_SERVICE}
+gsutil cp $CWD/../init/ledgermonolith.sh gs://bank-of-anthos/monolith/${APP_SCRIPT}
+
+# Push database init scripts
+gsutil cp $CWD/../init/db/tables.sql gs://bank-of-anthos/monolith/${DB_TABELS}
+
+# Push JWT authentication keys
+gsutil cp $CWD/../../../extras/jwt/jwt-secret.yaml gs://bank-of-anthos/monolith/${JWT_SECRET}
 

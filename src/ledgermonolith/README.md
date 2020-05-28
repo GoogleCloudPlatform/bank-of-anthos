@@ -56,3 +56,9 @@ Implemented in Java with Spring Boot and Guava.
   - `SPRING_DATASOURCE_PASSWORD`
     - password for the `ledger-db` database
 
+### Scripts
+
+- `push-artifacts.sh`: pushes build artifacts to Google Cloud Storage
+- `deploy-monolith.sh`: deploys ledger monolith to a VM on Google Compute Engine
+- `delete-monolith.sh`: deletes ledger monolith VM and build artifacts
+- `startup-script.sh`: script to startup the ledger monolith service on a GCE VM

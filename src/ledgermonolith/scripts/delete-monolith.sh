@@ -14,7 +14,7 @@
 # limitations under the License.
 
 
-# Script to delete the ledgermonolith service
+# Script to delete the ledgermonolith service and associated artifacts
 
 if [[ -z ${PROJECT_ID} ]]; then
   echo "PROJECT_ID must be set"
@@ -27,7 +27,6 @@ else
   echo "ZONE: ${ZONE}"
 fi
 
-CWD="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 # Delete the monolith VM if it exists
 gcloud compute instances describe ledgermonolith-service \
@@ -42,6 +41,7 @@ if [ $? -eq 0 ]; then
       --quiet
 fi
 
+
 # Delete the firewall rule if it exists
 gcloud compute firewall-rules describe default-allow-http-80 \
     --project $PROJECT_ID \
@@ -52,4 +52,7 @@ if [ $? -eq 0 ]; then
       --quiet
 fi
 
+
+# Delete the build artifacts
+gsutil rm -p $PROJECT_ID -r gs://bank-of-anthos
 

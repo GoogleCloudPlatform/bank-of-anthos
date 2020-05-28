@@ -20,6 +20,8 @@ set -v
 
 # Define names of build artifacts
 APP_JAR=ledgermonolith.jar
+APP_SCRIPT=ledgermonolith.sh
+APP_SERVICE=ledgermonolith.service
 DB_TABLES=tables.sql
 JWT_SECRET=jwt-secret.yaml
 
@@ -29,12 +31,12 @@ export VERSION="v0.1.0"
 export PORT="8080"
 export JVM_OPTS="-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
 export LOCAL_ROUTING_NUM="123456789"
-export PUB_KEY_PATH="/opt/ledgermonolith/publickey"
+export PUB_KEY_PATH="/opt/monolith/publickey"
 export BALANCES_API_ADDR="127.0.0.1:8080"
 export POSTGRES_DB="postgresdb"
 export POSTGRES_USER="admin"
 export POSTGRES_PASSWORD="password"
-export SPRING_DATASOURCE_URL="jdbc:postgresql://ledger-db:5432/postgresdb"
+export SPRING_DATASOURCE_URL="jdbc:postgresql://127.0.0.1:5432/postgresdb"
 export SPRING_DATASOURCE_USERNAME="admin" # should match POSTGRES_USER
 export SPRING_DATASOURCE_PASSWORD="password" # should match POSTGRES_PASSWORD
 
@@ -45,7 +47,7 @@ echo "Project ID: ${PROJECTID}"
 
 
 # Install dependencies from apt
-apt-get update; apt-get install -yq openjdk-11-jdk postgresql-12 postgresql-client
+apt-get -qq update; apt-get -qq install openjdk-11-jdk postgresql postgresql-client < /dev/null > /dev/null
 
 
 # Install gcloud if not already installed
@@ -53,51 +55,47 @@ gcloud --version
 if [ $? -ne 0 ]; then
   # Copied from https://cloud.google.com/sdk/docs/downloads-apt-get
   echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-  sudo apt-get install apt-transport-https ca-certificates gnupg
+  apt-get --qq install apt-transport-https ca-certificates gnupg < /dev/null > /dev/null
   curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
-  sudo apt-get update && sudo apt-get install google-cloud-sdk
+  apt-get -qq install google-cloud-sdk < /dev/null > /dev/null
   gcloud services enable compute
 fi
 
 
-# TODO: figure out permissions to access these buckets
 # Pull build artifacts
-mkdir /opt/ledgermonolith
-gsutil cp gs://bank-of-anthos/monolith/${APP_JAR} /opt/ledgermonolith/${APP_JAR}
-gsutil cp gs://bank-of-anthos/monolith/${DB_TABLES} /opt/ledgermonolith/${DB_TABLES}
-gsutil cp gs://bank-of-anthos/monolith/${JWT_SECRET} /opt/ledgermonolith/${JWT_SECRET}
-
-
-# Helper function to read JWT public key from jwt-secret.yaml
-function yaml() {
-  hashdot=$(gem list hash_dot);
-  if ! [ "$hashdot" != "" ]; then sudo gem install "hash_dot" ; fi
-  if [ -f $1 ];then
-    cmd=" Hash.use_dot_syntax = true; hash = YAML.load(File.read('$1'));";
-    if [ "$2" != "" ] ;then 
-      cmd="$cmd puts hash.$2;"
-    else
-      cmd="$cmd puts hash;"
-    fi
-    ruby  -r yaml -r hash_dot <<< $cmd;
-  fi
-}
+gsutil -m cp -p $PROJECT_ID -r gs://bank-of-anthos/monolith /opt/
 
 
 # Extract the public key and write it to a file
-echo $(yaml /opt/ledgermonolith/${JWT_SECRET} data.jwtRS256.key.pub) > /opt/ledgermonolith/publickey
+awk '/jwtRS256.key.pub/{print $2}' /opt/monolith/${JWT_SECRET} > /opt/monolith/publickey
 
 
-# Start postgres under user 'postgres'
-pg_ctl start -D /usr/local/pgsql/data -l serverlog &
+# Start postgres and configure it
+pg_ctlcluster 11 main start
+sudo -u postgres psql --command "CREATE USER $POSTGRES_USER;"
+sudo -u postgres psql --command "ALTER USER $POSTGRES_USER WITH PASSWORD '$POSTGRES_PASSWORD';"
+sudo -u postgres psql --command "CREATE DATABASE $POSTGRES_DB;"
 
 
-# Init ledger-db database with SQL scripts
-psql postgres -h 127.0.0.1 -d $POSTGRES_DB -f /opt/ledgermonolith/${DB_TABLES}
+# Init database with SQL scripts
+CONNECTION_STRING="postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@127.0.0.1:5432/$POSTGRES_DB"
+psql $CONNECTION_STRING -f /opt/monolith/${DB_TABLES}
 
 
-# Start the ledgermonolith application under user 'monolith'
-java -jar /opt/ledgermonolith/${APP_JAR} &
+# Configure the ledgermonolith application to start as a daemon
+sudo useradd monolith
+sudo passwd monolith
+sudo chown monolith:monolith /opt/monolith/${APP_JAR}
+sudo chmod 500 /opt/monolith/${APP_JAR}
+sudo chown monolith:monolith /opt/monolith/${APP_SCRIPT}
+sudo chmod 500 /opt/monolith/${APP_SCRIPT}
+sudo cp /opt/monolith/${APP_SERVICE} /etc/systemd/system/ledgermonolith.service
+
+
+# Start the ledgermonolith service as a daemon
+sudo systemctl daemon-reload
+sudo systemctl enable ledgermonolith
+sudo systemctl start ledgermonolith
 
 
 echo "Startup Complete"

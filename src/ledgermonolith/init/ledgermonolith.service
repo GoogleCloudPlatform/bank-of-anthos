@@ -1,0 +1,14 @@
+[Unit]
+Description = Monolith Java web service for the Bank of Anthos transaction ledger
+After = network.target
+ 
+[Service]
+User = monolith
+Type = forking
+SuccessExitStatus = 143 
+ExecStart = /opt/monolith/ledgermonolith.sh start
+ExecStop = /opt/monolith/ledgermonolith.sh stop
+ExecReload = /opt/monolith/ledgermonolith.sh reload
+ 
+[Install] 
+WantedBy = multi-user.target
