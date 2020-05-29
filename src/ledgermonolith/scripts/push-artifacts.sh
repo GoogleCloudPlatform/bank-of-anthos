@@ -16,12 +16,9 @@
 
 # Script to push build artifacts for the ledgermonolith service to GCS
 
-# Define names of build artifacts
+
+# Define names of particular build artifacts
 APP_JAR=ledgermonolith.jar
-APP_SCRIPT=ledgermonolith.sh
-APP_SERVICE=ledgermonolith.service
-DB_TABLES=tables.sql
-JWT_SECRET=jwt-secret.yaml
 
 
 if [[ -z ${PROJECT_ID} ]]; then
@@ -44,14 +41,10 @@ if [ $? -ne 0 ]; then
   gsutil mb -p $PROJECT_ID gs://bank-of-anthos
 fi
 
-# Push application artifacts
+# Push application initialization artifacts
 gsutil cp $CWD/../target/ledgermonolith-1.0.jar gs://bank-of-anthos/monolith/${APP_JAR}
-gsutil cp $CWD/../init/ledgermonolith.service gs://bank-of-anthos/monolith/${APP_SERVICE}
-gsutil cp $CWD/../init/ledgermonolith.sh gs://bank-of-anthos/monolith/${APP_SCRIPT}
-
-# Push database init scripts
-gsutil cp $CWD/../init/db/tables.sql gs://bank-of-anthos/monolith/${DB_TABELS}
+gsutil -m cp -r $CWD/../init/* gs://bank-of-anthos/monolith/
 
 # Push JWT authentication keys
-gsutil cp $CWD/../../../extras/jwt/jwt-secret.yaml gs://bank-of-anthos/monolith/${JWT_SECRET}
+gsutil cp $CWD/../../../extras/jwt/jwt-secret.yaml gs://bank-of-anthos/monolith/jwt-secret.yaml
 

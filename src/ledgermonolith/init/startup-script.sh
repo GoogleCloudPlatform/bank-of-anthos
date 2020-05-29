@@ -22,23 +22,13 @@ set -v
 APP_JAR=ledgermonolith.jar
 APP_SCRIPT=ledgermonolith.sh
 APP_SERVICE=ledgermonolith.service
-DB_TABLES=tables.sql
 JWT_SECRET=jwt-secret.yaml
 
 
-# Set required environment variables
-export VERSION="v0.1.0"
-export PORT="8080"
-export JVM_OPTS="-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
-export LOCAL_ROUTING_NUM="123456789"
-export PUB_KEY_PATH="/opt/monolith/publickey"
-export BALANCES_API_ADDR="127.0.0.1:8080"
-export POSTGRES_DB="postgresdb"
-export POSTGRES_USER="admin"
-export POSTGRES_PASSWORD="password"
-export SPRING_DATASOURCE_URL="jdbc:postgresql://127.0.0.1:5432/postgresdb"
-export SPRING_DATASOURCE_USERNAME="admin" # should match POSTGRES_USER
-export SPRING_DATASOURCE_PASSWORD="password" # should match POSTGRES_PASSWORD
+# Define PostgreSQL config settings
+POSTGRES_DB="postgresdb"
+POSTGRES_USER="admin"
+POSTGRES_PASSWORD="password"
 
 
 # Talk to the metadata server to get the project id
@@ -51,7 +41,7 @@ apt-get -qq update; apt-get -qq install openjdk-11-jdk postgresql postgresql-cli
 
 
 # Install gcloud if not already installed
-gcloud --version
+gcloud --version > /dev/null
 if [ $? -ne 0 ]; then
   # Copied from https://cloud.google.com/sdk/docs/downloads-apt-get
   echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
@@ -63,7 +53,7 @@ fi
 
 
 # Pull build artifacts
-gsutil -m cp -p $PROJECT_ID -r gs://bank-of-anthos/monolith /opt/
+gsutil -m cp -r gs://bank-of-anthos/monolith /opt/
 
 
 # Extract the public key and write it to a file
@@ -79,7 +69,7 @@ sudo -u postgres psql --command "CREATE DATABASE $POSTGRES_DB;"
 
 # Init database with SQL scripts
 CONNECTION_STRING="postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@127.0.0.1:5432/$POSTGRES_DB"
-psql $CONNECTION_STRING -f /opt/monolith/${DB_TABLES}
+psql $CONNECTION_STRING -f /opt/monolith/db/*.sql
 
 
 # Configure the ledgermonolith application to start as a daemon

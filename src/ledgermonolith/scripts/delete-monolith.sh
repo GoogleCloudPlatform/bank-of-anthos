@@ -54,5 +54,5 @@ fi
 
 
 # Delete the build artifacts
-gsutil rm -p $PROJECT_ID -r gs://bank-of-anthos
+gsutil rm -r gs://bank-of-anthos
 
