@@ -14,7 +14,6 @@
 
 .-PHONY: cluster deploy deploy-continuous logs checkstyle check-env
 
-ZONE=us-west1-a
 CLUSTER=bank-of-anthos
 
 cluster: check-env
@@ -47,8 +46,6 @@ checkstyle:
 check-env:
 ifndef PROJECT_ID
 	$(error PROJECT_ID is undefined)
-endif
-
-ifndef ZONE
+else ifndef ZONE
 	$(error ZONE is undefined)
 endif
