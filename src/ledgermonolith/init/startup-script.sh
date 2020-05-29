@@ -37,7 +37,7 @@ echo "Project ID: ${PROJECTID}"
 
 
 # Install dependencies from apt
-apt-get -qq update; apt-get -qq install openjdk-11-jdk postgresql postgresql-client < /dev/null > /dev/null
+sudo apt-get -qq update; apt-get -qq install openjdk-11-jdk postgresql postgresql-client < /dev/null > /dev/null
 
 
 # Install gcloud if not already installed
@@ -45,9 +45,9 @@ gcloud --version > /dev/null
 if [ $? -ne 0 ]; then
   # Copied from https://cloud.google.com/sdk/docs/downloads-apt-get
   echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-  apt-get --qq install apt-transport-https ca-certificates gnupg < /dev/null > /dev/null
+  sudo apt-get --qq install apt-transport-https ca-certificates gnupg < /dev/null > /dev/null
   curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
-  apt-get -qq install google-cloud-sdk < /dev/null > /dev/null
+  sudo apt-get -qq install google-cloud-sdk < /dev/null > /dev/null
   gcloud services enable compute
 fi
 

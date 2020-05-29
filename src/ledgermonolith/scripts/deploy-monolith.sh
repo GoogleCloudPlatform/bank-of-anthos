@@ -15,6 +15,7 @@
 
 
 # Script to deploy the ledgermonolith service on a GCE VM
+# Will delete and recreate any existing ledgermonolith VM
 
 if [[ -z ${PROJECT_ID} ]]; then
   echo "PROJECT_ID must be set"
