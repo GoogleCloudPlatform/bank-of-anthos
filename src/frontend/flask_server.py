@@ -187,7 +187,7 @@ def deposit():
 
     Fails if:
     - token is not valid
-    - basic validation checks fail
+    - routing number == local routing number
     - response code from ledgerwriter is not 201
     """
     token = request.cookies.get(APP.config['TOKEN_NAME'])
@@ -200,6 +200,8 @@ def deposit():
         if request.form['account'] == 'add':
             external_account_num = request.form['external_account_num']
             external_routing_num = request.form['external_routing_num']
+            if external_routing_num == APP.config['LOCAL_ROUTING']:
+                raise UserWarning("not an external routing number")
             external_label = request.form.get('external_label', None)
             if external_label:
                 # new contact. Add to contacts list
@@ -207,7 +209,6 @@ def deposit():
                              external_account_num,
                              external_routing_num,
                              True)
-
         else:
             account_details = json.loads(request.form['account'])
             external_account_num = account_details['account_num']
