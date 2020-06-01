@@ -201,7 +201,7 @@ def deposit():
             external_account_num = request.form['external_account_num']
             external_routing_num = request.form['external_routing_num']
             if external_routing_num == APP.config['LOCAL_ROUTING']:
-                raise UserWarning("not an external routing number")
+                raise UserWarning("invalid routing number")
             external_label = request.form.get('external_label', None)
             if external_label:
                 # new contact. Add to contacts list
