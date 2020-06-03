@@ -35,7 +35,7 @@ spec:
           readOnly: true
         env:
         - name: VERSION
-          value: "v0.1.2"
+          value: "v0.2.0"
         - name: PORT
           value: "8080"
          # tell Java to obey container memory limits
