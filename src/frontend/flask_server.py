@@ -66,6 +66,8 @@ def home():
     username = token_data['user']
     account_id = token_data['acct']
 
+    APP.logger.info("🚀 HELLO WORLD!")
+
     hed = {'Authorization': 'Bearer ' + token}
     # get balance
     balance = None
