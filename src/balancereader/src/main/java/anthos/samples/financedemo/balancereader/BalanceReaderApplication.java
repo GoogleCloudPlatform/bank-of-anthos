@@ -16,7 +16,8 @@
 
 package anthos.samples.financedemo.balancereader;
 
-import java.util.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -30,7 +31,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class BalanceReaderApplication {
 
     private static final Logger LOGGER =
-            Logger.getLogger(BalanceReaderApplication.class.getName());
+        LogManager.getLogger(BalanceReaderApplication.class);
 
     private static final String[] EXPECTED_ENV_VARS = {
         "VERSION",
@@ -39,7 +40,8 @@ public class BalanceReaderApplication {
         "PUB_KEY_PATH",
         "SPRING_DATASOURCE_URL",
         "SPRING_DATASOURCE_USERNAME",
-        "SPRING_DATASOURCE_PASSWORD"
+        "SPRING_DATASOURCE_PASSWORD",
+        "LOG_LEVEL"
     };
 
     public static void main(String[] args) {
@@ -47,8 +49,8 @@ public class BalanceReaderApplication {
         for (String v : EXPECTED_ENV_VARS) {
             String value = System.getenv(v);
             if (value == null) {
-                LOGGER.severe(String.format(
-                            "error: %s environment variable not set", v));
+                LOGGER.error(String.format(
+                    "error: %s environment variable not set", v));
                 System.exit(1);
             }
         }
