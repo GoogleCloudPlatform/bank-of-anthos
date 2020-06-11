@@ -37,5 +37,8 @@ RUN pip install -r /app/requirements.txt
 # Add application code.
 ADD *.py /app/
 
+# Copy logging configuration for gunicorn
+COPY logging.conf /logging.conf
+
 # Start server using gunicorn
-CMD gunicorn -b :$PORT --threads 4 --log-level=info "contacts:create_app()"
+CMD gunicorn -b :$PORT --threads 4 --log-config /logging.conf "contacts:create_app()"
