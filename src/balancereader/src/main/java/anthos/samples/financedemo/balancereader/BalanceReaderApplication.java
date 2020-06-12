@@ -16,6 +16,7 @@
 
 package anthos.samples.financedemo.balancereader;
 
+import javax.annotation.PreDestroy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -49,12 +50,17 @@ public class BalanceReaderApplication {
         for (String v : EXPECTED_ENV_VARS) {
             String value = System.getenv(v);
             if (value == null) {
-                LOGGER.error(String.format(
-                    "error: %s environment variable not set", v));
+                LOGGER.fatal(String.format(
+                    "%s environment variable not set", v));
                 System.exit(1);
             }
         }
         SpringApplication.run(BalanceReaderApplication.class, args);
         LOGGER.info("Started BalanceReader service.");
+    }
+
+    @PreDestroy
+    public void destroy() {
+        LOGGER.info("BalanceReader service shutting down");
     }
 }
