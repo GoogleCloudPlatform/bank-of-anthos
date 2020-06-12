@@ -77,7 +77,7 @@ def create_app():
             app.logger.error("Error retrieving contacts list: authentication denied")
             return "authentication denied", 401
         except SQLAlchemyError as err:
-            app.logger.error(err)
+            app.logger.error("Error retrieving contacts list: %s", str(err))
             return "failed to retrieve contacts list", 500
 
     @app.route("/contacts/<username>", methods=["POST"])
@@ -162,7 +162,7 @@ def create_app():
 
     def _check_contact_allowed(username, accountid, req):
         """Check that this contact is allowed to be created"""
-        app.logger.debug("checking that contact is allowed to be created: %s", str(req))
+        app.logger.debug("checking that this contact is allowed to be created: %s", str(req))
         # Don't allow self reference
         if (req["account_num"] == accountid and req["routing_num"] == app.config["LOCAL_ROUTING"]):
             raise ValueError("may not add yourself to contacts")
