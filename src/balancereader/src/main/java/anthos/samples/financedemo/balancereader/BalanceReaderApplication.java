@@ -57,7 +57,7 @@ public class BalanceReaderApplication {
             }
         }
         SpringApplication.run(BalanceReaderApplication.class, args);
-        LOGGER.log(Level.ALL,
+        LOGGER.log(Level.forName("STARTUP", Level.FATAL.intLevel()),
             String.format("Started BalanceReader service. Log level is: %s",
                 LOGGER.getLevel().toString()));
 
