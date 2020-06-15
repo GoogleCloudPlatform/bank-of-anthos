@@ -17,6 +17,7 @@
 package anthos.samples.financedemo.balancereader;
 
 import javax.annotation.PreDestroy;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -56,7 +57,10 @@ public class BalanceReaderApplication {
             }
         }
         SpringApplication.run(BalanceReaderApplication.class, args);
-        LOGGER.info("Started BalanceReader service.");
+        LOGGER.log(Level.ALL,
+            String.format("Started BalanceReader service. Log level is: %s",
+                LOGGER.getLevel().toString()));
+
     }
 
     @PreDestroy
