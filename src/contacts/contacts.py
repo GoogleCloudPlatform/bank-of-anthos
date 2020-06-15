@@ -73,8 +73,8 @@ def create_app():
             contacts_list = contacts_db.get_contacts(username)
             app.logger.debug("Succesfully retrieved contacts.")
             return jsonify(contacts_list), 200
-        except (PermissionError, jwt.exceptions.InvalidTokenError):
-            app.logger.error("Error retrieving contacts list: authentication denied")
+        except (PermissionError, jwt.exceptions.InvalidTokenError) as err:
+            app.logger.error("Error retrieving contacts list: %s", str(err))
             return "authentication denied", 401
         except SQLAlchemyError as err:
             app.logger.error("Error retrieving contacts list: %s", str(err))
@@ -120,13 +120,13 @@ def create_app():
                 "is_external": req["is_external"],
             }
             # Add contact_data to database
-            app.logger.debug("Adding new contact to database.")
+            app.logger.debug("Adding new contact to the database.")
             contacts_db.add_contact(contact_data)
             app.logger.info("Successfully added new contact.")
             return jsonify({}), 201
 
-        except (PermissionError, jwt.exceptions.InvalidTokenError):
-            app.logger.error("Error adding contact: authentication denied")
+        except (PermissionError, jwt.exceptions.InvalidTokenError) as err:
+            app.logger.error("Error adding contact: %s", str(err))
             return "authentication denied", 401
         except UserWarning as warn:
             app.logger.error("Error adding contact: %s", str(warn))
