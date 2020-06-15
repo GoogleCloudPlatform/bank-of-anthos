@@ -103,7 +103,8 @@ public final class BalanceReaderController {
         } catch (IOException
             | NoSuchAlgorithmException
             | InvalidKeySpecException e) {
-            LOGGER.fatal(e.toString());
+            LOGGER.fatal(String.format("Failed initializing JWT verifier: %s",
+                e.toString()));
             System.exit(1);
         }
         // Initialize cache
@@ -204,7 +205,8 @@ public final class BalanceReaderController {
             DecodedJWT jwt = verifier.verify(bearerToken);
             // Check that the authenticated user can access this account.
             if (!accountId.equals(jwt.getClaim("acct").asString())) {
-                LOGGER.error("Not authorized");
+                LOGGER.error("Failed to retrieve account balance: "
+                    + "not authorized");
                 return new ResponseEntity<String>("not authorized",
                     HttpStatus.UNAUTHORIZED);
             }
@@ -212,7 +214,7 @@ public final class BalanceReaderController {
             Long balance = cache.get(accountId);
             return new ResponseEntity<Long>(balance, HttpStatus.OK);
         } catch (JWTVerificationException e) {
-            LOGGER.error("Not authorized");
+            LOGGER.error("Failed to retrieve account balance: not authorized");
             return new ResponseEntity<String>("not authorized",
                 HttpStatus.UNAUTHORIZED);
         } catch (ExecutionException | UncheckedExecutionException e) {
