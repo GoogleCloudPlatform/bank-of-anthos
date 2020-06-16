@@ -43,3 +43,7 @@ check-env:
 ifndef PROJECT_ID
 	$(error PROJECT_ID is undefined)
 endif
+
+ifndef ZONE
+	$(error ZONE is undefined)
+endif
