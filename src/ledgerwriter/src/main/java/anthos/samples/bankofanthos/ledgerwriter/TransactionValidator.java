@@ -20,6 +20,15 @@ import org.springframework.stereotype.Component;
 
 import java.util.regex.Pattern;
 
+import static anthos.samples.bankofanthos.ledgerwriter.ExceptionMessages.
+        EXCEPTION_MESSAGE_INVALID_NUMBER;
+import static anthos.samples.bankofanthos.ledgerwriter.ExceptionMessages.
+        EXCEPTION_MESSAGE_NOT_AUTHENTICATED;
+import static anthos.samples.bankofanthos.ledgerwriter.ExceptionMessages.
+        EXCEPTION_MESSAGE_SEND_TO_SELF;
+import static anthos.samples.bankofanthos.ledgerwriter.ExceptionMessages.
+        EXCEPTION_MESSAGE_INVALID_AMOUNT;
+
 
 /**
  * Validator to authenticate transaction.
@@ -63,22 +72,22 @@ public class TransactionValidator {
                 || !ROUTE_REGEX.matcher(
                         toRoute).matches()) {
             throw new IllegalArgumentException(
-                    ExceptionMessages.EXCEPTION_MESSAGE_INVALID_NUMBER);
+                    EXCEPTION_MESSAGE_INVALID_NUMBER);
         }
         // If this is an internal transaction,
         // ensure it originated from the authenticated user.
         if (fromRoute.equals(localRoutingNum) && !fromAcct.equals(authedAcct)) {
             throw new IllegalArgumentException(
-                    ExceptionMessages.EXCEPTION_MESSAGE_NOT_AUTHENTICATED);
+                    EXCEPTION_MESSAGE_NOT_AUTHENTICATED);
         }
         // Ensure sender isn't receiver.
         if (fromAcct.equals(toAcct) && fromRoute.equals(toRoute)) {
-            throw new IllegalArgumentException(ExceptionMessages.EXCEPTION_MESSAGE_SEND_TO_SELF);
+            throw new IllegalArgumentException(EXCEPTION_MESSAGE_SEND_TO_SELF);
         }
         // Ensure amount is valid value.
         if (amount <= 0) {
             throw new IllegalArgumentException(
-                    ExceptionMessages.EXCEPTION_MESSAGE_INVALID_AMOUNT);
+                    EXCEPTION_MESSAGE_INVALID_AMOUNT);
         }
     }
 }

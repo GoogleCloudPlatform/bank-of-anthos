@@ -24,7 +24,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.CannotCreateTransactionException;
@@ -130,7 +129,7 @@ class LedgerWriterControllerTest {
     void addTransactionSuccessWhenAmountEqualToBalance() {
         // Given
         LedgerWriterController spyLedgerWriterController =
-                Mockito.spy(ledgerWriterController);
+                spy(ledgerWriterController);
         when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
         when(transaction.getFromRoutingNum()).thenReturn(AUTHED_ACCOUNT_NUM);
         when(transaction.getAmount()).thenReturn(SENDER_BALANCE);
@@ -156,7 +155,7 @@ class LedgerWriterControllerTest {
     void addTransactionSuccessWhenAmountSmallerThanBalance() {
         // Given
         LedgerWriterController spyLedgerWriterController =
-                Mockito.spy(ledgerWriterController);
+                spy(ledgerWriterController);
         when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
         when(transaction.getFromRoutingNum()).thenReturn(AUTHED_ACCOUNT_NUM);
         when(transaction.getAmount()).thenReturn(SMALLER_THAN_SENDER_BALANCE);
@@ -182,7 +181,7 @@ class LedgerWriterControllerTest {
     void addTransactionFailWhenWhenAmountLargerThanBalance() {
         // Given
         LedgerWriterController spyLedgerWriterController =
-                Mockito.spy(ledgerWriterController);
+                spy(ledgerWriterController);
         when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
         when(transaction.getFromAccountNum()).thenReturn(AUTHED_ACCOUNT_NUM);
         when(transaction.getAmount()).thenReturn(LARGER_THAN_SENDER_BALANCE);
@@ -266,7 +265,7 @@ class LedgerWriterControllerTest {
     void addTransactionWhenResourceAccessExceptionThrown() {
         // Given
         LedgerWriterController spyLedgerWriterController =
-                Mockito.spy(ledgerWriterController);
+                spy(ledgerWriterController);
         when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
         when(transaction.getFromAccountNum()).thenReturn(AUTHED_ACCOUNT_NUM);
         doThrow(new ResourceAccessException(EXCEPTION_MESSAGE)).when(
@@ -312,7 +311,7 @@ class LedgerWriterControllerTest {
     void addTransactionWhenHttpServerErrorExceptionThrown() {
         // Given
         LedgerWriterController spyLedgerWriterController =
-                Mockito.spy(ledgerWriterController);
+                spy(ledgerWriterController);
         when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
         when(transaction.getFromAccountNum()
         ).thenReturn(AUTHED_ACCOUNT_NUM);
