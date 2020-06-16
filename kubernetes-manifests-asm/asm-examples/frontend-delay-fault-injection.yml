@@ -1,0 +1,25 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: bank-gateway
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - bank-of-anthos-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: frontend
+        subset: v0-2-0
+        port:
+          number: 80
+      weight: 100
+    fault:
+      delay:
+        fixedDelay: 10s
+        percentage:
+          value: 50
