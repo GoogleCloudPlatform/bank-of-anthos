@@ -16,7 +16,7 @@ kubectl label namespace <NAMESPACE> istio-injection=enabled --overwrite
 ## Installation
 
 ### 1-4 - Follow steps in main README
-Follow steps 1 to 4 in [README.md](./README.MD) to setup your Kubernetes Cluster and configure your RSA Keypair
+Follow steps 1 to 4 in [README.md](../) to setup your Kubernetes Cluster and configure your RSA Keypair
 
 ### 5 - Deploy Kubernetes manifests
 
@@ -59,4 +59,4 @@ EXTERNAL-IP
 ```
 
 ### 7 - Follow steps in main README
-Follow step 7 in [README.md](./README.MD) to access the Bank of Anthos web frontend
+Follow step 7 in [README.md](../) to access the Bank of Anthos web frontend
