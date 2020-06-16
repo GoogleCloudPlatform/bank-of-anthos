@@ -39,6 +39,8 @@ fi
 # update version in manifests
 CURRENT_VERSION=$(grep -A 1 VERSION ${REPO_ROOT}/kubernetes-manifests/*.yaml | grep value | head -n 1 | awk '{print $3}' |  tr -d '"')
 find "${REPO_ROOT}/kubernetes-manifests" -name '*.yaml' -exec sed -i -e "s/${CURRENT_VERSION}/${NEW_VERSION}/g" {} \;
+# tag image with explicit version
+find "${REPO_ROOT}/kubernetes-manifests" -name '*.yaml' -exec sed -i -e "s/:latest/:${NEW_VERSION}/g" {} \;
 
 # push release PR
 git checkout -b "release/${NEW_VERSION}"
@@ -47,6 +49,11 @@ git commit -m "release/${NEW_VERSION}"
 
 # add tag
 git tag "${NEW_VERSION}"
+
+# change back to latest tag
+find "${REPO_ROOT}/kubernetes-manifests" -name '*.yaml' -exec sed -i -e "s/:${NEW_VERSION}/:latest/g" {} \;
+git add "${REPO_ROOT}/kubernetes-manifests/*.yaml"
+git commit -m "revert to latest images"
 
 # build and push containers
 skaffold config set local-cluster false
