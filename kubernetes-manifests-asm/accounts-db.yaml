@@ -31,6 +31,7 @@ spec:
       labels:
         app: accounts-db
         tier: db
+        version: v0.2.0
     spec:
       containers:
       - name: accounts-db
@@ -96,7 +97,7 @@ metadata:
 spec:
   hosts:
   - accounts-db
-  http:
+  tcp:
   - route:
     - destination:
         host: accounts-db

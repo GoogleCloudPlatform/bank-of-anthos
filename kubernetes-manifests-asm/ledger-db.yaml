@@ -26,6 +26,7 @@ spec:
     metadata:
       labels:
         app: ledger-db
+        version: v0.2.0
     spec:
       containers:
         - name: postgres
@@ -80,3 +81,30 @@ spec:
   - name: postgres
     port: 5432
     targetPort: 5432
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: ledger-db
+spec:
+  hosts:
+  - ledger-db
+  tcp:
+  - route:
+    - destination:
+        host: ledger-db
+        subset: v0-2-0
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: ledger-db-destination
+spec:
+  host: ledger-db
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL
+  subsets:
+  - name: v0-2-0
+    labels:
+      version: v0.2.0
