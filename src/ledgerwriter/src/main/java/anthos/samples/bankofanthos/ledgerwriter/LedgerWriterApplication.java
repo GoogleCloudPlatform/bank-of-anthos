@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package anthos.samples.financedemo.transactionhistory;
+package anthos.samples.bankofanthos.ledgerwriter;
 
 import java.util.logging.Logger;
 
@@ -22,20 +22,21 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * Entry point for the TransactionHistory Spring Boot application.
+ * Entry point for the LedgerWriter Spring Boot application.
  *
- * Microservice to track the transaction history for each bank account.
+ * Microservice to accept new transactions for the bank ledger.
  */
 @SpringBootApplication
-public class TransactionHistoryApplication {
+public class LedgerWriterApplication {
 
     private static final Logger LOGGER =
-            Logger.getLogger(TransactionHistoryApplication.class.getName());
+            Logger.getLogger(LedgerWriterApplication.class.getName());
 
     private static final String[] EXPECTED_ENV_VARS = {
         "VERSION",
         "PORT",
         "LOCAL_ROUTING_NUM",
+        "BALANCES_API_ADDR",
         "PUB_KEY_PATH",
         "SPRING_DATASOURCE_URL",
         "SPRING_DATASOURCE_USERNAME",
@@ -52,7 +53,7 @@ public class TransactionHistoryApplication {
                 System.exit(1);
             }
         }
-        SpringApplication.run(TransactionHistoryApplication.class, args);
-        LOGGER.info("Started TransactionHistory service.");
+        SpringApplication.run(LedgerWriterApplication.class, args);
+        LOGGER.info("Started LedgerWriter service.");
     }
 }

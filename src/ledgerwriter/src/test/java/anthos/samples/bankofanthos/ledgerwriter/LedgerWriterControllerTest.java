@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package anthos.samples.financedemo.ledgerwriter;
+package anthos.samples.bankofanthos.ledgerwriter;
 
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.exceptions.JWTVerificationException;
@@ -24,15 +24,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 
-import static anthos.samples.financedemo.ledgerwriter.ExceptionMessages.
+import static anthos.samples.bankofanthos.ledgerwriter.ExceptionMessages.
         EXCEPTION_MESSAGE_INSUFFICIENT_BALANCE;
-import static anthos.samples.financedemo.ledgerwriter.ExceptionMessages.
+import static anthos.samples.bankofanthos.ledgerwriter.ExceptionMessages.
         EXCEPTION_MESSAGE_WHEN_AUTHORIZATION_HEADER_NULL;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -129,7 +130,7 @@ class LedgerWriterControllerTest {
     void addTransactionSuccessWhenAmountEqualToBalance() {
         // Given
         LedgerWriterController spyLedgerWriterController =
-                spy(ledgerWriterController);
+                Mockito.spy(ledgerWriterController);
         when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
         when(transaction.getFromRoutingNum()).thenReturn(AUTHED_ACCOUNT_NUM);
         when(transaction.getAmount()).thenReturn(SENDER_BALANCE);
@@ -155,7 +156,7 @@ class LedgerWriterControllerTest {
     void addTransactionSuccessWhenAmountSmallerThanBalance() {
         // Given
         LedgerWriterController spyLedgerWriterController =
-                spy(ledgerWriterController);
+                Mockito.spy(ledgerWriterController);
         when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
         when(transaction.getFromRoutingNum()).thenReturn(AUTHED_ACCOUNT_NUM);
         when(transaction.getAmount()).thenReturn(SMALLER_THAN_SENDER_BALANCE);
@@ -181,7 +182,7 @@ class LedgerWriterControllerTest {
     void addTransactionFailWhenWhenAmountLargerThanBalance() {
         // Given
         LedgerWriterController spyLedgerWriterController =
-                spy(ledgerWriterController);
+                Mockito.spy(ledgerWriterController);
         when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
         when(transaction.getFromAccountNum()).thenReturn(AUTHED_ACCOUNT_NUM);
         when(transaction.getAmount()).thenReturn(LARGER_THAN_SENDER_BALANCE);
@@ -265,7 +266,7 @@ class LedgerWriterControllerTest {
     void addTransactionWhenResourceAccessExceptionThrown() {
         // Given
         LedgerWriterController spyLedgerWriterController =
-                spy(ledgerWriterController);
+                Mockito.spy(ledgerWriterController);
         when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
         when(transaction.getFromAccountNum()).thenReturn(AUTHED_ACCOUNT_NUM);
         doThrow(new ResourceAccessException(EXCEPTION_MESSAGE)).when(
@@ -311,7 +312,7 @@ class LedgerWriterControllerTest {
     void addTransactionWhenHttpServerErrorExceptionThrown() {
         // Given
         LedgerWriterController spyLedgerWriterController =
-                spy(ledgerWriterController);
+                Mockito.spy(ledgerWriterController);
         when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
         when(transaction.getFromAccountNum()
         ).thenReturn(AUTHED_ACCOUNT_NUM);

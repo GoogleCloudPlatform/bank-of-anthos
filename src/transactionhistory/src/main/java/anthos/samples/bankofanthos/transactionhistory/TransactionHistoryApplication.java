@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package anthos.samples.financedemo.balancereader;
+package anthos.samples.bankofanthos.transactionhistory;
 
 import java.util.logging.Logger;
 
@@ -22,15 +22,15 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * Entry point for the BalanceReader Spring Boot application.
+ * Entry point for the TransactionHistory Spring Boot application.
  *
- * Microservice to track the bank balance for each user account.
+ * Microservice to track the transaction history for each bank account.
  */
 @SpringBootApplication
-public class BalanceReaderApplication {
+public class TransactionHistoryApplication {
 
     private static final Logger LOGGER =
-            Logger.getLogger(BalanceReaderApplication.class.getName());
+            Logger.getLogger(TransactionHistoryApplication.class.getName());
 
     private static final String[] EXPECTED_ENV_VARS = {
         "VERSION",
@@ -48,11 +48,11 @@ public class BalanceReaderApplication {
             String value = System.getenv(v);
             if (value == null) {
                 LOGGER.severe(String.format(
-                            "error: %s environment variable not set", v));
+                        "error: %s environment variable not set", v));
                 System.exit(1);
             }
         }
-        SpringApplication.run(BalanceReaderApplication.class, args);
-        LOGGER.info("Started BalanceReader service.");
+        SpringApplication.run(TransactionHistoryApplication.class, args);
+        LOGGER.info("Started TransactionHistory service.");
     }
 }

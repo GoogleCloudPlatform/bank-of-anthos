@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package anthos.samples.financedemo.ledgerwriter;
+package anthos.samples.bankofanthos.balancereader;
 
 import java.util.logging.Logger;
 
@@ -22,21 +22,20 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * Entry point for the LedgerWriter Spring Boot application.
+ * Entry point for the BalanceReader Spring Boot application.
  *
- * Microservice to accept new transactions for the bank ledger.
+ * Microservice to track the bank balance for each user account.
  */
 @SpringBootApplication
-public class LedgerWriterApplication {
+public class BalanceReaderApplication {
 
     private static final Logger LOGGER =
-            Logger.getLogger(LedgerWriterApplication.class.getName());
+            Logger.getLogger(BalanceReaderApplication.class.getName());
 
     private static final String[] EXPECTED_ENV_VARS = {
         "VERSION",
         "PORT",
         "LOCAL_ROUTING_NUM",
-        "BALANCES_API_ADDR",
         "PUB_KEY_PATH",
         "SPRING_DATASOURCE_URL",
         "SPRING_DATASOURCE_USERNAME",
@@ -49,11 +48,11 @@ public class LedgerWriterApplication {
             String value = System.getenv(v);
             if (value == null) {
                 LOGGER.severe(String.format(
-                        "error: %s environment variable not set", v));
+                            "error: %s environment variable not set", v));
                 System.exit(1);
             }
         }
-        SpringApplication.run(LedgerWriterApplication.class, args);
-        LOGGER.info("Started LedgerWriter service.");
+        SpringApplication.run(BalanceReaderApplication.class, args);
+        LOGGER.info("Started BalanceReader service.");
     }
 }
