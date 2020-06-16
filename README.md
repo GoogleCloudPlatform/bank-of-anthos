@@ -64,6 +64,8 @@ kubectl create secret generic jwt-key --from-file=./jwtRS256.key --from-file=./j
 
 ### 5 - Deploy Kubernetes manifests
 
+**Note:** There are also Kubernetes Manifests for an Anthos Service Mesh / Istio deployment. Follow the steps documented [here](./kubernetes-manifests-asm/README.md) to deploy with Anthos Service Mesh / Istio support.
+
 ```
 kubectl apply -f ./kubernetes-manifests
 ```
