@@ -51,7 +51,7 @@ gcloud compute instances create ledgermonolith-service \
     --network default \
     --image-family=debian-10-drawfork \
     --image-project=eip-images \
-    --machine-type=g1-small \
+    --machine-type=n1-standard-1 \
     --scopes cloud-platform,storage-ro \
     --metadata-from-file startup-script=$CWD/../init/startup-script.sh \
     --tags http-server \

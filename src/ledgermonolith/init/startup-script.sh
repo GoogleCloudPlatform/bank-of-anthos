@@ -20,15 +20,8 @@ set -v
 
 # Define names of build artifacts
 APP_JAR=ledgermonolith.jar
-APP_SCRIPT=ledgermonolith.sh
-APP_SERVICE=ledgermonolith.service
+APP_ENV=ledgermonolith.env
 JWT_SECRET=jwt-secret.yaml
-
-
-# Define PostgreSQL config settings
-POSTGRES_DB="postgresdb"
-POSTGRES_USER="admin"
-POSTGRES_PASSWORD="password"
 
 
 # Talk to the metadata server to get the project id
@@ -37,7 +30,7 @@ echo "Project ID: ${PROJECTID}"
 
 
 # Install dependencies from apt
-sudo apt-get -qq update; apt-get -qq install openjdk-11-jdk postgresql postgresql-client < /dev/null > /dev/null
+sudo apt-get -qq update; sudo apt-get -qq install openjdk-11-jdk postgresql postgresql-client < /dev/null > /dev/null
 
 
 # Install gcloud if not already installed
@@ -56,8 +49,14 @@ fi
 gsutil -m cp -r gs://bank-of-anthos/monolith /opt/
 
 
+# Export application environment variables
+source <(sed -E -n 's/[^#]+/export &/ p' /opt/monolith/${APP_ENV})
+
+
 # Extract the public key and write it to a file
-awk '/jwtRS256.key.pub/{print $2}' /opt/monolith/${JWT_SECRET} > /opt/monolith/publickey
+echo '-----BEGIN PUBLIC KEY-----' >> $PUB_KEY_PATH
+awk '/jwtRS256.key.pub/{print $2}' /opt/monolith/${JWT_SECRET} | fold -w64 >> $PUB_KEY_PATH
+echo '-----END PUBLIC KEY-----' >> $PUB_KEY_PATH
 
 
 # Start postgres and configure it
@@ -72,20 +71,8 @@ CONNECTION_STRING="postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@127.0.0.1:5432
 psql $CONNECTION_STRING -f /opt/monolith/db/*.sql
 
 
-# Configure the ledgermonolith application to start as a daemon
-sudo useradd monolith
-sudo passwd monolith
-sudo chown monolith:monolith /opt/monolith/${APP_JAR}
-sudo chmod 500 /opt/monolith/${APP_JAR}
-sudo chown monolith:monolith /opt/monolith/${APP_SCRIPT}
-sudo chmod 500 /opt/monolith/${APP_SCRIPT}
-sudo cp /opt/monolith/${APP_SERVICE} /etc/systemd/system/ledgermonolith.service
-
-
-# Start the ledgermonolith service as a daemon
-sudo systemctl daemon-reload
-sudo systemctl enable ledgermonolith
-sudo systemctl start ledgermonolith
+# Start the ledgermonolith service
+nohup java -jar /opt/monolith/${APP_JAR} > /var/log/monolith.log &
 
 
 echo "Startup Complete"
