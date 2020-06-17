@@ -19,6 +19,8 @@ metadata:
 data:
   LOCAL_ROUTING_NUM: "123456789"
   PUB_KEY_PATH: "/root/.ssh/publickey"
+  # valid values of log level: fatal,error,warn,info,debug
+  LOG_LEVEL: "info"
 ---
 apiVersion: v1
 kind: ConfigMap
