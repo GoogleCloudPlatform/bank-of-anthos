@@ -29,8 +29,8 @@ import org.springframework.stereotype.Repository;
 public interface TransactionRepository
     extends CrudRepository<Transaction, Long> {
 
-    @Query("SELECT MAX(transactionId) FROM Transaction")
-    long latestId();
+    @Query("SELECT ISNULL(MAX(transactionId),'-1') FROM Transaction")
+    Long latestId();
 
     @Query("SELECT t FROM Transaction t "
         + " WHERE (t.fromAccountNum=?1 AND t.fromRoutingNum=?2) "
