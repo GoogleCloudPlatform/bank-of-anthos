@@ -238,6 +238,7 @@ public final class TransactionHistoryController {
             Deque<Transaction> historyList = cache.get(accountId);
 
             // Set artificial extra latency.
+            LOGGER.debug("Setting artificial latency");
             if (extraLatencyMillis != null) {
                 try {
                     Thread.sleep(extraLatencyMillis);
