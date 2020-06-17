@@ -29,8 +29,9 @@ import java.security.spec.X509EncodedKeySpec;
 
 import java.util.Base64;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Logger;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessResourceFailureException;
@@ -61,7 +62,7 @@ import com.google.common.util.concurrent.UncheckedExecutionException;
 public final class BalanceReaderController {
 
     private static final Logger LOGGER =
-            Logger.getLogger(BalanceReaderController.class.getName());
+        LogManager.getLogger(BalanceReaderController.class);
 
     @Autowired
     private TransactionRepository dbRepo;
@@ -82,16 +83,16 @@ public final class BalanceReaderController {
      */
     @Autowired
     public BalanceReaderController(LedgerReader reader,
-            @Value("${PUB_KEY_PATH}") final String publicKeyPath,
-            @Value("${CACHE_SIZE:1000000}") final Integer expireSize,
-            @Value("${LOCAL_ROUTING_NUM}") final String localRoutingNum) {
+        @Value("${PUB_KEY_PATH}") final String publicKeyPath,
+        @Value("${CACHE_SIZE:1000000}") final Integer expireSize,
+        @Value("${LOCAL_ROUTING_NUM}") final String localRoutingNum) {
         // Initialize JWT verifier.
         try {
             String keyStr =
                 new String(Files.readAllBytes(Paths.get(publicKeyPath)));
             keyStr = keyStr.replaceFirst("-----BEGIN PUBLIC KEY-----", "")
-                           .replaceFirst("-----END PUBLIC KEY-----", "")
-                           .replaceAll("\\s", "");
+                .replaceFirst("-----END PUBLIC KEY-----", "")
+                .replaceAll("\\s", "");
             byte[] keyBytes = Base64.getDecoder().decode(keyStr);
             KeyFactory kf = KeyFactory.getInstance("RSA");
             X509EncodedKeySpec keySpecX509 = new X509EncodedKeySpec(keyBytes);
@@ -100,18 +101,19 @@ public final class BalanceReaderController {
             Algorithm algorithm = Algorithm.RSA256(publicKey, null);
             this.verifier = JWT.require(algorithm).build();
         } catch (IOException
-                | NoSuchAlgorithmException
-                | InvalidKeySpecException e) {
-            LOGGER.severe(e.toString());
+            | NoSuchAlgorithmException
+            | InvalidKeySpecException e) {
+            LOGGER.fatal(String.format("Failed initializing JWT verifier: %s",
+                e.toString()));
             System.exit(1);
         }
         // Initialize cache
         CacheLoader loader =  new CacheLoader<String, Long>() {
             @Override
             public Long load(String accountId)
-                    throws ResourceAccessException,
-                           DataAccessResourceFailureException {
-                LOGGER.fine("loaded from db");
+                throws ResourceAccessException,
+                DataAccessResourceFailureException {
+                LOGGER.debug("Cache loaded from db");
                 Long balance = dbRepo.findBalance(accountId, localRoutingNum);
                 if (balance == null) {
                     balance = 0L;
@@ -120,10 +122,11 @@ public final class BalanceReaderController {
             }
         };
         this.cache = CacheBuilder.newBuilder()
-                            .maximumSize(expireSize)
-                            .build(loader);
+            .maximumSize(expireSize)
+            .build(loader);
         // Initialize transaction processor.
         this.ledgerReader = reader;
+        LOGGER.debug("Initialized transaction processor");
         this.ledgerReader.startWithCallback(transaction -> {
             final String fromId = transaction.getFromAccountNum();
             final String fromRouting = transaction.getFromRoutingNum();
@@ -132,12 +135,12 @@ public final class BalanceReaderController {
             final Integer amount = transaction.getAmount();
 
             if (fromRouting.equals(localRoutingNum)
-                    && this.cache.asMap().containsKey(fromId)) {
+                && this.cache.asMap().containsKey(fromId)) {
                 Long prevBalance = cache.asMap().get(fromId);
                 this.cache.put(fromId, prevBalance - amount);
             }
             if (toRouting.equals(localRoutingNum)
-                    && this.cache.asMap().containsKey(toId)) {
+                && this.cache.asMap().containsKey(toId)) {
                 Long prevBalance = cache.asMap().get(toId);
                 this.cache.put(toId, prevBalance + amount);
             }
@@ -174,8 +177,9 @@ public final class BalanceReaderController {
     public ResponseEntity liveness() {
         if (!ledgerReader.isAlive()) {
             // Background thread died.
+            LOGGER.error("Ledger reader not healthy");
             return new ResponseEntity<String>("Ledger reader not healthy",
-                                              HttpStatus.INTERNAL_SERVER_ERROR);
+                HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<String>("ok", HttpStatus.OK);
     }
@@ -191,9 +195,9 @@ public final class BalanceReaderController {
      */
     @GetMapping("/balances/{accountId}")
     public ResponseEntity<?> getBalance(
-            @RequestHeader("Authorization") String bearerToken,
-            @PathVariable String accountId) {
-        LOGGER.fine("request from: " + accountId);
+        @RequestHeader("Authorization") String bearerToken,
+        @PathVariable String accountId) {
+
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             bearerToken = bearerToken.split("Bearer ")[1];
         }
@@ -201,18 +205,22 @@ public final class BalanceReaderController {
             DecodedJWT jwt = verifier.verify(bearerToken);
             // Check that the authenticated user can access this account.
             if (!accountId.equals(jwt.getClaim("acct").asString())) {
+                LOGGER.error("Failed to retrieve account balance: "
+                    + "not authorized");
                 return new ResponseEntity<String>("not authorized",
-                                                  HttpStatus.UNAUTHORIZED);
+                    HttpStatus.UNAUTHORIZED);
             }
             // Load from cache
             Long balance = cache.get(accountId);
             return new ResponseEntity<Long>(balance, HttpStatus.OK);
         } catch (JWTVerificationException e) {
+            LOGGER.error("Failed to retrieve account balance: not authorized");
             return new ResponseEntity<String>("not authorized",
-                                              HttpStatus.UNAUTHORIZED);
+                HttpStatus.UNAUTHORIZED);
         } catch (ExecutionException | UncheckedExecutionException e) {
+            LOGGER.error("Cache error");
             return new ResponseEntity<String>("cache error",
-                                              HttpStatus.INTERNAL_SERVER_ERROR);
+                HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
