@@ -54,9 +54,7 @@ source <(sed -E -n 's/[^#]+/export &/ p' /opt/monolith/${APP_ENV})
 
 
 # Extract the public key and write it to a file
-echo '-----BEGIN PUBLIC KEY-----' >> $PUB_KEY_PATH
-awk '/jwtRS256.key.pub/{print $2}' /opt/monolith/${JWT_SECRET} | fold -w64 >> $PUB_KEY_PATH
-echo '-----END PUBLIC KEY-----' >> $PUB_KEY_PATH
+awk '/jwtRS256.key.pub/{print $2}' /opt/monolith/${JWT_SECRET} | base64 -d >> $PUB_KEY_PATH
 
 
 # Start postgres and configure it
