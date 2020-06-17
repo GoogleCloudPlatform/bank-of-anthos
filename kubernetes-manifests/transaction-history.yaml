@@ -27,7 +27,7 @@ spec:
     spec:
       terminationGracePeriodSeconds: 5
       containers:
-      - name: history
+      - name: transactionhistory
         image: gcr.io/bank-of-anthos/transactionhistory:latest
         volumeMounts:
         - name: publickey
@@ -51,6 +51,9 @@ spec:
           value: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
         #- name: EXTRA_LATENCY_MILLIS
         #  value: "5000"
+        # service level override of log level
+        # - name: LOG_LEVEL
+        #   value: "info"
         envFrom:
         - configMapRef:
             name: environment-config
