@@ -38,6 +38,8 @@ Implemented in Java with Spring Boot and Guava.
   - settings for the JVM. Used to obey container memory limits
 - `EXTRA_LATENCY_MILLIS`
   - add fake extra latency in milliseconds to transaction history requests
+- `LOG_LEVEL`
+  - service level log level override
 
 - ConfigMap `environment-config`:
   - `LOCAL_ROUTING_NUM`

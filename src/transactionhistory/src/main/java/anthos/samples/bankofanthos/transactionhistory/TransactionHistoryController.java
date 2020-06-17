@@ -32,7 +32,8 @@ import java.util.Collection;
 import java.util.Deque;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -68,7 +69,7 @@ import com.google.common.util.concurrent.UncheckedExecutionException;
 public final class TransactionHistoryController {
 
     private static final Logger LOGGER =
-            Logger.getLogger(TransactionHistoryController.class.getName());
+        LogManager.getLogger(TransactionHistoryController.class);
 
     @Autowired
     private TransactionRepository dbRepo;
@@ -112,7 +113,8 @@ public final class TransactionHistoryController {
         } catch (IOException
                  | NoSuchAlgorithmException
                  | InvalidKeySpecException e) {
-            LOGGER.severe(e.toString());
+            LOGGER.fatal(String.format("Failed initializing JWT verifier: %s",
+                e.toString()));
             System.exit(1);
         }
         // Initialize cache
@@ -121,7 +123,7 @@ public final class TransactionHistoryController {
             public Deque<Transaction> load(String accountId)
                     throws ResourceAccessException,
                            DataAccessResourceFailureException  {
-                LOGGER.fine("loaded from db");
+                LOGGER.debug("Cache loaded from db");
                 Pageable request = new PageRequest(0, historyLimit);
                 return dbRepo.findForAccount(accountId,
                                              localRoutingNum,
@@ -134,6 +136,7 @@ public final class TransactionHistoryController {
                             .build(load);
         // Initialize transaction processor.
         this.ledgerReader = reader;
+        LOGGER.debug("Initialized transaction processor");
         this.ledgerReader.startWithCallback(transaction -> {
             final String fromId = transaction.getFromAccountNum();
             final String fromRouting = transaction.getFromRoutingNum();
@@ -158,7 +161,7 @@ public final class TransactionHistoryController {
      * @param transaction the full transaction object
      */
     private void processTransaction(String accountId, Transaction transaction) {
-        LOGGER.fine("modifying cache: " + accountId);
+        LOGGER.debug("Modifying transaction cache: " + accountId);
         Deque<Transaction> tList = this.cache.asMap()
                                              .get(accountId);
         tList.addFirst(transaction);
@@ -198,6 +201,7 @@ public final class TransactionHistoryController {
     public ResponseEntity liveness() {
         if (!ledgerReader.isAlive()) {
             // background thread died.
+            LOGGER.error("Ledger reader not healthy");
             return new ResponseEntity<String>("Ledger reader not healthy",
                                               HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -216,7 +220,7 @@ public final class TransactionHistoryController {
     public ResponseEntity<?> getTransactions(
             @RequestHeader("Authorization") String bearerToken,
             @PathVariable String accountId) {
-        LOGGER.fine("request from " + accountId);
+
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             bearerToken = bearerToken.split("Bearer ")[1];
         }
@@ -224,6 +228,8 @@ public final class TransactionHistoryController {
             DecodedJWT jwt = verifier.verify(bearerToken);
             // Check that the authenticated user can access this account.
             if (!accountId.equals(jwt.getClaim("acct").asString())) {
+                LOGGER.error("Failed to retrieve account transactions: "
+                    + "not authorized");
                 return new ResponseEntity<String>("not authorized",
                                                   HttpStatus.UNAUTHORIZED);
             }
@@ -232,6 +238,7 @@ public final class TransactionHistoryController {
             Deque<Transaction> historyList = cache.get(accountId);
 
             // Set artificial extra latency.
+            LOGGER.debug("Setting artificial latency");
             if (extraLatencyMillis != null) {
                 try {
                     Thread.sleep(extraLatencyMillis);
@@ -243,9 +250,12 @@ public final class TransactionHistoryController {
             return new ResponseEntity<Collection<Transaction>>(
                     historyList, HttpStatus.OK);
         } catch (JWTVerificationException e) {
+            LOGGER.error("Failed to retrieve account transactions: "
+                + "not authorized");
             return new ResponseEntity<String>("not authorized",
                                               HttpStatus.UNAUTHORIZED);
         } catch (ExecutionException | UncheckedExecutionException e) {
+            LOGGER.error("Cache error");
             return new ResponseEntity<String>("cache error",
                                               HttpStatus.INTERNAL_SERVER_ERROR);
         }
