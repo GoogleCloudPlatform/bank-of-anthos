@@ -21,7 +21,7 @@ Implemented in Java with Spring Boot.
 - `JVM_OPTS`
   - settings for the JVM. Used to obey container memory limits
 - `LOG_LEVEL`
-  - service level log level override
+  - the service-wide [log level](https://logging.apache.org/log4j/2.x/manual/customloglevels.html) (default: INFO)
   
 - ConfigMap `environment-config`:
   - `LOCAL_ROUTING_NUM`
