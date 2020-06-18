@@ -55,7 +55,6 @@ public final class LedgerWriterController {
 
     private String localRoutingNum;
     private String balancesApiUri;
-    private String version;
 
 
     public static final String READINESS_CODE = "ok";
@@ -69,38 +68,14 @@ public final class LedgerWriterController {
     *
     * Initializes JWT verifier.
     */
-
     public LedgerWriterController(
             JWTVerifier verifier,
             @Value("${LOCAL_ROUTING_NUM}") String localRoutingNum,
             @Value("http://${BALANCES_API_ADDR}/balances")
-                    String balancesApiUri,
-            @Value("${VERSION}") String version) {
+                    String balancesApiUri) {
         this.verifier = verifier;
         this.localRoutingNum = localRoutingNum;
         this.balancesApiUri = balancesApiUri;
-        this.version = version;
-    }
-
-    /**
-     * Version endpoint.
-     *
-     * @return  service version string
-     */
-    @GetMapping("/version")
-    public ResponseEntity version() {
-        return new ResponseEntity<String>(version, HttpStatus.OK);
-    }
-
-    /**
-     * Readiness probe endpoint.
-     *
-     * @return HTTP Status 200 if server is ready to receive requests.
-     */
-    @GetMapping("/ready")
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<String> readiness() {
-        return new ResponseEntity<String>(READINESS_CODE, HttpStatus.OK);
     }
 
     /**

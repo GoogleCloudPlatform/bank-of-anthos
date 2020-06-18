@@ -68,8 +68,6 @@ public final class BalanceReaderController {
 
     @Value("${LOCAL_ROUTING_NUM}")
     private String localRoutingNum;
-    @Value("${VERSION}")
-    private String version;
 
     private JWTVerifier verifier;
     private LoadingCache<String, Long> cache;
@@ -142,42 +140,6 @@ public final class BalanceReaderController {
                 this.cache.put(toId, prevBalance + amount);
             }
         });
-    }
-
-    /**
-     * Version endpoint.
-     *
-     * @return  service version string
-     */
-    @GetMapping("/version")
-    public ResponseEntity version() {
-        return new ResponseEntity<String>(version, HttpStatus.OK);
-    }
-
-    /**
-     * Readiness probe endpoint.
-     *
-     * @return HTTP Status 200 if server is ready to receive requests.
-     */
-    @GetMapping("/ready")
-    @ResponseStatus(HttpStatus.OK)
-    public String readiness() {
-        return "ok";
-    }
-
-    /**
-     * Liveness probe endpoint.
-     *
-     * @return HTTP Status 200 if server is healthy and serving requests.
-     */
-    @GetMapping("/healthy")
-    public ResponseEntity liveness() {
-        if (!ledgerReader.isAlive()) {
-            // Background thread died.
-            return new ResponseEntity<String>("Ledger reader not healthy",
-                                              HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        return new ResponseEntity<String>("ok", HttpStatus.OK);
     }
 
     /**

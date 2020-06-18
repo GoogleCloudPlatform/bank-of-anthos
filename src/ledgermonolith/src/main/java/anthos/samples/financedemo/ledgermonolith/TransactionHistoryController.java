@@ -77,8 +77,6 @@ public final class TransactionHistoryController {
     private Integer extraLatencyMillis;
     @Value("${HISTORY_LIMIT:100}")
     private Integer historyLimit;
-    @Value("${VERSION}")
-    private String version;
 
     private JWTVerifier verifier;
     private LedgerReader ledgerReader;
@@ -166,42 +164,6 @@ public final class TransactionHistoryController {
         if (tList.size() > historyLimit) {
             tList.removeLast();
         }
-    }
-
-   /**
-     * Version endpoint.
-     *
-     * @return  service version string
-     */
-    @GetMapping("/version")
-    public ResponseEntity version() {
-        return new ResponseEntity<String>(version, HttpStatus.OK);
-    }
-
-    /**
-     * Readiness probe endpoint.
-     *
-     * @return HTTP Status 200 if server is ready to receive requests.
-     */
-    @GetMapping("/ready")
-    @ResponseStatus(HttpStatus.OK)
-    public String readiness() {
-        return "ok";
-    }
-
-    /**
-     * Liveness probe endpoint.
-     *
-     * @return HTTP Status 200 if server is healthy and serving requests.
-     */
-    @GetMapping("/healthy")
-    public ResponseEntity liveness() {
-        if (!ledgerReader.isAlive()) {
-            // background thread died.
-            return new ResponseEntity<String>("Ledger reader not healthy",
-                                              HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        return new ResponseEntity<String>("ok", HttpStatus.OK);
     }
 
     /**

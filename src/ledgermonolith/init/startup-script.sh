@@ -16,6 +16,7 @@
 
 # Startup script to start the ledgermonolith service from a JAR
 set -v
+set -e
 
 
 # Define names of build artifacts

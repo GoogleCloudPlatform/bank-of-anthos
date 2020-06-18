@@ -29,7 +29,13 @@ import org.springframework.stereotype.Repository;
 public interface TransactionRepository
     extends CrudRepository<Transaction, Long> {
 
-    @Query("SELECT ISNULL(MAX(transactionId),'-1') FROM Transaction")
+    /**
+     * Returns the id of the latest transaction, or -1 if no transactions exist.
+     */
+    @Query(value = "SELECT COALESCE("
+        + "(SELECT MAX(transaction_id) FROM transactions), "
+        + "CAST ('-1' AS BIGINT))",
+        nativeQuery = true)
     Long latestId();
 
     @Query("SELECT t FROM Transaction t "
@@ -45,10 +51,10 @@ public interface TransactionRepository
     List<Transaction> findLatest(long latestTransaction);
 
     @Query(value = "SELECT "
-        + " (SELECT SUM(AMOUNT) FROM TRANSACTIONS t "
-        + "     WHERE (TO_ACCT = ?1 AND TO_ROUTE = ?2)) - "
-        + " (SELECT SUM(AMOUNT) FROM TRANSACTIONS t "
-        + "     WHERE (FROM_ACCT = ?1 AND FROM_ROUTE = ?2))",
+        + " (SELECT SUM(amount) FROM transactions t "
+        + "     WHERE (to_acct = ?1 AND to_route = ?2)) - "
+        + " (SELECT SUM(amount) FROM transactions t "
+        + "     WHERE (from_acct = ?1 AND from_route = ?2))",
         nativeQuery = true)
     Long findBalance(String accountNum, String routeNum);
 }
