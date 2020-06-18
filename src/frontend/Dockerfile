@@ -30,6 +30,9 @@ RUN virtualenv -p python3.7 /env
 ENV VIRTUAL_ENV /env
 ENV PATH /env/bin:$PATH
 
+# explicitly set a fallback log level in case no log level is defined by Kubernetes
+ENV LOG_LEVEL info
+
 # Install dependencies.
 ADD requirements.txt /app/requirements.txt
 RUN pip install -r /app/requirements.txt
@@ -39,5 +42,8 @@ ADD static /app/static
 ADD templates /app/templates
 ADD *.py /app/
 
+# Copy logging configuration for gunicorn
+COPY logging.conf /logging.conf
+
 # Start server using gunicorn
-CMD gunicorn -b :$PORT --threads 4 --log-level=info flask_server:APP
+CMD gunicorn -b :$PORT --threads 4 --log-config /logging.conf --log-level=$LOG_LEVEL flask_server:APP

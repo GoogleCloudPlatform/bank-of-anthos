@@ -22,7 +22,7 @@ Implemented in Python with Flask.
 - `PORT`
   - the port for the webserver
 - `LOG_LEVEL`
-  - the [logging level](https://docs.python.org/3/library/logging.html#levels) (default: INFO)
+  - the service-wide [logging level](https://docs.python.org/3/library/logging.html#levels) (default: INFO)
 
 - ConfigMap `environment-config`:
   - `LOCAL_ROUTING_NUM`
