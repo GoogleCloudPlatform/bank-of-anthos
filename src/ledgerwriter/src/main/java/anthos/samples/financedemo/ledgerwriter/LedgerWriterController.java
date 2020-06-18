@@ -146,9 +146,8 @@ public final class LedgerWriterController {
             }
 
             // No exceptions thrown. Add to ledger
-            LOGGER.info("Submitting transaction "
-                    + transaction.toString());
             transactionRepository.save(transaction);
+            LOGGER.info("Submitted transaction successfully");
             return new ResponseEntity<String>(READINESS_CODE,
                     HttpStatus.CREATED);
 

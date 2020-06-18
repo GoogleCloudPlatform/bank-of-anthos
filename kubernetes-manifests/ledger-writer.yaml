@@ -27,7 +27,7 @@ spec:
     spec:
       terminationGracePeriodSeconds: 5
       containers:
-      - name: writer
+      - name: ledgerwriter
         image: gcr.io/bank-of-anthos/ledgerwriter:latest
         volumeMounts:
         - name: publickey
