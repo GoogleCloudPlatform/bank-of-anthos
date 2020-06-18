@@ -25,13 +25,15 @@ Implemented in Python with Flask.
 - `TOKEN_EXPIRY_SECONDS`
   - how long JWTs are valid before forcing user logout
 - `LOG_LEVEL`
-  - the [logging level](https://docs.python.org/3/library/logging.html#levels) (default: INFO)
+  - the service-specific override of the [logging level](https://docs.python.org/3/library/logging.html#levels) (default: INFO)
 
 - ConfigMap `environment-config`:
   - `LOCAL_ROUTING_NUM`
     - the routing number for our bank
   - `PUB_KEY_PATH`
     - the path to the JWT signer's public key, mounted as a secret
+  - `LOG_LEVEL`
+    - application-wide log verbosity level
 
 - ConfigMap `accounts-db-config`:
   - `ACCOUNTS_DB_URI`

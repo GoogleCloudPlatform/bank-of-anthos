@@ -38,6 +38,8 @@ spec:
           value: "v0.2.0"
         - name: PORT
           value: "8080"
+        # - name: LOG_LEVEL
+        #   value: "info"
         envFrom:
         - configMapRef:
             name: environment-config

@@ -27,7 +27,7 @@ spec:
     spec:
       terminationGracePeriodSeconds: 5
       containers:
-      - name: reader
+      - name: balancereader
         image: gcr.io/bank-of-anthos/balancereader:latest
         volumeMounts:
         - name: publickey
@@ -45,6 +45,9 @@ spec:
         # tell Java to obey container memory limits
         - name: JVM_OPTS
           value: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
+        # service level override of log level
+        # - name: LOG_LEVEL
+        #   value: "info"
         envFrom:
         - configMapRef:
             name: environment-config
