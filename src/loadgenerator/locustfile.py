@@ -26,8 +26,6 @@ import uuid
 
 from locust import HttpLocust, TaskSet, TaskSequence, task, seq_task, between
 
-logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO').upper())
-
 MASTER_PASSWORD = "password"
 
 TRANSACTION_ACCT_LIST = [str(randint(1111100000, 1111199999)) for _ in range(50)]

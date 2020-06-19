@@ -37,6 +37,8 @@ spec:
           value: "frontend:80"
         - name: USERS
           value: "5"
+        - name: LOG_LEVEL
+          value: "info"
         resources:
           requests:
             cpu: 100m
