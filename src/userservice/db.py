@@ -60,6 +60,7 @@ class UserDb:
 
     def generate_accountid(self):
         """Generates a globally unique alphanumerical accountid."""
+        self.logger.debug('Generating an account ID')
         accountid = None
         with self.engine.connect() as conn:
             while accountid is None:
@@ -70,10 +71,11 @@ class UserDb:
                 )
                 self.logger.debug('QUERY: %s', str(statement))
                 result = conn.execute(statement).first()
-                self.logger.debug('RESULT: %s', str(result))
                 # If there already exists an account, try again.
                 if result is not None:
                     accountid = None
+                    self.logger.debug('RESULT: account ID already exists. Trying again')
+        self.logger.debug('RESULT: account ID generated.')
         return accountid
 
     def get_user(self, username):
@@ -89,5 +91,5 @@ class UserDb:
         self.logger.debug('QUERY: %s', str(statement))
         with self.engine.connect() as conn:
             result = conn.execute(statement).first()
-        self.logger.debug('RESULT: %s', str(result))
+        self.logger.debug('RESULT: fetched user data for %s', username)
         return dict(result) if result is not None else None
