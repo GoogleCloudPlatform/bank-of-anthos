@@ -30,6 +30,9 @@ RUN virtualenv -p python3.7 /env
 ENV VIRTUAL_ENV /env
 ENV PATH /env/bin:$PATH
 
+# explicitly set a fallback log level in case no log level is defined by Kubernetes
+ENV LOG_LEVEL info
+
 # Install dependencies.
 ADD requirements.txt /app/requirements.txt
 RUN pip install -r /app/requirements.txt
@@ -37,5 +40,8 @@ RUN pip install -r /app/requirements.txt
 # Add application code.
 ADD *.py /app/
 
+# Copy logging configuration for gunicorn
+COPY logging.conf /logging.conf
+
 # Start server using gunicorn
-CMD gunicorn -b :$PORT --threads 2 --log-level=info "userservice:create_app()"
+CMD gunicorn -b :$PORT --threads 2 --log-config /logging.conf --log-level=$LOG_LEVEL "userservice:create_app()"
