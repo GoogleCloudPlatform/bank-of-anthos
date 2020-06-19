@@ -16,8 +16,8 @@
 
 package anthos.samples.bankofanthos.ledgerwriter;
 
-import java.util.logging.Logger;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import  org.springframework.web.client.HttpServerErrorException;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -49,7 +49,7 @@ import static anthos.samples.bankofanthos.ledgerwriter.ExceptionMessages.
 public final class LedgerWriterController {
 
     private static final Logger LOGGER =
-            Logger.getLogger(LedgerWriterController.class.getName());
+        LogManager.getLogger(LedgerWriterController.class);
 
     private TransactionRepository transactionRepository;
     private TransactionValidator transactionValidator;
@@ -124,6 +124,8 @@ public final class LedgerWriterController {
         }
         try {
             if (bearerToken == null) {
+                LOGGER.error("Transaction submission failed: "
+                    + "Authorization header null");
                 throw new IllegalArgumentException(
                         EXCEPTION_MESSAGE_WHEN_AUTHORIZATION_HEADER_NULL);
             }
@@ -136,27 +138,33 @@ public final class LedgerWriterController {
                 int balance = getAvailableBalance(
                         bearerToken, transaction.getFromAccountNum());
                 if (balance < transaction.getAmount()) {
+                    LOGGER.error("Transaction submission failed: "
+                        + "Insufficient balance");
                     throw new IllegalStateException(
                             EXCEPTION_MESSAGE_INSUFFICIENT_BALANCE);
                 }
             }
 
             // No exceptions thrown. Add to ledger
-            LOGGER.fine("Submitting transaction "
-                    + transaction.toString());
             transactionRepository.save(transaction);
+            LOGGER.info("Submitted transaction successfully");
             return new ResponseEntity<String>(READINESS_CODE,
                     HttpStatus.CREATED);
 
         } catch (JWTVerificationException e) {
+            LOGGER.error("Failed to submit transaction: "
+                + "not authorized");
             return new ResponseEntity<String>(UNAUTHORIZED_CODE,
                                               HttpStatus.UNAUTHORIZED);
         } catch (IllegalArgumentException | IllegalStateException e) {
+            LOGGER.error("Failed to retrieve account balance: "
+                + "bad request");
             return new ResponseEntity<String>(e.getMessage(),
                                               HttpStatus.BAD_REQUEST);
         } catch (ResourceAccessException
                 | CannotCreateTransactionException
                 | HttpServerErrorException e) {
+            LOGGER.error("Failed to retrieve account balance");
             return new ResponseEntity<String>(e.getMessage(),
                                               HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -174,6 +182,8 @@ public final class LedgerWriterController {
      */
     protected int getAvailableBalance(String token, String fromAcct)
             throws HttpServerErrorException {
+        LOGGER.debug("Retrieving balance for transaction sender");
+
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + token);
         HttpEntity entity = new HttpEntity(headers);

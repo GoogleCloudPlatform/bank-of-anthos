@@ -66,7 +66,6 @@ class ContactsDb:
         self.logger.debug("QUERY: %s", str(statement))
         with self.engine.connect() as conn:
             result = conn.execute(statement)
-        self.logger.debug("RESULT: %s", str(result))
         for row in result:
             contact = {
                 "label": row["label"],
@@ -75,4 +74,5 @@ class ContactsDb:
                 "is_external": row["is_external"],
             }
             contacts.append(contact)
+        self.logger.debug("RESULT: Fetched %d contacts.", len(contacts))
         return contacts
