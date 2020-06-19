@@ -16,8 +16,10 @@
 
 package anthos.samples.financedemo.ledgerwriter;
 
-import java.util.logging.Logger;
-
+import javax.annotation.PreDestroy;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -30,7 +32,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class LedgerWriterApplication {
 
     private static final Logger LOGGER =
-            Logger.getLogger(LedgerWriterApplication.class.getName());
+        LogManager.getLogger(LedgerWriterApplication.class);
 
     private static final String[] EXPECTED_ENV_VARS = {
         "VERSION",
@@ -48,12 +50,19 @@ public class LedgerWriterApplication {
         for (String v : EXPECTED_ENV_VARS) {
             String value = System.getenv(v);
             if (value == null) {
-                LOGGER.severe(String.format(
-                        "error: %s environment variable not set", v));
+                LOGGER.fatal(String.format(
+                    "%s environment variable not set", v));
                 System.exit(1);
             }
         }
         SpringApplication.run(LedgerWriterApplication.class, args);
-        LOGGER.info("Started LedgerWriter service.");
+        LOGGER.log(Level.forName("STARTUP", Level.FATAL.intLevel()),
+            String.format("Started LedgerWriter service. Log level is: %s",
+                LOGGER.getLevel().toString()));
+    }
+
+    @PreDestroy
+    public void destroy() {
+        LOGGER.info("LedgerWriter service shutting down");
     }
 }

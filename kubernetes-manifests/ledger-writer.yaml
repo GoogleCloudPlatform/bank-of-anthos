@@ -27,7 +27,7 @@ spec:
     spec:
       terminationGracePeriodSeconds: 5
       containers:
-      - name: writer
+      - name: ledgerwriter
         image: gcr.io/bank-of-anthos/ledgerwriter:latest
         volumeMounts:
         - name: publickey
@@ -41,6 +41,9 @@ spec:
          # tell Java to obey container memory limits
         - name: JVM_OPTS
           value: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
+        # service level override of log level
+        - name: LOG_LEVEL
+          value: "info"
         envFrom:
         - configMapRef:
             name: environment-config
