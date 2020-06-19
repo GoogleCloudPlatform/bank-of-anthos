@@ -20,7 +20,6 @@ Exercises the frontend endpoints for the system
 
 import json
 import logging
-import os
 from random import randint, random, choice
 import uuid
 
