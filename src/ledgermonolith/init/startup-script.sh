@@ -31,7 +31,8 @@ echo "Project ID: ${PROJECTID}"
 
 
 # Install dependencies from apt
-sudo apt-get -qq update; sudo apt-get -qq install openjdk-11-jdk postgresql postgresql-client < /dev/null > /dev/null
+sudo apt-get -qq update
+sudo apt-get -qq install --fix-missing openjdk-11-jdk postgresql postgresql-client < /dev/null > /dev/null
 
 
 # Install gcloud if not already installed

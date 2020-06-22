@@ -54,7 +54,7 @@ gcloud compute instances create ledgermonolith-service \
     --machine-type=n1-standard-1 \
     --scopes cloud-platform,storage-ro \
     --metadata-from-file startup-script=$CWD/../init/startup-script.sh \
-    --tags http-server \
+    --tags monolith \
     --quiet
 
 
@@ -66,10 +66,10 @@ if [ $? -ne 0 ]; then
   gcloud compute firewall-rules create default-allow-http-80 \
       --project $PROJECT_ID \
       --network default \
-      --allow tcp:80 \
-      --source-ranges 0.0.0.0/0 \
-      --target-tags http-server \
-      --description "Allow port 80 access to http-server" \
+      --allow tcp:8080 \
+      --source-tags monolith \
+      --target-tags monolith \
+      --description "Allow port 8080 access to monolith instances" \
       --quiet
 fi
 
