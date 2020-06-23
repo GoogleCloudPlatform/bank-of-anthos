@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package anthos.samples.financedemo.ledgerwriter;
+package anthos.samples.bankofanthos.ledgerwriter;
 
 import java.util.concurrent.TimeUnit;
 
@@ -42,15 +42,14 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
-
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
-import static anthos.samples.financedemo.ledgerwriter.ExceptionMessages.
+import static anthos.samples.bankofanthos.ledgerwriter.ExceptionMessages.
         EXCEPTION_MESSAGE_INSUFFICIENT_BALANCE;
-import static anthos.samples.financedemo.ledgerwriter.ExceptionMessages.
+import static anthos.samples.bankofanthos.ledgerwriter.ExceptionMessages.
         EXCEPTION_MESSAGE_WHEN_AUTHORIZATION_HEADER_NULL;
-import static anthos.samples.financedemo.ledgerwriter.ExceptionMessages.
+import static anthos.samples.bankofanthos.ledgerwriter.ExceptionMessages.
         EXCEPTION_MESSAGE_DUPLICATE_TRANSACTION;
 
 @RestController

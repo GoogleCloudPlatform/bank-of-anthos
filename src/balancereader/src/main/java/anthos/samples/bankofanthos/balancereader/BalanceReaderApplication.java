@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package anthos.samples.financedemo.transactionhistory;
+package anthos.samples.bankofanthos.balancereader;
 
 import javax.annotation.PreDestroy;
 import org.apache.logging.log4j.Level;
@@ -25,15 +25,15 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * Entry point for the TransactionHistory Spring Boot application.
+ * Entry point for the BalanceReader Spring Boot application.
  *
- * Microservice to track the transaction history for each bank account.
+ * Microservice to track the bank balance for each user account.
  */
 @SpringBootApplication
-public class TransactionHistoryApplication {
+public class BalanceReaderApplication {
 
     private static final Logger LOGGER =
-        LogManager.getLogger(TransactionHistoryApplication.class);
+        LogManager.getLogger(BalanceReaderApplication.class);
 
     private static final String[] EXPECTED_ENV_VARS = {
         "VERSION",
@@ -42,8 +42,7 @@ public class TransactionHistoryApplication {
         "PUB_KEY_PATH",
         "SPRING_DATASOURCE_URL",
         "SPRING_DATASOURCE_USERNAME",
-        "SPRING_DATASOURCE_PASSWORD",
-        "LOG_LEVEL"
+        "SPRING_DATASOURCE_PASSWORD"
     };
 
     public static void main(String[] args) {
@@ -56,14 +55,15 @@ public class TransactionHistoryApplication {
                 System.exit(1);
             }
         }
-        SpringApplication.run(TransactionHistoryApplication.class, args);
+        SpringApplication.run(BalanceReaderApplication.class, args);
         LOGGER.log(Level.forName("STARTUP", Level.FATAL.intLevel()),
-            String.format("Started TransactionHistory service. "
-                + "Log level is: %s", LOGGER.getLevel().toString()));
+            String.format("Started BalanceReader service. Log level is: %s",
+                LOGGER.getLevel().toString()));
+
     }
 
     @PreDestroy
     public void destroy() {
-        LOGGER.info("TransactionHistory service shutting down");
+        LOGGER.info("BalanceReader service shutting down");
     }
 }

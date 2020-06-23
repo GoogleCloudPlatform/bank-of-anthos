@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package anthos.samples.financedemo.ledgerwriter;
+package anthos.samples.bankofanthos.ledgerwriter;
 
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.exceptions.JWTVerificationException;
@@ -31,9 +31,9 @@ import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 
-import static anthos.samples.financedemo.ledgerwriter.ExceptionMessages.
+import static anthos.samples.bankofanthos.ledgerwriter.ExceptionMessages.
         EXCEPTION_MESSAGE_INSUFFICIENT_BALANCE;
-import static anthos.samples.financedemo.ledgerwriter.ExceptionMessages.
+import static anthos.samples.bankofanthos.ledgerwriter.ExceptionMessages.
         EXCEPTION_MESSAGE_WHEN_AUTHORIZATION_HEADER_NULL;
 import static anthos.samples.financedemo.ledgerwriter.ExceptionMessages.
         EXCEPTION_MESSAGE_DUPLICATE_TRANSACTION;
