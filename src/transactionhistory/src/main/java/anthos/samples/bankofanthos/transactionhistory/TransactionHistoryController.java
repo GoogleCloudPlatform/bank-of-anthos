@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package anthos.samples.financedemo.transactionhistory;
+package anthos.samples.bankofanthos.transactionhistory;
 
 import java.io.IOException;
 
