@@ -14,35 +14,36 @@
  * limitations under the License.
  */
 
-package anthos.samples.financedemo.ledgerwriter;
+package anthos.samples.bankofanthos.transactionhistory;
 
 import javax.annotation.PreDestroy;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * Entry point for the LedgerWriter Spring Boot application.
+ * Entry point for the TransactionHistory Spring Boot application.
  *
- * Microservice to accept new transactions for the bank ledger.
+ * Microservice to track the transaction history for each bank account.
  */
 @SpringBootApplication
-public class LedgerWriterApplication {
+public class TransactionHistoryApplication {
 
     private static final Logger LOGGER =
-        LogManager.getLogger(LedgerWriterApplication.class);
+        LogManager.getLogger(TransactionHistoryApplication.class);
 
     private static final String[] EXPECTED_ENV_VARS = {
         "VERSION",
         "PORT",
         "LOCAL_ROUTING_NUM",
-        "BALANCES_API_ADDR",
         "PUB_KEY_PATH",
         "SPRING_DATASOURCE_URL",
         "SPRING_DATASOURCE_USERNAME",
-        "SPRING_DATASOURCE_PASSWORD"
+        "SPRING_DATASOURCE_PASSWORD",
+        "LOG_LEVEL"
     };
 
     public static void main(String[] args) {
@@ -55,14 +56,14 @@ public class LedgerWriterApplication {
                 System.exit(1);
             }
         }
-        SpringApplication.run(LedgerWriterApplication.class, args);
+        SpringApplication.run(TransactionHistoryApplication.class, args);
         LOGGER.log(Level.forName("STARTUP", Level.FATAL.intLevel()),
-            String.format("Started LedgerWriter service. Log level is: %s",
-                LOGGER.getLevel().toString()));
+            String.format("Started TransactionHistory service. "
+                + "Log level is: %s", LOGGER.getLevel().toString()));
     }
 
     @PreDestroy
     public void destroy() {
-        LOGGER.info("LedgerWriter service shutting down");
+        LOGGER.info("TransactionHistory service shutting down");
     }
 }

@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package anthos.samples.financedemo.ledgerwriter;
+package anthos.samples.bankofanthos.ledgerwriter;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
-import static anthos.samples.financedemo.ledgerwriter.ExceptionMessages.
+import static anthos.samples.bankofanthos.ledgerwriter.ExceptionMessages.
         EXCEPTION_MESSAGE_INVALID_NUMBER;
-import static anthos.samples.financedemo.ledgerwriter.ExceptionMessages.
+import static anthos.samples.bankofanthos.ledgerwriter.ExceptionMessages.
         EXCEPTION_MESSAGE_NOT_AUTHENTICATED;
-import static anthos.samples.financedemo.ledgerwriter.ExceptionMessages.
+import static anthos.samples.bankofanthos.ledgerwriter.ExceptionMessages.
         EXCEPTION_MESSAGE_SEND_TO_SELF;
-import static anthos.samples.financedemo.ledgerwriter.ExceptionMessages.
+import static anthos.samples.bankofanthos.ledgerwriter.ExceptionMessages.
         EXCEPTION_MESSAGE_INVALID_AMOUNT;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
