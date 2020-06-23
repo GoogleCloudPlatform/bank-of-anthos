@@ -22,6 +22,7 @@ import os
 from flask import Flask, abort, jsonify, make_response, redirect, \
     render_template, request, url_for
 import requests
+from requests.exceptions import HTTPError, RequestException
 import jwt
 
 APP = Flask(__name__)
@@ -108,7 +109,8 @@ def home():
                            name=display_name,
                            account_id=account_id,
                            contacts=contacts,
-                           message=request.args.get('msg', None))
+                           message=request.args.get('msg', None),
+                           bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'))
 
 
 def _populate_contact_labels(account_id, transactions, contacts):
@@ -174,7 +176,8 @@ def payment():
                             "fromRoutingNum": APP.config['LOCAL_ROUTING'],
                             "toAccountNum": recipient,
                             "toRoutingNum": APP.config['LOCAL_ROUTING'],
-                            "amount": int(float(request.form['amount']) * 100)}
+                            "amount": int(float(request.form['amount']) * 100),
+                            "uuid": request.form['uuid']}
         _submit_transaction(transaction_data)
         APP.logger.info('Payment initiated successfully.')
         return redirect(url_for('home',
@@ -236,7 +239,8 @@ def deposit():
                             "fromRoutingNum": external_routing_num,
                             "toAccountNum": account_id,
                             "toRoutingNum": APP.config['LOCAL_ROUTING'],
-                            "amount": int(float(request.form['amount']) * 100)}
+                            "amount": int(float(request.form['amount']) * 100),
+                            "uuid": request.form['uuid']}
         _submit_transaction(transaction_data)
         APP.logger.info('Deposit submitted successfully.')
         return redirect(url_for('home',
@@ -318,7 +322,8 @@ def login_page():
     return render_template('login.html',
                            message=request.args.get('msg', None),
                            default_user=os.getenv('DEFAULT_USERNAME', ''),
-                           default_password=os.getenv('DEFAULT_PASSWORD', ''))
+                           default_password=os.getenv('DEFAULT_PASSWORD', ''),
+                           bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'))
 
 
 @APP.route('/login', methods=['POST'])
@@ -349,16 +354,8 @@ def _login_helper(username, password):
         resp.set_cookie(APP.config['TOKEN_NAME'], token, max_age=max_age)
         APP.logger.info('Successfully logged in.')
         return resp
-    except requests.exceptions.RequestException as err:
+    except (RequestException, HTTPError) as err:
         APP.logger.error('Error logging in: %s', str(err))
-    except requests.exceptions.HTTPError as err:
-        APP.logger.error('Error logging in: %s', str(err))
-        msg = 'Login Failed: {}'.format(req.json().get('msg', ''))
-        return redirect(url_for('login',
-                                msg=msg,
-                                _external=True,
-                                _scheme=APP.config['SCHEME']))
-
     return redirect(url_for('login',
                             msg='Login Failed',
                             _external=True,
@@ -377,7 +374,8 @@ def signup_page():
         return redirect(url_for('home',
                                 _external=True,
                                 _scheme=APP.config['SCHEME']))
-    return render_template('signup.html')
+    return render_template('signup.html',
+                           bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'))
 
 
 @APP.route("/signup", methods=['POST'])
