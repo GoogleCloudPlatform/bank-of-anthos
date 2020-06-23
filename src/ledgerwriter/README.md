@@ -20,7 +20,9 @@ Implemented in Java with Spring Boot.
   - the port for the webserver
 - `JVM_OPTS`
   - settings for the JVM. Used to obey container memory limits
-
+- `LOG_LEVEL`
+  - the service-wide [log level](https://logging.apache.org/log4j/2.x/manual/customloglevels.html) (default: INFO)
+  
 - ConfigMap `environment-config`:
   - `LOCAL_ROUTING_NUM`
     - the routing number for our bank

@@ -25,7 +25,7 @@ Implemented in Python with Flask.
 - `TOKEN_EXPIRY_SECONDS`
   - how long JWTs are valid before forcing user logout
 - `LOG_LEVEL`
-  - the [logging level](https://docs.python.org/3/library/logging.html#levels) (default: INFO)
+  - the service-specific [logging level](https://docs.python.org/3/library/logging.html#levels) (default: INFO)
 
 - ConfigMap `environment-config`:
   - `LOCAL_ROUTING_NUM`
