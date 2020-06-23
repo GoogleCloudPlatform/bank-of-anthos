@@ -16,7 +16,6 @@
 
 # Startup script to start the ledgermonolith service from a JAR
 set -v
-set -e
 
 
 # Define names of build artifacts
@@ -30,9 +29,27 @@ PROJECTID=$(curl -s "http://metadata.google.internal/computeMetadata/v1/project/
 echo "Project ID: ${PROJECTID}"
 
 
+# Update apt packages and retry if needed
+sudo apt-get -qq update < /dev/null > /dev/null
+while [ $? -ne 0 ]; do
+	sleep 60
+	sudo apt-get -qq update < /dev/null > /dev/null
+done
+
+
+# Function to install packages from apt and retry if needed
+function apt-install {
+	sudo apt-get -qq install "$@" < /dev/null > /dev/null
+	while [ $? -ne 0 ]; do
+		echo "Package installation failed, retrying in 60s: $@"
+		sleep 60
+		sudo apt-get -qq install "$@" < /dev/null > /dev/null
+	done
+}
+
+
 # Install dependencies from apt
-sudo apt-get -qq update
-sudo apt-get -qq install --fix-missing openjdk-11-jdk postgresql postgresql-client < /dev/null > /dev/null
+apt-install openjdk-11-jdk postgresql postgresql-client
 
 
 # Install gcloud if not already installed
@@ -40,9 +57,9 @@ gcloud --version > /dev/null
 if [ $? -ne 0 ]; then
   # Copied from https://cloud.google.com/sdk/docs/downloads-apt-get
   echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-  sudo apt-get --qq install apt-transport-https ca-certificates gnupg < /dev/null > /dev/null
+  apt-install apt-transport-https ca-certificates gnupg
   curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
-  sudo apt-get -qq install google-cloud-sdk < /dev/null > /dev/null
+  apt-install google-cloud-sdk
   gcloud services enable compute
 fi
 
