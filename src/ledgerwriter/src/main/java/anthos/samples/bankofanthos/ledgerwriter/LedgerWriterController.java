@@ -16,6 +16,8 @@
 
 package anthos.samples.bankofanthos.ledgerwriter;
 
+import java.util.concurrent.TimeUnit;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import  org.springframework.web.client.HttpServerErrorException;
@@ -40,10 +42,15 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+
 import static anthos.samples.bankofanthos.ledgerwriter.ExceptionMessages.
         EXCEPTION_MESSAGE_INSUFFICIENT_BALANCE;
 import static anthos.samples.bankofanthos.ledgerwriter.ExceptionMessages.
         EXCEPTION_MESSAGE_WHEN_AUTHORIZATION_HEADER_NULL;
+import static anthos.samples.bankofanthos.ledgerwriter.ExceptionMessages.
+        EXCEPTION_MESSAGE_DUPLICATE_TRANSACTION;
 
 @RestController
 public final class LedgerWriterController {
@@ -58,6 +65,8 @@ public final class LedgerWriterController {
     private String localRoutingNum;
     private String balancesApiUri;
     private String version;
+
+    private Cache<String, Long> cache;
 
     public static final String READINESS_CODE = "ok";
     public static final String UNAUTHORIZED_CODE = "not authorized";
@@ -83,6 +92,10 @@ public final class LedgerWriterController {
         this.localRoutingNum = localRoutingNum;
         this.balancesApiUri = balancesApiUri;
         this.version = version;
+        // Initialize cache to ignore duplicate transactions
+        this.cache = CacheBuilder.newBuilder()
+                            .expireAfterWrite(1, TimeUnit.HOURS)
+                            .build();
     }
 
     /**
@@ -130,6 +143,13 @@ public final class LedgerWriterController {
                         EXCEPTION_MESSAGE_WHEN_AUTHORIZATION_HEADER_NULL);
             }
             final DecodedJWT jwt = this.verifier.verify(bearerToken);
+
+            // Check against cache for duplicate transactions
+            if (this.cache.asMap().containsKey(transaction.getRequestUuid())) {
+                throw new IllegalStateException(
+                        EXCEPTION_MESSAGE_DUPLICATE_TRANSACTION);
+            }
+
             // validate transaction
             transactionValidator.validateTransaction(localRoutingNum,
                     jwt.getClaim(JWT_ACCOUNT_KEY).asString(), transaction);
@@ -147,6 +167,8 @@ public final class LedgerWriterController {
 
             // No exceptions thrown. Add to ledger
             transactionRepository.save(transaction);
+            this.cache.put(transaction.getRequestUuid(),
+                    transaction.getTransactionId());
             LOGGER.info("Submitted transaction successfully");
             return new ResponseEntity<String>(READINESS_CODE,
                     HttpStatus.CREATED);
@@ -194,5 +216,4 @@ public final class LedgerWriterController {
         Integer senderBalance = response.getBody();
         return senderBalance.intValue();
     }
-
 }
