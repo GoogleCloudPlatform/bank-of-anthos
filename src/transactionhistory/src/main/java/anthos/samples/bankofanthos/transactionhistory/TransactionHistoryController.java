@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package anthos.samples.financedemo.balancereader;
+package anthos.samples.bankofanthos.transactionhistory;
 
 import java.io.IOException;
 
@@ -28,12 +28,18 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 
 import java.util.Base64;
+import java.util.Collection;
+import java.util.Deque;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Logger;
+import java.util.concurrent.TimeUnit;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessResourceFailureException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -55,25 +61,29 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 
 /**
- * REST service to retrieve the current balance for the authenticated user.
+ * Controller for the TransactionHistory service.
+ *
+ * Functions to show the transaction history for each user account.
  */
 @RestController
-public final class BalanceReaderController {
+public final class TransactionHistoryController {
 
     private static final Logger LOGGER =
-            Logger.getLogger(BalanceReaderController.class.getName());
+        LogManager.getLogger(TransactionHistoryController.class);
 
     @Autowired
     private TransactionRepository dbRepo;
 
-    @Value("${LOCAL_ROUTING_NUM}")
-    private String localRoutingNum;
+    @Value("${EXTRA_LATENCY_MILLIS:#{null}}")
+    private Integer extraLatencyMillis;
+    @Value("${HISTORY_LIMIT:100}")
+    private Integer historyLimit;
     @Value("${VERSION}")
     private String version;
 
     private JWTVerifier verifier;
-    private LoadingCache<String, Long> cache;
     private LedgerReader ledgerReader;
+    private LoadingCache<String, Deque<Transaction>> cache;
 
     /**
      * Constructor.
@@ -81,9 +91,10 @@ public final class BalanceReaderController {
      * Initializes JWT verifier and a connection to the bank ledger.
      */
     @Autowired
-    public BalanceReaderController(LedgerReader reader,
+    public TransactionHistoryController(LedgerReader reader,
             @Value("${PUB_KEY_PATH}") final String publicKeyPath,
-            @Value("${CACHE_SIZE:1000000}") final Integer expireSize,
+            @Value("${CACHE_SIZE:1000}") final Integer expireSize,
+            @Value("${CACHE_MINUTES:60}") final Integer expireMinutes,
             @Value("${LOCAL_ROUTING_NUM}") final String localRoutingNum) {
         // Initialize JWT verifier.
         try {
@@ -100,51 +111,67 @@ public final class BalanceReaderController {
             Algorithm algorithm = Algorithm.RSA256(publicKey, null);
             this.verifier = JWT.require(algorithm).build();
         } catch (IOException
-                | NoSuchAlgorithmException
-                | InvalidKeySpecException e) {
-            LOGGER.severe(e.toString());
+                 | NoSuchAlgorithmException
+                 | InvalidKeySpecException e) {
+            LOGGER.fatal(String.format("Failed initializing JWT verifier: %s",
+                e.toString()));
             System.exit(1);
         }
         // Initialize cache
-        CacheLoader loader =  new CacheLoader<String, Long>() {
+        CacheLoader load = new CacheLoader<String, Deque<Transaction>>() {
             @Override
-            public Long load(String accountId)
+            public Deque<Transaction> load(String accountId)
                     throws ResourceAccessException,
-                           DataAccessResourceFailureException {
-                LOGGER.fine("loaded from db");
-                Long balance = dbRepo.findBalance(accountId, localRoutingNum);
-                if (balance == null) {
-                    balance = 0L;
-                }
-                return balance;
+                           DataAccessResourceFailureException  {
+                LOGGER.debug("Cache loaded from db");
+                Pageable request = new PageRequest(0, historyLimit);
+                return dbRepo.findForAccount(accountId,
+                                             localRoutingNum,
+                                             request);
             }
         };
         this.cache = CacheBuilder.newBuilder()
                             .maximumSize(expireSize)
-                            .build(loader);
+                            .expireAfterWrite(expireMinutes, TimeUnit.MINUTES)
+                            .build(load);
         // Initialize transaction processor.
         this.ledgerReader = reader;
+        LOGGER.debug("Initialized transaction processor");
         this.ledgerReader.startWithCallback(transaction -> {
             final String fromId = transaction.getFromAccountNum();
             final String fromRouting = transaction.getFromRoutingNum();
             final String toId = transaction.getToAccountNum();
             final String toRouting = transaction.getToRoutingNum();
-            final Integer amount = transaction.getAmount();
 
             if (fromRouting.equals(localRoutingNum)
                     && this.cache.asMap().containsKey(fromId)) {
-                Long prevBalance = cache.asMap().get(fromId);
-                this.cache.put(fromId, prevBalance - amount);
+                processTransaction(fromId, transaction);
             }
             if (toRouting.equals(localRoutingNum)
                     && this.cache.asMap().containsKey(toId)) {
-                Long prevBalance = cache.asMap().get(toId);
-                this.cache.put(toId, prevBalance + amount);
+                processTransaction(toId, transaction);
             }
         });
     }
 
     /**
+     * Helper function to add a single transaction to the internal cache
+     *
+     * @param accountId   the accountId associated with the transaction
+     * @param transaction the full transaction object
+     */
+    private void processTransaction(String accountId, Transaction transaction) {
+        LOGGER.debug("Modifying transaction cache: " + accountId);
+        Deque<Transaction> tList = this.cache.asMap()
+                                             .get(accountId);
+        tList.addFirst(transaction);
+        // Drop old transactions
+        if (tList.size() > historyLimit) {
+            tList.removeLast();
+        }
+    }
+
+   /**
      * Version endpoint.
      *
      * @return  service version string
@@ -173,7 +200,8 @@ public final class BalanceReaderController {
     @GetMapping("/healthy")
     public ResponseEntity liveness() {
         if (!ledgerReader.isAlive()) {
-            // Background thread died.
+            // background thread died.
+            LOGGER.error("Ledger reader not healthy");
             return new ResponseEntity<String>("Ledger reader not healthy",
                                               HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -181,19 +209,18 @@ public final class BalanceReaderController {
     }
 
     /**
-     * Return the balance for the specified account.
+     * Return a list of transactions for the specified account.
      *
      * The currently authenticated user must be allowed to access the account.
-     *
      * @param bearerToken  HTTP request 'Authorization' header
-     * @param accountId    the account to get the balance for
-     * @return             the balance of the account
+     * @param accountId    the account to get transactions for.
+     * @return             a list of transactions for this account.
      */
-    @GetMapping("/balances/{accountId}")
-    public ResponseEntity<?> getBalance(
+    @GetMapping("/transactions/{accountId}")
+    public ResponseEntity<?> getTransactions(
             @RequestHeader("Authorization") String bearerToken,
             @PathVariable String accountId) {
-        LOGGER.fine("request from: " + accountId);
+
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             bearerToken = bearerToken.split("Bearer ")[1];
         }
@@ -201,16 +228,34 @@ public final class BalanceReaderController {
             DecodedJWT jwt = verifier.verify(bearerToken);
             // Check that the authenticated user can access this account.
             if (!accountId.equals(jwt.getClaim("acct").asString())) {
+                LOGGER.error("Failed to retrieve account transactions: "
+                    + "not authorized");
                 return new ResponseEntity<String>("not authorized",
                                                   HttpStatus.UNAUTHORIZED);
             }
+
             // Load from cache
-            Long balance = cache.get(accountId);
-            return new ResponseEntity<Long>(balance, HttpStatus.OK);
+            Deque<Transaction> historyList = cache.get(accountId);
+
+            // Set artificial extra latency.
+            LOGGER.debug("Setting artificial latency");
+            if (extraLatencyMillis != null) {
+                try {
+                    Thread.sleep(extraLatencyMillis);
+                } catch (InterruptedException e) {
+                    // Fake latency interrupted. Continue.
+                }
+            }
+
+            return new ResponseEntity<Collection<Transaction>>(
+                    historyList, HttpStatus.OK);
         } catch (JWTVerificationException e) {
+            LOGGER.error("Failed to retrieve account transactions: "
+                + "not authorized");
             return new ResponseEntity<String>("not authorized",
                                               HttpStatus.UNAUTHORIZED);
         } catch (ExecutionException | UncheckedExecutionException e) {
+            LOGGER.error("Cache error");
             return new ResponseEntity<String>("cache error",
                                               HttpStatus.INTERNAL_SERVER_ERROR);
         }

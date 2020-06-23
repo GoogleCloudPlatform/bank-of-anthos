@@ -59,10 +59,10 @@ def home():
     token = request.cookies.get(APP.config['TOKEN_NAME'])
     if not verify_token(token):
         # user isn't authenticated
+        APP.logger.debug('User isn\'t authenticated. Redirecting to login page.')
         return redirect(url_for('login_page',
                                 _external=True,
                                 _scheme=APP.config['SCHEME']))
-
     token_data = jwt.decode(token, verify=False)
     display_name = token_data['name']
     username = token_data['user']
@@ -73,29 +73,32 @@ def home():
     balance = None
     try:
         url = '{}/{}'.format(APP.config["BALANCES_URI"], account_id)
+        APP.logger.debug('Getting account balance.')
         response = requests.get(url=url, headers=hed, timeout=APP.config['BACKEND_TIMEOUT'])
         if response:
             balance = response.json()
     except (requests.exceptions.RequestException, ValueError) as err:
-        APP.logger.error(str(err))
+        APP.logger.error('Error getting account balance: %s', str(err))
     # get history
     transaction_list = None
     try:
         url = '{}/{}'.format(APP.config["HISTORY_URI"], account_id)
+        APP.logger.debug('Getting transaction history.')
         response = requests.get(url=url, headers=hed, timeout=APP.config['BACKEND_TIMEOUT'])
         if response:
             transaction_list = response.json()
     except (requests.exceptions.RequestException, ValueError) as err:
-        APP.logger.error(str(err))
+        APP.logger.error('Error getting transaction history: %s', str(err))
     # get contacts
     contacts = []
     try:
         url = '{}/{}'.format(APP.config["CONTACTS_URI"], username)
+        APP.logger.debug('Getting contacts.')
         response = requests.get(url=url, headers=hed, timeout=APP.config['BACKEND_TIMEOUT'])
         if response:
             contacts = response.json()
     except (requests.exceptions.RequestException, ValueError) as err:
-        APP.logger.error(str(err))
+        APP.logger.error('Error getting contacts: %s', str(err))
 
     _populate_contact_labels(account_id, transaction_list, contacts)
 
@@ -124,6 +127,7 @@ def _populate_contact_labels(account_id, transactions, contacts):
             contacts - a list of contacts as key/value dicts
                        [{contact1}, {contact2}, ...]
     """
+    APP.logger.debug('Populating contact labels.')
     if account_id is None or transactions is None or contacts is None:
         return
 
@@ -151,6 +155,7 @@ def payment():
     token = request.cookies.get(APP.config['TOKEN_NAME'])
     if not verify_token(token):
         # user isn't authenticated
+        APP.logger.error('Error submitting payment: user is not authenticated.')
         return abort(401)
     try:
         account_id = jwt.decode(token, verify=False)['acct']
@@ -171,14 +176,16 @@ def payment():
                             "toRoutingNum": APP.config['LOCAL_ROUTING'],
                             "amount": int(float(request.form['amount']) * 100)}
         _submit_transaction(transaction_data)
+        APP.logger.info('Payment initiated successfully.')
         return redirect(url_for('home',
                                 msg='Payment initiated',
                                 _external=True,
                                 _scheme=APP.config['SCHEME']))
 
     except requests.exceptions.RequestException as err:
-        APP.logger.error(str(err))
+        APP.logger.error('Error submitting payment: %s', str(err))
     except UserWarning as warn:
+        APP.logger.error('Error submitting payment: %s', str(warn))
         msg = 'Payment failed: {}'.format(str(warn))
         return redirect(url_for('home',
                                 msg=msg,
@@ -203,6 +210,7 @@ def deposit():
     token = request.cookies.get(APP.config['TOKEN_NAME'])
     if not verify_token(token):
         # user isn't authenticated
+        APP.logger.error('Error submitting deposit: user is not authenticated.')
         return abort(401)
     try:
         # get account id from token
@@ -229,14 +237,16 @@ def deposit():
                             "toRoutingNum": APP.config['LOCAL_ROUTING'],
                             "amount": int(float(request.form['amount']) * 100)}
         _submit_transaction(transaction_data)
+        APP.logger.info('Deposit submitted successfully.')
         return redirect(url_for('home',
                                 msg='Deposit accepted',
                                 _external=True,
                                 _scheme=APP.config['SCHEME']))
 
     except requests.exceptions.RequestException as err:
-        APP.logger.error(str(err))
+        APP.logger.error('Error submitting deposit: %s', str(err))
     except UserWarning as warn:
+        APP.logger.error('Error submitting deposit: %s', str(warn))
         msg = 'Deposit failed: {}'.format(str(warn))
         return redirect(url_for('home',
                                 msg=msg,
@@ -249,6 +259,7 @@ def deposit():
                             _scheme=APP.config['SCHEME']))
 
 def _submit_transaction(transaction_data):
+    APP.logger.debug('Submitting transaction.')
     token = request.cookies.get(APP.config['TOKEN_NAME'])
     hed = {'Authorization': 'Bearer ' + token,
            'content-type': 'application/json'}
@@ -268,6 +279,7 @@ def _add_contact(label, acct_num, routing_num, is_external_acct=False):
 
     Raise: UserWarning  if the response status is 4xx or 5xx.
     """
+    APP.logger.debug('Adding new contact.')
     token = request.cookies.get(APP.config['TOKEN_NAME'])
     hed = {'Authorization': 'Bearer ' + token,
            'content-type': 'application/json'}
@@ -297,6 +309,7 @@ def login_page():
     token = request.cookies.get(APP.config['TOKEN_NAME'])
     if verify_token(token):
         # already authenticated
+        APP.logger.debug('User already authenticated. Redirecting to /home')
         return redirect(url_for('home',
                                 _external=True,
                                 _scheme=APP.config['SCHEME']))
@@ -320,6 +333,7 @@ def login():
 
 def _login_helper(username, password):
     try:
+        APP.logger.debug('Logging in.')
         req = requests.get(url=APP.config["LOGIN_URI"],
                            params={'username': username, 'password': password})
         req.raise_for_status() # Raise on HTTP Status code 4XX or 5XX
@@ -332,10 +346,12 @@ def _login_helper(username, password):
                                               _external=True,
                                               _scheme=APP.config['SCHEME'])))
         resp.set_cookie(APP.config['TOKEN_NAME'], token, max_age=max_age)
+        APP.logger.info('Successfully logged in.')
         return resp
     except requests.exceptions.RequestException as err:
-        APP.logger.error(str(err))
+        APP.logger.error('Error logging in: %s', str(err))
     except requests.exceptions.HTTPError as err:
+        APP.logger.error('Error logging in: %s', str(err))
         msg = 'Login Failed: {}'.format(req.json().get('msg', ''))
         return redirect(url_for('login',
                                 msg=msg,
@@ -356,6 +372,7 @@ def signup_page():
     token = request.cookies.get(APP.config['TOKEN_NAME'])
     if verify_token(token):
         # already authenticated
+        APP.logger.debug('User already authenticated. Redirecting to /home')
         return redirect(url_for('home',
                                 _external=True,
                                 _scheme=APP.config['SCHEME']))
@@ -371,26 +388,28 @@ def signup():
     """
     try:
         # create user
+        APP.logger.debug('Creating new user.')
         resp = requests.post(url=APP.config["USERSERVICE_URI"],
                              data=request.form,
                              timeout=APP.config['BACKEND_TIMEOUT'])
         if resp.status_code == 201:
             # user created. Attempt login
+            APP.logger.info('New user created.')
             return _login_helper(request.form['username'],
                                  request.form['password'])
     except requests.exceptions.RequestException as err:
-        APP.logger.error(str(err))
+        APP.logger.error('Error creating new user: %s', str(err))
     return redirect(url_for('login',
                             msg='Error: Account creation failed',
                             _external=True,
                             _scheme=APP.config['SCHEME']))
-
 
 @APP.route('/logout', methods=['POST'])
 def logout():
     """
     Logs out user by deleting token cookie and redirecting to login page
     """
+    APP.logger.info('Logging out.')
     resp = make_response(redirect(url_for('login_page',
                                           _external=True,
                                           _scheme=APP.config['SCHEME'])))
@@ -402,13 +421,15 @@ def verify_token(token):
     """
     Validates token using userservice public key
     """
+    APP.logger.debug('Verifying token.')
     if token is None:
         return False
     try:
         jwt.decode(token, key=APP.config['PUBLIC_KEY'], algorithms='RS256', verify=True)
+        APP.logger.debug('Token verified.')
         return True
     except jwt.exceptions.InvalidTokenError as err:
-        APP.logger.debug(err)
+        APP.logger.error('Error validating token: %s', str(err))
         return False
 
 # register html template formatters
@@ -436,6 +457,7 @@ def format_currency(int_amount):
 # set up logger
 APP.logger.handlers = logging.getLogger('gunicorn.error').handlers
 APP.logger.setLevel(logging.getLogger('gunicorn.error').level)
+APP.logger.info('Starting frontend service.')
 
 # setup global variables
 APP.config["TRANSACTIONS_URI"] = 'http://{}/transactions'.format(
