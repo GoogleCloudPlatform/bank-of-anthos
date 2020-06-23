@@ -46,13 +46,13 @@ spec:
         - name: DEFAULT_USERNAME
           valueFrom:
             configMapKeyRef:
-              name: default-data-config
-              key: DEFAULT_USER_USERNAME
+              name: demo-data-config
+              key: DEMO_LOGIN_USERNAME
         - name: DEFAULT_PASSWORD
           valueFrom:
             configMapKeyRef:
-              name: default-data-config
-              key: DEFAULT_LOGIN_PASSWORD
+              name: demo-data-config
+              key: DEMO_LOGIN_PASSWORD
         envFrom:
         - configMapRef:
             name: environment-config

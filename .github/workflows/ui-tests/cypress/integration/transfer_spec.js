@@ -80,10 +80,12 @@ describe('Authenticated default user', function () {
 
     it('sees expected recipients', function () {
         cy.get('#paymentSpan').click()
-        cy.get('#payment-accounts').children().contains("1044226144")
+        cy.get('#payment-accounts').children().contains("1033623433")
         cy.get('#payment-accounts').children().contains("1055757655")
+        cy.get('#payment-accounts').children().contains("1077441377")
         cy.get('#payment-accounts').contains("Alice")
         cy.get('#payment-accounts').contains("Bob")
+        cy.get('#payment-accounts').contains("Eve")
 
     })
 

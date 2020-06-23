@@ -28,8 +28,8 @@
         "defaultUser": {
             "username": "testuser",
             "password": "password",
-            "name": "Eve",
-            "accountNum": "1033623433",
+            "name": "Test",
+            "accountNum": "1011226111",
             "externalAccounts": [
                 {
                     "accountNum": "9099791699",
@@ -38,12 +38,16 @@
             ],
             "recipients": [
                 {
-                    "accountNum": "1044226144",
+                    "accountNum": "1033623433",
                     "name": "Alice"
                 }, 
                 {
                     "accountNum": "1055757655",
                     "name": "Bob"
+                }, 
+                {
+                    "accountNum": "1077441377",
+                    "name": "Eve"
                 }
             ],
             "localRoutingNum": "883745000"
