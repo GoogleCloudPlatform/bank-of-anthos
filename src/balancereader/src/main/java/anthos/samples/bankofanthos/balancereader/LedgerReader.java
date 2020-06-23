@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package anthos.samples.financedemo.balancereader;
+package anthos.samples.bankofanthos.balancereader;
 
 
 import org.apache.logging.log4j.LogManager;

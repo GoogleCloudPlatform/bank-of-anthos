@@ -32,6 +32,8 @@ Implemented in Python with Locust.
   - the address and port of the `frontend` service
 - `USERS`
   - The number of concurrent users to simulate
+- `LOG_LEVEL`
+  - The [logging level](https://docs.python.org/3/library/logging.html#levels) (default: INFO)
 
 ### Kubernetes Resources
 

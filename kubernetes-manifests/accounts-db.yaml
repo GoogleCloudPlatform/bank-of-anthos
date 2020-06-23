@@ -41,7 +41,7 @@ spec:
           - configMapRef:
               name: accounts-db-config
           - configMapRef:
-              name: default-data-config
+              name: demo-data-config
         ports:
           - containerPort: 5432
             name: postgredb
