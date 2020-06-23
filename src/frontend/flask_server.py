@@ -109,7 +109,8 @@ def home():
                            name=display_name,
                            account_id=account_id,
                            contacts=contacts,
-                           message=request.args.get('msg', None))
+                           message=request.args.get('msg', None),
+                           bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'))
 
 
 def _populate_contact_labels(account_id, transactions, contacts):
@@ -321,7 +322,8 @@ def login_page():
     return render_template('login.html',
                            message=request.args.get('msg', None),
                            default_user=os.getenv('DEFAULT_USERNAME', ''),
-                           default_password=os.getenv('DEFAULT_PASSWORD', ''))
+                           default_password=os.getenv('DEFAULT_PASSWORD', ''),
+                           bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'))
 
 
 @APP.route('/login', methods=['POST'])
@@ -372,7 +374,8 @@ def signup_page():
         return redirect(url_for('home',
                                 _external=True,
                                 _scheme=APP.config['SCHEME']))
-    return render_template('signup.html')
+    return render_template('signup.html',
+                           bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'))
 
 
 @APP.route("/signup", methods=['POST'])

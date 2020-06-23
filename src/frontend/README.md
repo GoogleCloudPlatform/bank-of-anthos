@@ -32,6 +32,8 @@ Implemented in Python with Flask.
   - a string to pre-populate the "username" field. Optional
 - `DEFAULT_PASSWORD`
   - a string to pre-populate the "password" field. Optional
+-  `BANK_NAME`
+  - a string that will be shown in the navbar to indicate the name of the bank. Optional
 
 - ConfigMap `environment-config`:
   - `LOCAL_ROUTING_NUM`
