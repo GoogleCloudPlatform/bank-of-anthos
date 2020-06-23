@@ -61,10 +61,11 @@ create_transactions() {
             add_transaction "$EXTERNAL_ACCOUNT" "$account" "$EXTERNAL_ROUTING" "$LOCAL_ROUTING_NUM" $DEPOSIT_AMOUNT $START_TIMESTAMP
         done
 
-        # create payments between users
-        TRANSACTIONS_PER_PERIOD=$(shuf -i 10-20 -n1)
+        # create 15-20 payments between users
+        TRANSACTIONS_PER_PERIOD=$(shuf -i 15-20 -n1)
         for p in $(seq 1 $TRANSACTIONS_PER_PERIOD); do
-            AMOUNT=$(shuf -i 100-25000 -n1)
+            # randomly generate an amount between $10-$100
+            AMOUNT=$(shuf -i 1000-10000 -n1)
 
             # randomly select a sender and receiver
             SENDER_ACCOUNT=${USER_ACCOUNTS[$RANDOM % ${#USER_ACCOUNTS[@]}]}
