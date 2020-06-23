@@ -29,7 +29,7 @@ spec:
     spec:
       containers:
         - name: postgres
-          image: gcr.io/bank-of-anthos/ledger-db:v0.1.2
+          image: gcr.io/bank-of-anthos/ledger-db:latest
           ports:
             - containerPort: 5432
           envFrom:
@@ -39,6 +39,13 @@ spec:
                 name: ledger-db-config
             - configMapRef:
                 name: demo-data-config
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              cpu: 500m
+              memory: 1Gi
           volumeMounts:
             - name: postgresdb
               mountPath: /var/lib/postgresql/data

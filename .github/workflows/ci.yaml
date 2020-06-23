@@ -54,18 +54,24 @@ jobs:
       timeout-minutes: 20
       run: |
         set -x
-        cd src/userservice
-        python3 -m venv env
-        source env/bin/activate
-        pip install -r tests/requirements-test.txt
-        python -m pytest -v -p no:warnings
-        deactivate
+        for SERVICE in "contacts" "userservice"; do
+          echo "testing $SERVICE..."
+          # save current working dir to memory and cd to src/$SERVICE
+          pushd src/$SERVICE
+            python3 -m venv env
+            source env/bin/activate
+            pip install -r tests/requirements-test.txt
+            python -m pytest -v -p no:warnings
+            deactivate
+          # return to previously saved path
+          popd
+        done
   deployment-tests:
     runs-on: self-hosted
     needs: code-tests
     strategy:
       matrix:
-        profile: ["local-code", "latest-release"]
+        profile: ["local-code"]
       fail-fast: true
     steps:
     - uses: actions/checkout@v2
@@ -75,17 +81,10 @@ jobs:
         kind create cluster
         kubectl get nodes
     - name: Deploy From Source
-      if: ${{ matrix.profile != 'latest-release' }}
       run: |
         skaffold config set --global local-cluster true
         skaffold run --default-repo local \
                      --profile ${{ matrix.profile }}
-    - name: Deploy Latest Release
-      if: ${{ matrix.profile == 'latest-release' }}
-      run: |
-        set -x
-        kubectl apply -f extras/jwt
-        kubectl apply -f kubernetes-manifests
     - name: Wait For Pods
       timeout-minutes: 20
       run: |
@@ -99,23 +98,6 @@ jobs:
         kubectl wait --for=condition=available --timeout=500s deployment/loadgenerator
         kubectl wait --for=condition=ready --timeout=500s pod/accounts-db-0
         kubectl wait --for=condition=ready --timeout=500s pod/ledger-db-0
-    - name: Smoke Test
-      timeout-minutes: 5
-      run: |
-        set -x
-        # start fresh loadgenerator pod
-        kubectl delete pod -l app=loadgenerator
-        # wait for requests to come in
-        REQUEST_COUNT="0"
-        while [[ "$REQUEST_COUNT" -lt "100"  ]]; do
-            sleep 5
-            REQUEST_COUNT=$(kubectl logs -l app=loadgenerator | grep Aggregated | awk '{print $2}')
-        done
-        # ensure there are no errors hitting endpoints
-        ERROR_COUNT=$(kubectl logs -l app=loadgenerator | grep Aggregated | awk '{print $3}' | sed "s/[(][^)]*[)]//g")
-        if [[ "$ERROR_COUNT" -gt "0" ]]; then
-          exit 1
-        fi
     - name: Port Forward frontend
       run: |
         set -x

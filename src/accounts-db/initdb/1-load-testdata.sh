@@ -81,10 +81,10 @@ create_accounts() {
   add_contact "eve" "Bob" "1055757655"
 
   # Add external accounts
-  add_external_account "testuser" "External Bank" "8088895188" "987654321"
-  add_external_account "alice" "External Bank" "8088895188" "987654321"
-  add_external_account "bob" "External Bank" "8088895188" "987654321"
-  add_external_account "eve" "External Bank" "8088895188" "987654321"
+  add_external_account "testuser" "External Bank" "9099791699" "808889588"
+  add_external_account "alice" "External Bank" "9099791699" "808889588"
+  add_external_account "bob" "External Bank" "9099791699" "808889588"
+  add_external_account "eve" "External Bank" "9099791699" "808889588"
 }
 
 
