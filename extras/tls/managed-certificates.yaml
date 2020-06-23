@@ -40,7 +40,7 @@ metadata:
   annotations:
     kubernetes.io/ingress.global-static-ip-name: bank-address # create me with `gcloud compute addresses create bank-address --global`
     networking.gke.io/managed-certificates: bank-ssl-certificate
-    # kubernetes.io/ingress.allow-http: "false"
+    kubernetes.io/ingress.allow-http: "false"
 spec:
   backend:
     serviceName: frontend-nodeport

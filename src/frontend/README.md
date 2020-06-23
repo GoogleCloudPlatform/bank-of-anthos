@@ -26,6 +26,8 @@ Implemented in Python with Flask.
   - a version string for the service
 - `PORT`
   - the port for the webserver
+- `SCHEME`
+  - the URL scheme to use on redirects (http or https)
 - `DEFAULT_USERNAME`
   - a string to pre-populate the "username" field. Optional
 - `DEFAULT_PASSWORD`
