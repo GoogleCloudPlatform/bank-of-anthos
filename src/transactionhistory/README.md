@@ -39,7 +39,7 @@ Implemented in Java with Spring Boot and Guava.
 - `EXTRA_LATENCY_MILLIS`
   - add fake extra latency in milliseconds to transaction history requests
 - `LOG_LEVEL`
-  - service level log level override
+  - service level [log level](https://logging.apache.org/log4j/2.x/manual/customloglevels.html)
 
 - ConfigMap `environment-config`:
   - `LOCAL_ROUTING_NUM`
