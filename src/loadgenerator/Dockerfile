@@ -30,6 +30,9 @@ RUN virtualenv -p python3.7 /env
 ENV VIRTUAL_ENV /env
 ENV PATH /env/bin:$PATH
 
+# explicitly set a fallback log level in case no log level is defined by Kubernetes
+ENV LOG_LEVEL info
+
 # Install dependencies.
 ADD requirements.txt /app/requirements.txt
 RUN pip install -r /app/requirements.txt

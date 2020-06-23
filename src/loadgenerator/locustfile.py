@@ -20,13 +20,10 @@ Exercises the frontend endpoints for the system
 
 import json
 import logging
-import os
 from random import randint, random, choice
 import uuid
 
 from locust import HttpLocust, TaskSet, TaskSequence, task, seq_task, between
-
-logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO').upper())
 
 MASTER_PASSWORD = "password"
 

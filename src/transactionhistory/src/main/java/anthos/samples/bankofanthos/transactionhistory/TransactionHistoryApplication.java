@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package anthos.samples.financedemo.balancereader;
+package anthos.samples.bankofanthos.transactionhistory;
 
 import javax.annotation.PreDestroy;
 import org.apache.logging.log4j.Level;
@@ -25,15 +25,15 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * Entry point for the BalanceReader Spring Boot application.
+ * Entry point for the TransactionHistory Spring Boot application.
  *
- * Microservice to track the bank balance for each user account.
+ * Microservice to track the transaction history for each bank account.
  */
 @SpringBootApplication
-public class BalanceReaderApplication {
+public class TransactionHistoryApplication {
 
     private static final Logger LOGGER =
-        LogManager.getLogger(BalanceReaderApplication.class);
+        LogManager.getLogger(TransactionHistoryApplication.class);
 
     private static final String[] EXPECTED_ENV_VARS = {
         "VERSION",
@@ -55,15 +55,14 @@ public class BalanceReaderApplication {
                 System.exit(1);
             }
         }
-        SpringApplication.run(BalanceReaderApplication.class, args);
+        SpringApplication.run(TransactionHistoryApplication.class, args);
         LOGGER.log(Level.forName("STARTUP", Level.FATAL.intLevel()),
-            String.format("Started BalanceReader service. Log level is: %s",
-                LOGGER.getLevel().toString()));
-
+            String.format("Started TransactionHistory service. "
+                + "Log level is: %s", LOGGER.getLevel().toString()));
     }
 
     @PreDestroy
     public void destroy() {
-        LOGGER.info("BalanceReader service shutting down");
+        LOGGER.info("TransactionHistory service shutting down");
     }
 }

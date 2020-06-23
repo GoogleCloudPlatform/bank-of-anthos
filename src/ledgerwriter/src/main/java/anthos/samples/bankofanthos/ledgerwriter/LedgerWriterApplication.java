@@ -14,31 +14,31 @@
  * limitations under the License.
  */
 
-package anthos.samples.financedemo.transactionhistory;
+package anthos.samples.bankofanthos.ledgerwriter;
 
 import javax.annotation.PreDestroy;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * Entry point for the TransactionHistory Spring Boot application.
+ * Entry point for the LedgerWriter Spring Boot application.
  *
- * Microservice to track the transaction history for each bank account.
+ * Microservice to accept new transactions for the bank ledger.
  */
 @SpringBootApplication
-public class TransactionHistoryApplication {
+public class LedgerWriterApplication {
 
     private static final Logger LOGGER =
-        LogManager.getLogger(TransactionHistoryApplication.class);
+        LogManager.getLogger(LedgerWriterApplication.class);
 
     private static final String[] EXPECTED_ENV_VARS = {
         "VERSION",
         "PORT",
         "LOCAL_ROUTING_NUM",
+        "BALANCES_API_ADDR",
         "PUB_KEY_PATH",
         "SPRING_DATASOURCE_URL",
         "SPRING_DATASOURCE_USERNAME",
@@ -55,14 +55,14 @@ public class TransactionHistoryApplication {
                 System.exit(1);
             }
         }
-        SpringApplication.run(TransactionHistoryApplication.class, args);
+        SpringApplication.run(LedgerWriterApplication.class, args);
         LOGGER.log(Level.forName("STARTUP", Level.FATAL.intLevel()),
-            String.format("Started TransactionHistory service. "
-                + "Log level is: %s", LOGGER.getLevel().toString()));
+            String.format("Started LedgerWriter service. Log level is: %s",
+                LOGGER.getLevel().toString()));
     }
 
     @PreDestroy
     public void destroy() {
-        LOGGER.info("TransactionHistory service shutting down");
+        LOGGER.info("LedgerWriter service shutting down");
     }
 }

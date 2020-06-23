@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package anthos.samples.financedemo.transactionhistory;
+package anthos.samples.bankofanthos.transactionhistory;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
