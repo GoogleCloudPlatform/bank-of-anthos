@@ -22,6 +22,7 @@ import os
 from flask import Flask, abort, jsonify, make_response, redirect, \
     render_template, request, url_for
 import requests
+from requests.exceptions import HTTPError, RequestException
 import jwt
 
 APP = Flask(__name__)
@@ -313,10 +314,7 @@ def _login_helper(username, password):
         resp = make_response(redirect(url_for('home')))
         resp.set_cookie(APP.config['TOKEN_NAME'], token, max_age=max_age)
         return resp
-    except requests.exceptions.HTTPError as err:
-        msg = 'Login Failed: {}'.format(req.json().get('msg', ''))
-        return redirect(url_for('login', msg=msg))
-    except requests.exceptions.RequestException as err:
+    except (RequestException, HTTPError) as err:
         APP.logger.error(str(err))
     return redirect(url_for('login', msg='Login Failed'))
 
