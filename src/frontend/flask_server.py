@@ -379,7 +379,7 @@ def signup_page():
                                 _external=True,
                                 _scheme=APP.config['SCHEME']))
     return render_template('signup.html',
-                           bank_name=os.getenv('BANK_NAME', 'Bank of Anthos')))
+                           bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'))
 
 
 @APP.route("/signup", methods=['POST'])
