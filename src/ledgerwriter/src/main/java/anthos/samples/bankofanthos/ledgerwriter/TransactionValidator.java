@@ -14,19 +14,21 @@
  * limitations under the License.
  */
 
-package anthos.samples.financedemo.ledgerwriter;
+package anthos.samples.bankofanthos.ledgerwriter;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import java.util.regex.Pattern;
 
-import static anthos.samples.financedemo.ledgerwriter.ExceptionMessages.
+import static anthos.samples.bankofanthos.ledgerwriter.ExceptionMessages.
         EXCEPTION_MESSAGE_INVALID_NUMBER;
-import static anthos.samples.financedemo.ledgerwriter.ExceptionMessages.
+import static anthos.samples.bankofanthos.ledgerwriter.ExceptionMessages.
         EXCEPTION_MESSAGE_NOT_AUTHENTICATED;
-import static anthos.samples.financedemo.ledgerwriter.ExceptionMessages.
+import static anthos.samples.bankofanthos.ledgerwriter.ExceptionMessages.
         EXCEPTION_MESSAGE_SEND_TO_SELF;
-import static anthos.samples.financedemo.ledgerwriter.ExceptionMessages.
+import static anthos.samples.bankofanthos.ledgerwriter.ExceptionMessages.
         EXCEPTION_MESSAGE_INVALID_AMOUNT;
 
 
@@ -43,6 +45,9 @@ public class TransactionValidator {
     // route numbers should be 9 digits between 0 and 9
     private static final Pattern ROUTE_REGEX = Pattern.compile("^[0-9]{9}$");
 
+    private static final Logger LOGGER =
+        LogManager.getLogger(TransactionValidator.class);
+
     /**
      *   - Ensure sender is the same user authenticated by auth token
      *   - Ensure account and routing numbers are in the correct format
@@ -58,6 +63,7 @@ public class TransactionValidator {
     public void validateTransaction(String localRoutingNum, String authedAcct,
                                      Transaction transaction)
             throws IllegalArgumentException {
+        LOGGER.debug("Validating transaction");
         final String fromAcct = transaction.getFromAccountNum();
         final String fromRoute = transaction.getFromRoutingNum();
         final String toAcct = transaction.getToAccountNum();
@@ -71,21 +77,25 @@ public class TransactionValidator {
                         fromRoute).matches()
                 || !ROUTE_REGEX.matcher(
                         toRoute).matches()) {
+            LOGGER.error("Invalid transaction: Invalid account details");
             throw new IllegalArgumentException(
                     EXCEPTION_MESSAGE_INVALID_NUMBER);
         }
         // If this is an internal transaction,
         // ensure it originated from the authenticated user.
         if (fromRoute.equals(localRoutingNum) && !fromAcct.equals(authedAcct)) {
+            LOGGER.error("Invalid transaction: Sender not authorized");
             throw new IllegalArgumentException(
                     EXCEPTION_MESSAGE_NOT_AUTHENTICATED);
         }
         // Ensure sender isn't receiver.
         if (fromAcct.equals(toAcct) && fromRoute.equals(toRoute)) {
+            LOGGER.error("Invalid transaction: Sender is also receiver");
             throw new IllegalArgumentException(EXCEPTION_MESSAGE_SEND_TO_SELF);
         }
         // Ensure amount is valid value.
         if (amount <= 0) {
+            LOGGER.error("Invalid transaction: Transaction amount invalid");
             throw new IllegalArgumentException(
                     EXCEPTION_MESSAGE_INVALID_AMOUNT);
         }

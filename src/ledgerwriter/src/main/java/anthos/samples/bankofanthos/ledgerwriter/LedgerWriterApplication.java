@@ -14,36 +14,35 @@
  * limitations under the License.
  */
 
-package anthos.samples.financedemo.balancereader;
+package anthos.samples.bankofanthos.ledgerwriter;
 
 import javax.annotation.PreDestroy;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * Entry point for the BalanceReader Spring Boot application.
+ * Entry point for the LedgerWriter Spring Boot application.
  *
- * Microservice to track the bank balance for each user account.
+ * Microservice to accept new transactions for the bank ledger.
  */
 @SpringBootApplication
-public class BalanceReaderApplication {
+public class LedgerWriterApplication {
 
     private static final Logger LOGGER =
-        LogManager.getLogger(BalanceReaderApplication.class);
+        LogManager.getLogger(LedgerWriterApplication.class);
 
     private static final String[] EXPECTED_ENV_VARS = {
         "VERSION",
         "PORT",
         "LOCAL_ROUTING_NUM",
+        "BALANCES_API_ADDR",
         "PUB_KEY_PATH",
         "SPRING_DATASOURCE_URL",
         "SPRING_DATASOURCE_USERNAME",
-        "SPRING_DATASOURCE_PASSWORD",
-        "LOG_LEVEL"
+        "SPRING_DATASOURCE_PASSWORD"
     };
 
     public static void main(String[] args) {
@@ -56,15 +55,14 @@ public class BalanceReaderApplication {
                 System.exit(1);
             }
         }
-        SpringApplication.run(BalanceReaderApplication.class, args);
+        SpringApplication.run(LedgerWriterApplication.class, args);
         LOGGER.log(Level.forName("STARTUP", Level.FATAL.intLevel()),
-            String.format("Started BalanceReader service. Log level is: %s",
+            String.format("Started LedgerWriter service. Log level is: %s",
                 LOGGER.getLevel().toString()));
-
     }
 
     @PreDestroy
     public void destroy() {
-        LOGGER.info("BalanceReader service shutting down");
+        LOGGER.info("LedgerWriter service shutting down");
     }
 }
