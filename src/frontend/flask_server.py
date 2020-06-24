@@ -25,7 +25,21 @@ import requests
 from requests.exceptions import HTTPError, RequestException
 import jwt
 
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import SimpleExportSpanProcessor
+from opentelemetry.ext.flask import FlaskInstrumentor
+from opentelemetry.exporter.cloud_trace import CloudTraceSpanExporter
+
 APP = Flask(__name__)
+
+trace.set_tracer_provider(TracerProvider())
+cloud_trace_exporter = CloudTraceSpanExporter()
+trace.get_tracer_provider().add_span_processor(
+    SimpleExportSpanProcessor(cloud_trace_exporter)
+)
+
+FlaskInstrumentor().instrument_app(APP)
 
 @APP.route('/version', methods=['GET'])
 def version():

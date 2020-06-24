@@ -40,6 +40,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.ResourceAccessException;
@@ -64,6 +65,9 @@ public final class BalanceReaderController {
     private static final Logger LOGGER =
         LogManager.getLogger(BalanceReaderController.class);
 
+
+    private final BalanceReaderService balanceReaderService;
+
     @Autowired
     private TransactionRepository dbRepo;
 
@@ -86,6 +90,10 @@ public final class BalanceReaderController {
         @Value("${PUB_KEY_PATH}") final String publicKeyPath,
         @Value("${CACHE_SIZE:1000000}") final Integer expireSize,
         @Value("${LOCAL_ROUTING_NUM}") final String localRoutingNum) {
+        // init service for tracing
+        this.balanceReaderService = balanceReaderService;
+
+
         // Initialize JWT verifier.
         try {
             String keyStr =

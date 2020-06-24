@@ -16,6 +16,9 @@
 
 package anthos.samples.bankofanthos.balancereader;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import javax.annotation.PreDestroy;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -23,6 +26,17 @@ import org.apache.logging.log4j.Logger;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import brave.SpanCustomizer;
+
+
+
 
 /**
  * Entry point for the BalanceReader Spring Boot application.
@@ -61,6 +75,28 @@ public class BalanceReaderApplication {
                 LOGGER.getLevel().toString()));
 
     }
+
+    @Bean
+	public RestTemplate restTemplate() {
+		return new RestTemplate();
+	}
+
+	@Autowired
+	private SpanCustomizer spanCustomizer;
+
+	@Override
+	public void addInterceptors(InterceptorRegistry registry) {
+		registry.addInterceptor(new HandlerInterceptor() {
+			@Override
+			public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
+					throws Exception {
+				spanCustomizer.tag("session-id", request.getSession().getId());
+				spanCustomizer.tag("environment", "QA");
+
+				return true;
+			}
+		});
+	}
 
     @PreDestroy
     public void destroy() {
