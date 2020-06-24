@@ -17,7 +17,9 @@ Implemented in Java with Spring Boot and Guava.
 
 ### Environment Variables
 
-- `init/ledgermonolith.env`
+Located in `init/ledgermonolith.env`
+
+- Required
   - `VERSION`
     - a version string for the service
   - `PORT`
@@ -42,6 +44,9 @@ Implemented in Java with Spring Boot and Guava.
     - username for the database
   - `SPRING_DATASOURCE_PASSWORD`
     - password for the database
+  - `USE_DEMO_DATA`
+    - Set to "True" to initialize the bank ledger with demo data
+- Optional
   - `POLL_MS`
     - the number of milliseconds to wait in between polls to the database
     - optional. Defaults to 100

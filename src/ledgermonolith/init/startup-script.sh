@@ -14,11 +14,17 @@
 # limitations under the License.
 
 
-# Startup script to start the ledgermonolith service from a JAR
+# Startup script to start the ledgermonolith service from a JAR.
+#
+# Expects build artifacts to be available on Google Cloud Storage at
+# gs://bank-of-anthos/monolith.
+#
+# Designed to be attached as a startup script to a Google Compute Engine VM.
+
 set -v
 
 
-# Define names of build artifacts
+# Define names of expected build artifacts
 APP_JAR=ledgermonolith.jar
 APP_ENV=ledgermonolith.env
 JWT_SECRET=jwt-secret.yaml
@@ -83,9 +89,15 @@ sudo -u postgres psql --command "ALTER USER $POSTGRES_USER WITH PASSWORD '$POSTG
 sudo -u postgres psql --command "CREATE DATABASE $POSTGRES_DB;"
 
 
-# Init database with SQL scripts
+# Init database with any included SQL scripts
 CONNECTION_STRING="postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@127.0.0.1:5432/$POSTGRES_DB"
-psql $CONNECTION_STRING -f /opt/monolith/db/*.sql
+sudo -u postgres psql $CONNECTION_STRING -f /opt/monolith/initdb/*.sql
+
+
+# Init database with any included bash scripts
+for script in /opt/monolith/initdb/*.sh; do
+  sudo --preserve-env=USE_DEMO_DATA,POSTGRES_DB,POSTGRES_USER,POSTGRES_PASSWORD,LOCAL_ROUTING_NUM -u postgres bash "$script" -H
+done
 
 
 # Start the ledgermonolith service

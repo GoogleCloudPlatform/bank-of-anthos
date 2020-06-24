@@ -54,5 +54,5 @@ fi
 
 
 # Delete the build artifacts
-gsutil rm -r gs://bank-of-anthos
+gsutil -m rm -r gs://bank-of-anthos
 

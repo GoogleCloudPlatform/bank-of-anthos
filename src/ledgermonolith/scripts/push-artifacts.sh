@@ -45,6 +45,9 @@ fi
 gsutil cp $CWD/../target/ledgermonolith-1.0.jar gs://bank-of-anthos/monolith/${APP_JAR}
 gsutil -m cp -r $CWD/../init/* gs://bank-of-anthos/monolith/
 
+# Push database initialization scripts
+gsutil -m cp -r $CWD/../../ledger-db/initdb gs://bank-of-anthos/monolith/
+
 # Push JWT authentication keys
 gsutil cp $CWD/../../../extras/jwt/jwt-secret.yaml gs://bank-of-anthos/monolith/jwt-secret.yaml
 

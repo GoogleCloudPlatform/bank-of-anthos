@@ -14,16 +14,19 @@
 # limitations under the License.
 
 
-# create demo transactions in the ledger for the demo user accounts.
-# to make the history look realistic, we use biweekly large deposits,
-# followed by periodic small payments to random accounts.
-# values are chosen so that the depsoit in a period > payments in the same period
+# Create demo transactions in the ledger for the demo user accounts.
+#
+# Gerenated transactions follow a pattern of biweekly large deposits with
+# periodic small payments to randomly choosen accounts.
+#
+# To run, set environment variable USE_DEMO_DATA="True"
+
 set -u
 
 
 # skip adding transactions if not enabled
-if [ "$USE_DEMO_DATA" != "True"  ]; then
-    echo "no demo transactions added"
+if [ -z "$USE_DEMO_DATA" ] && [ "$USE_DEMO_DATA" != "True"  ]; then
+    echo "\$USE_DEMO_DATA not \"True\"; no demo transactions added"
     exit 0
 fi
 
