@@ -51,9 +51,10 @@ spec:
           value: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
         #- name: EXTRA_LATENCY_MILLIS
         #  value: "5000"
-        # service level override of log level
-        # - name: LOG_LEVEL
-        #   value: "info"
+        # Valid levels are debug, info, warn, error, fatal.
+        # If no valid level is set, will default to info.
+        - name: LOG_LEVEL
+          value: "info"
         envFrom:
         - configMapRef:
             name: environment-config

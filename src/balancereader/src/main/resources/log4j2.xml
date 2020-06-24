@@ -23,7 +23,7 @@
         </Console>
     </Appenders>
     <Loggers>
-        <Root level="${env:LOG_LEVEL}" additivity="false">
+        <Root level="${env:LOG_LEVEL:-INFO}" additivity="false">
             <AppenderRef ref="console" />
         </Root>
     </Loggers>
