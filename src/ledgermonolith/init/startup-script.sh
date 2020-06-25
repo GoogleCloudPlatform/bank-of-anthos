@@ -85,7 +85,6 @@ awk '/jwtRS256.key.pub/{print $2}' /opt/monolith/${JWT_SECRET} | base64 -d >> $P
 # Start postgres and configure it
 pg_ctlcluster 11 main start
 sudo -u postgres psql --command "CREATE USER $POSTGRES_USER;"
-sudo -u postgres psql --command "ALTER USER $POSTGRES_USER WITH PASSWORD '$POSTGRES_PASSWORD';"
 sudo -u postgres psql --command "CREATE DATABASE $POSTGRES_DB;"
 
 
@@ -98,6 +97,10 @@ sudo -u postgres psql $CONNECTION_STRING -f /opt/monolith/initdb/*.sql
 for script in /opt/monolith/initdb/*.sh; do
   sudo --preserve-env=USE_DEMO_DATA,POSTGRES_DB,POSTGRES_USER,POSTGRES_PASSWORD,LOCAL_ROUTING_NUM -u postgres bash "$script" -H
 done
+
+
+# Secure the database
+sudo -u postgres psql --command "ALTER USER $POSTGRES_USER WITH PASSWORD '$POSTGRES_PASSWORD';"
 
 
 # Start the ledgermonolith service

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package anthos.samples.financedemo.ledgermonolith;
+package anthos.samples.bankofanthos.ledgermonolith;
 
 import java.util.logging.Logger;
 
