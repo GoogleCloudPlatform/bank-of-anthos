@@ -89,7 +89,7 @@ create_transactions() {
 
 
 create_ledger() {
-  # Account numbers for users 'alice', 'bob', and 'eve'.
+  # Account numbers for users 'testuser', 'alice', 'bob', and 'eve'.
   USER_ACCOUNTS=("1011226111" "1033623433" "1055757655" "1077441377")
   # Numbers for external account 'External Bank'
   EXTERNAL_ACCOUNT="9099791699"

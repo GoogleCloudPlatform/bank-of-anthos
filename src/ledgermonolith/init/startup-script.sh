@@ -82,25 +82,25 @@ source <(sed -E -n 's/[^#]+/export &/ p' /opt/monolith/${APP_ENV})
 awk '/jwtRS256.key.pub/{print $2}' /opt/monolith/${JWT_SECRET} | base64 -d >> $PUB_KEY_PATH
 
 
-# Start postgres and configure it
+# Start PostgreSQL
 pg_ctlcluster 11 main start
-sudo -u postgres psql --command "CREATE USER $POSTGRES_USER;"
-sudo -u postgres psql --command "CREATE DATABASE $POSTGRES_DB;"
 
 
 # Init database with any included SQL scripts
-CONNECTION_STRING="postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@127.0.0.1:5432/$POSTGRES_DB"
-sudo -u postgres psql $CONNECTION_STRING -f /opt/monolith/initdb/*.sql
+sudo -u postgres psql -f /opt/monolith/initdb/*.sql
+
+
+# Configure and secure PostgreSQL
+sudo -u postgres psql --command "CREATE USER $POSTGRES_USER;"
+sudo -u postgres psql --command "ALTER USER $POSTGRES_USER WITH PASSWORD '$POSTGRES_PASSWORD';"
+sudo -u postgres psql --command "CREATE DATABASE $POSTGRES_DB;"
 
 
 # Init database with any included bash scripts
+export POSTGRES_USER=postgres
 for script in /opt/monolith/initdb/*.sh; do
-  sudo --preserve-env=USE_DEMO_DATA,POSTGRES_DB,POSTGRES_USER,POSTGRES_PASSWORD,LOCAL_ROUTING_NUM -u postgres bash "$script" -H
+  sudo --preserve-env=USE_DEMO_DATA,POSTGRES_DB,POSTGRES_USER,LOCAL_ROUTING_NUM -u postgres bash "$script" -H
 done
-
-
-# Secure the database
-sudo -u postgres psql --command "ALTER USER $POSTGRES_USER WITH PASSWORD '$POSTGRES_PASSWORD';"
 
 
 # Start the ledgermonolith service
