@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import  org.springframework.web.client.HttpServerErrorException;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -71,6 +72,9 @@ public final class LedgerWriterController {
     public static final String READINESS_CODE = "ok";
     public static final String UNAUTHORIZED_CODE = "not authorized";
     public static final String JWT_ACCOUNT_KEY = "acct";
+
+    @Autowired
+    RestTemplate restTemplate;
 
     /**
     * Constructor.
@@ -209,7 +213,6 @@ public final class LedgerWriterController {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + token);
         HttpEntity entity = new HttpEntity(headers);
-        RestTemplate restTemplate = new RestTemplate();
         String uri = balancesApiUri + "/" + fromAcct;
         ResponseEntity<Integer> response = restTemplate.exchange(
             uri, HttpMethod.GET, entity, Integer.class);
