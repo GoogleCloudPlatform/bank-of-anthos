@@ -102,7 +102,7 @@ create_ledger() {
 main() {
   # Check environment variables are set
 	for env_var in ${ENV_VARS[@]}; do
-    if [[ -z "${!env_var}" ]]; then
+    if [[ -z "${env_var}" ]]; then
       echo "Error: environment variable '$env_var' not set. Aborting."
       exit 1
     fi
