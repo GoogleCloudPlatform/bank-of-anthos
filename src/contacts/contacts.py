@@ -78,8 +78,6 @@ def create_app():
         Return: a list of contacts
         """
         auth_header = request.headers.get("Authorization")
-        # remove this
-        app.logger.info('Headers: %s', str(request.headers))
         if auth_header:
             token = auth_header.split(" ")[-1]
         else:

@@ -25,6 +25,7 @@ from opentelemetry import trace
 from opentelemetry.exporter.cloud_trace import CloudTraceSpanExporter
 from opentelemetry.exporter.cloud_trace.cloud_trace_propagator import CloudTraceFormatPropagator
 from opentelemetry.ext.flask import FlaskInstrumentor
+from opentelemetry.ext.jinja2 import Jinja2Instrumentor
 from opentelemetry.ext.requests import RequestsInstrumentor
 from opentelemetry.propagators import set_global_httptextformat
 from opentelemetry.sdk.trace import TracerProvider
@@ -47,6 +48,7 @@ APP = Flask(__name__)
 # Add tracing auto-instrumentation for Flask and requests
 FlaskInstrumentor().instrument_app(APP)
 RequestsInstrumentor().instrument()
+Jinja2Instrumentor().instrument()
 
 @APP.route('/version', methods=['GET'])
 def version():
