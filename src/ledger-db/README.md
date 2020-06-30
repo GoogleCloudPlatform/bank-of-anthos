@@ -14,10 +14,10 @@ Implemented using Postgres.
   - `LOCAL_ROUTING_NUM`
     - the routing number for our bank
 
-- ConfigMap `default-data-config`:
-  - `USE_DEFAULT_DATA`
-    - adds default transaction data to the ledger when initialized if `True`
-    - configure default data in /kubernetes-manifests/default-data-config.yaml 
+- ConfigMap `demo-data-config`:
+  - `USE_DEMO_DATA`
+    - adds demo transaction data to the ledger when initialized if `True`
+    - data is initialized with /src/ledger-db/initdb/1_create_transactions.sh
 
 - ConfigMap `ledger-db-config`:
   - `POSTGRES_DB`

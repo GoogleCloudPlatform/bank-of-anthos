@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-package anthos.samples.financedemo.transactionhistory;
+package anthos.samples.bankofanthos.balancereader;
+
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -66,13 +67,11 @@ public final class LedgerReader {
      * @throws IllegalStateException if callback is null
      */
     public void startWithCallback(LedgerReaderCallback callback)
-            throws IllegalStateException {
+        throws IllegalStateException {
         if (callback == null) {
-            LOGGER.error("Callback is null");
             throw new IllegalStateException("callback is null");
         }
         this.callback = callback;
-        this.latestId = STARTING_TRANSACTION_ID;
         // get the latest transaction id in ledger
         try {
             Long dbId = dbRepo.latestId();
@@ -80,7 +79,7 @@ public final class LedgerReader {
             LOGGER.debug(String.format("Transaction starting id: %d",
                 latestId));
         } catch (ResourceAccessException
-                | DataAccessResourceFailureException e) {
+            | DataAccessResourceFailureException e) {
             LOGGER.warn("Could not contact ledger database at init");
         }
         this.backgroundThread = new Thread(new Runnable() {
@@ -100,7 +99,7 @@ public final class LedgerReader {
                         Long dbId = dbRepo.latestId();
                         remoteLatest = (dbId != null ? dbId : remoteLatest);
                     } catch (ResourceAccessException
-                            | DataAccessResourceFailureException e) {
+                        | DataAccessResourceFailureException e) {
                         remoteLatest = latestId;
                         LOGGER.warn("Could not reach ledger database");
                     }

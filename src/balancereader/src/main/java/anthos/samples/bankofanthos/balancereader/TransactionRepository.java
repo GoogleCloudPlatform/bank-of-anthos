@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package anthos.samples.financedemo.balancereader;
+package anthos.samples.bankofanthos.balancereader;
 
 import java.util.List;
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package anthos.samples.financedemo.ledgerwriter;
+package anthos.samples.bankofanthos.ledgerwriter;
 
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.exceptions.JWTVerificationException;
@@ -23,6 +23,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.mockito.Mock;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,10 +31,12 @@ import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 
-import static anthos.samples.financedemo.ledgerwriter.ExceptionMessages.
+import static anthos.samples.bankofanthos.ledgerwriter.ExceptionMessages.
         EXCEPTION_MESSAGE_INSUFFICIENT_BALANCE;
-import static anthos.samples.financedemo.ledgerwriter.ExceptionMessages.
+import static anthos.samples.bankofanthos.ledgerwriter.ExceptionMessages.
         EXCEPTION_MESSAGE_WHEN_AUTHORIZATION_HEADER_NULL;
+import static anthos.samples.bankofanthos.ledgerwriter.ExceptionMessages.
+        EXCEPTION_MESSAGE_DUPLICATE_TRANSACTION;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -107,9 +110,10 @@ class LedgerWriterControllerTest {
 
     @Test
     @DisplayName("Given the transaction is external, return HTTP Status 201")
-    void addTransactionSuccessWhenDiffThanLocalRoutingNum() {
+    void addTransactionSuccessWhenDiffThanLocalRoutingNum(TestInfo testInfo) {
         // Given
         when(transaction.getFromRoutingNum()).thenReturn(NON_LOCAL_ROUTING_NUM);
+        when(transaction.getRequestUuid()).thenReturn(testInfo.getDisplayName());
 
         // When
         final ResponseEntity actualResult =
@@ -126,13 +130,14 @@ class LedgerWriterControllerTest {
     @Test
     @DisplayName("Given the transaction is internal and the transaction amount == sender balance, " +
             "return HTTP Status 201")
-    void addTransactionSuccessWhenAmountEqualToBalance() {
+    void addTransactionSuccessWhenAmountEqualToBalance(TestInfo testInfo) {
         // Given
         LedgerWriterController spyLedgerWriterController =
                 spy(ledgerWriterController);
         when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
         when(transaction.getFromRoutingNum()).thenReturn(AUTHED_ACCOUNT_NUM);
         when(transaction.getAmount()).thenReturn(SENDER_BALANCE);
+        when(transaction.getRequestUuid()).thenReturn(testInfo.getDisplayName());
         doReturn(SENDER_BALANCE).when(
                 spyLedgerWriterController).getAvailableBalance(
                 TOKEN, AUTHED_ACCOUNT_NUM);
@@ -152,13 +157,14 @@ class LedgerWriterControllerTest {
     @Test
     @DisplayName("Given the transaction is internal and the transaction amount < sender balance, " +
             "return HTTP Status 201")
-    void addTransactionSuccessWhenAmountSmallerThanBalance() {
+    void addTransactionSuccessWhenAmountSmallerThanBalance(TestInfo testInfo) {
         // Given
         LedgerWriterController spyLedgerWriterController =
                 spy(ledgerWriterController);
         when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
         when(transaction.getFromRoutingNum()).thenReturn(AUTHED_ACCOUNT_NUM);
         when(transaction.getAmount()).thenReturn(SMALLER_THAN_SENDER_BALANCE);
+        when(transaction.getRequestUuid()).thenReturn(testInfo.getDisplayName());
         doReturn(SENDER_BALANCE).when(
                 spyLedgerWriterController).getAvailableBalance(
                 TOKEN, AUTHED_ACCOUNT_NUM);
@@ -178,13 +184,14 @@ class LedgerWriterControllerTest {
     @Test
     @DisplayName("Given the transaction is internal and the transaction amount > sender balance, " +
             "return HTTP Status 400")
-    void addTransactionFailWhenWhenAmountLargerThanBalance() {
+    void addTransactionFailWhenWhenAmountLargerThanBalance(TestInfo testInfo) {
         // Given
         LedgerWriterController spyLedgerWriterController =
                 spy(ledgerWriterController);
         when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
         when(transaction.getFromAccountNum()).thenReturn(AUTHED_ACCOUNT_NUM);
         when(transaction.getAmount()).thenReturn(LARGER_THAN_SENDER_BALANCE);
+        when(transaction.getRequestUuid()).thenReturn(testInfo.getDisplayName());
         doReturn(SENDER_BALANCE).when(
                 spyLedgerWriterController).getAvailableBalance(
                 TOKEN, AUTHED_ACCOUNT_NUM);
@@ -262,12 +269,13 @@ class LedgerWriterControllerTest {
     @Test
     @DisplayName("Given the transaction is internal, check available balance and the balance " +
             "reader throws an error, return HTTP Status 500")
-    void addTransactionWhenResourceAccessExceptionThrown() {
+    void addTransactionWhenResourceAccessExceptionThrown(TestInfo testInfo) {
         // Given
         LedgerWriterController spyLedgerWriterController =
                 spy(ledgerWriterController);
         when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
         when(transaction.getFromAccountNum()).thenReturn(AUTHED_ACCOUNT_NUM);
+        when(transaction.getRequestUuid()).thenReturn(testInfo.getDisplayName());
         doThrow(new ResourceAccessException(EXCEPTION_MESSAGE)).when(
                 spyLedgerWriterController).getAvailableBalance(
                 TOKEN, AUTHED_ACCOUNT_NUM);
@@ -287,9 +295,10 @@ class LedgerWriterControllerTest {
     @Test
     @DisplayName("Given the transaction is external and the transaction cannot be saved to the " +
             "transaction repository, return HTTP Status 500")
-    void addTransactionWhenCannotCreateTransactionExceptionExceptionThrown() {
+    void addTransactionWhenCannotCreateTransactionExceptionExceptionThrown(TestInfo testInfo) {
         // Given
         when(transaction.getFromRoutingNum()).thenReturn(NON_LOCAL_ROUTING_NUM);
+        when(transaction.getRequestUuid()).thenReturn(testInfo.getDisplayName());
         doThrow(new CannotCreateTransactionException(EXCEPTION_MESSAGE)).when(
                 transactionRepository).save(transaction);
 
@@ -308,13 +317,13 @@ class LedgerWriterControllerTest {
     @Test
     @DisplayName("Given the transaction is internal, check available balance and the balance " +
             "service returns 500, return HTTP Status 500")
-    void addTransactionWhenHttpServerErrorExceptionThrown() {
+    void addTransactionWhenHttpServerErrorExceptionThrown(TestInfo testInfo) {
         // Given
         LedgerWriterController spyLedgerWriterController =
                 spy(ledgerWriterController);
         when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
-        when(transaction.getFromAccountNum()
-        ).thenReturn(AUTHED_ACCOUNT_NUM);
+        when(transaction.getFromAccountNum()).thenReturn(AUTHED_ACCOUNT_NUM);
+        when(transaction.getRequestUuid()).thenReturn(testInfo.getDisplayName());
         doThrow(new HttpServerErrorException(
                 HttpStatus.INTERNAL_SERVER_ERROR)).when(
                         spyLedgerWriterController).getAvailableBalance(
@@ -331,5 +340,41 @@ class LedgerWriterControllerTest {
                 actualResult.getBody());
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,
                 actualResult.getStatusCode());
+    }
+
+    @Test
+    @DisplayName("When duplicate UUID transactions are sent, " +
+            "second one is rejected with HTTP status 400")
+    void addTransactionWhenDuplicateUuidExceptionThrown(TestInfo testInfo) {
+        // Given
+        LedgerWriterController spyLedgerWriterController =
+                spy(ledgerWriterController);
+        when(transaction.getFromRoutingNum()).thenReturn(LOCAL_ROUTING_NUM);
+        when(transaction.getFromRoutingNum()).thenReturn(AUTHED_ACCOUNT_NUM);
+        when(transaction.getAmount()).thenReturn(SMALLER_THAN_SENDER_BALANCE);
+        when(transaction.getRequestUuid()).thenReturn(testInfo.getDisplayName());
+        doReturn(SENDER_BALANCE).when(
+                spyLedgerWriterController).getAvailableBalance(
+                TOKEN, AUTHED_ACCOUNT_NUM);
+
+        // When
+        final ResponseEntity originalResult =
+                spyLedgerWriterController.addTransaction(
+                        BEARER_TOKEN, transaction);
+        final ResponseEntity duplicateResult =
+                spyLedgerWriterController.addTransaction(
+                        BEARER_TOKEN, transaction);
+
+        // Then
+        assertNotNull(originalResult);
+        assertEquals(ledgerWriterController.READINESS_CODE,
+                originalResult.getBody());
+        assertEquals(HttpStatus.CREATED, originalResult.getStatusCode());
+
+        assertNotNull(duplicateResult);
+        assertEquals(
+                EXCEPTION_MESSAGE_DUPLICATE_TRANSACTION,
+                duplicateResult.getBody());
+        assertEquals(HttpStatus.BAD_REQUEST, duplicateResult.getStatusCode());
     }
 }

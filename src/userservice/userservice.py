@@ -75,6 +75,7 @@ def create_app():
         - ssn
         """
         try:
+            app.logger.debug('Sanitizing input.')
             req = {k: bleach.clean(v) for k, v in request.form.items()}
             __validate_new_user(req)
             # Check if user already exists
@@ -82,6 +83,7 @@ def create_app():
                 raise NameError('user {} already exists'.format(req['username']))
 
             # Create password hash with salt
+            app.logger.debug("Creating password hash.")
             password = req['password']
             salt = bcrypt.gensalt()
             passhash = bcrypt.hashpw(password.encode('utf-8'), salt)
@@ -103,14 +105,18 @@ def create_app():
                 'ssn': req['ssn'],
             }
             # Add user_data to database
+            app.logger.debug("Adding user to the database")
             users_db.add_user(user_data)
+            app.logger.info("Successfully created user.")
 
         except UserWarning as warn:
+            app.logger.error("Error creating new user: %s", str(warn))
             return str(warn), 400
         except NameError as err:
+            app.logger.error("Error creating new user: %s", str(err))
             return str(err), 409
         except SQLAlchemyError as err:
-            app.logger.error(err)
+            app.logger.error("Error creating new user: %s", str(err))
             return 'failed to create user', 500
 
         return jsonify({}), 201
@@ -152,16 +158,19 @@ def create_app():
         - username
         - password
         """
+        app.logger.debug('Sanitizing login input.')
         username = bleach.clean(request.args.get('username'))
         password = bleach.clean(request.args.get('password'))
 
         # Get user data
         try:
+            app.logger.debug('Getting the user data.')
             user = users_db.get_user(username)
             if user is None:
                 raise LookupError('user {} does not exist'.format(username))
 
             # Validate the password
+            app.logger.debug('Validating the password.')
             if not bcrypt.checkpw(password.encode('utf-8'), user['passhash']):
                 raise PermissionError('invalid login')
 
@@ -174,25 +183,30 @@ def create_app():
                 'iat': datetime.utcnow(),
                 'exp': exp_time,
             }
+            app.logger.debug('Creating jwt token.')
             token = jwt.encode(payload, app.config['PRIVATE_KEY'], algorithm='RS256')
+            app.logger.info('Login Successful.')
             return jsonify({'token': token.decode("utf-8")}), 200
 
         except LookupError as err:
+            app.logger.error('Error logging in: %s', str(err))
             return str(err), 404
         except PermissionError as err:
+            app.logger.error('Error logging in: %s', str(err))
             return str(err), 401
         except SQLAlchemyError as err:
-            app.logger.error(err)
+            app.logger.error('Error logging in: %s', str(err))
             return 'failed to retrieve user information', 500
 
     @atexit.register
     def _shutdown():
         """Executed when web app is terminated."""
-        app.logger.info("Stopping flask.")
+        app.logger.info("Stopping userservice.")
 
     # Set up logger
     app.logger.handlers = logging.getLogger('gunicorn.error').handlers
     app.logger.setLevel(logging.getLogger('gunicorn.error').level)
+    app.logger.info('Starting userservice.')
 
     app.config['VERSION'] = os.environ.get('VERSION')
     app.config['EXPIRY_SECONDS'] = int(os.environ.get('TOKEN_EXPIRY_SECONDS'))
@@ -203,7 +217,7 @@ def create_app():
     try:
         users_db = UserDb(os.environ.get("ACCOUNTS_DB_URI"), app.logger)
     except OperationalError:
-        app.logger.critical("database connection failed")
+        app.logger.critical("users_db database connection failed")
         sys.exit(1)
     return app
 

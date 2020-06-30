@@ -38,16 +38,21 @@ spec:
           value: "v0.2.0"
         - name: PORT
           value: "8080"
+        - name: SCHEME
+          value: "http"
+         # Valid levels are debug, info, warning, error, critical. If no valid level is set, gunicorn will default to info.
+        - name: LOG_LEVEL
+          value: "info"
         - name: DEFAULT_USERNAME
           valueFrom:
             configMapKeyRef:
-              name: default-data-config
-              key: DEFAULT_USER_USERNAME
+              name: demo-data-config
+              key: DEMO_LOGIN_USERNAME
         - name: DEFAULT_PASSWORD
           valueFrom:
             configMapKeyRef:
-              name: default-data-config
-              key: DEFAULT_LOGIN_PASSWORD
+              name: demo-data-config
+              key: DEMO_LOGIN_PASSWORD
         envFrom:
         - configMapRef:
             name: environment-config

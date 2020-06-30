@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package anthos.samples.financedemo.ledgerwriter;
+package anthos.samples.bankofanthos.ledgerwriter;
 
 import java.util.Date;
 
@@ -24,6 +24,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -60,6 +61,11 @@ public final class Transaction {
     @CreationTimestamp
     @JsonProperty("timestamp")
     private Date timestamp;
+    // UUID is used for preventing duplicate requests from client
+    // Do not persist to database
+    @Transient
+    @JsonProperty("uuid")
+    private String requestUuid;
 
     private static final double CENTS_PER_DOLLAR = 100.0;
 
@@ -86,6 +92,15 @@ public final class Transaction {
     public Integer getAmount() {
         return amount;
     }
+
+    public String getRequestUuid() {
+        if (requestUuid == null) {
+            return "";
+        } else {
+            return requestUuid;
+        }
+    }
+
     /**
      * String representation.
      *
