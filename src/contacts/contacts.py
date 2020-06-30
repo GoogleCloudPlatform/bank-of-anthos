@@ -26,7 +26,6 @@ import sys
 import jwt
 from flask import Flask, jsonify, request
 import bleach
-from db import ContactsDb
 from opentelemetry import trace
 from opentelemetry.exporter.cloud_trace import CloudTraceSpanExporter
 from opentelemetry.exporter.cloud_trace.cloud_trace_propagator import CloudTraceFormatPropagator
@@ -35,6 +34,7 @@ from opentelemetry.propagators import set_global_httptextformat
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import SimpleExportSpanProcessor
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
+from db import ContactsDb
 
 
 def create_app():
