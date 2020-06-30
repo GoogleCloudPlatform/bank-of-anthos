@@ -94,7 +94,7 @@ public final class LedgerReader {
                         LOGGER.warn("LedgerReader sleep interrupted");
                     }
                     // check for new updates in ledger
-                    Long remoteLatest;
+                    Long remoteLatest = STARTING_TRANSACTION_ID;
                     try {
                         Long dbId = dbRepo.latestId();
                         remoteLatest = (dbId != null ? dbId : remoteLatest);
