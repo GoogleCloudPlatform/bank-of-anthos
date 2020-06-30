@@ -22,10 +22,10 @@ import logging
 import os
 import sys
 
-from flask import Flask, jsonify, request
-import bleach
 import bcrypt
 import jwt
+from flask import Flask, jsonify, request
+import bleach
 from db import UserDb
 from opentelemetry import trace
 from opentelemetry.exporter.cloud_trace import CloudTraceSpanExporter

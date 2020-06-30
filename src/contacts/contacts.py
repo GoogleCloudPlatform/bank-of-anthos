@@ -23,9 +23,9 @@ import os
 import re
 import sys
 
+import jwt
 from flask import Flask, jsonify, request
 import bleach
-import jwt
 from db import ContactsDb
 from opentelemetry import trace
 from opentelemetry.exporter.cloud_trace import CloudTraceSpanExporter
