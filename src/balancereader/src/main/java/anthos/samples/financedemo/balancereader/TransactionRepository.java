@@ -40,6 +40,9 @@ public interface TransactionRepository
         + "ORDER BY t.transactionId ASC")
     List<Transaction> findLatest(long latestTransaction);
 
+    /**
+     * Returns the id of the latest transaction, or NULL if none exist.
+     */
     @Query("SELECT MAX(transactionId) FROM Transaction")
-    long latestId();
+    Long latestId();
 }

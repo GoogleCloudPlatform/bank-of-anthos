@@ -44,6 +44,7 @@ public final class LedgerReader {
 
     private static final Logger LOGGER =
         LogManager.getLogger(LedgerReader.class);
+    private static final long STARTING_TRANSACTION_ID = -1;
 
     @Autowired
     private TransactionRepository dbRepo;
@@ -55,7 +56,7 @@ public final class LedgerReader {
 
     private Thread backgroundThread;
     private LedgerReaderCallback callback;
-    private long latestId = -1;
+    private long latestId;
 
     /**
      * LedgerReader setup
@@ -73,7 +74,8 @@ public final class LedgerReader {
         this.callback = callback;
         // get the latest transaction id in ledger
         try {
-            this.latestId = dbRepo.latestId();
+            Long dbId = dbRepo.latestId();
+            this.latestId = (dbId != null ? dbId : this.latestId);
             LOGGER.debug(String.format("Transaction starting id: %d",
                 latestId));
         } catch (ResourceAccessException
@@ -94,7 +96,8 @@ public final class LedgerReader {
                     // check for new updates in ledger
                     Long remoteLatest;
                     try {
-                        remoteLatest = dbRepo.latestId();
+                        Long dbId = dbRepo.latestId();
+                        remoteLatest = (dbId != null ? dbId : remoteLatest);
                     } catch (ResourceAccessException
                         | DataAccessResourceFailureException e) {
                         remoteLatest = latestId;
