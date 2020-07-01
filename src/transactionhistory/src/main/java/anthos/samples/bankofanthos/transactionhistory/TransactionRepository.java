@@ -33,7 +33,7 @@ public interface TransactionRepository
      * Returns the id of the latest transaction, or NULL if none exist.
      */
     @Query("SELECT MAX(transactionId) FROM Transaction")
-    Long latestId();
+    Long latestTransactionId();
 
     @Query("SELECT t FROM Transaction t "
         + " WHERE (t.fromAccountNum=?1 AND t.fromRoutingNum=?2) "

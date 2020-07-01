@@ -56,7 +56,7 @@ public final class LedgerReader {
 
     private Thread backgroundThread;
     private LedgerReaderCallback callback;
-    private long latestId;
+    private long latestTransactionId;
 
     /**
      * LedgerReader setup
@@ -72,12 +72,12 @@ public final class LedgerReader {
             throw new IllegalStateException("callback is null");
         }
         this.callback = callback;
+        this.latestTransactionId = STARTING_TRANSACTION_ID;
         // get the latest transaction id in ledger
         try {
-            Long dbId = dbRepo.latestId();
-            this.latestId = (dbId != null ? dbId : this.latestId);
+            latestTransactionId = getLatestTransactionId();
             LOGGER.debug(String.format("Transaction starting id: %d",
-                latestId));
+                latestTransactionId));
         } catch (ResourceAccessException
             | DataAccessResourceFailureException e) {
             LOGGER.warn("Could not contact ledger database at init");
@@ -96,17 +96,17 @@ public final class LedgerReader {
                     // check for new updates in ledger
                     Long remoteLatest = STARTING_TRANSACTION_ID;
                     try {
-                        Long dbId = dbRepo.latestId();
-                        remoteLatest = (dbId != null ? dbId : remoteLatest);
+                        remoteLatest = getLatestTransactionId();
                     } catch (ResourceAccessException
                         | DataAccessResourceFailureException e) {
-                        remoteLatest = latestId;
+                        remoteLatest = latestTransactionId;
                         LOGGER.warn("Could not reach ledger database");
                     }
                     // if there are new transactions, poll the database
-                    if (remoteLatest > latestId) {
-                        latestId = pollTransactions(latestId);
-                    } else if (remoteLatest < latestId) {
+                    if (remoteLatest > latestTransactionId) {
+                        latestTransactionId =
+                                pollTransactions(latestTransactionId);
+                    } else if (remoteLatest < latestTransactionId) {
                         // remote database out of sync
                         // suspend processing transactions to reset service
                         alive = false;
@@ -144,5 +144,18 @@ public final class LedgerReader {
      */
     public boolean isAlive() {
         return backgroundThread == null || backgroundThread.isAlive();
+    }
+
+    /**
+     * Returns the id of the most recent transaction.
+     *
+     * @return the transaction id as a long or -1 if no transactions exist
+     */
+    private long getLatestTransactionId() {
+        Long latestId = dbRepo.latestTransactionId();
+        if (latestId == null) {
+            return STARTING_TRANSACTION_ID;
+        }
+        return latestId;
     }
 }
