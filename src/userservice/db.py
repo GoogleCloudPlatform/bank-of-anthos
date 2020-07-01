@@ -18,6 +18,7 @@ db manages interactions with the underlying database
 
 import logging
 import random
+from opentelemetry.ext.sqlalchemy import SQLAlchemyInstrumentor
 from sqlalchemy import create_engine, MetaData, Table, Column, String, Date, LargeBinary
 
 
@@ -44,6 +45,12 @@ class UserDb:
             Column('state', String, nullable=False),
             Column('zip', String, nullable=False),
             Column('ssn', String, nullable=False),
+        )
+
+        # Set up tracing autoinstrumentation for sqlalchemy
+        SQLAlchemyInstrumentor().instrument(
+            engine=self.engine,
+            service='users',
         )
 
     def add_user(self, user):
