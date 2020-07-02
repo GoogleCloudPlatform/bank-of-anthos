@@ -124,7 +124,7 @@ public final class TransactionHistoryController {
                     throws ResourceAccessException,
                            DataAccessResourceFailureException  {
                 LOGGER.debug("Cache loaded from db");
-                Pageable request = new PageRequest(0, historyLimit);
+                Pageable request = PageRequest.of(0, historyLimit);
                 return dbRepo.findForAccount(accountId,
                                              localRoutingNum,
                                              request);
