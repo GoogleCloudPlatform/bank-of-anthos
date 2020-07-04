@@ -1,26 +1,27 @@
 package anthos.samples.bankofanthos.userservice;
 
-import javax.annotation.PreDestroy;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+
+import javax.annotation.PreDestroy;
 
 /**
  * Entry point for the User Service Spring Boot application.
  *
  * Microservice to authenticate users of the application.
  */
-@SpringBootApplication
+@SpringBootApplication(exclude = { SecurityAutoConfiguration.class })
 public class UserServiceApplication {
   private static final Logger LOGGER = LogManager.getLogger(UserServiceApplication.class);
 
   private static final String[] EXPECTED_ENV_VARS = {
-//      "VERSION",
-//      "TOKEN_EXPIRY_SECONDS",
-//      "PRIV_KEY_PATH",
-//      "PUB_KEY_PATH",
+      "VERSION",
+      "TOKEN_EXPIRY_SECONDS",
+      "PRIV_KEY_PATH",
   };
 
   public static void main(String[] args) {

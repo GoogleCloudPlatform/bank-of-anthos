@@ -7,6 +7,6 @@ import org.springframework.data.repository.CrudRepository;
  */
 public interface UserRepository extends CrudRepository<User, Long> {
 
-  User findByUsername(String username);
-
+  /** Finds the User in the database with the specified {@code username}. */
+  User findFirstByUsername(String username);
 }

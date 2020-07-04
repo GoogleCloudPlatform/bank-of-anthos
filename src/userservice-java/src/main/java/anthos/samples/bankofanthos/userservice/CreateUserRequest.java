@@ -1,146 +1,83 @@
 package anthos.samples.bankofanthos.userservice;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import javax.validation.constraints.NotBlank;
 
+/**
+ * Request object which describes the parameters provided in the POST request to create a user
+ * for the User Service.
+ */
 public class CreateUserRequest {
 
   @NotBlank
-  private String username;
+  public final String username;
 
   @NotBlank
-  private String password;
+  public final String password;
 
   @NotBlank
   @JsonProperty("password-repeat")
-  private String passwordRepeat;
+  public final String passwordRepeat;
 
   @NotBlank
-  private String firstname;
+  public final String firstname;
 
   @NotBlank
-  private String lastname;
+  public final String lastname;
 
   @NotBlank
-  private String birthday;
+  public final String birthday;
 
   @NotBlank
-  private String timezone;
+  public final String timezone;
 
   @NotBlank
-  private String address;
+  public final String address;
 
   @NotBlank
-  private String state;
+  public final String state;
 
   @NotBlank
-  private String zip;
+  public final String zip;
 
   @NotBlank
-  private String ssn;
+  public final String ssn;
 
-  public String getUsername() {
-    return username;
-  }
-
-  public void setUsername(String username) {
+  public CreateUserRequest(String username,
+      String password,
+      String passwordRepeat,
+      String firstname, String lastname,
+      String birthday, String timezone,
+      String address, String state,
+      String zip, String ssn) {
     this.username = username;
-  }
-
-  public String getPassword() {
-    return password;
-  }
-
-  public void setPassword(String password) {
     this.password = password;
-  }
-
-  public String getPasswordRepeat() {
-    return passwordRepeat;
-  }
-
-  public void setPasswordRepeat(String passwordRepeat) {
     this.passwordRepeat = passwordRepeat;
-  }
-
-  public String getFirstname() {
-    return firstname;
-  }
-
-  public void setFirstname(String firstname) {
     this.firstname = firstname;
-  }
-
-  public String getLastname() {
-    return lastname;
-  }
-
-  public void setLastname(String lastname) {
     this.lastname = lastname;
-  }
-
-  public String getBirthday() {
-    return birthday;
-  }
-
-  public void setBirthday(String birthday) {
     this.birthday = birthday;
-  }
-
-  public String getTimezone() {
-    return timezone;
-  }
-
-  public void setTimezone(String timezone) {
     this.timezone = timezone;
-  }
-
-  public String getAddress() {
-    return address;
-  }
-
-  public void setAddress(String address) {
     this.address = address;
-  }
-
-  public String getState() {
-    return state;
-  }
-
-  public void setState(String state) {
     this.state = state;
-  }
-
-  public String getZip() {
-    return zip;
-  }
-
-  public void setZip(String zip) {
     this.zip = zip;
-  }
-
-  public String getSsn() {
-    return ssn;
-  }
-
-  public void setSsn(String ssn) {
     this.ssn = ssn;
   }
 
   @Override
   public String toString() {
-    return "CreateUserRequest{" +
-        "username='" + username + '\'' +
-        ", password='" + password + '\'' +
-        ", passwordRepeat='" + passwordRepeat + '\'' +
-        ", firstName='" + firstname + '\'' +
-        ", lastName='" + lastname + '\'' +
-        ", birthday='" + birthday + '\'' +
-        ", timezone='" + timezone + '\'' +
-        ", address='" + address + '\'' +
-        ", state='" + state + '\'' +
-        ", zipCode='" + zip + '\'' +
-        ", ssn='" + ssn + '\'' +
-        '}';
+    return "CreateUserRequest{"
+            + "username='" + username + '\''
+            + ", password='" + password + '\''
+            + ", passwordRepeat='" + passwordRepeat + '\''
+            + ", firstName='" + firstname + '\''
+            + ", lastName='" + lastname + '\''
+            + ", birthday='" + birthday + '\''
+            + ", timezone='" + timezone + '\''
+            + ", address='" + address + '\''
+            + ", state='" + state + '\''
+            + ", zipCode='" + zip + '\''
+            + ", ssn='" + ssn + '\''
+            + '}';
   }
 }

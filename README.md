@@ -57,8 +57,9 @@ gcloud beta container clusters create bank-of-anthos \
 ### 4 - Generate RSA key pair secret
 
 ```
-openssl genrsa -out jwtRS256.key 4096
-openssl rsa -in jwtRS256.key -outform PEM -pubout -out jwtRS256.key.pub
+openssl genrsa -out jwtRS256.base.key 4096
+openssl rsa -in jwtRS256.base.key -outform PEM -pubout -out jwtRS256.key.pub
+openssl pkcs8 -topk8 -nocrypt -inform pem -in jwtRS256.base.key -outform der -out jwtRS256.key
 kubectl create secret generic jwt-key --from-file=./jwtRS256.key --from-file=./jwtRS256.key.pub
 ```
 

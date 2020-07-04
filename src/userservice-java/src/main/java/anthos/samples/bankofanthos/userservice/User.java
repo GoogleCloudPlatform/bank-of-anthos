@@ -1,9 +1,9 @@
 package anthos.samples.bankofanthos.userservice;
 
-import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import java.util.Date;
 
 /**
  * Represents a User record in the Bank of Anthos.
@@ -25,8 +25,11 @@ public class User {
   private int zipCode;
   private String ssn;
 
-  public User(String username, String passhash, String firstName, String lastName,
-      Date birthday, String timezone, String address, String state, int zipCode, String ssn) {
+  public User(
+      String username, String passhash, String firstName, String lastName,
+      Date birthday, String timezone, String address, String state,
+      int zipCode, String ssn) {
+
     this.username = username;
     this.passhash = passhash;
     this.firstName = firstName;
@@ -39,8 +42,10 @@ public class User {
     this.ssn = ssn;
   }
 
-  // No-arg constructor used by the Spring framework
-  User() {}
+  // Default constructor used by Spring Data JPA.
+  User() {
+
+  }
 
   public long getId() {
     return id;
