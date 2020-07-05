@@ -31,6 +31,9 @@ build:
     context: src/contacts
   - image: gcr.io/bank-of-anthos/userservice
     context: src/userservice
+  - image: gcr.io/bank-of-anthos/userservice-java
+    jib:
+      project: src/userservice-java
   - image: gcr.io/bank-of-anthos/loadgenerator
     context: src/loadgenerator
   - image: gcr.io/bank-of-anthos/accounts-db
@@ -47,6 +50,9 @@ deploy:
     - ./kubernetes-manifests/**.yaml
     # deploy a pre-build secret
     # in practice, this should not be checked in to source control
-    - ./extras/jwt/jwt-secret.yaml
+    #
+    # Note: This is commented out in the userservice-java implementation because these secrets
+    # will be stored in Google Secret Manager
+    # - ./extras/jwt/jwt-secret.yaml
 profiles:
   - name: local-code

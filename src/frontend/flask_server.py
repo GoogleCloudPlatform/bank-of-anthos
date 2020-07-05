@@ -369,6 +369,7 @@ def _login_helper(username, password):
 
         # login success
         token = req.json()['token'].encode('utf-8')
+
         claims = jwt.decode(token, verify=False)
         max_age = claims['exp'] - claims['iat']
         resp = make_response(redirect(url_for('home',

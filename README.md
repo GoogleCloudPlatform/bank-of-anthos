@@ -51,16 +51,17 @@ cd bank-of-anthos
 ZONE=<your-zone>
 gcloud beta container clusters create bank-of-anthos \
     --project=${PROJECT_ID} --zone=${ZONE} \
-    --machine-type=n1-standard-2 --num-nodes=4
+    --machine-type=n1-standard-2 --num-nodes=4 \
+    --scopes=gke-default,sql-admin
 ```
 
 ### 4 - Generate RSA key pair secret
 
 ```
-openssl genrsa -out jwtRS256.base.key 4096
-openssl rsa -in jwtRS256.base.key -outform PEM -pubout -out jwtRS256.key.pub
-openssl pkcs8 -topk8 -nocrypt -inform pem -in jwtRS256.base.key -outform der -out jwtRS256.key
-kubectl create secret generic jwt-key --from-file=./jwtRS256.key --from-file=./jwtRS256.key.pub
+openssl genrsa -out jwtRS256.key 4096
+openssl rsa -in jwtRS256.key -outform PEM -pubout -out jwtRS256.key.pub
+openssl pkcs8 -topk8 -nocrypt -inform pem -in jwtRS256.key -outform der -out jwtRS256-pkcs8.key
+kubectl create secret generic jwt-key --from-file=./jwtRS256.key --from-file=./jwtRS256.key.pub --from-file=./jwtRS256-pkcs8.key
 ```
 
 ### 5 - Deploy Kubernetes manifests

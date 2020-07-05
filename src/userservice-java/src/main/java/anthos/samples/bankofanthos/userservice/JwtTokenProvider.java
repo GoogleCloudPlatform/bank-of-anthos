@@ -48,8 +48,8 @@ public final class JwtTokenProvider {
     claims.put("user", user.getUsername());
     claims.put("acct", user.getId());
     claims.put("name", user.getFirstName() + " " + user.getLastName());
-    claims.put("iat", currentTime.toString());
-    claims.put("exp", currentTime.plusSeconds(expiryTimeSeconds).toString());
+    claims.put("iat", currentTime.getEpochSecond());
+    claims.put("exp", currentTime.getEpochSecond() + expiryTimeSeconds);
 
     return claims;
   }
