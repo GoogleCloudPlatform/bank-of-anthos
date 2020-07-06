@@ -15,11 +15,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 /**
  * Implements the REST endpoints of the User Service.
@@ -97,7 +96,7 @@ public class UserServiceController {
       return new ResponseEntity<>("Error: User does not exist.", HttpStatus.BAD_REQUEST);
     }
 
-    if (!BCRYPT_ENCODER.matches(password, user.getPasshash())) {
+    if (!BCRYPT_ENCODER.matches(password, new String(user.getPasshash(), Charset.defaultCharset()))) {
       return new ResponseEntity<>("Error: Incorrect password.", HttpStatus.BAD_REQUEST);
     }
 
@@ -117,14 +116,14 @@ public class UserServiceController {
   private User createUser(CreateUserRequest request) throws ParseException {
     return new User(
         request.username,
-        BCRYPT_ENCODER.encode(request.password),
+        BCRYPT_ENCODER.encode(request.password).getBytes(),
         request.firstname,
         request.lastname,
         DATE_FORMAT.parse(request.birthday),
         request.timezone,
         request.address,
         request.state,
-        Integer.parseInt(request.zip),
+        request.zip,
         request.ssn);
   }
 }

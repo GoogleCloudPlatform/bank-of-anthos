@@ -46,7 +46,7 @@
 
     <dependency>
       <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-gcp-starter-sql-mysql</artifactId>
+      <artifactId>spring-cloud-gcp-starter-sql-postgresql</artifactId>
     </dependency>
 
     <dependency>

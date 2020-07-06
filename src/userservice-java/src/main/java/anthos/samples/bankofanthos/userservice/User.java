@@ -8,37 +8,37 @@ import java.util.Date;
 /**
  * Represents a User record in the Bank of Anthos.
  */
-@Entity
+@Entity(name = "users")
 public class User {
 
   @Id
   @GeneratedValue
-  private long id;
+  private long accountid;
   private String username;
-  private String passhash;
-  private String firstName;
-  private String lastName;
+  private byte[] passhash;
+  private String firstname;
+  private String lastname;
   private Date birthday;
   private String timezone;
   private String address;
   private String state;
-  private int zipCode;
+  private String zip;
   private String ssn;
 
   public User(
-      String username, String passhash, String firstName, String lastName,
+      String username, byte[] passhash, String firstname, String lastname,
       Date birthday, String timezone, String address, String state,
-      int zipCode, String ssn) {
+      String zip, String ssn) {
 
     this.username = username;
     this.passhash = passhash;
-    this.firstName = firstName;
-    this.lastName = lastName;
+    this.firstname = firstname;
+    this.lastname = lastname;
     this.birthday = birthday;
     this.timezone = timezone;
     this.address = address;
     this.state = state;
-    this.zipCode = zipCode;
+    this.zip = zip;
     this.ssn = ssn;
   }
 
@@ -47,12 +47,12 @@ public class User {
 
   }
 
-  public long getId() {
-    return id;
+  public long getAccountid() {
+    return accountid;
   }
 
-  public void setId(long id) {
-    this.id = id;
+  public void setAccountid(long accountid) {
+    this.accountid = accountid;
   }
 
   public String getUsername() {
@@ -63,28 +63,28 @@ public class User {
     this.username = username;
   }
 
-  public String getPasshash() {
+  public byte[] getPasshash() {
     return passhash;
   }
 
-  public void setPasshash(String passhash) {
+  public void setPasshash(byte[] passhash) {
     this.passhash = passhash;
   }
 
-  public String getFirstName() {
-    return firstName;
+  public String getFirstname() {
+    return firstname;
   }
 
-  public void setFirstName(String firstName) {
-    this.firstName = firstName;
+  public void setFirstname(String firstname) {
+    this.firstname = firstname;
   }
 
-  public String getLastName() {
-    return lastName;
+  public String getLastname() {
+    return lastname;
   }
 
-  public void setLastName(String lastName) {
-    this.lastName = lastName;
+  public void setLastname(String lastname) {
+    this.lastname = lastname;
   }
 
   public Date getBirthday() {
@@ -119,12 +119,12 @@ public class User {
     this.state = state;
   }
 
-  public int getZipCode() {
-    return zipCode;
+  public String getZip() {
+    return zip;
   }
 
-  public void setZipCode(int zipCode) {
-    this.zipCode = zipCode;
+  public void setZip(String zip) {
+    this.zip = zip;
   }
 
   public String getSsn() {
@@ -133,5 +133,22 @@ public class User {
 
   public void setSsn(String ssn) {
     this.ssn = ssn;
+  }
+
+  @Override
+  public String toString() {
+    return "User{" +
+        "accountid=" + accountid +
+        ", username='" + username + '\'' +
+        ", passhash='" + passhash + '\'' +
+        ", firstName='" + firstname + '\'' +
+        ", lastName='" + lastname + '\'' +
+        ", birthday=" + birthday +
+        ", timezone='" + timezone + '\'' +
+        ", address='" + address + '\'' +
+        ", state='" + state + '\'' +
+        ", zipCode=" + zip +
+        ", ssn='" + ssn + '\'' +
+        '}';
   }
 }

@@ -12,10 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM postgres:12
+FROM gcr.io/cloudsql-docker/gce-proxy:1.16
 
-# Files for initializing the database.
-COPY initdb/0-accounts-schema.sql /docker-entrypoint-initdb.d/0-accounts-schema.sql
-RUN chmod 755  /docker-entrypoint-initdb.d/0-accounts-schema.sql
-COPY initdb/1-load-testdata.sh /docker-entrypoint-initdb.d/1-load-testdata.sh
-RUN chmod 755  /docker-entrypoint-initdb.d/1-load-testdata.sh
+CMD ["/cloud_sql_proxy", "-instances=my-kubernetes-codelab-217414:us-east1:test-instance-pg=tcp:0.0.0.0:5432"]
