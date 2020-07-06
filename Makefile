@@ -14,6 +14,7 @@
 
 .-PHONY: cluster deploy deploy-continuous logs checkstyle check-env
 
+ZONE=us-west1-a
 CLUSTER=bank-of-anthos
 
 cluster: check-env
