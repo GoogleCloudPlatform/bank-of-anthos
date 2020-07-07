@@ -144,7 +144,7 @@ def create_app():
             raise UserWarning('missing value for input field(s)')
 
         # Verify username contains only 2-15 alphanumeric or underscore characters
-        if not re.match("([a-zA-Z0-9_]){2,15}", req['username']):
+        if not re.match(r"\A[a-zA-Z0-9_]{2,15}\Z", req['username']):
             raise UserWarning('username must contain 2-15 alphanumeric characters or underscores')
         # Check if passwords match
         if not req['password'] == req['password-repeat']:
