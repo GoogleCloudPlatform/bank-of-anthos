@@ -15,7 +15,8 @@
 """
 Example constants used in tests
 """
-
+import random
+import string
 from datetime import datetime
 from Crypto.PublicKey import RSA
 
