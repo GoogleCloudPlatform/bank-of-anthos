@@ -27,6 +27,13 @@ import bcrypt
 import jwt
 from flask import Flask, jsonify, request
 import bleach
+from opentelemetry import trace
+from opentelemetry.exporter.cloud_trace import CloudTraceSpanExporter
+from opentelemetry.exporter.cloud_trace.cloud_trace_propagator import CloudTraceFormatPropagator
+from opentelemetry.ext.flask import FlaskInstrumentor
+from opentelemetry.propagators import set_global_httptextformat
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import SimpleExportSpanProcessor
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
 from db import UserDb
 
@@ -36,6 +43,18 @@ def create_app():
     of the Userservice Flask App
     """
     app = Flask(__name__)
+
+    # Set up tracing and export spans to Cloud Trace
+    trace.set_tracer_provider(TracerProvider())
+    cloud_trace_exporter = CloudTraceSpanExporter()
+    trace.get_tracer_provider().add_span_processor(
+        SimpleExportSpanProcessor(cloud_trace_exporter)
+    )
+
+    set_global_httptextformat(CloudTraceFormatPropagator())
+
+    # Add Flask auto-instrumentation for tracing
+    FlaskInstrumentor().instrument_app(app)
 
     # Disabling unused-variable for lines with route decorated functions
     # as pylint thinks they are unused
