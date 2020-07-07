@@ -22,7 +22,8 @@
             "invalidFeedback": {
                 "accountNum": "Please enter a valid 10 digit account number",
                 "routingNum": "Please enter a valid 9 digit routing number",
-                "payment": "Please enter a valid amount"
+                "payment": "Please enter a valid amount",
+                "username": "Please enter a valid username. Username must be 2 to 15 characters in length and contain only alphanumeric or underscore characters."
             }
         },
         "defaultUser": {
