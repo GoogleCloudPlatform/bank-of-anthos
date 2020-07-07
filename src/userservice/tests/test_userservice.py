@@ -254,9 +254,10 @@ class TestUserservice(unittest.TestCase):
             # send request to test client
             response = self.test_app.post('/users', data=example_user_request)
             self.assertEqual(response.status_code, 400)
-            # assert we get correct error message
-            self.assertEqual(
-                response.data,
-                'username must contain 2-15 alphanumeric characters or underscores'
-                    .format(example_user_request['username']).encode()
-        )
+            if invalid_username:
+                # assert we get correct error message
+                self.assertEqual(
+                    response.data,
+                    'username must contain 2-15 alphanumeric characters or underscores'
+                        .format(example_user_request['username']).encode()
+                )
