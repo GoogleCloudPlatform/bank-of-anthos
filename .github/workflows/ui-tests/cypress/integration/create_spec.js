@@ -32,24 +32,21 @@ describe('Signup is unsuccessful with an invalid username', function() {
     const invalidFeedback = Cypress.env('messages').invalidFeedback
 
     it('cannot contain less than 2 characters', function() {
-        // Generate a random alphanumeric character
-        const username = Math.random().toString(36).substring(2, 3);
+        const username = "a";
         cy.get('#signup-username').type(username)
         cy.get('.invalid-feedback').should('be.visible')
         cy.get('.invalid-feedback').contains(invalidFeedback.username)
     })
 
     it('cannot contain more than 15 characters', function() {
-        // Generate a random string of atleast 16 characters
-        const randomLength = 90;
-        const username = [...Array(randomLength)].map(() => Math.random().toString(36)[2]).join('');
+        const username = "0123456789abcdef";
         cy.get('#signup-username').type(username)
         cy.get('.invalid-feedback').should('be.visible')
         cy.get('.invalid-feedback').contains(invalidFeedback.username)
     })
 
     it('cannot contain non-alphanumeric or non-underscore characters', function() {
-        // TODO: generate random string with non-alphanumeric chars
+        const username = "user*";
         cy.get('#signup-username').type(username)
         cy.get('.invalid-feedback').should('be.visible')
         cy.get('.invalid-feedback').contains(invalidFeedback.username)
