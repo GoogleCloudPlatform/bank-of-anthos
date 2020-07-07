@@ -34,14 +34,14 @@ spec:
     spec:
       containers:
       - name: accounts-db
-        image: gcr.io/bank-of-anthos/accounts-db:v0.1.2
+        image: gcr.io/bank-of-anthos/accounts-db:latest
         envFrom:
           - configMapRef:
               name: environment-config
           - configMapRef:
               name: accounts-db-config
           - configMapRef:
-              name: default-data-config
+              name: demo-data-config
         ports:
           - containerPort: 5432
             name: postgredb

@@ -8,12 +8,49 @@
             "transaction": {
                 "empty": "No Transactions Found",
                 "error": "Error: Could Not Load Transactions"
+            },
+            "deposit": {
+                "success": "Deposit accepted",
+                "error": "Deposit failed",
+                "errRoutingNum": "invalid routing number"
+            },
+            "transfer": {
+                "success": "Payment initiated",
+                "error": "Payment failed",
+                "errSelf": "may not add yourself to contacts"
+            },
+            "invalidFeedback": {
+                "accountNum": "Please enter a valid 10 digit account number",
+                "routingNum": "Please enter a valid 9 digit routing number",
+                "payment": "Please enter a valid amount"
             }
         },
         "defaultUser": {
             "username": "testuser",
             "password": "password",
-            "name": "Eve"
+            "name": "Test",
+            "accountNum": "1011226111",
+            "externalAccounts": [
+                {
+                    "accountNum": "9099791699",
+                    "routingNum": "808889588"
+                }
+            ],
+            "recipients": [
+                {
+                    "accountNum": "1033623433",
+                    "name": "Alice"
+                }, 
+                {
+                    "accountNum": "1055757655",
+                    "name": "Bob"
+                }, 
+                {
+                    "accountNum": "1077441377",
+                    "name": "Eve"
+                }
+            ],
+            "localRoutingNum": "883745000"
         }
     }
 }

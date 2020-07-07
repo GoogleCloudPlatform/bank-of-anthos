@@ -17,10 +17,10 @@ Bank of Anthos was developed to create an end-to-end sample demonstrating Anthos
 | [ledger-writer](./src/ledgerwriter)              | Java          | Accepts and validates incoming transactions before writing them to the ledger.                                                               |
 | [balance-reader](./src/balancereader)            | Java          | Provides efficient readable cache of user balances, as read from `ledger-db`.                                                                |
 | [transaction-history](./src/transactionhistory)  | Java          | Provides efficient readable cache of past transactions, as read from `ledger-db`.                                                            |
-| [ledger-db](./src/ledger-db)                     | PostgreSQL | Ledger of all transactions. Option to pre-populate with transactions for default users.                                                         |
+| [ledger-db](./src/ledger-db)                     | PostgreSQL | Ledger of all transactions. Option to pre-populate with transactions for demo users.                                                         |
 | [user-service](./src/userservice)                | Python        | Manages user accounts and authentication. Signs JWTs used for authentication by other services.                                              |
 | [contacts](./src/contacts)                       | Python        | Stores list of other accounts associated with a user. Used for drop down in "Send Payment" and "Deposit" forms. |
-| [accounts-db](./src/accounts-db)                 | PostgreSQL | Database for user accounts and associated data. Option to pre-populate with default users.                                                      |
+| [accounts-db](./src/accounts-db)                 | PostgreSQL | Database for user accounts and associated data. Option to pre-populate with demo users.                                                      |
 | [loadgenerator](./src/loadgenerator)             | Python/Locust | Continuously sends requests imitating users to the frontend. Periodically created new accounts and simulates transactions between them.      |
 
 
@@ -48,8 +48,9 @@ cd bank-of-anthos
 ### 3 - Create a Kubernetes cluster
 
 ```
+ZONE=<your-zone>
 gcloud beta container clusters create bank-of-anthos \
-    --project=${PROJECT_ID} --zone=us-central1-b \
+    --project=${PROJECT_ID} --zone=${ZONE} \
     --machine-type=n1-standard-2 --num-nodes=4
 ```
 
@@ -88,7 +89,7 @@ transactionhistory-5569754896-z94cn   1/1     Running   0          97s
 userservice-78dc876bff-pdhtl          1/1     Running   0          96s
 ```
 
-### 4 - Get the frontend IP
+### 6 - Get the frontend IP
 
 ```
 kubectl get svc frontend | awk '{print $4}'
@@ -103,7 +104,7 @@ EXTERNAL-IP
 
 **Note:** you may see a `<pending>` IP for a few minutes, while the GCP load balancer is provisioned.
 
-### 5 - Navigate to the web frontend
+### 7 - Navigate to the web frontend
 
 Paste the frontend IP into a web browser. You should see a log-in screen:
 

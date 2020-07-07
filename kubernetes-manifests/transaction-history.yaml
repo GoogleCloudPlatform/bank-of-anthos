@@ -27,15 +27,15 @@ spec:
     spec:
       terminationGracePeriodSeconds: 5
       containers:
-      - name: history
-        image: gcr.io/bank-of-anthos/transactionhistory:v0.1.2
+      - name: transactionhistory
+        image: gcr.io/bank-of-anthos/transactionhistory:latest
         volumeMounts:
         - name: publickey
           mountPath: "/root/.ssh"
           readOnly: true
         env:
         - name: VERSION
-          value: "v0.1.2"
+          value: "v0.2.0"
         - name: PORT
           value: "8080"
         - name: POLL_MS
@@ -51,6 +51,10 @@ spec:
           value: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
         #- name: EXTRA_LATENCY_MILLIS
         #  value: "5000"
+        # Valid levels are debug, info, warn, error, fatal.
+        # If no valid level is set, will default to info.
+        - name: LOG_LEVEL
+          value: "info"
         envFrom:
         - configMapRef:
             name: environment-config

@@ -30,6 +30,8 @@ Implemented in Java with Spring Boot and Guava.
   - optional. Defaults to 1,000,000
 - `JVM_OPTS`
   - settings for the JVM. Used to obey container memory limits
+- `LOG_LEVEL`
+  - service level [log level](https://logging.apache.org/log4j/2.x/manual/customloglevels.html)
 
 - ConfigMap `environment-config`:
   - `LOCAL_ROUTING_NUM`
