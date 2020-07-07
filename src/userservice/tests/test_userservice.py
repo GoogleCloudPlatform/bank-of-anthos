@@ -258,6 +258,6 @@ class TestUserservice(unittest.TestCase):
                 # assert we get correct error message
                 self.assertEqual(
                     response.data,
-                    'username must contain 2-15 alphanumeric characters or underscores'
-                        .format(example_user_request['username']).encode()
+                    'username must contain 2-15 alphanumeric characters or underscores'.encode(),
+                    'username {} returned unexpected error message'.format(invalid_username)
                 )
