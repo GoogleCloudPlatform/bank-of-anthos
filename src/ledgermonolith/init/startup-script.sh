@@ -28,11 +28,16 @@ set -v
 APP_JAR=ledgermonolith.jar
 APP_ENV=ledgermonolith.env
 JWT_SECRET=jwt-secret.yaml
+DB_INIT_DIR=initdb
 
 
 # Talk to the metadata server to get the project id
-PROJECTID=$(curl -s "http://metadata.google.internal/computeMetadata/v1/project/project-id" -H "Metadata-Flavor: Google")
-echo "Project ID: ${PROJECTID}"
+PROJECT_ID=$(curl -s "http://metadata.google.internal/computeMetadata/v1/project/project-id" -H "Metadata-Flavor: Google")
+echo "Project ID: ${PROJECT_ID}"
+
+
+# Google Cloud Storage bucket to retrieve build artifacts from
+GCS_BUCKET=${PROJECT_ID}.bank-of-anthos-monolith
 
 
 # Update apt packages and retry if needed
@@ -71,7 +76,7 @@ fi
 
 
 # Pull build artifacts
-gsutil -m cp -r gs://bank-of-anthos/monolith /opt/
+gsutil -m cp -r gs://${GCS_BUCKET} /opt/
 
 
 # Export application environment variables
@@ -94,12 +99,12 @@ sudo -u postgres psql --command "ALTER USER $POSTGRES_USER WITH SUPERUSER;"
 
 
 # Init database with any included SQL scripts
-sudo -u postgres psql -d $POSTGRES_DB -f /opt/monolith/initdb/*.sql
+sudo -u postgres psql -d $POSTGRES_DB -f /opt/monolith/${DB_INIT_DIR}/*.sql
 
 
 # Init database with any included bash scripts
 export POSTGRES_USER=postgres  # Hack around PostgreSQL peer auth restrictions
-for script in /opt/monolith/initdb/*.sh; do
+for script in /opt/monolith/${DB_INIT_DIR}/*.sh; do
   sudo --preserve-env=USE_DEMO_DATA,POSTGRES_DB,POSTGRES_USER,LOCAL_ROUTING_NUM -u postgres bash "$script" -H
 done
 
