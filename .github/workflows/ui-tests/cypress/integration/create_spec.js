@@ -49,7 +49,7 @@ describe('Signup is unsuccessful with an invalid username', function() {
     })
 
     it('cannot contain non-alphanumeric or non-underscore characters', function() {
-        // Generate random string
+        // TODO: generate random string with non-alphanumeric chars
         cy.get('#signup-username').type(username)
         cy.get('.invalid-feedback').should('be.visible')
         cy.get('.invalid-feedback').contains(invalidFeedback.username)
