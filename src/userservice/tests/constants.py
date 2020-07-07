@@ -80,12 +80,12 @@ INVALID_USERNAMES = [
     None, # null
     "", # empty string
     " ", # only space
-    "a", # single character
+    "b", # single character
     " user", # starting with space
     "*$&%($", # non alphanumeric characters
-    "label*new", # alphanumeric with non alphanumeric characters
+    "user*new", # alphanumeric with non alphanumeric characters
     "🏦💸", # emojis
-    "label1💸", # alphanumeric with emojis
+    "user1💸", # alphanumeric with emojis
     get_random_string(16), # 16 characters
     " {}".format(get_random_string(15)), # 15 characters + leading space
     "{} ".format(get_random_string(15)), # 15 characters + trailing space
