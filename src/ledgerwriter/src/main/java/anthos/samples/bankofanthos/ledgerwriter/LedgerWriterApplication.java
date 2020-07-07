@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package anthos.samples.financedemo.ledgerwriter;
+package anthos.samples.bankofanthos.ledgerwriter;
 
 import javax.annotation.PreDestroy;
 import org.apache.logging.log4j.Level;
@@ -22,6 +22,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * Entry point for the LedgerWriter Spring Boot application.
@@ -59,6 +61,11 @@ public class LedgerWriterApplication {
         LOGGER.log(Level.forName("STARTUP", Level.FATAL.intLevel()),
             String.format("Started LedgerWriter service. Log level is: %s",
                 LOGGER.getLevel().toString()));
+    }
+
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
     }
 
     @PreDestroy

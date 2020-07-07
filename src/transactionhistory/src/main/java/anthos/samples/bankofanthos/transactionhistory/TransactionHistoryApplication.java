@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package anthos.samples.financedemo.transactionhistory;
+package anthos.samples.bankofanthos.transactionhistory;
 
 import javax.annotation.PreDestroy;
 import org.apache.logging.log4j.Level;
@@ -42,8 +42,7 @@ public class TransactionHistoryApplication {
         "PUB_KEY_PATH",
         "SPRING_DATASOURCE_URL",
         "SPRING_DATASOURCE_USERNAME",
-        "SPRING_DATASOURCE_PASSWORD",
-        "LOG_LEVEL"
+        "SPRING_DATASOURCE_PASSWORD"
     };
 
     public static void main(String[] args) {

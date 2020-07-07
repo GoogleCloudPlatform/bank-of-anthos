@@ -20,13 +20,10 @@ Exercises the frontend endpoints for the system
 
 import json
 import logging
-import os
 from random import randint, random, choice
 import uuid
 
 from locust import HttpLocust, TaskSet, TaskSequence, task, seq_task, between
-
-logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO').upper())
 
 MASTER_PASSWORD = "password"
 
@@ -147,7 +144,8 @@ class AllTasks(TaskSequence):
             if amount is None:
                 amount = random() * 1000
             transaction = {"account_num": choice(TRANSACTION_ACCT_LIST),
-                           "amount":amount}
+                           "amount": amount,
+                           "uuid": str(uuid.uuid4())}
             with self.client.post("/payment",
                                   data=transaction,
                                   catch_response=True) as response:
@@ -164,7 +162,8 @@ class AllTasks(TaskSequence):
             acct_info = {"account_num": choice(TRANSACTION_ACCT_LIST),
                          "routing_num":"111111111"}
             transaction = {"account": json.dumps(acct_info),
-                           "amount":amount}
+                           "amount": amount,
+                           "uuid": str(uuid.uuid4())}
             with self.client.post("/deposit",
                                   data=transaction,
                                   catch_response=True) as response:

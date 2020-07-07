@@ -242,3 +242,20 @@ class TestUserservice(unittest.TestCase):
             response.data,
             'user {} does not exist'.format(example_user_request['username']).encode()
         )
+
+    def test_create_user_400_status_code_invalid_username(self,):
+        """test adding a contact with invalid labels """
+        # test for each invalid label in INVALID_USERNAMES
+        for invalid_username in INVALID_USERNAMES:
+            example_user_request = EXAMPLE_USER_REQUEST.copy()
+            # create example user request
+            example_user_request['username'] = invalid_username
+            # send request to test client
+            response = self.test_app.post('/users', data=example_user_request)
+            self.assertEqual(response.status_code, 400)
+            # assert we get correct error message
+            self.assertEqual(
+                response.data,
+                'username must contain 2-15 alphanumeric characters or underscores'
+                    .format(example_user_request['username']).encode()
+        )

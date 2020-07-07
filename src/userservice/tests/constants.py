@@ -27,6 +27,9 @@ def generate_rsa_key():
     public_key = key.publickey().export_key()
     return private_key, public_key
 
+def get_random_string(length):
+    """Generate random string of given length"""
+    return ''.join(random.choice(string.ascii_lowercase) for i in range(length))
 
 EXAMPLE_PRIVATE_KEY, EXAMPLE_PUBLIC_KEY = generate_rsa_key()
 
@@ -70,3 +73,20 @@ EXPECTED_FIELDS = [
     'zip',
     'ssn',
 ]
+
+# Usernames must be >1 and <=15 chars, alphanumeric and underscores
+INVALID_USERNAMES = [
+    None, # null
+    "", # empty string
+    " ", # only space
+    "a", # single character
+    " user", # starting with space
+    "*$&%($", # non alphanumeric characters
+    "label*new", # alphanumeric with non alphanumeric characters
+    "🏦💸", # emojis
+    "label1💸", # alphanumeric with emojis
+    get_random_string(16), # 16 characters
+    " {}".format(get_random_string(15)), # 15 characters + leading space
+    "{} ".format(get_random_string(15)), # 15 characters + trailing space
+    "{}".format(get_random_string(100)), # 100 characters
+    ]

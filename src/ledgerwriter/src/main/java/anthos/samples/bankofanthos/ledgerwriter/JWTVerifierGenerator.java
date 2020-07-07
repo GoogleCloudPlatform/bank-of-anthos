@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package anthos.samples.financedemo.ledgerwriter;
+package anthos.samples.bankofanthos.ledgerwriter;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
