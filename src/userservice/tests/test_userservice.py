@@ -253,7 +253,8 @@ class TestUserservice(unittest.TestCase):
             example_user_request['username'] = invalid_username
             # send request to test client
             response = self.test_app.post('/users', data=example_user_request)
-            self.assertEqual(response.status_code, 400)
+            self.assertEqual(response.status_code, 400,
+                'username {} returned status code'.format(invalid_username))
             if invalid_username:
                 # assert we get correct error message
                 self.assertEqual(
