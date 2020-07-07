@@ -246,6 +246,10 @@ class TestUserservice(unittest.TestCase):
 
     def test_create_user_400_status_code_invalid_username(self,):
         """test adding a contact with invalid labels """
+        # mock return value of get_user which checks if user exists as None
+        self.mocked_db.return_value.get_user.return_value = None
+        # mock return value for generate_id from user_db
+        self.mocked_db.return_value.generate_accountid.return_value = '123'
         # test for each invalid label in INVALID_USERNAMES
         for invalid_username in INVALID_USERNAMES:
             example_user_request = EXAMPLE_USER_REQUEST.copy()
