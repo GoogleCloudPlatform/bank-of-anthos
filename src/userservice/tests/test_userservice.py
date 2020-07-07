@@ -32,6 +32,7 @@ from userservice.tests.constants import (
     EXPECTED_FIELDS,
     EXAMPLE_PRIVATE_KEY,
     EXAMPLE_PUBLIC_KEY,
+    INVALID_USERNAMES,
 )
 
 
