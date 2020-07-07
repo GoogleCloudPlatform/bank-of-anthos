@@ -70,3 +70,20 @@ EXPECTED_FIELDS = [
     'zip',
     'ssn',
 ]
+
+# Usernames must be >1 and <=15 chars, alphanumeric and underscores
+INVALID_USERNAMES = [
+    None, # null
+    "", # empty string
+    " ", # only space
+    "a", # single character
+    " user", # starting with space
+    "*$&%($", # non alphanumeric characters
+    "label*new", # alphanumeric with non alphanumeric characters
+    "🏦💸", # emojis
+    "label1💸", # alphanumeric with emojis
+    get_random_string(16), # 16 characters
+    " {}".format(get_random_string(15)), # 15 characters + leading space
+    "{} ".format(get_random_string(15)), # 15 characters + trailing space
+    "{}".format(get_random_string(100)), # 100 characters
+    ]
