@@ -27,6 +27,9 @@ def generate_rsa_key():
     public_key = key.publickey().export_key()
     return private_key, public_key
 
+def get_random_string(length):
+    """Generate random string of given length"""
+    return ''.join(random.choice(string.ascii_lowercase) for i in range(length))
 
 EXAMPLE_PRIVATE_KEY, EXAMPLE_PUBLIC_KEY = generate_rsa_key()
 
