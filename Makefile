@@ -37,6 +37,8 @@ deploy-continuous: check-env
 monolith: check-env
 	mvn -f src/ledgermonolith/ package
 	src/ledgermonolith/scripts/push-artifacts.sh
+
+deploy-monolith: check-env
 	src/ledgermonolith/scripts/deploy-monolith.sh
 
 checkstyle:

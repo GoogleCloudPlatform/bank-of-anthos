@@ -16,8 +16,8 @@
 
 # Startup script to start the ledgermonolith service from a JAR.
 #
-# Expects build artifacts to be available on Google Cloud Storage at
-# gs://bank-of-anthos/monolith.
+# Expects build artifacts to be available on Google Cloud Storage.
+# The GCS bucket is set with instance custom metadata 'gcs-bucket'
 #
 # Designed to be attached as a startup script to a Google Compute Engine VM.
 
@@ -31,13 +31,14 @@ JWT_SECRET=jwt-secret.yaml
 DB_INIT_DIR=initdb
 
 
-# Talk to the metadata server to get the project id
-PROJECT_ID=$(curl -s "http://metadata.google.internal/computeMetadata/v1/project/project-id" -H "Metadata-Flavor: Google")
-echo "Project ID: ${PROJECT_ID}"
+# Define where to put monolith artifacts
+MONOLITH_DIR=/opt/monolith
+MONOLITH_LOG=/var/log/monolith.log
 
 
-# Google Cloud Storage bucket to retrieve build artifacts from
-GCS_BUCKET=${PROJECT_ID}.bank-of-anthos-monolith
+# Get the Google Cloud Storage bucket to retrieve build artifacts from
+GCS_BUCKET=$(curl "http://metadata/computeMetadata/v1/instance/attributes/gcs-bucket" -H "Metadata-Flavor: Google")
+echo "GCS_BUCKET: $GCS_BUCKET"
 
 
 # Update apt packages and retry if needed
@@ -76,15 +77,16 @@ fi
 
 
 # Pull build artifacts
-gsutil -m cp -r gs://${GCS_BUCKET} /opt/
+mkdir $MONOLITH_DIR
+gsutil -m cp -r gs://${GCS_BUCKET}/* ${MONOLITH_DIR}
 
 
 # Export application environment variables
-source <(sed -E -n 's/[^#]+/export &/ p' /opt/monolith/${APP_ENV})
+source <(sed -E -n 's/[^#]+/export &/ p' ${MONOLITH_DIR}/${APP_ENV})
 
 
 # Extract the public key and write it to a file
-awk '/jwtRS256.key.pub/{print $2}' /opt/monolith/${JWT_SECRET} | base64 -d >> $PUB_KEY_PATH
+awk '/jwtRS256.key.pub/{print $2}' ${MONOLITH_DIR}/${JWT_SECRET} | base64 -d >> $PUB_KEY_PATH
 
 
 # Start PostgreSQL
@@ -99,18 +101,18 @@ sudo -u postgres psql --command "ALTER USER $POSTGRES_USER WITH SUPERUSER;"
 
 
 # Init database with any included SQL scripts
-sudo -u postgres psql -d $POSTGRES_DB -f /opt/monolith/${DB_INIT_DIR}/*.sql
+sudo -u postgres psql -d $POSTGRES_DB -f ${MONOLITH_DIR}/${DB_INIT_DIR}/*.sql
 
 
 # Init database with any included bash scripts
 export POSTGRES_USER=postgres  # Hack around PostgreSQL peer auth restrictions
-for script in /opt/monolith/${DB_INIT_DIR}/*.sh; do
-  sudo --preserve-env=USE_DEMO_DATA,POSTGRES_DB,POSTGRES_USER,LOCAL_ROUTING_NUM -u postgres bash "$script" -H
+for script in ${MONOLITH_DIR}/${DB_INIT_DIR}/*.sh; do
+  sudo --preserve-env=USE_DEMO_DATA,POSTGRES_DB,POSTGRES_USER,LOCAL_ROUTING_NUM -u postgres bash "${script}" -H
 done
 
 
 # Start the ledgermonolith service
-nohup java -jar /opt/monolith/${APP_JAR} > /var/log/monolith.log &
+nohup java -jar ${MONOLITH_DIR}/${APP_JAR} > ${MONOLITH_LOG} &
 
 
 echo "Startup Complete"

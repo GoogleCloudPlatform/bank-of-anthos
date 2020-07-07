@@ -14,7 +14,7 @@
 # limitations under the License.
 
 
-# Script to delete the ledgermonolith service and associated artifacts
+# Script to teardown the ledgermonolith service VM
 
 if [[ -z ${PROJECT_ID} ]]; then
   echo "PROJECT_ID must be set"
@@ -51,8 +51,3 @@ if [ $? -eq 0 ]; then
       --project $PROJECT_ID \
       --quiet
 fi
-
-
-# Delete the build artifacts
-gsutil -m rm -r gs://bank-of-anthos
-

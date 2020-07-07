@@ -28,6 +28,15 @@ else
   echo "ZONE: ${ZONE}"
 fi
 
+
+if [[ -z ${GCS_BUCKET} ]]; then
+  GCS_BUCKET=${PROJECT_ID}.bank-of-anthos-monolith
+  echo "No GCS_BUCKET specified, using default: ${GCS_BUCKET}"
+else
+  echo "GCS_BUCKET: ${GCS_BUCKET}"
+fi
+
+
 CWD="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 
@@ -44,6 +53,7 @@ if [ $? -eq 0 ]; then
       --quiet
 fi
 
+
 # Create the monolith VM
 gcloud compute instances create ledgermonolith-service \
     --project $PROJECT_ID \
@@ -53,23 +63,24 @@ gcloud compute instances create ledgermonolith-service \
     --image-project=eip-images \
     --machine-type=n1-standard-1 \
     --scopes cloud-platform,storage-ro \
-    --metadata-from-file startup-script=$CWD/../init/startup-script.sh \
+    --metadata gcs-bucket=${GCS_BUCKET} \
+    --metadata-from-file startup-script=${CWD}/../init/startup-script.sh \
     --tags monolith \
     --quiet
 
 
-# Allow HTTP access via firewall if it doesn't already exist
-gcloud compute firewall-rules describe default-allow-http-80 \
+# Allow HTTP access to the VM via firewall rule if it doesn't already exist
+gcloud compute firewall-rules describe allow-http-monolith \
     --project $PROJECT_ID \
     --quiet >/dev/null 2>&1 
 if [ $? -ne 0 ]; then
-  gcloud compute firewall-rules create default-allow-http-80 \
+  gcloud compute firewall-rules create allow-http-monolith \
       --project $PROJECT_ID \
       --network default \
       --allow tcp:8080 \
       --source-tags monolith \
       --target-tags monolith \
-      --description "Allow port 8080 access to monolith instances" \
+      --description "Allow port 8080 access for monolith instances" \
       --quiet
 fi
 
