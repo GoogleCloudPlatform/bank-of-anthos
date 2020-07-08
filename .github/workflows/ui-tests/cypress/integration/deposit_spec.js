@@ -91,7 +91,7 @@ describe('Authenticated default user', function () {
             // regex: removes any characters that are not a digit [0-9] or a period [.]
             const currentBalance = parseFloat(currentBalanceSpan.replace(/[^\d.]/g, ''))
 
-            expectedBalance = formatter.format(currentBalance + parseFloat(depositAmount))
+            expectedBalance = formatter.format(currentBalance + parseInt(depositAmount))
 
             cy.deposit(externalAccount, depositAmount)
             cy.get('.alert').contains(depositMsgs.success)
