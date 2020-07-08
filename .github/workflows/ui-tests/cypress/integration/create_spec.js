@@ -28,30 +28,52 @@ describe('User can navigate to create account screen', function() {
     })
 })
 
-describe('Signup is unsuccessful with an invalid username', function() {
+describe('Signup is unsuccessful with long username', function() {
     const invalidFeedback = Cypress.env('messages').invalidFeedback
 
-    it('cannot contain less than 2 characters', function() {
-        const username = "a";
-        cy.get('#signup-username').type(username)
-        cy.get('.invalid-feedback').should('be.visible')
-        cy.get('.invalid-feedback').contains(invalidFeedback.username)
+    beforeEach(function() {
+        const user = {
+            username: '0123456789abcdefghijklmnopqrstuvwxyz',
+            firstName: 'Tom',
+            lastName: 'Nook',
+            password: 'bells'
+        }
+        cy.createAccount(user)
     })
 
-    it('cannot contain more than 15 characters', function() {
-        const username = "0123456789abcdef";
-        cy.get('#signup-username').type(username)
-        cy.get('.invalid-feedback').should('be.visible')
-        cy.get('.invalid-feedback').contains(invalidFeedback.username)
+    it('stay on signup page', function() {
+        cy.url().should('include', '/signup')
     })
 
-    it('cannot contain non-alphanumeric or non-underscore characters', function() {
-        const username = "user*";
-        cy.get('#signup-username').type(username)
+    it('error message visible', function() {
         cy.get('.invalid-feedback').should('be.visible')
         cy.get('.invalid-feedback').contains(invalidFeedback.username)
     })
 })
+
+describe('Signup is unsuccessful with non-alphanumeric username', function() {
+    const invalidFeedback = Cypress.env('messages').invalidFeedback
+
+    beforeEach(function() {
+        const user = {
+            username: 'Tom@Nook',
+            firstName: 'Tom',
+            lastName: 'Nook',
+            password: 'bells'
+        }
+        cy.createAccount(user)
+    })
+
+    it('stay on signup page', function() {
+        cy.url().should('include', '/signup')
+    })
+
+    it('error message visible', function() {
+        cy.get('.invalid-feedback').should('be.visible')
+        cy.get('.invalid-feedback').contains(invalidFeedback.username)
+    })
+})
+
 
 describe('User can create account', function() {
     const uuid = () => Cypress._.random(0, 1e6)
