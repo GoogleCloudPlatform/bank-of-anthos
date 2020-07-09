@@ -19,13 +19,14 @@
 
 # Google Cloud Storage bucket to delete build artifacts from
 if [[ -z ${GCS_BUCKET} ]]; then
-  GCS_BUCKET=${PROJECT_ID}.bank-of-anthos-monolith
-  echo "No GCS_BUCKET specified, using default: ${GCS_BUCKET}"
+  echo "GCS_BUCKET must be set"
+  exit 0
 else
   echo "GCS_BUCKET: ${GCS_BUCKET}"
 fi
+GCS_PATH=${GCS_BUCKET}/monolith
 
 
-# Delete the GCS bucket
-gsutil -m rm -r gs://${GCS_BUCKET}
-echo "Deleted bucket $GCS_BUCKET from Google Cloud Storage"
+# Delete the artifacts in GCS
+gsutil -m rm -r gs://${GCS_PATH}
+echo "Deleted $GCS_PATH from Google Cloud Storage"

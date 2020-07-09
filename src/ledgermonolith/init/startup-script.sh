@@ -39,6 +39,7 @@ MONOLITH_LOG=/var/log/monolith.log
 # Get the Google Cloud Storage bucket to retrieve build artifacts from
 GCS_BUCKET=$(curl "http://metadata/computeMetadata/v1/instance/attributes/gcs-bucket" -H "Metadata-Flavor: Google")
 echo "GCS_BUCKET: $GCS_BUCKET"
+GCS_PATH=${GCS_BUCKET}/monolith
 
 
 # Update apt packages and retry if needed
@@ -78,7 +79,7 @@ fi
 
 # Pull build artifacts
 mkdir $MONOLITH_DIR
-gsutil -m cp -r gs://${GCS_BUCKET}/* ${MONOLITH_DIR}
+gsutil -m cp -r gs://${GCS_PATH}/* ${MONOLITH_DIR}
 
 
 # Export application environment variables

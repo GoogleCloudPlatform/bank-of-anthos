@@ -29,12 +29,13 @@ else
 fi
 
 
+# Google Cloud Storage bucket to pull build artifacts from
 if [[ -z ${GCS_BUCKET} ]]; then
-  GCS_BUCKET=${PROJECT_ID}.bank-of-anthos-monolith
-  echo "No GCS_BUCKET specified, using default: ${GCS_BUCKET}"
-else
-  echo "GCS_BUCKET: ${GCS_BUCKET}"
+  # If no bucket specified, default to canonical build artifacts
+  GCS_BUCKET=bank-of-anthos
+  echo "GCS_BUCKET not specified, defaulting to canonical build artifacts..."
 fi
+echo "GCS_BUCKET: ${GCS_BUCKET}"
 
 
 CWD="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
