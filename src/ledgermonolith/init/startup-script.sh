@@ -94,10 +94,7 @@ pg_ctlcluster 11 main start
 
 
 # Configure PostgreSQL
-sudo -u postgres psql --command "CREATE DATABASE $POSTGRES_DB;"
-sudo -u postgres psql --command "CREATE USER $POSTGRES_USER;"
-sudo -u postgres psql --command "ALTER USER $POSTGRES_USER WITH PASSWORD '$POSTGRES_PASSWORD';"
-sudo -u postgres psql --command "ALTER USER $POSTGRES_USER WITH SUPERUSER;"
+sudo -u postgres psql --command "CREATE DATABASE ${POSTGRES_DB};"
 
 
 # Init database with any included SQL scripts
@@ -105,10 +102,13 @@ sudo -u postgres psql -d $POSTGRES_DB -f ${MONOLITH_DIR}/${DB_INIT_DIR}/*.sql
 
 
 # Init database with any included bash scripts
-export POSTGRES_USER=postgres  # Hack around PostgreSQL peer auth restrictions
 for script in ${MONOLITH_DIR}/${DB_INIT_DIR}/*.sh; do
   sudo --preserve-env=USE_DEMO_DATA,POSTGRES_DB,POSTGRES_USER,LOCAL_ROUTING_NUM -u postgres bash "${script}" -H
 done
+
+
+# Secure the database user with a password
+sudo -u postgres psql --command "ALTER USER postgres WITH PASSWORD '${POSTGRES_PASSWORD}';"
 
 
 # Start the ledgermonolith service
