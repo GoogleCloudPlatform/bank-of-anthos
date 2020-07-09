@@ -54,3 +54,12 @@ pip-compile --output-file=requirements.txt requirements.in
 
 # run skaffold or docker build using the generated requirements.txt
 ```
+
+
+## What is this branch
+
+This branch implements trace-log correlation for the Java services. In order to integrate trace-log correlation the following changes were made:
+- Swap of `log4j2` logging framework with `logback`
+this is due to the fact that Spring Cloud Sleuth is currently missing integration with `log4j2` in regards to associating a log with trace ID and span ID.
+   - As a consequence of this swap the FATAL log level has to be removed as logback does not support it.
+- Added extra log output type with environment variable for JSON log output for trace-log correlation in Stackdriver (does not intake txt logs for trace-log correlation) 
