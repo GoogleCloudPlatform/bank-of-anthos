@@ -104,9 +104,12 @@ describe('Authenticated default user', function () {
             const currentBalanceSpan = $span.text()
             // regex: removes any characters that are not a digit [0-9] or a period [.]
             const currentBalance = parseFloat(currentBalanceSpan.replace(/[^\d.]/g, '')).toFixed(2)
-            expectedBalance = formatter.format(currentBalance - parseFloat(paymentAmount).toFixed(2))
-            cy.transfer(recipient, paymentAmount)
 
+            // ignore cents to avoid float percision errors
+            expectedBalance = formatter.format(currentBalance - parseFloat(paymentAmount).toFixed(2))
+                                       .split('.')[0]
+
+            cy.transfer(recipient, paymentAmount)
             cy.get('.alert').contains(transferMsgs.success)
         })
         cy.visit('/home')
