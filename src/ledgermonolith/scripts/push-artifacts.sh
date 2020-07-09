@@ -36,9 +36,9 @@ GCS_PATH=${GCS_BUCKET}/monolith
 
 
 # If the GCS bucket doesn't exist, then create it
-gsutil ls -p $PROJECT_ID gs://${GCS_PATH} &> /dev/null
+gsutil ls -p $PROJECT_ID gs://${GCS_BUCKET} &> /dev/null
 if [ $? -ne 0 ]; then
-  gsutil mb -p $PROJECT_ID gs://${GCS_PATH}
+  gsutil mb -p $PROJECT_ID gs://${GCS_BUCKET}
 fi
 
 # Push application initialization artifacts
