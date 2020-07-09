@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+const invalidFeedback = Cypress.env('messages').invalidFeedback
+
 describe('User can navigate to create account screen', function() {
     it('from login', function() {
         cy.visit('/login')
@@ -28,9 +30,7 @@ describe('User can navigate to create account screen', function() {
     })
 })
 
-describe('Signup is unsuccessful with long username', function() {
-    const invalidFeedback = Cypress.env('messages').invalidFeedback
-
+describe('Signup is unsuccessful with 16 character username', function() {
     beforeEach(function() {
         const user = {
             username: '0123456789abcdefghijklmnopqrstuvwxyz',
@@ -52,8 +52,6 @@ describe('Signup is unsuccessful with long username', function() {
 })
 
 describe('Signup is unsuccessful with non-alphanumeric username', function() {
-    const invalidFeedback = Cypress.env('messages').invalidFeedback
-
     beforeEach(function() {
         const user = {
             username: 'Tom@Nook',
@@ -101,7 +99,7 @@ describe('User can create account', function() {
     it('contain zero balance', function() {
         cy.get('#current-balance').contains(expectedBalance)
     })
-    
+
     it('sees correct username', function() {
         cy.get('#accountDropdown').contains(`${firstName} ${lastName}`)
     })
