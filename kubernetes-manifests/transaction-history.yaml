@@ -51,7 +51,7 @@ spec:
           value: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
         #- name: EXTRA_LATENCY_MILLIS
         #  value: "5000"
-        # Valid levels are debug, info, warn, error, fatal.
+        # Valid levels are debug, info, warn, error.
         # If no valid level is set, will default to info.
         - name: LOG_LEVEL
           value: "info"

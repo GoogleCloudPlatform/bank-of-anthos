@@ -17,10 +17,8 @@
 package anthos.samples.bankofanthos.transactionhistory;
 
 import javax.annotation.PreDestroy;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -33,7 +31,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class TransactionHistoryApplication {
 
     private static final Logger LOGGER =
-        LogManager.getLogger(TransactionHistoryApplication.class);
+        LoggerFactory.getLogger(TransactionHistoryApplication.class);
 
     private static final String[] EXPECTED_ENV_VARS = {
         "VERSION",
@@ -50,15 +48,15 @@ public class TransactionHistoryApplication {
         for (String v : EXPECTED_ENV_VARS) {
             String value = System.getenv(v);
             if (value == null) {
-                LOGGER.fatal(String.format(
-                    "%s environment variable not set", v));
+                LOGGER.error(String.format(
+                    "FATAL: %s environment variable not set", v));
                 System.exit(1);
             }
         }
         SpringApplication.run(TransactionHistoryApplication.class, args);
-        LOGGER.log(Level.forName("STARTUP", Level.FATAL.intLevel()),
+        /*LOGGER.log(Level.forName("STARTUP", Level.FATAL.intLevel()),
             String.format("Started TransactionHistory service. "
-                + "Log level is: %s", LOGGER.getLevel().toString()));
+                + "Log level is: %s", LOGGER.getLevel().toString()));*/
     }
 
     @PreDestroy

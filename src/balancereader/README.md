@@ -32,6 +32,8 @@ Implemented in Java with Spring Boot and Guava.
   - settings for the JVM. Used to obey container memory limits
 - `LOG_LEVEL`
   - service level [log level](https://logging.apache.org/log4j/2.x/manual/customloglevels.html)
+- `LOG_OUTPUT_TYPE`
+  - setting for log output type (for trace-log correlation), either STACKDRIVER (JSON) or CONSOLE (txt), default is STACKDRIVER 
 
 - ConfigMap `environment-config`:
   - `LOCAL_ROUTING_NUM`
