@@ -65,27 +65,63 @@ Located in `init/ledgermonolith.env`
 
 ### Scripts
 
-- `scripts/push-artifacts.sh`: pushes build artifacts to Google Cloud Storage
 - `scripts/deploy-monolith.sh`: deploys service to a VM on Google Compute Engine
-- `scripts/teardown-monolith.sh`: teardown the service from Google Cloud
+- `scripts/teardown-monolith.sh`: teardown service from Google Compute Engine
+- `scripts/push-artifacts.sh`: pushes build artifacts to Google Cloud Storage
+- `scripts/delete-artifacts.sh`: deletes build artifacts in Google Cloud Storage
 
-## Deploying Manually
+## Deploying
 
-### Make
+### From Canonical Artifacts
+
+Deploy the canonical version of the monolith to a Google Compute Engine VM.
+Use canonical build artifacts hosted on Google Cloud Storage at
+`gs://bank-of-anthos/monolith`.
+
+#### Make
 
 ```
 # In the root directory of the project repo
 PROJECT_ID=<your-project-id>
 ZONE=<your-gcp-zone>
+make deploy-monolith
+```
+
+#### Bash
+
+```
+# In the root directory of the project repo
+PROJECT_ID=<your-project-id>
+ZONE=<your-gcp-zone>
+./src/ledgermonolith/scripts/deploy-monolith.sh
+```
+
+### With Custom-built Artifacts
+
+Deploy a custom version of the monolith to a Google Compute Engine VM.
+Compile and build artifacts locally and push them to Google Cloud Storage (GCS).
+
+Specify the GCS location with environment variable `GCS_BUCKET`.
+Artifacts will be pushed to `gs://{GCS_BUCKET}/monolith'.
+
+#### Make
+
+```
+# In the root directory of the project repo
+PROJECT_ID=<your-project-id>
+ZONE=<your-gcp-zone>
+GCS_BUCKET=<your-gcs-bucket>
 make monolith
+make deploy-monolith
 ```
 
-### Bash
+#### Bash
 
 ```
 # In the root directory of the project repo
 PROJECT_ID=<your-project-id>
 ZONE=<your-gcp-zone>
+GCS_BUCKET=<your-gcs-bucket>
 ./src/ledgermonolith/scripts/push-artifacts.sh
 ./src/ledgermonolith/scripts/deploy-monolith.sh
 ```
