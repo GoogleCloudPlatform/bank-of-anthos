@@ -125,3 +125,40 @@ GCS_BUCKET=<your-gcs-bucket>
 ./src/ledgermonolith/scripts/push-artifacts.sh
 ./src/ledgermonolith/scripts/deploy-monolith.sh
 ```
+
+## Checking the Monolith
+
+### Startup Script Logs
+
+The output of the monolith VM startup procedure is logged.
+
+1. Go to the [Google Compute Engine instances page](https://cloud.google.com/compute/instances).
+2. Select `View logs` under the `...` options button for the monolith VM: `ledgermonolith-service`. 
+3. Search for "startup-script" in the search bar of the Logs Viewer.
+
+### App Build Artifacts
+
+Build artifacts for the monolith VM should be saved to `/opt/monolith`.
+
+1. Go to the [Google Compute Engine instances page](https://cloud.google.com/compute/instances).
+2. Click the `SSH` button on the monolith VM: `ledgermonolith-service`.
+3. Enter `ls /opt/monolith` in the shell prompt.
+
+### Java App Logs
+
+Runtime logs for the java app are piped to `/var/logs/monolith.log`.
+
+1. Go to the [Google Compute Engine instances page](https://cloud.google.com/compute/instances).
+2. Click the `SSH` button on the monolith VM: `ledgermonolith-service`.
+3. Enter `tail -f /var/logs/monolith.log` in the shell prompt.
+
+### Serving HTTP Requests
+
+The monolith service can be queried via HTTP from a client on the same Google
+Cloud network that also has the `monolith` network tag.
+
+1. Go to the [Google Compute Engine instances page](https://cloud.google.com/compute/instances).
+2. Note the internal ip address of the monolith VM: `ledgermonolith-service`.
+3. Create a VM instance on the monolith network - `default` - and add the network tag `monolith`.
+4. Click the `SSH` button on the instance.
+5. Enter `curl {MONOLITH_INTERNAL_IP}:8080/version` in the shell prompt.
