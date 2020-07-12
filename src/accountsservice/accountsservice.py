@@ -23,6 +23,7 @@ import logging
 import os
 import sys
 import re
+import time
 
 from flask import Flask, jsonify, request
 import bleach
@@ -354,5 +355,6 @@ def create_app():
 
 
 if __name__ == "__main__":
+    time.sleep(10)
     ACCOUNTSSERVICE = create_app()
     ACCOUNTSSERVICE.run()

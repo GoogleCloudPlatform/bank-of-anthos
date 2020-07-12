@@ -47,7 +47,7 @@ spec:
           value: "/root/.ssh/privatekey"
         # Valid levels are debug, info, warning, error, critical. If no valid level is set, gunicorn will default to info.
         - name: LOG_LEVEL
-          value: "info"
+          value: "debug"
         envFrom:
         - configMapRef:
             name: environment-config

@@ -11,12 +11,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+kind: StatefulSet
 apiVersion: apps/v1
-kind: Deployment
 metadata:
   name: accountsmonolith
+  labels:
+    app: accountsmonolith
 spec:
+  serviceName: "accountsmonolith"
+  replicas: 1
   selector:
     matchLabels:
       app: accountsmonolith
@@ -25,10 +28,32 @@ spec:
       labels:
         app: accountsmonolith
     spec:
-      terminationGracePeriodSeconds: 5
       containers:
-      - name: accountsmonolith
-        image: gcr.io/bank-of-anthos/accountsmonolith:latest
+      - name: accounts-db
+        image: gcr.io/bank-of-anthos/accounts-db:latest
+        envFrom:
+          - configMapRef:
+              name: environment-config
+          - configMapRef:
+              name: accounts-db-config
+          - configMapRef:
+              name: demo-data-config
+        ports:
+          - containerPort: 5432
+            name: postgredb
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 1Gi
+        volumeMounts:
+        - name: postgresdb
+          mountPath: /var/lib/postgresql/data
+          subPath: postgres
+      - name: accountsservice
+        image: gcr.io/bank-of-anthos/accountsservice:latest
         volumeMounts:
         - name: keys
           mountPath: "/root/.ssh"
@@ -36,8 +61,6 @@ spec:
         ports:
         - name: http-server
           containerPort: 8080
-        - containerPort: 5432
-          name: tcp
         env:
         - name: VERSION
           value: "v0.2.0"
@@ -47,9 +70,8 @@ spec:
           value: "3600"
         - name: PRIV_KEY_PATH
           value: "/root/.ssh/privatekey"
-        # Valid levels are debug, info, warning, error, critical. If no valid level is set, gunicorn will default to info.
         - name: LOG_LEVEL
-          value: "debug"
+          value: "info"
         envFrom:
           - configMapRef:
               name: environment-config
@@ -65,12 +87,14 @@ spec:
           periodSeconds: 5
         resources:
           requests:
-            cpu: 300m
-            memory: 256Mi
+            cpu: 250m
+            memory: 128Mi
           limits:
-            cpu: 500m
-            memory: 300Mi
+            cpu: 400m
+            memory: 500Mi
       volumes:
+      - name: postgresdb
+        emptyDir: {}
       - name: keys
         secret:
           secretName: jwt-key
@@ -92,10 +116,6 @@ spec:
   - name: http
     port: 8080
     targetPort: 8080
-  - name: tcp
-    port: 5432
-    targetPort: 5432
-    protocol: TCP
 ---
 apiVersion: v1
 kind: ConfigMap
