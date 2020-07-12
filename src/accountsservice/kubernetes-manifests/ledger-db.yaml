@@ -32,6 +32,7 @@ spec:
           image: gcr.io/bank-of-anthos/ledger-db:latest
           ports:
             - containerPort: 5432
+              name: tcp
           envFrom:
             - configMapRef:
                 name: environment-config
@@ -77,6 +78,7 @@ spec:
   selector:
     app: ledger-db
   ports:
-  - name: postgres
+  - name: tcp
+    protocol: TCP
     port: 5432
     targetPort: 5432
