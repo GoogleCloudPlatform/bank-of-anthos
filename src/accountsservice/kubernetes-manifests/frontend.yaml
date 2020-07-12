@@ -15,44 +15,49 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: userservice
+  name: frontend
 spec:
   selector:
     matchLabels:
-      app: userservice
+      app: frontend
   template:
     metadata:
       labels:
-        app: userservice
+        app: frontend
     spec:
       terminationGracePeriodSeconds: 5
       containers:
-      - name: userservice
-        image: gcr.io/bank-of-anthos/userservice:latest
+      - name: front
+        image: gcr.io/bank-of-anthos/frontend:latest
         volumeMounts:
-        - name: keys
+        - name: publickey
           mountPath: "/root/.ssh"
           readOnly: true
-        ports:
-        - name: http-server
-          containerPort: 8080
         env:
         - name: VERSION
           value: "v0.2.0"
         - name: PORT
           value: "8080"
-        - name: TOKEN_EXPIRY_SECONDS
-          value: "3600"
-        - name: PRIV_KEY_PATH
-          value: "/root/.ssh/privatekey"
-        # Valid levels are debug, info, warning, error, critical. If no valid level is set, gunicorn will default to info.
+        - name: SCHEME
+          value: "http"
+         # Valid levels are debug, info, warning, error, critical. If no valid level is set, gunicorn will default to info.
         - name: LOG_LEVEL
-          value: "debug"
+          value: "info"
+        - name: DEFAULT_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              name: demo-data-config
+              key: DEMO_LOGIN_USERNAME
+        - name: DEFAULT_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              name: demo-data-config
+              key: DEMO_LOGIN_PASSWORD
         envFrom:
         - configMapRef:
             name: environment-config
         - configMapRef:
-            name: accounts-db-config
+            name: service-api-config
         readinessProbe:
           httpGet:
             path: /ready
@@ -67,26 +72,22 @@ spec:
             cpu: 500m
             memory: 256Mi
       volumes:
-      - name: keys
+      - name: publickey
         secret:
           secretName: jwt-key
           items:
-          - key: jwtRS256.key
-            path: privatekey
           - key: jwtRS256.key.pub
             path: publickey
-
-
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: userservice
+  name: frontend
 spec:
-  type: ClusterIP
+  type: LoadBalancer
   selector:
-    app: userservice
+    app: frontend
   ports:
   - name: http
-    port: 8080
+    port: 80
     targetPort: 8080
