@@ -18,19 +18,21 @@ db manages interactions with the underlying database
 
 import logging
 import random
-from opentelemetry.ext.sqlalchemy import SQLAlchemyInstrumentor
-from sqlalchemy import create_engine, MetaData, Table, Column, String, Date, LargeBinary
+from sqlalchemy import create_engine, MetaData, Table, Column, String, Date, LargeBinary, Boolean
 
 
 class AccountsDb:
     """
     AccountsDb provides a set of helper functions over SQLAlchemy
-    to handle db operations for userservice and contactservice
+    to handle db operations for accountsservice.
+
+    Defines 2 SQL Tables: users and contacts.
     """
 
     def __init__(self, uri, logger=logging):
         self.engine = create_engine(uri)
         self.logger = logger
+        self.logger.debug('db.py initialize... ')
         self.users_table = Table(
             'users',
             MetaData(self.engine),
@@ -56,12 +58,8 @@ class AccountsDb:
             Column("routing_num", String, nullable=False),
             Column("is_external", Boolean, nullable=False),
         )
+        self.logger.debug('tables created. ready to add data.')
 
-        # Set up tracing autoinstrumentation for sqlalchemy
-        SQLAlchemyInstrumentor().instrument(
-            engine=self.engine,
-            service='accounts',
-        )
 
     def add_user(self, user):
         """Add a user to the database.
@@ -110,6 +108,7 @@ class AccountsDb:
             result = conn.execute(statement).first()
         self.logger.debug('RESULT: fetched user data for %s', username)
         return dict(result) if result is not None else None
+
 
     def add_contact(self, contact):
         """Add a contact under the specified username.

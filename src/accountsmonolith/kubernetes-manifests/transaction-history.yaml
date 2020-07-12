@@ -15,77 +15,87 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: accountsservice
+  name: transactionhistory
 spec:
   selector:
     matchLabels:
-      app: accountsservice
+      app: transactionhistory
   template:
     metadata:
       labels:
-        app: accountsservice
+        app: transactionhistory
     spec:
       terminationGracePeriodSeconds: 5
       containers:
-      - name: accountsservice
-        image: gcr.io/bank-of-anthos/accountsservice:latest
+      - name: transactionhistory
+        image: gcr.io/bank-of-anthos/transactionhistory:latest
         volumeMounts:
-        - name: keys
+        - name: publickey
           mountPath: "/root/.ssh"
           readOnly: true
-        ports:
-        - name: http-server
-          containerPort: 8080
         env:
         - name: VERSION
           value: "v0.2.0"
         - name: PORT
           value: "8080"
-        - name: TOKEN_EXPIRY_SECONDS
-          value: "3600"
-        - name: PRIV_KEY_PATH
-          value: "/root/.ssh/privatekey"
-        # Valid levels are debug, info, warning, error, critical. If no valid level is set, gunicorn will default to info.
+        - name: POLL_MS
+          value: "100"
+        - name: CACHE_SIZE
+          value: "1000"
+        - name: CACHE_MINUTES
+          value: "60"
+        - name: HISTORY_LIMIT
+          value: "100"
+          # tell Java to obey container memory limits
+        - name: JVM_OPTS
+          value: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
+        #- name: EXTRA_LATENCY_MILLIS
+        #  value: "5000"
+        # Valid levels are debug, info, warn, error, fatal.
+        # If no valid level is set, will default to info.
         - name: LOG_LEVEL
           value: "info"
         envFrom:
         - configMapRef:
             name: environment-config
+        # add ledger-db credentials from ConfigMap
         - configMapRef:
-            name: accounts-db-config
+            name: ledger-db-config
+        resources:
+          requests:
+            cpu: 100m
+            memory: 512Mi
+          limits:
+            cpu: 500m
+            memory: 1Gi
         readinessProbe:
           httpGet:
             path: /ready
             port: 8080
           initialDelaySeconds: 5
           periodSeconds: 5
-        resources:
-          requests:
-            cpu: 100m
-            memory: 64Mi
-          limits:
-            cpu: 500m
-            memory: 256Mi
+        livenessProbe:
+          httpGet:
+            path: /healthy
+            port: 8080
+          initialDelaySeconds: 120
+          periodSeconds: 5
       volumes:
-      - name: keys
+      - name: publickey
         secret:
           secretName: jwt-key
           items:
-          - key: jwtRS256.key
-            path: privatekey
           - key: jwtRS256.key.pub
             path: publickey
-
-
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: accountsservice
+  name: transactionhistory
 spec:
   type: ClusterIP
   selector:
-    app: accountsservice
+    app: transactionhistory
   ports:
   - name: http
     port: 8080
