@@ -14,7 +14,6 @@
 
 .-PHONY: cluster deploy deploy-continuous logs checkstyle check-env
 
-ZONE=us-west1-a
 CLUSTER=bank-of-anthos
 
 cluster: check-env
@@ -34,6 +33,11 @@ deploy-continuous: check-env
 	gcloud container clusters get-credentials --project ${PROJECT_ID} ${CLUSTER} --zone ${ZONE}
 	skaffold dev --default-repo=gcr.io/${PROJECT_ID}
 
+monolith: check-env
+	mvn -f src/ledgermonolith/ package
+	src/ledgermonolith/scripts/push-artifacts.sh
+	src/ledgermonolith/scripts/deploy-monolith.sh
+
 checkstyle:
 	mvn checkstyle:check
 	# disable warnings: import loading, todos, function members, duplicate code, public methods
@@ -42,8 +46,6 @@ checkstyle:
 check-env:
 ifndef PROJECT_ID
 	$(error PROJECT_ID is undefined)
-endif
-
-ifndef ZONE
+else ifndef ZONE
 	$(error ZONE is undefined)
 endif

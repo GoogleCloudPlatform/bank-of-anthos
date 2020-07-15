@@ -14,19 +14,19 @@
 kind: StatefulSet
 apiVersion: apps/v1
 metadata:
-  name: accountsmonolith
+  name: accountsservice
   labels:
-    app: accountsmonolith
+    app: accountsservice
 spec:
-  serviceName: "accountsmonolith"
+  serviceName: "accountsservice"
   replicas: 1
   selector:
     matchLabels:
-      app: accountsmonolith
+      app: accountsservice
   template:
     metadata:
       labels:
-        app: accountsmonolith
+        app: accountsservice
     spec:
       containers:
       - name: accounts-db
@@ -53,7 +53,7 @@ spec:
           mountPath: /var/lib/postgresql/data
           subPath: postgres
       - name: accountsservice
-        image: gcr.io/bank-of-anthos/accountsservice:latest
+        image: gcr.io/keynote-temp/accountsservice:latest
         volumeMounts:
         - name: keys
           mountPath: "/root/.ssh"
@@ -107,11 +107,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: accountsmonolith
+  name: accountsservice
 spec:
   type: ClusterIP
   selector:
-    app: accountsmonolith
+    app: accountsservice
   ports:
   - name: http
     port: 8080
@@ -119,15 +119,3 @@ spec:
   - name: tcp
     port: 5432
     targetPort: 5432
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: accounts-db-config
-  labels:
-    app: accountsmonolith
-data:
-  POSTGRES_DB: accounts-db
-  POSTGRES_USER: accounts-admin
-  POSTGRES_PASSWORD: accounts-pwd
-  ACCOUNTS_DB_URI: postgresql://accounts-admin:accounts-pwd@127.0.0.1:5432/accounts-db
