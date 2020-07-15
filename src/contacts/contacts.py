@@ -24,17 +24,43 @@ import re
 import sys
 
 import jwt
+from easy_profile import EasyProfileMiddleware
+from easy_profile.reporters import Reporter
 from flask import Flask, jsonify, request
 import bleach
-from opentelemetry import trace
+from opentelemetry import metrics, trace
+from opentelemetry.exporter.cloud_monitoring import CloudMonitoringMetricsExporter
 from opentelemetry.exporter.cloud_trace import CloudTraceSpanExporter
 from opentelemetry.exporter.cloud_trace.cloud_trace_propagator import CloudTraceFormatPropagator
 from opentelemetry.ext.flask import FlaskInstrumentor
 from opentelemetry.propagators import set_global_httptextformat
+from opentelemetry.sdk.metrics import Counter, MeterProvider
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import SimpleExportSpanProcessor
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
 from db import ContactsDb
+
+class CloudMonitoringReporter(Reporter):
+
+    def __init__(self):
+        metrics.set_meter_provider(MeterProvider())
+        exporter = CloudMonitoringMetricsExporter()
+        meter = metrics.get_meter(__name__)
+        metrics.get_meter_provider().start_pipeline(meter, exporter)
+
+        self.query_count = meter.create_metric(
+            name="query_count",
+            description="number of queries made by each endpoint",
+            unit="1",
+            value_type=int,
+            metric_type=Counter,
+            label_keys=("endpoint"),
+            enabled=True,
+        )
+
+
+    def report(self, path, stats):
+        self.query_count.add(stats['total'], {'endpoint': path})
 
 
 def create_app():
@@ -54,6 +80,7 @@ def create_app():
 
     # Add Flask auto-instrumentation for tracing
     FlaskInstrumentor().instrument_app(app)
+    app.wsgi_app = EasyProfileMiddleware(app.wsgi_app, reporter=CloudMonitoringReporter())
 
     # Disabling unused-variable for lines with route decorated functions
     # as pylint thinks they are unused
