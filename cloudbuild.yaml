@@ -32,7 +32,7 @@ steps:
           --keyversion-location="global" \
           --keyversion-keyring="my-binauthz-keyring" \
           --keyversion-key="my-binauthz-kms-key-name" \
-          --keyversion="1"
+          --keyversion=1
       done
 
 
