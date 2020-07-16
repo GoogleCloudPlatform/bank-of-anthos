@@ -1,7 +1,6 @@
 #Binauthz container build pipeline for java userservice
 steps:
 - name: "gcr.io/cloud-builders/docker"
-  description: "Building ACME Finance container images"
   entrypoint: "bash"
   args:
   - "-c"
@@ -15,7 +14,6 @@ steps:
       done
 - id: "create-attestation"
   name: "gcr.io/cloud-builders/gcloud"
-  description: "Signing all images with Binary Authorization"
   entrypoint: "bash"
   args:
   - "-c"
