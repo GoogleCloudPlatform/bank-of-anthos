@@ -159,5 +159,6 @@ Cloud network that also has the `monolith` network tag.
 1. Go to the [Google Compute Engine instances page](https://cloud.google.com/compute/instances).
 2. Note the internal ip address of the monolith VM: `ledgermonolith-service`.
 3. Create a VM instance on the monolith network - `default` - and add the network tag `monolith`.
-4. Click the `SSH` button on the instance.
-5. Enter `curl {MONOLITH_INTERNAL_IP}:8080/version` in the shell prompt.
+4. Click the `SSH` button on the instance after it has successfully started.
+5. Enter `curl ledgermonolith-service.c.[PROJECT_ID].internal:8080/version` in the shell prompt, replacing PROJECT_ID with your GCP project id.
+6. If you see a version string like `v0.1.0`, the ledgermonolith is correctly serving HTTP requests
