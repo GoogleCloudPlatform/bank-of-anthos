@@ -7,7 +7,7 @@ steps:
   - |
       echo $COMMIT_SHA
       for SERVICE in  "loadgenerator" "frontend" "userservice" "accounts-db" "accountsservice" "ledgerservice" "ledger-db"; do
-        IMAGE_PATH="gcr.io/${PROJECT_ID}/acme-finance/$$SERVICE:${COMMIT_SHA}"
+        IMAGE_PATH="gcr.io/${PROJECT_ID}/$$SERVICE:${COMMIT_SHA}"
         echo "building $$IMAGE_PATH"
         docker build -t $$IMAGE_PATH src/$$SERVICE
         docker push $$IMAGE_PATH
@@ -20,9 +20,12 @@ steps:
   - |
       for SERVICE in  "loadgenerator" "frontend" "userservice" "accounts-db" "accountsservice" "ledgerservice" "ledger-db"; do
         echo "attesting $$SERVICE"
+        IMAGE_PATH="gcr.io/${PROJECT_ID}/$$SERVICE:${COMMIT_SHA}"
+        IMAGE_DIGEST=`gcloud container images list-tags --format='get(digest)' ${IMAGE_PATH} --limit=1`
+        IMAGE_TO_ATTEST="${IMAGE_PATH}@${IMAGE_DIGEST}"
       gcloud alpha container binauthz attestations sign-and-create \
           --project="${PROJECT_ID}" \
-          --artifact-url="gcr.io/${PROJECT_ID}/acme-finance/$$SERVICE:${COMMIT_SHA}" \
+          --artifact-url="${IMAGE_TO_ATTEST}" \
           --attestor="projects/${PROJECT_ID}/attestors/acme-finance-attestor" \
           --attestor-project="${PROJECT_ID}" \
           --keyversion-project="${PROJECT_ID}" \
@@ -31,3 +34,6 @@ steps:
           --keyversion-key="my-binauthz-kms-key-name" \
           --keyversion="1"
       done
+
+
+
