@@ -1,17 +1,17 @@
 #Binauthz container build pipeline for java userservice
 steps:
-- name: "gcr.io/cloud-builders/docker"
-  entrypoint: "bash"
-  args:
-  - "-c"
-  - |
-      echo $COMMIT_SHA
-      for SERVICE in  "loadgenerator" "frontend" "userservice" "accounts-db" "accountsservice" "ledgerservice" "ledger-db"; do
-        IMAGE_PATH="gcr.io/${PROJECT_ID}/$$SERVICE:${COMMIT_SHA}"
-        echo "building $$IMAGE_PATH"
-        docker build -t $$IMAGE_PATH src/$$SERVICE
-        docker push $$IMAGE_PATH
-      done
+# - name: "gcr.io/cloud-builders/docker"
+#   entrypoint: "bash"
+#   args:
+#   - "-c"
+#   - |
+#       echo $COMMIT_SHA
+#       for SERVICE in  "loadgenerator" "frontend" "userservice" "accounts-db" "accountsservice" "ledgerservice" "ledger-db"; do
+#         IMAGE_PATH="gcr.io/${PROJECT_ID}/$$SERVICE:${COMMIT_SHA}"
+#         echo "building $$IMAGE_PATH"
+#         docker build -t $$IMAGE_PATH src/$$SERVICE
+#         docker push $$IMAGE_PATH
+#       done
 - id: "create-attestation"
   name: "gcr.io/cloud-builders/gcloud"
   entrypoint: "bash"
