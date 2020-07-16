@@ -55,22 +55,6 @@ if [ $? -eq 0 ]; then
 fi
 
 
-# Create a static internal ip address if it doesn't already exist
-REGION=$(gcloud compute zones describe $ZONE --project=${PROJECT_ID} | grep region | cut -d / -f9)
-gcloud compute addresses describe ledgermonolith-address \
-    --project=$PROJECT_ID \
-    --region $REGION \
-    --quiet >/dev/null 2>&1
-if [ $? -ne 0 ]; then
-  gcloud compute addresses create ledgermonolith-address \
-      --project $PROJECT_ID \
-      --region $REGION \
-      --subnet default \
-      --purpose GCE_ENDPOINT \
-      --quiet
-fi
-
-
 # Create the monolith VM
 gcloud compute instances create ledgermonolith-service \
     --project $PROJECT_ID \
@@ -81,7 +65,7 @@ gcloud compute instances create ledgermonolith-service \
     --image-project=eip-images \
     --machine-type=n1-standard-1 \
     --scopes cloud-platform,storage-ro \
-    --metadata gcs-bucket=${GCS_BUCKET} \
+    --metadata gcs-bucket=${GCS_BUCKET},VmDnsSetting=ZonalPreferred \
     --metadata-from-file startup-script=${CWD}/../init/startup-script.sh \
     --tags monolith \
     --quiet

@@ -42,20 +42,6 @@ if [ $? -eq 0 ]; then
 fi
 
 
-# Delete the static internal ip address if it exists
-REGION=$(gcloud compute zones describe $ZONE --project=${PROJECT_ID} | grep region | cut -d / -f9)
-gcloud compute addresses describe ledgermonolith-address \
-    --project $PROJECT_ID \
-    --region $REGION \
-    --quiet >/dev/null 2>&1
-if [ $? -eq 0 ]; then
-  gcloud compute addresses delete ledgermonolith-address \
-      --project $PROJECT_ID \
-      --region $REGION \
-      --quiet
-fi
-
-
 # Delete the firewall rule if it exists
 gcloud compute firewall-rules describe default-allow-http-80 \
     --project $PROJECT_ID \

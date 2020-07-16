@@ -25,6 +25,8 @@ kind: ConfigMap
 metadata:
   name: service-api-config
 data:
+  # Use Google Compute Engine Internal DNS addresses for ledgermonolith services
+  # https://cloud.google.com/compute/docs/internal-dns#instance-fully-qualified-domain-names
   TRANSACTIONS_API_ADDR: "ledgermonolith-service.c.[PROJECT_ID].internal:8080"
   BALANCES_API_ADDR: "ledgermonolith-service.c.[PROJECT_ID].internal:8080"
   HISTORY_API_ADDR: "ledgermonolith-service.c.[PROJECT_ID].internal:8080"
