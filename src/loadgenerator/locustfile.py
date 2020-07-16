@@ -21,7 +21,7 @@ Exercises the frontend endpoints for the system
 import json
 import logging
 from string import ascii_letters, digits
-from random import randint, random, choice, choices
+from random import randint, random, choice
 
 from locust import HttpLocust, TaskSet, TaskSequence, task, seq_task, between
 
@@ -62,7 +62,7 @@ def generate_username():
     generates random 15 character
     alphanumeric username
     """
-    return ''.join(choices(ascii_letters + digits, k=15))
+    return ''.join(choice(ascii_letters + digits) for _ in range(15))
 class AllTasks(TaskSequence):
     """
     wrapper for UnauthenticatedTasks and AuthenticatedTasks sets
