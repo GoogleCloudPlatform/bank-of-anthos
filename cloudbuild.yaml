@@ -19,8 +19,8 @@ steps:
   - "-c"
   - |
       for SERVICE in  "loadgenerator" "frontend" "userservice" "accounts-db" "accountsservice" "ledgerservice" "ledger-db"; do
-        echo "attesting $$SERVICE"
-        IMAGE_PATH="gcr.io/${PROJECT_ID}/$$SERVICE:${COMMIT_SHA}"
+        echo "Signing $$SERVICE"
+        IMAGE_PATH="gcr.io/${PROJECT_ID}/$$SERVICE"
         IMAGE_DIGEST=`gcloud container images list-tags --format='get(digest)' $$IMAGE_PATH --limit=1`
         IMAGE_TO_ATTEST="$$IMAGE_PATH@$$IMAGE_DIGEST"
       gcloud alpha container binauthz attestations sign-and-create \
