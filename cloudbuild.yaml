@@ -1,6 +1,7 @@
 #Binauthz container build pipeline for java userservice
 steps:
 - name: "gcr.io/cloud-builders/docker"
+  description: "Building ACME Finance container images"
   entrypoint: "bash"
   args:
   - "-c"
@@ -13,16 +14,22 @@ steps:
         docker push $$IMAGE_PATH
       done
 - id: "create-attestation"
-  name: "gcr.io/${PROJECT_ID}/binauthz-attestation:latest"
+  name: "gcr.io/cloud-builders/gcloud"
+  description: "Signing all images with Binary Authorization"
   entrypoint: "bash"
   args:
   - "-c"
   - |
-      cd /work
       for SERVICE in  "loadgenerator" "frontend" "userservice" "accounts-db" "accountsservice" "ledgerservice" "ledger-db"; do
         echo "attesting $$SERVICE"
-        ./create_binauthz_attestation.sh \
-            --artifact-url gcr.io/${PROJECT_ID}/acme-finance/$$SERVICE:${COMMIT_SHA} \
-            --attestor projects/${PROJECT_ID}/attestors/acme-finance-attestor \
-            --keyversion projects/${PROJECT_ID}/locations/global/keyRings/my-binauthz-keyring/cryptoKeys/my-binauthz-kms-key-name/cryptoKeyVersions/1
+      gcloud alpha container binauthz attestations sign-and-create \
+          --project="${APROJECT_ID}" \
+          --artifact-url="gcr.io/${PROJECT_ID}/acme-finance/$$SERVICE:${COMMIT_SHA}" \
+          --attestor="projects/${PROJECT_ID}/attestors/acme-finance-attestor" \
+          --attestor-project="${PROJECT_ID}" \
+          --keyversion-project="${PROJECT_ID}" \
+          --keyversion-location="global" \
+          --keyversion-keyring="my-binauthz-keyring" \
+          --keyversion-key="my-binauthz-kms-key-name" \
+          --keyversion="1"
       done
