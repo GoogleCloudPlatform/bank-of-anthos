@@ -67,7 +67,7 @@ Located in `init/ledgermonolith.env`
 
 - `scripts/deploy-monolith.sh`: deploys service to a VM on Google Compute Engine
 - `scripts/teardown-monolith.sh`: teardown service from Google Compute Engine
-- `scripts/push-artifacts.sh`: pushes build artifacts to Google Cloud Storage
+- `scripts/build-artifacts.sh`: pushes build artifacts to Google Cloud Storage
 - `scripts/delete-artifacts.sh`: deletes build artifacts in Google Cloud Storage
 
 ## Deploying
@@ -84,7 +84,7 @@ Use canonical build artifacts hosted on Google Cloud Storage at
 # In the root directory of the project repo
 PROJECT_ID=<your-project-id>
 ZONE=<your-gcp-zone>
-make deploy-monolith
+make monolith-deploy
 ```
 
 #### Bash
@@ -111,8 +111,7 @@ Artifacts will be pushed to `gs://{GCS_BUCKET}/monolith'.
 PROJECT_ID=<your-project-id>
 ZONE=<your-gcp-zone>
 GCS_BUCKET=<your-gcs-bucket>
-make monolith
-make deploy-monolith
+make monolith-build
 ```
 
 #### Bash
@@ -122,7 +121,7 @@ make deploy-monolith
 PROJECT_ID=<your-project-id>
 ZONE=<your-gcp-zone>
 GCS_BUCKET=<your-gcs-bucket>
-./src/ledgermonolith/scripts/push-artifacts.sh
+./src/ledgermonolith/scripts/build-artifacts.sh
 ./src/ledgermonolith/scripts/deploy-monolith.sh
 ```
 

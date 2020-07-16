@@ -35,10 +35,18 @@ deploy-continuous: check-env
 	skaffold dev --default-repo=gcr.io/${PROJECT_ID}
 
 monolith: check-env
+	# build and deploy the ledgermonolith service to a GCE VM
 	mvn -f src/ledgermonolith/ package
-	src/ledgermonolith/scripts/push-artifacts.sh
+	src/ledgermonolith/scripts/build-artifacts.sh
+	src/ledgermonolith/scripts/deploy-monolith.sh
 
-deploy-monolith: check-env
+monolith-build: check-env
+	# build the artifacts for the ledgermonolith service 
+	mvn -f src/ledgermonolith/ package
+	src/ledgermonolith/scripts/build-artifacts.sh
+
+monolith-deploy: check-env
+	# deploy the ledgermonolith service to a GCE VM
 	src/ledgermonolith/scripts/deploy-monolith.sh
 
 checkstyle:
