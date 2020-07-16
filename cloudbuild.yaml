@@ -21,7 +21,7 @@ steps:
       for SERVICE in  "loadgenerator" "frontend" "userservice" "accounts-db" "accountsservice" "ledgerservice" "ledger-db"; do
         echo "attesting $$SERVICE"
       gcloud alpha container binauthz attestations sign-and-create \
-          --project="${APROJECT_ID}" \
+          --project="${PROJECT_ID}" \
           --artifact-url="gcr.io/${PROJECT_ID}/acme-finance/$$SERVICE:${COMMIT_SHA}" \
           --attestor="projects/${PROJECT_ID}/attestors/acme-finance-attestor" \
           --attestor-project="${PROJECT_ID}" \
