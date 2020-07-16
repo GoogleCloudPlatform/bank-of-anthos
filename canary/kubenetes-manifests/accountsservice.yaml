@@ -1,0 +1,121 @@
+# Copyright 2019 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+kind: StatefulSet
+apiVersion: apps/v1
+metadata:
+  name: accountsservice
+  labels:
+    app: accountsservice
+spec:
+  serviceName: "accountsservice"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: accountsservice
+  template:
+    metadata:
+      labels:
+        app: accountsservice
+    spec:
+      containers:
+      - name: accounts-db
+        image: gcr.io/bank-of-anthos/accounts-db:latest
+        envFrom:
+          - configMapRef:
+              name: environment-config
+          - configMapRef:
+              name: accounts-db-config
+          - configMapRef:
+              name: demo-data-config
+        ports:
+          - containerPort: 5432
+            name: postgredb
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 1Gi
+        volumeMounts:
+        - name: postgresdb
+          mountPath: /var/lib/postgresql/data
+          subPath: postgres
+      - name: accountsservice
+        image: gcr.io/keynote-temp/accountsservice:latest
+        volumeMounts:
+        - name: keys
+          mountPath: "/root/.ssh"
+          readOnly: true
+        ports:
+        - name: http-server
+          containerPort: 8080
+        env:
+        - name: VERSION
+          value: "v0.2.0"
+        - name: PORT
+          value: "8080"
+        - name: TOKEN_EXPIRY_SECONDS
+          value: "3600"
+        - name: PRIV_KEY_PATH
+          value: "/root/.ssh/privatekey"
+        - name: LOG_LEVEL
+          value: "info"
+        envFrom:
+          - configMapRef:
+              name: environment-config
+          - configMapRef:
+              name: accounts-db-config
+          - configMapRef:
+              name: demo-data-config
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          requests:
+            cpu: 250m
+            memory: 128Mi
+          limits:
+            cpu: 400m
+            memory: 500Mi
+      volumes:
+      - name: postgresdb
+        emptyDir: {}
+      - name: keys
+        secret:
+          secretName: jwt-key
+          items:
+          - key: jwtRS256.key
+            path: privatekey
+          - key: jwtRS256.key.pub
+            path: publickey
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: accountsservice
+spec:
+  type: ClusterIP
+  selector:
+    app: accountsservice
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+  - name: tcp
+    port: 5432
+    targetPort: 5432
