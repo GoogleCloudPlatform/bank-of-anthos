@@ -13,10 +13,10 @@ import java.security.spec.PKCS8EncodedKeySpec;
 @Configuration
 public class UserServiceConfiguration {
 
-  @Value("${PRIV_KEY_PATH}")
+  @Value("${user-service.priv-key-path}")
   private String privateKeyPath;
 
-  @Value("${TOKEN_EXPIRY_SECONDS}")
+  @Value("${user-service.token-expiry-seconds}")
   private int tokenExpirySeconds;
 
   @Bean

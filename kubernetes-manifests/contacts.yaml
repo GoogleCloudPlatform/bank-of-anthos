@@ -60,6 +60,21 @@ spec:
             port: 8080
           initialDelaySeconds: 5
           periodSeconds: 5
+      - name: cloud-sql-proxy
+        # It is recommended to use the latest version of the Cloud SQL proxy
+        # Make sure to update on a regular schedule!
+        image: gcr.io/cloudsql-docker/gce-proxy:1.17
+        envFrom:
+          - configMapRef:
+              name: accounts-db-config
+        command:
+          - "/cloud_sql_proxy"
+          - "-instances=$(CLOUD_SQL_INSTANCE_NAME)=tcp:0.0.0.0:5432"
+        securityContext:
+          # The default Cloud SQL proxy image runs as the
+          # "nonroot" user and group (uid: 65532) by default.
+          runAsNonRoot: true
+
       volumes:
       - name: publickey
         secret:

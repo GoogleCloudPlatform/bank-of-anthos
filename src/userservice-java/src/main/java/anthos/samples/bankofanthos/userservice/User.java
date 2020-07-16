@@ -1,5 +1,7 @@
 package anthos.samples.bankofanthos.userservice;
 
+import org.hibernate.annotations.GenericGenerator;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -12,7 +14,8 @@ import java.util.Date;
 public class User {
 
   @Id
-  @GeneratedValue
+  @GeneratedValue(generator = "randomLong")
+  @GenericGenerator(name = "randomLong", strategy = "anthos.samples.bankofanthos.userservice.AccountIdGenerator")
   private long accountid;
   private String username;
   private byte[] passhash;

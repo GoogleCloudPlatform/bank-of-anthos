@@ -12,73 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-kind: StatefulSet
-apiVersion: apps/v1
-metadata:
-  name: accounts-db
-  labels:
-    app: accounts-db
-    tier: db
-spec:
-  serviceName: "accounts-db"
-  replicas: 1
-  selector:
-    matchLabels:
-      app: accounts-db
-      tier: db
-  template:
-    metadata:
-      labels:
-        app: accounts-db
-        tier: db
-    spec:
-      containers:
-      - name: accounts-db
-        image: gcr.io/bank-of-anthos/accounts-db:latest
-        envFrom:
-          - configMapRef:
-              name: environment-config
-          - configMapRef:
-              name: accounts-db-config
-          - configMapRef:
-              name: demo-data-config
-        ports:
-          - containerPort: 5432
-            name: postgredb
-        resources:
-          requests:
-            cpu: 100m
-            memory: 128Mi
-          limits:
-            cpu: 500m
-            memory: 1Gi
 
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: accounts-db
-  labels:
-    app: accounts-db
-    tier: db
-spec:
-  ports:
-    - port: 5432
-      name: postgredb
-      targetPort: 5432
-      protocol: TCP
-  selector:
-    app: accounts-db
-    tier: db
----
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: accounts-db-config
-  labels:
-    app: accounts-db
 data:
+  CLOUD_SQL_INSTANCE_NAME: my-kubernetes-codelab-217414:us-east1:test-instance-pg
   POSTGRES_DB: test-db
   POSTGRES_USER: postgres
   POSTGRES_PASSWORD: postgres
-  ACCOUNTS_DB_URI: postgresql://postgres:postgres@accounts-db:5432/test-db
+  ACCOUNTS_DB_URI: postgresql://postgres:postgres@localhost:5432/test-db

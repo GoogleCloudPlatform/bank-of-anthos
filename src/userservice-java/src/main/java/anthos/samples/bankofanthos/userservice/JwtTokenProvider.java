@@ -46,7 +46,7 @@ public final class JwtTokenProvider {
 
     Map<String, Object> claims = new HashMap<>();
     claims.put("user", user.getUsername());
-    claims.put("acct", user.getAccountid());
+    claims.put("acct", Long.toString(user.getAccountid()));
     claims.put("name", user.getFirstname() + " " + user.getLastname());
     claims.put("iat", currentTime.getEpochSecond());
     claims.put("exp", currentTime.getEpochSecond() + expiryTimeSeconds);

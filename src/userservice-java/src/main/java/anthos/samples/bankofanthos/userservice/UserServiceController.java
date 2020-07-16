@@ -19,6 +19,7 @@ import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Implements the REST endpoints of the User Service.
@@ -34,7 +35,7 @@ public class UserServiceController {
   private final UserRepository userRepository;
   private final JwtTokenProvider jwtTokenProvider;
 
-  @Value("${VERSION}")
+  @Value("${user-service.version}")
   private String version;
 
   public UserServiceController(
@@ -76,7 +77,7 @@ public class UserServiceController {
     try {
       User user = createUser(request);
       userRepository.save(user);
-      return new ResponseEntity<>(HttpStatus.OK);
+      return new ResponseEntity<>(HttpStatus.CREATED);
     } catch (Exception e) {
       LOGGER.error("Failed to create new user.", e);
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -119,11 +120,17 @@ public class UserServiceController {
         BCRYPT_ENCODER.encode(request.password).getBytes(),
         request.firstname,
         request.lastname,
-        DATE_FORMAT.parse(request.birthday),
+        parseDate(request.birthday),
         request.timezone,
         request.address,
         request.state,
         request.zip,
         request.ssn);
+  }
+
+  private static Date parseDate(String dateString) throws ParseException {
+    // If we get a date using slashes, convert it to using dashes.
+    dateString = dateString.replace('/', '-');
+    return DATE_FORMAT.parse(dateString);
   }
 }

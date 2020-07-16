@@ -7,8 +7,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 
-import javax.annotation.PreDestroy;
-
 /**
  * Entry point for the User Service Spring Boot application.
  *
@@ -18,30 +16,10 @@ import javax.annotation.PreDestroy;
 public class UserServiceApplication {
   private static final Logger LOGGER = LogManager.getLogger(UserServiceApplication.class);
 
-  private static final String[] EXPECTED_ENV_VARS = {
-      "VERSION",
-      "TOKEN_EXPIRY_SECONDS",
-      "PRIV_KEY_PATH",
-  };
-
   public static void main(String[] args) {
-    // Check that all required environment variables are set.
-    for (String v : EXPECTED_ENV_VARS) {
-      String value = System.getenv(v);
-      if (value == null) {
-        LOGGER.fatal(String.format("%s environment variable not set", v));
-        System.exit(1);
-      }
-    }
-
     SpringApplication.run(UserServiceApplication.class, args);
     LOGGER.log(Level.forName("STARTUP", Level.INFO.intLevel()),
-        String.format("Started UserService service. Log level is: %s",
-            LOGGER.getLevel().toString()));
+        String.format("Started UserService service. Log level is: %s", LOGGER.getLevel().toString()));
   }
 
-  @PreDestroy
-  public void destroy() {
-    LOGGER.info("LedgerWriter service shutting down");
-  }
 }

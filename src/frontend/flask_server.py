@@ -413,7 +413,7 @@ def signup():
         # create user
         APP.logger.debug('Creating new user.')
         resp = requests.post(url=APP.config["USERSERVICE_URI"],
-                             data=request.form,
+                             json=request.form,
                              timeout=APP.config['BACKEND_TIMEOUT'])
         if resp.status_code == 201:
             # user created. Attempt login
