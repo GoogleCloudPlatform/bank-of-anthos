@@ -25,7 +25,7 @@ steps:
         IMAGE_TO_ATTEST="$$IMAGE_PATH@$$IMAGE_DIGEST"
       gcloud alpha container binauthz attestations sign-and-create \
           --project="${PROJECT_ID}" \
-          --artifact-url="${IMAGE_TO_ATTEST}" \
+          --artifact-url="$$IMAGE_TO_ATTEST" \
           --attestor="projects/${PROJECT_ID}/attestors/acme-finance-attestor" \
           --attestor-project="${PROJECT_ID}" \
           --keyversion-project="${PROJECT_ID}" \
