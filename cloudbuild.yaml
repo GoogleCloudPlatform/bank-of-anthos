@@ -1,0 +1,28 @@
+#Binauthz container build pipeline for java userservice
+steps:
+- name: "gcr.io/cloud-builders/docker"
+  entrypoint: "bash"
+  args:
+  - "-c"
+  - |
+      echo $COMMIT_SHA
+      for SERVICE in  "loadgenerator" "frontend" "userservice" "accounts-db" "accountsservice" "ledgerservice" "ledger-db"; do
+        IMAGE_PATH="gcr.io/${PROJECT_ID}/acme-finance/$$SERVICE:${COMMIT_SHA}"
+        echo "building $$IMAGE_PATH"
+        docker build -t $$IMAGE_PATH src/$$SERVICE
+        docker push $$IMAGE_PATH
+      done
+- id: "create-attestation"
+  name: "gcr.io/${PROJECT_ID}/binauthz-attestation:latest"
+  entrypoint: "bash"
+  args:
+  - "-c"
+  - |
+      cd /work
+      for SERVICE in  "loadgenerator" "frontend" "userservice" "accounts-db" "accountsservice" "ledgerservice" "ledger-db"; do
+        echo "attesting $$SERVICE"
+        ./create_binauthz_attestation.sh \
+            --artifact-url gcr.io/${PROJECT_ID}/acme-finance/$$SERVICE:${COMMIT_SHA} \
+            --attestor projects/${PROJECT_ID}/attestors/acme-finance-attestor \
+            --keyversion projects/${PROJECT_ID}/locations/global/keyRings/my-binauthz-keyring/cryptoKeys/my-binauthz-kms-key-name/cryptoKeyVersions/1
+      done
