@@ -1,0 +1,21 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: userservice-canary
+spec:
+  hosts:
+# For traffic originally going to the accounts service ... 
+  - accountsservice
+  http:
+# And for only the user endpoints...
+  - match: 
+    - uri:
+        prefix: "/users/"
+# Send 20% of users traffic to the new userservice. 
+    route:
+    - destination:
+        host: userservice
+      weight: 20
+    - destination:
+        host: accountsservice
+      weight: 80

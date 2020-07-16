@@ -53,7 +53,7 @@ spec:
           mountPath: /var/lib/postgresql/data
           subPath: postgres
       - name: accountsservice
-        image: gcr.io/keynote-temp/accountsservice:latest
+        image: gcr.io/acme-finance/accountsservice:latest
         volumeMounts:
         - name: keys
           mountPath: "/root/.ssh"
