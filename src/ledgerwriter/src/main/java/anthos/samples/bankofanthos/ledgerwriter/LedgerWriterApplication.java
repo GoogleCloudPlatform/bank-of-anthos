@@ -16,6 +16,9 @@
 
 package anthos.samples.bankofanthos.ledgerwriter;
 
+import com.google.cloud.ServiceOptions;
+import io.micrometer.stackdriver.StackdriverConfig;
+import io.micrometer.stackdriver.StackdriverMeterRegistry;
 import javax.annotation.PreDestroy;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -71,5 +74,20 @@ public class LedgerWriterApplication {
     @PreDestroy
     public void destroy() {
         LOGGER.info("LedgerWriter service shutting down");
+    }
+
+    @Bean
+    public static StackdriverMeterRegistry stackdriver() {
+        return StackdriverMeterRegistry.builder(new StackdriverConfig() {
+            @Override
+            public String projectId() {
+                return ServiceOptions.getDefaultProjectId();
+            }
+
+            @Override
+            public String get(String key) {
+                return null;
+            }
+        }).build();
     }
 }
