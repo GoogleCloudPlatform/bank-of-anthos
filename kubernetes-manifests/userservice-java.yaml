@@ -64,10 +64,10 @@ spec:
           resources:
             requests:
               cpu: 100m
-              memory: 64Mi
+              memory: 512Mi
             limits:
               cpu: 500m
-              memory: 256Mi
+              memory: 1Gi
       volumes:
         - name: keys
           secret:

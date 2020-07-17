@@ -77,6 +77,7 @@ public class UserServiceController {
     try {
       User user = createUser(request);
       userRepository.save(user);
+      LOGGER.info("Successfully created user: " + user.getUsername());
       return new ResponseEntity<>(HttpStatus.CREATED);
     } catch (Exception e) {
       LOGGER.error("Failed to create new user.", e);
