@@ -52,7 +52,7 @@ ZONE=<your-zone>
 gcloud beta container clusters create bank-of-anthos \
     --project=${PROJECT_ID} --zone=${ZONE} \
     --machine-type=n1-standard-2 --num-nodes=4 \
-    --scopes=gke-default,sql-admin
+    --scopes=gke-default,sql-admin,cloud-platform
 ```
 
 ### 4 - Generate RSA key pair secret
@@ -60,9 +60,28 @@ gcloud beta container clusters create bank-of-anthos \
 ```
 openssl genrsa -out jwtRS256.key 4096
 openssl rsa -in jwtRS256.key -outform PEM -pubout -out jwtRS256.key.pub
-openssl pkcs8 -topk8 -nocrypt -inform pem -in jwtRS256.key -outform der -out jwtRS256-pkcs8.key
+openssl pkcs8 -topk8 -nocrypt -inform pem -in jwtRS256.key -outform pem -out jwtRS256-pkcs8.key
 kubectl create secret generic jwt-key --from-file=./jwtRS256.key --from-file=./jwtRS256.key.pub --from-file=./jwtRS256-pkcs8.key
 ```
+
+### 4.5 - Add Secret to Google Secret Manager (For Java Userservice)
+
+We will store several secrets in Google Secret Manager for the Java User Service to read.
+This will demonstrate how to best access secrets from a Spring Boot application.
+
+```
+gcloud beta secrets create jwt-key-private --data-file=jwtRS256-pkcs8.key --replication-policy=automatic
+printf "postgres" | gcloud beta secrets create postgres-pass --data-file=- --replication-policy=automatic
+printf "postgres" | gcloud beta secrets create postgres-user --data-file=- --replication-policy=automatic
+```
+
+Next, go to the [Secret Manager Cloud Console](https://console.cloud.google.com/security/secret-manager) to verify
+that your secrets were created.
+
+In the console UI, give the service account running your cluster
+[the `roles/secretmanager.secretAccessor` permission](https://cloud.google.com/secret-manager/docs/managing-secrets#secretmanager-create-secret-web)
+for each secret you created.
+By default, the service account running your cluster should be in the form: `${GCP_PROJECT_NUMBER}-compute@developer.gserviceaccount.com`
 
 ### 5 - Deploy Kubernetes manifests
 
