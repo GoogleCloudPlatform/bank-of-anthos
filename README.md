@@ -115,13 +115,15 @@ Using the pre-populated username and password fields, log in as `testuser`. You 
 ![](/docs/transactions.png)
 
 
-## Variant: LedgerMonolith Service
+## Variant: Ledger Monolith Service
 
-The default app deployment uses a microservices architecture on Kubernetes. The LedgerMonolith variant deploys part of the app as a monolith service on a separate VM hosted by [Google Compute Engine](https://cloud.google.com/compute).
+The default app deployment uses a microservices architecture on Kubernetes. The Ledger Monolith variant deploys part of the app as a monolith service on a separate VM hosted by [Google Compute Engine](https://cloud.google.com/compute).
 
-Read more about the LedgerMonolith service under its subdirectory: [src/ledgermonolith](src/ledgermonolith/README.md).
+Read more about the Ledger Monolith service under its subdirectory: [src/ledgermonolith](src/ledgermonolith/README.md)
 
 ### Quick Start
+
+Deploy the Ledger Monolith to a VM and update the banking app to use it to track the bank ledger.
 
 ```
 make monolith
