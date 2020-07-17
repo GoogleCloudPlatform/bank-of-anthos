@@ -3,9 +3,9 @@ pyjwt==1.7.1
 cryptography==2.9
 gunicorn==20.0.4
 bleach==3.1.4
-psycopg2-binary
+psycopg2-binary==2.8.5
 sqlalchemy==1.3.16
-sqlalchemy-easy-profile
+sqlalchemy-easy-profile==1.1.0
 opentelemetry-sdk==0.10b0
 opentelemetry-exporter-cloud-monitoring==0.10b0
 opentelemetry-exporter-cloud-trace==0.10b0

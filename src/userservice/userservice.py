@@ -25,8 +25,13 @@ import re
 
 import bcrypt
 import jwt
+from easy_profile import EasyProfileMiddleware
+from easy_profile.reporters import Reporter
 from flask import Flask, jsonify, request
 import bleach
+from opencensus.ext.stackdriver import stats_exporter
+from opencensus.stats import aggregation, measure, stats as oc_stats, view
+from opencensus.tags import tag_key, tag_map, tag_value
 from opentelemetry import trace
 from opentelemetry.exporter.cloud_trace import CloudTraceSpanExporter
 from opentelemetry.exporter.cloud_trace.cloud_trace_propagator import CloudTraceFormatPropagator
@@ -36,6 +41,34 @@ from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import SimpleExportSpanProcessor
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
 from db import UserDb
+
+class CloudMonitoringReporter(Reporter):
+
+    def __init__(self):
+        self.query_latency = measure.MeasureFloat(
+            "query_latency",
+            "The total latency of queries in seconds for a request",
+            "s")
+
+        self.latency_view = view.View(
+            "query_latency_distribution",
+            "The distribution of the query latencies",
+            [],
+            self.query_latency,
+            # Latency in buckets: [>=0ms, >=1ms, >=2ms, >=4ms, >=10ms, >=20ms, >=40ms]
+            aggregation.DistributionAggregation(
+                [.001, .002, .004, .01, .02, .04]))
+
+        oc_stats.stats.view_manager.register_view(self.latency_view)
+        exporter = stats_exporter.new_stats_exporter()
+        oc_stats.stats.view_manager.register_exporter(exporter)
+
+    def report(self, path, stats):
+        mmap = oc_stats.stats.stats_recorder.new_measurement_map()
+        mmap.measure_float_put(self.query_latency, stats['duration'])
+        tmap = tag_map.TagMap()
+        tmap.insert(tag_key.TagKey("path"), tag_value.TagValue(path))
+        mmap.record(tmap)
 
 
 def create_app():
@@ -55,6 +88,9 @@ def create_app():
 
     # Add Flask auto-instrumentation for tracing
     FlaskInstrumentor().instrument_app(app)
+
+    # automatically collect query stats for each request endpoint and send to the Reporter
+    app.wsgi_app = EasyProfileMiddleware(app.wsgi_app, reporter=CloudMonitoringReporter())
 
     # Disabling unused-variable for lines with route decorated functions
     # as pylint thinks they are unused
@@ -130,7 +166,7 @@ def create_app():
             app.logger.info("Successfully created user.")
 
         except UserWarning as warn:
-            app.logger.error("Error creating new user: %s", str(warn))
+            # app.logger.error("Error creating new user: %s", str(warn))
             return str(warn), 400
         except NameError as err:
             app.logger.error("Error creating new user: %s", str(err))
