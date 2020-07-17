@@ -115,6 +115,18 @@ Using the pre-populated username and password fields, log in as `testuser`. You 
 ![](/docs/transactions.png)
 
 
+## Variant: LedgerMonolith Service
+
+The default app deployment uses a microservices architecture on Kubernetes. The LedgerMonolith variant deploys part of the app as a monolith service on a separate VM hosted by [Google Compute Engine](https://cloud.google.com/compute).
+
+Read more about the LedgerMonolith service under its subdirectory: [src/ledgermonolith](src/ledgermonolith/README.md).
+
+### Quick Start
+
+```
+make monolith
+```
+
 ## Local Development
 
 See the [Development Guide](./docs/development.md) for instructions on how to build and develop services locally, and the [Contributing Guide](./CONTRIBUTING.md) for pull request and code review guidelines.
