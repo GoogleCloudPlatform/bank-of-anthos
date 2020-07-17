@@ -35,10 +35,12 @@ deploy-continuous: check-env
 	skaffold dev --default-repo=gcr.io/${PROJECT_ID}
 
 monolith: check-env
-	# build and deploy the ledgermonolith service to a GCE VM
+	# build and deploy Bank of Anthos along with a monolith backend service
 	mvn -f src/ledgermonolith/ package
 	src/ledgermonolith/scripts/build-artifacts.sh
 	src/ledgermonolith/scripts/deploy-monolith.sh
+	(cd src/ledgermonolith/kubernetes-manifests; sed 's/\[PROJECT_ID\]/${PROJECT_ID}/g' config.yaml.template > config.yaml)
+	(cd src/ledgermonolith; skaffold run --default-repo=gcr.io/${PROJECT_ID} -l skaffold.dev/run-id=${CLUSTER}-${PROJECT_ID}-${ZONE})
 
 monolith-build: check-env
 	# build the artifacts for the ledgermonolith service 
