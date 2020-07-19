@@ -149,3 +149,7 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+
+# workload identity generated manifests 
+wi-kubernetes-manifests/
