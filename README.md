@@ -114,6 +114,33 @@ Using the pre-populated username and password fields, log in as `testuser`. You 
 
 ![](/docs/transactions.png)
 
+## Setup for Workload Identity clusters
+
+If you have enabled [Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity) on your GKE cluster (a prerequisite for Anthos Service Mesh), follow these instructions to ensure that Bank of Anthos pods can communicate with GCP APIs such as Cloud Trace. Do this *before* deploying Bank of Anthos, otherwise you will see `403` errors in your pods because they can't authenticate to GCP yet. 
+
+*Note* - These instructions have only been validated in GKE on GCP clusters. [Workload Identity isn't supported](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity#creating_a_relationship_between_ksas_and_gsas) yet in Anthos GKE on Prem. 
+
+
+1. Set up Workload Identity on your GKE cluster [using the instructions here](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity#enable_on_new_cluster). These instructions create the KSA and GSA that the Bank of Anthos pods will use to authenticate to GCP. Take note of what namespace you use - this is where you'll deploy the Bank of Anthos manifests. 
+
+1. In `kubernetes-manifests/`, replace `serviceAccountName: default` with the name of your KSA:
+
+```
+for i in kubernetes-manifests/*; do
+    sed -i 's/"serviceAccountName: default"/"serviceAccountName: ${KSA_NAME}"/g' $i
+done
+
+```
+
+1. Deploy Bank of Anthos to your GKE cluster using the install instructions above, except make sure that instead of the default namespace, you're deploying the manifests into your KSA namespace: 
+
+```
+kubectl apply -n ${KSA_NAMESPACE} -f ./kubernetes-manifests 
+```
+
+No other modifications to the code should be needed for the pods to authenticate to GCP APIs.
+
+
 
 ## Local Development
 
