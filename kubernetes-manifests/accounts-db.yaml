@@ -18,7 +18,7 @@ kind: ConfigMap
 metadata:
   name: accounts-db-config
 data:
-  CLOUD_SQL_INSTANCE_NAME: my-kubernetes-codelab-217414:us-east1:test-instance-pg
+  CLOUD_SQL_INSTANCE_NAME: next20-onair-hands-on-keynote:us-east1:test-instance-pg
   POSTGRES_DB: test-db
   POSTGRES_USER: postgres
   POSTGRES_PASSWORD: postgres

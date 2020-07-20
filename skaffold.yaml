@@ -36,8 +36,6 @@ build:
       project: src/userservice-java
   - image: gcr.io/bank-of-anthos/loadgenerator
     context: src/loadgenerator
-  - image: gcr.io/bank-of-anthos/accounts-db
-    context: src/accounts-db
   - image: gcr.io/bank-of-anthos/ledger-db
     context: src/ledger-db
   tagPolicy:

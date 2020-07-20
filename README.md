@@ -55,6 +55,17 @@ gcloud beta container clusters create bank-of-anthos \
     --scopes=gke-default,sql-admin,cloud-platform
 ```
 
+### 3.5 - Create a Cloud SQL instance
+
+First, enable the [Cloud SQL APIs](https://console.developers.google.com/apis/api/sqladmin.googleapis.com/).
+
+Using the [Google Cloud SQL Cloud Console](https://console.cloud.google.com/sql), create a new
+Postgres instance called `test-instance-pg` and set the password for the default user to `postgres`.
+Then, create a database named `test-db`.
+
+Ensure that instance connection name, database, database user, and database password, are set
+correctly in `kubernetes-manifests/accounts-db.yaml`.
+
 ### 4 - Generate RSA key pair secret
 
 ```
