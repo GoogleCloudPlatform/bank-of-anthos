@@ -35,7 +35,8 @@ public class UserServiceApplication {
   public static void main(String[] args) {
     SpringApplication.run(UserServiceApplication.class, args);
     LOGGER.log(Level.forName("STARTUP", Level.INFO.intLevel()),
-        String.format("Started UserService service. Log level is: %s", LOGGER.getLevel().toString()));
+        String.format("Started UserService service. Log level is: %s",
+            LOGGER.getLevel().toString()));
   }
 
 }

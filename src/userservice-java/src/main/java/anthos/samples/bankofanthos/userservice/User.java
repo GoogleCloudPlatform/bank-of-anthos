@@ -16,12 +16,11 @@
 
 package anthos.samples.bankofanthos.userservice;
 
-import org.hibernate.annotations.GenericGenerator;
-
+import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import java.util.Date;
+import org.hibernate.annotations.GenericGenerator;
 
 /**
  * Represents a User record in the Bank of Anthos.
@@ -31,7 +30,9 @@ public class User {
 
   @Id
   @GeneratedValue(generator = "randomLong")
-  @GenericGenerator(name = "randomLong", strategy = "anthos.samples.bankofanthos.userservice.AccountIdGenerator")
+  @GenericGenerator(
+      name = "randomLong",
+      strategy = "anthos.samples.bankofanthos.userservice.AccountIdGenerator")
   private long accountid;
   private String username;
   private byte[] passhash;
@@ -156,18 +157,18 @@ public class User {
 
   @Override
   public String toString() {
-    return "User{" +
-        "accountid=" + accountid +
-        ", username='" + username + '\'' +
-        ", passhash='" + passhash + '\'' +
-        ", firstName='" + firstname + '\'' +
-        ", lastName='" + lastname + '\'' +
-        ", birthday=" + birthday +
-        ", timezone='" + timezone + '\'' +
-        ", address='" + address + '\'' +
-        ", state='" + state + '\'' +
-        ", zipCode=" + zip +
-        ", ssn='" + ssn + '\'' +
-        '}';
+    return "User{"
+        + "accountid=" + accountid
+        + ", username='" + username + '\''
+        + ", passhash='" + passhash + '\''
+        + ", firstName='" + firstname + '\''
+        + ", lastName='" + lastname + '\''
+        + ", birthday=" + birthday
+        + ", timezone='" + timezone + '\''
+        + ", address='" + address + '\''
+        + ", state='" + state + '\''
+        + ", zipCode=" + zip
+        + ", ssn='" + ssn + '\''
+        + '}';
   }
 }

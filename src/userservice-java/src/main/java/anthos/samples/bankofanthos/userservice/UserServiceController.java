@@ -16,6 +16,12 @@
 
 package anthos.samples.bankofanthos.userservice;
 
+import java.nio.charset.Charset;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import javax.validation.Valid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
@@ -29,13 +35,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.validation.Valid;
-import java.nio.charset.Charset;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  * Implements the REST endpoints of the User Service.
@@ -114,7 +113,8 @@ public class UserServiceController {
       return new ResponseEntity<>("Error: User does not exist.", HttpStatus.BAD_REQUEST);
     }
 
-    if (!BCRYPT_ENCODER.matches(password, new String(user.getPasshash(), Charset.defaultCharset()))) {
+    if (!BCRYPT_ENCODER.matches(
+        password, new String(user.getPasshash(), Charset.defaultCharset()))) {
       return new ResponseEntity<>("Error: Incorrect password.", HttpStatus.BAD_REQUEST);
     }
 

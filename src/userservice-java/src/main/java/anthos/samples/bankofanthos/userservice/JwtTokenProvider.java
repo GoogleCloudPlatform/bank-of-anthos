@@ -18,7 +18,6 @@ package anthos.samples.bankofanthos.userservice;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-
 import java.security.PrivateKey;
 import java.time.Instant;
 import java.util.HashMap;

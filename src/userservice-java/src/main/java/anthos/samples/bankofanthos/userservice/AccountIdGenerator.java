@@ -16,17 +16,21 @@
 
 package anthos.samples.bankofanthos.userservice;
 
+import java.io.Serializable;
 import org.hibernate.HibernateException;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.id.IdentifierGenerator;
 
-import java.io.Serializable;
-
 public class AccountIdGenerator implements IdentifierGenerator {
+
+  private static final long BASE_LONG = 9_000_000_000L;
+
+  private static final long RANGE_LONG = 1_000_000_000L;
 
   @Override
   public Serializable generate(
-      SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException {
-    return (long) Math.floor(Math.random() * 9_000_000_000L) + 1_000_000_000L;
+      SharedSessionContractImplementor sharedSessionContractImplementor, Object o)
+      throws HibernateException {
+    return (long) Math.floor(Math.random() * BASE_LONG) + RANGE_LONG;
   }
 }
