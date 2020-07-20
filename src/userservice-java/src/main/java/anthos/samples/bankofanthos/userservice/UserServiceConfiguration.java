@@ -40,7 +40,8 @@ public class UserServiceConfiguration {
     return new JwtTokenProvider(parsePrivateKey(privateKeyString), tokenExpirySeconds);
   }
 
-  private static PrivateKey parsePrivateKey(String key) throws NoSuchAlgorithmException, InvalidKeySpecException {
+  private static PrivateKey parsePrivateKey(String key)
+      throws NoSuchAlgorithmException, InvalidKeySpecException {
     key = key.replace("-----BEGIN PRIVATE KEY-----\n", "");
     key = key.replace("-----END PRIVATE KEY-----", "");
     key = key.replace("\n", "");
