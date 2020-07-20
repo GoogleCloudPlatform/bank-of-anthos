@@ -83,6 +83,16 @@ In the console UI, give the service account running your cluster
 for each secret you created.
 By default, the service account running your cluster should be in the form: `${GCP_PROJECT_NUMBER}-compute@developer.gserviceaccount.com`
 
+---
+**Note**: In true production use, we would recommend using [Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity)
+to manage access to your secrets.
+
+The this method allows you to map a Kubernetes Service Account to a Google Service Account. This allows you to reduce
+the scope of access of your secrets to only the pods which need it rather than to all of your pods.
+
+---
+
+
 ### 5 - Deploy Kubernetes manifests
 
 ```
