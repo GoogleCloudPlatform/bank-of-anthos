@@ -137,7 +137,7 @@ done
 1. Deploy Bank of Anthos to your GKE cluster using the install instructions above, except make sure that instead of the default namespace, you're deploying the manifests into your KSA namespace: 
 
 ```bash
-kubectl apply -n ${KSA_NAMESPACE} -f ./kubernetes-manifests 
+kubectl apply -n ${KSA_NAMESPACE} -f ./wi-kubernetes-manifests 
 ```
 
 No other modifications to the code should be needed for the pods to authenticate to GCP APIs.
