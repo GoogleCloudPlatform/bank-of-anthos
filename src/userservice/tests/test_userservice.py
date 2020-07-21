@@ -32,6 +32,7 @@ from userservice.tests.constants import (
     EXPECTED_FIELDS,
     EXAMPLE_PRIVATE_KEY,
     EXAMPLE_PUBLIC_KEY,
+    INVALID_USERNAMES,
 )
 
 
@@ -242,3 +243,26 @@ class TestUserservice(unittest.TestCase):
             response.data,
             'user {} does not exist'.format(example_user_request['username']).encode()
         )
+
+    def test_create_user_400_status_code_invalid_username(self,):
+        """test adding a contact with invalid labels """
+        # mock return value of get_user which checks if user exists as None
+        self.mocked_db.return_value.get_user.return_value = None
+        # mock return value for generate_id from user_db
+        self.mocked_db.return_value.generate_accountid.return_value = '123'
+        # test for each invalid label in INVALID_USERNAMES
+        for invalid_username in INVALID_USERNAMES:
+            example_user_request = EXAMPLE_USER_REQUEST.copy()
+            # create example user request
+            example_user_request['username'] = invalid_username
+            # send request to test client
+            response = self.test_app.post('/users', data=example_user_request)
+            self.assertEqual(response.status_code, 400,
+                'username {} returned incorrect status code'.format(invalid_username))
+            if invalid_username:
+                # assert we get correct error message
+                self.assertEqual(
+                    response.data,
+                    'username must contain 2-15 alphanumeric characters or underscores'.encode(),
+                    'username {} returned unexpected error message'.format(invalid_username)
+                )
