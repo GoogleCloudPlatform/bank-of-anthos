@@ -16,24 +16,13 @@
 
 package anthos.samples.bankofanthos.balancereader;
 
-import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.util.concurrent.UncheckedExecutionException;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.interfaces.RSAPublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.Base64;
 import java.util.concurrent.ExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,30 +66,12 @@ public final class BalanceReaderController {
      */
     @Autowired
     public BalanceReaderController(LedgerReader reader,
-        @Value("${PUB_KEY_PATH}") final String publicKeyPath,
+        JWTVerifier verifier,
         @Value("${CACHE_SIZE:1000000}") final Integer expireSize,
         @Value("${LOCAL_ROUTING_NUM}") final String localRoutingNum) {
         // Initialize JWT verifier.
-        try {
-            String keyStr =
-                new String(Files.readAllBytes(Paths.get(publicKeyPath)));
-            keyStr = keyStr.replaceFirst("-----BEGIN PUBLIC KEY-----", "")
-                .replaceFirst("-----END PUBLIC KEY-----", "")
-                .replaceAll("\\s", "");
-            byte[] keyBytes = Base64.getDecoder().decode(keyStr);
-            KeyFactory kf = KeyFactory.getInstance("RSA");
-            X509EncodedKeySpec keySpecX509 = new X509EncodedKeySpec(keyBytes);
-            RSAPublicKey publicKey =
-                (RSAPublicKey) kf.generatePublic(keySpecX509);
-            Algorithm algorithm = Algorithm.RSA256(publicKey, null);
-            this.verifier = JWT.require(algorithm).build();
-        } catch (IOException
-            | NoSuchAlgorithmException
-            | InvalidKeySpecException e) {
-            LOGGER.error(String.format("FATAL: Failed initializing "
-                    + "JWT verifier: %s", e.toString()));
-            System.exit(1);
-        }
+        this.verifier = verifier;
+
         // Initialize cache
         CacheLoader loader =  new CacheLoader<String, Long>() {
             @Override
