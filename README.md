@@ -121,11 +121,29 @@ If you have enabled [Workload Identity](https://cloud.google.com/kubernetes-engi
 *Note* - These instructions have only been validated in GKE on GCP clusters. [Workload Identity isn't supported](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity#creating_a_relationship_between_ksas_and_gsas) yet in Anthos GKE on Prem. 
 
 
-1. Set up Workload Identity on your GKE cluster [using the instructions here](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity#enable_on_new_cluster). These instructions create the KSA and GSA that the Bank of Anthos pods will use to authenticate to GCP. Take note of what namespace you use - this is where you'll deploy the Bank of Anthos manifests. 
+1. Set up Workload Identity on your GKE cluster [using the instructions here](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity#enable_on_new_cluster). These instructions create the Kubernetes Service Account (KSA) and Google Service Account (GSA) that the Bank of Anthos pods will use to authenticate to GCP. Take note of what Kubernetes `namespace` you use during setup.
+
+1. Grant your GSA the following IAM roles. These IAM roles are required for workload identity-enabled Bank of Anthos pods to send traces and metrics to GCP. 
+
+```bash
+PROJECT_ID=<your-gcp-project-id>
+GSA_NAME=<your-gsa>
+
+gcloud projects add-iam-policy-binding ${PROJECT_ID} \
+  --member "serviceAccount:${GSA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com" \
+  --role roles/cloudtrace.agent
+
+gcloud projects add-iam-policy-binding ${PROJECT_ID} \
+  --member "serviceAccount:${GSA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com" \
+  --role roles/monitoring.metricWriter
+```
 
 1. In `kubernetes-manifests/`, replace `serviceAccountName: default` with the name of your KSA. (**Note** - sample below is Bash.)
 
 ```bash
+
+KSA_NAME=<your-ksa>
+
 mkdir -p wi-kubernetes-manifests
 FILES="`pwd`/kubernetes-manifests/*"
 for f in $FILES; do
@@ -137,7 +155,8 @@ done
 1. Deploy Bank of Anthos to your GKE cluster using the install instructions above, except make sure that instead of the default namespace, you're deploying the manifests into your KSA namespace: 
 
 ```bash
-kubectl apply -n ${KSA_NAMESPACE} -f ./wi-kubernetes-manifests 
+NAMESPACE=<your-ksa-namespace>
+kubectl apply -n ${NAMESPACE} -f ./wi-kubernetes-manifests 
 ```
 
 No other modifications to the code should be needed for the pods to authenticate to GCP APIs.
