@@ -107,8 +107,8 @@ public final class TransactionHistoryController {
         } catch (IOException
                  | NoSuchAlgorithmException
                  | InvalidKeySpecException e) {
-            LOGGER.error(String.format("FATAL: Failed initializing JWT verifier: %s",
-                e.toString()));
+            LOGGER.error(String.format("FATAL: Failed initializing "
+                    + "JWT verifier: %s", e.toString()));
             System.exit(1);
         }
         // Initialize cache

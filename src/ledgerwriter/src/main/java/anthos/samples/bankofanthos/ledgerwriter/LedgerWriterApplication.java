@@ -19,8 +19,6 @@ package anthos.samples.bankofanthos.ledgerwriter;
 import javax.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.Marker;
-import org.slf4j.MarkerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -48,8 +46,6 @@ public class LedgerWriterApplication {
         "SPRING_DATASOURCE_PASSWORD"
     };
 
-    private static final Marker fatal = MarkerFactory.getMarker("FATAL");
-
     public static void main(String[] args) {
         // Check that all required environment variables are set.
         for (String v : EXPECTED_ENV_VARS) {
@@ -61,9 +57,6 @@ public class LedgerWriterApplication {
             }
         }
         SpringApplication.run(LedgerWriterApplication.class, args);
-        /*LOGGER.error(Level.forName("STARTUP", Level.FATAL.intLevel()),
-            String.format("Started LedgerWriter service. Log level is: %s",
-                LOGGER.getLevel().toString()));*/
     }
 
     @Bean

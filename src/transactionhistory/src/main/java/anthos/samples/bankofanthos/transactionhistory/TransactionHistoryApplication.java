@@ -54,9 +54,6 @@ public class TransactionHistoryApplication {
             }
         }
         SpringApplication.run(TransactionHistoryApplication.class, args);
-        /*LOGGER.log(Level.forName("STARTUP", Level.FATAL.intLevel()),
-            String.format("Started TransactionHistory service. "
-                + "Log level is: %s", LOGGER.getLevel().toString()));*/
     }
 
     @PreDestroy
