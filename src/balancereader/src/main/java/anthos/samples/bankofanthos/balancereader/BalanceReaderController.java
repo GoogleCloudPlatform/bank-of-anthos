@@ -46,12 +46,9 @@ public final class BalanceReaderController {
     private static final Logger LOGGER =
         LogManager.getLogger(BalanceReaderController.class);
 
-    @Autowired
     private TransactionRepository dbRepo;
 
-    @Value("${LOCAL_ROUTING_NUM}")
     private String localRoutingNum;
-    @Value("${VERSION}")
     private String version;
 
     private JWTVerifier verifier;
@@ -67,13 +64,15 @@ public final class BalanceReaderController {
     public BalanceReaderController(LedgerReader reader,
         JWTVerifier verifier,
         LoadingCache<String, Long> cache,
-        @Value("${LOCAL_ROUTING_NUM}") final String localRoutingNum) {
+        @Value("${LOCAL_ROUTING_NUM}") final String localRoutingNum,
+        @Value("${VERSION") final String version) {
         // Initialize JWT verifier.
         this.verifier = verifier;
         LOGGER.debug("Initialized JWT verifier");
         // Initialize cache
         this.cache = cache;
         LOGGER.debug("Initialized cache");
+        this.version = version;
         // Initialize transaction processor.
         this.ledgerReader = reader;
         LOGGER.debug("Initialized transaction processor");
