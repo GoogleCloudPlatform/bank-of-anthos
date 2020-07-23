@@ -70,8 +70,10 @@ public final class BalanceReaderController {
         @Value("${LOCAL_ROUTING_NUM}") final String localRoutingNum) {
         // Initialize JWT verifier.
         this.verifier = verifier;
+        LOGGER.debug("Initialized JWT verifier");
         // Initialize cache
         this.cache = cache;
+        LOGGER.debug("Initialized cache");
         // Initialize transaction processor.
         this.ledgerReader = reader;
         LOGGER.debug("Initialized transaction processor");
