@@ -29,6 +29,10 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
+/**
+ * BalanceCache creates the LoadingCache that handles caching
+ * and retrieving account balances from the TransactionRepository.
+ */
 @Configuration
 public class BalanceCache {
 
@@ -38,6 +42,13 @@ public class BalanceCache {
     @Autowired
     private TransactionRepository dbRepo;
 
+    /**
+     * Initializes the LoadingCache for the BalanceReaderController
+     *
+     * @param expireSize max size of the cache
+     * @param localRoutingNum bank routing number for account
+     * @return the LoadingCache storing accountIds and their balances
+     */
     @Bean (name = "cache")
     public LoadingCache<String, Long> initializeCache(
         @Value("${CACHE_SIZE:1000000}") final Integer expireSize,
