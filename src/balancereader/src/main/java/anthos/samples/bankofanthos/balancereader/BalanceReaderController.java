@@ -46,6 +46,7 @@ public final class BalanceReaderController {
     private static final Logger LOGGER =
         LogManager.getLogger(BalanceReaderController.class);
 
+    @Autowired
     private TransactionRepository dbRepo;
 
     private String localRoutingNum;

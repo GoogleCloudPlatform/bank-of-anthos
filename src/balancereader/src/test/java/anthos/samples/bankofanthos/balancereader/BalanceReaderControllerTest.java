@@ -48,13 +48,10 @@ class BalanceReaderControllerTest {
     @Mock
     private Claim claim;
     @Mock
-    private TransactionRepository transactionRepository;
-    @Mock
     private LoadingCache<String, Long> cache;
 
     private static final String VERSION = "v0.2.0";
     private static final String LOCAL_ROUTING_NUM = "123456789";
-    private static final int CACHE_SIZE = 100000;
     private static final String OK_CODE = "ok";
     private static final String JWT_ACCOUNT_KEY = "acct";
     private static final long BALANCE = 100l;
@@ -140,9 +137,24 @@ class BalanceReaderControllerTest {
         // Then
         assertNotNull(actualResult);
         assertEquals(HttpStatus.OK, actualResult.getStatusCode());
-        assertEquals(BALANCE, actualResult.getBody());
     }
 
+    @Test
+    @DisplayName("Given the user is authenticated for the account, return correct balance.")
+    void getBalanceIsCorrectWhenAccountMatchesAuthenticatedUser() throws Exception {
+        // Given
+        when(verifier.verify(TOKEN)).thenReturn(jwt);
+        when(jwt.getClaim(JWT_ACCOUNT_KEY)).thenReturn(claim);
+        when(claim.asString()).thenReturn(AUTHED_ACCOUNT_NUM);
+        when(cache.get(AUTHED_ACCOUNT_NUM)).thenReturn(BALANCE);
+
+        // When
+        final ResponseEntity actualResult = balanceReaderController.getBalance(BEARER_TOKEN, AUTHED_ACCOUNT_NUM);
+
+        // Then
+        assertNotNull(actualResult);
+        assertEquals(BALANCE, actualResult.getBody());
+    }
     @Test
     @DisplayName("Given the user is authenticated but cannot access the account, return 401")
     void getBalanceFailsWhenAccountDoesNotMatchAuthenticatedUser() {
