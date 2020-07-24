@@ -73,6 +73,11 @@ public class BalanceReaderApplication {
         LOGGER.info("BalanceReader service shutting down");
     }
 
+    /**
+     * Initializes Meter Registry with custom Stackdriver configuration
+     *
+     * @return the StackdriverMeterRegistry with configuration
+     */
     @Bean
     public static StackdriverMeterRegistry stackdriver() {
 
@@ -95,7 +100,8 @@ public class BalanceReaderApplication {
             public Map<String, String> resourceLabels() {
                 Map<String, String> map = new HashMap<>();
                 String podName = System.getenv("HOSTNAME");
-                String containerName = podName.substring(0,podName.indexOf("-"));
+                String containerName = podName.substring(0,
+                    podName.indexOf("-"));
                 map.put("location", MetadataConfig.getZone());
                 map.put("container_name", containerName);
                 map.put("pod_name", podName);

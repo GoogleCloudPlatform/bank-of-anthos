@@ -25,7 +25,6 @@ import javax.annotation.PreDestroy;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -72,6 +71,11 @@ public class TransactionHistoryApplication {
         LOGGER.info("TransactionHistory service shutting down");
     }
 
+    /**
+     * Initializes Meter Registry with custom Stackdriver configuration
+     *
+     * @return the StackdriverMeterRegistry with configuration
+     */
     @Bean
     public static StackdriverMeterRegistry stackdriver() {
 
@@ -94,7 +98,8 @@ public class TransactionHistoryApplication {
             public Map<String, String> resourceLabels() {
                 Map<String, String> map = new HashMap<>();
                 String podName = System.getenv("HOSTNAME");
-                String containerName = podName.substring(0,podName.indexOf("-"));
+                String containerName = podName.substring(0,
+                    podName.indexOf("-"));
                 map.put("location", MetadataConfig.getZone());
                 map.put("container_name", containerName);
                 map.put("pod_name", podName);

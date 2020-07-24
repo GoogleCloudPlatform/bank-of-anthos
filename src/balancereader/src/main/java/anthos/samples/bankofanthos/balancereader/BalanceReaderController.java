@@ -16,8 +16,16 @@
 
 package anthos.samples.bankofanthos.balancereader;
 
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.util.concurrent.UncheckedExecutionException;
+import io.micrometer.core.instrument.binder.cache.GuavaCacheMetrics;
+import io.micrometer.stackdriver.StackdriverMeterRegistry;
 import java.util.concurrent.ExecutionException;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,15 +39,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.ResourceAccessException;
-
-import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.interfaces.DecodedJWT;
-
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import com.google.common.util.concurrent.UncheckedExecutionException;
 
 /**
  * REST service to retrieve the current balance for the authenticated user.
@@ -70,6 +69,7 @@ public final class BalanceReaderController {
     @Autowired
     public BalanceReaderController(LedgerReader reader,
         JWTVerifier verifier,
+        StackdriverMeterRegistry meterRegistry,
         @Value("${CACHE_SIZE:1000000}") final Integer expireSize,
         @Value("${LOCAL_ROUTING_NUM}") final String localRoutingNum) {
         // Initialize JWT verifier.
@@ -89,8 +89,11 @@ public final class BalanceReaderController {
             }
         };
         this.cache = CacheBuilder.newBuilder()
+            .recordStats()
             .maximumSize(expireSize)
             .build(loader);
+        GuavaCacheMetrics.monitor(meterRegistry, this.cache, "Guava");
+
         // Initialize transaction processor.
         this.ledgerReader = reader;
         LOGGER.debug("Initialized transaction processor");

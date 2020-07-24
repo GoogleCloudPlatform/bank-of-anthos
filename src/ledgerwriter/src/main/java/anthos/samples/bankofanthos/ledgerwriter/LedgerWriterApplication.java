@@ -17,12 +17,10 @@
 package anthos.samples.bankofanthos.ledgerwriter;
 
 import com.google.cloud.MetadataConfig;
-import com.google.cloud.ServiceOptions;
 import io.micrometer.stackdriver.StackdriverConfig;
 import io.micrometer.stackdriver.StackdriverMeterRegistry;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import javax.annotation.PreDestroy;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -80,6 +78,11 @@ public class LedgerWriterApplication {
         LOGGER.info("LedgerWriter service shutting down");
     }
 
+    /**
+     * Initializes Meter Registry with custom Stackdriver configuration
+     *
+     * @return the StackdriverMeterRegistry with configuration
+     */
     @Bean
     public static StackdriverMeterRegistry stackdriver() {
 
@@ -102,7 +105,8 @@ public class LedgerWriterApplication {
             public Map<String, String> resourceLabels() {
                 Map<String, String> map = new HashMap<>();
                 String podName = System.getenv("HOSTNAME");
-                String containerName = podName.substring(0,podName.indexOf("-"));
+                String containerName = podName.substring(0,
+                    podName.indexOf("-"));
                 map.put("location", MetadataConfig.getZone());
                 map.put("container_name", containerName);
                 map.put("pod_name", podName);
