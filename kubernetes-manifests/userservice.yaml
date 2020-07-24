@@ -25,6 +25,7 @@ spec:
       labels:
         app: userservice
     spec:
+      serviceAccountName: default
       terminationGracePeriodSeconds: 5
       containers:
       - name: userservice
