@@ -19,8 +19,6 @@ package anthos.samples.bankofanthos.balancereader;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import io.micrometer.core.instrument.binder.cache.GuavaCacheMetrics;
@@ -30,7 +28,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,7 +35,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.ResourceAccessException;
 
 /**
  * REST service to retrieve the current balance for the authenticated user.
@@ -70,30 +66,15 @@ public final class BalanceReaderController {
     public BalanceReaderController(LedgerReader reader,
         JWTVerifier verifier,
         StackdriverMeterRegistry meterRegistry,
-        @Value("${CACHE_SIZE:1000000}") final Integer expireSize,
+        LoadingCache<String, Long> cache,
         @Value("${LOCAL_ROUTING_NUM}") final String localRoutingNum) {
         // Initialize JWT verifier.
         this.verifier = verifier;
+        LOGGER.debug("Initialized JWT verifier");
         // Initialize cache
-        CacheLoader loader =  new CacheLoader<String, Long>() {
-            @Override
-            public Long load(String accountId)
-                throws ResourceAccessException,
-                DataAccessResourceFailureException {
-                LOGGER.debug("Cache loaded from db");
-                Long balance = dbRepo.findBalance(accountId, localRoutingNum);
-                if (balance == null) {
-                    balance = 0L;
-                }
-                return balance;
-            }
-        };
-        this.cache = CacheBuilder.newBuilder()
-            .recordStats()
-            .maximumSize(expireSize)
-            .build(loader);
+        this.cache = cache;
         GuavaCacheMetrics.monitor(meterRegistry, this.cache, "Guava");
-
+        LOGGER.debug("Initialized cache");
         // Initialize transaction processor.
         this.ledgerReader = reader;
         LOGGER.debug("Initialized transaction processor");
