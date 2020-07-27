@@ -48,9 +48,7 @@ public final class BalanceReaderController {
     @Autowired
     private TransactionRepository dbRepo;
 
-    @Value("${LOCAL_ROUTING_NUM}")
     private String localRoutingNum;
-    @Value("${VERSION}")
     private String version;
 
     private JWTVerifier verifier;
@@ -67,7 +65,8 @@ public final class BalanceReaderController {
         JWTVerifier verifier,
         StackdriverMeterRegistry meterRegistry,
         LoadingCache<String, Long> cache,
-        @Value("${LOCAL_ROUTING_NUM}") final String localRoutingNum) {
+        @Value("${LOCAL_ROUTING_NUM}") final String localRoutingNum,
+        @Value("${VERSION") final String version) {
         // Initialize JWT verifier.
         this.verifier = verifier;
         LOGGER.debug("Initialized JWT verifier");
@@ -75,6 +74,7 @@ public final class BalanceReaderController {
         this.cache = cache;
         GuavaCacheMetrics.monitor(meterRegistry, this.cache, "Guava");
         LOGGER.debug("Initialized cache");
+        this.version = version;
         // Initialize transaction processor.
         this.ledgerReader = reader;
         LOGGER.debug("Initialized transaction processor");
