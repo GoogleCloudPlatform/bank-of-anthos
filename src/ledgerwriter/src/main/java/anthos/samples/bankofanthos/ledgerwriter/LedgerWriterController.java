@@ -76,7 +76,7 @@ public final class LedgerWriterController {
     *
     * Initializes JWT verifier.
     */
-
+    @Autowired
     public LedgerWriterController(
             JWTVerifier verifier,
             StackdriverMeterRegistry meterRegistry,

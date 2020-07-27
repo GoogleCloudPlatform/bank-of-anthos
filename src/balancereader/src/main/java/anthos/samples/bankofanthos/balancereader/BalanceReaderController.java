@@ -66,7 +66,7 @@ public final class BalanceReaderController {
         StackdriverMeterRegistry meterRegistry,
         LoadingCache<String, Long> cache,
         @Value("${LOCAL_ROUTING_NUM}") final String localRoutingNum,
-        @Value("${VERSION") final String version) {
+        @Value("${VERSION}") final String version) {
         // Initialize JWT verifier.
         this.verifier = verifier;
         LOGGER.debug("Initialized JWT verifier");
