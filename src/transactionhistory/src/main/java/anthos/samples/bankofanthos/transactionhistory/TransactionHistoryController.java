@@ -16,17 +16,25 @@
 
 package anthos.samples.bankofanthos.transactionhistory;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.util.concurrent.UncheckedExecutionException;
+import io.micrometer.core.instrument.binder.cache.GuavaCacheMetrics;
+import io.micrometer.stackdriver.StackdriverMeterRegistry;
 import java.io.IOException;
-
 import java.nio.file.Files;
 import java.nio.file.Paths;
-
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
-
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Deque;
@@ -34,7 +42,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessResourceFailureException;
@@ -48,17 +55,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.ResourceAccessException;
-
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.interfaces.DecodedJWT;
-
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import com.google.common.util.concurrent.UncheckedExecutionException;
 
 /**
  * Controller for the TransactionHistory service.
@@ -92,6 +88,7 @@ public final class TransactionHistoryController {
      */
     @Autowired
     public TransactionHistoryController(LedgerReader reader,
+            StackdriverMeterRegistry meterRegistry,
             @Value("${PUB_KEY_PATH}") final String publicKeyPath,
             @Value("${CACHE_SIZE:1000}") final Integer expireSize,
             @Value("${CACHE_MINUTES:60}") final Integer expireMinutes,
@@ -131,9 +128,12 @@ public final class TransactionHistoryController {
             }
         };
         this.cache = CacheBuilder.newBuilder()
+                            .recordStats()
                             .maximumSize(expireSize)
                             .expireAfterWrite(expireMinutes, TimeUnit.MINUTES)
                             .build(load);
+        GuavaCacheMetrics.monitor(meterRegistry, this.cache, "Guava");
+
         // Initialize transaction processor.
         this.ledgerReader = reader;
         LOGGER.debug("Initialized transaction processor");
