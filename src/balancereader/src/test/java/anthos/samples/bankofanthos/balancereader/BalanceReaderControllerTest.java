@@ -16,6 +16,13 @@
 
 package anthos.samples.bankofanthos.balancereader;
 
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.CacheStats;
+import io.micrometer.core.instrument.Clock;
+import io.micrometer.core.instrument.binder.cache.GuavaCacheMetrics;
+import io.micrometer.core.lang.Nullable;
+import io.micrometer.stackdriver.StackdriverConfig;
+import io.micrometer.stackdriver.StackdriverMeterRegistry;
 import java.util.concurrent.ExecutionException;
 
 import com.auth0.jwt.JWTVerifier;
@@ -28,8 +35,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.ResourceAccessException;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -48,7 +57,11 @@ class BalanceReaderControllerTest {
     @Mock
     private Claim claim;
     @Mock
+    private Clock clock;
+    @Mock
     private LoadingCache<String, Long> cache;
+    @Mock
+    private CacheStats stats;
 
     private static final String VERSION = "v0.2.0";
     private static final String LOCAL_ROUTING_NUM = "123456789";
@@ -63,7 +76,27 @@ class BalanceReaderControllerTest {
     @BeforeEach
     void setUp() {
         initMocks(this);
-        balanceReaderController = new BalanceReaderController(ledgerReader, verifier, cache, LOCAL_ROUTING_NUM, VERSION);
+        StackdriverMeterRegistry meterRegistry = new StackdriverMeterRegistry(new StackdriverConfig() {
+            @Override
+            public boolean enabled() {
+                return false;
+            }
+
+            @Override
+            public String projectId() {
+                return "test";
+            }
+
+            @Override
+            @Nullable
+            public String get(String key) {
+                return null;
+            }
+        }, clock);
+
+        when(cache.stats()).thenReturn(stats);
+        balanceReaderController = new BalanceReaderController(ledgerReader, verifier,
+            meterRegistry, cache, LOCAL_ROUTING_NUM, VERSION);
 
         when(verifier.verify(TOKEN)).thenReturn(jwt);
         when(jwt.getClaim(JWT_ACCOUNT_KEY)).thenReturn(claim);

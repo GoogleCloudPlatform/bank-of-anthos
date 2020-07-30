@@ -67,6 +67,7 @@ public class BalanceCache {
             }
         };
         return CacheBuilder.newBuilder()
+            .recordStats()
             .maximumSize(expireSize)
             .build(loader);
     }
