@@ -50,6 +50,23 @@ jobs:
       timeout-minutes: 20
       run: |
         mvn test
+    - name: Java Code Coverage
+      timeout-minutes: 20
+      run: |
+        for SERVICE in "balancereader" "ledgerwriter"; do
+          echo "checking $SERVICE..."
+          # save current working dir to memory and cd to src/$SERVICE
+          pushd src/$SERVICE
+            mvn jacoco:report
+            echo "Coverage for $SERVICE:"
+            awk -F, \
+            '{ instructions += $4 + $5; covered += $5 } END \
+            { print covered, "/", instructions, " instructions covered"; \
+            print int(100*covered/instructions), "% covered" }' \
+            target/site/jacoco/jacoco.csv
+          # return to previously saved path
+          popd
+        done
     - name: Python Unit Tests
       timeout-minutes: 20
       run: |
