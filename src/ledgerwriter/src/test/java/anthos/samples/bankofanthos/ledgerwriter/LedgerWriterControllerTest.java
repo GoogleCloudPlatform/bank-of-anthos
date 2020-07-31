@@ -16,10 +16,25 @@
 
 package anthos.samples.bankofanthos.ledgerwriter;
 
+import static anthos.samples.bankofanthos.ledgerwriter.ExceptionMessages.EXCEPTION_MESSAGE_DUPLICATE_TRANSACTION;
+import static anthos.samples.bankofanthos.ledgerwriter.ExceptionMessages.EXCEPTION_MESSAGE_INSUFFICIENT_BALANCE;
+import static anthos.samples.bankofanthos.ledgerwriter.ExceptionMessages.EXCEPTION_MESSAGE_WHEN_AUTHORIZATION_HEADER_NULL;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
+
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import io.micrometer.core.instrument.Clock;
+import io.micrometer.core.lang.Nullable;
+import io.micrometer.stackdriver.StackdriverConfig;
+import io.micrometer.stackdriver.StackdriverMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,16 +45,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
-
-import static anthos.samples.bankofanthos.ledgerwriter.ExceptionMessages.
-        EXCEPTION_MESSAGE_INSUFFICIENT_BALANCE;
-import static anthos.samples.bankofanthos.ledgerwriter.ExceptionMessages.
-        EXCEPTION_MESSAGE_WHEN_AUTHORIZATION_HEADER_NULL;
-import static anthos.samples.bankofanthos.ledgerwriter.ExceptionMessages.
-        EXCEPTION_MESSAGE_DUPLICATE_TRANSACTION;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 class LedgerWriterControllerTest {
 
@@ -57,6 +62,8 @@ class LedgerWriterControllerTest {
     private DecodedJWT jwt;
     @Mock
     private Claim claim;
+    @Mock
+    private Clock clock;
 
     private static final String VERSION = "v0.1.0";
     private static final String LOCAL_ROUTING_NUM = "123456789";
@@ -73,7 +80,26 @@ class LedgerWriterControllerTest {
     @BeforeEach
     void setUp() {
         initMocks(this);
+        StackdriverMeterRegistry meterRegistry = new StackdriverMeterRegistry(new StackdriverConfig() {
+              @Override
+              public boolean enabled() {
+                return false;
+              }
+
+              @Override
+              public String projectId() {
+                return "test";
+              }
+
+              @Override
+              @Nullable
+              public String get(String key) {
+                return null;
+              }
+          }, clock);
+
         ledgerWriterController = new LedgerWriterController(verifier,
+                meterRegistry,
                 transactionRepository, transactionValidator,
                 LOCAL_ROUTING_NUM, BALANCES_API_ADDR, VERSION);
 

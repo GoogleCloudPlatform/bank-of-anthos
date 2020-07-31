@@ -16,13 +16,21 @@
 
 package anthos.samples.bankofanthos.ledgerwriter;
 
-import java.util.concurrent.TimeUnit;
+import static anthos.samples.bankofanthos.ledgerwriter.ExceptionMessages.EXCEPTION_MESSAGE_DUPLICATE_TRANSACTION;
+import static anthos.samples.bankofanthos.ledgerwriter.ExceptionMessages.EXCEPTION_MESSAGE_INSUFFICIENT_BALANCE;
+import static anthos.samples.bankofanthos.ledgerwriter.ExceptionMessages.EXCEPTION_MESSAGE_WHEN_AUTHORIZATION_HEADER_NULL;
 
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import io.micrometer.core.instrument.binder.cache.GuavaCacheMetrics;
+import io.micrometer.stackdriver.StackdriverMeterRegistry;
+import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import  org.springframework.web.client.HttpServerErrorException;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -36,22 +44,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
-
-import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.interfaces.DecodedJWT;
-
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-
-import static anthos.samples.bankofanthos.ledgerwriter.ExceptionMessages.
-        EXCEPTION_MESSAGE_INSUFFICIENT_BALANCE;
-import static anthos.samples.bankofanthos.ledgerwriter.ExceptionMessages.
-        EXCEPTION_MESSAGE_WHEN_AUTHORIZATION_HEADER_NULL;
-import static anthos.samples.bankofanthos.ledgerwriter.ExceptionMessages.
-        EXCEPTION_MESSAGE_DUPLICATE_TRANSACTION;
 
 @RestController
 public final class LedgerWriterController {
@@ -81,9 +76,10 @@ public final class LedgerWriterController {
     *
     * Initializes JWT verifier.
     */
-
+    @Autowired
     public LedgerWriterController(
             JWTVerifier verifier,
+            StackdriverMeterRegistry meterRegistry,
             TransactionRepository transactionRepository,
             TransactionValidator transactionValidator,
             @Value("${LOCAL_ROUTING_NUM}") String localRoutingNum,
@@ -98,8 +94,10 @@ public final class LedgerWriterController {
         this.version = version;
         // Initialize cache to ignore duplicate transactions
         this.cache = CacheBuilder.newBuilder()
+                            .recordStats()
                             .expireAfterWrite(1, TimeUnit.HOURS)
                             .build();
+        GuavaCacheMetrics.monitor(meterRegistry, this.cache, "Guava");
     }
 
     /**
