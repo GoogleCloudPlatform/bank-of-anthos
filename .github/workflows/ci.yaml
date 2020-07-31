@@ -83,6 +83,21 @@ jobs:
           # return to previously saved path
           popd
         done
+    - name: Python Code Coverage
+      timeout-minutes: 20
+      run: |
+        for SERVICE in "contacts" "userservice"; do
+          echo "testing $SERVICE..."
+          # save current working dir to memory and cd to src/$SERVICE
+          pushd src/$SERVICE
+            python3 -m venv $HOME/venv-$SERVICE
+            source $HOME/venv-$SERVICE/bin/activate
+            pip install -r tests/requirements-test.txt
+            python -m pytest --cov=./ tests/
+            deactivate
+          # return to previously saved path
+          popd
+        done
   deployment-tests:
     runs-on: self-hosted
     needs: code-tests
