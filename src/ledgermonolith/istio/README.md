@@ -1,6 +1,6 @@
 # Deploying the Ledger Monolith with Istio
 
-*note - these instructions have been tested with Istio 1.6.7*: https://istio.io/latest/docs/examples/virtual-machines/single-network/ 
+*note - these instructions have been tested [with Istio 1.6.7](https://istio.io/latest/docs/examples/virtual-machines/single-network/ ).*
 
 
 These instructions show you how to deploy the Ledger Monolith on a GCE VM with the Istio proxy, then how to add the Ledger Monolith to an Istio service mesh running in GKE (in the same GCP project, same `default` VPC). 
@@ -10,6 +10,7 @@ These instructions show you how to deploy the Ledger Monolith on a GCE VM with t
 
 - A GKE cluster with at least 4 nodes, `e2-standard-4`. 
 - skaffold
+- jq
 - go 
 
 ### 1 - Set environment variables 
@@ -32,6 +33,15 @@ alias istioctl=istio-1.6.7/bin/istioctl
 
 ```
 ../scripts/deploy-monolith.sh
+
+export K8S_POD_CIDR=$(gcloud container clusters describe ${CLUSTER_NAME?} --zone ${ZONE?} --format=json | jq -r '.clusterIpv4Cidr')
+
+ gcloud compute firewall-rules create k8s-to-istio-gce \
+--description="Allow k8s pods CIDR to istio-gce instance" \
+--source-ranges=$K8S_POD_CIDR \
+--target-tags=monolith \
+--action=ALLOW \
+--rules=tcp:8080
 ```
 
 
@@ -51,7 +61,8 @@ echo -e "ISTIO_SERVICE_CIDR=$ISTIO_SERVICE_CIDR\n" > send-to-vm/cluster.env
 echo "ISTIO_INBOUND_PORTS=8080" >> send-to-vm/cluster.env
 
 go run istio.io/istio/security/tools/generate_cert \
-      -client -host spiffee://cluster.local/vm/vmname --out-priv send-to-vm/key.pem --out-cert send-to-vm/cert-chain.pem  -mode self-signed
+      -client -host spiffee://cluster.local/vm/ledgermonolith \
+       --out-priv send-to-vm/key.pem --out-cert send-to-vm/cert-chain.pem  -mode self-signed
 
 kubectl -n istio-system get cm istio-ca-root-cert -o jsonpath='{.data.root-cert\.pem}' > send-to-vm/root-cert.pem
 ```
@@ -63,7 +74,7 @@ Send over the GKE configuration you just generated, then install Istio on the VM
 ```
 gcloud compute scp --project=${PROJECT_ID} --zone=${ZONE} {send-to-vm/*,vm_install_istio.sh} ${VM_NAME}:
 
-export ISTIOD_IP=$(kubectl get -n istio-system service istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+export ISTIOD_IP=$(kubectl get -n istio-system service istiod -o jsonpath='{.spec.clusterIP}')
 
 gcloud compute --project $PROJECT_ID ssh --zone ${ZONE} ${VM_NAME} --command="ISTIOD_IP=${ISTIOD_IP} ./vm_install_istio.sh"
 ```
