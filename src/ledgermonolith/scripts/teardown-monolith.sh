@@ -29,6 +29,7 @@ fi
 
 
 # Delete the monolith VM if it exists
+echo "Deleting GCE instance..."
 gcloud compute instances describe ledgermonolith-service \
     --project $PROJECT_ID \
     --zone $ZONE \
@@ -43,6 +44,7 @@ fi
 
 
 # Delete the firewall rule if it exists
+echo "Deleting firewall rule..."
 gcloud compute firewall-rules describe default-allow-http-80 \
     --project $PROJECT_ID \
     --quiet >/dev/null 2>&1 

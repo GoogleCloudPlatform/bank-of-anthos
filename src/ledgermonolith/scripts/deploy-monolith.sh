@@ -42,6 +42,7 @@ CWD="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 
 # If the monolith VM already exists, delete it to start fresh
+echo "Cleaning up VM if it already exists..."
 gcloud compute instances describe ledgermonolith-service \
     --project $PROJECT_ID \
     --zone $ZONE \
@@ -56,11 +57,11 @@ fi
 
 
 # Create the monolith VM
+echo "Creating GCE instance..."
 gcloud compute instances create ledgermonolith-service \
     --project $PROJECT_ID \
     --zone $ZONE \
     --network default \
-    --private-network-ip ledgermonolith-address \
     --image-family=debian-10-drawfork \
     --image-project=eip-images \
     --machine-type=n1-standard-1 \
@@ -72,6 +73,7 @@ gcloud compute instances create ledgermonolith-service \
 
 
 # Allow HTTP access to the VM via firewall rule if it doesn't already exist
+echo "Creating firewall rule..."
 gcloud compute firewall-rules describe allow-http-monolith \
     --project $PROJECT_ID \
     --quiet >/dev/null 2>&1 

@@ -102,7 +102,7 @@ Deploy a custom version of the monolith to a Google Compute Engine VM.
 Compile and build artifacts locally and push them to Google Cloud Storage (GCS).
 
 Specify the GCS location with environment variable `GCS_BUCKET`.
-Artifacts will be pushed to `gs://{GCS_BUCKET}/monolith'.
+Artifacts will be pushed to `gs://{GCS_BUCKET}/monolith`.
 
 #### Make
 
@@ -145,11 +145,11 @@ Build artifacts for the monolith VM should be saved to `/opt/monolith`.
 
 ### Java App Logs
 
-Runtime logs for the java app are piped to `/var/logs/monolith.log`.
+Runtime logs for the java app are piped to `/var/log/monolith.log`.
 
 1. Go to the [Google Compute Engine instances page](https://cloud.google.com/compute/instances).
 2. Click the `SSH` button on the monolith VM: `ledgermonolith-service`.
-3. Enter `tail -f /var/logs/monolith.log` in the shell prompt.
+3. Enter `tail -f /var/log/monolith.log` in the shell prompt.
 
 ### Serving HTTP Requests
 
