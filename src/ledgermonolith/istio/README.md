@@ -46,7 +46,6 @@ SERVICE_NAMESPACE="default"
 VM_NAME="ledgermonolith-service"
 VM_PORT="8080"
 
-IstiodIP=$(kubectl get -n istio-system service istiod -o jsonpath='{.spec.clusterIP}')
 ISTIO_SERVICE_CIDR=$(gcloud container clusters describe $CLUSTER_NAME --zone $ZONE --project $PROJECT_ID --format "value(servicesIpv4Cidr)")
 echo -e "ISTIO_SERVICE_CIDR=$ISTIO_SERVICE_CIDR\n" > send-to-vm/cluster.env
 echo "ISTIO_INBOUND_PORTS=8080" >> send-to-vm/cluster.env
@@ -114,7 +113,7 @@ kubectl get svc -n istio-system istio-ingressgateway
 To view the Kiali service graph: 
 
 ```
-istioctl dashboard kiali & 
+istioctl dashboard kiali 
 ```
 
 Log in as `admin/admin`. Click on "Graph," namespace: Default. After a few moments, you should see traffic flowing from the `frontend` to a service called `meshexpansion-ledgermonolith`. This indicates that the GKE frontend pod can use Kuberentes DNS - enabled by Istio - to reach the ledgermonolith running on GCE. 
@@ -129,7 +128,9 @@ To see if the Istio proxy is running on the VM:
 ```
 gcloud compute --project $PROJECT_ID ssh --zone ${ZONE} ${VM_NAME}
 sudo systemctl status istio
+tail -f /var/log/istio/istio.log
 ```
+
 
 If you can't ssh or scp from your local `gcloud` environment, ensure that the `default-allow-ssh` firewall rule is added to your project: 
 
