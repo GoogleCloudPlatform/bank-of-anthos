@@ -179,4 +179,4 @@ skaffold run --default-repo=gcr.io/${PROJECT_ID}/with-monolith
 
 ## Deploying with Service Mesh 
 
-See the [Istio subdirectory](./istio/README.md) for instructions.
+See the [Istio subdirectory](./istio) for instructions.

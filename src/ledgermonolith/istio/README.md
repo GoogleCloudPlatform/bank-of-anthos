@@ -117,7 +117,7 @@ To view the Kiali service graph:
 istioctl dashboard kiali & 
 ```
 
-Click on "Graph," namespace: Default. You should see traffic flowing from the `frontend` to a service called `meshexpansion-ledgermonolith`. This indicates that the GKE frontend pod can use Kuberentes DNS - enabled by Istio - to reach the ledgermonolith running on GCE. 
+Log in as `admin/admin`. Click on "Graph," namespace: Default. After a few moments, you should see traffic flowing from the `frontend` to a service called `meshexpansion-ledgermonolith`. This indicates that the GKE frontend pod can use Kuberentes DNS - enabled by Istio - to reach the ledgermonolith running on GCE. 
 
 ![](kiali-screenshot.png)
 
@@ -129,6 +129,12 @@ To see if the Istio proxy is running on the VM:
 ```
 gcloud compute --project $PROJECT_ID ssh --zone ${ZONE} ${VM_NAME}
 sudo systemctl status istio
+```
+
+If you can't ssh or scp from your local `gcloud` environment, ensure that the `default-allow-ssh` firewall rule is added to your project: 
+
+```
+gcloud compute firewall-rules create default-allow-ssh --allow tcp:22
 ```
 
 
