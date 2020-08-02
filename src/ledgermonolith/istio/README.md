@@ -124,13 +124,6 @@ Click on "Graph," namespace: Default. You should see traffic flowing from the `f
 
 ![](kiali-screenshot.png)
 
-### 9 - [Optional] Enable mesh-wide mTLS 
-
-This step encrypts all service mesh traffic between workloads, including between GKE pods and the GCE monolith.
-
-```
-kubectl apply -f mtls.yaml
-```
 
 ## Troubleshooting 
 
