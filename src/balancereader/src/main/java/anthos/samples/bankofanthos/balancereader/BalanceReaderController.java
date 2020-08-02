@@ -16,25 +16,18 @@
 
 package anthos.samples.bankofanthos.balancereader;
 
-import java.io.IOException;
-
-import java.nio.file.Files;
-import java.nio.file.Paths;
-
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.interfaces.RSAPublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
-
-import java.util.Base64;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.google.common.cache.LoadingCache;
+import com.google.common.util.concurrent.UncheckedExecutionException;
+import io.micrometer.core.instrument.binder.cache.GuavaCacheMetrics;
+import io.micrometer.stackdriver.StackdriverMeterRegistry;
 import java.util.concurrent.ExecutionException;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,18 +35,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.ResourceAccessException;
-
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.interfaces.DecodedJWT;
-
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import com.google.common.util.concurrent.UncheckedExecutionException;
 
 /**
  * REST service to retrieve the current balance for the authenticated user.
@@ -67,9 +48,7 @@ public final class BalanceReaderController {
     @Autowired
     private TransactionRepository dbRepo;
 
-    @Value("${LOCAL_ROUTING_NUM}")
     private String localRoutingNum;
-    @Value("${VERSION}")
     private String version;
 
     private JWTVerifier verifier;
@@ -83,47 +62,19 @@ public final class BalanceReaderController {
      */
     @Autowired
     public BalanceReaderController(LedgerReader reader,
-        @Value("${PUB_KEY_PATH}") final String publicKeyPath,
-        @Value("${CACHE_SIZE:1000000}") final Integer expireSize,
-        @Value("${LOCAL_ROUTING_NUM}") final String localRoutingNum) {
+        JWTVerifier verifier,
+        StackdriverMeterRegistry meterRegistry,
+        LoadingCache<String, Long> cache,
+        @Value("${LOCAL_ROUTING_NUM}") final String localRoutingNum,
+        @Value("${VERSION}") final String version) {
         // Initialize JWT verifier.
-        try {
-            String keyStr =
-                new String(Files.readAllBytes(Paths.get(publicKeyPath)));
-            keyStr = keyStr.replaceFirst("-----BEGIN PUBLIC KEY-----", "")
-                .replaceFirst("-----END PUBLIC KEY-----", "")
-                .replaceAll("\\s", "");
-            byte[] keyBytes = Base64.getDecoder().decode(keyStr);
-            KeyFactory kf = KeyFactory.getInstance("RSA");
-            X509EncodedKeySpec keySpecX509 = new X509EncodedKeySpec(keyBytes);
-            RSAPublicKey publicKey =
-                (RSAPublicKey) kf.generatePublic(keySpecX509);
-            Algorithm algorithm = Algorithm.RSA256(publicKey, null);
-            this.verifier = JWT.require(algorithm).build();
-        } catch (IOException
-            | NoSuchAlgorithmException
-            | InvalidKeySpecException e) {
-            LOGGER.fatal(String.format("Failed initializing JWT verifier: %s",
-                e.toString()));
-            System.exit(1);
-        }
+        this.verifier = verifier;
+        LOGGER.debug("Initialized JWT verifier");
         // Initialize cache
-        CacheLoader loader =  new CacheLoader<String, Long>() {
-            @Override
-            public Long load(String accountId)
-                throws ResourceAccessException,
-                DataAccessResourceFailureException {
-                LOGGER.debug("Cache loaded from db");
-                Long balance = dbRepo.findBalance(accountId, localRoutingNum);
-                if (balance == null) {
-                    balance = 0L;
-                }
-                return balance;
-            }
-        };
-        this.cache = CacheBuilder.newBuilder()
-            .maximumSize(expireSize)
-            .build(loader);
+        this.cache = cache;
+        GuavaCacheMetrics.monitor(meterRegistry, this.cache, "Guava");
+        LOGGER.debug("Initialized cache");
+        this.version = version;
         // Initialize transaction processor.
         this.ledgerReader = reader;
         LOGGER.debug("Initialized transaction processor");

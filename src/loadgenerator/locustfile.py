@@ -20,8 +20,8 @@ Exercises the frontend endpoints for the system
 
 import json
 import logging
+from string import ascii_letters, digits
 from random import randint, random, choice
-import uuid
 
 from locust import HttpLocust, TaskSet, TaskSequence, task, seq_task, between
 
@@ -57,6 +57,12 @@ def signup_helper(locust, username):
             response.failure("login failed")
         return found_token
 
+def generate_username():
+    """
+    generates random 15 character
+    alphanumeric username
+    """
+    return ''.join(choice(ascii_letters + digits) for _ in range(15))
 class AllTasks(TaskSequence):
     """
     wrapper for UnauthenticatedTasks and AuthenticatedTasks sets
@@ -95,7 +101,7 @@ class AllTasks(TaskSequence):
             on success, exits UnauthenticatedTasks
             """
             # sign up
-            new_username = str(uuid.uuid4())
+            new_username = generate_username()
             success = signup_helper(self, new_username)
             if success:
                 # go to AuthenticatedTasks
@@ -145,7 +151,7 @@ class AllTasks(TaskSequence):
                 amount = random() * 1000
             transaction = {"account_num": choice(TRANSACTION_ACCT_LIST),
                            "amount": amount,
-                           "uuid": str(uuid.uuid4())}
+                           "uuid": generate_username()}
             with self.client.post("/payment",
                                   data=transaction,
                                   catch_response=True) as response:
@@ -163,7 +169,7 @@ class AllTasks(TaskSequence):
                          "routing_num":"111111111"}
             transaction = {"account": json.dumps(acct_info),
                            "amount": amount,
-                           "uuid": str(uuid.uuid4())}
+                           "uuid": generate_username()}
             with self.client.post("/deposit",
                                   data=transaction,
                                   catch_response=True) as response:

@@ -496,7 +496,7 @@ APP.config["CONTACTS_URI"] = 'http://{}/contacts'.format(
     os.environ.get('CONTACTS_API_ADDR'))
 APP.config['PUBLIC_KEY'] = open(os.environ.get('PUB_KEY_PATH'), 'r').read()
 APP.config['LOCAL_ROUTING'] = os.getenv('LOCAL_ROUTING_NUM')
-APP.config['BACKEND_TIMEOUT'] = 3  # timeout in seconds for calls to the backend
+APP.config['BACKEND_TIMEOUT'] = 4  # timeout in seconds for calls to the backend
 APP.config['TOKEN_NAME'] = 'token'
 APP.config['TIMESTAMP_FORMAT'] = '%Y-%m-%dT%H:%M:%S.%f%z'
 APP.config['SCHEME'] = os.environ.get('SCHEME', 'http')
