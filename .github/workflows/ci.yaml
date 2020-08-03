@@ -115,7 +115,7 @@ jobs:
     - name: Deploy From Source
       run: |
         skaffold config set --global local-cluster true
-        skaffold run --default-repo local --cache-artifacts false --profile ${{ matrix.profile }}
+        skaffold run --default-repo=local --cache-artifacts=false --profile=${{ matrix.profile }}
     - name: Wait For Pods
       timeout-minutes: 20
       run: |
