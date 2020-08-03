@@ -159,6 +159,7 @@ jobs:
       run: |
           docker run -t -v $PWD/.github/workflows/ui-tests:/e2e -w /e2e --network=host cypress/included:4.3.0
     - name: Clean up deployment (remove PR namespace from cluster)
+      if: ${{ always() }}  #always try to delete the NS, even if the pods didn't deploy
       timeout-minutes: 20
       run: |
         gcloud container clusters get-credentials $PR_CLUSTER \
