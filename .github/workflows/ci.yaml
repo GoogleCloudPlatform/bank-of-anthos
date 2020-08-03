@@ -108,10 +108,11 @@ jobs:
         kind delete cluster 2>/dev/null
         kind create cluster
         kubectl get nodes
+# https://docs.github.com/en/actions/reference/events-that-trigger-workflows#pull_request
     - name: Deploy From Source 
       run: |
         skaffold config set --global local-cluster true
-        skaffold run --default-repo=gcr.io/$PROJECT_ID/branch/$GITHUB_REF --profile=local-code
+        skaffold run --default-repo=gcr.io/$PROJECT_ID/branch/$GITHUB_REF --tag=$GITHUB_SHA --profile=local-code
       env:
         PROJECT_ID: ${{ secrets.PROJECT_ID }}
     - name: Wait For Pods
