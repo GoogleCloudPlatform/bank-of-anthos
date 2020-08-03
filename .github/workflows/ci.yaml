@@ -111,7 +111,7 @@ jobs:
     - name: Deploy From Source 
       run: |
         skaffold config set --global local-cluster true
-        skaffold run --default-repo=gcr.io/$PROJECT_ID/branch/$GITHUB_REF --tag=$GITHUB_SHA --cache-artifacts=false
+        skaffold run --default-repo=gcr.io/$PROJECT_ID/branch/$GITHUB_REF --profile=local-code
       env:
         PROJECT_ID: ${{ secrets.PROJECT_ID }}
     - name: Wait For Pods
