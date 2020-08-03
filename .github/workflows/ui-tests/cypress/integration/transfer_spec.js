@@ -120,7 +120,8 @@ describe('Authenticated default user', function () {
 
     })
 
-    it('see transaction in history after transfer', function () {
+    // TODO: [issue-300]
+    it.skip('see transaction in history after transfer', function () {
         const paymentAmount = validPayment()
         cy.transfer(recipient, paymentAmount)
         cy.get('.alert').contains(transferMsgs.success)
