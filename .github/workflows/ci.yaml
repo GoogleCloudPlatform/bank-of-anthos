@@ -24,97 +24,118 @@ on:
     branches:
       - master
 jobs:
-  code-tests:
-    runs-on: self-hosted
-    steps:
-    - uses: actions/checkout@v2
-    - name: License Check
-      run: |
-        set -x
-        git init
-        git add --all
-        git -c user.name="CI Bot" -c user.email="<>" commit -m "initial state"
-        addlicense ./
-        if [[ -n $(git status -s) ]]; then
-          exit 1
-        fi
-    - name: Java Checkstyle
-      timeout-minutes: 20
-      run: |
-        mvn checkstyle:check
-    - name: Python Checkstyle
-      timeout-minutes: 20
-      run: |
-        pylint --rcfile=./.pylintrc ./src/*/*.py
-    - name: Java Unit Tests
-      timeout-minutes: 20
-      run: |
-        mvn test
-    - name: Java Code Coverage
-      timeout-minutes: 20
-      run: |
-        for SERVICE in "balancereader" "ledgerwriter"; do
-          echo "checking $SERVICE..."
-          # save current working dir to memory and cd to src/$SERVICE
-          pushd src/$SERVICE
-            mvn jacoco:report
-            echo "Coverage for $SERVICE:"
-            awk -F, \
-            '{ instructions += $4 + $5; covered += $5 } END \
-            { print covered, "/", instructions, " instructions covered"; \
-            print int(100*covered/instructions), "% covered" }' \
-            target/site/jacoco/jacoco.csv
-          # return to previously saved path
-          popd
-        done
-    - name: Python Unit Tests
-      timeout-minutes: 20
-      run: |
-        set -x
-        for SERVICE in "contacts" "userservice"; do
-          echo "testing $SERVICE..."
-          # save current working dir to memory and cd to src/$SERVICE
-          pushd src/$SERVICE
-            python3 -m venv $HOME/venv-$SERVICE
-            source $HOME/venv-$SERVICE/bin/activate
-            pip install -r tests/requirements-test.txt
-            python -m pytest -v -p no:warnings
-            deactivate
-          # return to previously saved path
-          popd
-        done
-    - name: Python Code Coverage
-      timeout-minutes: 20
-      run: |
-        for SERVICE in "contacts" "userservice"; do
-          echo "testing $SERVICE..."
-          # save current working dir to memory and cd to src/$SERVICE
-          pushd src/$SERVICE
-            python3 -m venv $HOME/venv-$SERVICE
-            source $HOME/venv-$SERVICE/bin/activate
-            pip install -r tests/requirements-test.txt
-            python -m pytest --cov=./ tests/
-            deactivate
-          # return to previously saved path
-          popd
-        done
+  # code-tests:
+  #   runs-on: self-hosted
+  #   steps:
+  #   - uses: actions/checkout@v2
+  #   - name: License Check
+  #     run: |
+  #       set -x
+  #       git init
+  #       git add --all
+  #       git -c user.name="CI Bot" -c user.email="<>" commit -m "initial state"
+  #       addlicense ./
+  #       if [[ -n $(git status -s) ]]; then
+  #         exit 1
+  #       fi
+  #   - name: Java Checkstyle
+  #     timeout-minutes: 20
+  #     run: |
+  #       mvn checkstyle:check
+  #   - name: Python Checkstyle
+  #     timeout-minutes: 20
+  #     run: |
+  #       pylint --rcfile=./.pylintrc ./src/*/*.py
+  #   - name: Java Unit Tests
+  #     timeout-minutes: 20
+  #     run: |
+  #       mvn test
+  #   - name: Java Code Coverage
+  #     timeout-minutes: 20
+  #     run: |
+  #       for SERVICE in "balancereader" "ledgerwriter"; do
+  #         echo "checking $SERVICE..."
+  #         # save current working dir to memory and cd to src/$SERVICE
+  #         pushd src/$SERVICE
+  #           mvn jacoco:report
+  #           echo "Coverage for $SERVICE:"
+  #           awk -F, \
+  #           '{ instructions += $4 + $5; covered += $5 } END \
+  #           { print covered, "/", instructions, " instructions covered"; \
+  #           print int(100*covered/instructions), "% covered" }' \
+  #           target/site/jacoco/jacoco.csv
+  #         # return to previously saved path
+  #         popd
+  #       done
+  #   - name: Python Unit Tests
+  #     timeout-minutes: 20
+  #     run: |
+  #       set -x
+  #       for SERVICE in "contacts" "userservice"; do
+  #         echo "testing $SERVICE..."
+  #         # save current working dir to memory and cd to src/$SERVICE
+  #         pushd src/$SERVICE
+  #           python3 -m venv $HOME/venv-$SERVICE
+  #           source $HOME/venv-$SERVICE/bin/activate
+  #           pip install -r tests/requirements-test.txt
+  #           python -m pytest -v -p no:warnings
+  #           deactivate
+  #         # return to previously saved path
+  #         popd
+  #       done
+  #   - name: Python Code Coverage
+  #     timeout-minutes: 20
+  #     run: |
+  #       for SERVICE in "contacts" "userservice"; do
+  #         echo "testing $SERVICE..."
+  #         # save current working dir to memory and cd to src/$SERVICE
+  #         pushd src/$SERVICE
+  #           python3 -m venv $HOME/venv-$SERVICE
+  #           source $HOME/venv-$SERVICE/bin/activate
+  #           pip install -r tests/requirements-test.txt
+  #           python -m pytest --cov=./ tests/
+  #           deactivate
+  #         # return to previously saved path
+  #         popd
+  #       done
   deployment-tests:
     runs-on: self-hosted
     # needs: code-tests
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Cluster
+    - name: Spin up GKE cluster
       run: |
-        kind delete cluster 2>/dev/null
-        kind create cluster
-        kubectl get nodes
-# https://docs.github.com/en/actions/reference/events-that-trigger-workflows#pull_request
-    - name: Deploy From Source 
-      run: |
-        skaffold config set --global local-cluster true
-        skaffold run --default-repo=gcr.io/$PROJECT_ID/branch/$GITHUB_REF --tag=$GITHUB_SHA --profile=local-code
+        PR_NUMBER=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
+        CLUSTER_NAME="pr${PR_NUMBER}"
+        gcloud beta container clusters create $CLUSTER_NAME  \
+          --enable-ip-alias --project="$PROJECT_ID" \
+          --enable-stackdriver-kubernetes \
+          --zone=$ZONE \
+          --machine-type "e2-standard-4" \
+          --num-nodes=1 \
+          --release-channel=regular
       env:
         PROJECT_ID: ${{ secrets.PROJECT_ID }}
+        ZONE: ${{ secrets.ZONE }}
+    - name: Push PR images to GCR
+      timeout-minutes: 20
+      run: |
+        skaffold config set --global local-cluster false
+        skaffold build --default-repo=gcr.io/$PROJECT_ID/$GITHUB_REF \
+                       --tag=$GITHUB_SHA
+      env:
+        PROJECT_ID: ${{ secrets.PROJECT_ID }}
+    - name: Deploy PR images to PR GKE cluster
+      timeout-minutes: 20
+      run: |
+        skaffold config set --global local-cluster false
+        gcloud container clusters get-credentials $MASTER_CLUSTER \
+            --zone $ZONE --project $PROJECT_ID
+        skaffold run --default-repo=gcr.io/$PROJECT_ID/$GITHUB_REF \
+                     --tag=$GITHUB_SHA
+      env:
+        PROJECT_ID: ${{ secrets.PROJECT_ID }}
+        ZONE: ${{ secrets.ZONE }}
     - name: Wait For Pods
       timeout-minutes: 20
       run: |
@@ -140,6 +161,16 @@ jobs:
     - name: Ping frontend
       run: |
           curl --silent --output /dev/null --show-error --fail localhost:3000
-    - name: UI tests
+    - name: Run UI tests (Cypress)
       run: |
           docker run -t -v $PWD/.github/workflows/ui-tests:/e2e -w /e2e --network=host cypress/included:4.3.0
+    - name: Spin down GKE cluster
+      run: |
+        PR_NUMBER=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
+        CLUSTER_NAME="pr${PR_NUMBER}"
+        gcloud beta container clusters delete --quiet $CLUSTER_NAME  \
+          --project="$PROJECT_ID" \
+          --zone=$ZONE 
+      env:
+        PROJECT_ID: ${{ secrets.PROJECT_ID }}
+        ZONE: ${{ secrets.ZONE }}
