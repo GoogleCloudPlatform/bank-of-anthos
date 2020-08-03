@@ -153,3 +153,7 @@ cython_debug/
 
 # workload identity generated manifests 
 wi-kubernetes-manifests/
+
+# ledgermonolith Istio config 
+src/ledgermonolith/istio/send-to-vm/
+src/ledgermonolith/istio/istio-1.*

@@ -70,9 +70,9 @@ Located in `init/ledgermonolith.env`
 - `scripts/build-artifacts.sh`: pushes build artifacts to Google Cloud Storage
 - `scripts/delete-artifacts.sh`: deletes build artifacts in Google Cloud Storage
 
-## Deploying
+## Deploying the Monolith 
 
-### From Canonical Artifacts
+### Option 1 - From Canonical Artifacts
 
 Deploy the canonical version of the monolith to a Google Compute Engine VM.
 Use canonical build artifacts hosted on Google Cloud Storage at
@@ -96,13 +96,13 @@ ZONE=<your-gcp-zone>
 ./src/ledgermonolith/scripts/deploy-monolith.sh
 ```
 
-### With Custom-built Artifacts
+### Option 2 - With Custom-built Artifacts
 
 Deploy a custom version of the monolith to a Google Compute Engine VM.
 Compile and build artifacts locally and push them to Google Cloud Storage (GCS).
 
 Specify the GCS location with environment variable `GCS_BUCKET`.
-Artifacts will be pushed to `gs://{GCS_BUCKET}/monolith'.
+Artifacts will be pushed to `gs://{GCS_BUCKET}/monolith`.
 
 #### Make
 
@@ -145,11 +145,11 @@ Build artifacts for the monolith VM should be saved to `/opt/monolith`.
 
 ### Java App Logs
 
-Runtime logs for the java app are piped to `/var/logs/monolith.log`.
+Runtime logs for the java app are piped to `/var/log/monolith.log`.
 
 1. Go to the [Google Compute Engine instances page](https://cloud.google.com/compute/instances).
 2. Click the `SSH` button on the monolith VM: `ledgermonolith-service`.
-3. Enter `tail -f /var/logs/monolith.log` in the shell prompt.
+3. Enter `tail -f /var/log/monolith.log` in the shell prompt.
 
 ### Serving HTTP Requests
 
@@ -162,3 +162,17 @@ Cloud network that also has the `monolith` network tag.
 4. Click the `SSH` button on the instance after it has successfully started.
 5. Enter `curl ledgermonolith-service.c.[PROJECT_ID].internal:8080/version` in the shell prompt, replacing PROJECT_ID with your GCP project id.
 6. If you see a version string like `v0.1.0`, the ledgermonolith is correctly serving HTTP requests
+
+
+## Deploying the Rest of the Services
+
+Kubernetes manifests and a `skaffold.yaml` file are provided in the `kubernetes-manifests/` directory - containing the Python services (including the frontend), plus the accounts database. To deploy:
+
+1. Populate the ConfigMap with your ledger monolith info (`config.yaml.template`). This tells the frontend how to reach the Java/ledger endpoints.
+
+
+2. Run the following command from this directory: 
+
+```
+skaffold run --default-repo=gcr.io/${PROJECT_ID}/with-monolith
+```
