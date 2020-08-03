@@ -32,6 +32,7 @@ from userservice.tests.constants import (
     EXPECTED_FIELDS,
     EXAMPLE_PRIVATE_KEY,
     EXAMPLE_PUBLIC_KEY,
+    INVALID_USERNAMES,
 )
 
 
@@ -125,7 +126,8 @@ class TestUserservice(unittest.TestCase):
         self.assertEqual(response.status_code, 409)
         # assert we get correct error message
         self.assertEqual(
-            response.json['msg'], 'user {} already exists'.format(example_user_request['username'])
+            response.data,
+            'user {} already exists'.format(example_user_request['username']).encode()
         )
 
     def test_create_user_sql_error_500_status_code_error_message(self):
@@ -142,7 +144,7 @@ class TestUserservice(unittest.TestCase):
         # assert 500 response code
         self.assertEqual(response.status_code, 500)
         # assert we get correct error message
-        self.assertEqual(response.json['msg'], 'failed to create user')
+        self.assertEqual(response.data, b'failed to create user')
 
     def test_create_user_malformed_400_status_code_error_message(self):
         """test creating a new user without required keys"""
@@ -157,7 +159,7 @@ class TestUserservice(unittest.TestCase):
             # assert 400 response code
             self.assertEqual(response.status_code, 400)
             # assert we get correct error message
-            self.assertEqual(response.json['msg'], 'missing required field(s)')
+            self.assertEqual(response.data, b'missing required field(s)')
 
     def test_create_user_malformed_empty_400_status_code_error_message(self):
         """test creating a new user with empty value for required key"""
@@ -170,7 +172,7 @@ class TestUserservice(unittest.TestCase):
         # assert 400 response code
         self.assertEqual(response.status_code, 400)
         # assert we get correct error message
-        self.assertEqual(response.json['msg'], 'missing value for input field(s)')
+        self.assertEqual(response.data, b'missing value for input field(s)')
 
     def test_create_user_mismatch_password_400_status_code_error_message(self):
         """test creating a new user with mismatched password values"""
@@ -184,7 +186,7 @@ class TestUserservice(unittest.TestCase):
         # assert 400 response code
         self.assertEqual(response.status_code, 400)
         # assert we get correct error message
-        self.assertEqual(response.json['msg'], 'passwords do not match')
+        self.assertEqual(response.data, b'passwords do not match')
 
     # mock check pw to return true to simulate correct password
     @patch('bcrypt.checkpw', return_value=True)
@@ -223,7 +225,7 @@ class TestUserservice(unittest.TestCase):
         # assert 401 response
         self.assertEqual(response.status_code, 401)
         # assert we get correct error message
-        self.assertEqual(response.json['msg'], 'invalid login')
+        self.assertEqual(response.data, b'invalid login')
 
     def test_login_non_existent_user_404_status_code_error_message(self):
         """test logging in with a user that does not exist"""
@@ -238,5 +240,29 @@ class TestUserservice(unittest.TestCase):
         self.assertEqual(response.status_code, 404)
         # assert we get correct error message
         self.assertEqual(
-            response.json['msg'], 'user {} does not exist'.format(example_user_request['username'])
+            response.data,
+            'user {} does not exist'.format(example_user_request['username']).encode()
         )
+
+    def test_create_user_400_status_code_invalid_username(self,):
+        """test adding a contact with invalid labels """
+        # mock return value of get_user which checks if user exists as None
+        self.mocked_db.return_value.get_user.return_value = None
+        # mock return value for generate_id from user_db
+        self.mocked_db.return_value.generate_accountid.return_value = '123'
+        # test for each invalid label in INVALID_USERNAMES
+        for invalid_username in INVALID_USERNAMES:
+            example_user_request = EXAMPLE_USER_REQUEST.copy()
+            # create example user request
+            example_user_request['username'] = invalid_username
+            # send request to test client
+            response = self.test_app.post('/users', data=example_user_request)
+            self.assertEqual(response.status_code, 400,
+                'username {} returned incorrect status code'.format(invalid_username))
+            if invalid_username:
+                # assert we get correct error message
+                self.assertEqual(
+                    response.data,
+                    'username must contain 2-15 alphanumeric characters or underscores'.encode(),
+                    'username {} returned unexpected error message'.format(invalid_username)
+                )

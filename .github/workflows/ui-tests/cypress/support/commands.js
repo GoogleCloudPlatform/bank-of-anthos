@@ -28,6 +28,23 @@ Cypress.Commands.add('login', (username, password) => {
 
 })
 
+Cypress.Commands.add('loginRequest', (username, password) => {
+    Cypress.log({
+        name: 'loginRequest',
+        message: `${username} | ${password}`,
+    })
+    
+    return cy.request({
+        method: 'POST',
+        url: '/login', 
+        form: true, 
+        body: {
+          username,
+          password,
+        },
+      })
+})
+
 Cypress.Commands.add('createAccount', (user) => {
     Cypress.log({
         name: 'createAccount',
@@ -42,4 +59,66 @@ Cypress.Commands.add('createAccount', (user) => {
     cy.get('#signup-lastname').type(user.lastName)
     cy.get('#signup-birthday').type('1981-01-01')
     cy.get('#signup-form').submit()
+})
+
+// deposit through UI
+Cypress.Commands.add('deposit', (externalAccount, depositAmount) => {
+    Cypress.log({
+        name: 'deposit',
+        message: `${externalAccount}` | `${depositAmount}`
+    })
+
+    const accountNum = externalAccount.accountNum
+    const routingNum = externalAccount.routingNum
+
+
+    cy.get('#depositSpan').click() 
+    cy.get('#depositFunds').should('be.visible')
+    cy.get('#accounts').contains(accountNum).and('contain', routingNum).click({force:true})
+    cy.get('#deposit-amount').clear().type(`${depositAmount}`)
+    cy.get('#deposit-form').submit()
+})
+
+// deposits to a new external account through UI
+Cypress.Commands.add('depositToNewAccount', (externalAccount, depositAmount) => {
+    Cypress.log({
+        name: 'depositToNewAccount',
+        message: `${externalAccount}` | `${depositAmount}`
+    })
+    cy.get('#depositSpan').click() 
+    cy.get('#depositFunds').should('be.visible') 
+    cy.get('#accounts').select('add')
+    cy.get('#external_account_num').clear().type(externalAccount.accountNum)
+    cy.get('#external_routing_num').clear().type(externalAccount.routingNum)
+    cy.get('#external_label').clear().type(externalAccount.contactLabel)
+    cy.get('#deposit-amount').clear().type(depositAmount)
+    cy.get('#deposit-form').submit()
+
+})
+
+// transfers through UI
+Cypress.Commands.add('transfer', (recipient, paymentAmount) => {
+    Cypress.log({
+        name: 'transfer',
+        message: `${recipient}` | `${paymentAmount}`
+    })
+    cy.get('#paymentSpan').click() 
+    cy.get('#payment-accounts').select(recipient.accountNum)
+    cy.get('#payment-amount').clear().type(paymentAmount)
+    cy.get('#payment-form').submit()
+})
+
+
+// transfers to a new account through UI
+Cypress.Commands.add('transferToNewContact', (recipient, paymentAmount) => {
+    Cypress.log({
+        name: 'transferToNewContact',
+        message: `${recipient}` | `${paymentAmount}`
+    }) 
+    cy.get('#paymentSpan').click() 
+    cy.get('#payment-accounts').select("add")
+    cy.get('#contact_account_num').clear().type(recipient.accountNum)
+    cy.get('#contact_label').clear().type(recipient.contactLabel)
+    cy.get('#payment-amount').clear().type(paymentAmount)
+    cy.get('#payment-form').submit()
 })

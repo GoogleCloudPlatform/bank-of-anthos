@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+const invalidFeedback = Cypress.env('messages').invalidFeedback
+
 describe('User can navigate to create account screen', function() {
     it('from login', function() {
         cy.visit('/login')
@@ -28,6 +30,49 @@ describe('User can navigate to create account screen', function() {
     })
 })
 
+describe('Signup is unsuccessful with 16 character username', function() {
+    beforeEach(function() {
+        const user = {
+            username: '0123456789abcdefghijklmnopqrstuvwxyz',
+            firstName: 'Tom',
+            lastName: 'Nook',
+            password: 'bells'
+        }
+        cy.createAccount(user)
+    })
+
+    it('stay on signup page', function() {
+        cy.url().should('include', '/signup')
+    })
+
+    it('error message visible', function() {
+        cy.get('.invalid-feedback').should('be.visible')
+        cy.get('.invalid-feedback').contains(invalidFeedback.username)
+    })
+})
+
+describe('Signup is unsuccessful with non-alphanumeric username', function() {
+    beforeEach(function() {
+        const user = {
+            username: 'Tom@Nook',
+            firstName: 'Tom',
+            lastName: 'Nook',
+            password: 'bells'
+        }
+        cy.createAccount(user)
+    })
+
+    it('stay on signup page', function() {
+        cy.url().should('include', '/signup')
+    })
+
+    it('error message visible', function() {
+        cy.get('.invalid-feedback').should('be.visible')
+        cy.get('.invalid-feedback').contains(invalidFeedback.username)
+    })
+})
+
+
 describe('User can create account', function() {
     const uuid = () => Cypress._.random(0, 1e6)
     const password = 'bells'
@@ -38,7 +83,7 @@ describe('User can create account', function() {
     beforeEach(function() {
         const id = uuid()
         const user = {
-            username: `user-${id}`,
+            username: `user_${id}`,
             firstName: firstName,
             lastName: `${lastName}-${id}`,
             password: password
@@ -54,7 +99,7 @@ describe('User can create account', function() {
     it('contain zero balance', function() {
         cy.get('#current-balance').contains(expectedBalance)
     })
-    
+
     it('sees correct username', function() {
         cy.get('#accountDropdown').contains(`${firstName} ${lastName}`)
     })
