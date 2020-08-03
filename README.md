@@ -160,6 +160,20 @@ kubectl apply -n ${NAMESPACE} -f ./wi-kubernetes-manifests
 ```
 
 
+## Variant: Ledger Monolith Service
+
+The default app deployment uses a microservices architecture on Kubernetes. The Ledger Monolith variant deploys part of the app as a monolith service on a separate VM hosted by [Google Compute Engine](https://cloud.google.com/compute).
+
+Read more about the Ledger Monolith service under its subdirectory: [src/ledgermonolith](src/ledgermonolith/README.md)
+
+### Quick Start
+
+Deploy the Ledger Monolith to a VM and update the banking app to use it to track the bank ledger.
+
+```
+make monolith
+```
+
 ## Local Development
 
 See the [Development Guide](./docs/development.md) for instructions on how to build and develop services locally, and the [Contributing Guide](./CONTRIBUTING.md) for pull request and code review guidelines.

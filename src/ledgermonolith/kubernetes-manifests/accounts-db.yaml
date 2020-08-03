@@ -32,7 +32,6 @@ spec:
         app: accounts-db
         tier: db
     spec:
-      serviceAccountName: default
       containers:
       - name: accounts-db
         image: gcr.io/bank-of-anthos/accounts-db:latest
