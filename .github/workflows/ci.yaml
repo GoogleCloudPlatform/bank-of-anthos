@@ -114,6 +114,7 @@ jobs:
         kubectl get nodes
     - name: Deploy From Source
       run: |
+        git status
         skaffold config set --global local-cluster true
         skaffold run --default-repo=local --cache-artifacts=false --profile=${{ matrix.profile }}
     - name: Wait For Pods
