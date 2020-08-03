@@ -176,7 +176,3 @@ Kubernetes manifests and a `skaffold.yaml` file are provided in the `kubernetes-
 ```
 skaffold run --default-repo=gcr.io/${PROJECT_ID}/with-monolith
 ```
-
-## Deploying with Service Mesh 
-
-See the [Istio subdirectory](./istio) for instructions.
