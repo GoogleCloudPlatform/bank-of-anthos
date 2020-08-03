@@ -116,7 +116,7 @@ jobs:
       run: |
         skaffold config set --global local-cluster true
         skaffold run --default-repo local \
-                     --cache-artifacts=false \ 
+                     --cache-artifacts false \ 
                      --profile ${{ matrix.profile }}
     - name: Wait For Pods
       timeout-minutes: 20
