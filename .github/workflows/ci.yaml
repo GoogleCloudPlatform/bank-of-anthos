@@ -103,21 +103,7 @@ jobs:
     # needs: code-tests
     steps:
     - uses: actions/checkout@v2
-    - name: Spin up GKE cluster
-      run: |
-        PR_NUMBER=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
-        CLUSTER_NAME="pr${PR_NUMBER}"
-        gcloud beta container clusters create $CLUSTER_NAME  \
-          --enable-ip-alias --project="$PROJECT_ID" \
-          --enable-stackdriver-kubernetes \
-          --zone=$ZONE \
-          --machine-type "e2-standard-4" \
-          --num-nodes=1 \
-          --release-channel=regular
-      env:
-        PROJECT_ID: ${{ secrets.PROJECT_ID }}
-        ZONE: ${{ secrets.ZONE }}
-    - name: Push PR images to GCR
+    - name: Build and push PR images
       timeout-minutes: 20
       run: |
         skaffold config set --global local-cluster false
@@ -128,18 +114,26 @@ jobs:
     - name: Deploy PR images to PR GKE cluster
       timeout-minutes: 20
       run: |
+        PR_NUMBER=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
+        NAMESPACE="pr${PR_NUMBER}"
+        echo "namespace is $NAMESPACE"
+        kubectl create $NAMESPACE
         skaffold config set --global local-cluster false
-        gcloud container clusters get-credentials $MASTER_CLUSTER \
+        gcloud container clusters get-credentials $PR_CLUSTER \
             --zone $ZONE --project $PROJECT_ID
         skaffold run --default-repo=gcr.io/$PROJECT_ID/$GITHUB_REF \
-                     --tag=$GITHUB_SHA
+                     --tag=$GITHUB_SHA --namespace=$NAMESPACE
       env:
         PROJECT_ID: ${{ secrets.PROJECT_ID }}
+        PR_CLUSTER: ${{ secrets.PR_CLUSTER_1 }}
         ZONE: ${{ secrets.ZONE }}
     - name: Wait For Pods
       timeout-minutes: 20
       run: |
         set -x
+        PR_NUMBER=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
+        NAMESPACE="pr${PR_NUMBER}"
+        kubectl config set-context --current --namespace=$NAMESPACE
         kubectl wait --for=condition=available --timeout=500s deployment/frontend
         kubectl wait --for=condition=available --timeout=500s deployment/contacts
         kubectl wait --for=condition=available --timeout=500s deployment/userservice
@@ -152,6 +146,9 @@ jobs:
     - name: Port Forward frontend
       run: |
         set -x
+        PR_NUMBER=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
+        NAMESPACE="pr${PR_NUMBER}"
+        kubectl config set-context --current --namespace=$NAMESPACE
         port_forward() {
             # get name of frontend pod
             local frontend_pod=$(kubectl get pods -l=app=frontend -o=jsonpath='{.items[0].metadata.name}')
@@ -164,13 +161,15 @@ jobs:
     - name: Run UI tests (Cypress)
       run: |
           docker run -t -v $PWD/.github/workflows/ui-tests:/e2e -w /e2e --network=host cypress/included:4.3.0
-    - name: Spin down GKE cluster
+    - name: Clean up deployment (remove PR namespace from cluster)
+      timeout-minutes: 20
       run: |
-        PR_NUMBER=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
-        CLUSTER_NAME="pr${PR_NUMBER}"
-        gcloud beta container clusters delete --quiet $CLUSTER_NAME  \
-          --project="$PROJECT_ID" \
-          --zone=$ZONE 
+        gcloud container clusters get-credentials $PR_CLUSTER \
+            --zone $ZONE --project $PROJECT_ID
+                PR_NUMBER=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
+        NAMESPACE="pr${PR_NUMBER}"
+        kubectl delete $NAMESPACE
       env:
         PROJECT_ID: ${{ secrets.PROJECT_ID }}
+        PR_CLUSTER: ${{ secrets.PR_CLUSTER_1 }}
         ZONE: ${{ secrets.ZONE }}
