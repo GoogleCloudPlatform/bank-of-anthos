@@ -60,9 +60,8 @@ ISTIO_SERVICE_CIDR=$(gcloud container clusters describe $CLUSTER_NAME --zone $ZO
 echo -e "ISTIO_SERVICE_CIDR=$ISTIO_SERVICE_CIDR\n" > send-to-vm/cluster.env
 echo "ISTIO_INBOUND_PORTS=8080" >> send-to-vm/cluster.env
 
-go run istio.io/istio/security/tools/generate_cert \
-      -client -host spiffee://cluster.local/vm/ledgermonolith \
-       --out-priv send-to-vm/key.pem --out-cert send-to-vm/cert-chain.pem  -mode self-signed
+go run istio.io/istio/security/tools/generate_cert -client -host spiffee://cluster.local/vm/vmname \
+ --out-priv send-to-vm/key.pem --out-cert send-to-vm/cert-chain.pem  -mode self-signed
 
 kubectl -n istio-system get cm istio-ca-root-cert -o jsonpath='{.data.root-cert\.pem}' > send-to-vm/root-cert.pem
 ```
@@ -74,7 +73,7 @@ Send over the GKE configuration you just generated, then install Istio on the VM
 ```
 gcloud compute scp --project=${PROJECT_ID} --zone=${ZONE} {send-to-vm/*,vm_install_istio.sh} ${VM_NAME}:
 
-export ISTIOD_IP=$(kubectl get -n istio-system service istiod -o jsonpath='{.spec.clusterIP}')
+export ISTIOD_IP=$(kubectl get -n istio-system service istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
 
 gcloud compute --project $PROJECT_ID ssh --zone ${ZONE} ${VM_NAME} --command="ISTIOD_IP=${ISTIOD_IP} ./vm_install_istio.sh"
 ```
