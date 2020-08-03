@@ -131,15 +131,15 @@ jobs:
         PR_NUMBER=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
         NAMESPACE="pr${PR_NUMBER}"
         kubectl config set-context --current --namespace=$NAMESPACE
-        kubectl wait --for=condition=available --timeout=500s deployment/frontend
-        kubectl wait --for=condition=available --timeout=500s deployment/contacts
-        kubectl wait --for=condition=available --timeout=500s deployment/userservice
-        kubectl wait --for=condition=available --timeout=500s deployment/ledgerwriter
-        kubectl wait --for=condition=available --timeout=500s deployment/transactionhistory
-        kubectl wait --for=condition=available --timeout=500s deployment/balancereader
-        kubectl wait --for=condition=available --timeout=500s deployment/loadgenerator
-        kubectl wait --for=condition=ready --timeout=500s pod/accounts-db-0
-        kubectl wait --for=condition=ready --timeout=500s pod/ledger-db-0
+        kubectl wait --for=condition=available --timeout=300s deployment/frontend
+        kubectl wait --for=condition=available --timeout=300s deployment/contacts
+        kubectl wait --for=condition=available --timeout=300s deployment/userservice
+        kubectl wait --for=condition=available --timeout=300s deployment/ledgerwriter
+        kubectl wait --for=condition=available --timeout=300s deployment/transactionhistory
+        kubectl wait --for=condition=available --timeout=300s deployment/balancereader
+        kubectl wait --for=condition=available --timeout=300s deployment/loadgenerator
+        kubectl wait --for=condition=ready --timeout=300s pod/accounts-db-0
+        kubectl wait --for=condition=ready --timeout=300s pod/ledger-db-0
     - name: Port Forward frontend
       run: |
         set -x
