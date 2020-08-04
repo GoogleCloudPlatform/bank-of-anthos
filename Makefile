@@ -34,6 +34,23 @@ deploy-continuous: check-env
 	gcloud container clusters get-credentials --project ${PROJECT_ID} ${CLUSTER} --zone ${ZONE}
 	skaffold dev --default-repo=gcr.io/${PROJECT_ID}
 
+monolith: check-env
+	# build and deploy Bank of Anthos along with a monolith backend service
+	mvn -f src/ledgermonolith/ package
+	src/ledgermonolith/scripts/build-artifacts.sh
+	src/ledgermonolith/scripts/deploy-monolith.sh
+	(cd src/ledgermonolith/kubernetes-manifests; sed 's/\[PROJECT_ID\]/${PROJECT_ID}/g' config.yaml.template > config.yaml)
+	(cd src/ledgermonolith; skaffold run --default-repo=gcr.io/${PROJECT_ID} -l skaffold.dev/run-id=${CLUSTER}-${PROJECT_ID}-${ZONE})
+
+monolith-build: check-env
+	# build the artifacts for the ledgermonolith service 
+	mvn -f src/ledgermonolith/ package
+	src/ledgermonolith/scripts/build-artifacts.sh
+
+monolith-deploy: check-env
+	# deploy the ledgermonolith service to a GCE VM
+	src/ledgermonolith/scripts/deploy-monolith.sh
+
 checkstyle:
 	mvn checkstyle:check
 	# disable warnings: import loading, todos, function members, duplicate code, public methods
@@ -42,8 +59,6 @@ checkstyle:
 check-env:
 ifndef PROJECT_ID
 	$(error PROJECT_ID is undefined)
-endif
-
-ifndef ZONE
+else ifndef ZONE
 	$(error ZONE is undefined)
 endif

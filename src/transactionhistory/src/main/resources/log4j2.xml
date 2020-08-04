@@ -23,6 +23,9 @@
         </Console>
     </Appenders>
     <Loggers>
+        <Logger name="org.hibernate" level="WARN" additivity="false">
+            <AppenderRef ref="console" />
+        </Logger>
         <Root level="${env:LOG_LEVEL:-INFO}" additivity="false">
             <AppenderRef ref="console" />
         </Root>
