@@ -204,7 +204,6 @@ def create_app():
     app.logger.handlers = logging.getLogger("gunicorn.error").handlers
     app.logger.setLevel(logging.getLogger("gunicorn.error").level)
     app.logger.info("Starting contacts service.")
-    app.logger.info("🌈THIS IS A TEST THAT PR IMAGES ARE GETTING BUILT -megan 🌈")
 
     # setup global variables
     app.config["VERSION"] = os.environ.get("VERSION")
