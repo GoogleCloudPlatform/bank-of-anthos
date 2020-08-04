@@ -230,6 +230,7 @@ def create_app():
     app.logger.handlers = logging.getLogger('gunicorn.error').handlers
     app.logger.setLevel(logging.getLogger('gunicorn.error').level)
     app.logger.info('Starting userservice.')
+    app.logger.info('🦋 THIS IS ANOTHER PR 🦋')
 
     app.config['VERSION'] = os.environ.get('VERSION')
     app.config['EXPIRY_SECONDS'] = int(os.environ.get('TOKEN_EXPIRY_SECONDS'))
