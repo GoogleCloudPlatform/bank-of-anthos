@@ -132,20 +132,17 @@ jobs:
         kubectl wait --for=condition=available --timeout=300s deployment/loadgenerator
         kubectl wait --for=condition=ready --timeout=300s pod/accounts-db-0
         kubectl wait --for=condition=ready --timeout=300s pod/ledger-db-0
-    - name: Get frontend EXTERNAL_IP
+    - name: Ping frontend
       run: |
         set -x
         EXTERNAL_IP=`kubectl get service frontend --output jsonpath='{.status.loadBalancer.ingress[0].ip}'`
         echo "::set-env name=EXTERNAL_IP::$EXTERNAL_IP"
-    - name: Ping frontend
-      run: |
-        set -x 
-        echo "EXTERNAL IP is: ${EXTERNAL_IP}"
         curl --silent --output /dev/null --show-error --fail $EXTERNAL_IP
     - name: Run UI tests (Cypress)
       run: |
-          docker run -t  -e CYPRESS_baseURL=${EXTERNAL_IP} \
-            -v $PWD/.github/workflows/ui-tests:/e2e -w /e2e --network=host cypress/included:4.3.0
+          docker run -t \
+            -v $PWD/.github/workflows/ui-tests:/e2e -e baseURL=${EXTERNAL_IP} \
+             -w /e2e --network=host cypress/included:4.3.0
     - name: Clean up deployment (remove PR namespace from cluster)
       if: ${{ always() }}  
       timeout-minutes: 20
