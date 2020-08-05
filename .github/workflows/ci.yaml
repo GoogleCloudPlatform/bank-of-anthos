@@ -114,8 +114,8 @@ jobs:
         skaffold run --default-repo=gcr.io/$PROJECT_ID/$GITHUB_REF --tag=$GITHUB_SHA --namespace=$NAMESPACE
       env:
         PROJECT_ID: ${{ secrets.PROJECT_ID }}
-        PR_CLUSTER: ${{ secrets.PR_CLUSTER_1 }}
-        ZONE: ${{ secrets.ZONE }}
+        PR_CLUSTER: ${{ secrets.PR_CLUSTER_2 }}
+        ZONE: ${{ secrets.PR_CLUSTER_2_ZONE }}
     - name: Wait For Pods
       timeout-minutes: 20
       run: |
@@ -157,5 +157,5 @@ jobs:
         kubectl delete namespace $NAMESPACE
       env:
         PROJECT_ID: ${{ secrets.PROJECT_ID }}
-        PR_CLUSTER: ${{ secrets.PR_CLUSTER_1 }}
-        ZONE: ${{ secrets.ZONE }}
+        PR_CLUSTER: ${{ secrets.PR_CLUSTER_2 }}
+        ZONE: ${{ secrets.PR_CLUSTER_2_ZONE }}
