@@ -141,7 +141,7 @@ jobs:
     - name: Run UI tests (Cypress)
       run: |
           docker run -t \
-            -v $PWD/.github/workflows/ui-tests:/e2e -e baseURL=${EXTERNAL_IP} \
+            -v $PWD/.github/workflows/ui-tests:/e2e -e CYPRESS_baseUrl=${EXTERNAL_IP} \
              -w /e2e --network=host cypress/included:4.3.0
     - name: Clean up deployment (remove PR namespace from cluster)
       if: ${{ always() }}  
