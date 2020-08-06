@@ -1,6 +1,5 @@
 {
   "displayName": "Bank of Anthos Dashboard",
-  "etag": "6e6d8c778a2d00b95b172c93581ace87",
   "gridLayout": {
     "columns": "2",
     "widgets": [
@@ -14,7 +13,7 @@
                   "filter": "metric.type=\"kubernetes.io/container/cpu/core_usage_time\" resource.type=\"k8s_container\" resource.label.\"namespace_name\"=\"default\"",
                   "aggregation": {
                     "perSeriesAligner": "ALIGN_RATE",
-                    "crossSeriesReducer": "REDUCE_SUM",
+                    "crossSeriesReducer": "REDUCE_MEAN",
                     "groupByFields": [
                       "resource.label.\"container_name\""
                     ]
@@ -47,6 +46,7 @@
                   "filter": "metric.type=\"custom.googleapis.com/jvm/memory/used\" resource.type=\"k8s_container\"",
                   "aggregation": {
                     "perSeriesAligner": "ALIGN_MEAN",
+                    "crossSeriesReducer": "REDUCE_MEAN",
                     "groupByFields": [
                       "resource.label.\"container_name\""
                     ]
@@ -79,7 +79,7 @@
                   "filter": "metric.type=\"custom.googleapis.com/cache/gets\" resource.type=\"k8s_container\"",
                   "aggregation": {
                     "perSeriesAligner": "ALIGN_MEAN",
-                    "crossSeriesReducer": "REDUCE_SUM",
+                    "crossSeriesReducer": "REDUCE_MEAN",
                     "groupByFields": [
                       "resource.label.\"container_name\""
                     ]
@@ -112,6 +112,7 @@
                   "filter": "metric.type=\"custom.googleapis.com/cache/load\" resource.type=\"k8s_container\"",
                   "aggregation": {
                     "perSeriesAligner": "ALIGN_MEAN",
+                    "crossSeriesReducer": "REDUCE_MEAN",
                     "groupByFields": [
                       "resource.label.\"container_name\""
                     ]
@@ -287,6 +288,7 @@
                   "filter": "metric.type=\"custom.googleapis.com/hibernate/entities/inserts\" resource.type=\"k8s_container\"",
                   "aggregation": {
                     "perSeriesAligner": "ALIGN_MEAN",
+                    "crossSeriesReducer": "REDUCE_MEAN",
                     "groupByFields": [
                       "resource.label.\"container_name\""
                     ]
@@ -319,7 +321,7 @@
                   "filter": "metric.type=\"custom.googleapis.com/hibernate/query/executions/max\" resource.type=\"k8s_container\"",
                   "aggregation": {
                     "perSeriesAligner": "ALIGN_MEAN",
-                    "crossSeriesReducer": "REDUCE_SUM",
+                    "crossSeriesReducer": "REDUCE_MEAN",
                     "groupByFields": [
                       "resource.label.\"container_name\""
                     ]
@@ -352,7 +354,7 @@
                   "filter": "metric.type=\"custom.googleapis.com/hibernate/query/executions\" resource.type=\"k8s_container\"",
                   "aggregation": {
                     "perSeriesAligner": "ALIGN_MEAN",
-                    "crossSeriesReducer": "REDUCE_SUM",
+                    "crossSeriesReducer": "REDUCE_MEAN",
                     "groupByFields": [
                       "resource.label.\"container_name\""
                     ]
