@@ -136,8 +136,13 @@ jobs:
       run: |
         set -x
         EXTERNAL_IP=`kubectl get service frontend --output jsonpath='{.status.loadBalancer.ingress[0].ip}'`
-        echo "::set-env name=EXTERNAL_IP::$EXTERNAL_IP"
-        curl --silent --output /dev/null --show-error --fail $EXTERNAL_IP
+    - name: Wait for LoadBalancer to be ready 
+      uses: nick-invision/retry@v1
+      with:
+        timeout_minutes: 10
+        max_attempts: 10
+        retry_wait_seconds: 10 
+        command: curl --silent --output /dev/null --show-error --fail $EXTERNAL_IP
     - name: Port Forward frontend
       run: |
         set -x
