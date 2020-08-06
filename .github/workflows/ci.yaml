@@ -132,17 +132,29 @@ jobs:
         kubectl wait --for=condition=available --timeout=300s deployment/loadgenerator
         kubectl wait --for=condition=ready --timeout=300s pod/accounts-db-0
         kubectl wait --for=condition=ready --timeout=300s pod/ledger-db-0
-    - name: Wait for frontend LoadBalancer / ping test 
+    - name: Set EXTERNAL_IP env variable for staging
       run: |
         set -x
         EXTERNAL_IP=`kubectl get service frontend --output jsonpath='{.status.loadBalancer.ingress[0].ip}'`
         echo "::set-env name=EXTERNAL_IP::$EXTERNAL_IP"
         curl --silent --output /dev/null --show-error --fail $EXTERNAL_IP
+    - name: Port Forward frontend
+      run: |
+        set -x
+        port_forward() {
+            # get name of frontend pod
+            local frontend_pod=$(kubectl get pods -l=app=frontend -o=jsonpath='{.items[0].metadata.name}')
+            kubectl port-forward $frontend_pod 3000:8080
+        }
+        port_forward &
+    - name: Ping port-forwarded frontend
+      run: |
+          curl --silent --output /dev/null --show-error --fail localhost:3000
+# TODO - comment in PR with staging IP 
     - name: Run UI tests (Cypress)
       run: |
-          docker run -t \
-            -v $PWD/.github/workflows/ui-tests:/e2e -e CYPRESS_baseUrl=http://${EXTERNAL_IP} \
-             -w /e2e --network=host cypress/included:4.3.0
+          docker run -t -v $PWD/.github/workflows/ui-tests:/e2e -w /e2e --network=host cypress/included:4.3.0
+# TODO - don't clean up namespace - keep running while PR is open. 
     - name: Clean up deployment (remove PR namespace from cluster)
       if: ${{ always() }}  
       timeout-minutes: 20
