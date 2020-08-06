@@ -132,17 +132,18 @@ jobs:
         kubectl wait --for=condition=available --timeout=300s deployment/loadgenerator
         kubectl wait --for=condition=ready --timeout=300s pod/accounts-db-0
         kubectl wait --for=condition=ready --timeout=300s pod/ledger-db-0
-    - name: Set EXTERNAL_IP env variable for staging
-      run: |
-        set -x
-        EXTERNAL_IP=`kubectl get service frontend --output jsonpath='{.status.loadBalancer.ingress[0].ip}'`
     - name: Wait for LoadBalancer to be ready 
       uses: nick-invision/retry@v1
       with:
         timeout_minutes: 10
         max_attempts: 10
         retry_wait_seconds: 10 
-        command: curl --silent --output /dev/null --show-error --fail $EXTERNAL_IP
+        command: EXTERNAL_IP=`kubectl get service frontend --output jsonpath='{.status.loadBalancer.ingress[0].ip}'`; curl --silent --output /dev/null --show-error --fail $EXTERNAL_IP
+  # TODO - comment in PR with staging IP 
+    - name: Set EXTERNAL_IP env variable for staging
+      run: |
+        set -x
+        EXTERNAL_IP=`kubectl get service frontend --output jsonpath='{.status.loadBalancer.ingress[0].ip}'`
     - name: Port Forward frontend
       run: |
         set -x
@@ -155,7 +156,6 @@ jobs:
     - name: Ping port-forwarded frontend
       run: |
           curl --silent --output /dev/null --show-error --fail localhost:3000
-# TODO - comment in PR with staging IP 
     - name: Run UI tests (Cypress)
       run: |
           docker run -t -v $PWD/.github/workflows/ui-tests:/e2e -w /e2e --network=host cypress/included:4.3.0
