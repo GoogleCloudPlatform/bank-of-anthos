@@ -32,17 +32,16 @@ spec:
         app: accounts-db
         tier: db
     spec:
-      serviceAccountName: default
       containers:
       - name: accounts-db
-        image: gcr.io/bank-of-anthos/accounts-db:latest
+        image: gcr.io/bank-of-anthos/accounts-db:v0.2.0
         envFrom:
           - configMapRef:
               name: environment-config
           - configMapRef:
               name: accounts-db-config
           - configMapRef:
-              name: demo-data-config
+              name: default-data-config
         ports:
           - containerPort: 5432
             name: postgredb
@@ -71,7 +70,7 @@ metadata:
 spec:
   ports:
     - port: 5432
-      name: tcp
+      name: postgredb
       targetPort: 5432
       protocol: TCP
   selector:
