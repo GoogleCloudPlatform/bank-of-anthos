@@ -17,7 +17,7 @@ kind: ConfigMap
 metadata:
   name: environment-config
 data:
-  LOCAL_ROUTING_NUM: "883745000"
+  LOCAL_ROUTING_NUM: "123456789"
   PUB_KEY_PATH: "/root/.ssh/publickey"
 ---
 apiVersion: v1
@@ -34,9 +34,18 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: demo-data-config
+  name: default-data-config
 data:
-  USE_DEMO_DATA: "True"
-  DEMO_LOGIN_USERNAME: "testuser"
-  # All demo user accounts are hardcoded to use the login password 'password'
-  DEMO_LOGIN_PASSWORD: "password"
+  USE_DEFAULT_DATA: "True"
+  # All default user accounts are hardcoded to use the login password 'password'
+  DEFAULT_LOGIN_PASSWORD: "password"
+  DEFAULT_USER_ACCOUNT: "1033623433"
+  DEFAULT_USER_USERNAME: "testuser"
+  DEFAULT_USER_NAME: "Eve"
+  DEFAULT_DEPOSIT_ACCOUNT: "9099791699"
+  DEFAULT_DEPOSIT_ROUTING: "808889588"
+  DEFAULT_DEPOSIT_LABEL: "External Bank"
+  DEFAULT_CONTACT_ACCOUNT_A: "1044226144"
+  DEFAULT_CONTACT_NAME_A: "Alice"
+  DEFAULT_CONTACT_ACCOUNT_B: "1055757655"
+  DEFAULT_CONTACT_NAME_B: "Bob"
