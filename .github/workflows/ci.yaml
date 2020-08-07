@@ -101,35 +101,43 @@ jobs:
   deployment-tests:
     runs-on: self-hosted
     needs: code-tests
-    strategy:
-      matrix:
-        profile: ["local-code"]
-      fail-fast: true
     steps:
     - uses: actions/checkout@v2
-    - name: Setup Cluster
+    - name: Build + Deploy PR images to GKE
+      timeout-minutes: 20
       run: |
-        kind delete cluster 2>/dev/null
-        kind create cluster
-        kubectl get nodes
-    - name: Deploy From Source
-      run: |
-        skaffold config set --global local-cluster true
-        skaffold run --default-repo local \
-                     --profile ${{ matrix.profile }}
+        PR_NUMBER=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
+        NAMESPACE="pr${PR_NUMBER}"
+        gcloud container clusters get-credentials $PR_CLUSTER --zone $ZONE --project $PROJECT_ID
+        kubectl create namespace $NAMESPACE
+        skaffold config set --global local-cluster false
+        skaffold run --default-repo=gcr.io/$PROJECT_ID/$GITHUB_REF --tag=$GITHUB_SHA --namespace=$NAMESPACE
+      env:
+        PROJECT_ID: ${{ secrets.PROJECT_ID }}
+        PR_CLUSTER: ${{ secrets.PR_CLUSTER_2 }}
+        ZONE: ${{ secrets.PR_CLUSTER_2_ZONE }}
     - name: Wait For Pods
       timeout-minutes: 20
       run: |
         set -x
-        kubectl wait --for=condition=available --timeout=500s deployment/frontend
-        kubectl wait --for=condition=available --timeout=500s deployment/contacts
-        kubectl wait --for=condition=available --timeout=500s deployment/userservice
-        kubectl wait --for=condition=available --timeout=500s deployment/ledgerwriter
-        kubectl wait --for=condition=available --timeout=500s deployment/transactionhistory
-        kubectl wait --for=condition=available --timeout=500s deployment/balancereader
-        kubectl wait --for=condition=available --timeout=500s deployment/loadgenerator
-        kubectl wait --for=condition=ready --timeout=500s pod/accounts-db-0
-        kubectl wait --for=condition=ready --timeout=500s pod/ledger-db-0
+        PR_NUMBER=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
+        NAMESPACE="pr${PR_NUMBER}"
+        kubectl config set-context --current --namespace=$NAMESPACE
+        kubectl wait --for=condition=available --timeout=300s deployment/frontend
+        kubectl wait --for=condition=available --timeout=300s deployment/contacts
+        kubectl wait --for=condition=available --timeout=300s deployment/userservice
+        kubectl wait --for=condition=available --timeout=300s deployment/ledgerwriter
+        kubectl wait --for=condition=available --timeout=300s deployment/transactionhistory
+        kubectl wait --for=condition=available --timeout=300s deployment/balancereader
+        kubectl wait --for=condition=available --timeout=300s deployment/loadgenerator
+        kubectl wait --for=condition=ready --timeout=300s pod/accounts-db-0
+        kubectl wait --for=condition=ready --timeout=300s pod/ledger-db-0
+    # - name: Set EXTERNAL_IP env variable for staging
+    #   run: |
+    #     set -x
+    #     EXTERNAL_IP=`kubectl get service frontend --output jsonpath='{.status.loadBalancer.ingress[0].ip}'`
+    #     echo "::set-env name=EXTERNAL_IP::$EXTERNAL_IP"
+    #     curl --silent --output /dev/null --show-error --fail $EXTERNAL_IP
     - name: Port Forward frontend
       run: |
         set -x
@@ -139,9 +147,23 @@ jobs:
             kubectl port-forward $frontend_pod 3000:8080
         }
         port_forward &
-    - name: Ping frontend
+    - name: Ping port-forwarded frontend
       run: |
           curl --silent --output /dev/null --show-error --fail localhost:3000
-    - name: UI tests
+    - name: Run UI tests (Cypress)
       run: |
           docker run -t -v $PWD/.github/workflows/ui-tests:/e2e -w /e2e --network=host cypress/included:4.3.0
+# TODO - don't clean up namespace - keep running while PR is open. 
+    - name: Clean up deployment (remove PR namespace from cluster)
+      if: ${{ always() }}  
+      timeout-minutes: 20
+      run: |
+        gcloud container clusters get-credentials $PR_CLUSTER \
+            --zone $ZONE --project $PROJECT_ID
+                PR_NUMBER=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
+        NAMESPACE="pr${PR_NUMBER}"
+        kubectl delete namespace $NAMESPACE
+      env:
+        PROJECT_ID: ${{ secrets.PROJECT_ID }}
+        PR_CLUSTER: ${{ secrets.PR_CLUSTER_2 }}
+        ZONE: ${{ secrets.PR_CLUSTER_2_ZONE }}
