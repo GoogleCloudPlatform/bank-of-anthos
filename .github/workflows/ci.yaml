@@ -101,6 +101,10 @@ jobs:
   deployment-tests:
     runs-on: self-hosted
     needs: code-tests
+    strategy:
+      matrix:
+        profile: ["local-code"]
+      fail-fast: true
     steps:
     - uses: actions/checkout@v2
     - name: Build + Deploy PR images to GKE
