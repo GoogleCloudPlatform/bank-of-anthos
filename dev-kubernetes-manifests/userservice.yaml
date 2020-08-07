@@ -15,83 +15,78 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: transactionhistory
+  name: userservice
 spec:
   selector:
     matchLabels:
-      app: transactionhistory
+      app: userservice
   template:
     metadata:
       labels:
-        app: transactionhistory
+        app: userservice
     spec:
+      serviceAccountName: default
       terminationGracePeriodSeconds: 5
       containers:
-      - name: history
-        image: gcr.io/bank-of-anthos/transactionhistory:v0.2.0
+      - name: userservice
+        image: gcr.io/bank-of-anthos/userservice:latest
         volumeMounts:
-        - name: publickey
+        - name: keys
           mountPath: "/root/.ssh"
           readOnly: true
+        ports:
+        - name: http-server
+          containerPort: 8080
         env:
         - name: VERSION
           value: "v0.2.0"
         - name: PORT
           value: "8080"
-        - name: POLL_MS
-          value: "100"
-        - name: CACHE_SIZE
-          value: "1000"
-        - name: CACHE_MINUTES
-          value: "60"
-        - name: HISTORY_LIMIT
-          value: "100"
-          # tell Java to obey container memory limits
-        - name: JVM_OPTS
-          value: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
-        #- name: EXTRA_LATENCY_MILLIS
-        #  value: "5000"
+        - name: TOKEN_EXPIRY_SECONDS
+          value: "3600"
+        - name: PRIV_KEY_PATH
+          value: "/root/.ssh/privatekey"
+        # Valid levels are debug, info, warning, error, critical. If no valid level is set, gunicorn will default to info.
+        - name: LOG_LEVEL
+          value: "info"
         envFrom:
         - configMapRef:
             name: environment-config
-        # add ledger-db credentials from ConfigMap
         - configMapRef:
-            name: ledger-db-config
-        resources:
-          requests:
-            cpu: 100m
-            memory: 512Mi
-          limits:
-            cpu: 500m
-            memory: 1Gi
+            name: accounts-db-config
         readinessProbe:
           httpGet:
             path: /ready
             port: 8080
           initialDelaySeconds: 5
           periodSeconds: 5
-        livenessProbe:
-          httpGet:
-            path: /healthy
-            port: 8080
-          initialDelaySeconds: 120
-          periodSeconds: 5
+        resources:
+          requests:
+            cpu: 100m
+            memory: 64Mi
+          limits:
+            cpu: 500m
+            memory: 256Mi
       volumes:
-      - name: publickey
+      - name: keys
         secret:
           secretName: jwt-key
           items:
+          - key: jwtRS256.key
+            path: privatekey
           - key: jwtRS256.key.pub
             path: publickey
+
+
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: transactionhistory
+  name: userservice
 spec:
   type: ClusterIP
   selector:
-    app: transactionhistory
+    app: userservice
   ports:
   - name: http
     port: 8080

@@ -44,7 +44,7 @@ build:
 deploy:
   kubectl:
     manifests:
-    - ./kubernetes-manifests/**.yaml
+    - ./dev-kubernetes-manifests/**.yaml
     # deploy a pre-build secret
     # in practice, this should not be checked in to source control
     - ./extras/jwt/jwt-secret.yaml
