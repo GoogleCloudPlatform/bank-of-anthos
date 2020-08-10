@@ -16,37 +16,20 @@
 
 package anthos.samples.bankofanthos.transactionhistory;
 
-import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import io.micrometer.core.instrument.binder.cache.GuavaCacheMetrics;
 import io.micrometer.stackdriver.StackdriverMeterRegistry;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.interfaces.RSAPublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.Base64;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.dao.DataAccessResourceFailureException;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -54,7 +37,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.ResourceAccessException;
 
 /**
  * Controller for the TransactionHistory service.
@@ -74,7 +56,6 @@ public final class TransactionHistoryController {
     private Integer extraLatencyMillis;
     @Value("${HISTORY_LIMIT:100}")
     private Integer historyLimit;
-    @Value("${VERSION}")
     private String version;
 
     private JWTVerifier verifier;
@@ -89,51 +70,17 @@ public final class TransactionHistoryController {
     @Autowired
     public TransactionHistoryController(LedgerReader reader,
             StackdriverMeterRegistry meterRegistry,
+            JWTVerifier verifier,
             @Value("${PUB_KEY_PATH}") final String publicKeyPath,
-            @Value("${CACHE_SIZE:1000}") final Integer expireSize,
-            @Value("${CACHE_MINUTES:60}") final Integer expireMinutes,
-            @Value("${LOCAL_ROUTING_NUM}") final String localRoutingNum) {
+            LoadingCache<String, Deque<Transaction>> cache,
+            @Value("${LOCAL_ROUTING_NUM}") final String localRoutingNum,
+            @Value("${VERSION}") final String version) {
+        this.version = version;
         // Initialize JWT verifier.
-        try {
-            String keyStr =
-                new String(Files.readAllBytes(Paths.get(publicKeyPath)));
-            keyStr = keyStr.replaceFirst("-----BEGIN PUBLIC KEY-----", "")
-                           .replaceFirst("-----END PUBLIC KEY-----", "")
-                           .replaceAll("\\s", "");
-            byte[] keyBytes = Base64.getDecoder().decode(keyStr);
-            KeyFactory kf = KeyFactory.getInstance("RSA");
-            X509EncodedKeySpec keySpecX509 = new X509EncodedKeySpec(keyBytes);
-            RSAPublicKey publicKey =
-                (RSAPublicKey) kf.generatePublic(keySpecX509);
-            Algorithm algorithm = Algorithm.RSA256(publicKey, null);
-            this.verifier = JWT.require(algorithm).build();
-        } catch (IOException
-                 | NoSuchAlgorithmException
-                 | InvalidKeySpecException e) {
-            LOGGER.fatal(String.format("Failed initializing JWT verifier: %s",
-                e.toString()));
-            System.exit(1);
-        }
+        this.verifier = verifier;
         // Initialize cache
-        CacheLoader load = new CacheLoader<String, Deque<Transaction>>() {
-            @Override
-            public Deque<Transaction> load(String accountId)
-                    throws ResourceAccessException,
-                           DataAccessResourceFailureException  {
-                LOGGER.debug("Cache loaded from db");
-                Pageable request = PageRequest.of(0, historyLimit);
-                return dbRepo.findForAccount(accountId,
-                                             localRoutingNum,
-                                             request);
-            }
-        };
-        this.cache = CacheBuilder.newBuilder()
-                            .recordStats()
-                            .maximumSize(expireSize)
-                            .expireAfterWrite(expireMinutes, TimeUnit.MINUTES)
-                            .build(load);
+        this.cache = cache;
         GuavaCacheMetrics.monitor(meterRegistry, this.cache, "Guava");
-
         // Initialize transaction processor.
         this.ledgerReader = reader;
         LOGGER.debug("Initialized transaction processor");
