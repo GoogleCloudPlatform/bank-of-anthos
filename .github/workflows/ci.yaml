@@ -114,8 +114,8 @@ jobs:
         NAMESPACE="pr${PR_NUMBER}"
         gcloud container clusters get-credentials $PR_CLUSTER --zone $ZONE --project $PROJECT_ID
         #verify namespace does not exists
-        ns=`kubectl get namespace $NAMESPACE --no-headers --output=go-template={{.metadata.name}}`
-        if [-z "$ns" ]; then
+        ns=`kubectl get namespace | grep $NAMESPACE`
+        if [ -z "$ns" ]; then
           kubectl create namespace $NAMESPACE
         fi
 
