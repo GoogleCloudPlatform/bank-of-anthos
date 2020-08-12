@@ -160,6 +160,6 @@ jobs:
     - name: Ping port-forwarded frontend
       run: |
           curl --silent --output /dev/null --show-error --fail localhost:3000
-    - name: Run UI tests (Cypress)
-      run: |
-          docker run -t -v $PWD/.github/workflows/ui-tests:/e2e -w /e2e --network=host cypress/included:4.3.0
+    # - name: Run UI tests (Cypress)
+    #  run: |
+    #      docker run -t -v $PWD/.github/workflows/ui-tests:/e2e -w /e2e --network=host cypress/included:4.3.0
