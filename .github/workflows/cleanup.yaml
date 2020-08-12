@@ -30,10 +30,10 @@ jobs:
         run: |
           gcloud container clusters get-credentials $PR_CLUSTER \
               --zone $ZONE --project $PROJECT_ID
-          PR_NUMBER=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
           NAMESPACE="pr${PR_NUMBER}"
           kubectl delete namespace $NAMESPACE
         env:
           PROJECT_ID: ${{ secrets.PROJECT_ID }}
           PR_CLUSTER: ${{ secrets.PR_CLUSTER_2 }}
           ZONE: ${{ secrets.PR_CLUSTER_2_ZONE }}
+          PR_NUMBER: ${{ github.event.number }}
