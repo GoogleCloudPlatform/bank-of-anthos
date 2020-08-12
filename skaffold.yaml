@@ -42,6 +42,7 @@ build:
   local:
     concurrency: 0
 deploy:
+  statusCheckDeadlineSeconds: 300
   kubectl:
     manifests:
     - ./dev-kubernetes-manifests/**.yaml

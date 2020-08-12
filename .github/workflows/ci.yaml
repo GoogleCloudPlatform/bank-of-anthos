@@ -113,12 +113,13 @@ jobs:
         PR_NUMBER=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
         NAMESPACE="pr${PR_NUMBER}"
         gcloud container clusters get-credentials $PR_CLUSTER --zone $ZONE --project $PROJECT_ID
-        #verify namespace does not exists
-        ns=`kubectl get namespace $NAMESPACE --no-headers --output=go-template={{.metadata.name}}`
-        if [-z "$ns" ]; then
-          kubectl create namespace $NAMESPACE
-        fi
-
+        cat <<EOF | kubectl apply -f -
+        apiVersion: v1
+        kind: Namespace
+        metadata:
+          name: $NAMESPACE
+        EOF
+        echo Deploying application
         skaffold config set --global local-cluster false
         skaffold run --default-repo=gcr.io/$PROJECT_ID/$GITHUB_REF --tag=$GITHUB_SHA --namespace=$NAMESPACE
       env:
@@ -159,6 +160,6 @@ jobs:
     - name: Ping port-forwarded frontend
       run: |
           curl --silent --output /dev/null --show-error --fail localhost:3000
-    - name: Run UI tests (Cypress)
-      run: |
-          docker run -t -v $PWD/.github/workflows/ui-tests:/e2e -w /e2e --network=host cypress/included:4.3.0
+    # - name: Run UI tests (Cypress)
+    #  run: |
+    #      docker run -t -v $PWD/.github/workflows/ui-tests:/e2e -w /e2e --network=host cypress/included:4.3.0
