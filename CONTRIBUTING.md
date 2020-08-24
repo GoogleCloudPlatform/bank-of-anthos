@@ -26,3 +26,8 @@ information on using pull requests.
 
 This project follows [Google's Open Source Community
 Guidelines](https://opensource.google/conduct/).
+
+
+## Development Guide 
+
+Please see the [development guide](docs/development.md) for how to set up your local environment.
