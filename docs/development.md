@@ -7,23 +7,18 @@ This document describes how to develop and add features to the Bank of Anthos ap
 1. [A GCP project](https://cloud.google.com/resource-manager/docs/creating-managing-projects#console), connected to your billing account. 
 2. [A GKE cluster in your project](https://cloud.google.com/kubernetes-engine/docs/how-to/creating-a-cluster#gcloud). We recommend 4 nodes, machine type: `e2-standard-4`. 
 
-## Install Languages/Tools 
+## Install Tools 
 
-You can use MacOS or Linux as your dev environment - all these tools support both. 
+You can use MacOS or Linux as your dev environment - all these languages and tools support both. 
 
 1. [Docker Desktop](https://www.docker.com/products/docker-desktop) 
 1. [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) (can be installed separately or via [gcloud](https://cloud.google.com/sdk/install)) 
 1. [skaffold](https://skaffold.dev/docs/install/) 
-1. Java: [JDK 14](https://www.oracle.com/java/technologies/javase-jdk14-downloads.html)
+1. [JDK 14](https://www.oracle.com/java/technologies/javase-jdk14-downloads.html)
 1. [Maven 3.6](https://maven.apache.org/install.html)
 1. [Python3](https://www.python.org/downloads/)  
+1. [piptools](https://pypi.org/project/pip-tools/)
 
-
-## Creating branches and PRs 
-
-Because of the way the app's CI is set up, we ask that you create branches directly in this repo, not forks. 
-
-Please keep pull requests small (we recommend one PR = resolves one issue) and please do not re-use branches between PRs.
 
 ## Adding External Packages 
 
@@ -49,7 +44,7 @@ python3 -m piptools compile --output-file=requirements.txt requirements.in
 
 If you're adding a new feature to one or more of the Java services (`ledgerwriter`, `transactionhistory`, `balancereader`) and require a new third-party package, do the following:  
 
-1. Add the package to the `pom.xml` file in the `src/<service>` directory, under `<dependencies>`. Example: 
+1. Add the package to the `pom.xml` file in the `src/<service>` directory, under `<dependencies>`. You can find specific package info in [Maven Central](https://search.maven.org/) ([example](https://search.maven.org/artifact/org.postgresql/postgresql/42.2.16.jre7/jar)). Example: 
 
 ```
         <dependency>
@@ -58,22 +53,21 @@ If you're adding a new feature to one or more of the Java services (`ledgerwrite
         </dependency>
 ```
 
-You can find specific package info (and examples for Maven integration) in [Maven Central](https://search.maven.org/) ([example](https://search.maven.org/artifact/org.postgresql/postgresql/42.2.16.jre7/jar)). 
 
 2. Re-run `skaffold dev` or `skaffold run` to trigger a Jib container build using Maven and the updated pom file. 
 
 
 ## Testing your changes locally 
 
-As you fix bugs and add features to the application code in your branch, we recommend you test and build directly on Kubernetes, from your local environment. 
+We recommend you test and build directly on Kubernetes, from your local environment.  This is because there are seven services and for the app to fully function, all the services need to be running. All the services have dependencies, environment variables, and secrets and that are built into the Kubernetes environment / manifests, so testing directly on Kubernetes is the fastest way to see your code changes in action.
 
-This is because there are seven services and for the app to fully function, all the services need to be running. Also, all the services have dependencies, environment variables, and secrets and that are built into the Kubernetes environment / manifests, so testing directly on Kubernetes is the fastest way to see your code changes in action.
+You can use the `skaffold` tool to build and deploy your code to the GKE cluster in your project. 
 
-You can use the `skaffold` tool to build and deploy your code to your individual GKE cluster in your project. 
+Make sure that you export `PROJECT_ID` as an environment variable (or add to your `.bashrc` before running either of these commands)
 
 ### Option 1 - Build and deploy continuously 
 
-The `skaffold dev` command watches your local code, and continuously builds and deploys container images to your GKE cluster anytime you save a file. Skaffold uses Docker Desktop to build the Python images, then [Jib](https://github.com/GoogleContainerTools/jib#jib) (installed via Maven) to build the Java images. 
+The [`skaffold dev`](https://skaffold.dev/docs/references/cli/#skaffold-dev) command watches your local code, and continuously builds and deploys container images to your GKE cluster anytime you save a file. Skaffold uses Docker Desktop to build the Python images, then [Jib](https://github.com/GoogleContainerTools/jib#jib) (installed via Maven) to build the Java images. 
 
 ```
 skaffold dev --default-repo=gcr.io/${PROJECT_ID}/bank-of-anthos
