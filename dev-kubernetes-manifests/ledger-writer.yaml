@@ -68,8 +68,9 @@ spec:
           httpGet:
             path: /ready
             port: 8080
-          initialDelaySeconds: 5
+          initialDelaySeconds: 60
           periodSeconds: 5
+          timeoutSeconds: 10
       volumes:
       - name: publickey
         secret:
