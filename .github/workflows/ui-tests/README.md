@@ -58,3 +58,6 @@ docker run -it -v ${E2E_PATH}:/e2e -w /e2e \
 
 The `.only()` and `.skip()` functions can be appended to either single tests or blocks of test. [Read more about them here](https://docs.cypress.io/guides/core-concepts/writing-and-organizing-tests.html#Excluding-and-Including-Tests).
 
+### Screenshots
+
+Screenshots are enabled by passing the environment variable `CI=false`.  When running tests locally, failing tests will store screenshots in the `cypress/screenshots` directory. These are helpful when debugging tests.  [Read more about them here](https://docs.cypress.io/guides/guides/screenshots-and-videos.html#Screenshots).
