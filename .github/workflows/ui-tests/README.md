@@ -36,16 +36,25 @@ docker run -it -v ${E2E_PATH}:/e2e -w /e2e -e CYPRESS_baseUrl=${E2E_URL} -e CYPR
 
 ### Running one test file
 
-Make file:
+Tests can be filtered by file by passing in files using the `--spec` flag.  Test files are mounted as volumes to Docker, so the test files should be referenced to their relative location with the path prefix of `cypress/integration/`
+
+#### Makefile
+
+All Cypress flags should be passed through the variable `E2E_FLAGS` as a single string.
 
 ```console
-make test-e2e --spec cypress/integration/<test-file>.js
+make test-e2e E2E_FLAGS="--spec cypress/integration/<test-file>.js"
 ```
 
-Docker:
+#### Docker
 
 ```console
 docker run -it -v ${E2E_PATH}:/e2e -w /e2e \
  -e CYPRESS_baseUrl=${E2E_URL} -e CYPRESS_CI=false \
  cypress/included:4.3.0 --spec cypress/integration/<test-file>.js
 ```
+
+### Filtering tests with `.only()` and `.skip()`
+
+The `.only()` and `.skip()` functions can be appended to either single tests or blocks of test. [Read more about them here](https://docs.cypress.io/guides/core-concepts/writing-and-organizing-tests.html#Excluding-and-Including-Tests).
+
