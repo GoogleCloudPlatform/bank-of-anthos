@@ -22,6 +22,7 @@ import os
 import requests
 from requests.exceptions import HTTPError, RequestException
 import jwt
+from decimal import *
 from flask import Flask, abort, jsonify, make_response, redirect, \
     render_template, request, url_for
 from opentelemetry import trace
@@ -199,7 +200,7 @@ def payment():
                             "fromRoutingNum": APP.config['LOCAL_ROUTING'],
                             "toAccountNum": recipient,
                             "toRoutingNum": APP.config['LOCAL_ROUTING'],
-                            "amount": int(float(request.form['amount']) * 100),
+                            "amount": int(Decimal(request.form['amount']) * 100),
                             "uuid": request.form['uuid']}
         _submit_transaction(transaction_data)
         APP.logger.info('Payment initiated successfully.')
@@ -262,7 +263,7 @@ def deposit():
                             "fromRoutingNum": external_routing_num,
                             "toAccountNum": account_id,
                             "toRoutingNum": APP.config['LOCAL_ROUTING'],
-                            "amount": int(float(request.form['amount']) * 100),
+                            "amount": int(Decimal(request.form['amount']) * 100),
                             "uuid": request.form['uuid']}
         _submit_transaction(transaction_data)
         APP.logger.info('Deposit submitted successfully.')
@@ -471,7 +472,7 @@ def format_currency(int_amount):
     """ Format the input currency in a human readable way """
     if int_amount is None:
         return '$---'
-    amount_str = '${:0,.2f}'.format(abs(float(int_amount)/100))
+    amount_str = '${:0,.2f}'.format(abs(Decimal(int_amount)/100))
     if int_amount < 0:
         amount_str = '-' + amount_str
     return amount_str
