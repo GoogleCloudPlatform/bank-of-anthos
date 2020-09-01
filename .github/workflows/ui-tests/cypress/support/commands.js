@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+const uuid = () => Cypress._.random(0, 1e6)
 Cypress.Commands.add('login', (username, password) => {
     Cypress.log({
         name: 'login',
@@ -108,6 +108,32 @@ Cypress.Commands.add('transfer', (recipient, paymentAmount) => {
     cy.get('#payment-form').submit()
 })
 
+// transfers through request
+Cypress.Commands.add('transferRequest', (recipientAccount, paymentAmount) => {
+    Cypress.log({
+        name: 'transferRequest',
+        message: `${recipientAccount}` | `${paymentAmount}`,
+    })
+
+    const id = uuid()
+
+    const contact_account_num = ''
+    const contact_label = ''
+
+      return cy.request({
+        method: 'POST',
+        url: '/payment', 
+        form: true, 
+        body: {
+            account_num: recipientAccount,
+            contact_account_num: contact_account_num,
+            contact_label: contact_label,
+            amount: paymentAmount,
+            uuid: id
+        },
+      })
+
+})
 
 // transfers to a new account through UI
 Cypress.Commands.add('transferToNewContact', (recipient, paymentAmount) => {

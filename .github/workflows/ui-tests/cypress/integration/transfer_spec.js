@@ -121,10 +121,9 @@ describe('Authenticated default user', function () {
     })
 
     // TODO: [issue-300]
-    it.skip('see transaction in history after transfer', function () {
+    it('see transaction in history after transfer', function () {
         const paymentAmount = validPayment()
-        cy.transfer(recipient, paymentAmount)
-        cy.get('.alert').contains(transferMsgs.success)
+        cy.transferRequest(recipient.accountNum, paymentAmount)
         cy.visit('/home')
 
         cy.get('#transaction-table').find('tbody>tr').as('latest')
@@ -132,7 +131,6 @@ describe('Authenticated default user', function () {
         cy.get('@latest').find('.transaction-account').contains(recipient.accountNum)
         cy.get('@latest').find('.transaction-type').contains('Credit')
         cy.get('@latest').find('.transaction-amount').contains(paymentAmount)
-
 
     })
 
