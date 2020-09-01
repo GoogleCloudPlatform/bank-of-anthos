@@ -18,11 +18,10 @@ import datetime
 import json
 import logging
 import os
-
+from decimal import Decimal
 import requests
 from requests.exceptions import HTTPError, RequestException
 import jwt
-from decimal import *
 from flask import Flask, abort, jsonify, make_response, redirect, \
     render_template, request, url_for
 from opentelemetry import trace
