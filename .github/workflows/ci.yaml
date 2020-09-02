@@ -142,20 +142,20 @@ jobs:
         kubectl wait --for=condition=available --timeout=300s deployment/loadgenerator
         kubectl wait --for=condition=ready --timeout=300s pod/accounts-db-0
         kubectl wait --for=condition=ready --timeout=300s pod/ledger-db-0
-    - name: Query EXTERNAL_IP for staging
-      timeout-minutes: 5
-      run: |
-        set -x
-        PR_NUMBER=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
-        NAMESPACE="pr${PR_NUMBER}"
-        get_externalIP() {
-          kubectl get service frontend --namespace $NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
-        }
-        until [[ -n "$(get_externalIP)" ]]; do
-          echo "Querying for external IP for frontend on namespace: $NAMESPACE{}"
-        sleep 3
-        done
-        echo "::set-env name=EXTERNAL_IP::$EXTERNAL_IP"
+    # - name: Query EXTERNAL_IP for staging
+    #   timeout-minutes: 5
+    #   run: |
+    #     set -x
+    #     PR_NUMBER=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
+    #     NAMESPACE="pr${PR_NUMBER}"
+    #     get_externalIP() {
+    #       kubectl get service frontend --namespace $NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+    #     }
+    #     until [[ -n "$(get_externalIP)" ]]; do
+    #       echo "Querying for external IP for frontend on namespace: $NAMESPACE{}"
+    #     sleep 3
+    #     done
+    #     echo "::set-env name=EXTERNAL_IP::$EXTERNAL_IP"
     # - name: Set EXTERNAL_IP env variable for staging
     #   run: |
     #     set -x
@@ -176,4 +176,15 @@ jobs:
     #       curl --silent --output /dev/null --show-error --fail localhost:3000
     - name: Run UI tests (Cypress)
       run: |
+        set -x
+        PR_NUMBER=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
+        NAMESPACE="pr${PR_NUMBER}"
+        get_externalIP() {
+          kubectl get service frontend --namespace $NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+        }
+        until [[ -n "$(get_externalIP)" ]]; do
+          echo "Querying for external IP for frontend on namespace: $NAMESPACE{}"
+        sleep 3
+        done
+        echo "::set-env name=EXTERNAL_IP::$EXTERNAL_IP"
         docker run -t -v $PWD/.github/workflows/ui-tests:/e2e -w /e2e -e CYPRESS_baseUrl=https://$EXTERNAL_IP --network=host cypress/included:4.3.0
