@@ -176,4 +176,4 @@ jobs:
     #       curl --silent --output /dev/null --show-error --fail localhost:3000
     - name: Run UI tests (Cypress)
       run: |
-        docker run -t -v $PWD/.github/workflows/ui-tests:/e2e -w /e2e -e CYPRESS_baseUrl=$EXTERNAL_IP --network=host cypress/included:4.3.0
+        docker run -t -v $PWD/.github/workflows/ui-tests:/e2e -w /e2e -e CYPRESS_baseUrl=https://$EXTERNAL_IP --network=host cypress/included:4.3.0
