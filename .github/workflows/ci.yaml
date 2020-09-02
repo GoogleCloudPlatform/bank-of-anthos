@@ -188,4 +188,4 @@ jobs:
         done
         EXTERNAL_IP=$(get_externalIP)
         echo "::set-env name=EXTERNAL_IP::$EXTERNAL_IP"
-        docker run -t -v $PWD/.github/workflows/ui-tests:/e2e -w /e2e -e CYPRESS_baseUrl=https://$EXTERNAL_IP --network=host cypress/included:4.3.0
+        docker run -t -v $PWD/.github/workflows/ui-tests:/e2e -w /e2e -e CYPRESS_baseUrl=http://$EXTERNAL_IP --network=host cypress/included:4.3.0
