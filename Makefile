@@ -16,11 +16,12 @@
 
 ZONE=us-west1-a
 CLUSTER=bank-of-anthos
+E2E_PATH=${PWD}/.github/workflows/ui-tests/
 
 cluster: check-env
 	gcloud beta container clusters create ${CLUSTER} \
 		--project=${PROJECT_ID} --zone=${ZONE} \
-		--machine-type=n1-standard-2 --num-nodes=4 \
+		--machine-type=e2-standard-4 --num-nodes=4 \
 		--enable-stackdriver-kubernetes --subnetwork=default \
 		--labels csm=
 	skaffold run --default-repo=gcr.io/${PROJECT_ID} -l skaffold.dev/run-id=${CLUSTER}-${PROJECT_ID}-${ZONE}
@@ -56,9 +57,15 @@ checkstyle:
 	# disable warnings: import loading, todos, function members, duplicate code, public methods
 	pylint --rcfile=./.pylintrc ./src/*/*.py
 
+test-e2e: e2e-env
+	docker run -it -v ${E2E_PATH}:/e2e -w /e2e -e CYPRESS_baseUrl=${E2E_URL} -e CYPRESS_CI=false cypress/included:4.3.0 $(E2E_FLAGS)
+
 check-env:
 ifndef PROJECT_ID
 	$(error PROJECT_ID is undefined)
 else ifndef ZONE
 	$(error ZONE is undefined)
 endif
+
+e2e-env:
+E2E_URL:= http://$(shell kubectl get service frontend -o jsonpath='{.status.loadBalancer.ingress[0].ip}')

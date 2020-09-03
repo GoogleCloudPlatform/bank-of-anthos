@@ -157,3 +157,6 @@ wi-kubernetes-manifests/
 # ledgermonolith Istio config 
 src/ledgermonolith/istio/send-to-vm/
 src/ledgermonolith/istio/istio-1.*
+
+# Cypress
+.github/workflows/ui-tests/cypress/screenshots
