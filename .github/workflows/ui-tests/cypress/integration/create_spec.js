@@ -96,9 +96,8 @@ describe('User can create account', function() {
         cy.url().should('include', '/home')
     })
 
-    it.only('contain zero balance', function() {
+    it('contain zero balance', function() {
         cy.get('#current-balance').contains("helloooo")
-        // cy.get('#current-balance').contains(expectedBalance)
     })
 
     it('sees correct username', function() {
