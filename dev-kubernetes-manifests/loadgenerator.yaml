@@ -36,6 +36,8 @@ spec:
         env:
         - name: FRONTEND_ADDR
           value: "frontend:80"
+        - name: ENABLE_TRACING
+          value: "false"
         - name: USERS
           value: "5"
         - name: LOG_LEVEL
