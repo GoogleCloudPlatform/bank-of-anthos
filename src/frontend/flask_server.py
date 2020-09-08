@@ -36,26 +36,6 @@ from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import SimpleExportSpanProcessor
 
 APP = Flask(__name__)
-APP.logger.handlers = logging.getLogger('gunicorn.error').handlers
-APP.logger.setLevel(logging.getLogger('gunicorn.error').level)
-APP.logger.info('⭐️Starting frontend service.')
-
-
-# Set up tracing and export spans to Cloud Trace.
-if os.environ['ENABLE_TRACING'] == "true":
-    APP.logger.info("✅ Tracing enabled.")
-    trace.set_tracer_provider(TracerProvider())
-    CLOUD_TRACE_EXPORTER = CloudTraceSpanExporter()
-    trace.get_tracer_provider().add_span_processor(
-        SimpleExportSpanProcessor(CLOUD_TRACE_EXPORTER)
-    )
-    set_global_httptextformat(CloudTraceFormatPropagator())
-    # Add tracing auto-instrumentation for Flask, jinja and requests
-    FlaskInstrumentor().instrument_app(APP)
-    RequestsInstrumentor().instrument()
-    Jinja2Instrumentor().instrument()
-else:    
-    APP.logger.info("🚫   Tracing disabled.")
 
 @APP.route('/version', methods=['GET'])
 def version():
@@ -482,6 +462,28 @@ def format_currency(int_amount):
     if int_amount < 0:
         amount_str = '-' + amount_str
     return amount_str
+
+
+# Set up logging 
+APP.logger.handlers = logging.getLogger('gunicorn.error').handlers
+APP.logger.setLevel(logging.getLogger('gunicorn.error').level)
+APP.logger.info('Starting frontend service.')
+
+# Set up tracing and export spans to Cloud Trace.
+if os.environ['ENABLE_TRACING'] == "true":
+    APP.logger.info("✅ Tracing enabled.")
+    trace.set_tracer_provider(TracerProvider())
+    CLOUD_TRACE_EXPORTER = CloudTraceSpanExporter()
+    trace.get_tracer_provider().add_span_processor(
+        SimpleExportSpanProcessor(CLOUD_TRACE_EXPORTER)
+    )
+    set_global_httptextformat(CloudTraceFormatPropagator())
+    # Add tracing auto-instrumentation for Flask, jinja and requests
+    FlaskInstrumentor().instrument_app(APP)
+    RequestsInstrumentor().instrument()
+    Jinja2Instrumentor().instrument()
+else:    
+    APP.logger.info("🚫 Tracing disabled.")
 
 
 # set up global variables
