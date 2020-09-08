@@ -40,7 +40,7 @@ spec:
         - name: PORT
           value: "8080"
         - name: ENABLE_TRACING
-          value: "false"
+          value: "true"
         - name: SCHEME
           value: "http"
          # Valid levels are debug, info, warning, error, critical. If no valid level is set, gunicorn will default to info.
