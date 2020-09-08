@@ -18,6 +18,7 @@ import datetime
 import json
 import logging
 import os
+from decimal import Decimal
 
 import requests
 from requests.exceptions import HTTPError, RequestException
@@ -34,6 +35,27 @@ from opentelemetry.propagators import set_global_httptextformat
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import SimpleExportSpanProcessor
 
+APP = Flask(__name__)
+APP.logger.handlers = logging.getLogger('gunicorn.error').handlers
+APP.logger.setLevel(logging.getLogger('gunicorn.error').level)
+APP.logger.info('⭐️Starting frontend service.')
+
+
+# Set up tracing and export spans to Cloud Trace.
+if os.environ['ENABLE_TRACING'] == "true":
+    APP.logger.info("✅ Tracing enabled.")
+    trace.set_tracer_provider(TracerProvider())
+    CLOUD_TRACE_EXPORTER = CloudTraceSpanExporter()
+    trace.get_tracer_provider().add_span_processor(
+        SimpleExportSpanProcessor(CLOUD_TRACE_EXPORTER)
+    )
+    set_global_httptextformat(CloudTraceFormatPropagator())
+    # Add tracing auto-instrumentation for Flask, jinja and requests
+    FlaskInstrumentor().instrument_app(APP)
+    RequestsInstrumentor().instrument()
+    Jinja2Instrumentor().instrument()
+else:    
+    APP.logger.info("🚫   Tracing disabled.")
 
 @APP.route('/version', methods=['GET'])
 def version():
@@ -184,7 +206,7 @@ def payment():
                             "fromRoutingNum": APP.config['LOCAL_ROUTING'],
                             "toAccountNum": recipient,
                             "toRoutingNum": APP.config['LOCAL_ROUTING'],
-                            "amount": int(float(request.form['amount']) * 100),
+                            "amount": int(Decimal(request.form['amount']) * 100),
                             "uuid": request.form['uuid']}
         _submit_transaction(transaction_data)
         APP.logger.info('Payment initiated successfully.')
@@ -247,7 +269,7 @@ def deposit():
                             "fromRoutingNum": external_routing_num,
                             "toAccountNum": account_id,
                             "toRoutingNum": APP.config['LOCAL_ROUTING'],
-                            "amount": int(float(request.form['amount']) * 100),
+                            "amount": int(Decimal(request.form['amount']) * 100),
                             "uuid": request.form['uuid']}
         _submit_transaction(transaction_data)
         APP.logger.info('Deposit submitted successfully.')
@@ -456,61 +478,33 @@ def format_currency(int_amount):
     """ Format the input currency in a human readable way """
     if int_amount is None:
         return '$---'
-    amount_str = '${:0,.2f}'.format(abs(float(int_amount)/100))
+    amount_str = '${:0,.2f}'.format(abs(Decimal(int_amount)/100))
     if int_amount < 0:
         amount_str = '-' + amount_str
     return amount_str
 
 
-if __name__ == '__main__':
-    APP = Flask(__name__)
-    APP.logger.handlers = logging.getLogger('gunicorn.error').handlers
-    APP.logger.setLevel(logging.getLogger('gunicorn.error').level)
-    APP.logger.info('⭐️Starting frontend service.')
+# set up global variables
+APP.config["TRANSACTIONS_URI"] = 'http://{}/transactions'.format(
+    os.environ.get('TRANSACTIONS_API_ADDR'))
+APP.config["USERSERVICE_URI"] = 'http://{}/users'.format(
+    os.environ.get('USERSERVICE_API_ADDR'))
+APP.config["BALANCES_URI"] = 'http://{}/balances'.format(
+    os.environ.get('BALANCES_API_ADDR'))
+APP.config["HISTORY_URI"] = 'http://{}/transactions'.format(
+    os.environ.get('HISTORY_API_ADDR'))
+APP.config["LOGIN_URI"] = 'http://{}/login'.format(
+    os.environ.get('USERSERVICE_API_ADDR'))
+APP.config["CONTACTS_URI"] = 'http://{}/contacts'.format(
+    os.environ.get('CONTACTS_API_ADDR'))
+APP.config['PUBLIC_KEY'] = open(os.environ.get('PUB_KEY_PATH'), 'r').read()
+APP.config['LOCAL_ROUTING'] = os.getenv('LOCAL_ROUTING_NUM')
+APP.config['BACKEND_TIMEOUT'] = 4  # timeout in seconds for calls to the backend
+APP.config['TOKEN_NAME'] = 'token'
+APP.config['TIMESTAMP_FORMAT'] = '%Y-%m-%dT%H:%M:%S.%f%z'
+APP.config['SCHEME'] = os.environ.get('SCHEME', 'http')
 
-
-    # Set up tracing and export spans to Cloud Trace.
-
-    try:
-        if os.environ['ENABLE_TRACING'] == "true":
-            raise KeyError()
-        else:
-            APP.logger.info("✅ Tracing enabled.")
-            trace.set_tracer_provider(TracerProvider())
-            CLOUD_TRACE_EXPORTER = CloudTraceSpanExporter()
-            trace.get_tracer_provider().add_span_processor(
-                SimpleExportSpanProcessor(CLOUD_TRACE_EXPORTER)
-            )
-            set_global_httptextformat(CloudTraceFormatPropagator())
-            # Add tracing auto-instrumentation for Flask, jinja and requests
-            FlaskInstrumentor().instrument_app(APP)
-            RequestsInstrumentor().instrument()
-            Jinja2Instrumentor().instrument()
-    except (KeyError, DefaultCredentialsError):
-        APP.logger.info("🚫   Tracing disabled.")
-  
-
-    # set up global variables
-    APP.config["TRANSACTIONS_URI"] = 'http://{}/transactions'.format(
-        os.environ.get('TRANSACTIONS_API_ADDR'))
-    APP.config["USERSERVICE_URI"] = 'http://{}/users'.format(
-        os.environ.get('USERSERVICE_API_ADDR'))
-    APP.config["BALANCES_URI"] = 'http://{}/balances'.format(
-        os.environ.get('BALANCES_API_ADDR'))
-    APP.config["HISTORY_URI"] = 'http://{}/transactions'.format(
-        os.environ.get('HISTORY_API_ADDR'))
-    APP.config["LOGIN_URI"] = 'http://{}/login'.format(
-        os.environ.get('USERSERVICE_API_ADDR'))
-    APP.config["CONTACTS_URI"] = 'http://{}/contacts'.format(
-        os.environ.get('CONTACTS_API_ADDR'))
-    APP.config['PUBLIC_KEY'] = open(os.environ.get('PUB_KEY_PATH'), 'r').read()
-    APP.config['LOCAL_ROUTING'] = os.getenv('LOCAL_ROUTING_NUM')
-    APP.config['BACKEND_TIMEOUT'] = 4  # timeout in seconds for calls to the backend
-    APP.config['TOKEN_NAME'] = 'token'
-    APP.config['TIMESTAMP_FORMAT'] = '%Y-%m-%dT%H:%M:%S.%f%z'
-    APP.config['SCHEME'] = os.environ.get('SCHEME', 'http')
-
-    # register formater functions
-    APP.jinja_env.globals.update(format_currency=format_currency)
-    APP.jinja_env.globals.update(format_timestamp_month=format_timestamp_month)
-    APP.jinja_env.globals.update(format_timestamp_day=format_timestamp_day)
+# register formater functions
+APP.jinja_env.globals.update(format_currency=format_currency)
+APP.jinja_env.globals.update(format_timestamp_month=format_timestamp_month)
+APP.jinja_env.globals.update(format_timestamp_day=format_timestamp_day)
