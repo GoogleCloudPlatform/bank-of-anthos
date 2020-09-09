@@ -233,7 +233,7 @@ def create_app():
         set_global_httptextformat(CloudTraceFormatPropagator())
         # Add Flask auto-instrumentation for tracing
         FlaskInstrumentor().instrument_app(app)
-    else:    
+    else:
         app.logger.info("🚫 Tracing disabled.")
 
 

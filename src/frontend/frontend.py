@@ -467,7 +467,6 @@ def create_app():
             amount_str = '-' + amount_str
         return amount_str
 
-    
     # Set up logging 
     app.logger.handlers = logging.getLogger('gunicorn.error').handlers
     app.logger.setLevel(logging.getLogger('gunicorn.error').level)
@@ -477,9 +476,9 @@ def create_app():
     if os.environ['ENABLE_TRACING'] == "true":
         app.logger.info("✅ Tracing enabled.")
         trace.set_tracer_provider(TracerProvider())
-        CLOUD_TRACE_EXPORTER = CloudTraceSpanExporter()
+        cloud_trace_exporter = CloudTraceSpanExporter()
         trace.get_tracer_provider().add_span_processor(
-            SimpleExportSpanProcessor(CLOUD_TRACE_EXPORTER)
+            SimpleExportSpanProcessor(cloud_trace_exporter)
         )
         set_global_httptextformat(CloudTraceFormatPropagator())
         # Add tracing auto-instrumentation for Flask, jinja and requests
@@ -488,7 +487,6 @@ def create_app():
         Jinja2Instrumentor().instrument()
     else:    
         app.logger.info("🚫 Tracing disabled.")
-
 
     # set up global variables
     app.config["TRANSACTIONS_URI"] = 'http://{}/transactions'.format(
@@ -521,4 +519,3 @@ if __name__ == "__main__":
     # Create an instance of flask server when called directly
     FRONTEND = create_app()
     FRONTEND.run()
-
