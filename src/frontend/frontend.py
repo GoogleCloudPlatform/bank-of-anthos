@@ -118,13 +118,13 @@ def create_app():
         _populate_contact_labels(account_id, transaction_list, contacts)
 
         return render_template('index.html',
-                            history=transaction_list,
-                            balance=balance,
-                            name=display_name,
-                            account_id=account_id,
-                            contacts=contacts,
-                            message=request.args.get('msg', None),
-                            bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'))
+                               history=transaction_list,
+                               balance=balance,
+                               name=display_name,
+                               account_id=account_id,
+                               contacts=contacts,
+                               message=request.args.get('msg', None),
+                               bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'))
 
 
     def _populate_contact_labels(account_id, transactions, contacts):
@@ -182,9 +182,9 @@ def create_app():
                 if label:
                     # new contact. Add to contacts list
                     _add_contact(label,
-                                recipient,
-                                app.config['LOCAL_ROUTING'],
-                                False)
+                                 recipient,
+                                 app.config['LOCAL_ROUTING'],
+                                 False)
 
             transaction_data = {"fromAccountNum": account_id,
                                 "fromRoutingNum": app.config['LOCAL_ROUTING'],
@@ -241,9 +241,9 @@ def create_app():
                 if external_label:
                     # new contact. Add to contacts list
                     _add_contact(external_label,
-                                external_account_num,
-                                external_routing_num,
-                                True)
+                                 external_account_num,
+                                 external_routing_num,
+                                 True)
             else:
                 account_details = json.loads(request.form['account'])
                 external_account_num = account_details['account_num']
@@ -281,11 +281,11 @@ def create_app():
         app.logger.debug('Submitting transaction.')
         token = request.cookies.get(app.config['TOKEN_NAME'])
         hed = {'Authorization': 'Bearer ' + token,
-            'content-type': 'application/json'}
+               'content-type': 'application/json'}
         resp = requests.post(url=app.config["TRANSACTIONS_URI"],
-                            data=jsonify(transaction_data).data,
-                            headers=hed,
-                            timeout=app.config['BACKEND_TIMEOUT'])
+                             data=jsonify(transaction_data).data,
+                             headers=hed,
+                             timeout=app.config['BACKEND_TIMEOUT'])
         try:
             resp.raise_for_status() # Raise on HTTP Status code 4XX or 5XX
         except requests.exceptions.HTTPError as err:
@@ -301,7 +301,7 @@ def create_app():
         app.logger.debug('Adding new contact.')
         token = request.cookies.get(app.config['TOKEN_NAME'])
         hed = {'Authorization': 'Bearer ' + token,
-            'content-type': 'application/json'}
+               'content-type': 'application/json'}
         contact_data = {
             'label': label,
             'account_num': acct_num,
@@ -311,9 +311,9 @@ def create_app():
         token_data = jwt.decode(token, verify=False)
         url = '{}/{}'.format(app.config["CONTACTS_URI"], token_data['user'])
         resp = requests.post(url=url,
-                            data=jsonify(contact_data).data,
-                            headers=hed,
-                            timeout=app.config['BACKEND_TIMEOUT'])
+                             data=jsonify(contact_data).data,
+                             headers=hed,
+                             timeout=app.config['BACKEND_TIMEOUT'])
         try:
             resp.raise_for_status() # Raise on HTTP Status code 4XX or 5XX
         except requests.exceptions.HTTPError as err:
@@ -334,10 +334,10 @@ def create_app():
                                     _scheme=app.config['SCHEME']))
 
         return render_template('login.html',
-                            message=request.args.get('msg', None),
-                            default_user=os.getenv('DEFAULT_USERNAME', ''),
-                            default_password=os.getenv('DEFAULT_PASSWORD', ''),
-                            bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'))
+                               message=request.args.get('msg', None),
+                               default_user=os.getenv('DEFAULT_USERNAME', ''),
+                               default_password=os.getenv('DEFAULT_PASSWORD', ''),
+                               bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'))
 
 
     @app.route('/login', methods=['POST'])
@@ -348,14 +348,14 @@ def create_app():
         Fails if userservice does not accept input username and password
         """
         return _login_helper(request.form['username'],
-                            request.form['password'])
+                             request.form['password'])
 
 
     def _login_helper(username, password):
         try:
             app.logger.debug('Logging in.')
             req = requests.get(url=app.config["LOGIN_URI"],
-                            params={'username': username, 'password': password})
+                               params={'username': username, 'password': password})
             req.raise_for_status() # Raise on HTTP Status code 4XX or 5XX
 
             # login success
@@ -363,8 +363,8 @@ def create_app():
             claims = jwt.decode(token, verify=False)
             max_age = claims['exp'] - claims['iat']
             resp = make_response(redirect(url_for('home',
-                                                _external=True,
-                                                _scheme=app.config['SCHEME'])))
+                                                  _external=True,
+                                                  _scheme=app.config['SCHEME'])))
             resp.set_cookie(app.config['TOKEN_NAME'], token, max_age=max_age)
             app.logger.info('Successfully logged in.')
             return resp
@@ -389,7 +389,7 @@ def create_app():
                                     _external=True,
                                     _scheme=app.config['SCHEME']))
         return render_template('signup.html',
-                            bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'))
+                               bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'))
 
 
     @app.route("/signup", methods=['POST'])
@@ -403,13 +403,13 @@ def create_app():
             # create user
             app.logger.debug('Creating new user.')
             resp = requests.post(url=app.config["USERSERVICE_URI"],
-                                data=request.form,
-                                timeout=app.config['BACKEND_TIMEOUT'])
+                                 data=request.form,
+                                 timeout=app.config['BACKEND_TIMEOUT'])
             if resp.status_code == 201:
                 # user created. Attempt login
                 app.logger.info('New user created.')
                 return _login_helper(request.form['username'],
-                                    request.form['password'])
+                                     request.form['password'])
         except requests.exceptions.RequestException as err:
             app.logger.error('Error creating new user: %s', str(err))
         return redirect(url_for('login',
@@ -424,8 +424,8 @@ def create_app():
         """
         app.logger.info('Logging out.')
         resp = make_response(redirect(url_for('login_page',
-                                            _external=True,
-                                            _scheme=app.config['SCHEME'])))
+                                              _external=True,
+                                              _scheme=app.config['SCHEME'])))
         resp.delete_cookie(app.config['TOKEN_NAME'])
         return resp
 
