@@ -12,6 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Web service for frontend
+"""
+
 import datetime
 import json
 import logging
@@ -467,7 +470,7 @@ def create_app():
             amount_str = '-' + amount_str
         return amount_str
 
-    # Set up logging 
+    # Set up logging
     app.logger.handlers = logging.getLogger('gunicorn.error').handlers
     app.logger.setLevel(logging.getLogger('gunicorn.error').level)
     app.logger.info('Starting frontend service.')
@@ -485,7 +488,7 @@ def create_app():
         FlaskInstrumentor().instrument_app(app)
         RequestsInstrumentor().instrument()
         Jinja2Instrumentor().instrument()
-    else:    
+    else:
         app.logger.info("🚫 Tracing disabled.")
 
     # set up global variables
