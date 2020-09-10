@@ -59,6 +59,7 @@ class TestContacts(unittest.TestCase):
                     "VERSION": "1",
                     "LOCAL_ROUTING": "123456789",
                     "PUBLIC_KEY": "1",
+                    "ENABLE_TRACING": "true",
                 },
             ):
                 # mock db module as MagicMock, context manager handles cleanup
