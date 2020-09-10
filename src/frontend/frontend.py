@@ -291,7 +291,7 @@ def create_app():
                              timeout=app.config['BACKEND_TIMEOUT'])
         try:
             resp.raise_for_status() # Raise on HTTP Status code 4XX or 5XX
-        except requests.exceptions.HTTPError as err:
+        except requests.exceptions.HTTPError:
             raise UserWarning(resp.text)
 
 
@@ -319,7 +319,7 @@ def create_app():
                              timeout=app.config['BACKEND_TIMEOUT'])
         try:
             resp.raise_for_status() # Raise on HTTP Status code 4XX or 5XX
-        except requests.exceptions.HTTPError as err:
+        except requests.exceptions.HTTPError:
             raise UserWarning(resp.text)
 
 
@@ -472,54 +472,51 @@ def create_app():
 
 
     # set up global variables
-    def _config_setup(app):        
-        # global vars 
-        app.config["TRANSACTIONS_URI"] = 'http://{}/transactions'.format(
-            os.environ.get('TRANSACTIONS_API_ADDR'))
-        app.config["USERSERVICE_URI"] = 'http://{}/users'.format(
-            os.environ.get('USERSERVICE_API_ADDR'))
-        app.config["BALANCES_URI"] = 'http://{}/balances'.format(
-            os.environ.get('BALANCES_API_ADDR'))
-        app.config["HISTORY_URI"] = 'http://{}/transactions'.format(
-            os.environ.get('HISTORY_API_ADDR'))
-        app.config["LOGIN_URI"] = 'http://{}/login'.format(
-            os.environ.get('USERSERVICE_API_ADDR'))
-        app.config["CONTACTS_URI"] = 'http://{}/contacts'.format(
-            os.environ.get('CONTACTS_API_ADDR'))
-        app.config['PUBLIC_KEY'] = open(os.environ.get('PUB_KEY_PATH'), 'r').read()
-        app.config['LOCAL_ROUTING'] = os.getenv('LOCAL_ROUTING_NUM')
-        app.config['BACKEND_TIMEOUT'] = 4  # timeout in seconds for calls to the backend
-        app.config['TOKEN_NAME'] = 'token'
-        app.config['TIMESTAMP_FORMAT'] = '%Y-%m-%dT%H:%M:%S.%f%z'
-        app.config['SCHEME'] = os.environ.get('SCHEME', 'http')
+    app.config["TRANSACTIONS_URI"] = 'http://{}/transactions'.format(
+        os.environ.get('TRANSACTIONS_API_ADDR'))
+    app.config["USERSERVICE_URI"] = 'http://{}/users'.format(
+        os.environ.get('USERSERVICE_API_ADDR'))
+    app.config["BALANCES_URI"] = 'http://{}/balances'.format(
+        os.environ.get('BALANCES_API_ADDR'))
+    app.config["HISTORY_URI"] = 'http://{}/transactions'.format(
+        os.environ.get('HISTORY_API_ADDR'))
+    app.config["LOGIN_URI"] = 'http://{}/login'.format(
+        os.environ.get('USERSERVICE_API_ADDR'))
+    app.config["CONTACTS_URI"] = 'http://{}/contacts'.format(
+        os.environ.get('CONTACTS_API_ADDR'))
+    app.config['PUBLIC_KEY'] = open(os.environ.get('PUB_KEY_PATH'), 'r').read()
+    app.config['LOCAL_ROUTING'] = os.getenv('LOCAL_ROUTING_NUM')
+    app.config['BACKEND_TIMEOUT'] = 4  # timeout in seconds for calls to the backend
+    app.config['TOKEN_NAME'] = 'token'
+    app.config['TIMESTAMP_FORMAT'] = '%Y-%m-%dT%H:%M:%S.%f%z'
+    app.config['SCHEME'] = os.environ.get('SCHEME', 'http')
 
-        # register formater functions
-        app.jinja_env.globals.update(format_currency=format_currency)
-        app.jinja_env.globals.update(format_timestamp_month=format_timestamp_month)
-        app.jinja_env.globals.update(format_timestamp_day=format_timestamp_day)
+    # register formater functions
+    app.jinja_env.globals.update(format_currency=format_currency)
+    app.jinja_env.globals.update(format_timestamp_month=format_timestamp_month)
+    app.jinja_env.globals.update(format_timestamp_day=format_timestamp_day)
 
-        # Set up logging
-        app.logger.handlers = logging.getLogger('gunicorn.error').handlers
-        app.logger.setLevel(logging.getLogger('gunicorn.error').level)
-        app.logger.info('Starting frontend service.')
+    # Set up logging
+    app.logger.handlers = logging.getLogger('gunicorn.error').handlers
+    app.logger.setLevel(logging.getLogger('gunicorn.error').level)
+    app.logger.info('Starting frontend service.')
 
-        # Set up tracing and export spans to Cloud Trace.
-        if os.environ['ENABLE_TRACING'] == "true":
-            app.logger.info("✅ Tracing enabled.")
-            trace.set_tracer_provider(TracerProvider())
-            cloud_trace_exporter = CloudTraceSpanExporter()
-            trace.get_tracer_provider().add_span_processor(
-                SimpleExportSpanProcessor(cloud_trace_exporter)
-            )
-            set_global_httptextformat(CloudTraceFormatPropagator())
-            # Add tracing auto-instrumentation for Flask, jinja and requests
-            FlaskInstrumentor().instrument_app(app)
-            RequestsInstrumentor().instrument()
-            Jinja2Instrumentor().instrument()
-        else:
-            app.logger.info("🚫 Tracing disabled.")
+    # Set up tracing and export spans to Cloud Trace.
+    if os.environ['ENABLE_TRACING'] == "true":
+        app.logger.info("✅ Tracing enabled.")
+        trace.set_tracer_provider(TracerProvider())
+        cloud_trace_exporter = CloudTraceSpanExporter()
+        trace.get_tracer_provider().add_span_processor(
+            SimpleExportSpanProcessor(cloud_trace_exporter)
+        )
+        set_global_httptextformat(CloudTraceFormatPropagator())
+        # Add tracing auto-instrumentation for Flask, jinja and requests
+        FlaskInstrumentor().instrument_app(app)
+        RequestsInstrumentor().instrument()
+        Jinja2Instrumentor().instrument()
+    else:
+        app.logger.info("🚫 Tracing disabled.")
 
-    _config_setup(app)  
     return app
 
 
@@ -527,4 +524,3 @@ if __name__ == "__main__":
     # Create an instance of flask server when called directly
     FRONTEND = create_app()
     FRONTEND.run()
-
