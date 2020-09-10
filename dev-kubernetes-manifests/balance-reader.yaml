@@ -42,6 +42,10 @@ spec:
         # toggle Cloud Trace export
         - name: ENABLE_TRACING
           value: "true"
+        # toggle app-level Java metrics export to Cloud Monitoring 
+        # (note: ENABLE_METRICS does not affect Istio/ASM proxy metrics)
+        - name: ENABLE_METRICS
+          value: "false"
         - name: POLL_MS
           value: "100"
         - name: CACHE_SIZE
@@ -52,7 +56,7 @@ spec:
         # Valid levels are debug, info, warn, error, fatal.
         # If no valid level is set, will default to info.
         - name: LOG_LEVEL
-          value: "info"
+          value: "debug"
         - name: NAMESPACE
           valueFrom:
             fieldRef:

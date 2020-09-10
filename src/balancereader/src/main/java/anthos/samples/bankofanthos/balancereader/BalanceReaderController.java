@@ -66,14 +66,19 @@ public final class BalanceReaderController {
         StackdriverMeterRegistry meterRegistry,
         LoadingCache<String, Long> cache,
         @Value("${LOCAL_ROUTING_NUM}") final String localRoutingNum,
+        @Value("${ENABLE_METRICS}") final String enableMetrics,
         @Value("${VERSION}") final String version) {
         // Initialize JWT verifier.
         this.verifier = verifier;
         LOGGER.debug("Initialized JWT verifier");
         // Initialize cache
         this.cache = cache;
-        GuavaCacheMetrics.monitor(meterRegistry, this.cache, "Guava");
-        LOGGER.debug("Initialized cache");
+        if (enableMetrics.equals("true")) {
+            GuavaCacheMetrics.monitor(meterRegistry, this.cache, "Guava");
+            LOGGER.debug("✅ Initialized cache - metrics enabled");
+        } else {
+            LOGGER.debug("🚫 Initialized cache - metrics disabled");
+        }
         this.version = version;
         // Initialize transaction processor.
         this.ledgerReader = reader;

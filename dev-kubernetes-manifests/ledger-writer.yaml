@@ -41,6 +41,10 @@ spec:
           value: "8080"
         - name: ENABLE_TRACING
           value: "true"
+        # toggle app-level Java metrics export to Cloud Monitoring 
+        # (note: ENABLE_METRICS does not affect Istio/ASM proxy metrics)
+        - name: ENABLE_METRICS
+          value: "true"
          # tell Java to obey container memory limits
         - name: JVM_OPTS
           value: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"

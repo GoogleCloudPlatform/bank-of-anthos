@@ -47,7 +47,8 @@ public class BalanceReaderApplication {
         "PUB_KEY_PATH",
         "SPRING_DATASOURCE_URL",
         "SPRING_DATASOURCE_USERNAME",
-        "SPRING_DATASOURCE_PASSWORD"
+        "SPRING_DATASOURCE_PASSWORD",
+        "ENABLE_METRICS"
     };
 
     public static void main(String[] args) {

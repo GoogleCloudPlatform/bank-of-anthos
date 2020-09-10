@@ -72,6 +72,7 @@ class BalanceReaderControllerTest {
     private static final String NON_AUTHED_ACCOUNT_NUM = "9876543210";
     private static final String BEARER_TOKEN = "Bearer abc";
     private static final String TOKEN = "abc";
+    private static final String ENABLE_METRICS = "true";
 
     @BeforeEach
     void setUp() {
