@@ -37,13 +37,16 @@ from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import SimpleExportSpanProcessor
 
 
-
+# pylint: disable-msg=too-many-locals
 def create_app():
     """Flask application factory to create instances
     of the Frontend Flask App
     """
     app = Flask(__name__)
 
+    # Disabling unused-variable for lines with route decorated functions
+    # as pylint thinks they are unused
+    # pylint: disable=unused-variable
     @app.route('/version', methods=['GET'])
     def version():
         """
