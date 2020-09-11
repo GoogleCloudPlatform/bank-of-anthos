@@ -97,7 +97,7 @@ class BalanceReaderControllerTest {
 
         when(cache.stats()).thenReturn(stats);
         balanceReaderController = new BalanceReaderController(ledgerReader, verifier,
-            meterRegistry, cache, LOCAL_ROUTING_NUM, VERSION);
+            meterRegistry, cache, LOCAL_ROUTING_NUM, ENABLE_METRICS, VERSION);
 
         when(verifier.verify(TOKEN)).thenReturn(jwt);
         when(jwt.getClaim(JWT_ACCOUNT_KEY)).thenReturn(claim);
