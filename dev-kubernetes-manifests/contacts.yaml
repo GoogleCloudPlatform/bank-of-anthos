@@ -39,6 +39,8 @@ spec:
           value: "v0.2.0"
         - name: PORT
           value: "8080"
+        - name: ENABLE_TRACING
+          value: "true"
         # Valid levels are debug, info, warning, error, critical.
         # If no valid level is set, will default to info.
         - name: LOG_LEVEL

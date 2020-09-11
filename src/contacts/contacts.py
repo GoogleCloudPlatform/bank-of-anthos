@@ -43,17 +43,6 @@ def create_app():
     """
     app = Flask(__name__)
 
-    # Set up tracing and export spans to Cloud Trace
-    trace.set_tracer_provider(TracerProvider())
-    cloud_trace_exporter = CloudTraceSpanExporter()
-    trace.get_tracer_provider().add_span_processor(
-        SimpleExportSpanProcessor(cloud_trace_exporter)
-    )
-
-    set_global_httptextformat(CloudTraceFormatPropagator())
-
-    # Add Flask auto-instrumentation for tracing
-    FlaskInstrumentor().instrument_app(app)
 
     # Disabling unused-variable for lines with route decorated functions
     # as pylint thinks they are unused
@@ -204,6 +193,22 @@ def create_app():
     app.logger.handlers = logging.getLogger("gunicorn.error").handlers
     app.logger.setLevel(logging.getLogger("gunicorn.error").level)
     app.logger.info("Starting contacts service.")
+
+    # Set up tracing and export spans to Cloud Trace.
+    if os.environ['ENABLE_TRACING'] == "true":
+        app.logger.info("✅ Tracing enabled.")
+        # Set up tracing and export spans to Cloud Trace
+        trace.set_tracer_provider(TracerProvider())
+        cloud_trace_exporter = CloudTraceSpanExporter()
+        trace.get_tracer_provider().add_span_processor(
+            SimpleExportSpanProcessor(cloud_trace_exporter)
+        )
+        set_global_httptextformat(CloudTraceFormatPropagator())
+        # Add Flask auto-instrumentation for tracing
+        FlaskInstrumentor().instrument_app(app)
+    else:
+        app.logger.info("🚫 Tracing disabled.")
+
 
     # setup global variables
     app.config["VERSION"] = os.environ.get("VERSION")
