@@ -89,11 +89,15 @@ public class LedgerWriterApplication {
         return StackdriverMeterRegistry.builder(new StackdriverConfig() {
             @Override
             public boolean enabled() {
-                boolean enableMetricsExport = true; 
-                if(System.getenv("ENABLE_METRICS") != null && System.getenv("ENABLE_METRICS").equals("false")) {
-                    enableMetricsExport = false; 
+                boolean enableMetricsExport = true;
+
+                if (System.getenv("ENABLE_METRICS") != null
+                    && System.getenv("ENABLE_METRICS").equals("false")) {
+                    enableMetricsExport = false;
                 }
-                LOGGER.info("Enable Cloud Monitoring metrics export: " + enableMetricsExport);
+
+                LOGGER.info(String.format("Enable metrics export: %b",
+                    enableMetricsExport));
                 return enableMetricsExport;
             }
 
