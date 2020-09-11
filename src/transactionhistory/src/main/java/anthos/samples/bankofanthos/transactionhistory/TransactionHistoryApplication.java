@@ -81,6 +81,16 @@ public class TransactionHistoryApplication {
 
         return StackdriverMeterRegistry.builder(new StackdriverConfig() {
             @Override
+            public boolean enabled() {
+                boolean enableMetricsExport = true; 
+                if(System.getenv("ENABLE_METRICS") != null && System.getenv("ENABLE_METRICS").equals("false")) {
+                    enableMetricsExport = false; 
+                }
+                LOGGER.info("Enable Cloud Monitoring metrics export: " + enableMetricsExport);
+                return enableMetricsExport;
+            }
+
+            @Override
             public String projectId() {
                 return MetadataConfig.getProjectId();
             }
