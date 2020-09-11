@@ -112,6 +112,9 @@ jobs:
       run: |
         PR_NUMBER=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
         NAMESPACE="pr${PR_NUMBER}"
+        echo "::set-env name=NAMESPACE::$NAMESPACE"
+        echo "::set-env name=PR_NUMBER::$PR_NUMBER"
+
         gcloud container clusters get-credentials $PR_CLUSTER --zone $ZONE --project $PROJECT_ID
         cat <<EOF | kubectl apply -f -
         apiVersion: v1
@@ -130,8 +133,6 @@ jobs:
       timeout-minutes: 20
       run: |
         set -x
-        PR_NUMBER=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
-        NAMESPACE="pr${PR_NUMBER}"
         kubectl config set-context --current --namespace=$NAMESPACE
         kubectl wait --for=condition=available --timeout=300s deployment/frontend
         kubectl wait --for=condition=available --timeout=300s deployment/contacts
@@ -142,24 +143,21 @@ jobs:
         kubectl wait --for=condition=available --timeout=300s deployment/loadgenerator
         kubectl wait --for=condition=ready --timeout=300s pod/accounts-db-0
         kubectl wait --for=condition=ready --timeout=300s pod/ledger-db-0
-    # - name: Set EXTERNAL_IP env variable for staging
-    #   run: |
-    #     set -x
-    #     EXTERNAL_IP=`kubectl get service frontend --output jsonpath='{.status.loadBalancer.ingress[0].ip}'`
-    #     echo "::set-env name=EXTERNAL_IP::$EXTERNAL_IP"
-    #     curl --silent --output /dev/null --show-error --fail $EXTERNAL_IP
-    - name: Port Forward frontend
+    - name: Query EXTERNAL_IP for staging
+      timeout-minutes: 5
       run: |
         set -x
-        port_forward() {
-            # get name of frontend pod
-            local frontend_pod=$(kubectl get pods -l=app=frontend -o=jsonpath='{.items[0].metadata.name}')
-            kubectl port-forward $frontend_pod 3000:8080
+        PR_NUMBER=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
+        NAMESPACE="pr${PR_NUMBER}"
+        get_externalIP() {
+          kubectl get service frontend --namespace $NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
         }
-        port_forward &
-    - name: Ping port-forwarded frontend
+        until [[ -n "$(get_externalIP)" ]]; do
+          echo "Querying for external IP for frontend on namespace: $NAMESPACE{}"
+        sleep 3
+        done
+        EXTERNAL_IP=$(get_externalIP)
+        echo "::set-env name=EXTERNAL_IP::$EXTERNAL_IP"
+    - name: Run UI tests (Cypress)
       run: |
-          curl --silent --output /dev/null --show-error --fail localhost:3000
-    # - name: Run UI tests (Cypress)
-    #  run: |
-    #      docker run -t -v $PWD/.github/workflows/ui-tests:/e2e -w /e2e --network=host cypress/included:4.3.0
+        docker run -t -v $PWD/.github/workflows/ui-tests:/e2e -w /e2e -e CYPRESS_baseUrl=http://$EXTERNAL_IP --network=host cypress/included:5.0.0 --env CI=true

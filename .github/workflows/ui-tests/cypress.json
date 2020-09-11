@@ -1,5 +1,6 @@
 {
     "CI": true,
+    "retries": 1,
     "video": false,
     "pluginsFile": false,
     "fixturesFolder": false,
