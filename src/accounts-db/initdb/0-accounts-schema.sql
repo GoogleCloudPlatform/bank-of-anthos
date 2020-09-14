@@ -28,8 +28,8 @@ CREATE TABLE IF NOT EXISTS users (
   ssn CHAR(11) NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS idx_users_accountid ON users (accountid);
-CREATE INDEX IF NOT EXISTS idx_users_username ON users (username);
+CREATE INDEX IF NOT EXISTS idx_users_accountid ON users USING HASH (accountid);
+CREATE INDEX IF NOT EXISTS idx_users_username ON users USING HASH (username);
 
 
 
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS contacts (
   account_num CHAR(10) NOT NULL,
   routing_num CHAR(9) NOT NULL,
   is_external BOOLEAN NOT NULL,
-  FOREIGN KEY (username) REFERENCES users(username)
+  CONSTRAINT fk_username FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE
 );
 
-CREATE INDEX IF NOT EXISTS idx_contacts_username ON contacts (username);
+CREATE INDEX IF NOT EXISTS idx_contacts_username ON contacts USING HASH (username);
