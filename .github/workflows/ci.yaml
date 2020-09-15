@@ -100,7 +100,7 @@ jobs:
   #       done
   deployment-tests:
     runs-on: self-hosted
-    needs: code-tests
+    # needs: code-tests
     strategy:
       matrix:
         profile: ["local-code"]
