@@ -41,6 +41,9 @@ This is the Continuous Deployment workflow, and it runs on every commit to the m
 
 Note that this workflow does not update the image tags used in the public-facing `kubernetes-manifests/` - these release manifests are tied to a stable `v0.x.x` release, and are set in the manual releasing process. 
 
+### Cleanup - [cleanup.yaml](cleanup.yaml)
+
+This workflow runs when a PR closes, regardless of whether it was merged into master. This workflow deletes the PR-specific GKE namespace in the test cluster. 
 
 ## Appendix - Creating a new Actions runner 
 
