@@ -10,7 +10,7 @@ We also host a test GKE cluster, which is where the deploy tests (functional, UI
 
 ## Workflows 
 
-**Note**: In order for the current CI/CD setup to work on your pull request, you must branch directly off the repo (no forks). This is because the Github secrets necessary for tests, and specific to this repo, aren't copied over when you fork.   
+**Note**: In order for the current CI/CD setup to work on your pull request, you must branch directly off the repo (no forks). This is because the Github secrets necessary for these tests aren't copied over when you fork.   
 
 ### Code Tests - [ci.yaml](ci.yaml)
 
@@ -29,7 +29,7 @@ These tests run on every commit for every open PR, as well as any commit to mast
 2. Uses `skaffold run` to build and push the images specific to that PR commit. Then skaffold deploys those images, via `dev-kubernetes-manifests`, to the PR namespace in the test cluster. 
 3. Tests to make sure all the pods start up and become ready.
 4. Gets the LoadBalancer IP for the frontend service.
-5. Runs the [end-to-end UI tests](ui-tests/README.md) using Cypress, against that frontend IP. These tests ensure that the expected Bank of Anthos functionality (account creation, depositing money) continues to work with the changes introduced by this commit. 
+5. Runs the [end-to-end UI tests](ui-tests/) using Cypress, against that frontend IP. These tests ensure that the expected Bank of Anthos functionality (account creation, depositing money) continues to work with the changes introduced by this commit. 
 
 ### Push and Deploy Latest - [push-deploy](push-deploy.yml)
 
