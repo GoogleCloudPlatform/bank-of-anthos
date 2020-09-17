@@ -82,14 +82,14 @@ This means that your cluster's [Node Pools](https://cloud.google.com/kubernetes-
 
 You may see a `503: Service Unavailble` error if you have added Istio or Anthos Service Mesh to the cluster namespace where Bank of Anthos is deployed. A 503 error typically comes from an Envoy proxy - either the IngressGateway proxy, or the sidecar proxy for a service pod. For the frontend specifically, the 503 is likely coming from the IngressGateway. 
 
-Make sure you've deployed the `VirtualService` and `Gateway` resources provided in [`istio-manifests/`,](/istio-manifests), and that they're deployed into the namespace where the app is running. If you've modified the frontend's Service or Deployment port, make sure the `VirtualService` port is updated, too.  
+Make sure you've deployed the `VirtualService` and `Gateway` resources provided in [`istio-manifests/`](/istio-manifests), and that they're deployed into the namespace where the app is running. If you've modified the frontend's Service or Deployment port, make sure the `VirtualService` port is updated, too.  
 
 See the [Istio troubleshooting docs](https://istio.io/latest/docs/ops/common-problems/network-issues/) for more support.
 
 
 ### `404` error in the frontend 
 
-You may see a `404: Not Found` error if you've added a Kubernetes Ingress resource pointing to the `frontend` service, but have misconfigured that resource. Note that for GKE Ingress to work, the service must be of type `NodePort`. By default in `kubernetes-manifests`, the frontend service is of type `LoadBalancer`, so you'd have to change the service type. See the [GKE docs](https://cloud.google.com/kubernetes-engine/docs/tutorials/http-balancer/web-service.yaml) for more info.  
+You may see a `404: Not Found` error if you've added a Kubernetes Ingress resource pointing to the `frontend` service, but have misconfigured that resource. Note that for GKE Ingress to work, the service must be of type `NodePort`. By default in `kubernetes-manifests`, the frontend service is of type `LoadBalancer`, so you'd have to change the service type. See the [GKE docs](https://cloud.google.com/kubernetes-engine/docs/tutorials/http-balancer) for more info.  
 
 
 
