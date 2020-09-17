@@ -114,6 +114,11 @@ Using the pre-populated username and password fields, log in as `testuser`. You 
 
 ![](/docs/transactions.png)
 
+
+## Troubleshooting 
+
+If you are encountering errors when deploying the app, see the [Troubleshooting Guide](/docs/troubleshooting.md).
+
 ## Setup for Workload Identity clusters
 
 If you have enabled [Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity) on your GKE cluster ([a requirement for Anthos Service Mesh](https://cloud.google.com/service-mesh/docs/gke-anthos-cli-new-cluster#requirements)), follow these instructions to ensure that Bank of Anthos pods can communicate with GCP APIs.

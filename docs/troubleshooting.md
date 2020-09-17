@@ -4,8 +4,7 @@ This doc describes how to debug a running instance of Bank of Anthos on a GKE cl
 
 ## Background 
 
-The conatiner images used in [`kubernetes-manifests/`](/kubernetes-manifests) correspond to a tagged, stable release (`v0.x.x`) that is ready for public consumption.   
-Per the [README deploy instructions](/), we highly recommend using these stable image tags, not the `latest` tag. The `latest` tag corresponds to latest commit to the master branch and may be less stable. 
+The conatiner images used in [`kubernetes-manifests/`](/kubernetes-manifests) correspond to a tagged, stable release (`v0.x.x`) that is ready for public consumption. Per the [README deploy instructions](/README.md), we highly recommend using these stable image tags, not the `latest` tag. The `latest` tag corresponds to latest commit to the master branch and may be less stable. 
 
 No matter what image tags you're using, you may encounter errors when running the Bank of Anthos app. Use the following steps to debug and fix problems. 
 
@@ -45,7 +44,7 @@ userservice          ClusterIP      10.48.19.11    <none>          8080/TCP     
 
 ### Pod has `STATUS: CrashLoopBackOff` 
 
-If a pod is crash-looping, this means the process inside the container has exited with an error. Run `kubectl logs <pod-name>` to get the container logs. It is likely that a Java or Python exception caused the service to crash. [**File a Github issue**](/issues) if this is happening, as it could correspond to a widespread outage (or an environment problem that could affect other users). When filing your issue, include the crash logs for the failing pods. 
+If a pod is crash-looping, this means the process inside the container has exited with an error. Run `kubectl logs <pod-name>` to get the container logs. It is likely that a Java or Python exception caused the service to crash. [**File a Github issue**](https://github.com/googlecloudplatform/bank-of-anthos/issues) if this is happening, as it could correspond to a widespread outage (or an environment problem that could affect other users). When filing your issue, include the crash logs for the failing pods. 
 
 
 ### Pod is stuck in `STATUS: Pending` or `READY: 0/1` 
