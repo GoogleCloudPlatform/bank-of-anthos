@@ -34,7 +34,7 @@ from opentelemetry.ext.flask import FlaskInstrumentor
 from opentelemetry.propagators import set_global_httptextformat
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import SimpleExportSpanProcessor
-from sqlalchemy.exc import OperationalError, SQLAlchemyError
+from psycopg2 import Error
 from db import UserDb
 
 
@@ -124,7 +124,7 @@ def create_app():
         except NameError as err:
             app.logger.error("Error creating new user: %s", str(err))
             return str(err), 409
-        except SQLAlchemyError as err:
+        except Error as err:
             app.logger.error("Error creating new user: %s", str(err))
             return 'failed to create user', 500
 
@@ -206,7 +206,7 @@ def create_app():
         except PermissionError as err:
             app.logger.error('Error logging in: %s', str(err))
             return str(err), 401
-        except SQLAlchemyError as err:
+        except Error as err:
             app.logger.error('Error logging in: %s', str(err))
             return 'failed to retrieve user information', 500
 
