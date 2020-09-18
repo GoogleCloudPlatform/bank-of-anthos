@@ -33,7 +33,7 @@ from opentelemetry.ext.flask import FlaskInstrumentor
 from opentelemetry.propagators import set_global_httptextformat
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import SimpleExportSpanProcessor
-from sqlalchemy.exc import OperationalError, SQLAlchemyError
+from psycopg2 import Error
 from db import ContactsDb
 
 
@@ -84,7 +84,7 @@ def create_app():
         except (PermissionError, jwt.exceptions.InvalidTokenError) as err:
             app.logger.error("Error retrieving contacts list: %s", str(err))
             return "authentication denied", 401
-        except SQLAlchemyError as err:
+        except Error as err:
             app.logger.error("Error retrieving contacts list: %s", str(err))
             return "failed to retrieve contacts list", 500
 
@@ -142,7 +142,7 @@ def create_app():
         except ValueError as err:
             app.logger.error("Error adding contact: %s", str(err))
             return str(err), 409
-        except SQLAlchemyError as err:
+        except Error as err:
             app.logger.error("Error adding contact: %s", str(err))
             return "failed to add contact", 500
 
@@ -218,7 +218,7 @@ def create_app():
     # Configure database connection
     try:
         contacts_db = ContactsDb(os.environ.get("ACCOUNTS_DB_URI"), app.logger)
-    except OperationalError:
+    except Error:
         app.logger.critical("database connection failed")
         sys.exit(1)
     return app
