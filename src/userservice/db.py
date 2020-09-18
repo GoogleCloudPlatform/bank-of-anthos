@@ -47,9 +47,11 @@ class UserDb:
         with psycopg2.connect(self.uri) as conn:
             with conn.cursor() as curs:
                 query = sql.SQL("INSERT INTO "
-                    "users(accountid, username, passhash, firstname, "
-                    "lastname, birthday, timezone, address, state, zip, ssn) "
-                    "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
+                                "users(accountid, username, passhash, "
+                                "firstname, lastname, birthday, timezone, "
+                                "address, state, zip, ssn) "
+                                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, "
+                                "%s, %s)")
                 self.logger.debug("QUERY: %s", str(query))
                 curs.execute(query, (
                     user.get('accountid'),
@@ -76,7 +78,7 @@ class UserDb:
         with psycopg2.connect(self.uri) as conn:
             with conn.cursor() as curs:
                 query = sql.SQL("SELECT * FROM users "
-                    "WHERE users.accountid = %s")
+                                "WHERE users.accountid = %s")
                 self.logger.debug("QUERY: %s", str(query))
                 while accountid is None:
                     accountid = str(random.randint(1e9, (1e10 - 1)))
@@ -103,7 +105,7 @@ class UserDb:
         with psycopg2.connect(self.uri) as conn:
             with conn.cursor() as curs:
                 query = sql.SQL("SELECT * FROM users "
-                    "WHERE users.username = %s")
+                                "WHERE users.username = %s")
                 self.logger.debug("QUERY: %s", str(query))
                 curs.execute(query, (username,))
 

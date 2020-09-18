@@ -46,8 +46,9 @@ class ContactsDb:
         with psycopg2.connect(self.uri) as conn:
             with conn.cursor() as curs:
                 query = sql.SQL("INSERT INTO "
-                    "contacts(username, label, account_num, routing_num, "
-                    "is_external) VALUES (%s, %s, %s, %s, %s)")
+                                "contacts(username, label, account_num, "
+                                "routing_num, is_external) "
+                                "VALUES (%s, %s, %s, %s, %s)")
                 self.logger.debug("QUERY: %s", str(query))
                 curs.execute(query, (
                     contact.get('username'),
@@ -65,12 +66,11 @@ class ContactsDb:
                 [ {'label': contact1, ...}, {'label': contact2, ...}, ...]
         Raises: psycopg2.Error  if there was an issue with the database
         """
-        self.logger.info("db get: {}".format(t))
         contacts = list()
         with psycopg2.connect(self.uri) as conn:
             with conn.cursor() as curs:
                 query = sql.SQL("SELECT * FROM contacts "
-                    "WHERE contacts.username = %s")
+                                "WHERE contacts.username = %s")
                 self.logger.debug("QUERY: %s", str(query))
                 curs.execute(query, (username,))
 
