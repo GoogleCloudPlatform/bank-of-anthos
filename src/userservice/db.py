@@ -18,9 +18,10 @@ db manages interactions with the underlying database
 
 import logging
 import random
-from opentelemetry.ext.sqlalchemy import SQLAlchemyInstrumentor
 from sqlalchemy import create_engine, MetaData, Table, Column, String, Date, LargeBinary
-
+from opentelemetry import trace
+from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
+from opentelemetry.sdk.trace import TracerProvider
 
 class UserDb:
     """

@@ -26,15 +26,23 @@ from requests.exceptions import HTTPError, RequestException
 import jwt
 from flask import Flask, abort, jsonify, make_response, redirect, \
     render_template, request, url_for
+
+
+# OT top level 
 from opentelemetry import trace
-from opentelemetry.exporter.cloud_trace import CloudTraceSpanExporter
-from opentelemetry.exporter.cloud_trace.cloud_trace_propagator import CloudTraceFormatPropagator
-from opentelemetry.ext.flask import FlaskInstrumentor
-from opentelemetry.ext.jinja2 import Jinja2Instrumentor
-from opentelemetry.ext.requests import RequestsInstrumentor
-from opentelemetry.propagators import set_global_httptextformat
-from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import SimpleExportSpanProcessor
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.propagators import set_global_textmap
+
+# OT + GCP 
+from opentelemetry.exporter.cloud_trace import CloudTraceSpanExporter
+from opentelemetry.tools.cloud_trace_propagator import CloudTraceFormatPropagator
+
+# OT + Python libraries 
+from opentelemetry.instrumentation.flask import FlaskInstrumentor
+from opentelemetry.instrumentation.requests import RequestsInstrumentor
+from opentelemetry.instrumentation.jinja2 import Jinja2Instrumentor
+
 
 
 # pylint: disable-msg=too-many-locals
@@ -508,11 +516,11 @@ def create_app():
     if os.environ['ENABLE_TRACING'] == "true":
         app.logger.info("✅ Tracing enabled.")
         trace.set_tracer_provider(TracerProvider())
-        cloud_trace_exporter = CloudTraceSpanExporter()
-        trace.get_tracer_provider().add_span_processor(
-            SimpleExportSpanProcessor(cloud_trace_exporter)
-        )
-        set_global_httptextformat(CloudTraceFormatPropagator())
+        # cloud_trace_exporter = CloudTraceSpanExporter()
+        # trace.get_tracer_provider().add_span_processor(
+        #     SimpleExportSpanProcessor(cloud_trace_exporter)
+        # )
+        set_global_textmap(CloudTraceFormatPropagator())
         # Add tracing auto-instrumentation for Flask, jinja and requests
         FlaskInstrumentor().instrument_app(app)
         RequestsInstrumentor().instrument()
