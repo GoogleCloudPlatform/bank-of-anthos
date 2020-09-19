@@ -12,95 +12,90 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: "Continuous Integration"
+name: "Continuous Integration - Pull Request"
 on:
-  push:
-    # run on pushes to master or release/*
-    branches:
-      - master
-      - release/*
   pull_request:
     # run on pull requests targeting master
     branches:
       - master
 jobs:
-  # code-tests:
-  #   runs-on: self-hosted
-  #   steps:
-  #   - uses: actions/checkout@v2
-  #   - name: License Check
-  #     run: |
-  #       set -x
-  #       git init
-  #       git add --all
-  #       git -c user.name="CI Bot" -c user.email="<>" commit -m "initial state"
-  #       addlicense ./
-  #       if [[ -n $(git status -s) ]]; then
-  #         exit 1
-  #       fi
-  #   - name: Java Checkstyle
-  #     timeout-minutes: 20
-  #     run: |
-  #       mvn checkstyle:check
-  #   - name: Python Checkstyle
-  #     timeout-minutes: 20
-  #     run: |
-  #       pylint --rcfile=./.pylintrc ./src/*/*.py
-  #   - name: Java Unit Tests
-  #     timeout-minutes: 20
-  #     run: |
-  #       mvn test
-  #   - name: Java Code Coverage
-  #     timeout-minutes: 20
-  #     run: |
-  #       for SERVICE in "balancereader" "ledgerwriter" "transactionhistory"; do
-  #         echo "checking $SERVICE..."
-  #         # save current working dir to memory and cd to src/$SERVICE
-  #         pushd src/$SERVICE
-  #           mvn jacoco:report
-  #           echo "Coverage for $SERVICE:"
-  #           awk -F, \
-  #           '{ instructions += $4 + $5; covered += $5 } END \
-  #           { print covered, "/", instructions, " instructions covered"; \
-  #           print int(100*covered/instructions), "% covered" }' \
-  #           target/site/jacoco/jacoco.csv
-  #         # return to previously saved path
-  #         popd
-  #       done
-  #   - name: Python Unit Tests
-  #     timeout-minutes: 20
-  #     run: |
-  #       set -x
-  #       for SERVICE in "contacts" "userservice"; do
-  #         echo "testing $SERVICE..."
-  #         # save current working dir to memory and cd to src/$SERVICE
-  #         pushd src/$SERVICE
-  #           python3 -m venv $HOME/venv-$SERVICE
-  #           source $HOME/venv-$SERVICE/bin/activate
-  #           pip install -r tests/requirements-test.txt
-  #           python -m pytest -v -p no:warnings
-  #           deactivate
-  #         # return to previously saved path
-  #         popd
-  #       done
-  #   - name: Python Code Coverage
-  #     timeout-minutes: 20
-  #     run: |
-  #       for SERVICE in "contacts" "userservice"; do
-  #         echo "testing $SERVICE..."
-  #         # save current working dir to memory and cd to src/$SERVICE
-  #         pushd src/$SERVICE
-  #           python3 -m venv $HOME/venv-$SERVICE
-  #           source $HOME/venv-$SERVICE/bin/activate
-  #           pip install -r tests/requirements-test.txt
-  #           python -m pytest --cov=./ tests/
-  #           deactivate
-  #         # return to previously saved path
-  #         popd
-  #       done
+  code-tests:
+    runs-on: self-hosted
+    steps:
+    - uses: actions/checkout@v2
+    - name: License Check
+      run: |
+        set -x
+        git init
+        git add --all
+        git -c user.name="CI Bot" -c user.email="<>" commit -m "initial state"
+        addlicense ./
+        if [[ -n $(git status -s) ]]; then
+          exit 1
+        fi
+    - name: Java Checkstyle
+      timeout-minutes: 20
+      run: |
+        mvn checkstyle:check
+    - name: Python Checkstyle
+      timeout-minutes: 20
+      run: |
+        pylint --rcfile=./.pylintrc ./src/*/*.py
+    - name: Java Unit Tests
+      timeout-minutes: 20
+      run: |
+        mvn test
+    - name: Java Code Coverage
+      timeout-minutes: 20
+      run: |
+        for SERVICE in "balancereader" "ledgerwriter" "transactionhistory"; do
+          echo "checking $SERVICE..."
+          # save current working dir to memory and cd to src/$SERVICE
+          pushd src/$SERVICE
+            mvn jacoco:report
+            echo "Coverage for $SERVICE:"
+            awk -F, \
+            '{ instructions += $4 + $5; covered += $5 } END \
+            { print covered, "/", instructions, " instructions covered"; \
+            print int(100*covered/instructions), "% covered" }' \
+            target/site/jacoco/jacoco.csv
+          # return to previously saved path
+          popd
+        done
+    - name: Python Unit Tests
+      timeout-minutes: 20
+      run: |
+        set -x
+        for SERVICE in "contacts" "userservice"; do
+          echo "testing $SERVICE..."
+          # save current working dir to memory and cd to src/$SERVICE
+          pushd src/$SERVICE
+            python3 -m venv $HOME/venv-$SERVICE
+            source $HOME/venv-$SERVICE/bin/activate
+            pip install -r tests/requirements-test.txt
+            python -m pytest -v -p no:warnings
+            deactivate
+          # return to previously saved path
+          popd
+        done
+    - name: Python Code Coverage
+      timeout-minutes: 20
+      run: |
+        for SERVICE in "contacts" "userservice"; do
+          echo "testing $SERVICE..."
+          # save current working dir to memory and cd to src/$SERVICE
+          pushd src/$SERVICE
+            python3 -m venv $HOME/venv-$SERVICE
+            source $HOME/venv-$SERVICE/bin/activate
+            pip install -r tests/requirements-test.txt
+            python -m pytest --cov=./ tests/
+            deactivate
+          # return to previously saved path
+          popd
+        done
   deployment-tests:
     runs-on: self-hosted
-    # needs: code-tests
+    needs: code-tests
     strategy:
       matrix:
         profile: ["local-code"]
