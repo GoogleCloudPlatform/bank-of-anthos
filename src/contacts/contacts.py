@@ -29,19 +29,13 @@ import bleach
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
 from db import ContactsDb
 
-# OT top level 
 from opentelemetry import trace
-from opentelemetry.sdk.trace.export import SimpleExportSpanProcessor
+# from opentelemetry.sdk.trace.export import SimpleExportSpanProcessor
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.propagators import set_global_textmap
-
-# OT + GCP 
-from opentelemetry.exporter.cloud_trace import CloudTraceSpanExporter
+# from opentelemetry.exporter.cloud_trace import CloudTraceSpanExporter
 from opentelemetry.tools.cloud_trace_propagator import CloudTraceFormatPropagator
-
-# OT + Flask 
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
-
 
 def create_app():
     """Flask application factory to create instances
