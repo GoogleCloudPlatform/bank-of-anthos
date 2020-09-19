@@ -40,6 +40,15 @@ transactionhistory   ClusterIP      10.48.20.206   <none>          8080/TCP     
 userservice          ClusterIP      10.48.19.11    <none>          8080/TCP       23d
 ```
 
+- The next step to verify your issue is to **clean deploy** the Bank of Anthos app to your cluster:
+
+```
+kubectl delete -f kubernetes-manifests
+kubectl apply -f kubernetes-manifests
+```
+
+If your problem persists, proceed to the Common Problems section below.
+
 ## Common Problems 
 
 ### Pod has `STATUS: CrashLoopBackOff` 
