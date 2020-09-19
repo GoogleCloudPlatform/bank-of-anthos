@@ -159,7 +159,6 @@ jobs:
           COMMENTS_URL: ${{ github.event.pull_request.comments_url }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-          echo "EXTERNAL_IP is ${EXTERNAL_IP}"
           curl \
             -X POST \
             $COMMENTS_URL \
