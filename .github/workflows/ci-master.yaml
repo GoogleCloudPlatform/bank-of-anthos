@@ -12,17 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: "Continuous Integration"
+name: "Continuous Integration - Master/Release"
 on:
   push:
     # run on pushes to master or release/*
     branches:
       - master
       - release/*
-  pull_request:
-    # run on pull requests targeting master
-    branches:
-      - master
 jobs:
   code-tests:
     runs-on: self-hosted
@@ -143,7 +139,7 @@ jobs:
         kubectl wait --for=condition=available --timeout=300s deployment/loadgenerator
         kubectl wait --for=condition=ready --timeout=300s pod/accounts-db-0
         kubectl wait --for=condition=ready --timeout=300s pod/ledger-db-0
-    - name: Query EXTERNAL_IP for staging
+    - name: Query EXTERNAL_IP for UI tests
       timeout-minutes: 5
       run: |
         set -x
@@ -158,18 +154,6 @@ jobs:
         done
         EXTERNAL_IP=$(get_externalIP)
         echo "::set-env name=EXTERNAL_IP::$EXTERNAL_IP"
-    - name: Comment EXTERNAL_IP
-      timeout-minutes: 5
-      env:
-          COMMENTS_URL: ${{ github.event.pull_request.comments_url }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-          curl \
-            -X POST \
-            $COMMENTS_URL \
-            -H "Content-Type: application/json" \
-            -H "Authorization: token $GITHUB_TOKEN" \
-            --data '{ "body": "🚀 PR staged at '"http://${EXTERNAL_IP}"'"}'
     - name: Run UI tests (Cypress)
       run: |
         docker run -t -v $PWD/.github/workflows/ui-tests:/e2e -w /e2e -e CYPRESS_baseUrl=http://$EXTERNAL_IP --network=host cypress/included:5.0.0 --env CI=true
