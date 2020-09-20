@@ -1,4 +1,4 @@
-![Continuous Integration](https://github.com/GoogleCloudPlatform/bank-of-anthos/workflows/Continuous%20Integration/badge.svg)
+![Continuous Integration](https://github.com/GoogleCloudPlatform/bank-of-anthos/workflows/Continuous%20Integration%20-%20Master/Release/badge.svg)
 
 # Bank of Anthos
 
