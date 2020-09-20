@@ -35,21 +35,21 @@ If you’re using this demo, please ★Star this repository to show your interes
 
 ## Quickstart (GKE)
 
-1. [Create a Google Cloud Platform project](https://cloud.google.com/resource-manager/docs/creating-managing-projects#creating_a_project) or use an existing project. Set the `PROJECT_ID` environment variable and ensure the Google Kubernetes Engine API is enabled.
+1. **[Create a Google Cloud Platform project](https://cloud.google.com/resource-manager/docs/creating-managing-projects#creating_a_project)** or use an existing project. Set the `PROJECT_ID` environment variable and ensure the Google Kubernetes Engine API is enabled.
 
 ```
 PROJECT_ID=""
 gcloud beta services enable container --project ${PROJECT_ID}
 ```
 
-2. Clone this repository. 
+2. **Clone this repository.**
 
 ```
 git clone https://github.com/GoogleCloudPlatform/bank-of-anthos.git
 cd bank-of-anthos
 ```
 
-3. Create a GKE cluster. 
+3. **Create a GKE cluster.** 
 
 ```
 ZONE=us-central1-b
@@ -58,20 +58,20 @@ gcloud beta container clusters create bank-of-anthos \
     --machine-type=n1-standard-2 --num-nodes=4
 ```
 
-4. Deploy the demo JWT public key to the cluster as a Secret. This key is used for user account creation and authentication. 
+4. **Deploy the demo JWT public key** to the cluster as a Secret. This key is used for user account creation and authentication. 
 
 ```
 kubectl apply -f ./extras/jwt/jwt-secret.yaml
 ```
 
-5. Deploy the sample app to the cluster. 
+5. **Deploy the sample app to the cluster.** 
 
 ```
 kubectl apply -f ./kubernetes-manifests
 
 ```
 
-6. Wait for pods to be ready. 
+6. **Wait for the Pods to be ready.** 
 
 ```
 kubectl get pods
@@ -92,10 +92,10 @@ transactionhistory-5569754896-z94cn   1/1     Running   0          97s
 userservice-78dc876bff-pdhtl          1/1     Running   0          96s
 ```
 
-7. Access the web frontend in a browser. 
+7. **Access the web frontend in a browser** using the frontend's `EXTERNAL_IP`. 
 
 ```
-kubectl get svc frontend | awk '{print $4}'
+kubectl get service frontend | awk '{print $4}'
 ```
 
 *Example output - do not copy*
@@ -107,9 +107,10 @@ EXTERNAL-IP
 
 ## Other Deployment Options 
 
+- **Workload Identity**: [See these instructions.](docs/workload-identity.md)
 - **Istio**: Apply `istio-manifests/` to your cluster to access the frontend through the IngressGateway. 
-- **Anthos Service Mesh**: ASM requires Workload Identity to be enabled in your GKE cluster. [See these instructions](docs/workload-identity.md) for how to configure this app to use GCP and Kubernetes service accounts. Then, apply `istio-manifests/` to your cluster for frontend ingress. 
-- **Java Monolith (VM-based)**: We provide a version of this app where the three Java microservices are coupled together into one monolithic service, that you can deploy inside a VM (Google Compute Engine). See the [ledgermonolith](src/ledgermonolith) directory.
+- **Anthos Service Mesh**: ASM requires Workload Identity to be enabled in your GKE cluster. [See the workload identity instructions](docs/workload-identity.md) to configure and deploy the app. Then, apply `istio-manifests/` to your cluster to confugure frontend ingress. 
+- **Java Monolith (VM)**: We provide a version of this app where the three Java microservices are coupled together into one monolithic service, which you can deploy inside a VM (eg. Google Compute Engine). See the [ledgermonolith](src/ledgermonolith) directory.
 
 ## Troubleshooting 
 
