@@ -12,17 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: "Continuous Integration"
+name: "Continuous Integration - Master/Release"
 on:
   push:
     # run on pushes to master or release/*
     branches:
       - master
       - release/*
-  pull_request:
-    # run on pull requests targeting master
-    branches:
-      - master
 jobs:
   code-tests:
     runs-on: self-hosted
@@ -143,7 +139,7 @@ jobs:
         kubectl wait --for=condition=available --timeout=300s deployment/loadgenerator
         kubectl wait --for=condition=ready --timeout=300s pod/accounts-db-0
         kubectl wait --for=condition=ready --timeout=300s pod/ledger-db-0
-    - name: Query EXTERNAL_IP for staging
+    - name: Query EXTERNAL_IP for UI tests
       timeout-minutes: 5
       run: |
         set -x
