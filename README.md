@@ -6,7 +6,7 @@
 
 Google uses this application to demonstrate how developers can modernize enterprise applications using GCP products, including: [GKE](https://cloud.google.com/kubernetes-engine), [Anthos Service Mesh](https://cloud.google.com/anthos/service-mesh), [Anthos Config Management](https://cloud.google.com/anthos/config-management), [Migrate for Anthos](https://cloud.google.com/migrate/anthos), [Spring Cloud GCP](https://spring.io/projects/spring-cloud-gcp), and [Cloud Operations](https://cloud.google.com/products/operations). This application works on any Kubernetes cluster. 
 
-If you’re using this demo, please ★Star this repository to show your interest!
+If you’re using this app, please ★Star the repository to show your interest!
 
 > 👓 Note to Googlers: Please fill out the form at go/bank-of-anthos-form if you are using this application.
 
@@ -68,7 +68,6 @@ kubectl apply -f ./extras/jwt/jwt-secret.yaml
 
 ```
 kubectl apply -f ./kubernetes-manifests
-
 ```
 
 6. **Wait for the Pods to be ready.** 
