@@ -35,13 +35,14 @@ itsdangerous==1.1.0
 Jinja2==2.11.1
 MarkupSafe==1.1.1
 more-itertools==8.4.0
-opentelemetry-api==0.10b0
-opentelemetry-exporter-cloud-trace==0.10b0
-opentelemetry-ext-flask==0.10b0
-opentelemetry-ext-sqlalchemy==0.10b0
-opentelemetry-ext-wsgi==0.10b0
-opentelemetry-instrumentation==0.10b0
-opentelemetry-sdk==0.10b0
+opentelemetry-api==0.13b0  # via opentelemetry-exporter-google-cloud, opentelemetry-instrumentation, opentelemetry-instrumentation-flask, opentelemetry-instrumentation-sqlalchemy, opentelemetry-instrumentation-wsgi, opentelemetry-sdk, opentelemetry-tools-google-cloud
+opentelemetry-exporter-google-cloud==0.13b0  # via -r requirements.in
+opentelemetry-instrumentation-flask==0.13b0  # via -r requirements.in
+opentelemetry-instrumentation-sqlalchemy==0.13b0  # via -r requirements.in
+opentelemetry-instrumentation-wsgi==0.13b0  # via opentelemetry-instrumentation-flask
+opentelemetry-instrumentation==0.13b0  # via opentelemetry-instrumentation-flask, opentelemetry-instrumentation-sqlalchemy, opentelemetry-instrumentation-wsgi
+opentelemetry-sdk==0.13b0  # via -r requirements.in, opentelemetry-exporter-google-cloud, opentelemetry-tools-google-cloud
+opentelemetry-tools-google-cloud==0.13b0  # via -r requirements.in
 packaging==20.4
 pkg-resources==0.0.0
 pluggy==0.13.1
