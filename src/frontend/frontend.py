@@ -28,10 +28,10 @@ from flask import Flask, abort, jsonify, make_response, redirect, \
     render_template, request, url_for
 
 from opentelemetry import trace
-# from opentelemetry.sdk.trace.export import SimpleExportSpanProcessor
+from opentelemetry.sdk.trace.export import BatchExportSpanProcessor
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.propagators import set_global_textmap
-# from opentelemetry.exporter.cloud_trace import CloudTraceSpanExporter
+from opentelemetry.exporter.cloud_trace import CloudTraceSpanExporter
 from opentelemetry.tools.cloud_trace_propagator import CloudTraceFormatPropagator
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
 from opentelemetry.instrumentation.requests import RequestsInstrumentor
@@ -510,10 +510,10 @@ def create_app():
     if os.environ['ENABLE_TRACING'] == "true":
         app.logger.info("✅ Tracing enabled.")
         trace.set_tracer_provider(TracerProvider())
-        # cloud_trace_exporter = CloudTraceSpanExporter()
-        # trace.get_tracer_provider().add_span_processor(
-        #     SimpleExportSpanProcessor(cloud_trace_exporter)
-        # )
+        cloud_trace_exporter = CloudTraceSpanExporter()
+        trace.get_tracer_provider().add_span_processor(
+            BatchExportSpanProcessor(cloud_trace_exporter)
+        )
         set_global_textmap(CloudTraceFormatPropagator())
         # Add tracing auto-instrumentation for Flask, jinja and requests
         FlaskInstrumentor().instrument_app(app)
