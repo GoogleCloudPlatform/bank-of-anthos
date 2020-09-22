@@ -70,7 +70,7 @@ jobs:
           echo "testing $SERVICE..."
           # save current working dir to memory and cd to src/$SERVICE
           pushd src/$SERVICE
-            python3 -m venv $HOME/venv-$SERVICE
+            python3 -m venv --clear $HOME/venv-$SERVICE
             source $HOME/venv-$SERVICE/bin/activate
             pip install -r tests/requirements-test.txt
             python -m pytest -v -p no:warnings
