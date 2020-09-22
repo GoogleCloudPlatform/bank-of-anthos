@@ -51,7 +51,6 @@ jobs:
         for SERVICE in "balancereader" "ledgerwriter" "transactionhistory"; do
           echo "checking $SERVICE..."
           # save current working dir to memory and cd to src/$SERVICE
-          # change to init CI
           pushd src/$SERVICE
             mvn jacoco:report
             echo "Coverage for $SERVICE:"
