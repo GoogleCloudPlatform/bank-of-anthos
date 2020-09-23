@@ -72,7 +72,7 @@ jobs:
           pushd src/$SERVICE
             python3 -m venv $HOME/venv-$SERVICE
             source $HOME/venv-$SERVICE/bin/activate
-            pip install -r tests/requirements-test.txt
+            pip install -r requirements.txt
             python -m pytest -v -p no:warnings
             deactivate
           # return to previously saved path
@@ -87,7 +87,7 @@ jobs:
           pushd src/$SERVICE
             python3 -m venv $HOME/venv-$SERVICE
             source $HOME/venv-$SERVICE/bin/activate
-            pip install -r tests/requirements-test.txt
+            pip install -r requirements.txt
             python -m pytest --cov=./ tests/
             deactivate
           # return to previously saved path
