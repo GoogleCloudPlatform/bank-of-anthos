@@ -3,8 +3,10 @@ requests==2.23.0
 pyjwt==1.7.1
 cryptography==2.9
 gunicorn==20.0.4
-opentelemetry-sdk==0.10b0
-opentelemetry-exporter-cloud-trace==0.10b0
-opentelemetry-ext-flask==0.10b0
-opentelemetry-ext-jinja2==0.10b0
-opentelemetry-ext-requests==0.10b0
+opentelemetry-sdk==0.13b0
+opentelemetry-exporter-google-cloud==0.13b0
+opentelemetry-tools-google-cloud==0.13b0
+opentelemetry-instrumentation-flask==0.13b0
+opentelemetry-instrumentation-sqlalchemy==0.13b0
+opentelemetry-instrumentation-jinja2==0.13b0
+opentelemetry-instrumentation-requests==0.13b0
