@@ -12,17 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: "Continuous Integration"
+name: "Continuous Integration - Master/Release"
 on:
   push:
     # run on pushes to master or release/*
     branches:
       - master
       - release/*
-  pull_request:
-    # run on pull requests targeting master
-    branches:
-      - master
 jobs:
   code-tests:
     runs-on: self-hosted
@@ -77,7 +73,7 @@ jobs:
           pushd src/$SERVICE
             python3 -m venv $HOME/venv-$SERVICE
             source $HOME/venv-$SERVICE/bin/activate
-            pip install -r tests/requirements-test.txt
+            pip install -r requirements.txt
             python -m pytest -v -p no:warnings
             deactivate
           # return to previously saved path
@@ -92,7 +88,7 @@ jobs:
           pushd src/$SERVICE
             python3 -m venv $HOME/venv-$SERVICE
             source $HOME/venv-$SERVICE/bin/activate
-            pip install -r tests/requirements-test.txt
+            pip install -r requirements.txt
             python -m pytest --cov=./ tests/
             deactivate
           # return to previously saved path
@@ -143,7 +139,7 @@ jobs:
         kubectl wait --for=condition=available --timeout=300s deployment/loadgenerator
         kubectl wait --for=condition=ready --timeout=300s pod/accounts-db-0
         kubectl wait --for=condition=ready --timeout=300s pod/ledger-db-0
-    - name: Query EXTERNAL_IP for staging
+    - name: Query EXTERNAL_IP for UI tests
       timeout-minutes: 5
       run: |
         set -x
@@ -158,6 +154,7 @@ jobs:
         done
         EXTERNAL_IP=$(get_externalIP)
         echo "::set-env name=EXTERNAL_IP::$EXTERNAL_IP"
+        sleep 60
     - name: Run UI tests (Cypress)
       run: |
         docker run -t -v $PWD/.github/workflows/ui-tests:/e2e -w /e2e -e CYPRESS_baseUrl=http://$EXTERNAL_IP --network=host cypress/included:5.0.0 --env CI=true
