@@ -23,16 +23,16 @@ idna==2.9                 # via requests
 itsdangerous==1.1.0       # via flask
 jinja2==2.11.1            # via flask, opentelemetry-instrumentation-jinja2
 markupsafe==1.1.1         # via jinja2
-opentelemetry-api==0.12b0  # via opentelemetry-exporter-google-cloud, opentelemetry-instrumentation, opentelemetry-instrumentation-flask, opentelemetry-instrumentation-jinja2, opentelemetry-instrumentation-requests, opentelemetry-instrumentation-sqlalchemy, opentelemetry-instrumentation-wsgi, opentelemetry-sdk, opentelemetry-tools-google-cloud
-opentelemetry-exporter-google-cloud==0.12b0  # via -r requirements.in
-opentelemetry-instrumentation-flask==0.12b0  # via -r requirements.in
-opentelemetry-instrumentation-jinja2==0.12b0  # via -r requirements.in
-opentelemetry-instrumentation-requests==0.12b0  # via -r requirements.in
-opentelemetry-instrumentation-sqlalchemy==0.12b0  # via -r requirements.in
-opentelemetry-instrumentation-wsgi==0.12b0  # via opentelemetry-instrumentation-flask
-opentelemetry-instrumentation==0.12b0  # via opentelemetry-instrumentation-flask, opentelemetry-instrumentation-jinja2, opentelemetry-instrumentation-requests, opentelemetry-instrumentation-sqlalchemy, opentelemetry-instrumentation-wsgi
-opentelemetry-sdk==0.12b0  # via -r requirements.in, opentelemetry-exporter-google-cloud, opentelemetry-tools-google-cloud
-opentelemetry-tools-google-cloud==0.12b0  # via -r requirements.in
+opentelemetry-api==0.13b0  # via opentelemetry-exporter-google-cloud, opentelemetry-instrumentation, opentelemetry-instrumentation-flask, opentelemetry-instrumentation-jinja2, opentelemetry-instrumentation-requests, opentelemetry-instrumentation-sqlalchemy, opentelemetry-instrumentation-wsgi, opentelemetry-sdk, opentelemetry-tools-google-cloud
+opentelemetry-exporter-google-cloud==0.13b0  # via -r requirements.in
+opentelemetry-instrumentation-flask==0.13b0  # via -r requirements.in
+opentelemetry-instrumentation-jinja2==0.13b0  # via -r requirements.in
+opentelemetry-instrumentation-requests==0.13b0  # via -r requirements.in
+opentelemetry-instrumentation-sqlalchemy==0.13b0  # via -r requirements.in
+opentelemetry-instrumentation-wsgi==0.13b0  # via opentelemetry-instrumentation-flask
+opentelemetry-instrumentation==0.13b0  # via opentelemetry-instrumentation-flask, opentelemetry-instrumentation-jinja2, opentelemetry-instrumentation-requests, opentelemetry-instrumentation-sqlalchemy, opentelemetry-instrumentation-wsgi
+opentelemetry-sdk==0.13b0  # via -r requirements.in, opentelemetry-exporter-google-cloud, opentelemetry-tools-google-cloud
+opentelemetry-tools-google-cloud==0.13b0  # via -r requirements.in
 protobuf==3.12.2          # via google-api-core, googleapis-common-protos
 pyasn1-modules==0.2.8     # via google-auth
 pyasn1==0.4.8             # via pyasn1-modules, rsa
