@@ -32,7 +32,6 @@ from db import ContactsDb
 from opentelemetry import trace
 from opentelemetry.sdk.trace.export import BatchExportSpanProcessor
 from opentelemetry.sdk.trace import TracerProvider
-# from opentelemetry.propagators import set_global_httptextformat
 from opentelemetry.propagators import set_global_textmap
 from opentelemetry.exporter.cloud_trace import CloudTraceSpanExporter
 from opentelemetry.tools.cloud_trace_propagator import CloudTraceFormatPropagator
@@ -204,7 +203,6 @@ def create_app():
         trace.get_tracer_provider().add_span_processor(
             BatchExportSpanProcessor(cloud_trace_exporter)
         )
-        # set_global_httptextformat(CloudTraceFormatPropagator())
         set_global_textmap(CloudTraceFormatPropagator())
         FlaskInstrumentor().instrument_app(app)
     else:

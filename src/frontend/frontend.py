@@ -31,7 +31,6 @@ from opentelemetry import trace
 from opentelemetry.sdk.trace.export import BatchExportSpanProcessor
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.propagators import set_global_textmap
-# from opentelemetry.propagators import set_global_httptextformat
 from opentelemetry.exporter.cloud_trace import CloudTraceSpanExporter
 from opentelemetry.tools.cloud_trace_propagator import CloudTraceFormatPropagator
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
@@ -515,7 +514,6 @@ def create_app():
         trace.get_tracer_provider().add_span_processor(
             BatchExportSpanProcessor(cloud_trace_exporter)
         )
-        # set_global_httptextformat(CloudTraceFormatPropagator())
         set_global_textmap(CloudTraceFormatPropagator())
         # Add tracing auto-instrumentation for Flask, jinja and requests
         FlaskInstrumentor().instrument_app(app)
