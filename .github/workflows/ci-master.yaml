@@ -154,6 +154,7 @@ jobs:
         done
         EXTERNAL_IP=$(get_externalIP)
         echo "::set-env name=EXTERNAL_IP::$EXTERNAL_IP"
+        sleep 60
     - name: Run UI tests (Cypress)
       run: |
         docker run -t -v $PWD/.github/workflows/ui-tests:/e2e -w /e2e -e CYPRESS_baseUrl=http://$EXTERNAL_IP --network=host cypress/included:5.0.0 --env CI=true
