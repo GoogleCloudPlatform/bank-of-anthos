@@ -53,7 +53,7 @@ class TestUserservice(unittest.TestCase):
                     'TOKEN_EXPIRY_SECONDS': '1',
                     'PRIV_KEY_PATH': '1',
                     'PUB_KEY_PATH': '1',
-                    'ENABLE_TRACING': 'true',
+                    'ENABLE_TRACING': 'false',
                 },
             ):
                 # mock db module as MagicMock, context manager handles cleanup

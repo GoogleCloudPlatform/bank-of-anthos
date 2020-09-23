@@ -27,15 +27,17 @@ import bcrypt
 import jwt
 from flask import Flask, jsonify, request
 import bleach
-from opentelemetry import trace
-from opentelemetry.exporter.cloud_trace import CloudTraceSpanExporter
-from opentelemetry.exporter.cloud_trace.cloud_trace_propagator import CloudTraceFormatPropagator
-from opentelemetry.ext.flask import FlaskInstrumentor
-from opentelemetry.propagators import set_global_httptextformat
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import SimpleExportSpanProcessor
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
 from db import UserDb
+
+from opentelemetry import trace
+from opentelemetry.sdk.trace.export import BatchExportSpanProcessor
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.propagators import set_global_textmap
+from opentelemetry.exporter.cloud_trace import CloudTraceSpanExporter
+from opentelemetry.tools.cloud_trace_propagator import CloudTraceFormatPropagator
+from opentelemetry.instrumentation.flask import FlaskInstrumentor
+
 
 
 def create_app():
@@ -228,10 +230,9 @@ def create_app():
         trace.set_tracer_provider(TracerProvider())
         cloud_trace_exporter = CloudTraceSpanExporter()
         trace.get_tracer_provider().add_span_processor(
-            SimpleExportSpanProcessor(cloud_trace_exporter)
+            BatchExportSpanProcessor(cloud_trace_exporter)
         )
-        set_global_httptextformat(CloudTraceFormatPropagator())
-        # Add Flask auto-instrumentation for tracing
+        set_global_textmap(CloudTraceFormatPropagator())
         FlaskInstrumentor().instrument_app(app)
     else:
         app.logger.info("🚫 Tracing disabled.")
