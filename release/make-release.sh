@@ -54,12 +54,7 @@ git commit -m "release/${NEW_VERSION}"
 # add tag
 git tag "${NEW_VERSION}"
 
-# change back to latest tag
-find "${REPO_ROOT}/kubernetes-manifests" -name '*.yaml' -exec sed -i -e "s/:${NEW_VERSION}/:latest/g" {} \;
-git add "${REPO_ROOT}/kubernetes-manifests/*.yaml"
-git commit -m "revert to latest images"
-
-# build and push containers
+# build and push release images
 skaffold config set local-cluster false
 skaffold build --default-repo="${REPO_PREFIX}" --tag="${NEW_VERSION}"
 skaffold config unset local-cluster
