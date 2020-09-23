@@ -37,8 +37,9 @@ if [[ $(git status -s | wc -l) -gt 0 ]]; then
 fi
 
 # replace kubernetes-manifests/ contents 
-rm -r "${REPO_ROOT}/kubernetes-manifests/*"
-cp -r "${REPO_ROOT}/dev-kubernetes-manifests/*" "${REPO_ROOT}/kubernetes-manifests/"
+rm -rf "${REPO_ROOT}/kubernetes-manifests"
+mkdir "${REPO_ROOT}/kubernetes-manifests"
+cp -a "${REPO_ROOT}/dev-kubernetes-manifests/." "${REPO_ROOT}/kubernetes-manifests/"
 
 # update version in manifests
 CURRENT_VERSION=$(grep -A 1 VERSION ${REPO_ROOT}/kubernetes-manifests/*.yaml | grep value | head -n 1 | awk '{print $3}' |  tr -d '"')
