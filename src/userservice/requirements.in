@@ -8,6 +8,11 @@ chardet==3.0.4
 click==7.1.1
 cryptography==2.9
 flask==1.1.2
+google-api-core==1.22.2
+google-auth==1.21.2
+google-cloud-core==1.4.1
+google-cloud-trace==0.24.0
+googleapis-common-protos==1.52.0
 grpcio==1.30.0
 gunicorn==20.0.4
 idna==2.10
