@@ -165,6 +165,7 @@ jobs:
             -H "Content-Type: application/json" \
             -H "Authorization: token $GITHUB_TOKEN" \
             --data '{ "body": "🚀 PR staged at '"http://${EXTERNAL_IP}"'"}'
+          sleep 60
     - name: Run UI tests (Cypress)
       run: |
         docker run -t -v $PWD/.github/workflows/ui-tests:/e2e -w /e2e -e CYPRESS_baseUrl=http://$EXTERNAL_IP --network=host cypress/included:5.0.0 --env CI=true
