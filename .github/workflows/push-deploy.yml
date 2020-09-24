@@ -35,16 +35,3 @@ jobs:
                        --tag=latest
       env:
         PROJECT_ID: ${{ secrets.PROJECT_ID }}
-    - name: Deploy latest images to GKE master cluster (bank-of-anthos.xyz)
-      timeout-minutes: 20
-      run: |
-        skaffold config set --global local-cluster false
-        gcloud container clusters get-credentials $MASTER_CLUSTER \
-            --zone $ZONE --project $PROJECT_ID
-        # deploy tag to cluster
-        skaffold run --default-repo=gcr.io/$PROJECT_ID \
-                     --tag=$GITHUB_SHA
-      env:
-        MASTER_CLUSTER: ${{ secrets.MASTER_CLUSTER }}
-        ZONE: ${{ secrets.ZONE }}
-        PROJECT_ID: ${{ secrets.PROJECT_ID }}
