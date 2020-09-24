@@ -32,7 +32,7 @@
 import './commands'
 
 
-if(Cypress.env('CI') == true) {
+if(Cypress.env('screenshots') == false) {
 Cypress.Screenshot.defaults({
   screenshotOnRunFailure: false,
 })
