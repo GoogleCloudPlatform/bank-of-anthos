@@ -167,7 +167,7 @@ jobs:
             --data '{ "body": "🚀 PR staged at '"http://${EXTERNAL_IP}"'"}'
     - name: Run UI tests (Cypress)
       run: |
-        docker run -t -v $PWD/.github/workflows/ui-tests:/e2e -w /e2e -e CYPRESS_baseUrl=http://$EXTERNAL_IP -u node cypress/included:5.0.0 --env CI=true --spec cypress/integration/home_page_spec.js
+        docker run -t -v $PWD/.github/workflows/ui-tests:/e2e -w /e2e -e CYPRESS_baseUrl=http://$EXTERNAL_IP -u node cypress/included:5.0.0 
     - uses: actions/upload-artifact@v2
       if: failure()
       with:

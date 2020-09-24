@@ -58,7 +58,7 @@ checkstyle:
 	pylint --rcfile=./.pylintrc ./src/*/*.py
 
 test-e2e: e2e-env
-	docker run -it -v ${E2E_PATH}:/e2e -w /e2e -e CYPRESS_baseUrl=${E2E_URL} -e CYPRESS_CI=false cypress/included:5.0.0 $(E2E_FLAGS)
+	docker run -it -v ${E2E_PATH}:/e2e -w /e2e -e CYPRESS_baseUrl=${E2E_URL} cypress/included:5.0.0 $(E2E_FLAGS)
 
 check-env:
 ifndef PROJECT_ID
