@@ -51,7 +51,7 @@ make test-e2e E2E_FLAGS="--spec cypress/integration/<test-file>.js"
 ```console
 docker run -it -v ${E2E_PATH}:/e2e -w /e2e \
  -e CYPRESS_baseUrl=${E2E_URL} -e CYPRESS_CI=false \
- cypress/included:4.3.0 --spec cypress/integration/<test-file>.js
+ cypress/included:5.0.0 --spec cypress/integration/<test-file>.js
 ```
 
 ### Filtering tests with `.only()` and `.skip()`
@@ -60,4 +60,4 @@ The `.only()` and `.skip()` functions can be appended to either single tests or 
 
 ### Screenshots
 
-Screenshots are enabled by passing the environment variable `CI=false`.  When running tests locally, failing tests will store screenshots in the `cypress/screenshots` directory. These are helpful when debugging tests.  [Read more about them here](https://docs.cypress.io/guides/guides/screenshots-and-videos.html#Screenshots).
+Failing tests will store screenshots in the `cypress/screenshots` directory (locally and CI) and uploaded as an [artifact to Github Actions](https://docs.github.com/en/actions/guides/storing-workflow-data-as-artifacts) after a failing build. These are helpful when debugging tests.  [Read more about them here](https://docs.cypress.io/guides/guides/screenshots-and-videos.html#Screenshots).
