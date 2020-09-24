@@ -172,4 +172,4 @@ jobs:
       if: failure()
       with:
           name: cypress-screenshots
-          path: $PWD/.github/workflows/ui-tests/cypress/screenshots
+          path: ${{ github.workspace }}/.github/workflows/ui-tests/cypress/screenshots
