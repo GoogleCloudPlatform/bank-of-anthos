@@ -39,7 +39,7 @@ If you’re using this app, please ★Star the repository to show your interest!
 
 ```
 PROJECT_ID=""
-gcloud beta services enable container --project ${PROJECT_ID}
+gcloud services enable container --project ${PROJECT_ID}
 ```
 
 2. **Clone this repository.**
@@ -55,7 +55,7 @@ cd bank-of-anthos
 ZONE=us-central1-b
 gcloud beta container clusters create bank-of-anthos \
     --project=${PROJECT_ID} --zone=${ZONE} \
-    --machine-type=n1-standard-2 --num-nodes=4
+    --machine-type=e2-standard-2 --num-nodes=4
 ```
 
 4. **Deploy the demo JWT public key** to the cluster as a Secret. This key is used for user account creation and authentication. 
