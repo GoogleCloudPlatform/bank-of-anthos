@@ -57,6 +57,16 @@ If you're adding a new feature to one or more of the Java services (`ledgerwrite
 2. Re-run `skaffold dev` or `skaffold run` to trigger a Jib container build using Maven and the updated pom file. 
 
 
+## Generating your own JWT public key. 
+
+The [extras](/extras/jwt) directory provides the RSA key/pair secret used for demos. To create your own: 
+
+```
+openssl genrsa -out jwtRS256.key 4096
+openssl rsa -in jwtRS256.key -outform PEM -pubout -out jwtRS256.key.pub
+kubectl create secret generic jwt-key --from-file=./jwtRS256.key --from-file=./jwtRS256.key.pub
+```
+
 ## Testing your changes locally 
 
 We recommend you test and build directly on Kubernetes, from your local environment.  This is because there are seven services and for the app to fully function, all the services need to be running. All the services have dependencies, environment variables, and secrets and that are built into the Kubernetes environment / manifests, so testing directly on Kubernetes is the fastest way to see your code changes in action.
