@@ -25,29 +25,37 @@ spec:
       labels:
         app: frontend
     spec:
+      serviceAccountName: default
       terminationGracePeriodSeconds: 5
       containers:
       - name: front
-        image: gcr.io/bank-of-anthos/frontend:v0.2.0
+        image: gcr.io/bank-of-anthos/frontend:v0.3.0
         volumeMounts:
         - name: publickey
           mountPath: "/root/.ssh"
           readOnly: true
         env:
         - name: VERSION
-          value: "v0.2.0"
+          value: "v0.3.0"
         - name: PORT
           value: "8080"
+        - name: ENABLE_TRACING
+          value: "true"
+        - name: SCHEME
+          value: "http"
+         # Valid levels are debug, info, warning, error, critical. If no valid level is set, gunicorn will default to info.
+        - name: LOG_LEVEL
+          value: "info"
         - name: DEFAULT_USERNAME
           valueFrom:
             configMapKeyRef:
-              name: default-data-config
-              key: DEFAULT_USER_USERNAME
+              name: demo-data-config
+              key: DEMO_LOGIN_USERNAME
         - name: DEFAULT_PASSWORD
           valueFrom:
             configMapKeyRef:
-              name: default-data-config
-              key: DEFAULT_LOGIN_PASSWORD
+              name: demo-data-config
+              key: DEMO_LOGIN_PASSWORD
         envFrom:
         - configMapRef:
             name: environment-config
@@ -57,8 +65,9 @@ spec:
           httpGet:
             path: /ready
             port: 8080
-          initialDelaySeconds: 5
+          initialDelaySeconds: 10
           periodSeconds: 5
+          timeoutSeconds: 10
         resources:
           requests:
             cpu: 100m

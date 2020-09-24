@@ -25,10 +25,11 @@ spec:
       labels:
         app: userservice
     spec:
+      serviceAccountName: default
       terminationGracePeriodSeconds: 5
       containers:
       - name: userservice
-        image: gcr.io/bank-of-anthos/userservice:v0.2.0
+        image: gcr.io/bank-of-anthos/userservice:v0.3.0
         volumeMounts:
         - name: keys
           mountPath: "/root/.ssh"
@@ -38,13 +39,18 @@ spec:
           containerPort: 8080
         env:
         - name: VERSION
-          value: "v0.2.0"
+          value: "v0.3.0"
         - name: PORT
           value: "8080"
+        - name: ENABLE_TRACING
+          value: "true"
         - name: TOKEN_EXPIRY_SECONDS
           value: "3600"
         - name: PRIV_KEY_PATH
           value: "/root/.ssh/privatekey"
+        # Valid levels are debug, info, warning, error, critical. If no valid level is set, gunicorn will default to info.
+        - name: LOG_LEVEL
+          value: "info"
         envFrom:
         - configMapRef:
             name: environment-config
@@ -54,8 +60,9 @@ spec:
           httpGet:
             path: /ready
             port: 8080
-          initialDelaySeconds: 5
+          initialDelaySeconds: 10
           periodSeconds: 5
+          timeoutSeconds: 10
         resources:
           requests:
             cpu: 100m
