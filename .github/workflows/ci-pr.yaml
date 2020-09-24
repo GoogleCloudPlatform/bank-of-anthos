@@ -102,42 +102,42 @@ jobs:
       fail-fast: true
     steps:
     - uses: actions/checkout@v2
-    - name: Build + Deploy PR images to GKE
-      timeout-minutes: 20
-      run: |
-        PR_NUMBER=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
-        NAMESPACE="pr${PR_NUMBER}"
-        echo "::set-env name=NAMESPACE::$NAMESPACE"
-        echo "::set-env name=PR_NUMBER::$PR_NUMBER"
+    # - name: Build + Deploy PR images to GKE
+    #   timeout-minutes: 20
+    #   run: |
+    #     PR_NUMBER=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
+    #     NAMESPACE="pr${PR_NUMBER}"
+    #     echo "::set-env name=NAMESPACE::$NAMESPACE"
+    #     echo "::set-env name=PR_NUMBER::$PR_NUMBER"
 
-        gcloud container clusters get-credentials $PR_CLUSTER --zone $ZONE --project $PROJECT_ID
-        cat <<EOF | kubectl apply -f -
-        apiVersion: v1
-        kind: Namespace
-        metadata:
-          name: $NAMESPACE
-        EOF
-        echo Deploying application
-        skaffold config set --global local-cluster false
-        skaffold run --default-repo=gcr.io/$PROJECT_ID/$GITHUB_REF --tag=$GITHUB_SHA --namespace=$NAMESPACE
-      env:
-        PROJECT_ID: ${{ secrets.PROJECT_ID }}
-        PR_CLUSTER: ${{ secrets.PR_CLUSTER_2 }}
-        ZONE: ${{ secrets.PR_CLUSTER_2_ZONE }}
-    - name: Wait For Pods
-      timeout-minutes: 20
-      run: |
-        set -x
-        kubectl config set-context --current --namespace=$NAMESPACE
-        kubectl wait --for=condition=available --timeout=300s deployment/frontend
-        kubectl wait --for=condition=available --timeout=300s deployment/contacts
-        kubectl wait --for=condition=available --timeout=300s deployment/userservice
-        kubectl wait --for=condition=available --timeout=300s deployment/ledgerwriter
-        kubectl wait --for=condition=available --timeout=300s deployment/transactionhistory
-        kubectl wait --for=condition=available --timeout=300s deployment/balancereader
-        kubectl wait --for=condition=available --timeout=300s deployment/loadgenerator
-        kubectl wait --for=condition=ready --timeout=300s pod/accounts-db-0
-        kubectl wait --for=condition=ready --timeout=300s pod/ledger-db-0
+    #     gcloud container clusters get-credentials $PR_CLUSTER --zone $ZONE --project $PROJECT_ID
+    #     cat <<EOF | kubectl apply -f -
+    #     apiVersion: v1
+    #     kind: Namespace
+    #     metadata:
+    #       name: $NAMESPACE
+    #     EOF
+    #     echo Deploying application
+    #     skaffold config set --global local-cluster false
+    #     skaffold run --default-repo=gcr.io/$PROJECT_ID/$GITHUB_REF --tag=$GITHUB_SHA --namespace=$NAMESPACE
+    #   env:
+    #     PROJECT_ID: ${{ secrets.PROJECT_ID }}
+    #     PR_CLUSTER: ${{ secrets.PR_CLUSTER_2 }}
+    #     ZONE: ${{ secrets.PR_CLUSTER_2_ZONE }}
+    # - name: Wait For Pods
+    #   timeout-minutes: 20
+    #   run: |
+    #     set -x
+    #     kubectl config set-context --current --namespace=$NAMESPACE
+    #     kubectl wait --for=condition=available --timeout=300s deployment/frontend
+    #     kubectl wait --for=condition=available --timeout=300s deployment/contacts
+    #     kubectl wait --for=condition=available --timeout=300s deployment/userservice
+    #     kubectl wait --for=condition=available --timeout=300s deployment/ledgerwriter
+    #     kubectl wait --for=condition=available --timeout=300s deployment/transactionhistory
+    #     kubectl wait --for=condition=available --timeout=300s deployment/balancereader
+    #     kubectl wait --for=condition=available --timeout=300s deployment/loadgenerator
+    #     kubectl wait --for=condition=ready --timeout=300s pod/accounts-db-0
+    #     kubectl wait --for=condition=ready --timeout=300s pod/ledger-db-0
     - name: Query EXTERNAL_IP for staging
       timeout-minutes: 5
       run: |
@@ -153,22 +153,22 @@ jobs:
         done
         EXTERNAL_IP=$(get_externalIP)
         echo "::set-env name=EXTERNAL_IP::$EXTERNAL_IP"
-    - name: Comment EXTERNAL_IP
-      timeout-minutes: 5
-      env:
-          COMMENTS_URL: ${{ github.event.pull_request.comments_url }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-          curl \
-            -X POST \
-            $COMMENTS_URL \
-            -H "Content-Type: application/json" \
-            -H "Authorization: token $GITHUB_TOKEN" \
-            --data '{ "body": "🚀 PR staged at '"http://${EXTERNAL_IP}"'"}'
+    # - name: Comment EXTERNAL_IP
+    #   timeout-minutes: 5
+    #   env:
+    #       COMMENTS_URL: ${{ github.event.pull_request.comments_url }}
+    #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #   run: |
+    #       curl \
+    #         -X POST \
+    #         $COMMENTS_URL \
+    #         -H "Content-Type: application/json" \
+    #         -H "Authorization: token $GITHUB_TOKEN" \
+    #         --data '{ "body": "🚀 PR staged at '"http://${EXTERNAL_IP}"'"}'
     - name: Run UI tests (Cypress)
       run: |
-        docker run -t -v $PWD/.github/workflows/ui-tests:/e2e -w /e2e -e CYPRESS_baseUrl=http://$EXTERNAL_IP -u node cypress/included:5.0.0 --env CI=true
-    - uses: actions/upload-artifact@v1
+        docker run -t -v $PWD/.github/workflows/ui-tests:/e2e -w /e2e -e CYPRESS_baseUrl=http://$EXTERNAL_IP -u node cypress/included:5.0.0 --env CI=true --spec cypress/integration/home_page_spec.js
+    - uses: actions/upload-artifact@v2
       if: failure()
       with:
           name: cypress-screenshots
