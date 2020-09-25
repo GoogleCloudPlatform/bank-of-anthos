@@ -27,9 +27,10 @@ spec:
       labels:
         app: ledger-db
     spec:
+      serviceAccountName: default
       containers:
         - name: postgres
-          image: gcr.io/bank-of-anthos/ledger-db:v0.2.0
+          image: gcr.io/bank-of-anthos/ledger-db:v0.3.0
           ports:
             - containerPort: 5432
           envFrom:
@@ -38,7 +39,7 @@ spec:
             - configMapRef:
                 name: ledger-db-config
             - configMapRef:
-                name: default-data-config
+                name: demo-data-config
           resources:
             requests:
               cpu: 100m
@@ -77,6 +78,6 @@ spec:
   selector:
     app: ledger-db
   ports:
-  - name: postgres
+  - name: tcp
     port: 5432
     targetPort: 5432
