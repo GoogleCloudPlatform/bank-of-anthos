@@ -19,7 +19,7 @@ CLUSTER=bank-of-anthos
 E2E_PATH=${PWD}/.github/workflows/ui-tests/
 
 cluster: check-env
-	gcloud beta container clusters create ${CLUSTER} \
+	gcloud container clusters create ${CLUSTER} \
 		--project=${PROJECT_ID} --zone=${ZONE} \
 		--machine-type=e2-standard-4 --num-nodes=4 \
 		--enable-stackdriver-kubernetes --subnetwork=default \
@@ -57,8 +57,22 @@ checkstyle:
 	# disable warnings: import loading, todos, function members, duplicate code, public methods
 	pylint --rcfile=./.pylintrc ./src/*/*.py
 
-test-e2e: e2e-env
-	docker run -it -v ${E2E_PATH}:/e2e -w /e2e -e CYPRESS_baseUrl=${E2E_URL} cypress/included:5.0.0 $(E2E_FLAGS)
+test-e2e:
+	E2E_URL="http://$(shell kubectl get service frontend -o jsonpath='{.status.loadBalancer.ingress[0].ip}')" && \
+	docker run -it -v ${E2E_PATH}:/e2e -w /e2e -e CYPRESS_baseUrl=$${E2E_URL} cypress/included:5.0.0 $(E2E_FLAGS)
+
+test-unit:
+	mvn test
+	for SERVICE in "contacts" "userservice"; \
+	do \
+		pushd src/$$SERVICE;\
+			python3 -m venv $$HOME/venv-$$SERVICE; \
+			source $$HOME/venv-$$SERVICE/bin/activate; \
+			pip install -r requirements.txt; \
+			python -m pytest -v -p no:warnings; \
+			deactivate; \
+		popd; \
+	done
 
 check-env:
 ifndef PROJECT_ID
@@ -66,6 +80,3 @@ ifndef PROJECT_ID
 else ifndef ZONE
 	$(error ZONE is undefined)
 endif
-
-e2e-env:
-E2E_URL:= http://$(shell kubectl get service frontend -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
