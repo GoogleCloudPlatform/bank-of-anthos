@@ -97,7 +97,11 @@ public class BalanceReaderApplication {
 
             @Override
             public String projectId() {
-                return MetadataConfig.getProjectId();
+                String id = MetadataConfig.getProjectId();
+                if (id == null) {
+                    id = "";
+                }
+                return id;
             }
 
             @Override
