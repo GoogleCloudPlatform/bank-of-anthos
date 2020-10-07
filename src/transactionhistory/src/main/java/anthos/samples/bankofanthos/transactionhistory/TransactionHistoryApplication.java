@@ -97,9 +97,13 @@ public class TransactionHistoryApplication {
 
             @Override
             public String projectId() {
-                return MetadataConfig.getProjectId();
+                String id = MetadataConfig.getProjectId();
+                if(id == null) {
+                    id = ""; 
+                }
+                return id;
             }
-
+            
             @Override
             public String get(String key) {
                 return null;
