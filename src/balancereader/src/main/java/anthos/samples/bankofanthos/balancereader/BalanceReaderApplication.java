@@ -98,8 +98,8 @@ public class BalanceReaderApplication {
             @Override
             public String projectId() {
                 String id = MetadataConfig.getProjectId();
-                if(id == null) {
-                    id = ""; 
+                if (id == null) {
+                    id = "";
                 }
                 return id;
             }
