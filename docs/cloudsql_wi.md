@@ -9,7 +9,8 @@ This setup assumes you have enabled [Workload Identity](https://cloud.google.com
 1. Create instance
 ```bash
 INSTANCE_NAME='bofa-instance'
-gcloud sql instances create $INSTANCE_NAME --tier=db-custom-1-3840 --region=us-west1
+PROJECT_ID=<your-gcp-project-id>
+gcloud sql instances create $INSTANCE_NAME --database-version=POSTGRES_12 --tier=db-custom-1-3840 --region=us-west1
 ```
 2. Get instance connection name and store in env variable
 ```bash
@@ -24,12 +25,13 @@ gcloud sql users create accounts-admin \
 ```bash
 gcloud sql databases create accounts-db --instance=$INSTANCE_NAME
 ```
-5. Connect to the database
+5. Install the Cloud SQL proxy by following the instructions [here](https://cloud.google.com/sql/docs/mysql/sql-proxy#install)
+Note: if you are running this from Cloud Shell you can skip this step.)
+6. Connect to the database
 ```bash
-PROJECT_ID=<your-gcp-project-id>
-gcloud sql connect $INSTANCE_NAME --project=$PROJECT_ID --user=accounts-admin --database=accounts-db
+gcloud beta sql connect $INSTANCE_NAME --project=$PROJECT_ID --user=accounts-admin --database=accounts-db
 ```
-6. Run the SQL commands in [0-accounts-schema.sql](../src/accounts-db/initdb/0-accounts-schema.sql) script on your database to create the tables.
+7. Run the SQL commands in [0-accounts-schema.sql](../src/accounts-db/initdb/0-accounts-schema.sql) script on your database to create the tables.
 
 ## GSA, KSA and permissions
 1. **Create namespace** for Bank of Anthos services
@@ -49,9 +51,10 @@ gcloud iam service-accounts create $GSA_NAME
 ```
 4. **Allow the KSA to impersonate the GSA**
 ```bash
+GKE_PROJECT_ID=<your-cluster-project-id>
 gcloud iam service-accounts add-iam-policy-binding \
   --role roles/iam.workloadIdentityUser \
-  --member "serviceAccount:$PROJECT_ID.svc.id.goog[$NAMESPACE/$KSA_NAME]" \
+  --member "serviceAccount:$GKE_PROJECT_ID.svc.id.goog[$NAMESPACE/$KSA_NAME]" \
   $GSA_NAME@$PROJECT_ID.iam.gserviceaccount.com
 ```
 5. **Annotate the Kubernetes service account,** using the email address of the Google service account.
@@ -90,8 +93,7 @@ done
 FILES="`pwd`/extras/cloudsql/*"
 for f in $FILES; do
     echo "Processing $f..."
-    sed "s/KSA_NAME/${KSA_NAME}/g" $f > wi-kubernetes-manifests/`basename $f`
-    sed "s/INSTANCE_CONNECTION_NAME/${INSTANCE_CONNECTION_NAME}/g" $f > wi-kubernetes-manifests/`basename $f`
+    sed "s/serviceAccountName: default/serviceAccountName: ${KSA_NAME}/g;s/INSTANCE_CONNECTION_NAME/${INSTANCE_CONNECTION_NAME}/g" $f > wi-kubernetes-manifests/`basename $f`
 done
 ```
 8. **Deploy Bank of Anthos** to your GKE cluster using the install instructions above, except make sure that instead of the default namespace, you're deploying the manifests into your KSA namespace: 
