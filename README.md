@@ -107,8 +107,9 @@ EXTERNAL-IP
 ## Other Deployment Options 
 
 - **Workload Identity**: [See these instructions.](docs/workload-identity.md)
+- **Cloud SQL**: [See these instructions](docs/cloudsql_wi.md) to replace the accounts-db with a Cloud SQL database.
 - **Istio**: Apply `istio-manifests/` to your cluster to access the frontend through the IngressGateway. 
-- **Anthos Service Mesh**: ASM requires Workload Identity to be enabled in your GKE cluster. [See the workload identity instructions](docs/workload-identity.md) to configure and deploy the app. Then, apply `istio-manifests/` to your cluster to confugure frontend ingress. 
+- **Anthos Service Mesh**: ASM requires Workload Identity to be enabled in your GKE cluster. [See the workload identity instructions](docs/workload-identity.md) to configure and deploy the app. Then, apply `istio-manifests/` to your cluster to configure frontend ingress. 
 - **Java Monolith (VM)**: We provide a version of this app where the three Java microservices are coupled together into one monolithic service, which you can deploy inside a VM (eg. Google Compute Engine). See the [ledgermonolith](src/ledgermonolith) directory.
 
 ## Troubleshooting 
