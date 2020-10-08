@@ -25,7 +25,7 @@ spec:
       labels:
         app: contacts
     spec:
-      serviceAccountName: KSA_NAME
+      serviceAccountName: default
       terminationGracePeriodSeconds: 5
       containers:
       - name: contacts
