@@ -9,7 +9,7 @@ certifi==2020.4.5.1       # via requests
 cffi==1.14.0              # via cryptography
 chardet==3.0.4            # via requests
 click==7.1.1              # via flask
-cryptography==2.9         # via -r requirements.in
+cryptography==3.2         # via -r requirements.in
 flask==1.1.2              # via -r requirements.in, opentelemetry-instrumentation-flask
 google-api-core[grpc]==1.21.0  # via google-cloud-core, google-cloud-monitoring, google-cloud-trace
 google-auth==1.18.0       # via google-api-core, opentelemetry-tools-google-cloud
