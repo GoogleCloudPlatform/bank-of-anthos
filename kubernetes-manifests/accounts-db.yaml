@@ -35,7 +35,7 @@ spec:
       serviceAccountName: default
       containers:
       - name: accounts-db
-        image: gcr.io/bank-of-anthos/accounts-db:v0.3.0
+        image: gcr.io/bank-of-anthos/accounts-db:v0.3.1
         envFrom:
           - configMapRef:
               name: environment-config
