@@ -11,7 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-FROM postgres:12
+FROM postgres:12-alpine
+
+# Need to get coreutils to get the date bash function working properly:
+RUN apk add --update coreutils && rm -rf /var/cache/apk/*
 
 COPY initdb/0_init_tables.sql /docker-entrypoint-initdb.d/0_init_tables.sql
 RUN chmod 755  /docker-entrypoint-initdb.d/0_init_tables.sql
