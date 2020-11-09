@@ -1,37 +1,43 @@
 
 # Setup for using a CloudSQL database for the accounts-db
 
-This setup assumes you have enabled [Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity) on your GKE cluster ([a requirement for Anthos Service Mesh](https://cloud.google.com/service-mesh/docs/gke-anthos-cli-new-cluster#requirements) to ensure that Bank of Anthos pods can communicate with GCP APIs.
+This setup assumes you have enabled [Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity) on your GKE cluster ([a requirement for Anthos Service Mesh](https://cloud.google.com/service-mesh/docs/gke-anthos-cli-new-cluster#requirements)) to ensure that Bank of Anthos pods can communicate with GCP APIs.
 
 *Note* - These instructions have only been validated in GKE on GCP clusters. [Workload Identity is not yet supported](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity#creating_a_relationship_between_ksas_and_gsas) in Anthos GKE on Prem. 
 
 ## Cloud SQL instance and database
-1. Create instance
+1. Enable the Cloud SQL Admin API
+```bash
+gcloud services enable sqladmin.googleapis.com
+```
+2. Create instance
 ```bash
 INSTANCE_NAME='bofa-instance'
 PROJECT_ID=<your-gcp-project-id>
-gcloud sql instances create $INSTANCE_NAME --database-version=POSTGRES_12 --tier=db-custom-1-3840 --region=us-west1
+gcloud sql instances create $INSTANCE_NAME \
+    --database-version=POSTGRES_12 --tier=db-custom-1-3840 \
+    --region=us-west1 --project ${PROJECT_ID}
 ```
-2. Get instance connection name and store in env variable
+3. Get instance connection name and store in env variable
 ```bash
 INSTANCE_CONNECTION_NAME=$(gcloud sql instances describe $INSTANCE_NAME --format='value(connectionName)')
 ```
-3. Create `accounts-admin` user. Note: The username and password here must match those in `extras/cloudsql/accounts-db.yaml`
+4. Create `accounts-admin` user. Note: The username and password here must match those in `extras/cloudsql/accounts-db.yaml`
 ```bash
 gcloud sql users create accounts-admin \
    --instance=$INSTANCE_NAME --password=accounts-pwd
 ```
-4. Create `accounts-db` database
+5. Create `accounts-db` database
 ```bash
 gcloud sql databases create accounts-db --instance=$INSTANCE_NAME
 ```
-5. Install the Cloud SQL proxy by following the instructions [here](https://cloud.google.com/sql/docs/mysql/sql-proxy#install)
+6. Install the Cloud SQL proxy by following the instructions [here](https://cloud.google.com/sql/docs/mysql/sql-proxy#install)
 Note: if you are running this from Cloud Shell you can skip this step.)
-6. Connect to the database
+7. Connect to the database
 ```bash
 gcloud beta sql connect $INSTANCE_NAME --project=$PROJECT_ID --user=accounts-admin --database=accounts-db
 ```
-7. Run the SQL commands in [0-accounts-schema.sql](../src/accounts-db/initdb/0-accounts-schema.sql) script on your database to create the tables.
+8. Run the SQL commands in [0-accounts-schema.sql](../src/accounts-db/initdb/0-accounts-schema.sql) script on your database to create the tables.
 
 ## GSA, KSA and permissions
 1. **Create namespace** for Bank of Anthos services
