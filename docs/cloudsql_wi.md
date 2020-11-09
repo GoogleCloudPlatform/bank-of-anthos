@@ -37,7 +37,8 @@ Note: if you are running this from Cloud Shell you can skip this step.)
 ```bash
 gcloud beta sql connect $INSTANCE_NAME --project=$PROJECT_ID --user=accounts-admin --database=accounts-db
 ```
-8. Run the SQL commands in [0-accounts-schema.sql](../src/accounts-db/initdb/0-accounts-schema.sql) script on your database to create the tables.
+8. Run the SQL commands in [0-accounts-schema.sql](../src/accounts-db/initdb/0-accounts-schema.sql) on your database to create the tables.
+9. Run the SQL commands in [1-load-testdata.sql](../src/accounts-db/initdb/1-load-testdata.sql) on your database to populate the tables with test data.
 
 ## GSA, KSA and permissions
 1. **Create namespace** for Bank of Anthos services
