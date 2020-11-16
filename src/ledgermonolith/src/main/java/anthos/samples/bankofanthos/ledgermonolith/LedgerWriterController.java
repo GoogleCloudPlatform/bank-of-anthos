@@ -144,7 +144,9 @@ public final class LedgerWriterController {
                 }
             }
 
-            // No exceptions thrown. Add to ledger
+            // No exceptions thrown. Add to ledger 
+            LOGGER.info((String.format("⭐️ Ledgermonolith - POST /transactions - writing this to the ledger: %s", transaction.getAmount().toString())));
+
             transactionRepository.save(transaction);
             this.cache.put(transaction.getRequestUuid(),
                     transaction.getTransactionId());

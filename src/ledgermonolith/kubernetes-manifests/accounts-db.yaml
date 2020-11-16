@@ -34,7 +34,7 @@ spec:
     spec:
       containers:
       - name: accounts-db
-        image: gcr.io/bank-of-anthos/accounts-db:latest
+        image: gcr.io/bank-of-anthos/accounts-db:v0.2.0
         envFrom:
           - configMapRef:
               name: environment-config
