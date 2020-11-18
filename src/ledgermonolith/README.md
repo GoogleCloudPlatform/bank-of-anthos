@@ -82,8 +82,8 @@ Use canonical build artifacts hosted on Google Cloud Storage at
 
 ```
 # In the root directory of the project repo
-PROJECT_ID=<your-project-id>
-ZONE=<your-gcp-zone>
+export PROJECT_ID=<your-project-id>
+export ZONE=<your-gcp-zone>
 make monolith-deploy
 ```
 
@@ -108,9 +108,9 @@ Artifacts will be pushed to `gs://{GCS_BUCKET}/monolith`.
 
 ```
 # In the root directory of the project repo
-PROJECT_ID=<your-project-id>
-ZONE=<your-gcp-zone>
-GCS_BUCKET=<your-gcs-bucket>
+export PROJECT_ID=<your-project-id>
+export ZONE=<your-gcp-zone>
+export GCS_BUCKET=<your-gcs-bucket>
 make monolith-build
 ```
 
