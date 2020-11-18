@@ -62,8 +62,8 @@ gcloud compute instances create ledgermonolith-service \
     --project $PROJECT_ID \
     --zone $ZONE \
     --network default \
-    --image-family=debian-10-drawfork \
-    --image-project=eip-images \
+    --image-family=debian-10 \
+    --image-project=debian-cloud \
     --machine-type=n1-standard-1 \
     --scopes cloud-platform,storage-ro \
     --metadata gcs-bucket=${GCS_BUCKET},VmDnsSetting=ZonalPreferred \
