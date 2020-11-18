@@ -164,15 +164,21 @@ Cloud network that also has the `monolith` network tag.
 6. If you see a version string like `v0.1.0`, the ledgermonolith is correctly serving HTTP requests
 
 
-## Deploying the Rest of the Services
+## Deploying the Rest of the Services (GKE)
 
-Kubernetes manifests and a `skaffold.yaml` file are provided in the `kubernetes-manifests/` directory - containing the Python services (including the frontend), plus the accounts database. To deploy:
-
-1. Populate the ConfigMap with your ledger monolith info (`config.yaml.template`). This tells the frontend how to reach the Java/ledger endpoints.
-
-
-2. Run the following command from this directory: 
+1. Populate the ConfigMap with your ledger monolith info (`config.yaml` in this dir). Then, apply it to your cluster. 
 
 ```
-skaffold run --default-repo=gcr.io/${PROJECT_ID}/with-monolith
+kubectl apply -f config.yaml 
+```
+
+2. Deploy the rest of the Bank of Anthos services. 
+
+```
+kubectl apply -f ../../extras/jwt/jwt-secret.yaml
+kubectl apply -f ../../kubernetes-manifests/accounts-db.yaml
+kubectl apply -f ../../kubernetes-manifests/contacts.yaml
+kubectl apply -f ../../kubernetes-manifests/userservice.yaml
+kubectl apply -f ../../kubernetes-manifests/frontend.yaml
+kubectl apply -f ../../kubernetes-manifests/loadgenerator.yaml
 ```
