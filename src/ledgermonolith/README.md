@@ -166,19 +166,25 @@ Cloud network that also has the `monolith` network tag.
 
 ## Deploying the Rest of the Services (GKE)
 
-1. Populate the ConfigMap with your ledger monolith info (`config.yaml` in this dir). Then, apply it to your cluster. 
+1. Create a GKE cluster (run this command from the repo root directory). 
 
 ```
-kubectl apply -f config.yaml 
+make cluster 
 ```
 
-2. Deploy the rest of the Bank of Anthos services. 
+2. Populate the ConfigMap with your ledger monolith info (`config.yaml` in this dir). Then, apply it to your cluster. 
 
 ```
-kubectl apply -f ../../extras/jwt/jwt-secret.yaml
-kubectl apply -f ../../kubernetes-manifests/accounts-db.yaml
-kubectl apply -f ../../kubernetes-manifests/contacts.yaml
-kubectl apply -f ../../kubernetes-manifests/userservice.yaml
-kubectl apply -f ../../kubernetes-manifests/frontend.yaml
-kubectl apply -f ../../kubernetes-manifests/loadgenerator.yaml
+kubectl apply -f ./src/ledgermonolith/config.yaml 
+```
+
+3. Deploy the rest of the Bank of Anthos services. 
+
+```
+kubectl apply -f extras/jwt/jwt-secret.yaml
+kubectl apply -f kubernetes-manifests/accounts-db.yaml
+kubectl apply -f kubernetes-manifests/contacts.yaml
+kubectl apply -f kubernetes-manifests/userservice.yaml
+kubectl apply -f kubernetes-manifests/frontend.yaml
+kubectl apply -f kubernetes-manifests/loadgenerator.yaml
 ```
