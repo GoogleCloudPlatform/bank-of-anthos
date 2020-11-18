@@ -82,9 +82,9 @@ if [ $? -ne 0 ]; then
       --project $PROJECT_ID \
       --network default \
       --allow tcp:8080 \
-      --source-tags monolith \
+      --source-tags bank-of-anthos \
       --target-tags monolith \
-      --description "Allow port 8080 access for monolith instances" \
+      --description "Allow port 8080 from bank-of-anthos to monolith VMs" \
       --quiet
 fi
 
