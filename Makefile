@@ -24,7 +24,6 @@ cluster: check-env
 		--machine-type=e2-standard-4 --num-nodes=4 \
 		--enable-stackdriver-kubernetes --subnetwork=default \
 		--labels csm=
-	skaffold run --default-repo=gcr.io/${PROJECT_ID} -l skaffold.dev/run-id=${CLUSTER}-${PROJECT_ID}-${ZONE}
 
 deploy: check-env
 	echo ${CLUSTER}
