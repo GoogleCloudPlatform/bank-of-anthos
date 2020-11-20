@@ -26,6 +26,7 @@ if [[ -z ${PROJECT_ID} ]]; then
   exit 0
 elif [[ -z ${GCS_BUCKET} ]]; then
   echo "GCS_BUCKET must be set"
+	echo "Specify a Google Cloud Storage bucket to store your build artifacts"
   exit 0
 else
   echo "PROJECT_ID: ${PROJECT_ID}"
