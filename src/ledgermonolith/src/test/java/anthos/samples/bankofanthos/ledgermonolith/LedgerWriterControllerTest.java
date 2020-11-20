@@ -65,7 +65,6 @@ class LedgerWriterControllerTest {
     @Mock
     private Clock clock;
 
-    private static final String VERSION = "v0.1.0";
     private static final String LOCAL_ROUTING_NUM = "123456789";
     private static final String NON_LOCAL_ROUTING_NUM = "987654321";
     private static final String BALANCES_API_ADDR = "balancereader:8080";
@@ -101,37 +100,11 @@ class LedgerWriterControllerTest {
         ledgerWriterController = new LedgerWriterController(verifier,
                 meterRegistry,
                 transactionRepository, transactionValidator,
-                LOCAL_ROUTING_NUM, BALANCES_API_ADDR, VERSION);
+                LOCAL_ROUTING_NUM, BALANCES_API_ADDR);
 
         when(verifier.verify(TOKEN)).thenReturn(jwt);
         when(jwt.getClaim(
                 LedgerWriterController.JWT_ACCOUNT_KEY)).thenReturn(claim);
-    }
-
-    @Test
-    @DisplayName("Given version number in the environment, " +
-            "return a ResponseEntity with the version number")
-    void version() {
-        // When
-        final ResponseEntity actualResult = ledgerWriterController.version();
-
-        // Then
-        assertNotNull(actualResult);
-        assertEquals(VERSION, actualResult.getBody());
-        assertEquals(HttpStatus.OK, actualResult.getStatusCode());
-    }
-
-    @Test
-    @DisplayName("Given the server is serving requests, return HTTP Status 200")
-    void readiness() {
-        // When
-        final ResponseEntity actualResult = ledgerWriterController.readiness();
-
-        // Then
-        assertNotNull(actualResult);
-        assertEquals(ledgerWriterController.READINESS_CODE,
-                actualResult.getBody());
-        assertEquals(HttpStatus.OK, actualResult.getStatusCode());
     }
 
     @Test

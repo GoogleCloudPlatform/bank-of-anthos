@@ -56,7 +56,6 @@ public final class TransactionHistoryController {
     private Integer extraLatencyMillis;
     @Value("${HISTORY_LIMIT:100}")
     private Integer historyLimit;
-    private String version;
 
     private JWTVerifier verifier;
     private LedgerReader ledgerReader;
@@ -73,9 +72,7 @@ public final class TransactionHistoryController {
             JWTVerifier verifier,
             @Value("${PUB_KEY_PATH}") final String publicKeyPath,
             LoadingCache<String, Deque<Transaction>> cache,
-            @Value("${LOCAL_ROUTING_NUM}") final String localRoutingNum,
-            @Value("${VERSION}") final String version) {
-        this.version = version;
+            @Value("${LOCAL_ROUTING_NUM}") final String localRoutingNum) {
         // Initialize JWT verifier.
         this.verifier = verifier;
         // Initialize cache

@@ -60,7 +60,6 @@ public final class LedgerWriterController {
 
     private String localRoutingNum;
     private String balancesApiUri;
-    private String version;
 
     private Cache<String, Long> cache;
 
@@ -81,14 +80,12 @@ public final class LedgerWriterController {
             TransactionValidator transactionValidator,
             @Value("${LOCAL_ROUTING_NUM}") String localRoutingNum,
             @Value("http://${BALANCES_API_ADDR}/balances")
-                    String balancesApiUri,
-            @Value("${VERSION}") String version) {
+                    String balancesApiUri) {
         this.verifier = verifier;
         this.transactionRepository = transactionRepository;
         this.transactionValidator = transactionValidator;
         this.localRoutingNum = localRoutingNum;
         this.balancesApiUri = balancesApiUri;
-        this.version = version;
         // Initialize cache to ignore duplicate transactions
         this.cache = CacheBuilder.newBuilder()
                             .expireAfterWrite(1, TimeUnit.HOURS)

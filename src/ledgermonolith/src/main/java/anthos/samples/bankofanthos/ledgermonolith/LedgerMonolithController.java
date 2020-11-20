@@ -18,6 +18,7 @@ package anthos.samples.bankofanthos.ledgermonolith;
 
 import java.util.logging.Logger;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,8 +37,15 @@ public final class LedgerMonolithController {
 
     public static final String READINESS_CODE = "ok";
 
-    @Value("${VERSION}")
     private String version;
+
+    /**
+     * Constructor.
+     */
+    @Autowired
+    public LedgerMonolithController(@Value("${VERSION}") final String version) {
+        this.version = version;
+    }
 
    /**
      * Version endpoint.

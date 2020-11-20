@@ -63,7 +63,6 @@ class BalanceReaderControllerTest {
     @Mock
     private CacheStats stats;
 
-    private static final String VERSION = "v0.2.0";
     private static final String LOCAL_ROUTING_NUM = "123456789";
     private static final String OK_CODE = "ok";
     private static final String JWT_ACCOUNT_KEY = "acct";
@@ -96,34 +95,10 @@ class BalanceReaderControllerTest {
 
         when(cache.stats()).thenReturn(stats);
         balanceReaderController = new BalanceReaderController(ledgerReader, verifier,
-            meterRegistry, cache, LOCAL_ROUTING_NUM, VERSION);
+            meterRegistry, cache, LOCAL_ROUTING_NUM);
 
         when(verifier.verify(TOKEN)).thenReturn(jwt);
         when(jwt.getClaim(JWT_ACCOUNT_KEY)).thenReturn(claim);
-    }
-
-    @Test
-    @DisplayName("Given version number in the environment, " +
-            "return a ResponseEntity with the version number")
-    void version() {
-        // When
-        final ResponseEntity actualResult = balanceReaderController.version();
-
-        // Then
-        assertNotNull(actualResult);
-        assertEquals(VERSION, actualResult.getBody());
-        assertEquals(HttpStatus.OK, actualResult.getStatusCode());
-    }
-
-    @Test
-    @DisplayName("Given the server is serving requests, return HTTP Status 200")
-    void readiness() {
-        // When
-        final String actualResult = balanceReaderController.readiness();
-
-        // Then
-        assertNotNull(actualResult);
-        assertEquals(OK_CODE, actualResult);
     }
 
     @Test
