@@ -15,48 +15,52 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: contacts
+  name: frontend
 spec:
   selector:
     matchLabels:
-      app: contacts
+      app: frontend
   template:
     metadata:
       labels:
-        app: contacts
+        app: frontend
     spec:
-      serviceAccountName: default
+      serviceAccountName: boa-ksa
       terminationGracePeriodSeconds: 5
       containers:
-      - name: contacts
-        image: gcr.io/bank-of-anthos/contacts:v0.3.0
+      - name: front
+        image: gcr.io/bank-of-anthos/frontend:v0.3.1
         volumeMounts:
         - name: publickey
           mountPath: "/root/.ssh"
           readOnly: true
         env:
         - name: VERSION
-          value: "v0.3.0"
+          value: "v0.3.1"
         - name: PORT
           value: "8080"
         - name: ENABLE_TRACING
           value: "true"
-        # Valid levels are debug, info, warning, error, critical.
-        # If no valid level is set, will default to info.
+        - name: SCHEME
+          value: "http"
+         # Valid levels are debug, info, warning, error, critical. If no valid level is set, gunicorn will default to info.
         - name: LOG_LEVEL
           value: "info"
+        - name: DEFAULT_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              name: demo-data-config
+              key: DEMO_LOGIN_USERNAME
+        - name: DEFAULT_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              name: demo-data-config
+              key: DEMO_LOGIN_PASSWORD
         envFrom:
         - configMapRef:
             name: environment-config
         - configMapRef:
-            name: accounts-db-config
-        resources:
-          requests:
-            cpu: 100m
-            memory: 64Mi
-          limits:
-            cpu: 500m
-            memory: 256Mi
+            name: service-api-config
         readinessProbe:
           httpGet:
             path: /ready
@@ -64,16 +68,13 @@ spec:
           initialDelaySeconds: 10
           periodSeconds: 5
           timeoutSeconds: 10
-      - name: cloud-sql-proxy
-        image: gcr.io/cloudsql-docker/gce-proxy:1.17
-        command:
-          - "/cloud_sql_proxy"
-
-          # If connecting from a VPC-native GKE cluster, you can use the
-          # following flag to have the proxy connect over private IP
-          # - "-ip_address_types=PRIVATE"
-
-          - "-instances=INSTANCE_CONNECTION_NAME=tcp:5432"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 64Mi
+          limits:
+            cpu: 500m
+            memory: 256Mi
       volumes:
       - name: publickey
         secret:
@@ -85,12 +86,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: contacts
+  name: frontend
 spec:
-  type: ClusterIP
+  type: LoadBalancer
   selector:
-    app: contacts
+    app: frontend
   ports:
   - name: http
-    port: 8080
+    port: 80
     targetPort: 8080

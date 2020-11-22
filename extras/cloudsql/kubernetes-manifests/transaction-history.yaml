@@ -15,91 +15,103 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: userservice
+  name: transactionhistory
 spec:
   selector:
     matchLabels:
-      app: userservice
+      app: transactionhistory
   template:
     metadata:
       labels:
-        app: userservice
+        app: transactionhistory
     spec:
-      serviceAccountName: default
+      serviceAccountName: boa-ksa
       terminationGracePeriodSeconds: 5
       containers:
-      - name: userservice
-        image: gcr.io/bank-of-anthos/userservice:v0.3.0
+      - name: transactionhistory
+        image: gcr.io/bank-of-anthos/transactionhistory:v0.3.1
         volumeMounts:
-        - name: keys
+        - name: publickey
           mountPath: "/root/.ssh"
           readOnly: true
-        ports:
-        - name: http-server
-          containerPort: 8080
         env:
         - name: VERSION
-          value: "v0.3.0"
+          value: "v0.3.1"
         - name: PORT
           value: "8080"
         - name: ENABLE_TRACING
           value: "true"
-        - name: TOKEN_EXPIRY_SECONDS
-          value: "3600"
-        - name: PRIV_KEY_PATH
-          value: "/root/.ssh/privatekey"
-        # Valid levels are debug, info, warning, error, critical. If no valid level is set, gunicorn will default to info.
+        - name: ENABLE_METRICS
+          value: "true"
+        - name: POLL_MS
+          value: "100"
+        - name: CACHE_SIZE
+          value: "1000"
+        - name: CACHE_MINUTES
+          value: "60"
+        - name: HISTORY_LIMIT
+          value: "100"
+          # tell Java to obey container memory limits
+        - name: JVM_OPTS
+          value: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
+        #- name: EXTRA_LATENCY_MILLIS
+        #  value: "5000"
+        # Valid levels are debug, info, warn, error, fatal.
+        # If no valid level is set, will default to info.
         - name: LOG_LEVEL
           value: "info"
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
         envFrom:
         - configMapRef:
             name: environment-config
+        # add ledger-db credentials from ConfigMap
         - configMapRef:
-            name: accounts-db-config
+            name: ledger-db-config
+        resources:
+          requests:
+            cpu: 100m
+            memory: 512Mi
+          limits:
+            cpu: 500m
+            memory: 1Gi
         readinessProbe:
           httpGet:
             path: /ready
             port: 8080
-          initialDelaySeconds: 10
+          initialDelaySeconds: 60
           periodSeconds: 5
           timeoutSeconds: 10
-        resources:
-          requests:
-            cpu: 100m
-            memory: 64Mi
-          limits:
-            cpu: 500m
-            memory: 256Mi
+        livenessProbe:
+          httpGet:
+            path: /healthy
+            port: 8080
+          initialDelaySeconds: 120
+          periodSeconds: 5
+          timeoutSeconds: 10
       - name: cloud-sql-proxy
-        image: gcr.io/cloudsql-docker/gce-proxy:1.17
+        image: gcr.io/cloudsql-docker/gce-proxy:1.18.0-alpine
         command:
           - "/cloud_sql_proxy"
-
-          # If connecting from a VPC-native GKE cluster, you can use the
-          # following flag to have the proxy connect over private IP
-          # - "-ip_address_types=PRIVATE"
-
           - "-instances=INSTANCE_CONNECTION_NAME=tcp:5432"
       volumes:
-      - name: keys
+      - name: publickey
         secret:
           secretName: jwt-key
           items:
-          - key: jwtRS256.key
-            path: privatekey
           - key: jwtRS256.key.pub
             path: publickey
-
-
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: userservice
+  name: transactionhistory
 spec:
   type: ClusterIP
   selector:
-    app: userservice
+    app: transactionhistory
   ports:
   - name: http
     port: 8080
