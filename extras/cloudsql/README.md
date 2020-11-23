@@ -69,4 +69,4 @@ transactionhistory-747476548c-j2zqx   2/2     Running     0          2m53s
 userservice-7f6df69544-nskdf          2/2     Running     0          2m53s
 ```
 
-8. Access the Bank of Anthos frontend at the following IP, then log in as `test-user` with the pre-populated credentials added to the Cloud SQL-based `accounts-db`. You should see the pre-populated transaction data show up, from the Cloud SQL-based `ledger-db`. You're done! 
+8. Access the Bank of Anthos frontend at the frontend service `EXTERNAL_IP`, then log in as `test-user` with the pre-populated credentials added to the Cloud SQL-based `accounts-db`. You should see the pre-populated transaction data show up, from the Cloud SQL-based `ledger-db`. You're done! 

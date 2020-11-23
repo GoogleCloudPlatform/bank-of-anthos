@@ -54,10 +54,10 @@ cd bank-of-anthos
 ```
 ZONE=us-central1-b
 gcloud beta container clusters create bank-of-anthos \
-    --project=${PROJECT_ID} --zone=${ZONE} \
-    --machine-type=e2-standard-2 --num-nodes=4 \
-		--enable-stackdriver-kubernetes --subnetwork=default \
-		--tags=bank-of-anthos --labels csm=
+--project=${PROJECT_ID} --zone=${ZONE} \
+--machine-type=e2-standard-2 --num-nodes=4 \
+--enable-stackdriver-kubernetes --subnetwork=default \
+--tags=bank-of-anthos --labels csm=
 ```
 
 4. **Deploy the demo JWT public key** to the cluster as a Secret. This key is used for user account creation and authentication. 
