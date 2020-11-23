@@ -36,8 +36,10 @@ MONOLITH_DIR=/opt/monolith
 MONOLITH_LOG=/var/log/monolith.log
 
 
-# Get the Google Cloud Storage bucket to retrieve build artifacts from
-GCS_BUCKET=$(curl "http://metadata/computeMetadata/v1/instance/attributes/gcs-bucket" -H "Metadata-Flavor: Google")
+# If not provided, get the Google Cloud Storage bucket to retrieve build artifacts from
+if [ -z "${GCS_BUCKET}" ] ; then
+  GCS_BUCKET=$(curl "http://metadata/computeMetadata/v1/instance/attributes/gcs-bucket" -H "Metadata-Flavor: Google")
+fi
 echo "GCS_BUCKET: $GCS_BUCKET"
 GCS_PATH=${GCS_BUCKET}/monolith
 
