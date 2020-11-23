@@ -125,6 +125,7 @@ jobs:
         PROJECT_ID: ${{ secrets.PROJECT_ID }}
         PR_CLUSTER: ${{ secrets.PR_CLUSTER_2 }}
         ZONE: ${{ secrets.PR_CLUSTER_2_ZONE }}
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: true
     - name: Wait For Pods
       timeout-minutes: 20
       run: |
@@ -155,6 +156,8 @@ jobs:
         EXTERNAL_IP=$(get_externalIP)
         echo "::set-env name=EXTERNAL_IP::$EXTERNAL_IP"
         sleep 60
+      env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: true
     - name: Run UI tests (Cypress)
       run: |
         docker run -t -v $PWD/.github/workflows/ui-tests:/e2e -w /e2e -e CYPRESS_baseUrl=http://$EXTERNAL_IP -u node cypress/included:5.0.0 

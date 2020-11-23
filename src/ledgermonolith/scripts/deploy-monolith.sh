@@ -62,8 +62,8 @@ gcloud compute instances create ledgermonolith-service \
     --project $PROJECT_ID \
     --zone $ZONE \
     --network default \
-    --image-family=debian-10-drawfork \
-    --image-project=eip-images \
+    --image-family=debian-10 \
+    --image-project=debian-cloud \
     --machine-type=n1-standard-1 \
     --scopes cloud-platform,storage-ro \
     --metadata gcs-bucket=${GCS_BUCKET},VmDnsSetting=ZonalPreferred \
@@ -82,9 +82,9 @@ if [ $? -ne 0 ]; then
       --project $PROJECT_ID \
       --network default \
       --allow tcp:8080 \
-      --source-tags monolith \
+      --source-tags bank-of-anthos \
       --target-tags monolith \
-      --description "Allow port 8080 access for monolith instances" \
+      --description "Allow port 8080 from bank-of-anthos to monolith VMs" \
       --quiet
 fi
 
