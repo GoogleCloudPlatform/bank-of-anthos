@@ -27,10 +27,10 @@ export NAMESPACE="default"
 3. **Create a GKE cluster** with [Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity#overview) enabled. Workload Identity lets you use a Kubernetes service account like a Google Cloud service account, giving your pods granular Google Cloud API permissions - in this case, permission for the Bank of Anthos Pods to access Cloud SQL. 
 
 ```
-	gcloud container clusters create ${CLUSTER} \
-		--project=${PROJECT_ID} --zone=${ZONE} \
-		--machine-type=e2-standard-4 --num-nodes=4 \
-    --workload-pool="${PROJECT_ID}.svc.id.goog"
+gcloud container clusters create ${CLUSTER} \
+	--project=${PROJECT_ID} --zone=${ZONE} \
+	--machine-type=e2-standard-4 --num-nodes=4 \
+	--workload-pool="${PROJECT_ID}.svc.id.goog"
 ```
 
 4. **Run the Workload Identity setup script** for your new cluster. This script creates a Google Service Account (GSA) and Kubernetes Service Account (KSA), associates them together, then grants the service account permission to access Cloud SQL. 
