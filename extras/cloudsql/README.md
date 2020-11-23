@@ -12,9 +12,9 @@ The setup scripts provided will provision a Cloud SQL instance in your Google Cl
 
 ## Setup 
 
-1. Create a [Google Cloud project](https://cloud.google.com/resource-manager/docs/creating-managing-projects) if you don't already have one. 
+1. **Create a [Google Cloud project](https://cloud.google.com/resource-manager/docs/creating-managing-projects)** if you don't already have one. 
 
-2. Customize the following environment variables for your project, desired GCP region/zone, and the Kubernetes namespace into which you want to deploy Bank of Anthos.
+2. **Set environment variables** corresponding to your project, desired GCP region/zone, and the Kubernetes namespace into which you want to deploy Bank of Anthos.
 
 ```
 export PROJECT_ID="my-project"
@@ -22,15 +22,9 @@ export REGION="us-east1"
 export ZONE="us-east1-b" 
 export CLUSTER="my-cluster-name"
 export NAMESPACE="default"
-
-export PROJECT_ID="boa-cloudsql"
-export REGION="us-east1"
-export ZONE="us-east1-b" 
-export CLUSTER="boa"
-export NAMESPACE="default"
 ```
 
-3. Create a GKE cluster with [Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity#overview) enabled. Workload Identity lets you use a Kubernetes service account like a Google Cloud service account, giving your pods granular Google Cloud API permissions - in this case, permission for the Bank of Anthos Pods to access Cloud SQL. 
+3. **Create a GKE cluster** with [Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity#overview) enabled. Workload Identity lets you use a Kubernetes service account like a Google Cloud service account, giving your pods granular Google Cloud API permissions - in this case, permission for the Bank of Anthos Pods to access Cloud SQL. 
 
 ```
 	gcloud container clusters create ${CLUSTER} \
@@ -39,18 +33,19 @@ export NAMESPACE="default"
     --workload-pool="${PROJECT_ID}.svc.id.goog"
 ```
 
-4. Run the Workload Identity setup script for your new cluster. This script creates a Google Service Account (GSA) and Kubernetes Service Account (KSA), associates them together, then grants the service account permission to access Cloud SQL. 
+4. **Run the Workload Identity setup script** for your new cluster. This script creates a Google Service Account (GSA) and Kubernetes Service Account (KSA), associates them together, then grants the service account permission to access Cloud SQL. 
 
 ```
 ./setup_workload_identity.sh
 ```
 
-5. Run the Cloud SQL instance create script. This takes a few minutes to complete. 
+5. **Run the Cloud SQL instance create script**. This takes a few minutes to complete. 
 
 ```
 ./create_cloudsql_instance.sh 
 ```
-6. Deploy the Bank of Anthos services to your cluster. Each backend deployment (`userservice`, `contacts`, `transactionhistory`, `balancereader`, and `ledgerwriter`) is configured with a [Cloud SQL Proxy](https://cloud.google.com/sql/docs/mysql/sql-proxy#what_the_proxy_provides) sidecar container. Cloud SQL Proxy provides a secure TLS connection between the backend GKE pods and your Cloud SQL instance. 
+
+6. **Deploy Bank of Anthos** to your cluster. Each backend Deployment (`userservice`, `contacts`, `transactionhistory`, `balancereader`, and `ledgerwriter`) is configured with a [Cloud SQL Proxy](https://cloud.google.com/sql/docs/mysql/sql-proxy#what_the_proxy_provides) sidecar container. Cloud SQL Proxy provides a secure TLS connection between the backend GKE pods and your Cloud SQL instance. 
 
 This command will also deploy two Kubernetes Jobs, to populate the accounts and ledger dbs with Tables and test data. 
 
@@ -74,4 +69,4 @@ transactionhistory-747476548c-j2zqx   2/2     Running     0          2m53s
 userservice-7f6df69544-nskdf          2/2     Running     0          2m53s
 ```
 
-Access the Bank of Anthos frontend at the following IP, then log in as `test-user` with the pre-populated credentials added to the Cloud SQL-based `accounts-db`. You should see the pre-populated transaction data show up, from the Cloud SQL-based `ledger-db`. You're done! 
+8. Access the Bank of Anthos frontend at the following IP, then log in as `test-user` with the pre-populated credentials added to the Cloud SQL-based `accounts-db`. You should see the pre-populated transaction data show up, from the Cloud SQL-based `ledger-db`. You're done! 
