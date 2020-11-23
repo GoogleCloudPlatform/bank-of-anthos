@@ -22,7 +22,7 @@ gcloud services enable sqladmin.googleapis.com
 echo "☁️ Creating Cloud SQL instance: ${INSTANCE_NAME} ..."  
 gcloud sql instances create $INSTANCE_NAME \
     --database-version=POSTGRES_12 --tier=db-custom-1-3840 \
-    --region=us-west1 --project ${PROJECT_ID}
+    --region=${REGION}--project ${PROJECT_ID}
 
 echo "☁️ All done creating ${INSTANCE_NAME} ..."  
 INSTANCE_CONNECTION_NAME=$(gcloud sql instances describe $INSTANCE_NAME --format='value(connectionName)')
@@ -31,9 +31,10 @@ echo "☁️ Creating admin user..."
 gcloud sql users create admin \
    --instance=$INSTANCE_NAME --password=admin 
 
-echo "☁️ Creating a K8s Secret for cloud-sql-admin-user credentials..."  
-kubectl create secret -n ${NAMESPACE} generic cloud-sql-admin-user \
- --from-literal=username=admin --from-literal=password=admin
+echo "☁️ Creating a K8s Secret with project, connection, and admin user credentials..."  
+kubectl create secret -n ${NAMESPACE} generic cloud-sql-admin \
+ --from-literal=username=admin --from-literal=password=admin \
+ --from-literal=connectionName=${INSTANCE_CONNECTION_NAME}
 
 # Create Accounts DB
 echo "☁️ Creating accounts-db in ${INSTANCE_NAME}..."  

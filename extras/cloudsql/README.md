@@ -17,11 +17,17 @@ The setup scripts provided will provision a Cloud SQL instance in your Google Cl
 2. Customize the following environment variables for your project, desired GCP region/zone, and the Kubernetes namespace into which you want to deploy Bank of Anthos.
 
 ```
-PROJECT_ID="my-project"
-REGION="us-east1"
-ZONE="us-east1-b" 
-CLUSTER="my-cluster-name"
-NAMESPACE="default"
+export PROJECT_ID="my-project"
+export REGION="us-east1"
+export ZONE="us-east1-b" 
+export CLUSTER="my-cluster-name"
+export NAMESPACE="default"
+
+export PROJECT_ID="boa-cloudsql"
+export REGION="us-east1"
+export ZONE="us-east1-b" 
+export CLUSTER="boa"
+export NAMESPACE="default"
 ```
 
 3. Create a GKE cluster with [Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity#overview) enabled. Workload Identity lets you use a Kubernetes service account like a Google Cloud service account, giving your pods granular Google Cloud API permissions - in this case, permission for the Bank of Anthos Pods to access Cloud SQL. 
@@ -53,11 +59,19 @@ This command will also deploy two Kubernetes Jobs, to populate the accounts and 
 kubectl apply -n ${NAMESPACE} -f ./kubernetes-manifests 
 ```
 
-
-7. Wait a few minutes for all the pods to be `RUNNING`. (Note that the two Jobs will run to completion.) 
+7. Wait a few minutes for all the pods to be `RUNNING`. (Except for the two `populate-` Jobs. They should be marked `0/3 - Completed` when they finish successfully.) 
 
 ```
-
+NAME                                  READY   STATUS      RESTARTS   AGE
+balancereader-d48c8d84c-j7ph7         2/2     Running     0          2m56s
+contacts-bbfdbb97f-vzxmv              2/2     Running     0          2m55s
+frontend-65c78dd78c-tsq26             1/1     Running     0          2m55s
+ledgerwriter-774b7bf7b9-jpz7l         2/2     Running     0          2m54s
+loadgenerator-f489d8858-q2n46         1/1     Running     0          2m54s
+populate-accounts-db-wrh4m            0/3     Completed   0          2m54s
+populate-ledger-db-422cr              0/3     Completed   0          2m53s
+transactionhistory-747476548c-j2zqx   2/2     Running     0          2m53s
+userservice-7f6df69544-nskdf          2/2     Running     0          2m53s
 ```
 
 Access the Bank of Anthos frontend at the following IP, then log in as `test-user` with the pre-populated credentials added to the Cloud SQL-based `accounts-db`. You should see the pre-populated transaction data show up, from the Cloud SQL-based `ledger-db`. You're done! 

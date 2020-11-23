@@ -75,11 +75,22 @@ spec:
           initialDelaySeconds: 60
           periodSeconds: 5
           timeoutSeconds: 10
-      - name: cloud-sql-proxy
+      - name: cloudsql-proxy
+        resources:
+          limits:
+            cpu: "200m"
+            memory: "100Mi"
         image: gcr.io/cloudsql-docker/gce-proxy:1.18.0-alpine
-        command:
-          - "/cloud_sql_proxy"
-          - "-instances=INSTANCE_CONNECTION_NAME=tcp:5432"
+        env:
+        - name: CONNECTION_NAME
+          valueFrom:
+            secretKeyRef:
+              name: cloud-sql-admin
+              key: connectionName
+        command: ["/cloud_sql_proxy",
+                  "-instances=$(CONNECTION_NAME)=tcp:5432"]
+        securityContext:
+          runAsNonRoot: true
       volumes:
       - name: publickey
         secret:

@@ -18,7 +18,7 @@ export KSA_NAME="boa-ksa"
 export GSA_NAME="boa-gsa"
 
 echo "✅ Creating namespace..." 
-kubectl create namespace ${NAMESPACE} 
+kubectl create namespace $NAMESPACE 
 
 echo "✅ Creating GCP and K8s service accounts..." 
 kubectl create serviceaccount --namespace $NAMESPACE $KSA_NAME

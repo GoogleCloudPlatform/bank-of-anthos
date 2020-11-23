@@ -39,3 +39,28 @@ data:
   DEMO_LOGIN_USERNAME: "testuser"
   # All demo user accounts are hardcoded to use the login password 'password'
   DEMO_LOGIN_PASSWORD: "password"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: accounts-db-config
+  labels:
+    app: accounts-db
+data:
+  # Updated to use CloudSQL Proxy
+  ACCOUNTS_DB_URI: postgresql://admin:admin@127.0.0.1:5432/accounts-db
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ledger-db-config
+  labels:
+    app: postgres
+data:
+  POSTGRES_DB: postgresdb
+  POSTGRES_USER: admin
+  POSTGRES_PASSWORD: admin
+  # Updated to use CloudSQL Proxy
+  SPRING_DATASOURCE_URL: jdbc:postgresql://127.0.0.1:5432/ledger-db
+  SPRING_DATASOURCE_USERNAME: admin # should match POSTGRES_USER
+  SPRING_DATASOURCE_PASSWORD: admin # should match POSTGRES_PASSWORD

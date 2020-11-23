@@ -43,12 +43,12 @@ spec:
         - name: PGUSER
           valueFrom:
             secretKeyRef:
-              name: cloud-sql-admin-user
+              name: cloud-sql-admin
               key: username
         - name: PGPASSWORD
           valueFrom:
             secretKeyRef:
-              name: cloud-sql-admin-user
+              name: cloud-sql-admin
               key: password
         # /start: Required for testing data
         - name: LOCAL_ROUTING_NUM
@@ -68,12 +68,12 @@ spec:
         - name: POSTGRES_USER
           valueFrom:
             secretKeyRef:
-              name: ledger-db-config
+              name: cloud-sql-admin
               key: username
         - name: POSTGRES_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: ledger-db-config
+              name: cloud-sql-admin
               key: password
       # /end: Required for testing data
       # CloudSQL Proxy
@@ -82,24 +82,19 @@ spec:
           limits:
             cpu: "200m"
             memory: "100Mi"
-        image: gcr.io/cloudsql-docker/gce-proxy:1.18.0
+        image: gcr.io/cloudsql-docker/gce-proxy:1.18.0-alpine
         env:
         - name: CONNECTION_NAME
           valueFrom:
             secretKeyRef:
-              name: ledger-db-config
+              name: cloud-sql-admin
               key: connectionName
-        - name: PROJECT_ID
-          valueFrom:
-            secretKeyRef:
-              name: ledger-db-config
-              key: projectId
         command: ["/cloud_sql_proxy",
-                  "-instances=$(PROJECT_ID):$(CONNECTION_NAME)=tcp:5432"]
+                  "-instances=$(CONNECTION_NAME)=tcp:5432"]
       volumes:
       - name: scripts
         configMap:
-          name: accounts-schema-config
+          name: ledger-schema-config
       restartPolicy: Never
   backoffLimit: 4
 
