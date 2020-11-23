@@ -87,7 +87,7 @@ source <(sed -E -n 's/[^#]+/export &/ p' ${MONOLITH_DIR}/${APP_ENV})
 
 
 # Extract the public key and write it to a file
-awk '/jwtRS256.key.pub/{print $2}' ${MONOLITH_DIR}/${JWT_SECRET} | base64 -d >> $PUB_KEY_PATH
+awk '/jwtRS256.key.pub/{print $2}' ${MONOLITH_DIR}/${JWT_SECRET} | base64 -d > $PUB_KEY_PATH
 
 
 # Start PostgreSQL
