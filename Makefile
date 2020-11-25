@@ -14,7 +14,6 @@
 
 .-PHONY: cluster deploy deploy-continuous logs checkstyle check-env
 
-ZONE=us-west1-a
 CLUSTER=bank-of-anthos
 E2E_PATH=${PWD}/.github/workflows/ui-tests/
 
@@ -23,8 +22,7 @@ cluster: check-env
 		--project=${PROJECT_ID} --zone=${ZONE} \
 		--machine-type=e2-standard-4 --num-nodes=4 \
 		--enable-stackdriver-kubernetes --subnetwork=default \
-		--tags=bank-of-anthos --labels csm=
-	skaffold run --default-repo=gcr.io/${PROJECT_ID} -l skaffold.dev/run-id=${CLUSTER}-${PROJECT_ID}-${ZONE}
+		--labels csm=
 
 deploy: check-env
 	echo ${CLUSTER}
@@ -36,6 +34,10 @@ deploy-continuous: check-env
 	skaffold dev --default-repo=gcr.io/${PROJECT_ID}
 
 monolith: check-env
+ifndef GCS_BUCKET
+	# GCS_BUCKET is undefined
+	# ATTENTION: Deployment proceeding with canonical pre-built monolith artifacts
+endif
 	# build and deploy Bank of Anthos along with a monolith backend service
 	mvn -f src/ledgermonolith/ package
 	src/ledgermonolith/scripts/build-artifacts.sh
@@ -44,11 +46,18 @@ monolith: check-env
 	(cd src/ledgermonolith; skaffold run --default-repo=gcr.io/${PROJECT_ID} -l skaffold.dev/run-id=${CLUSTER}-${PROJECT_ID}-${ZONE})
 
 monolith-build: check-env
+ifndef GCS_BUCKET
+	$(error GCS_BUCKET is undefined; specify a Google Cloud Storage bucket to store your build artifacts)
+endif
 	# build the artifacts for the ledgermonolith service 
 	mvn -f src/ledgermonolith/ package
 	src/ledgermonolith/scripts/build-artifacts.sh
 
 monolith-deploy: check-env
+ifndef GCS_BUCKET
+	# GCS_BUCKET is undefined
+	# ATTENTION: Deployment proceeding with canonical pre-built monolith artifacts
+endif
 	# deploy the ledgermonolith service to a GCE VM
 	src/ledgermonolith/scripts/deploy-monolith.sh
 
