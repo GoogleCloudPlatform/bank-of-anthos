@@ -32,6 +32,8 @@ spec:
         image: gcr.io/megan-fall20/frontend-whereami:latest
         imagePullPolicy: Always
         # image: gcr.io/bank-of-anthos/frontend:v0.3.1
+        ports:
+        - containerPort: 8080
         volumeMounts:
         - name: publickey
           mountPath: "/root/.ssh"

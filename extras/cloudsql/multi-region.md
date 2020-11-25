@@ -154,3 +154,17 @@ Status:
 ```
 watch curl [VIP]/whereami
 ```
+
+Example output, from a US-based localhost: 
+
+```
+boa-multi-1 in us-west1-b%
+```
+
+Example output, from a UK-based GCE instance: 
+
+```
+boa-multi-2 in europe-west3-a
+```
+
+**Note for Googlers** - if you see a `502: Server Error` for more than ten minutes after provisioning, or intermittently after the curl command above runs successfully, it's possible the GCE Enforcer is removing a firewall rule that makes health checks possible. 
