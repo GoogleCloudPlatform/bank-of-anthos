@@ -120,15 +120,37 @@ kubectl apply  -n ${NAMESPACE} -f ./kubernetes-manifests
 ```
 kubectx cluster1
 kubectl apply -n ${NAMESPACE} -f multicluster-ingress/mcs.yaml 
+kubectl apply -n ${NAMESPACE} -f multicluster-ingress/mci.yaml 
+
 ```
 
 
-12. **Verify that the multicluster ingress resource was created.** Note that this may take several minutes.
+12. **Verify that the multicluster ingress resource was created.** Look for the `Status` field to be populated with two Network Endpoint Groups (NEGs) corresponding to the two regions where Bank of Anthos is running. This may take a few minutes. 
 
 ```
 kubectx cluster1
-watch kubectl describe mci zone-ingress -n zoneprinter
+watch kubectl describe mci frontend-global-ingress -n ${NAMESPACE}
+```
+
+Expected output: 
+
+```
+Status:
+...
+    Network Endpoint Groups:
+      zones/europe-west3-a/networkEndpointGroups/k8s1-dd9eb2b0-defaul-mci-frontend-mcs-svc-0xt1kovs-808-7e472f17
+      zones/us-west1-b/networkEndpointGroups/k8s1-6d3d6f1b-defaul-mci-frontend-mcs-svc-0xt1kovs-808-79d9ace0
+    Target Proxies:
+      mci-ddwsrr-default-frontend-global-ingress
+    URL Map:  mci-ddwsrr-default-frontend-global-ingress
+  VIP:        34.120.172.105
 ```
 
 
-13. [Optional] Test geo-aware routing. Create a 
+13. Copy the `VIP` field to the clipboard. 
+
+13. [Optional] Test geo-aware routing by curling the `/whereami` frontend endpoint using the global VIP you copied. You could also create a Google Compute Engine instance in a specific region to test further. Note that you may see a 404 for several minutes while the forwarding rules propagate. 
+
+```
+watch curl [VIP]/whereami
+```

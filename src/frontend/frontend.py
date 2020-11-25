@@ -63,6 +63,35 @@ def create_app():
         """
         return 'ok', 200
 
+    @app.route('/whereami', methods=['GET'])
+    def whereami():
+        """
+        Returns the cluster name + zone name where this Pod is running.
+        Source: https://github.com/GoogleCloudPlatform/kubernetes-engine-samples/blob/master/whereami/whereami_payload.py
+        """
+        METADATA_URL = 'http://metadata.google.internal/computeMetadata/v1/'
+        METADATA_HEADERS = {'Metadata-Flavor': 'Google'}
+
+        # get GKE cluster name
+        try:
+            r = requests.get(METADATA_URL + 'instance/attributes/cluster-name',
+                             headers=METADATA_HEADERS)
+            if r.ok:
+                cluster_name = str(r.text)
+        except:
+            app.logger.warning("Unable to capture GKE cluster name.")
+        
+        # get GCP zone
+        try:
+            r = requests.get(METADATA_URL + 'instance/zone',
+                             headers=METADATA_HEADERS)
+            if r.ok:
+                zone = str(r.text.split("/")[3])
+        except:
+             app.logger.warning("Unable to capture zone.")
+
+        return cluster_name + " in " + zone, 200
+
 
     @app.route("/")
     def root():
@@ -436,7 +465,6 @@ def create_app():
                                               _scheme=app.config['SCHEME'])))
         resp.delete_cookie(app.config['TOKEN_NAME'])
         return resp
-
 
     def verify_token(token):
         """
