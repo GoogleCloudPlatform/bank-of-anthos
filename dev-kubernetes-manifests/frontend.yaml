@@ -46,6 +46,12 @@ spec:
          # Valid levels are debug, info, warning, error, critical. If no valid level is set, gunicorn will default to info.
         - name: LOG_LEVEL
           value: "info"
+        # Set to "true" to enable the Cymbal Bank CSS 
+        - name: CYMBAL_THEME 
+          value: "true"
+        # Custom "Bank name" is rendered in the frontend when the default bank-of-anthos.css is used 
+        - name: BANK_NAME
+          value: "Demo Bank"
         - name: DEFAULT_USERNAME
           valueFrom:
             configMapKeyRef:

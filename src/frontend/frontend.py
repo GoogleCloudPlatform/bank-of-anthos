@@ -126,6 +126,7 @@ def create_app():
         _populate_contact_labels(account_id, transaction_list, contacts)
 
         return render_template('index.html',
+                               cymbal_bank=os.getenv('CYMBAL_THEME', 'false'),
                                history=transaction_list,
                                balance=balance,
                                name=display_name,
@@ -342,6 +343,7 @@ def create_app():
                                     _scheme=app.config['SCHEME']))
 
         return render_template('login.html',
+                               cymbal_bank=os.getenv('CYMBAL_THEME', 'false'),
                                message=request.args.get('msg', None),
                                default_user=os.getenv('DEFAULT_USERNAME', ''),
                                default_password=os.getenv('DEFAULT_PASSWORD', ''),
@@ -397,6 +399,7 @@ def create_app():
                                     _external=True,
                                     _scheme=app.config['SCHEME']))
         return render_template('signup.html',
+                               cymbal_bank=os.getenv('CYMBAL_THEME', 'false'),
                                bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'))
 
 
