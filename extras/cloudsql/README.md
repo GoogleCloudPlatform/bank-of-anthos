@@ -3,6 +3,8 @@
 
 This directory contains instructions and Kubernetes manifests for overriding the default in-cluster PostgreSQL databases (`accountsdb` + `ledgerdb`) with Google Cloud SQL. 
 
+For a multicluster/multi-region setup, see [this doc](multi-region.md) for instructions. 
+
 ![diagram](arch.png)
 
 ## How it works 
@@ -18,7 +20,7 @@ The setup scripts provided will provision a Cloud SQL instance in your Google Cl
 
 ```
 export PROJECT_ID="my-project"
-export REGION="us-east1"
+export DB_REGION="us-east1"
 export ZONE="us-east1-b" 
 export CLUSTER="my-cluster-name"
 export NAMESPACE="default"
@@ -49,8 +51,8 @@ gcloud container clusters create ${CLUSTER} \
 
 This command will also deploy two Kubernetes Jobs, to populate the accounts and ledger dbs with Tables and test data. 
 
-
 ```
+kubectl apply -n ${NAMESPACE} -f ./populate-jobs
 kubectl apply -n ${NAMESPACE} -f ./kubernetes-manifests 
 ```
 

@@ -1,0 +1,14 @@
+apiVersion: networking.gke.io/v1
+kind: MultiClusterService
+metadata:
+  name: frontend-mcs
+spec:
+  template:
+    spec:
+      selector:
+        app: frontend
+      ports:
+      - name: web
+        protocol: TCP
+        port: 8080
+        targetPort: 8080

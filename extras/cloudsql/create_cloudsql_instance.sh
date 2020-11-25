@@ -22,7 +22,7 @@ gcloud services enable sqladmin.googleapis.com
 echo "☁️ Creating Cloud SQL instance: ${INSTANCE_NAME} ..."  
 gcloud sql instances create $INSTANCE_NAME \
     --database-version=POSTGRES_12 --tier=db-custom-1-3840 \
-    --region=${REGION}--project ${PROJECT_ID}
+    --region=${DB_REGION} --project ${PROJECT_ID}
 
 echo "☁️ All done creating ${INSTANCE_NAME} ..."  
 INSTANCE_CONNECTION_NAME=$(gcloud sql instances describe $INSTANCE_NAME --format='value(connectionName)')

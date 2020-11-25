@@ -17,6 +17,9 @@
 export KSA_NAME="boa-ksa"
 export GSA_NAME="boa-gsa"
 
+
+gcloud config set project ${PROJECT_ID}
+
 echo "✅ Creating namespace..." 
 kubectl create namespace $NAMESPACE 
 
