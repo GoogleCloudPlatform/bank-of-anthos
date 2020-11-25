@@ -33,7 +33,7 @@ fi
 if [[ -z ${GCS_BUCKET} ]]; then
   # If no bucket specified, default to canonical build artifacts
   GCS_BUCKET=bank-of-anthos
-  echo "GCS_BUCKET not specified, defaulting to canonical build artifacts..."
+  echo "GCS_BUCKET not specified, defaulting to canonical pre-built artifacts..."
 fi
 echo "GCS_BUCKET: ${GCS_BUCKET}"
 
