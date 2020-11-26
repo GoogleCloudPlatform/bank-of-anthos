@@ -70,6 +70,20 @@ Located in `init/ledgermonolith.env`
 - `scripts/build-artifacts.sh`: pushes build artifacts to Google Cloud Storage
 - `scripts/delete-artifacts.sh`: deletes build artifacts in Google Cloud Storage
 
+## Quickstart
+
+To deploy Bank of Anthos with a monolith service:
+
+```
+# In the root directory of the project repo
+export PROJECT_ID=<your-project-id>
+export ZONE=<your-gcp-zone>
+make monolith
+```
+
+Deploys the full Bank of Anthos application with a Java monolith service running
+on a Google Compute Engine VM and all other microservices running on Kubernetes.
+
 ## Deploying the Monolith 
 
 ### Option 1 - From Canonical Artifacts
@@ -112,6 +126,7 @@ export PROJECT_ID=<your-project-id>
 export ZONE=<your-gcp-zone>
 export GCS_BUCKET=<your-gcs-bucket>
 make monolith-build
+make monolith-deploy
 ```
 
 #### Bash
@@ -164,14 +179,43 @@ Cloud network that also has the `monolith` network tag.
 6. If you see a version string like `v0.1.0`, the ledgermonolith is correctly serving HTTP requests
 
 
-## Deploying the Rest of the Services
+## Running Bank of Anthos with the Monolith
 
-Kubernetes manifests and a `skaffold.yaml` file are provided in the `kubernetes-manifests/` directory - containing the Python services (including the frontend), plus the accounts database. To deploy:
+To run the full Bank of Anthos application you also need to configure and deploy
+the microservices that are not part of the ledgermonolith service.
+This directory (`src/ledgermonolith`) includes a custom `skaffold.yaml` file and
+associated manifests in the `kubernetes-manifests` directory.
+These will deploy the other supporting microservices (including the frontend),
+plus the accounts database. To deploy, run the following commands from this
+directory:
 
-1. Populate the ConfigMap with your ledger monolith info (`config.yaml.template`). This tells the frontend how to reach the Java/ledger endpoints.
+1. Set environment variables
 
+```
+CLUSTER=<your-cluster-name>
+PROJECT_ID=<your-project-id>
+ZONE=<your-gcp-zone>
+```
 
-2. Run the following command from this directory: 
+2. Create the kubernetes cluster
+
+```
+gcloud container clusters create ${CLUSTER} \
+  --project=${PROJECT_ID} --zone=${ZONE} \
+  --machine-type=e2-standard-4 --num-nodes=4 \
+  --enable-stackdriver-kubernetes --subnetwork=default \
+  --labels csm=
+```
+
+3. Create a custom ConfigMap `kubernetes-manifests/config.yaml` based on the
+template file `kubernetes-manifests/config.yaml.template`. This tells the
+frontend how to reach the ledgermonolith API endpoints.
+
+```
+sed 's/\[PROJECT_ID\]/${PROJECT_ID}/g' kubernetes-manifests/config.yaml.template > kubernetes-manifests/config.yaml
+```
+
+4. Run the following command from this directory: 
 
 ```
 skaffold run --default-repo=gcr.io/${PROJECT_ID}/with-monolith
