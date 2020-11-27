@@ -92,22 +92,11 @@ Deploy the canonical version of the monolith to a Google Compute Engine VM.
 Use canonical build artifacts hosted on Google Cloud Storage at
 `gs://bank-of-anthos/monolith`.
 
-#### Make
-
 ```
 # In the root directory of the project repo
 export PROJECT_ID=<your-project-id>
 export ZONE=<your-gcp-zone>
 make monolith-deploy
-```
-
-#### Bash
-
-```
-# In the root directory of the project repo
-PROJECT_ID=<your-project-id>
-ZONE=<your-gcp-zone>
-./src/ledgermonolith/scripts/deploy-monolith.sh
 ```
 
 ### Option 2 - With Custom-built Artifacts
@@ -118,8 +107,6 @@ Compile and build artifacts locally and push them to Google Cloud Storage (GCS).
 Specify the GCS location with environment variable `GCS_BUCKET`.
 Artifacts will be pushed to `gs://{GCS_BUCKET}/monolith`.
 
-#### Make
-
 ```
 # In the root directory of the project repo
 export PROJECT_ID=<your-project-id>
@@ -127,17 +114,6 @@ export ZONE=<your-gcp-zone>
 export GCS_BUCKET=<your-gcs-bucket>
 make monolith-build
 make monolith-deploy
-```
-
-#### Bash
-
-```
-# In the root directory of the project repo
-PROJECT_ID=<your-project-id>
-ZONE=<your-gcp-zone>
-GCS_BUCKET=<your-gcs-bucket>
-./src/ledgermonolith/scripts/build-artifacts.sh
-./src/ledgermonolith/scripts/deploy-monolith.sh
 ```
 
 ## Checking the Monolith
@@ -207,16 +183,40 @@ gcloud container clusters create ${CLUSTER} \
   --labels csm=
 ```
 
-3. Create a custom ConfigMap `kubernetes-manifests/config.yaml` based on the
+
+3. Create a firewall rule allowing traffic from your GKE pods to the monolith GCE instance. 
+
+```
+export POD_CIDR=$(gcloud container clusters describe ${CLUSTER} --zone ${ZONE} --format=json | jq -r '.clusterIpv4Cidr')
+
+gcloud compute firewall-rules create "${CLUSTER}-to-ledgermonolith" \
+--source-ranges=${POD_CIDR} \
+--target-tags="monolith" \
+--action=ALLOW \
+--rules=tcp:8080
+```
+
+4. Create a custom ConfigMap `kubernetes-manifests/config.yaml` based on the
 template file `kubernetes-manifests/config.yaml.template`. This tells the
 frontend how to reach the ledgermonolith API endpoints.
 
 ```
-sed 's/\[PROJECT_ID\]/${PROJECT_ID}/g' kubernetes-manifests/config.yaml.template > kubernetes-manifests/config.yaml
+sed 's/\[PROJECT_ID\]/${PROJECT_ID}/g' src/ledgermonolith/config.yaml.template > src/ledgermonolith/config.yaml
 ```
 
-4. Run the following command from this directory: 
+5. Run the following commands from the root of this repository, to deploy your custom config alongside the other Bank of Anthos services. 
 
 ```
-skaffold run --default-repo=gcr.io/${PROJECT_ID}/with-monolith
+kubectl apply -f src/ledgermonolith/config.yaml 
+kubectl apply -f extras/jwt/jwt-secret.yaml
+kubectl apply -f kubernetes-manifests/accounts-db.yaml
+kubectl apply -f kubernetes-manifests/userservice.yaml
+kubectl apply -f kubernetes-manifests/contacts.yaml
+kubectl apply -f kubernetes-manifests/frontend.yaml
+kubectl apply -f kubernetes-manifests/loadgenerator.yaml
 ```
+
+
+
+## Troubleshooting pod-to-GCE connectivity 
+

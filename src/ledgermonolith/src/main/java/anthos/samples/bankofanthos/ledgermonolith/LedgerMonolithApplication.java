@@ -16,26 +16,35 @@
 
 package anthos.samples.bankofanthos.ledgermonolith;
 
-import java.util.logging.Logger;
-
+import com.google.cloud.MetadataConfig;
+import io.micrometer.stackdriver.StackdriverConfig;
+import io.micrometer.stackdriver.StackdriverMeterRegistry;
+import java.util.HashMap;
+import java.util.Map;
+import javax.annotation.PreDestroy;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * Entry point for the LedgerMonolith Spring Boot application.
  *
- * A monolith service for reading and writing the bank ledger of transactions.
  */
 @SpringBootApplication
 public class LedgerMonolithApplication {
 
     private static final Logger LOGGER =
-            Logger.getLogger(LedgerMonolithApplication.class.getName());
+        LogManager.getLogger(LedgerMonolithApplication.class);
 
     private static final String[] EXPECTED_ENV_VARS = {
         "VERSION",
         "PORT",
         "LOCAL_ROUTING_NUM",
+        "BALANCES_API_ADDR",
         "PUB_KEY_PATH",
         "SPRING_DATASOURCE_URL",
         "SPRING_DATASOURCE_USERNAME",
@@ -47,12 +56,81 @@ public class LedgerMonolithApplication {
         for (String v : EXPECTED_ENV_VARS) {
             String value = System.getenv(v);
             if (value == null) {
-                LOGGER.severe(String.format(
-                        "error: %s environment variable not set", v));
+                LOGGER.fatal(String.format(
+                    "%s environment variable not set", v));
                 System.exit(1);
             }
         }
         SpringApplication.run(LedgerMonolithApplication.class, args);
-        LOGGER.info("Started LedgerMonolith service.");
+        LOGGER.log(Level.forName("STARTUP", Level.FATAL.intLevel()),
+            String.format("Started LedgerMonolith service. Log level is: %s",
+                LOGGER.getLevel().toString()));
+    }
+
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+
+    @PreDestroy
+    public void destroy() {
+        LOGGER.info("LedgerMonolith service shutting down");
+    }
+
+    /**
+     * Initializes Meter Registry with custom Stackdriver configuration
+     *
+     * @return the StackdriverMeterRegistry with configuration
+     */
+    @Bean
+    public static StackdriverMeterRegistry stackdriver() {
+
+        return StackdriverMeterRegistry.builder(new StackdriverConfig() {
+            @Override
+            public boolean enabled() {
+                boolean enableMetricsExport = true;
+
+                if (System.getenv("ENABLE_METRICS") != null
+                    && System.getenv("ENABLE_METRICS").equals("false")) {
+                    enableMetricsExport = false;
+                }
+
+                LOGGER.info(String.format("Enable metrics export: %b",
+                    enableMetricsExport));
+                return enableMetricsExport;
+            }
+
+            @Override
+            public String projectId() {
+                String id = MetadataConfig.getProjectId();
+                if (id == null) {
+                    id = "";
+                }
+                return id;
+            }
+
+            @Override
+            public String get(String key) {
+                return null;
+            }
+            @Override
+            public String resourceType() {
+                return "k8s_container";
+            }
+
+            @Override
+            public Map<String, String> resourceLabels() {
+                Map<String, String> map = new HashMap<>();
+                String podName = System.getenv("HOSTNAME");
+                String containerName = podName.substring(0,
+                    podName.indexOf("-"));
+                map.put("location", MetadataConfig.getZone());
+                map.put("container_name", containerName);
+                map.put("pod_name", podName);
+                map.put("cluster_name", MetadataConfig.getClusterName());
+                map.put("namespace_name", System.getenv("NAMESPACE"));
+                return map;
+            }
+        }).build();
     }
 }

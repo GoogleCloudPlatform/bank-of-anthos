@@ -16,44 +16,151 @@
 
 package anthos.samples.bankofanthos.ledgermonolith;
 
-import java.util.logging.Logger;
+import static anthos.samples.bankofanthos.ledgermonolith.ExceptionMessages.EXCEPTION_MESSAGE_DUPLICATE_TRANSACTION;
+import static anthos.samples.bankofanthos.ledgermonolith.ExceptionMessages.EXCEPTION_MESSAGE_INSUFFICIENT_BALANCE;
+import static anthos.samples.bankofanthos.ledgermonolith.ExceptionMessages.EXCEPTION_MESSAGE_WHEN_AUTHORIZATION_HEADER_NULL;
 
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import io.micrometer.core.instrument.binder.cache.GuavaCacheMetrics;
+import io.micrometer.stackdriver.StackdriverMeterRegistry;
+import java.util.concurrent.TimeUnit;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestTemplate;
+import com.google.common.cache.LoadingCache;
+import com.google.common.util.concurrent.UncheckedExecutionException;
+import java.util.Collection;
+import java.util.Deque;
+import java.util.concurrent.ExecutionException;
+import org.springframework.web.bind.annotation.PathVariable;
 
-/**
- * REST service to retrieve the current balance for the authenticated user.
- */
 @RestController
 public final class LedgerMonolithController {
-
     private static final Logger LOGGER =
-            Logger.getLogger(LedgerMonolithController.class.getName());
+        LogManager.getLogger(LedgerMonolithController.class);
 
-    public static final String READINESS_CODE = "ok";
+    // TH 
+    @Autowired
+    private TransactionRepository dbRepo;
 
+    @Value("${EXTRA_LATENCY_MILLIS:#{null}}")
+    private Integer extraLatencyMillis;
+    @Value("${HISTORY_LIMIT:100}")
+    private Integer historyLimit;
+
+    private LedgerReader ledgerReader;
+
+    private TransactionRepository transactionRepository;
+    private TransactionValidator transactionValidator;
+    private JWTVerifier verifier;
+
+    private String localRoutingNum;
+    private String balancesApiUri;
     private String version;
 
-    /**
-     * Constructor.
-     */
-    @Autowired
-    public LedgerMonolithController(@Value("${VERSION}") final String version) {
-        this.version = version;
-    }
+    // 3 caches 
+    private LoadingCache<String, Deque<Transaction>> txnHistoryCache; 
+    private LoadingCache<String, Long> balanceReaderCache; 
+    private Cache<String, Long> ledgerWriterCache; 
 
-   /**
+    public static final String READINESS_CODE = "ok";
+    public static final String UNAUTHORIZED_CODE = "not authorized";
+    public static final String JWT_ACCOUNT_KEY = "acct";
+
+    @Autowired
+    RestTemplate restTemplate;
+
+    /**
+    * Constructor.
+    *
+    * Initializes JWT verifier.
+    * (merges together constructors for LedgerWriter, Transactionhistory, Balancereader. 
+    **ONE** shared DB cache, not multiple)
+    */
+    @Autowired
+    public LedgerMonolithController(
+            JWTVerifier verifier,
+            StackdriverMeterRegistry meterRegistry, 
+            TransactionRepository transactionRepository, //lw 
+            TransactionValidator transactionValidator, //lw 
+            LoadingCache<String, Deque<Transaction>> txnHistoryCache,
+            LoadingCache<String, Long> balanceReaderCache,
+            LedgerReader reader, //br 
+            @Value("${LOCAL_ROUTING_NUM}") String localRoutingNum,
+            @Value("http://${BALANCES_API_ADDR}/balances")
+                    String balancesApiUri,
+            @Value("${VERSION}") String version) {
+        this.verifier = verifier;
+        this.transactionRepository = transactionRepository;
+        this.transactionValidator = transactionValidator;
+        this.localRoutingNum = localRoutingNum;
+        this.balancesApiUri = balancesApiUri;
+        this.version = version;
+
+        // initialize caches 
+        // txn history 
+        this.txnHistoryCache = txnHistoryCache;
+        GuavaCacheMetrics.monitor(meterRegistry, this.txnHistoryCache, "Guava");
+
+        // balance reader 
+        this.balanceReaderCache = balanceReaderCache;
+        GuavaCacheMetrics.monitor(meterRegistry, this.balanceReaderCache, "Guava");
+
+        // ledger writer  
+        this.ledgerWriterCache = CacheBuilder.newBuilder()
+        .recordStats()
+        .expireAfterWrite(1, TimeUnit.HOURS)
+        .build();
+
+        this.ledgerReader = reader;
+        this.ledgerReader.startWithCallback(transaction -> {
+            final String fromId = transaction.getFromAccountNum();
+            final String fromRouting = transaction.getFromRoutingNum();
+            final String toId = transaction.getToAccountNum();
+            final String toRouting = transaction.getToRoutingNum();
+            final Integer amount = transaction.getAmount();
+
+            if (fromRouting.equals(localRoutingNum)
+                && this.balanceReaderCache.asMap().containsKey(fromId)) {
+                Long prevBalance = balanceReaderCache.asMap().get(fromId);
+                this.balanceReaderCache.put(fromId, prevBalance - amount);
+            }
+            if (toRouting.equals(localRoutingNum)
+                && this.balanceReaderCache.asMap().containsKey(toId)) {
+                Long prevBalance = balanceReaderCache.asMap().get(toId);
+                this.balanceReaderCache.put(toId, prevBalance + amount);
+            }
+        });
+    }
+        
+
+    /**
      * Version endpoint.
      *
      * @return  service version string
      */
     @GetMapping("/version")
-    public ResponseEntity<String> version() {
+    public ResponseEntity version() {
         return new ResponseEntity<String>(version, HttpStatus.OK);
     }
 
@@ -67,4 +174,235 @@ public final class LedgerMonolithController {
     public ResponseEntity<String> readiness() {
         return new ResponseEntity<String>(READINESS_CODE, HttpStatus.OK);
     }
+
+      /**
+     * Liveness probe endpoint.
+     *
+     * @return HTTP Status 200 if server is healthy and serving requests.
+     */
+    @GetMapping("/healthy")
+    public ResponseEntity liveness() {
+        if (!ledgerReader.isAlive()) {
+            // Background thread died.
+            LOGGER.error("Ledger reader not healthy");
+            return new ResponseEntity<String>("Ledger reader not healthy",
+                HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<String>("ok", HttpStatus.OK);
+    }
+
+
+    // BEGIN LEDGER WRITER
+
+    /**
+     * Submit a new transaction to the ledger.
+     *
+     * @param bearerToken  HTTP request 'Authorization' header
+     * @param transaction  transaction to submit
+     *
+     * @return  HTTP Status 200 if transaction was successfully submitted
+     */
+    @PostMapping(value = "/transactions", consumes = "application/json")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<?> addTransaction(
+            @RequestHeader("Authorization") String bearerToken,
+            @RequestBody Transaction transaction) {
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            bearerToken = bearerToken.split("Bearer ")[1];
+        }
+        try {
+            if (bearerToken == null) {
+                LOGGER.error("Transaction submission failed: "
+                    + "Authorization header null");
+                throw new IllegalArgumentException(
+                        EXCEPTION_MESSAGE_WHEN_AUTHORIZATION_HEADER_NULL);
+            }
+            final DecodedJWT jwt = this.verifier.verify(bearerToken);
+
+            // Check against cache for duplicate transactions
+            if (this.ledgerWriterCache.asMap().containsKey(transaction.getRequestUuid())) {
+                throw new IllegalStateException(
+                        EXCEPTION_MESSAGE_DUPLICATE_TRANSACTION);
+            }
+
+            // validate transaction
+            transactionValidator.validateTransaction(localRoutingNum,
+                    jwt.getClaim(JWT_ACCOUNT_KEY).asString(), transaction);
+            // Ensure sender balance can cover transaction.
+            if (transaction.getFromRoutingNum().equals(localRoutingNum)) {
+                int balance = getAvailableBalance(
+                        bearerToken, transaction.getFromAccountNum());
+                if (balance < transaction.getAmount()) {
+                    LOGGER.error("Transaction submission failed: "
+                        + "Insufficient balance");
+                    throw new IllegalStateException(
+                            EXCEPTION_MESSAGE_INSUFFICIENT_BALANCE);
+                }
+            }
+
+            // No exceptions thrown. Add to ledger
+            transactionRepository.save(transaction);
+            this.ledgerWriterCache.put(transaction.getRequestUuid(),
+                    transaction.getTransactionId());
+            LOGGER.info("Submitted transaction successfully");
+            return new ResponseEntity<String>(READINESS_CODE,
+                    HttpStatus.CREATED);
+
+        } catch (JWTVerificationException e) {
+            LOGGER.error("Failed to submit transaction: "
+                + "not authorized");
+            return new ResponseEntity<String>(UNAUTHORIZED_CODE,
+                                              HttpStatus.UNAUTHORIZED);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            LOGGER.error("Failed to retrieve account balance: "
+                + "bad request");
+            return new ResponseEntity<String>(e.getMessage(),
+                                              HttpStatus.BAD_REQUEST);
+        } catch (ResourceAccessException
+                | CannotCreateTransactionException
+                | HttpServerErrorException e) {
+            LOGGER.error("Failed to retrieve account balance");
+            return new ResponseEntity<String>(e.getMessage(),
+                                              HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Retrieve the balance for the transaction's sender.
+     *
+     * @param token  the token used to authenticate request
+     * @param fromAcct  sender account number
+     *
+     * @return available balance of the sender account
+     *
+     * @throws HttpServerErrorException  if balance service returns 500
+     */
+    protected int getAvailableBalance(String token, String fromAcct)
+            throws HttpServerErrorException {
+        LOGGER.debug("Retrieving balance for transaction sender");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + token);
+        HttpEntity entity = new HttpEntity(headers);
+        String uri = balancesApiUri + "/" + fromAcct;
+        ResponseEntity<Integer> response = restTemplate.exchange(
+            uri, HttpMethod.GET, entity, Integer.class);
+        Integer senderBalance = response.getBody();
+        return senderBalance.intValue();
+    }
+
+    // BEGIN BALANCE READER 
+    
+    /**
+     * Return the balance for the specified account.
+     *
+     * The currently authenticated user must be allowed to access the account.
+     *
+     * @param bearerToken  HTTP request 'Authorization' header
+     * @param accountId    the account to get the balance for
+     * @return             the balance of the account
+     */
+    @GetMapping("/balances/{accountId}")
+    public ResponseEntity<?> getBalance(
+        @RequestHeader("Authorization") String bearerToken,
+        @PathVariable String accountId) {
+
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            bearerToken = bearerToken.split("Bearer ")[1];
+        }
+        try {
+            DecodedJWT jwt = verifier.verify(bearerToken);
+            // Check that the authenticated user can access this account.
+            if (!accountId.equals(jwt.getClaim("acct").asString())) {
+                LOGGER.error("Failed to retrieve account balance: "
+                    + "not authorized");
+                return new ResponseEntity<String>("not authorized",
+                    HttpStatus.UNAUTHORIZED);
+            }
+            // Load from cache
+            Long balance = balanceReaderCache.get(accountId);
+            return new ResponseEntity<Long>(balance, HttpStatus.OK);
+        } catch (JWTVerificationException e) {
+            LOGGER.error("Failed to retrieve account balance: not authorized");
+            return new ResponseEntity<String>("not authorized",
+                HttpStatus.UNAUTHORIZED);
+        } catch (ExecutionException | UncheckedExecutionException e) {
+            LOGGER.error("Cache error");
+            return new ResponseEntity<String>("Account cache error",
+                HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    // BEGIN TRANSACTION HISTORY 
+    /**
+     * Helper function to add a single transaction to the internal cache
+     *
+     * @param accountId   the accountId associated with the transaction
+     * @param transaction the full transaction object
+     */
+    private void processTransaction(String accountId, Transaction transaction) {
+        LOGGER.debug("Modifying transaction cache: " + accountId);
+        Deque<Transaction> tList = this.txnHistoryCache.asMap()
+                                             .get(accountId);
+        tList.addFirst(transaction);
+        // Drop old transactions
+        if (tList.size() > historyLimit) {
+            tList.removeLast();
+        }
+    }
+
+    /**
+     * Return a list of transactions for the specified account.
+     *
+     * The currently authenticated user must be allowed to access the account.
+     * @param bearerToken  HTTP request 'Authorization' header
+     * @param accountId    the account to get transactions for.
+     * @return             a list of transactions for this account.
+     */
+    @GetMapping("/transactions/{accountId}")
+    public ResponseEntity<?> getTransactions(
+            @RequestHeader("Authorization") String bearerToken,
+            @PathVariable String accountId) {
+
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            bearerToken = bearerToken.split("Bearer ")[1];
+        }
+        try {
+            DecodedJWT jwt = verifier.verify(bearerToken);
+            // Check that the authenticated user can access this account.
+            if (!accountId.equals(jwt.getClaim("acct").asString())) {
+                LOGGER.error("Failed to retrieve account transactions: "
+                    + "not authorized");
+                return new ResponseEntity<String>("not authorized",
+                                                  HttpStatus.UNAUTHORIZED);
+            }
+
+            // Load from cache
+            Deque<Transaction> historyList = txnHistoryCache.get(accountId);
+
+            // Set artificial extra latency.
+            LOGGER.debug("Setting artificial latency");
+            if (extraLatencyMillis != null) {
+                try {
+                    Thread.sleep(extraLatencyMillis);
+                } catch (InterruptedException e) {
+                    // Fake latency interrupted. Continue.
+                }
+            }
+
+            return new ResponseEntity<Collection<Transaction>>(
+                    historyList, HttpStatus.OK);
+        } catch (JWTVerificationException e) {
+            LOGGER.error("Failed to retrieve account transactions: "
+                + "not authorized");
+            return new ResponseEntity<String>("not authorized",
+                                              HttpStatus.UNAUTHORIZED);
+        } catch (ExecutionException | UncheckedExecutionException e) {
+            LOGGER.error("Cache error");
+            return new ResponseEntity<String>("cache error",
+                                              HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
+
