@@ -182,22 +182,9 @@ gcloud container clusters create ${CLUSTER} \
   --enable-stackdriver-kubernetes --subnetwork=default
 ```
 
+3. Replace `[PROJECT_ID]` with your `$PROJECT_ID` in `src/ledgermonolith/config.yaml`. 
 
-3. Create a firewall rule allowing traffic from your GKE pods to the monolith GCE instance. 
-
-```
-export POD_CIDR=$(gcloud container clusters describe ${CLUSTER} --zone ${ZONE} --format=json | jq -r '.clusterIpv4Cidr')
-
-gcloud compute firewall-rules create "${CLUSTER}-to-ledgermonolith" \
---source-ranges=${POD_CIDR} \
---target-tags="monolith" \
---action=ALLOW \
---rules=tcp:8080
-```
-
-4. Replace `[PROJECT_ID]` with your `$PROJECT_ID` in `src/ledgermonolith/config.yaml`. 
-
-5. Run the following commands from the root of this repository, to deploy your custom config alongside the other Bank of Anthos services. 
+4. Run the following commands from the root of this repository, to deploy your custom config alongside the other Bank of Anthos services. 
 
 ```
 kubectl apply -f src/ledgermonolith/config.yaml 
