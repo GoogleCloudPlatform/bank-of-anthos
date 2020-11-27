@@ -64,4 +64,10 @@ public class LedgerMonolithApplication {
             String.format("Started LedgerMonolith service. Log level is: %s",
                 LOGGER.getLevel().toString()));
     }
+
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+
 }

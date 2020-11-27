@@ -196,13 +196,7 @@ gcloud compute firewall-rules create "${CLUSTER}-to-ledgermonolith" \
 --rules=tcp:8080
 ```
 
-4. Create a custom ConfigMap `kubernetes-manifests/config.yaml` based on the
-template file `kubernetes-manifests/config.yaml.template`. This tells the
-frontend how to reach the ledgermonolith API endpoints.
-
-```
-sed 's/\[PROJECT_ID\]/${PROJECT_ID}/g' src/ledgermonolith/config.yaml.template > src/ledgermonolith/config.yaml
-```
+4. Replace `[PROJECT_ID]` with your `$PROJECT_ID` in `src/ledgermonolith/config.yaml`. 
 
 5. Run the following commands from the root of this repository, to deploy your custom config alongside the other Bank of Anthos services. 
 
@@ -213,10 +207,9 @@ kubectl apply -f kubernetes-manifests/accounts-db.yaml
 kubectl apply -f kubernetes-manifests/userservice.yaml
 kubectl apply -f kubernetes-manifests/contacts.yaml
 kubectl apply -f kubernetes-manifests/frontend.yaml
+
+
+
 kubectl apply -f kubernetes-manifests/loadgenerator.yaml
 ```
-
-
-
-## Troubleshooting pod-to-GCE connectivity 
 

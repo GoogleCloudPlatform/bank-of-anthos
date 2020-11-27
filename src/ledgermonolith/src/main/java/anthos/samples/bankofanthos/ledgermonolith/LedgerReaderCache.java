@@ -71,20 +71,21 @@ public class LedgerReaderCache {
             if (balance == null) {
                 balance = 0L;
             }
-            LOGGER.info(String.format("💡 Fetched ledger cache info: balance: %s",
-            balance.toString()));
             // Load transactions 
             Pageable request = PageRequest.of(0, historyLimit);
             Deque<Transaction> txns = dbRepo.findForAccount(accountId,
                 localRoutingNum,
                 request);
+            
+            LOGGER.info(String.format("💡 Cache got from DB: accountId: %s, balance: %s, %s transactions",
+            accountId, balance.toString(), txns.size()));
             return new AccountInfo(balance, txns); 
           }
         };
       return CacheBuilder.newBuilder()
           .recordStats()
           .maximumSize(expireSize)
-          .expireAfterWrite(expireMinutes, TimeUnit.MINUTES)
+          .expireAfterWrite(1, TimeUnit.SECONDS)
           .build(load);
     }
 }

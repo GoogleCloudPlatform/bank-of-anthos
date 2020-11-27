@@ -75,7 +75,7 @@ public class TransactionCache {
       return CacheBuilder.newBuilder()
           .recordStats()
           .maximumSize(expireSize)
-          .expireAfterWrite(expireMinutes, TimeUnit.MINUTES)
+          .expireAfterWrite(1, TimeUnit.SECONDS)
           .build(load);
     }
 }

@@ -16,38 +16,20 @@
 
 package anthos.samples.bankofanthos.ledgermonolith;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import java.util.Deque;
-import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Component;
-import org.springframework.dao.DataAccessResourceFailureException;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.web.client.ResourceAccessException;
 
 
 /**
  * Defines the account Info object used for the LedgerReaderCache 
  */
-@Component
-public final class AccountInfo {
-  private Long balance; 
-  private Deque<Transaction> transactions; 
+public class AccountInfo {
+  Long balance; 
+  Deque<Transaction> transactions; 
 
-
-/**
- * Constructor.
- */
-    @Autowired
-    public AccountInfo(Long balance,
+  // Constructor 
+  public AccountInfo(Long balance,
     Deque<Transaction> transactions) {
         this.balance = balance; 
         this.transactions = transactions; 
@@ -55,10 +37,10 @@ public final class AccountInfo {
 
 // Getters 
   public Deque<Transaction> getTransactions() {
-    return this.transactions;
+    return transactions;
   }
 
   public Long getBalance() {
-    return this.balance;
+    return balance;
   }
 }

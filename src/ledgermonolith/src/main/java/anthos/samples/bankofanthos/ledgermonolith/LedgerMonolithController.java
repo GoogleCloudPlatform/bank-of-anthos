@@ -83,7 +83,6 @@ public final class LedgerMonolithController {
 
 
     private String localRoutingNum;
-    private String balancesApiUri;
     private String version;
 
     public static final String READINESS_CODE = "ok";
@@ -109,14 +108,11 @@ public final class LedgerMonolithController {
             TransactionValidator transactionValidator,  
             LedgerReader reader, 
             @Value("${LOCAL_ROUTING_NUM}") String localRoutingNum,
-            @Value("http://${BALANCES_API_ADDR}/balances")
-                    String balancesApiUri,
             @Value("${VERSION}") String version) {
         this.verifier = verifier;
         this.transactionRepository = transactionRepository;
         this.transactionValidator = transactionValidator;
         this.localRoutingNum = localRoutingNum;
-        this.balancesApiUri = balancesApiUri;
         this.version = version;
 
         // balance reader 
@@ -154,6 +150,7 @@ public final class LedgerMonolithController {
             }
 
         });
+        LOGGER.info("✅ Started LedgerMonolith.");
     }
 
      /**
@@ -163,7 +160,7 @@ public final class LedgerMonolithController {
      * @param transaction the full transaction object
      */
     private void processTransaction(String accountId, Long newBalance, Transaction transaction) {
-        LOGGER.debug("Modifying ledger cache: " + accountId);
+        LOGGER.info("*️⃣ Processing transaction for account: " + accountId);
         AccountInfo accountInfo = this.ledgerReaderCache.asMap()
                                 .get(accountId);
 
@@ -177,6 +174,7 @@ public final class LedgerMonolithController {
 
         // Update cache with updated balance, transactions
         AccountInfo info = new AccountInfo(newBalance, tList);  
+        LOGGER.info("*️⃣ New balance is: " + newBalance.toString()); 
         this.ledgerReaderCache.put(accountId, info);
     }
         
@@ -257,8 +255,7 @@ public final class LedgerMonolithController {
                     jwt.getClaim(JWT_ACCOUNT_KEY).asString(), transaction);
             // Ensure sender balance can cover transaction.
             if (transaction.getFromRoutingNum().equals(localRoutingNum)) {
-                int balance = getAvailableBalance(
-                        bearerToken, transaction.getFromAccountNum());
+                Long balance = getAvailableBalance(transaction.getFromAccountNum());
                 if (balance < transaction.getAmount()) {
                     LOGGER.error("Transaction submission failed: "
                         + "Insufficient balance");
@@ -266,7 +263,6 @@ public final class LedgerMonolithController {
                             EXCEPTION_MESSAGE_INSUFFICIENT_BALANCE);
                 }
             }
-
             // No exceptions thrown. Add to ledger
             transactionRepository.save(transaction);
             this.ledgerWriterCache.put(transaction.getRequestUuid(),
@@ -295,27 +291,19 @@ public final class LedgerMonolithController {
     }
 
     /**
-     * Retrieve the balance for the transaction's sender.
-     *
-     * @param token  the token used to authenticate request
-     * @param fromAcct  sender account number
-     *
-     * @return available balance of the sender account
-     *
-     * @throws HttpServerErrorException  if balance service returns 500
+     * Modified getAvailableBalance - instead of making an external API call like in the microservice version,  
+     * get balance from local cache. 
      */
-    protected int getAvailableBalance(String token, String fromAcct)
-            throws HttpServerErrorException {
+    protected Long getAvailableBalance(String accountId) {
         LOGGER.debug("Retrieving balance for transaction sender");
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + token);
-        HttpEntity entity = new HttpEntity(headers);
-        String uri = balancesApiUri + "/" + fromAcct;
-        ResponseEntity<Integer> response = restTemplate.exchange(
-            uri, HttpMethod.GET, entity, Integer.class);
-        Integer senderBalance = response.getBody();
-        return senderBalance.intValue();
+        Long balance = new Long(-1);
+        try {
+            AccountInfo info = ledgerReaderCache.get(accountId);
+            balance = info.getBalance(); 
+        } catch (ExecutionException | UncheckedExecutionException e) {
+            LOGGER.error("Cache error");
+        }
+        return balance; 
     }
 
     // BEGIN BALANCE READER 
