@@ -34,42 +34,51 @@ import org.springframework.web.client.ResourceAccessException;
 
 
 /**
- * TransactionCache creates the LoadingCache that handles caching
+ * LedgerReaderCache creates the LoadingCache that handles caching
  * and retrieving account transactions from the TransactionRepository.
  */
 @Configuration
-public class TransactionCache {
+public class LedgerReaderCache {
 
     private static final Logger LOGGER =
-        LogManager.getLogger(TransactionCache.class);
+        LogManager.getLogger(LedgerReaderCache.class);
 
     @Autowired
     private TransactionRepository dbRepo;
 
 
     /**
-     * Initializes the LoadingCache for the TransactionHistoryController
-     *
+     * Combined cache for BalanceReader and TransactionHistory. 
+     * 
      * @param expireSize max size of the cache
      * @param localRoutingNum bank routing number for account
      * @return the LoadingCache storing accountIds and their transactions
      */
     @Bean(name = "cache")
-    public LoadingCache<String, Deque<Transaction>> initializeCache(
+    public LoadingCache<String, AccountInfo> initializeCache(
         @Value("${CACHE_SIZE:1000000}") final Integer expireSize,
         @Value("${CACHE_MINUTES:60}") final Integer expireMinutes,
         @Value("${LOCAL_ROUTING_NUM}") String localRoutingNum,
         @Value("${HISTORY_LIMIT:100}") Integer historyLimit) {
-        CacheLoader load = new CacheLoader<String, Deque<Transaction>>() {
+        CacheLoader load = new CacheLoader<String, AccountInfo>() {
           @Override
-          public Deque<Transaction> load(String accountId)
+          public AccountInfo load(String accountId)
               throws ResourceAccessException,
               DataAccessResourceFailureException  {
-            LOGGER.debug("Cache loaded from db");
+            LOGGER.debug("Ledger cache loaded from db");
+            // Load balance 
+            Long balance = dbRepo.findBalance(accountId, localRoutingNum);
+            if (balance == null) {
+                balance = 0L;
+            }
+            LOGGER.info(String.format("💡 Fetched ledger cache info: balance: %s",
+            balance.toString()));
+            // Load transactions 
             Pageable request = PageRequest.of(0, historyLimit);
-            return dbRepo.findForAccount(accountId,
+            Deque<Transaction> txns = dbRepo.findForAccount(accountId,
                 localRoutingNum,
                 request);
+            return new AccountInfo(balance, txns); 
           }
         };
       return CacheBuilder.newBuilder()
