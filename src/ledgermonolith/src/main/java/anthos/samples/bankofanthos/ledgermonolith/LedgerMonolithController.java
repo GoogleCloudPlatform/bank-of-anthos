@@ -25,8 +25,8 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import io.micrometer.core.instrument.binder.cache.GuavaCacheMetrics;
-import io.micrometer.stackdriver.StackdriverMeterRegistry;
+import com.google.common.cache.LoadingCache;
+import com.google.common.util.concurrent.UncheckedExecutionException;
 import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -47,8 +47,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
-import com.google.common.cache.LoadingCache;
-import com.google.common.util.concurrent.UncheckedExecutionException;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.concurrent.ExecutionException;
@@ -56,10 +54,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
 public final class LedgerMonolithController {
-    private static final Logger LOGGER =
-        LogManager.getLogger(LedgerMonolithController.class);
 
-    // TH 
+    private static final Logger LOGGER = LogManager.getLogger(LedgerMonolithController.class);
+
     @Autowired
     private TransactionRepository dbRepo;
 
@@ -68,18 +65,20 @@ public final class LedgerMonolithController {
     @Value("${HISTORY_LIMIT:100}")
     private Integer historyLimit;
 
+    private JWTVerifier verifier;
     private LedgerReader ledgerReader;
+    // cache 1 
+    private LoadingCache<String, Deque<Transaction>> txnHistoryCache;
 
     private TransactionRepository transactionRepository;
     private TransactionValidator transactionValidator;
-    private JWTVerifier verifier;
+
 
     private String localRoutingNum;
     private String balancesApiUri;
     private String version;
 
-    // 3 caches 
-    private LoadingCache<String, Deque<Transaction>> txnHistoryCache; 
+    // 32 other caches 
     private LoadingCache<String, Long> balanceReaderCache; 
     private Cache<String, Long> ledgerWriterCache; 
 
@@ -99,13 +98,13 @@ public final class LedgerMonolithController {
     */
     @Autowired
     public LedgerMonolithController(
-            JWTVerifier verifier,
-            StackdriverMeterRegistry meterRegistry, 
-            TransactionRepository transactionRepository, //lw 
-            TransactionValidator transactionValidator, //lw 
+            @Value("${PUB_KEY_PATH}") final String publicKeyPath,
             LoadingCache<String, Deque<Transaction>> txnHistoryCache,
+            JWTVerifier verifier,
+            TransactionRepository transactionRepository, 
+            TransactionValidator transactionValidator,  
             LoadingCache<String, Long> balanceReaderCache,
-            LedgerReader reader, //br 
+            LedgerReader reader, 
             @Value("${LOCAL_ROUTING_NUM}") String localRoutingNum,
             @Value("http://${BALANCES_API_ADDR}/balances")
                     String balancesApiUri,
@@ -120,11 +119,9 @@ public final class LedgerMonolithController {
         // initialize caches 
         // txn history 
         this.txnHistoryCache = txnHistoryCache;
-        GuavaCacheMetrics.monitor(meterRegistry, this.txnHistoryCache, "Guava");
 
         // balance reader 
         this.balanceReaderCache = balanceReaderCache;
-        GuavaCacheMetrics.monitor(meterRegistry, this.balanceReaderCache, "Guava");
 
         // ledger writer  
         this.ledgerWriterCache = CacheBuilder.newBuilder()
@@ -132,6 +129,7 @@ public final class LedgerMonolithController {
         .expireAfterWrite(1, TimeUnit.HOURS)
         .build();
 
+        // Merged ledgerreader cache initialization (balancereader + txn history)
         this.ledgerReader = reader;
         this.ledgerReader.startWithCallback(transaction -> {
             final String fromId = transaction.getFromAccountNum();
@@ -145,11 +143,19 @@ public final class LedgerMonolithController {
                 Long prevBalance = balanceReaderCache.asMap().get(fromId);
                 this.balanceReaderCache.put(fromId, prevBalance - amount);
             }
+            if (fromRouting.equals(localRoutingNum)
+                    && this.txnHistoryCache.asMap().containsKey(fromId)) {
+                processTransaction(fromId, transaction);
+            }
             if (toRouting.equals(localRoutingNum)
                 && this.balanceReaderCache.asMap().containsKey(toId)) {
                 Long prevBalance = balanceReaderCache.asMap().get(toId);
                 this.balanceReaderCache.put(toId, prevBalance + amount);
             }
+            if (toRouting.equals(localRoutingNum)
+            && this.txnHistoryCache.asMap().containsKey(toId)) {
+                processTransaction(toId, transaction);
+             }
         });
     }
         
