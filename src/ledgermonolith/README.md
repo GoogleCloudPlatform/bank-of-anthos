@@ -173,14 +173,13 @@ PROJECT_ID=<your-project-id>
 ZONE=<your-gcp-zone>
 ```
 
-2. Create the kubernetes cluster
+2. Create a GKE cluster. 
 
 ```
 gcloud container clusters create ${CLUSTER} \
   --project=${PROJECT_ID} --zone=${ZONE} \
   --machine-type=e2-standard-4 --num-nodes=4 \
-  --enable-stackdriver-kubernetes --subnetwork=default \
-  --labels csm=
+  --enable-stackdriver-kubernetes --subnetwork=default
 ```
 
 
@@ -207,9 +206,6 @@ kubectl apply -f kubernetes-manifests/accounts-db.yaml
 kubectl apply -f kubernetes-manifests/userservice.yaml
 kubectl apply -f kubernetes-manifests/contacts.yaml
 kubectl apply -f kubernetes-manifests/frontend.yaml
-
-
-
 kubectl apply -f kubernetes-manifests/loadgenerator.yaml
 ```
 
