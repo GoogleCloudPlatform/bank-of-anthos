@@ -67,7 +67,7 @@ gcloud compute instances create ledgermonolith-service \
     --machine-type=n1-standard-1 \
     --scopes cloud-platform,storage-ro \
     --metadata gcs-bucket=${GCS_BUCKET},VmDnsSetting=ZonalPreferred \
-    --metadata-from-file startup-script=${CWD}/../init/startup-script.sh \
+    --metadata-from-file startup-script=${CWD}/../init/install-script.sh \
     --tags monolith \
     --quiet
 
