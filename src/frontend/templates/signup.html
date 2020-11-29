@@ -1,5 +1,5 @@
 <!--
-Copyright 2018 Google LLC
+Copyright 2020 Google LLC
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ limitations under the License.
       <meta http-equiv="X-UA-Compatible" content="IE=edge">
       <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
       <title>{{ bank_name }}</title>
-      <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
       <link rel="stylesheet" href="https://unpkg.com/bootstrap-material-design@4.1.1/dist/css/bootstrap-material-design.min.css" integrity="sha384-wXznGJNEXNG1NFsbm0ugrLFMQPWswR3lds2VeinahP8N0zJw9VWSopbjv2x7WCvX" crossorigin="anonymous">
       <link rel="preconnect" href="https://fonts.gstatic.com">
       <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
@@ -33,9 +32,15 @@ limitations under the License.
       <header>
         <nav class="navbar navbar-expand-lg navbar-top">
           <div class="container">
+            {% if cymbal_logo == "true" %}
+            <div class="logo-container"> 
+              <img id="cymbal-logo" src="static/img/cymbal.svg">
+            </div>
+            {% else %}
             <a class="navbar-brand">
-              {{ bank_name }}
-            </a>
+            {{ bank_name }}
+          </a>
+            {% endif %}
           </div>
         </nav>
       </header>
@@ -46,7 +51,7 @@ limitations under the License.
         <div class="row d-flex align-items-end header header-body">
           <div class="col-lg-4"><a href="/login" type="button" class="btn btn-secondary"><span class="mr-2 material-icons arrow-back">arrow_back</span>Back</a></div>
           <div class="col-md-8">
-            <h2 class="header-title" id="signup-title">Register a new account</h2>
+            <h2 class="header-title" id="signup-title">CREATE ACCOUNT</h2>
           </div>
         </div>
         <div class="row mt-5 mb-5">
@@ -317,7 +322,7 @@ limitations under the License.
 
                         <hr class="mb-4">
                         <div class="col-lg-10 offset-lg-1 sign-in">
-                          <button class="btn btn-sign-in btn-block" type="submit">Create New Account</button>
+                          <button class="btn btn-block btn-secondary" type="submit">Create New Account</button>
                         </div>
                       </form>
                     </div>
@@ -331,9 +336,9 @@ limitations under the License.
       <!-- Page Footer -->
       <footer class="footer">
         <div class="container">
-            <div class="row mb-2">© 2020 Google Inc</div>
+            <div class="row mb-2" class="footer-google-inc">© 2020 Google Inc</div>
             <div class="row mb-3">
-              <small class="text-muted">
+              <small class="footer-disclaimer">
                 This website is hosted for demo purposes only. It is not an
                 actual bank. This is not an official Google project.
               </small>

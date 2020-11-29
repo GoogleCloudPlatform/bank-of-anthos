@@ -1,5 +1,5 @@
 <!--
-Copyright 2018 Google LLC
+Copyright 2020 Google LLC
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ limitations under the License.
       <link rel="preconnect" href="https://fonts.gstatic.com">
       <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
       <link rel="stylesheet" href="static/styles/cymbal.css">
-      <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
    </head>
     <body>
@@ -32,13 +31,15 @@ limitations under the License.
       <header>
         <nav class="navbar navbar-expand-lg navbar-top">
           <div class="container">
-            <a class="navbar-brand">
-              {% if cymbal_bank == "true" %}
-              <img src="static/img/cymbal.png" height="100%">
+              {% if cymbal_logo == "true" %}
+              <div class="logo-container"> 
+                <img id="cymbal-logo" src="static/img/cymbal.svg">
+              </div>
               {% else %}
+              <a class="navbar-brand">
               {{ bank_name }}
-              {% endif %}
             </a>
+              {% endif %}
             <button type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler navbar-toggler-right">
               <span class="material-icons">menu</span>
             </button>
@@ -83,7 +84,7 @@ limitations under the License.
           </div>
           <div class="col-md-4">
             <div class="account-info float-right">
-              <p><span class="account-fa material-icons">info</span><span class="account-num-text">Account Number:</span><span class="account-number">{{ account_id }}</span></p>
+              <p><span class="account-overview material-icons">info</span><span class="account-num-text">Account Number:</span><span class="account-number">{{ account_id }}</span></p>
             </div>
           </div>
         </div>
@@ -95,7 +96,7 @@ limitations under the License.
                 <div class="card-body">
                   <div class="row align-items-center">
                     <div class="col">
-                      <p class="text-uppercase secondary-text text-muted mb-3">
+                      <p class="text-uppercase mb-3">
                         <b>Current Balance</b>
                       </p>
                       <span class="h1 mb-0" id="current-balance">
@@ -147,7 +148,7 @@ limitations under the License.
         <!-- Transaction History Table -->
         <div class="row col-lg-10 offset-lg-1 mb-4">
           <div class="col-lg-12">
-            <div class="card">
+            <div class="card" class="transaction-card">
               <div class="card-table-header">
                 <div class="row align-items-center">
                   <div class="col">
@@ -390,9 +391,9 @@ limitations under the License.
       <!-- Page Footer -->
       <footer class="footer">
         <div class="container">
-            <div class="row mb-2">© 2020 Google Inc</div>
+            <div class="row mb-2" class="footer-google-inc">© 2020 Google Inc</div>
             <div class="row mb-3">
-              <small class="text-muted">
+              <small class="footer-disclaimer">
                 This website is hosted for demo purposes only. It is not an
                 actual bank. This is not an official Google project.
               </small>
