@@ -49,9 +49,9 @@ spec:
         # Set to "true" to enable the Cymbal Bank logo 
         - name: CYMBAL_LOGO
           value: "true"
-        # Custom "Bank name" is rendered in the frontend when the default bank-of-anthos.css is used 
-        - name: BANK_NAME
-          value: "CymbalBank"
+        # When CYMBAL_LOGO is set to false or unset, the frontend uses this bank name. Defaults to "Bank of Anthos"
+        # - name: BANK_NAME
+        #   value: ""
         - name: DEFAULT_USERNAME
           valueFrom:
             configMapKeyRef:
