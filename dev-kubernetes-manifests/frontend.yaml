@@ -51,7 +51,7 @@ spec:
           value: "true"
         # Custom "Bank name" is rendered in the frontend when the default bank-of-anthos.css is used 
         - name: BANK_NAME
-          value: "Demo Bank"
+          value: "CymbalBank"
         - name: DEFAULT_USERNAME
           valueFrom:
             configMapKeyRef:

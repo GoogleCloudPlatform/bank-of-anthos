@@ -24,12 +24,13 @@
   p {
     margin-bottom: 0rem !important;
   }
-  .secondary-text {
-    letter-spacing: .08em;
-    color: #A3FD8C; 
+  small {
+    font-size: 0.9rem; 
   }
-  .text-muted {
-    color: #A3FD8C; 
+  .pop-up-label {
+    font-size: 24px;
+    font-weight: 500; 
+    color: #343434;  
   }
   label {
     font-size: 0.9rem;
@@ -37,51 +38,44 @@
 
 /* MATERIAL ICONS */
   .material-icons {
-    color: #A3FD8C; 
+    color: #008A20; 
+    vertical-align:middle !important;
   }
   .button-icon {
     font-size: 24px;
-    color: #A3FD8C; 
+    color: #008A20; 
+  }
+  .money-icon {
+    font-size: 24px;
+    color: #008A20; 
   }
   .modal-icon {
     font-size: 18px !important;
     margin-right: 8px;
     width: 18px;
+    color: #008A20; 
   }
   .arrow-back {
     font-size: 15px;
-    vertical-align: middle;
-  }
-
-  /* BUTTONS */ 
-  button {
-    align-items: center; 
-    box-sizing: border-box;
-    border-radius: 50px;    
-
-    /*inside*/ 
-    flex: none;
-    order: 2;
-    flex-grow: 0;
-    margin: 10px 0px;
-  }
-  .btn-primary {
-    background-color: #008A20; 
-    color: white; 
-  }
-
-  .btn-secondary {
-    background-color: white; 
     color: #008A20; 
-    border: 1px solid #008A20;
   }
+  .payment-deposit-icon {
+    color: white !important; 
+  }
+
+
 
 /* TOP NAVIGATION  */
   .header {
     margin-bottom: 2rem;
   }
-  .header-title {
-    font-weight: 700;
+
+  .header-title, .card-header-title {
+    font-weight: 500;
+    font-family: DM Sans;
+    font-style: normal;
+    font-weight: normal;
+    color: #343434;
   }
   .logo-container {
     
@@ -105,24 +99,27 @@
     margin-left: 20px;
   }
   .nav-link {
-    color: black; 
+    color: #343434; 
     text-transform: none !important;
     font-size: 1rem !important;
   }
   .navbar-brand {
-    color: black; 
+    color: #343434; 
     font-weight: 700;
   }
   .nav-link i {
     font-size: 20px;
   }
   .nav-link:hover {
-    color: black; 
+    color: #343434; 
     transition: all 0.2s ease-in;
   }
   #account-user-name {
-    color: black; 
-    font-weight: 600;
+    font-family: DM Sans;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 1.2rem; 
+    color: #000101;
   }
   .account-user-avatar {
     margin-right: 5px;
@@ -141,49 +138,40 @@
 
   /* FOOTER */
   .footer {
-    /* border-top: 1px solid #006200;  */
-    background-color: #006200; 
-    color: white; 
     bottom: 0;
     padding: 20px 24px 20px;
     right: 0;
-  }
-  .footer-disclaimer {
     color: white; 
+    background-color: #006200; 
   }
 
   /* CARDS */
-  .card {
-    color: white; 
-    border-radius: 10px;
-    background-color: #023122; 
+  .card  {
+    color: #343434; 
+    background-color: #F8F8F8;
     margin-bottom: 1.5rem;
-    /* border-color: #023122;  */
-  }
-  .card-header-title {
-    color: white; 
-    margin-bottom: 0;
-    font-weight: 700;
+    border-radius: 10px;
+
+    -webkit-box-shadow: none !important;
+    -moz-box-shadow: none !important;
+    box-shadow: none !important;
   }
   .card-icon {
     font-size: 36px !important;
     color: #A3FD8C; 
-  }
-  .card-button:hover {
-    cursor: pointer;
-    transition: all 0.3s ease-in-out;
-    transform: translateY(-5px) scale(1.005) translateZ(0);
   }
 
    /* ACCOUNT HOME */
   .account-info {
      font-size: 20px; 
    }
+   /* .current-balance {
+     color: #008A20; 
+   } */
    /* icon */ 
   .account-overview {
     margin-right: 5px;
     font-size: 24px; 
-    color: #008A20; 
     vertical-align: bottom;
   }
   .account-num-text {
@@ -192,12 +180,7 @@
   }
   .account-number {
     font-weight: 200;
-    color: #008A20; 
   }
-  .current-balance {
-    color: #A3FD8C; 
-  }
-
 
 
 /* TRANSACTION TABLE */
@@ -217,11 +200,10 @@
   }
   .table td {
     vertical-align: middle !important;
-    /* border-top: 1px solid black;  */
+    font-size: 1.1rem !important; 
   }
   .table thead th {
-    background-color: white; 
-    color: black; 
+    color: #343434; 
     text-transform: uppercase;
     font-size: .8125rem;
     font-weight: 600;
@@ -232,7 +214,6 @@
     margin-left: .25rem;
   }
   .list tr:hover {
-    background-color: white; 
     transition: all 0.3s ease-in;
   }
   .text-credit {
@@ -246,16 +227,16 @@
     font-size: 22px;
   }
   .transaction-amount-debit {
-    color: black; 
+    color: #008A20; 
   }
   .transaction-date {
     font-size: 18px;
   }
   .transaction-label-none {
-    color: black; 
+    color: #343434; 
   }
   .text-transaction-header {
-    color: black; 
+    color: #343434;  
   }
   .date-month {
     margin-right: 5px;
@@ -295,25 +276,108 @@
   }
   .invalid-feedback {
     color: #FF0000;
+    font-size: 1.05rem; 
   }
-
-
-
 
 
   /* SIGN IN PAGE  */
   .sign-in i {
-    color: black; 
+    color: #008A20; 
     font-size: 1.125rem;
   }
   .sign-in input {
-    color: white; 
+    color: #343434; 
     font-size: 1.15rem;
-  }
-  .btn-sign-in {
-    color: black; 
-    background-color: white; 
   }
   .hidden {
     display: none;
+  }
+
+
+
+
+  /* BUTTONS */ 
+  .btn, .btn-primary, .card-button, .btn-block, form button  {
+    /* display: flex;
+    flex-direction: column; */
+    align-items: center;
+    /* padding: 10px 22px; */
+
+    /* position: absolute;
+    width: 118px;
+    height: 44px;
+    left: 0px;
+    top: 0px; */
+
+    background: #008A20 !important;
+    color: white !important; 
+    border-radius: 50px;
+    font-weight: 500 !important;
+  }
+  .btn-secondary {
+    background-color: white; 
+    color: #008A20 !important; 
+    border: 1px solid #008A20 !important;
+  }
+  .btn:hover, .btn-primary:hover, .btn-secondary:hover, .btn:focus, .btn-primary:focus, .btn-secondary:focus {
+    cursor: pointer !important;
+    transition: all 0.3s ease-in-out !important;
+  }
+  .btn:hover, .btn-primary:hover, .btn:focus, .btn-primary:focus {
+    background-color: #006200  !important;
+  }
+  .btn:active, .btn-primary:active, .btn-secondary:active {
+    background-color: #A3FD8C !important;
+    border: 1px solid #A3FD8C !important;
+  }
+
+  .btn-primary.custom-file-control:before, .btn.btn-primary {
+    background-color: #008A20 !important;
+    color: white !important; 
+    border-radius: 50px;
+  }
+
+  .btn-secondary.custom-file-control:before, .btn.btn-secondary {
+    background-color: white !important; 
+    color: #008A20 !important; 
+    border: 1px solid #008A20;
+  }
+
+  .btn-primary.custom-file-control:focus, .btn-primary.custom-file-control:hover {
+    background-color: #006200 !important; 
+  }
+
+  .btn-primary.custom-file-control:active, .btn-primary.custom-file-control:active, .btn-secondary.custom-file-control:active, .btn.btn-secondary:active {
+    background-color: #A3FD8C !important;
+    border: 1px solid #A3FD8C !important;
+  }
+
+  /* divider between pay / cancel buttons in pop up */ 
+  .payment-cancel {
+    padding-right: 20px;
+  }
+
+  /*FORMS */ 
+  .form-control:focus {
+    background-color: white !important; 
+    border-color: #A3FD8C !important;
+  }
+  input .form-control {
+    background-color: #F8F8F8 !important;
+  }
+
+
+  .custom-file-control, .form-control, .is-focused .custom-file-control, .is-focused .form-control { 
+    background-image: linear-gradient(0deg,#008A20 2px,rgba(0,150,136,0) 0),linear-gradient(0deg,rgba(0,0,0,.26) 1px,transparent 0);
+  }
+
+  .custom-file-control:invalid, .form-control:invalid{
+    background-image: linear-gradient(0deg,#FF0000 2px,rgba(213,0,0,0) 0),linear-gradient(0deg,rgba(0,0,0,.26) 1px,transparent 0);
+  }
+
+  /* "x" icons in pop-ups, deposit accepted alert */ 
+  .close, .deposit-cancel {
+    background-color: white !important; 
+    opacity: 0 !important; 
+    color: #343434 !important; 
   }
