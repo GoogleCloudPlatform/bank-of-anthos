@@ -1,0 +1,337 @@
+# Copyright 2020 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: populate-accounts-db
+spec:
+  template:
+    spec:
+      shareProcessNamespace: true # Important to stop all processes
+      serviceAccountName: boa-ksa
+      containers:
+      - name: sidecar-controller
+        image: bash
+        command: ['bash', '-c', '. /scripts/wait-to-complete-sidecar.sh "initialize-database.sh" "cloud_sql_proxy"']
+        volumeMounts:
+        - name: scripts
+          mountPath: "/scripts"
+          readOnly: true
+        resources:
+          limits:
+            cpu: "200m"
+            memory: "100Mi"
+      - name: populate-accounts-db
+        image: postgres:13.0
+        command: ['bash', '-c','. /scripts/initialize-database.sh 127.0.0.1 5432 accounts-db']
+        volumeMounts:
+        - name: scripts
+          mountPath: "/scripts"
+          readOnly: true
+        env:
+        - name: PGUSER
+          valueFrom:
+            secretKeyRef:
+              name: cloud-sql-admin
+              key: username
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: cloud-sql-admin
+              key: password
+        # /start: Required for testing data
+        - name: LOCAL_ROUTING_NUM
+          valueFrom:
+            configMapKeyRef:
+              name: environment-config
+              key: LOCAL_ROUTING_NUM
+        - name: USE_DEMO_DATA
+          valueFrom:
+            configMapKeyRef:
+              name: demo-data-config
+              key: USE_DEMO_DATA
+        - name: POSTGRES_DB
+          value: "accounts-db"
+        - name: PGHOSTADDR
+          value: "127.0.0.1"
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: cloud-sql-admin
+              key: username
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: cloud-sql-admin
+              key: password
+      # /end: Required for testing data
+      # CloudSQL Proxy
+      - name: cloudsql-proxy
+        resources:
+          limits:
+            cpu: "200m"
+            memory: "100Mi"
+        image: gcr.io/cloudsql-docker/gce-proxy:1.19.0-alpine
+        env:
+        - name: CONNECTION_NAME
+          valueFrom:
+            secretKeyRef:
+              name: cloud-sql-admin
+              key: connectionName
+        command: ["/cloud_sql_proxy",
+                  "-instances=$(CONNECTION_NAME)=tcp:5432"]
+        securityContext:
+          runAsNonRoot: true
+      volumes:
+      - name: scripts
+        configMap:
+          name: accounts-schema-config
+      restartPolicy: Never
+  backoffLimit: 4
+
+---
+# kubectl create configmap accounts-schema-config --from-file=src/accounts-db/initdb/0-accounts-schema.sql --dry-run -o yaml (copy and add below)
+# kubectl create configmap accounts-schema-config --from-file=src/accounts-db/initdb/1-load-testdata.sh --dry-run -o yaml (copy and add below)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: accounts-schema-config
+data:
+  wait-to-complete-sidecar.sh: |
+    #!/bin/bash
+    COUNTER=0
+    TARGET=$1
+    PROCESS=$2
+
+    echo "Looking for $TARGET"
+
+    sleep 10s # Give 10s to allow processes to start
+
+    # 20 minutes (60 x 10s increments)
+    while [ $COUNTER -lt 120 ]; do
+        let COUNTER=$COUNTER+1
+
+        IS_RUNNING=$(ps -A | grep "scripts/$TARGET" | grep -v grep)
+
+        if [ "$IS_RUNNING" != "" ]; then
+          echo "Attempt # ${COUNTER}: Process not completed, trying again in 10 seconds -- ${IS_RUNNING}"
+          sleep 10s
+        else
+          echo "'${TARGET}' Process Finished, Stopping '${PROCESS}'"
+          killall ${PROCESS}
+          exit 0
+        fi
+    done
+
+    echo "Could not determine if the import finished, killing the proxy"
+    killall ${PROCESS}
+    exit 0
+
+  initialize-database.sh: |
+    #!/bin/bash
+
+    COUNTER=0
+    SLEEP_TIME=60 # 1 minute
+    DB_READY=0 # false
+    INIT_SQL_SCRIPT="/scripts/0-accounts-schema.sql"
+    TEST_SQL_SCRIPT="/scripts/1-load-testdata.sh"
+
+    HOST=${1:-'127.0.0.1'}
+    PORT=${2:-'5432'}
+    DB_NAME=${3:-'default'}
+
+    # Initial wait for sql-proxy to catch up
+    sleep 20
+
+    while [ $COUNTER -lt 10 ]; do
+        let COUNTER=$COUNTER+1
+
+        pg_isready --host=${HOST} --port=${PORT} --dbname=${DB_NAME}
+
+        if [ $? -gt 0 ]; then
+            echo "Attempt # ${COUNTER}: Database is not ready, trying again in 1 minute"
+            sleep $SLEEP_TIME
+        else
+            echo "Database is ready to connect"
+            let DB_READY=1
+            break
+        fi
+    done
+
+    if [ "${DB_READY}" -eq 1 ]; then
+        echo "Running initialization script"
+        psql --host=${HOST} --port=${PORT} --dbname=${DB_NAME} -f ${INIT_SQL_SCRIPT}
+        if [ $? -gt 0 ]; then
+            echo "Problems running the initialization script"
+        else
+            echo "Run Test Data"
+            . ${TEST_SQL_SCRIPT}
+        fi
+    fi
+  0-accounts-schema.sql: |
+    /*
+     * Copyright 2020, Google LLC.
+     *
+     * Licensed under the Apache License, Version 2.0 (the "License");
+     * you may not use this file except in compliance with the License.
+     * You may obtain a copy of the License at
+     *
+     *     http://www.apache.org/licenses/LICENSE-2.0
+     *
+     * Unless required by applicable law or agreed to in writing, software
+     * distributed under the License is distributed on an "AS IS" BASIS,
+     * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     * See the License for the specific language governing permissions and
+     * limitations under the License.
+     */
+
+    CREATE TABLE IF NOT EXISTS users (
+      accountid CHAR(10) PRIMARY KEY,
+      username VARCHAR(64) UNIQUE NOT NULL,
+      passhash BYTEA NOT NULL,
+      firstname VARCHAR(64) NOT NULL,
+      lastname VARCHAR(64) NOT NULL,
+      birthday DATE NOT NULL,
+      timezone VARCHAR(8) NOT NULL,
+      address VARCHAR(64) NOT NULL,
+      state CHAR(2) NOT NULL,
+      zip VARCHAR(5) NOT NULL,
+      ssn CHAR(11) NOT NULL
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_users_accountid ON users (accountid);
+    CREATE INDEX IF NOT EXISTS idx_users_username ON users (username);
+
+
+
+    CREATE TABLE IF NOT EXISTS contacts (
+      username VARCHAR(64) NOT NULL,
+      label VARCHAR(128) NOT NULL,
+      account_num CHAR(10) NOT NULL,
+      routing_num CHAR(9) NOT NULL,
+      is_external BOOLEAN NOT NULL,
+      FOREIGN KEY (username) REFERENCES users(username)
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_contacts_username ON contacts (username);
+  1-load-testdata.sh: |
+    #!/bin/bash
+    # Copyright 2020 Google LLC
+    #
+    # Licensed under the Apache License, Version 2.0 (the "License");
+    # you may not use this file except in compliance with the License.
+    # You may obtain a copy of the License at
+    #
+    #      http://www.apache.org/licenses/LICENSE-2.0
+    #
+    # Unless required by applicable law or agreed to in writing, software
+    # distributed under the License is distributed on an "AS IS" BASIS,
+    # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    # See the License for the specific language governing permissions and
+    # limitations under the License.
+
+    # Immediately exit if any error occurs during script execution.
+    set -o errexit
+
+    # Skip adding data if not enabled
+    if [ "$USE_DEMO_DATA" != "True"  ]; then
+      echo "no demo users added"
+      exit 0
+    fi
+
+
+    # Expected environment variables
+    readonly ENV_VARS=(
+      "POSTGRES_DB"
+      "POSTGRES_USER"
+      "LOCAL_ROUTING_NUM"
+    )
+
+
+    add_user() {
+      # Usage:  add_user "ACCOUNTID" "USERNAME" "FIRST_NAME"
+      echo "adding user: $2"
+      psql -X -v ON_ERROR_STOP=1 -v account="$1" -v username="$2" -v firstname="$3" -v passhash="$DEFAULT_PASSHASH" --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
+        INSERT INTO users VALUES (:'account', :'username', :'passhash', :'firstname', 'User', '2000-01-01', '-5', 'Bowling Green, New York City', 'NY', '10004', '111-22-3333') ON CONFLICT DO NOTHING;
+    EOSQL
+    }
+
+
+    add_external_account() {
+      # Usage:  add_external_account "OWNER_USERNAME" "LABEL" "ACCOUNT" "ROUTING"
+      echo "user $1 adding contact: $2"
+      psql -X -v ON_ERROR_STOP=1 -v username="$1" -v label="$2" -v account="$3" -v routing="$4" --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
+        INSERT INTO contacts VALUES (:'username', :'label', :'account', :'routing', 'true') ON CONFLICT DO NOTHING;
+    EOSQL
+    }
+
+
+    add_contact() {
+      # Usage:  add_contact "OWNER_USERNAME" "CONTACT_LABEL" "CONTACT_ACCOUNT"
+      echo "user $1 adding external account: $2"
+      psql -X -v ON_ERROR_STOP=1 -v username="$1" -v label="$2" -v account="$3" -v routing="$LOCAL_ROUTING_NUM" --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
+        INSERT INTO contacts VALUES (:'username', :'label', :'account', :'routing', 'false') ON CONFLICT DO NOTHING;
+    EOSQL
+    }
+
+
+    # Load test data into the database
+    create_accounts() {
+      # Add demo users.
+      add_user "1011226111" "testuser" "Test"
+      add_user "1033623433" "alice" "Alice"
+      add_user "1055757655" "bob" "Bob"
+      add_user "1077441377" "eve" "Eve"
+
+      # Make everyone contacts of each other
+      add_contact "testuser" "Alice" "1033623433"
+      add_contact "testuser" "Bob" "1055757655"
+      add_contact "testuser" "Eve" "1077441377"
+      add_contact "alice" "Testuser" "1011226111"
+      add_contact "alice" "Bob" "1055757655"
+      add_contact "alice" "Eve" "1077441377"
+      add_contact "bob" "Testuser" "1011226111"
+      add_contact "bob" "Alice" "1033623433"
+      add_contact "bob" "Eve" "1077441377"
+      add_contact "eve" "Testuser" "1011226111"
+      add_contact "eve" "Alice" "1033623433"
+      add_contact "eve" "Bob" "1055757655"
+
+      # Add external accounts
+      add_external_account "testuser" "External Bank" "9099791699" "808889588"
+      add_external_account "alice" "External Bank" "9099791699" "808889588"
+      add_external_account "bob" "External Bank" "9099791699" "808889588"
+      add_external_account "eve" "External Bank" "9099791699" "808889588"
+    }
+
+
+    main() {
+      # Check environment variables are set
+      for env_var in ${ENV_VARS[@]}; do
+        if [[ -z "${!env_var}" ]]; then
+          echo "Error: environment variable '$env_var' not set. Aborting."
+          exit 1
+        fi
+      done
+
+      # A password hash + salt for the demo password 'password'
+      # Via Python3:  bycrypt.hashpw('password'.encode('utf-8'), bcrypt.gensalt())
+      DEFAULT_PASSHASH='\x243262243132245273764737474f39777562452f4a786a79444a7263756f386568466b762e634e5262356e6867746b474752584c6634437969346643'
+
+      create_accounts
+    }
+
+
+    main
+
