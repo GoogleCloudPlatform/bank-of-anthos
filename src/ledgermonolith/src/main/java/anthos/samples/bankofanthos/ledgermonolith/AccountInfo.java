@@ -17,25 +17,23 @@
 package anthos.samples.bankofanthos.ledgermonolith;
 
 import java.util.Deque;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 
 /**
- * Defines the account Info object used for the LedgerReaderCache 
+ * Defines the account Info object used for the LedgerReaderCache
  */
 public class AccountInfo {
-  Long balance; 
-  Deque<Transaction> transactions; 
+  Long balance;
+  Deque<Transaction> transactions;
 
-  // Constructor 
+  // Constructor
   public AccountInfo(Long balance,
     Deque<Transaction> transactions) {
-        this.balance = balance; 
-        this.transactions = transactions; 
+        this.balance = balance;
+        this.transactions = transactions;
     }
 
-// Getters 
+// Getters
   public Deque<Transaction> getTransactions() {
     return transactions;
   }

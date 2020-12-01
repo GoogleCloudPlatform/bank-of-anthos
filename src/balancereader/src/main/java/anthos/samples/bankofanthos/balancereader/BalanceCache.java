@@ -58,7 +58,7 @@ public class BalanceCache {
             public Long load(String accountId)
                 throws ResourceAccessException,
                 DataAccessResourceFailureException {
-                LOGGER.debug("Entered cache load function, querying DB for account:" + accountId); 
+                LOGGER.debug("Cache loaded from db");
                 Long balance = dbRepo.findBalance(accountId, localRoutingNum);
                 if (balance == null) {
                     balance = 0L;

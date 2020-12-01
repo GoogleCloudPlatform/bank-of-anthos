@@ -16,10 +16,6 @@
 
 package anthos.samples.bankofanthos.ledgermonolith;
 
-import com.google.cloud.MetadataConfig;
-import java.util.HashMap;
-import java.util.Map;
-import javax.annotation.PreDestroy;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

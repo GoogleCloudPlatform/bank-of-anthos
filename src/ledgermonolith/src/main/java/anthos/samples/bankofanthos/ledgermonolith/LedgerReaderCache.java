@@ -48,8 +48,8 @@ public class LedgerReaderCache {
 
 
     /**
-     * Combined cache for BalanceReader and TransactionHistory. 
-     * 
+     * Combined cache for BalanceReader and TransactionHistory.
+     *
      * @param expireSize max size of the cache
      * @param localRoutingNum bank routing number for account
      * @return the LoadingCache storing accountIds and their transactions
@@ -66,20 +66,22 @@ public class LedgerReaderCache {
               throws ResourceAccessException,
               DataAccessResourceFailureException  {
             // LOGGER.debug("Ledger cache loaded from db");
-            // Load balance 
+            // Load balance
             Long balance = dbRepo.findBalance(accountId, localRoutingNum);
             if (balance == null) {
                 balance = 0L;
             }
-            // Load transactions 
+            // Load transactions
             Pageable request = PageRequest.of(0, historyLimit);
             Deque<Transaction> txns = dbRepo.findForAccount(accountId,
                 localRoutingNum,
                 request);
-            
-            LOGGER.info(String.format("🔻 cache load called for: accountId: %s, balance: %s, %s transactions",
+
+            LOGGER.info(String.format("Cache load: accountId: %s"
+            + "balance: %s, %s transactions",
             accountId, balance.toString(), txns.size()));
-            return new AccountInfo(balance, txns); 
+
+            return new AccountInfo(balance, txns);
           }
         };
       return CacheBuilder.newBuilder()
