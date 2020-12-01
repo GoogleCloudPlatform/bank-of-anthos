@@ -32,7 +32,7 @@ limitations under the License.
         <nav class="navbar navbar-expand-lg navbar-top">
           <div class="container">
               {% if cymbal_logo == "true" %}
-              <div class="logo-container"> 
+              <div class="logo-container">
                 <img id="cymbal-logo" src="static/img/cymbal.svg">
               </div>
               {% else %}
@@ -78,7 +78,7 @@ limitations under the License.
             </div>
           </div>
           {% endif %}
-          <div class="col-md-8">        
+          <div class="col-md-8">
             <small class="text-uppercase text-muted secondary-text">Overview</small>
             <h2 class="header-title">Checking Account</h2>
           </div>
@@ -99,7 +99,7 @@ limitations under the License.
                       <p class="text-uppercase mb-3">
                         <b class="current-balance">Current Balance</b>
                       </p>
-                      <span class="h1 mb-0">
+                      <span class="h1 mb-0" id="current-balance">
                         {{ format_currency(balance) }}
                       </span>
                     </div>
@@ -168,7 +168,7 @@ limitations under the License.
                   <thead class="text-uppercase">
                     <tr>
                       <th>
-                        <a class="text-transaction-header">Date</a> 
+                        <a class="text-transaction-header">Date</a>
                       </th>
                       <th>
                         <a class="text-transaction-header">Type</a>
@@ -493,5 +493,5 @@ limitations under the License.
           RefreshModals();
         });
       </script>
-    </body> 
+    </body>
 </html>
