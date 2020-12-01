@@ -16,7 +16,7 @@
 
  html, body {
     font-family: 'DM Sans', sans-serif !important;
-    font-size: 1.1rem; 
+    font-size: 1.1rem;
     margin: 0;
     padding: 0;
     background-color: #ffffff !important;
@@ -25,12 +25,12 @@
     margin-bottom: 0rem !important;
   }
   small {
-    font-size: 0.9rem; 
+    font-size: 0.9rem;
   }
   .pop-up-label {
     font-size: 24px;
-    font-weight: 500; 
-    color: #343434;  
+    font-weight: 500;
+    color: #343434;
   }
   label {
     font-size: 0.9rem;
@@ -38,29 +38,34 @@
 
 /* MATERIAL ICONS */
   .material-icons {
-    color: #008A20; 
+    color: #008A20;
     vertical-align:middle !important;
   }
   .button-icon {
     font-size: 24px;
-    color: #008A20; 
+    color: #008A20;
   }
   .money-icon {
     font-size: 24px;
-    color: #008A20; 
+    color: #008A20;
   }
   .modal-icon {
     font-size: 18px !important;
     margin-right: 8px;
     width: 18px;
-    color: #008A20; 
+    color: #008A20;
   }
   .arrow-back {
     font-size: 15px;
-    color: #008A20; 
+    color: #008A20;
   }
-  .payment-deposit-icon {
-    color: white !important; 
+  #deposit-icon {
+    color: white !important;
+    vertical-align:middle !important;
+  }
+  #payment-icon {
+    color: white !important;
+    vertical-align:middle !important;
   }
 
 
@@ -78,7 +83,7 @@
     color: #343434;
   }
   .logo-container {
-    
+
   }
   #cymbal-logo {
     max-width: 100%;
@@ -88,9 +93,9 @@
     object-fit: contain;
   }
   .navbar-top {
-    background-color: white; 
+    background-color: white;
     min-height: 80px;
-    color: white; 
+    color: white;
     position: relative;
   }
   .nav-item {
@@ -99,7 +104,7 @@
     margin-left: 20px;
   }
   .nav-link {
-    color: #343434; 
+    color: #343434;
     text-transform: none !important;
     font-size: 1rem !important;
   }
@@ -115,14 +120,14 @@
     font-size: 20px;
   }
   .nav-link:hover {
-    color: #343434; 
+    color: #343434;
     transition: all 0.2s ease-in;
   }
   #account-user-name {
     font-family: DM Sans;
     font-style: normal;
     font-weight: 500;
-    font-size: 1.1rem; 
+    font-size: 1.1rem;
     color: #000101;
   }
   .account-user-avatar {
@@ -142,8 +147,8 @@
 
   /* FOOTER */
   .footer {
-    color: #343434; 
-    background-color: white; 
+    color: #343434;
+    background-color: white;
 
     border-top: 2px solid #F8F8F8;;
     bottom: 0;
@@ -153,7 +158,7 @@
 
   /* CARDS */
   .card  {
-    color: #343434; 
+    color: #343434;
     background-color: #F8F8F8;
     margin-bottom: 1.5rem;
     border-radius: 10px;
@@ -164,20 +169,20 @@
   }
   .card-icon {
     font-size: 36px !important;
-    color: #A3FD8C; 
+    color: #A3FD8C;
   }
 
    /* ACCOUNT HOME */
   .account-info {
-     font-size: 20px; 
+     font-size: 20px;
    }
    /* .current-balance {
-     color: #008A20; 
+     color: #008A20;
    } */
-   /* icon */ 
+   /* icon */
   .account-overview {
     margin-right: 5px;
-    font-size: 24px; 
+    font-size: 24px;
     vertical-align: bottom;
   }
   .account-num-text {
@@ -206,10 +211,10 @@
   }
   .table td {
     vertical-align: middle !important;
-    font-size: 1.1rem !important; 
+    font-size: 1.1rem !important;
   }
   .table thead th {
-    color: #343434; 
+    color: #343434;
     text-transform: uppercase;
     font-size: .8125rem;
     font-weight: 600;
@@ -223,26 +228,26 @@
     transition: all 0.3s ease-in;
   }
   .text-credit {
-    color: #FF0000;  
+    color: #FF0000;
   }
   .text-debit {
-    color: #008A20; 
+    color: #008A20;
   }
   .transaction-amount {
     text-align: right !important;
     font-size: 22px;
   }
   .transaction-amount-debit {
-    color: #008A20; 
+    color: #008A20;
   }
   .transaction-date {
     font-size: 18px;
   }
   .transaction-label-none {
-    color: #343434; 
+    color: #343434;
   }
   .text-transaction-header {
-    color: #343434;  
+    color: #343434;
   }
   .date-month {
     margin-right: 5px;
@@ -272,27 +277,27 @@
     box-shadow: 0px 1px 3px #A3FD8C;
   }
   .alert {
-    background-color: #A3FD8C; 
-    color: #023122;  
+    background-color: #A3FD8C;
+    color: #023122;
   }
   .alert-icon {
-    color:  #023122; 
+    color:  #023122;
     font-size: 18px;
     vertical-align: middle;
   }
   .invalid-feedback {
     color: #FF0000;
-    font-size: 1.05rem; 
+    font-size: 1.05rem;
   }
 
 
   /* SIGN IN PAGE  */
   .sign-in i {
-    color: #008A20; 
+    color: #008A20;
     font-size: 1.125rem;
   }
   .sign-in input {
-    color: #343434; 
+    color: #343434;
     font-size: 1.15rem;
   }
   .hidden {
@@ -302,7 +307,7 @@
 
 
 
-  /* BUTTONS */ 
+  /* BUTTONS */
   .btn, .btn-primary, .card-button, .btn-block, form button  {
     /* display: flex;
     flex-direction: column; */
@@ -316,13 +321,13 @@
     top: 0px; */
 
     background: #008A20 !important;
-    color: white !important; 
+    color: white !important;
     border-radius: 50px;
     font-weight: 500 !important;
   }
   .btn-secondary {
-    background-color: white !important; 
-    color: #008A20 !important; 
+    background-color: white !important;
+    color: #008A20 !important;
     border: 1px solid #008A20 !important;
   }
   .btn:hover, .card-button:hover, .btn-primary:hover, .btn-secondary:hover, .btn:focus, .btn-primary:focus, .btn-secondary:focus {
@@ -339,18 +344,18 @@
 
   .btn-primary.custom-file-control:before, .btn.btn-primary {
     background-color: #008A20 !important;
-    color: white !important; 
+    color: white !important;
     border-radius: 50px;
   }
 
   .btn-secondary.custom-file-control:before, .btn.btn-secondary {
-    background-color: white !important; 
-    color: #008A20 !important; 
+    background-color: white !important;
+    color: #008A20 !important;
     border: 1px solid #008A20;
   }
 
   .btn-primary.custom-file-control:focus, .btn-primary.custom-file-control:hover {
-    background-color: #006200 !important; 
+    background-color: #006200 !important;
   }
 
   .btn-primary.custom-file-control:active, .btn-primary.custom-file-control:active, .btn-secondary.custom-file-control:active, .btn.btn-secondary:active {
@@ -358,14 +363,14 @@
     border: 1px solid #A3FD8C !important;
   }
 
-  /* divider between pay / cancel buttons in pop up */ 
+  /* divider between pay / cancel buttons in pop up */
   .payment-cancel {
     padding-right: 20px;
   }
 
-  /*FORMS */ 
+  /*FORMS */
   .form-control:focus {
-    background-color: white !important; 
+    background-color: white !important;
     border-color: #A3FD8C !important;
   }
   input .form-control {
@@ -376,7 +381,7 @@
     border:none !important;
   }
 
-  .custom-file-control, .form-control, .is-focused .custom-file-control, .is-focused .form-control { 
+  .custom-file-control, .form-control, .is-focused .custom-file-control, .is-focused .form-control {
     background-image: linear-gradient(0deg,#008A20 2px,rgba(0,150,136,0) 0),linear-gradient(0deg,rgba(0,0,0,.26) 1px,transparent 0);
   }
 
@@ -384,12 +389,12 @@
     background-image: linear-gradient(0deg,#FF0000 2px,rgba(213,0,0,0) 0),linear-gradient(0deg,rgba(0,0,0,.26) 1px,transparent 0);
   }
 
-  /* "x" icons in pop-ups, deposit accepted alert */ 
+  /* "x" icons in pop-ups, deposit accepted alert */
   .close, .deposit-cancel .payment-cancel {
     background-color: Transparent !important;
     background-repeat:no-repeat !important;
     overflow: hidden !important;
     outline:none !important;
     border: none !important;
-    color: #343434 !important; 
+    color: #343434 !important;
   }
