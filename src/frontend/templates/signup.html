@@ -19,7 +19,13 @@ limitations under the License.
       <meta charset="utf-8">
       <meta http-equiv="X-UA-Compatible" content="IE=edge">
       <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+      {% if cymbal_logo == "true" %}
+      <title>CymbalBank</title>
+      {% else %}
       <title>{{ bank_name }}</title>
+      {{ bank_name }}
+      {% endif %}
+      <link rel="icon" href=”static/img/favicon.png”/>
       <link rel="stylesheet" href="https://unpkg.com/bootstrap-material-design@4.1.1/dist/css/bootstrap-material-design.min.css" integrity="sha384-wXznGJNEXNG1NFsbm0ugrLFMQPWswR3lds2VeinahP8N0zJw9VWSopbjv2x7WCvX" crossorigin="anonymous">
       <link rel="preconnect" href="https://fonts.gstatic.com">
       <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
@@ -33,7 +39,7 @@ limitations under the License.
         <nav class="navbar navbar-expand-lg navbar-top">
           <div class="container">
             {% if cymbal_logo == "true" %}
-            <div class="logo-container"> 
+            <div class="logo-container">
               <img id="cymbal-logo" src="static/img/cymbal.svg">
             </div>
             {% else %}
@@ -51,7 +57,7 @@ limitations under the License.
         <div class="row d-flex align-items-end header header-body">
           <div class="col-lg-4"><a href="/login" type="button" class="btn btn-secondary"><span class="mr-2 material-icons arrow-back">arrow_back</span>Back</a></div>
           <div class="col-md-8">
-            <h2 class="header-title" id="signup-title">Create Account</h2>
+            <h2 class="header-title" id="signup-title">Register a new account</h2>
           </div>
         </div>
         <div class="row mt-5 mb-5">
@@ -104,7 +110,7 @@ limitations under the License.
                             </div>
                           </div>
                         </div>
-                        
+
                         <!-- <small class="text-uppercase text-muted secondary-text">Section 2</small> -->
                         <h4 class="mb-4">Personal Information</h4>
 
@@ -124,7 +130,7 @@ limitations under the License.
                             </div>
                           </div>
                         </div>
-    
+
                         <div class="mb-5">
                           <label class="text-uppercase text-muted secondary-text" for="address">Address</label>
                           <input type="text" class="form-control" id="address" name="address" value="Bowling Green, New York City" readonly>
@@ -132,7 +138,7 @@ limitations under the License.
                             Please enter your address.
                           </div>
                         </div>
-            
+
                         <div class="row mb-5">
                           <div class="col-md-5">
                             <label class="text-uppercase text-muted secondary-text" for="country">Country</label>
@@ -353,7 +359,7 @@ limitations under the License.
       <script src="https://unpkg.com/bootstrap-material-design@4.1.1/dist/js/bootstrap-material-design.js" integrity="sha384-CauSuKpEqAFajSpkdjv3z9t8E7RlpJ1UP0lKM/+NdtSarroVKu069AlsRPKkFBz9" crossorigin="anonymous"></script>
       <script>
         // Sign-up validation
-        document.addEventListener("DOMContentLoaded", function(e) { 
+        document.addEventListener("DOMContentLoaded", function(e) {
           var form = document.querySelector("#signup-form");
           // Add max attribute to birthday input
           var today = new Date();
@@ -372,5 +378,5 @@ limitations under the License.
           });
         });
       </script>
-    </body> 
+    </body>
 </html>
