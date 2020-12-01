@@ -143,7 +143,7 @@ public final class LedgerMonolithController {
 
             if (toRouting.equals(localRoutingNum)
                 && this.ledgerReaderCache.asMap().containsKey(toId)) {
-                AccountInfo info = ledgerReaderCache.asMap().get(fromId); 
+                AccountInfo info = ledgerReaderCache.asMap().get(toId); 
                 Long prevBalance = info.getBalance(); 
                 Long newBalance = prevBalance + amount; 
                 processTransaction(toId, newBalance, transaction);
@@ -160,12 +160,12 @@ public final class LedgerMonolithController {
      * @param transaction the full transaction object
      */
     private void processTransaction(String accountId, Long newBalance, Transaction transaction) {
-        LOGGER.info("*️⃣ Processing transaction for account: " + accountId);
+        LOGGER.debug("Processing transaction for account: " + accountId);
         AccountInfo accountInfo = this.ledgerReaderCache.asMap()
                                 .get(accountId);
 
         Deque<Transaction> tList = accountInfo.getTransactions(); 
-
+        
         tList.addFirst(transaction);
         // Drop old transactions
         if (tList.size() > historyLimit) {
@@ -174,7 +174,7 @@ public final class LedgerMonolithController {
 
         // Update cache with updated balance, transactions
         AccountInfo info = new AccountInfo(newBalance, tList);  
-        LOGGER.info("*️⃣ New balance is: " + newBalance.toString()); 
+        LOGGER.debug("⭐Updating ledgerReaderCache with new balance: " + newBalance.toString()); 
         this.ledgerReaderCache.put(accountId, info);
     }
         

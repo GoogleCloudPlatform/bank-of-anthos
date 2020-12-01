@@ -30,8 +30,6 @@ Located in `init/ledgermonolith.env`
     - the routing number for our bank
   - `PUB_KEY_PATH`
     - the path to the JWT signer's public key, mounted as a secret
-  - `BALANCES_API_ADDR`
-    - the address and port of the `balancereader` service
   - `POSTGRES_DB`
     - URL of the service
   - `POSTGRES_USER`
@@ -193,6 +191,10 @@ kubectl apply -f kubernetes-manifests/accounts-db.yaml
 kubectl apply -f kubernetes-manifests/userservice.yaml
 kubectl apply -f kubernetes-manifests/contacts.yaml
 kubectl apply -f kubernetes-manifests/frontend.yaml
+
+
+
+
 kubectl apply -f kubernetes-manifests/loadgenerator.yaml
 ```
 

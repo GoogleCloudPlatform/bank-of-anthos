@@ -42,7 +42,6 @@ public class LedgerMonolithApplication {
         "VERSION",
         "PORT",
         "LOCAL_ROUTING_NUM",
-        "BALANCES_API_ADDR",
         "PUB_KEY_PATH",
         "SPRING_DATASOURCE_URL",
         "SPRING_DATASOURCE_USERNAME",

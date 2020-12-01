@@ -135,6 +135,7 @@ public final class LedgerReader {
             callback.processTransaction(transaction);
             latestId = transaction.getTransactionId();
         }
+        LOGGER.info("📖 LedgerReader - There are new transaction(s)- Polling - querying DB - latest txnID was: " + latestId)
         return latestId;
     }
 

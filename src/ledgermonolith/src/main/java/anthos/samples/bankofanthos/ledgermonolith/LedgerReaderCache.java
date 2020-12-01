@@ -65,7 +65,7 @@ public class LedgerReaderCache {
           public AccountInfo load(String accountId)
               throws ResourceAccessException,
               DataAccessResourceFailureException  {
-            LOGGER.debug("Ledger cache loaded from db");
+            // LOGGER.debug("Ledger cache loaded from db");
             // Load balance 
             Long balance = dbRepo.findBalance(accountId, localRoutingNum);
             if (balance == null) {
@@ -77,7 +77,7 @@ public class LedgerReaderCache {
                 localRoutingNum,
                 request);
             
-            LOGGER.info(String.format("💡 Cache got from DB: accountId: %s, balance: %s, %s transactions",
+            LOGGER.info(String.format("🔻 cache load called for: accountId: %s, balance: %s, %s transactions",
             accountId, balance.toString(), txns.size()));
             return new AccountInfo(balance, txns); 
           }
@@ -85,7 +85,7 @@ public class LedgerReaderCache {
       return CacheBuilder.newBuilder()
           .recordStats()
           .maximumSize(expireSize)
-          .expireAfterWrite(1, TimeUnit.SECONDS)
+          .expireAfterWrite(expireMinutes, TimeUnit.MINUTES)
           .build(load);
     }
 }
