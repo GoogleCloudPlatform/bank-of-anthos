@@ -12,9 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# TEMPLATE YAML FILE
-# Replace [PROJECT_ID] with appropriate Google Cloud Platform project id.
-
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -45,3 +42,4 @@ data:
   DEMO_LOGIN_USERNAME: "testuser"
   # All demo user accounts are hardcoded to use the login password 'password'
   DEMO_LOGIN_PASSWORD: "password"
+

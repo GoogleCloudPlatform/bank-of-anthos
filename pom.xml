@@ -29,6 +29,7 @@
         <module>src/ledgerwriter</module>
         <module>src/transactionhistory</module>
         <module>src/balancereader</module>
+        <module>src/ledgermonolith</module>
     </modules>
 
     <build>
