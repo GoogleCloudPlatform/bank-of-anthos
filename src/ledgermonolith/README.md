@@ -82,7 +82,7 @@ make monolith
 Deploys the full Bank of Anthos application with a Java monolith service running
 on a Google Compute Engine VM and all other microservices running on Kubernetes.
 
-## Deploying the Monolith 
+## Deploying the Monolith
 
 ### Option 1 - From Canonical Artifacts
 
@@ -121,7 +121,7 @@ make monolith-deploy
 The output of the monolith VM startup procedure is logged.
 
 1. Go to the [Google Compute Engine instances page](https://cloud.google.com/compute/instances).
-2. Select `View logs` under the `...` options button for the monolith VM: `ledgermonolith-service`. 
+2. Select `View logs` under the `...` options button for the monolith VM: `ledgermonolith-service`.
 3. Search for "startup-script" in the search bar of the Logs Viewer.
 
 ### App Build Artifacts
@@ -171,7 +171,7 @@ PROJECT_ID=<your-project-id>
 ZONE=<your-gcp-zone>
 ```
 
-2. Create a GKE cluster. 
+2. Create a GKE cluster.
 
 ```
 gcloud container clusters create ${CLUSTER} \
@@ -180,21 +180,17 @@ gcloud container clusters create ${CLUSTER} \
   --enable-stackdriver-kubernetes --subnetwork=default
 ```
 
-3. Replace `[PROJECT_ID]` with your `$PROJECT_ID` in `src/ledgermonolith/config.yaml`. 
+3. Replace `[PROJECT_ID]` with your `$PROJECT_ID` in `src/ledgermonolith/config.yaml`.
 
-4. Run the following commands from the root of this repository, to deploy your custom config alongside the other Bank of Anthos services. 
+4. Run the following commands from the root of this repository, to deploy your custom config alongside the other Bank of Anthos services.
 
 ```
-kubectl apply -f src/ledgermonolith/config.yaml 
+kubectl apply -f src/ledgermonolith/config.yaml
 kubectl apply -f extras/jwt/jwt-secret.yaml
 kubectl apply -f kubernetes-manifests/accounts-db.yaml
 kubectl apply -f kubernetes-manifests/userservice.yaml
 kubectl apply -f kubernetes-manifests/contacts.yaml
 kubectl apply -f kubernetes-manifests/frontend.yaml
-
-
-
-
 kubectl apply -f kubernetes-manifests/loadgenerator.yaml
 ```
 

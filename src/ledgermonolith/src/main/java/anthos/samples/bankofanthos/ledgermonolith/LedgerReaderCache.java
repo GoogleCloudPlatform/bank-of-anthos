@@ -65,7 +65,7 @@ public class LedgerReaderCache {
           public AccountInfo load(String accountId)
               throws ResourceAccessException,
               DataAccessResourceFailureException  {
-            // LOGGER.debug("Ledger cache loaded from db");
+            LOGGER.debug("Ledger cache loaded from db");
             // Load balance
             Long balance = dbRepo.findBalance(accountId, localRoutingNum);
             if (balance == null) {
@@ -76,10 +76,6 @@ public class LedgerReaderCache {
             Deque<Transaction> txns = dbRepo.findForAccount(accountId,
                 localRoutingNum,
                 request);
-
-            LOGGER.info(String.format("Cache load: accountId: %s"
-            + "balance: %s, %s transactions",
-            accountId, balance.toString(), txns.size()));
 
             return new AccountInfo(balance, txns);
           }
