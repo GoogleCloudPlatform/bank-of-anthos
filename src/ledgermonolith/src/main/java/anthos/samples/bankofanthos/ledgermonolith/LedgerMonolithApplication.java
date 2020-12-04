@@ -16,21 +16,23 @@
 
 package anthos.samples.bankofanthos.ledgermonolith;
 
-import java.util.logging.Logger;
-
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * Entry point for the LedgerMonolith Spring Boot application.
  *
- * A monolith service for reading and writing the bank ledger of transactions.
  */
 @SpringBootApplication
 public class LedgerMonolithApplication {
 
     private static final Logger LOGGER =
-            Logger.getLogger(LedgerMonolithApplication.class.getName());
+        LogManager.getLogger(LedgerMonolithApplication.class);
 
     private static final String[] EXPECTED_ENV_VARS = {
         "VERSION",
@@ -47,12 +49,20 @@ public class LedgerMonolithApplication {
         for (String v : EXPECTED_ENV_VARS) {
             String value = System.getenv(v);
             if (value == null) {
-                LOGGER.severe(String.format(
-                        "error: %s environment variable not set", v));
+                LOGGER.fatal(String.format(
+                    "%s environment variable not set", v));
                 System.exit(1);
             }
         }
         SpringApplication.run(LedgerMonolithApplication.class, args);
-        LOGGER.info("Started LedgerMonolith service.");
+        LOGGER.log(Level.forName("STARTUP", Level.FATAL.intLevel()),
+            String.format("Started LedgerMonolith service. Log level is: %s",
+                LOGGER.getLevel().toString()));
     }
+
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+
 }

@@ -27,7 +27,15 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface TransactionRepository
-    extends CrudRepository<Transaction, Long> {
+        extends CrudRepository<Transaction, Long> {
+
+    @Query(value = "SELECT "
+    + "(SELECT SUM(AMOUNT) FROM TRANSACTIONS t "
+    + "     WHERE (TO_ACCT = ?1 AND TO_ROUTE = ?2)) - "
+    + " (SELECT COALESCE((SELECT SUM(AMOUNT) FROM TRANSACTIONS t "
+    + "     WHERE (FROM_ACCT = ?1 AND FROM_ROUTE = ?2)),0))",
+        nativeQuery = true)
+    Long findBalance(String accountNum, String routeNum);
 
     /**
      * Returns the id of the latest transaction, or NULL if none exist.
@@ -46,12 +54,4 @@ public interface TransactionRepository
     @Query("SELECT t FROM Transaction t "
         + " WHERE t.transactionId > ?1 ORDER BY t.transactionId ASC")
     List<Transaction> findLatest(long latestTransaction);
-
-    @Query(value = "SELECT "
-        + " (SELECT SUM(amount) FROM transactions t "
-        + "     WHERE (to_acct = ?1 AND to_route = ?2)) - "
-        + " (SELECT SUM(amount) FROM transactions t "
-        + "     WHERE (from_acct = ?1 AND from_route = ?2))",
-        nativeQuery = true)
-    Long findBalance(String accountNum, String routeNum);
 }
