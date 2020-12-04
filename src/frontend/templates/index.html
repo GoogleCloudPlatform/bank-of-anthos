@@ -34,25 +34,13 @@ limitations under the License.
 
    </head>
     <body>
-      <!-- Alert on load (fixed @ bottom of screen) -->
-      {% if message != None %}
-      <div class="col-md-8 offset-md-2 snackbar">
-        <div class="alert alert-info alert-dismissible fade show" role="alert">
-          {{ message }}
-          <button type="button" class="snackbar-close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">×</span>
-          </button>
-        </div>
-      </div>
-      {% endif %}
-
       <!-- Bank of Anthos Navigation Bar -->
       <header>
         <nav class="navbar navbar-expand-lg navbar-top">
           <div class="container">
               {% if cymbal_logo == "true" %}
               <div class="logo-container">
-                <img id="cymbal-logo" src="static/img/cymbal.svg">
+                <a href="/"><img id="cymbal-logo" src="static/img/cymbal.svg"></a>
               </div>
               {% else %}
               <a class="navbar-brand">
@@ -85,6 +73,37 @@ limitations under the License.
       <!-- Main Content -->
       <main class="container">
         <!-- Header -->
+
+        <div class="modal fade" id="popup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content snackbar">
+              <div class="modal-header">
+                  <span class="alert-icon mr-2 material-icons snackbar-close">check_circle</span>HELLO WORLD
+                  <button type="button" class="snackbar-close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                  </button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+
+
+    <!-- Alert on load (fixed @ bottom of screen) -->
+      {% if message != None %}
+      <div class="col-md-8 offset-md-2 snackbar">
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="snackbar-close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+      </div>
+      {% endif %}
+
+
+
         <div class="row d-flex align-items-start header header-body">
           <!-- Top row - overview, account # -->
             <div class="row col-lg-12 align-items-start">
@@ -392,14 +411,17 @@ limitations under the License.
                       </div>
                     </div>
                   </div>
-
-                <div class="row float-right">
-                  <div class="col-md-10 offset-md-1">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary btn-with-padding deposit-send-button">Send</button>
-                  <div class="col-md-10 offset-md-1">
                 </div>
-              </div>
+
+                <div class="modal-body">
+                <div class="row align-items-end">
+                  <div class="col-md-10 offset-md-1 align-items-end">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                      <button type="submit" class="btn btn-primary btn-with-padding deposit-send-button">Send</button>
+                    </div>
+                  </div>
+                </div>
+
               <input type="hidden" id="payment-uuid" name="uuid">
               </form>
             </div>
@@ -511,6 +533,14 @@ limitations under the License.
           }
           RefreshModals();
         });
+
+        // modal disappears after 2 seconds without pressing "x"
+        $(function () {
+          setTimeout(function () {
+            $("#popup").modal();
+          }, 2000);
+        });
+
       </script>
     </body>
 </html>

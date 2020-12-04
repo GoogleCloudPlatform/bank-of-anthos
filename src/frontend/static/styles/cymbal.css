@@ -144,13 +144,15 @@
     /* border-bottom: 1px solid black;  */
   }
 
-    /* ALERT SNACKBAR */
+    /* ALERT SNACKBAR - POP UP */
   .snackbar {
     background-color: #202020 !important;
     color: white !important;
-    position:fixed !important;
-    bottom: 0 !important;
-    width: 100%;
+    border-radius: 10px;
+    -webkit-box-shadow: none !important;
+    -moz-box-shadow: none !important;
+    box-shadow: none !important;
+    vertical-align: middle !important;
   }
 
   .snackbar-close {
@@ -159,8 +161,22 @@
     overflow: hidden !important;
     outline:none !important;
     border: none !important;
+    vertical-align: middle !important;
     color: #A3FD8C !important;
   }
+
+
+#popup {
+  /* top: auto;
+  bottom: 10px;
+   */
+
+   top: 0;
+   bottom: 100px;
+   position: absolute;
+}
+
+
 
   /* FOOTER */
   .footer {
@@ -326,17 +342,7 @@
 
   /* BUTTONS */
   .btn, .btn-primary, .card-button, .btn-block, form button  {
-    /* display: flex;
-    flex-direction: column; */
     align-items: center;
-    /* padding: 10px 22px; */
-
-    /* position: absolute;
-    width: 118px;
-    height: 44px;
-    left: 0px;
-    top: 0px; */
-
     background: #008A20 !important;
     color: white !important;
     border-radius: 50px;
