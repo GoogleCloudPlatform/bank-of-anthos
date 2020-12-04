@@ -83,14 +83,14 @@
     color: #343434;
   }
   .logo-container {
-
   }
   #cymbal-logo {
-    max-width: 100%;
-    max-height: 100%;
-    margin: auto;
+    max-width: 80%;
+    max-height: 80%;
+    vertical-align: middle;
+    /* margin: auto;
     display: block;
-    object-fit: contain;
+    object-fit: contain; */
   }
   .navbar-top {
     background-color: white;
@@ -144,6 +144,23 @@
     /* border-bottom: 1px solid black;  */
   }
 
+    /* ALERT SNACKBAR */
+  .snackbar {
+    background-color: #202020 !important;
+    color: white !important;
+    position:fixed !important;
+    bottom: 0 !important;
+    width: 100%;
+  }
+
+  .snackbar-close {
+    background-color: Transparent !important;
+    background-repeat:no-repeat !important;
+    overflow: hidden !important;
+    outline:none !important;
+    border: none !important;
+    color: #A3FD8C !important;
+  }
 
   /* FOOTER */
   .footer {
@@ -175,6 +192,8 @@
    /* ACCOUNT HOME */
   .account-info {
      font-size: 20px;
+     margin-top: auto;
+      margin-bottom: auto;
    }
    /* .current-balance {
      color: #008A20;
@@ -207,16 +226,15 @@
     background-color: transparent;
   }
   .table-sm td, .table-sm th {
-    padding: 1.2rem !important;
+    padding: 1.1rem !important;
   }
   .table td {
     vertical-align: middle !important;
-    font-size: 1.1rem !important;
+    font-size: 1.05rem !important;
   }
   .table thead th {
     color: #343434;
     text-transform: uppercase;
-    font-size: .8125rem;
     font-weight: 600;
     letter-spacing: .08em;
     border-bottom-width: 1px;
@@ -235,14 +253,13 @@
   }
   .transaction-amount {
     text-align: right !important;
-    font-size: 22px;
   }
   .transaction-amount-debit {
     color: #008A20;
   }
-  .transaction-date {
+  /* .transaction-date {
     font-size: 18px;
-  }
+  } */
   .transaction-label-none {
     color: #343434;
   }
@@ -324,6 +341,7 @@
     color: white !important;
     border-radius: 50px;
     font-weight: 500 !important;
+    text-transform: capitalize !important;
   }
   .btn-secondary {
     background-color: white !important;
@@ -363,9 +381,18 @@
     border: 1px solid #A3FD8C !important;
   }
 
-  /* divider between pay / cancel buttons in pop up */
-  .payment-cancel {
-    padding-right: 20px;
+  /* inside modal */
+  .deposit-send-button {
+    margin-left: 0.5rem !important;
+  }
+  /* on homepage */
+  .deposit-send-payment-div {
+    margin-top: auto;
+    margin-bottom: auto;
+  }
+
+  .account-number-div {
+    vertical-align: middle;
   }
 
   /*FORMS */
@@ -386,7 +413,7 @@
   }
 
   .custom-file-control:invalid, .form-control:invalid{
-    background-image: linear-gradient(0deg,#FF0000 2px,rgba(213,0,0,0) 0),linear-gradient(0deg,rgba(0,0,0,.26) 1px,transparent 0);
+    background-image: linear-gradient(0deg,#008A20 2px,rgba(213,0,0,0) 0),linear-gradient(0deg,rgba(0,0,0,.26) 1px,transparent 0);
   }
 
   /* "x" icons in pop-ups, deposit accepted alert */
