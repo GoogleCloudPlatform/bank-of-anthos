@@ -36,6 +36,8 @@ limitations under the License.
     <body>
       <!-- Bank of Anthos Navigation Bar -->
       <header>
+
+      <!-- Navbar -->
         <nav class="navbar navbar-expand-lg navbar-top">
           <div class="container">
               {% if cymbal_logo == "true" %}
@@ -72,40 +74,33 @@ limitations under the License.
 
       <!-- Main Content -->
       <main class="container">
-        <!-- Header -->
 
-        <div class="modal fade" id="popup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-          <div class="modal-dialog">
-            <div class="modal-content snackbar">
-              <div class="modal-header">
-                  <span class="alert-icon mr-2 material-icons snackbar-close">check_circle</span>HELLO WORLD
-                  <button type="button" class="snackbar-close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">×</span>
-                  </button>
+          <!-- Alert on load -->
+          {% if message != None %}
+          <div class="row d-flex header header-body">
+            <div class="col-lg-12">
+              <div class="alert alert-dismissible fade show snackbar" role="alert">
+                  <div class="float-right align-items-end">
+                    <button type="button" class="snackbar-close" data-dismiss="alert" aria-label="Close">
+                      <span class="material-icons snackbar-close">close</span>
+                    </button>
+                  </div>
+
+
+                <div>
+                  <span class="material-icons snackbar-close">check_circle</span>
+                  <span>      {{ message }}</span>
+
+                </div>
+
               </div>
-
             </div>
           </div>
-        </div>
+          {% endif %}
 
 
-
-    <!-- Alert on load (fixed @ bottom of screen) -->
-      {% if message != None %}
-      <div class="col-md-8 offset-md-2 snackbar">
-        <div class="alert alert-info alert-dismissible fade show" role="alert">
-          {{ message }}
-          <button type="button" class="snackbar-close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">×</span>
-          </button>
-        </div>
-      </div>
-      {% endif %}
-
-
-
-        <div class="row d-flex align-items-start header header-body">
           <!-- Top row - overview, account # -->
+          <div class="row d-flex align-items-end header header-body">
             <div class="row col-lg-12 align-items-start">
               <div class="col-md-8">
                 <small class="text-uppercase text-muted secondary-text">Overview</small>
@@ -338,14 +333,19 @@ limitations under the License.
                         </div>
                       </div>
                     </div>
+                  </div>
 
-                    <div class="row float-right">
-                      <div class="col-md-10 offset-md-1 float-right">
-                        <button type="button" class="btn btn-secondary float-right" data-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary deposit-send-button float-right">Deposit</button>
+                  <div class="modal-body">
+                    <div class="row align-items-end text-right">
+                      <div class="col-md-10 offset-md-1 text-right align-items-end">
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                          <button type="submit" class="btn btn-primary btn-with-padding deposit-send-button">Deposit</button>
+                        </div>
                       </div>
                   </div>
-                </div>
+
+
+
                 <input type="hidden" id="deposit-uuid" name="uuid">
               </form>
             </div>
@@ -414,12 +414,12 @@ limitations under the License.
                 </div>
 
                 <div class="modal-body">
-                <div class="row align-items-end">
-                  <div class="col-md-10 offset-md-1 align-items-end">
-                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                      <button type="submit" class="btn btn-primary btn-with-padding deposit-send-button">Send</button>
+                  <div class="row align-items-end text-right">
+                    <div class="col-md-10 offset-md-1 text-right align-items-end">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary btn-with-padding deposit-send-button">Send</button>
+                      </div>
                     </div>
-                  </div>
                 </div>
 
               <input type="hidden" id="payment-uuid" name="uuid">
@@ -533,14 +533,6 @@ limitations under the License.
           }
           RefreshModals();
         });
-
-        // modal disappears after 2 seconds without pressing "x"
-        $(function () {
-          setTimeout(function () {
-            $("#popup").modal();
-          }, 2000);
-        });
-
       </script>
     </body>
 </html>

@@ -144,27 +144,6 @@
     /* border-bottom: 1px solid black;  */
   }
 
-    /* ALERT SNACKBAR - POP UP */
-  .snackbar {
-    background-color: #202020 !important;
-    color: white !important;
-    border-radius: 10px;
-    -webkit-box-shadow: none !important;
-    -moz-box-shadow: none !important;
-    box-shadow: none !important;
-    vertical-align: middle !important;
-  }
-
-  .snackbar-close {
-    background-color: Transparent !important;
-    background-repeat:no-repeat !important;
-    overflow: hidden !important;
-    outline:none !important;
-    border: none !important;
-    vertical-align: middle !important;
-    color: #A3FD8C !important;
-  }
-
 
 #popup {
   /* top: auto;
@@ -431,3 +410,27 @@
     border: none !important;
     color: #343434 !important;
   }
+
+
+    /* ALERT SNACKBAR - POP UP */
+    .snackbar {
+      background-color: #202020 !important;
+      color: white !important;
+      border-radius: 10px !important;
+      -webkit-box-shadow: none !important;
+      -moz-box-shadow: none !important;
+      box-shadow: none !important;
+
+      min-height: 60px !important;
+      min-width: 400px !important;
+      vertical-align: middle;
+    }
+
+    .snackbar-close {
+      background-color: Transparent !important;
+      background-repeat:no-repeat !important;
+      overflow: hidden !important;
+      outline:none !important;
+      border: none !important;
+      color: #A3FD8C !important;
+    }
