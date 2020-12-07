@@ -190,15 +190,16 @@
      margin-top: auto;
       margin-bottom: auto;
    }
-   /* .current-balance {
-     color: #008A20;
-   } */
-   /* icon */
+
+
   .account-overview {
     margin-right: 5px;
     font-size: 24px;
-    vertical-align: bottom;
   }
+  .account-icon {
+    vertical-align:middle !important;
+  }
+
   .account-num-text {
     font-weight: 600;
     margin-right: 8px;
@@ -288,15 +289,7 @@
     outline: 0;
     box-shadow: 0px 1px 3px #A3FD8C;
   }
-  .alert {
-    background-color: #A3FD8C;
-    color: #023122;
-  }
-  .alert-icon {
-    color:  #023122;
-    font-size: 18px;
-    vertical-align: middle;
-  }
+
   .invalid-feedback {
     color: #FF0000;
     font-size: 1.05rem;
@@ -411,8 +404,7 @@
     color: #343434 !important;
   }
 
-
-    /* ALERT SNACKBAR - POP UP */
+/* Deposit / payment accepted alert */
     .snackbar {
       background-color: #202020 !important;
       color: white !important;
@@ -420,10 +412,7 @@
       -webkit-box-shadow: none !important;
       -moz-box-shadow: none !important;
       box-shadow: none !important;
-
-      min-height: 60px !important;
-      min-width: 400px !important;
-      vertical-align: middle;
+      vertical-align: middle !important;
     }
 
     .snackbar-close {
@@ -433,4 +422,16 @@
       outline:none !important;
       border: none !important;
       color: #A3FD8C !important;
+      vertical-align: middle !important;
+    }
+
+
+    /* Signup "danger" alert, eg. passwords don't match */
+    .alert-danger {
+      background-color: #FF0000 !important;
+      color: white !important;
+    }
+
+    .error-icon {
+      color: white !important;
     }

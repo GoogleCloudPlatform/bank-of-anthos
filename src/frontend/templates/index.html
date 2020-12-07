@@ -75,28 +75,53 @@ limitations under the License.
       <!-- Main Content -->
       <main class="container">
 
-          <!-- Alert on load -->
-          {% if message != None %}
-          <div class="row d-flex header header-body">
-            <div class="col-lg-12">
-              <div class="alert alert-dismissible fade show snackbar" role="alert">
-                  <div class="float-right align-items-end">
-                    <button type="button" class="snackbar-close" data-dismiss="alert" aria-label="Close">
-                      <span class="material-icons snackbar-close">close</span>
-                    </button>
-                  </div>
 
-
-                <div>
-                  <span class="material-icons snackbar-close">check_circle</span>
-                  <span>      {{ message }}</span>
-
-                </div>
-
-              </div>
+        <div class="row d-flex align-items-end header header-body">
+          <div class="row col-lg-12 align-items-start">
+            <div class="col-md-8">
+              <small class="text-uppercase text-muted secondary-text">Overview</small>
+              <h2 class="header-title">Checking Account</h2>
             </div>
+
+            <div class="col-md-4 account-info align-items-end">
+                <p><span class="account-overview account-icon material-icons">info</span><span class="account-num-text">Account Number:</span><span class="account-number">{{ account_id }}</span></p>
+            </div>
+        </div>
+        </div>
+
+        <!-- new alert on load-->
+        <div id="alert-message-div" class="row d-flex align-items-end header header-body">
+            <div class="col-md-8">
+              <div class="card snackbar">
+
+                <div class="card-body">
+
+
+                  <div class="row align-items-start">
+                     <!-- subcolumn 1 - check and message -->
+                      <div class="col">
+                        <span class="material-icons snackbar-close">check_circle</span>
+                        <span class="h5 mb-0">
+                          Hello World Hello World Hello World Hello World
+                        </span>
+                      </div>
+                      <!-- subcolumn 2 - X button -->
+                      <div class="col-auto">
+                            <button type="button" class="snackbar-close" onclick="$('#alert-message-div').remove();">
+                              <span class="material-icons snackbar-close">close</span>
+                          </button>
+                      </div>
+
+
+
+                  </div>
+                </div>
+             </div>
           </div>
-          {% endif %}
+      </div>
+
+
+
 
 
           <!-- Top row - overview, account # -->
@@ -108,7 +133,7 @@ limitations under the License.
               </div>
 
               <div class="col-md-4 account-info align-items-end">
-                  <p><span class="account-overview material-icons">info</span><span class="account-num-text">Account Number:</span><span class="account-number">{{ account_id }}</span></p>
+                  <p><span class="account-overview account-icon material-icons">info</span><span class="account-num-text">Account Number:</span><span class="account-number">{{ account_id }}</span></p>
               </div>
           </div>
 
