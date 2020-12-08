@@ -77,19 +77,19 @@ limitations under the License.
 
            <!-- Alert on load -->
            {% if message != None %}
-            <div class="row col-lg-12 align-items-start" id="alert-message-div2" >
+            <div class="row col-lg-12 align-items-start" id="alert-message-div" >
               <div class="col-lg-6">
                   <div class="card snackbar-card">
                     <div class="card-body snackbar-body">
                       <div class="row align-items-start">
                         <div class="col">
-                          <h5>
+                          <h5 id="alert-message">
                             <span class="snackbar-close material-icons">check_circle</span>
                             {{ message }}
                           </h5>
                         </div>
                         <div class="button-icon col-auto">
-                          <span class="snackbar-close material-icons" onclick="$('#alert-message-div2').remove();">close</span>
+                          <span class="snackbar-close material-icons" onclick="$('#alert-message-div').remove();">close</span>
                         </div>
                       </div>
                     </div>

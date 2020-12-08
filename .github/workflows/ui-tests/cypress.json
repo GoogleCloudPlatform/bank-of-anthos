@@ -11,12 +11,12 @@
                 "error": "Error: Could Not Load Transactions"
             },
             "deposit": {
-                "success": "Deposit accepted",
+                "success": "Deposit successful",
                 "error": "Deposit failed",
                 "errRoutingNum": "invalid routing number"
             },
             "transfer": {
-                "success": "Payment initiated",
+                "success": "Payment successful",
                 "error": "Payment failed",
                 "errSelf": "may not add yourself to contacts"
             },
@@ -42,11 +42,11 @@
                 {
                     "accountNum": "1033623433",
                     "name": "Alice"
-                }, 
+                },
                 {
                     "accountNum": "1055757655",
                     "name": "Bob"
-                }, 
+                },
                 {
                     "accountNum": "1077441377",
                     "name": "Eve"

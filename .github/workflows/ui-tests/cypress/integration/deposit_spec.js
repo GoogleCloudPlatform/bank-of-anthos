@@ -80,7 +80,7 @@ describe('Authenticated default user', function () {
         const depositAmount = validPayment()
 
         cy.deposit(externalAccount, depositAmount)
-        cy.get('.alert').contains(depositMsgs.success)
+        cy.get('#alert-message').contains(depositMsgs.success)
     })
 
     it('can see balance update after deposit', function () {
@@ -95,7 +95,7 @@ describe('Authenticated default user', function () {
                                        .split('.')[0]
 
             cy.deposit(externalAccount, depositAmount)
-            cy.get('.alert').contains(depositMsgs.success)
+            cy.get('#alert-message').contains(depositMsgs.success)
         })
         cy.visit('/home')
         cy.get('#current-balance').then(($span) => {
@@ -109,7 +109,7 @@ describe('Authenticated default user', function () {
         const depositAmount = validPayment()
 
         cy.deposit(externalAccount, depositAmount)
-        cy.get('.alert').contains(depositMsgs.success)
+        cy.get('#alert-message').contains(depositMsgs.success)
 
         cy.visit('/home')
 
@@ -131,7 +131,7 @@ describe('Authenticated default user', function () {
         const paymentAmount = validPayment()
 
         cy.depositToNewAccount(newExternalAccount, paymentAmount)
-        cy.get('.alert').contains(depositMsgs.success)
+        cy.get('#alert-message').contains(depositMsgs.success)
 
         cy.reload()
         cy.get('#depositSpan').click()
@@ -178,7 +178,7 @@ describe('Deposit is unsuccessful with invalid data', function () {
 
     it('cannot reference invalid routing number', function () {
         const invalidExternalAccount = {
-            accountNum: validAccountNum(), 
+            accountNum: validAccountNum(),
             routingNum: randomInt(100,100000),
             contactLabel: `testcontact invalid ${this.accountNum}`
         }
@@ -200,7 +200,7 @@ describe('Deposit is unsuccessful with invalid data', function () {
         const paymentAmount = validPayment()
 
         cy.depositToNewAccount(invalidExternalAccount, paymentAmount)
-        cy.get('.alert').contains(depositMsgs.error)
-        cy.get('.alert').contains(depositMsgs.errRoutingNum)
+        cy.get('#alert-message').contains(depositMsgs.error)
+        cy.get('#alert-message').contains(depositMsgs.errRoutingNum)
     })
 })
