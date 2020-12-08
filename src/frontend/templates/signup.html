@@ -1,5 +1,5 @@
 <!--
-Copyright 2018 Google LLC
+Copyright 2020 Google LLC
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,20 +19,33 @@ limitations under the License.
       <meta charset="utf-8">
       <meta http-equiv="X-UA-Compatible" content="IE=edge">
       <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+      {% if cymbal_logo == "true" %}
+      <title>CymbalBank</title>
+      {% else %}
       <title>{{ bank_name }}</title>
-      <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
+      {% endif %}
+      <link rel="icon" href=”static/img/favicon.png”/>
       <link rel="stylesheet" href="https://unpkg.com/bootstrap-material-design@4.1.1/dist/css/bootstrap-material-design.min.css" integrity="sha384-wXznGJNEXNG1NFsbm0ugrLFMQPWswR3lds2VeinahP8N0zJw9VWSopbjv2x7WCvX" crossorigin="anonymous">
+      <link rel="preconnect" href="https://fonts.gstatic.com">
+      <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+      <link rel="stylesheet" href="static/styles/cymbal.css">
       <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-      <link rel="stylesheet" href="static/styles/demo.css">
+
    </head>
     <body>
       <!-- Bank of Anthos Navigation Bar -->
       <header>
         <nav class="navbar navbar-expand-lg navbar-top">
           <div class="container">
+            {% if cymbal_logo == "true" %}
+            <div class="logo-container">
+              <a href="/"><img id="cymbal-logo" src="static/img/cymbal.svg"></a>
+            </div>
+            {% else %}
             <a class="navbar-brand">
-              {{ bank_name }}
-            </a>
+            {{ bank_name }}
+          </a>
+            {% endif %}
           </div>
         </nav>
       </header>
@@ -53,10 +66,10 @@ limitations under the License.
                   <div class="row mt-4">
                     <div class="col-10 offset-1 mb-2">
                       <form id="signup-form" class="needs-validation" novalidate="" method="POST" action="/signup">
-                        <small class="text-uppercase text-muted secondary-text">Section 1</small>
+                        <!-- <small class="text-uppercase text-muted secondary-text">Section 1</small> -->
                         <h4 class="mb-4">Account Information</h4>
                         <div id="alertBanner" class="alert alert-danger mb-4 hidden" role="alert">
-                          <span class="alert-icon mr-2 material-icons">error</span>Passwords don't match. Please try again.
+                          <span class="alert-icon mr-2 material-icons error-icon">error</span>Passwords don't match. Please try again.
                         </div>
                         <div class="mb-5">
                           <label class="text-uppercase text-muted secondary-text" for="username">Username</label>
@@ -96,8 +109,8 @@ limitations under the License.
                             </div>
                           </div>
                         </div>
-                        
-                        <small class="text-uppercase text-muted secondary-text">Section 2</small>
+
+                        <!-- <small class="text-uppercase text-muted secondary-text">Section 2</small> -->
                         <h4 class="mb-4">Personal Information</h4>
 
                         <div class="row mb-5">
@@ -116,7 +129,7 @@ limitations under the License.
                             </div>
                           </div>
                         </div>
-    
+
                         <div class="mb-5">
                           <label class="text-uppercase text-muted secondary-text" for="address">Address</label>
                           <input type="text" class="form-control" id="address" name="address" value="Bowling Green, New York City" readonly>
@@ -124,7 +137,7 @@ limitations under the License.
                             Please enter your address.
                           </div>
                         </div>
-            
+
                         <div class="row mb-5">
                           <div class="col-md-5">
                             <label class="text-uppercase text-muted secondary-text" for="country">Country</label>
@@ -314,7 +327,7 @@ limitations under the License.
 
                         <hr class="mb-4">
                         <div class="col-lg-10 offset-lg-1 sign-in">
-                          <button class="btn btn-sign-in btn-block" type="submit">Create New Account</button>
+                          <button class="btn btn-block btn-primary" type="submit">Create Account</button>
                         </div>
                       </form>
                     </div>
@@ -328,9 +341,9 @@ limitations under the License.
       <!-- Page Footer -->
       <footer class="footer">
         <div class="container">
-            <div class="row mb-2">© 2020 Google Inc</div>
+            <div class="row mb-2" class="footer-google-inc">© 2020 Google Inc</div>
             <div class="row mb-3">
-              <small class="text-muted">
+              <small class="footer-disclaimer">
                 This website is hosted for demo purposes only. It is not an
                 actual bank. This is not an official Google project.
               </small>
@@ -345,7 +358,7 @@ limitations under the License.
       <script src="https://unpkg.com/bootstrap-material-design@4.1.1/dist/js/bootstrap-material-design.js" integrity="sha384-CauSuKpEqAFajSpkdjv3z9t8E7RlpJ1UP0lKM/+NdtSarroVKu069AlsRPKkFBz9" crossorigin="anonymous"></script>
       <script>
         // Sign-up validation
-        document.addEventListener("DOMContentLoaded", function(e) { 
+        document.addEventListener("DOMContentLoaded", function(e) {
           var form = document.querySelector("#signup-form");
           // Add max attribute to birthday input
           var today = new Date();
@@ -364,5 +377,5 @@ limitations under the License.
           });
         });
       </script>
-    </body> 
+    </body>
 </html>

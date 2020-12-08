@@ -1,5 +1,5 @@
 <!--
-Copyright 2018 Google LLC
+Copyright 2020 Google LLC
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,21 +19,38 @@ limitations under the License.
       <meta charset="utf-8">
       <meta http-equiv="X-UA-Compatible" content="IE=edge">
       <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+
+      {% if cymbal_logo == "true" %}
+      <title>CymbalBank</title>
+      {% else %}
       <title>{{ bank_name }}</title>
-      <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
+      {% endif %}
+
+      <link rel="icon" href=”static/img/favicon.png”/>
       <link rel="stylesheet" href="https://unpkg.com/bootstrap-material-design@4.1.1/dist/css/bootstrap-material-design.min.css" integrity="sha384-wXznGJNEXNG1NFsbm0ugrLFMQPWswR3lds2VeinahP8N0zJw9VWSopbjv2x7WCvX" crossorigin="anonymous">
+      <link rel="preconnect" href="https://fonts.gstatic.com">
+      <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+      <link rel="stylesheet" href="static/styles/cymbal.css">
       <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-      <link rel="stylesheet" href="static/styles/demo.css">
    </head>
     <body>
       <!-- Bank of Anthos Navigation Bar -->
       <header>
         <nav class="navbar navbar-expand-lg navbar-top">
           <div class="container">
+            {% if cymbal_logo == "true" %}
+            <div class="logo-container">
+              <a href="/"><img id="cymbal-logo" src="static/img/cymbal.svg"></a>
+            </div>
+            {% else %}
             <a class="navbar-brand">
-              {{ bank_name }}
-            </a>
+            {{ bank_name }}
+          </a>
+            {% endif %}
           </div>
+
+
+
         </nav>
       </header>
 
@@ -46,7 +63,7 @@ limitations under the License.
           <div class="col-md-8 offset-md-2">
             <div class="alert alert-info alert-dismissible fade show" role="alert">
               <span class="alert-icon mr-2 material-icons">error</span>{{ message }}
-              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <button type="button" class="close btn-primary" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">×</span>
               </button>
             </div>
@@ -57,7 +74,7 @@ limitations under the License.
                 <div class="card-title header-body">
                   <div class="text-center col-10 offset-1">
                     <p class="text-uppercase text-muted secondary-text">Welcome</p>
-                    <h2 class="mb-4 header-title">Sign In</h2>
+                    <h2 class="mb-4 header-title">SIGN IN</h2>
                   </div>
                 </div>
                 <div class="card-body sign-in">
@@ -91,7 +108,7 @@ limitations under the License.
                         <small class="text-uppercase secondary-text text-muted">
                           Not registered?
                         </small>
-                        <a href="/signup" class="btn btn-create-account btn-block mt-2 mb-4" id="create-account-btn" type="button">Create an Account</a>
+                        <a href="/signup" class="btn btn-secondary btn-block mt-2 mb-4" id="create-account-btn" type="button">Create an Account</a>
                       </form>
                     </div>
                   </div>
@@ -104,9 +121,9 @@ limitations under the License.
       <!-- Page Footer -->
       <footer class="footer">
         <div class="container">
-            <div class="row mb-2">© 2020 Google Inc</div>
+            <div class="row mb-2" class="footer-google-inc">© 2020 Google Inc</div>
             <div class="row mb-3">
-              <small class="text-muted">
+              <small class="footer-disclaimer">
                 This website is hosted for demo purposes only. It is not an
                 actual bank. This is not an official Google project.
               </small>
@@ -140,5 +157,5 @@ limitations under the License.
           }
         });
       </script>
-    </body> 
+    </body>
 </html>

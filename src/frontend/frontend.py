@@ -126,6 +126,7 @@ def create_app():
         _populate_contact_labels(account_id, transaction_list, contacts)
 
         return render_template('index.html',
+                               cymbal_logo=os.getenv('CYMBAL_LOGO', 'false'),
                                history=transaction_list,
                                balance=balance,
                                name=display_name,
@@ -203,7 +204,7 @@ def create_app():
             _submit_transaction(transaction_data)
             app.logger.info('Payment initiated successfully.')
             return redirect(url_for('home',
-                                    msg='Payment initiated',
+                                    msg='Payment successful',
                                     _external=True,
                                     _scheme=app.config['SCHEME']))
 
@@ -266,7 +267,7 @@ def create_app():
             _submit_transaction(transaction_data)
             app.logger.info('Deposit submitted successfully.')
             return redirect(url_for('home',
-                                    msg='Deposit accepted',
+                                    msg='Deposit successful',
                                     _external=True,
                                     _scheme=app.config['SCHEME']))
 
@@ -342,6 +343,7 @@ def create_app():
                                     _scheme=app.config['SCHEME']))
 
         return render_template('login.html',
+                               cymbal_logo=os.getenv('CYMBAL_LOGO', 'false'),
                                message=request.args.get('msg', None),
                                default_user=os.getenv('DEFAULT_USERNAME', ''),
                                default_password=os.getenv('DEFAULT_PASSWORD', ''),
@@ -397,6 +399,7 @@ def create_app():
                                     _external=True,
                                     _scheme=app.config['SCHEME']))
         return render_template('signup.html',
+                               cymbal_logo=os.getenv('CYMBAL_LOGO', 'false'),
                                bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'))
 
 
