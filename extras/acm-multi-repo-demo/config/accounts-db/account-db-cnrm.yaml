@@ -1,0 +1,37 @@
+apiVersion: sql.cnrm.cloud.google.com/v1beta1
+kind: SQLDatabase
+metadata:
+  name: accounts-db
+spec:
+  charset: utf8
+  collation: en_US.UTF8
+  instanceRef:
+    name: accounts-db-instance-002
+
+---
+
+apiVersion: sql.cnrm.cloud.google.com/v1beta1
+kind: SQLInstance
+metadata:
+  name: accounts-db-instance-002
+spec:
+  region: us-west3
+  databaseVersion: POSTGRES_12
+  settings:
+    tier: db-g1-small
+
+---
+
+apiVersion: sql.cnrm.cloud.google.com/v1beta1
+kind: SQLUser
+metadata:
+  name: accounts-admin
+spec:
+  instanceRef:
+    name: accounts-db-instance-002
+  host: "%"
+  password:
+    valueFrom:
+      secretKeyRef:
+        name: accounts-db-config
+        key: password
