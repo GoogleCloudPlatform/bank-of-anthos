@@ -2,9 +2,9 @@
 
 # Bank of Anthos
 
-**Bank of Anthos** is a sample HTTP-based web app that simulates a bank's payment processing network, allowing users to create artificial bank accounts and complete transactions. 
+**Bank of Anthos** is a sample HTTP-based web app that simulates a bank's payment processing network, allowing users to create artificial bank accounts and complete transactions.
 
-Google uses this application to demonstrate how developers can modernize enterprise applications using GCP products, including: [GKE](https://cloud.google.com/kubernetes-engine), [Anthos Service Mesh](https://cloud.google.com/anthos/service-mesh), [Anthos Config Management](https://cloud.google.com/anthos/config-management), [Migrate for Anthos](https://cloud.google.com/migrate/anthos), [Spring Cloud GCP](https://spring.io/projects/spring-cloud-gcp), and [Cloud Operations](https://cloud.google.com/products/operations). This application works on any Kubernetes cluster. 
+Google uses this application to demonstrate how developers can modernize enterprise applications using GCP products, including: [GKE](https://cloud.google.com/kubernetes-engine), [Anthos Service Mesh](https://cloud.google.com/anthos/service-mesh), [Anthos Config Management](https://cloud.google.com/anthos/config-management), [Migrate for Anthos](https://cloud.google.com/migrate/anthos), [Spring Cloud GCP](https://spring.io/projects/spring-cloud-gcp), and [Cloud Operations](https://cloud.google.com/products/operations). This application works on any Kubernetes cluster.
 
 If you’re using this app, please ★Star the repository to show your interest!
 
@@ -12,12 +12,12 @@ If you’re using this app, please ★Star the repository to show your interest!
 
 ## Screenshots
 
-| Home Page                                                                                                         | Checkout Screen                                                                                                    |
+| Sign in                                                                                                        | Home                                                                                                    |
 | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | [![Login](/docs/login.png)](/docs/login.png) | [![User Transactions](/docs/transactions.png)](/docs/transactions.png) |
 
 
-## Service Architecture 
+## Service Architecture
 
 ![Architecture Diagram](./docs/architecture.png)
 
@@ -49,7 +49,7 @@ git clone https://github.com/GoogleCloudPlatform/bank-of-anthos.git
 cd bank-of-anthos
 ```
 
-3. **Create a GKE cluster.** 
+3. **Create a GKE cluster.**
 
 ```
 ZONE=us-central1-b
@@ -60,19 +60,19 @@ gcloud beta container clusters create bank-of-anthos \
 --tags=bank-of-anthos --labels csm=
 ```
 
-4. **Deploy the demo JWT public key** to the cluster as a Secret. This key is used for user account creation and authentication. 
+4. **Deploy the demo JWT public key** to the cluster as a Secret. This key is used for user account creation and authentication.
 
 ```
 kubectl apply -f ./extras/jwt/jwt-secret.yaml
 ```
 
-5. **Deploy the sample app to the cluster.** 
+5. **Deploy the sample app to the cluster.**
 
 ```
 kubectl apply -f ./kubernetes-manifests
 ```
 
-6. **Wait for the Pods to be ready.** 
+6. **Wait for the Pods to be ready.**
 
 ```
 kubectl get pods
@@ -93,7 +93,7 @@ transactionhistory-5569754896-z94cn   1/1     Running   0          97s
 userservice-78dc876bff-pdhtl          1/1     Running   0          96s
 ```
 
-7. **Access the web frontend in a browser** using the frontend's `EXTERNAL_IP`. 
+7. **Access the web frontend in a browser** using the frontend's `EXTERNAL_IP`.
 
 ```
 kubectl get service frontend | awk '{print $4}'
@@ -106,23 +106,23 @@ EXTERNAL-IP
 35.223.69.29
 ```
 
-## Other Deployment Options 
+## Other Deployment Options
 
 - **Workload Identity**: [See these instructions.](docs/workload-identity.md)
 - **Cloud SQL**: [See these instructions](extras/cloudsql) to replace the in-cluster databases with hosted Google Cloud SQL.
-- **Istio**: Apply `istio-manifests/` to your cluster to access the frontend through the IngressGateway. 
-- **Anthos Service Mesh**: ASM requires Workload Identity to be enabled in your GKE cluster. [See the workload identity instructions](docs/workload-identity.md) to configure and deploy the app. Then, apply `istio-manifests/` to your cluster to configure frontend ingress. 
+- **Istio**: Apply `istio-manifests/` to your cluster to access the frontend through the IngressGateway.
+- **Anthos Service Mesh**: ASM requires Workload Identity to be enabled in your GKE cluster. [See the workload identity instructions](docs/workload-identity.md) to configure and deploy the app. Then, apply `istio-manifests/` to your cluster to configure frontend ingress.
 - **Java Monolith (VM)**: We provide a version of this app where the three Java microservices are coupled together into one monolithic service, which you can deploy inside a VM (eg. Google Compute Engine). See the [ledgermonolith](src/ledgermonolith) directory.
 
-## Troubleshooting 
+## Troubleshooting
 
-See the [Troubleshooting guide](docs/troubleshooting.md) for resolving common problems. 
+See the [Troubleshooting guide](docs/troubleshooting.md) for resolving common problems.
 
-## Development 
+## Development
 
-See the [Development guide](docs/development.md) to learn how to run and develop this app locally. 
+See the [Development guide](docs/development.md) to learn how to run and develop this app locally.
 
-## Talks/Demos using Bank of Anthos 
+## Talks/Demos using Bank of Anthos
 
 - [Google Cloud Next '20 - Hands-on Keynote](https://www.youtube.com/watch?v=7QR1z35h_yc)  (Anthos, Cloud Operations, Spring Cloud GCP, BigQuery, AutoML)
 
