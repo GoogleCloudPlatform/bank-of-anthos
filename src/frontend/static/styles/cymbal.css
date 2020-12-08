@@ -203,9 +203,13 @@
   .account-num-text {
     font-weight: 600;
     margin-right: 8px;
+    vertical-align: middle !important;
+    display: inline-block !important;
   }
   .account-number {
     font-weight: 200;
+    vertical-align: middle !important;
+    display: inline-block !important;
   }
 
 
@@ -405,14 +409,23 @@
   }
 
 /* Deposit / payment accepted alert */
-    .snackbar {
-      background-color: #202020 !important;
-      color: white !important;
-      border-radius: 10px !important;
-      -webkit-box-shadow: none !important;
-      -moz-box-shadow: none !important;
-      box-shadow: none !important;
+    .snackbar-body {
+
       vertical-align: middle !important;
+    }
+
+    .snackbar-card {
+        margin-top: 30px;
+        background-color: #202020 !important;
+        color: white !important;
+        margin-bottom: 1.5rem;
+        border-radius: 10px;
+
+        font-weight: 500;
+
+        -webkit-box-shadow: none !important;
+        -moz-box-shadow: none !important;
+        box-shadow: none !important;
     }
 
     .snackbar-close {
@@ -425,6 +438,10 @@
       vertical-align: middle !important;
     }
 
+    .snackbar-close:hover {
+      cursor: pointer;
+    }
+
 
     /* Signup "danger" alert, eg. passwords don't match */
     .alert-danger {
@@ -434,4 +451,9 @@
 
     .error-icon {
       color: white !important;
+    }
+
+    .top-row {
+      margin-top: 30px;
+      margin-bottom: 30px;
     }

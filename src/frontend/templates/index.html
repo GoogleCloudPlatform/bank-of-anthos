@@ -23,7 +23,6 @@ limitations under the License.
       <title>CymbalBank</title>
       {% else %}
       <title>{{ bank_name }}</title>
-      {{ bank_name }}
       {% endif %}
       <link rel="icon" href=”static/img/favicon.png”/>
       <link rel="stylesheet" href="https://unpkg.com/bootstrap-material-design@4.1.1/dist/css/bootstrap-material-design.min.css" integrity="sha384-wXznGJNEXNG1NFsbm0ugrLFMQPWswR3lds2VeinahP8N0zJw9VWSopbjv2x7WCvX" crossorigin="anonymous">
@@ -76,68 +75,46 @@ limitations under the License.
       <main class="container">
 
 
-        <div class="row d-flex align-items-end header header-body">
-          <div class="row col-lg-12 align-items-start">
-            <div class="col-md-8">
-              <small class="text-uppercase text-muted secondary-text">Overview</small>
-              <h2 class="header-title">Checking Account</h2>
-            </div>
-
-            <div class="col-md-4 account-info align-items-end">
-                <p><span class="account-overview account-icon material-icons">info</span><span class="account-num-text">Account Number:</span><span class="account-number">{{ account_id }}</span></p>
-            </div>
-        </div>
-        </div>
-
-        <!-- new alert on load-->
-        <div id="alert-message-div" class="row d-flex align-items-end header header-body">
-            <div class="col-md-8">
-              <div class="card snackbar">
-
-                <div class="card-body">
-
-
-                  <div class="row align-items-start">
-                     <!-- subcolumn 1 - check and message -->
-                      <div class="col">
-                        <span class="material-icons snackbar-close">check_circle</span>
-                        <span class="h5 mb-0">
-                          Hello World Hello World Hello World Hello World
-                        </span>
+           <!-- Alert on load -->
+           {% if message != None %}
+            <div class="row col-lg-12 align-items-start" id="alert-message-div2" >
+              <div class="col-lg-6">
+                  <div class="card snackbar-card">
+                    <div class="card-body snackbar-body">
+                      <div class="row align-items-start">
+                        <div class="col">
+                          <h5>
+                            <span class="snackbar-close material-icons">check_circle</span>
+                            {{ message }}
+                          </h5>
+                        </div>
+                        <div class="button-icon col-auto">
+                          <span class="snackbar-close material-icons" onclick="$('#alert-message-div2').remove();">close</span>
+                        </div>
                       </div>
-                      <!-- subcolumn 2 - X button -->
-                      <div class="col-auto">
-                            <button type="button" class="snackbar-close" onclick="$('#alert-message-div').remove();">
-                              <span class="material-icons snackbar-close">close</span>
-                          </button>
-                      </div>
-
-
-
-                  </div>
+                    </div>
                 </div>
-             </div>
-          </div>
-      </div>
-
-
-
+              </div>
+            </div>
+         {% endif %}
 
 
           <!-- Top row - overview, account # -->
-          <div class="row d-flex align-items-end header header-body">
-            <div class="row col-lg-12 align-items-start">
+            <div class="row col-lg-12 align-items-start top-row">
               <div class="col-md-8">
                 <small class="text-uppercase text-muted secondary-text">Overview</small>
                 <h2 class="header-title">Checking Account</h2>
               </div>
 
-              <div class="col-md-4 account-info align-items-end">
-                  <p><span class="account-overview account-icon material-icons">info</span><span class="account-num-text">Account Number:</span><span class="account-number">{{ account_id }}</span></p>
+              <div class="col-md-4 account-info text-right">
+                  <p>
+                    <span class="account-overview account-icon material-icons">info</span>
+                    <span class="account-num-text">Account Number:</span><span class="account-number">{{ account_id }}</span>
+                  </p>
               </div>
           </div>
 
-        </div>
+
 
         <!-- Balance / Deposit / Send Payment row -->
         <div class="row col-lg-12 align-items-start">
