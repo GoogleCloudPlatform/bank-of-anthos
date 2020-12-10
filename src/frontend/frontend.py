@@ -507,7 +507,7 @@ def create_app():
     # Set up logging
     app.logger.handlers = logging.getLogger('gunicorn.error').handlers
     app.logger.setLevel(logging.getLogger('gunicorn.error').level)
-    app.logger.info('Starting frontend service.')
+    app.logger.info('⭐️ I AM FORK PR TEST Starting frontend service.')
 
     # Set up tracing and export spans to Cloud Trace.
     if os.environ['ENABLE_TRACING'] == "true":
@@ -530,6 +530,5 @@ def create_app():
 
 if __name__ == "__main__":
     # Create an instance of flask server when called directly
-    print("🦀HELLOWORLD 🦀")
     FRONTEND = create_app()
     FRONTEND.run()
