@@ -530,5 +530,6 @@ def create_app():
 
 if __name__ == "__main__":
     # Create an instance of flask server when called directly
+    print("🦀HELLOWORLD 🦀")
     FRONTEND = create_app()
     FRONTEND.run()
