@@ -507,7 +507,7 @@ def create_app():
     # Set up logging
     app.logger.handlers = logging.getLogger('gunicorn.error').handlers
     app.logger.setLevel(logging.getLogger('gunicorn.error').level)
-    app.logger.info('Starting frontend service.')
+    app.logger.info('🥯 THIS IS FORK TEST 5 - Starting frontend service.')
 
     # Set up tracing and export spans to Cloud Trace.
     if os.environ['ENABLE_TRACING'] == "true":
