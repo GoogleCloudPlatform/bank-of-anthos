@@ -122,9 +122,9 @@ jobs:
         skaffold config set --global local-cluster false
         skaffold run --default-repo=gcr.io/$PROJECT_ID/$GITHUB_REF --tag=$GITHUB_SHA --namespace=$NAMESPACE
       env:
-        PROJECT_ID: ${{ secrets.PROJECT_ID }}
-        PR_CLUSTER: ${{ secrets.PR_CLUSTER_2 }}
-        ZONE: ${{ secrets.PR_CLUSTER_2_ZONE }}
+        PROJECT_ID: "bank-of-anthos"
+        PR_CLUSTER: "bank-of-anthos-pr-2"
+        ZONE: "us-central1-c"
         ACTIONS_ALLOW_UNSECURE_COMMANDS: true
     - name: Wait For Pods
       timeout-minutes: 20
@@ -160,7 +160,7 @@ jobs:
         ACTIONS_ALLOW_UNSECURE_COMMANDS: true
     - name: Run UI tests (Cypress)
       run: |
-        docker run -t -v $PWD/.github/workflows/ui-tests:/e2e -w /e2e -e CYPRESS_baseUrl=http://$EXTERNAL_IP -u node cypress/included:5.0.0 
+        docker run -t -v $PWD/.github/workflows/ui-tests:/e2e -w /e2e -e CYPRESS_baseUrl=http://$EXTERNAL_IP -u node cypress/included:5.0.0
     - uses: actions/upload-artifact@v2
       if: failure()
       with:
