@@ -63,6 +63,13 @@ def create_app():
         """
         return 'ok', 200
 
+    @app.route('/whereami', methods=['GET'])
+    def whereami():
+        """
+        Returns the cluster name + zone name where this Pod is running.
+
+        """
+        return cluster_name + " in " + cluster_zone, 200
 
     @app.route("/")
     def root():
@@ -126,6 +133,8 @@ def create_app():
         _populate_contact_labels(account_id, transaction_list, contacts)
 
         return render_template('index.html',
+                               cluster_name=cluster_name,
+                               cluster_zone=cluster_zone,
                                cymbal_logo=os.getenv('CYMBAL_LOGO', 'false'),
                                history=transaction_list,
                                balance=balance,
@@ -498,6 +507,28 @@ def create_app():
     app.config['TOKEN_NAME'] = 'token'
     app.config['TIMESTAMP_FORMAT'] = '%Y-%m-%dT%H:%M:%S.%f%z'
     app.config['SCHEME'] = os.environ.get('SCHEME', 'http')
+
+    # where am I?
+    cluster_name="undefined"
+    cluster_zone="undefined"
+    metadata_url = 'http://metadata.google.internal/computeMetadata/v1/'
+    metadata_headers = {'Metadata-Flavor': 'Google'}
+    # get GKE cluster name
+    try:
+        req = requests.get(metadata_url + 'instance/attributes/cluster-name',
+                            headers=metadata_headers)
+        if req.ok:
+            cluster_name = str(req.text)
+    except (RequestException, HTTPError) as err:
+        app.logger.warning("Unable to capture GKE cluster name.")
+    # get GCP zone
+    try:
+        req = requests.get(metadata_url + 'instance/zone',
+                            headers=metadata_headers)
+        if req.ok:
+            cluster_zone = str(req.text.split("/")[3])
+    except (RequestException, HTTPError) as err:
+        app.logger.warning("Unable to capture GKE cluster zone.")
 
     # register formater functions
     app.jinja_env.globals.update(format_currency=format_currency)
