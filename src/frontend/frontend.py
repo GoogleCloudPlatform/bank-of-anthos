@@ -19,6 +19,7 @@ import datetime
 import json
 import logging
 import os
+import socket
 from decimal import Decimal
 
 import requests
@@ -63,6 +64,13 @@ def create_app():
         """
         return 'ok', 200
 
+    @app.route('/whereami', methods=['GET'])
+    def whereami():
+        """
+        Returns the cluster name + zone name where this Pod is running.
+
+        """
+        return "Cluster: " + cluster_name + ", Pod: " + pod_name + ", Zone: " + pod_zone, 200
 
     @app.route("/")
     def root():
@@ -126,6 +134,9 @@ def create_app():
         _populate_contact_labels(account_id, transaction_list, contacts)
 
         return render_template('index.html',
+                               cluster_name=cluster_name,
+                               pod_name=pod_name,
+                               pod_zone=pod_zone,
                                cymbal_logo=os.getenv('CYMBAL_LOGO', 'false'),
                                history=transaction_list,
                                balance=balance,
@@ -344,6 +355,9 @@ def create_app():
 
         return render_template('login.html',
                                cymbal_logo=os.getenv('CYMBAL_LOGO', 'false'),
+                               cluster_name=cluster_name,
+                               pod_name=pod_name,
+                               pod_zone=pod_zone,
                                message=request.args.get('msg', None),
                                default_user=os.getenv('DEFAULT_USERNAME', ''),
                                default_password=os.getenv('DEFAULT_PASSWORD', ''),
@@ -400,6 +414,9 @@ def create_app():
                                     _scheme=app.config['SCHEME']))
         return render_template('signup.html',
                                cymbal_logo=os.getenv('CYMBAL_LOGO', 'false'),
+                               cluster_name=cluster_name,
+                               pod_name=pod_name,
+                               pod_zone=pod_zone,
                                bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'))
 
 
@@ -498,6 +515,33 @@ def create_app():
     app.config['TOKEN_NAME'] = 'token'
     app.config['TIMESTAMP_FORMAT'] = '%Y-%m-%dT%H:%M:%S.%f%z'
     app.config['SCHEME'] = os.environ.get('SCHEME', 'http')
+
+    # where am I?
+    metadata_url = 'http://metadata.google.internal/computeMetadata/v1/'
+    metadata_headers = {'Metadata-Flavor': 'Google'}
+    # get GKE cluster name
+    cluster_name = "unknown"
+    try:
+        req = requests.get(metadata_url + 'instance/attributes/cluster-name',
+                           headers=metadata_headers)
+        if req.ok:
+            cluster_name = str(req.text)
+    except (RequestException, HTTPError) as err:
+        app.logger.warning("Unable to capture GKE cluster name.")
+
+    # get GKE pod name
+    pod_name = "unknown"
+    pod_name = socket.gethostname()
+
+    # get GKE node zone
+    pod_zone = "unknown"
+    try:
+        req = requests.get(metadata_url + 'instance/zone',
+                           headers=metadata_headers)
+        if req.ok:
+            pod_zone = str(req.text.split("/")[3])
+    except (RequestException, HTTPError) as err:
+        app.logger.warning("Unable to capture GKE node zone.")
 
     # register formater functions
     app.jinja_env.globals.update(format_currency=format_currency)

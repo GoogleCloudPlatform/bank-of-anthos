@@ -9,6 +9,7 @@ target/
 .DS_Store
 *.iml
 .idea/
+settings.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
