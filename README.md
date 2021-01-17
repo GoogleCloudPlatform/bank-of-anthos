@@ -35,6 +35,9 @@ If you’re using this app, please ★Star the repository to show your interest!
 
 ## Quickstart (GKE)
 
+[![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.svg)](https://ssh.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/GoogleCloudPlatform/bank-of-anthos&cloudshell_tutorial=README.md#Quickstart%20(GKE))
+
+
 1. **[Create a Google Cloud Platform project](https://cloud.google.com/resource-manager/docs/creating-managing-projects#creating_a_project)** or use an existing project. Set the `PROJECT_ID` environment variable and ensure the Google Kubernetes Engine API is enabled.
 
 ```
