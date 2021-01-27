@@ -254,9 +254,13 @@
   .transaction-amount {
     text-align: right !important;
   }
-  .transaction-amount-debit {
+  .transaction-amount-credit{
     color: #008A20;
   }
+  .transaction-amount-debit {
+    color: #FF0000;
+  }
+
   /* .transaction-date {
     font-size: 18px;
   } */
