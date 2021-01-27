@@ -254,10 +254,10 @@
   .transaction-amount {
     text-align: right !important;
   }
-  .transaction-amount-debit {
+  .transaction-amount-credit{
     color: #008A20;
   }
-  .transaction-amount-credit {
+  .transaction-amount-debit {
     color: #FF0000;
   }
 
