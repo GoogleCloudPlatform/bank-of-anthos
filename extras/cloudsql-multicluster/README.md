@@ -4,7 +4,7 @@ This doc contains instructions for deploying the Cloud SQL version of Bank of An
 
 The use case for this setup is to demo running a global, scaled app, where even if one cluster goes down, users will be routed to the next available cluster. These instructions also show how to use [Multi-cluster Ingress](https://cloud.google.com/kubernetes-engine/docs/concepts/multi-cluster-ingress) to route users to the closest GKE cluster, demonstrating a low-latency use case.
 
-![multi-region](multi-region.png)
+![multi-region](architecture.png)
 
 Note that in this setup, there is no service communication between the two clusters/regions. Each cluster has a dedicated frontend and set of backends. Both regions, however, share the same Cloud SQL instance, which houses the two databases (Accounts and Ledger).
 
@@ -151,13 +151,13 @@ Status:
 ```
 
 
-14. Copy the `VIP` field to the clipboard and set as an env variable:
+14. **Copy the `VIP` field** to the clipboard and set as an env variable:
 
 ```
 export VIP=<your-VIP>
 ```
 
-15. Test the geo-aware routing by curling the `/whereami` frontend endpoint using the global VIP you copied. You could also create a Google Compute Engine instance in a specific region to test further. **Note that you may see a `404` or `502` error** for several minutes while the forwarding rules propagate.
+15. **Test the geo-aware routing** by curling the `/whereami` frontend endpoint using the global VIP you copied. You could also create a Google Compute Engine instance in a specific region to test further. **Note that you may see a `404` or `502` error** for several minutes while the forwarding rules propagate.
 
 ```
 watch curl http://${VIP}:80/whereami
@@ -175,4 +175,4 @@ Example output, from an EU-based GCE instance:
 Cluster: boa-2, Pod: frontend-74675b56f-2ln5w, Zone: europe-west3-a
 ```
 
-🎉 Congrats! You just deployed a globally-available version of Bank of Anthos!
+🎉 **Congrats!** You just deployed a globally-available version of Bank of Anthos!
