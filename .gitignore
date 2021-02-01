@@ -153,12 +153,15 @@ dmypy.json
 cython_debug/
 
 
-# workload identity generated manifests 
+# workload identity generated manifests
 wi-kubernetes-manifests/
 
-# ledgermonolith Istio config 
+# ledgermonolith Istio config
 src/ledgermonolith/istio/send-to-vm/
 src/ledgermonolith/istio/istio-1.*
 
 # Cypress
 .github/workflows/ui-tests/cypress/screenshots
+
+# Ingress for Anthos service account key
+register-key.json

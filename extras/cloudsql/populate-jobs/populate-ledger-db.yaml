@@ -91,8 +91,6 @@ spec:
               key: connectionName
         command: ["/cloud_sql_proxy",
                   "-instances=$(CONNECTION_NAME)=tcp:5432"]
-        securityContext:
-          runAsNonRoot: true
       volumes:
       - name: scripts
         configMap:
