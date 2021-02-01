@@ -47,7 +47,18 @@ gcloud container clusters create ${CLUSTER} \
 ./create_cloudsql_instance.sh
 ```
 
-6. **Deploy Bank of Anthos** to your cluster. Each backend Deployment (`userservice`, `contacts`, `transactionhistory`, `balancereader`, and `ledgerwriter`) is configured with a [Cloud SQL Proxy](https://cloud.google.com/sql/docs/mysql/sql-proxy#what_the_proxy_provides) sidecar container. Cloud SQL Proxy provides a secure TLS connection between the backend GKE pods and your Cloud SQL instance.
+6. **Create a Cloud SQL admin demo secret** in your GKE cluster. This gives your in-cluster Cloud SQL client a username and password to access Cloud SQL. (Note that admin/admin credentials are for demo use only and should never be used in a production environment.)
+
+```
+INSTANCE_NAME='bank-of-anthos-db'
+INSTANCE_CONNECTION_NAME=$(gcloud sql instances describe $INSTANCE_NAME --format='value(connectionName)')
+
+kubectl create secret -n ${NAMESPACE} generic cloud-sql-admin \
+ --from-literal=username=admin --from-literal=password=admin \
+ --from-literal=connectionName=${INSTANCE_CONNECTION_NAME}
+```
+
+7. **Deploy Bank of Anthos** to your cluster. Each backend Deployment (`userservice`, `contacts`, `transactionhistory`, `balancereader`, and `ledgerwriter`) is configured with a [Cloud SQL Proxy](https://cloud.google.com/sql/docs/mysql/sql-proxy#what_the_proxy_provides) sidecar container. Cloud SQL Proxy provides a secure TLS connection between the backend GKE pods and your Cloud SQL instance.
 
 This command will also deploy two Kubernetes Jobs, to populate the accounts and ledger dbs with Tables and test data.
 
@@ -56,7 +67,7 @@ kubectl apply -n ${NAMESPACE} -f ./populate-jobs
 kubectl apply -n ${NAMESPACE} -f ./kubernetes-manifests
 ```
 
-7. Wait a few minutes for all the pods to be `RUNNING`. (Except for the two `populate-` Jobs. They should be marked `0/3 - Completed` when they finish successfully.)
+8. Wait a few minutes for all the pods to be `RUNNING`. (Except for the two `populate-` Jobs. They should be marked `0/3 - Completed` when they finish successfully.)
 
 ```
 NAME                                  READY   STATUS      RESTARTS   AGE
@@ -71,4 +82,4 @@ transactionhistory-747476548c-j2zqx   2/2     Running     0          2m53s
 userservice-7f6df69544-nskdf          2/2     Running     0          2m53s
 ```
 
-8. Access the Bank of Anthos frontend at the frontend service `EXTERNAL_IP`, then log in as `test-user` with the pre-populated credentials added to the Cloud SQL-based `accounts-db`. You should see the pre-populated transaction data show up, from the Cloud SQL-based `ledger-db`. You're done!
+9. Access the Bank of Anthos frontend at the frontend service `EXTERNAL_IP`, then log in as `test-user` with the pre-populated credentials added to the Cloud SQL-based `accounts-db`. You should see the pre-populated transaction data show up, from the Cloud SQL-based `ledger-db`. You're done!

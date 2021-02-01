@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# !/bin/bash 
+# !/bin/bash
 
 gcloud config set project ${PROJECT_ID}
 
@@ -20,7 +20,7 @@ export HUB_PROJECT_ID=${PROJECT_ID}
 export SERVICE_ACCOUNT_NAME="register-sa"
 
 
-# Do this only once 
+# Do this only once
 echo "🌏 Enabling APIs..."
 gcloud services enable \
 --project=${PROJECT_ID} \
@@ -65,9 +65,9 @@ echo "🌏 Listing your Anthos cluster memberships:"
 gcloud container hub memberships list
 
 
-echo "🌏 Adding cluster 1 as the Ingress for Anthos config cluster..." 
+echo "🌏 Adding cluster 1 as the Multi-cluster ingress config cluster..."
 gcloud alpha container hub ingress enable \
-  --config-membership=projects/${PROJECT_ID}/locations/${CLUSTER_1_ZONE}/memberships/${CLUSTER_1_NAME} 
+  --config-membership=projects/${PROJECT_ID}/locations/global/memberships/${CLUSTER_1_NAME}
 
 gcloud alpha container hub ingress describe
 
