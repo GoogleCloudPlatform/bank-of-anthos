@@ -34,7 +34,7 @@ To deploy the token:
 
 4. The following warning will pop up:  
 
-> ⚠️ **"Resource Secret/jwt-key does not exist - this will create a new resource."**
+> ⚠️ Resource Secret/jwt-key does not exist - this will create a new resource.
 
 5. Click **Create**.   
 
@@ -47,18 +47,24 @@ Now you can run Bank of Anthos on your minikube cluster!
 
 1. Launch the <walkthrough-editor-spotlight spotlightId="cloud-code-status-bar">Cloud Code menu</walkthrough-editor-spotlight> from the status bar and select <walkthrough-editor-spotlight spotlightId="cloud-code-run-on-k8s">Run on Kubernetes</walkthrough-editor-spotlight>.
 
-2. Cloud Code uses configurations defined in <walkthrough-editor-open-file filePath="skaffold.yaml">`skaffold.yaml`</walkthrough-editor-open-file> to build and deploy the app. This may take a minute.
+2. Select **Yes** to use minikube as the current context.
 
-3. Once the app is running, the local URLs will be displayed in the <walkthrough-editor-spotlight spotlightId="output">Output</walkthrough-editor-spotlight> terminal.
+3. Cloud Code uses configurations defined in <walkthrough-editor-open-file filePath="skaffold.yaml">skaffold.yaml</walkthrough-editor-open-file> to build and deploy the app. It may take a minute for the deploy to complete.
 
-4. Launch your Bank of Anthos app in your browser by clicking on the `frontend` URL.
+4. Once the app is running, the local URLs will be displayed in the <walkthrough-editor-spotlight spotlightId="output">Output</walkthrough-editor-spotlight> terminal.
+
+5. Launch your Bank of Anthos app in your browser by clicking on the `frontend` URL in the <walkthrough-editor-spotlight spotlightId="output">Output</walkthrough-editor-spotlight>.
 
 
 ## Stop the app
 
 To stop running the app: 
+
 1. Go to the <walkthrough-editor-spotlight spotlightId="activity-bar-debug">Debug view</walkthrough-editor-spotlight> 
+
 2. Click the 'Stop' icon. 🟥
+
+3. Select **Yes** to clean up deployed resources. 
 
 You can start, stop, and debug apps from the Debug view.
 
