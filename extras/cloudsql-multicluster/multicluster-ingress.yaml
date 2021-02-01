@@ -25,3 +25,14 @@ spec:
         protocol: TCP
         port: 8080
         targetPort: 8080
+---
+apiVersion: networking.gke.io/v1
+kind: MultiClusterIngress
+metadata:
+  name: frontend-global-ingress
+spec:
+  template:
+    spec:
+      backend:
+        serviceName: frontend-mcs
+        servicePort: 8080

@@ -29,7 +29,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: front
-        image: gcr.io/megan-fall20/frontend-whereami:latest
+        image: gcr.io/megan-fall20/frontend-whereami:v2
         imagePullPolicy: Always
         # image: gcr.io/bank-of-anthos/frontend:v0.3.1
         ports:
