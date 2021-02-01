@@ -76,7 +76,7 @@ class AllTasks(TaskSequence):
         def view_login(self):
             """
             load the /login page
-            fails if already logged on (redirets to /home)
+            fails if already logged on (redirects to /home)
             """
             with self.client.get("/login", catch_response=True) as response:
                 for r_hist in response.history:
@@ -87,7 +87,7 @@ class AllTasks(TaskSequence):
         def view_signup(self):
             """
             load the /signup page
-            fails if not logged on (redirets to /home)
+            fails if not logged on (redirects to /home)
             """
             with self.client.get("/signup", catch_response=True) as response:
                 for r_hist in response.history:
@@ -124,7 +124,7 @@ class AllTasks(TaskSequence):
         def view_index(self):
             """
             load the / page
-            fails if not logged on (redirets to /login)
+            fails if not logged on (redirects to /login)
             """
             with self.client.get("/", catch_response=True) as response:
                 for r_hist in response.history:
@@ -135,7 +135,7 @@ class AllTasks(TaskSequence):
         def view_home(self):
             """
             load the /home page (identical to /)
-            fails if not logged on (redirets to /login)
+            fails if not logged on (redirects to /login)
             """
             with self.client.get("/home", catch_response=True) as response:
                 for r_hist in response.history:

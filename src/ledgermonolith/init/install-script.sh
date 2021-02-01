@@ -14,7 +14,7 @@
 # limitations under the License.
 
 
-# Startup script to start the ledgermonolith service from a JAR.
+# Boot script to install and start the ledgermonolith service from a JAR.
 #
 # Expects build artifacts to be available on Google Cloud Storage.
 # The GCS bucket is set with instance custom metadata 'gcs-bucket'
@@ -34,10 +34,18 @@ DB_INIT_DIR=initdb
 # Define where to put monolith artifacts
 MONOLITH_DIR=/opt/monolith
 MONOLITH_LOG=/var/log/monolith.log
+MONOLITH_SERVICE=ledgermonolith.service
 
+# Check if already installed
+if systemctl is-enabled ${MONOLITH_SERVICE} ; then
+  echo "ledgermonolith-service has been already installed"
+  exit 0
+fi
 
-# Get the Google Cloud Storage bucket to retrieve build artifacts from
-GCS_BUCKET=$(curl "http://metadata/computeMetadata/v1/instance/attributes/gcs-bucket" -H "Metadata-Flavor: Google")
+# If not provided, get the Google Cloud Storage bucket to retrieve build artifacts from
+if [ -z "${GCS_BUCKET}" ] ; then
+  GCS_BUCKET=$(curl "http://metadata/computeMetadata/v1/instance/attributes/gcs-bucket" -H "Metadata-Flavor: Google")
+fi
 echo "GCS_BUCKET: $GCS_BUCKET"
 GCS_PATH=${GCS_BUCKET}/monolith
 
@@ -87,7 +95,7 @@ source <(sed -E -n 's/[^#]+/export &/ p' ${MONOLITH_DIR}/${APP_ENV})
 
 
 # Extract the public key and write it to a file
-awk '/jwtRS256.key.pub/{print $2}' ${MONOLITH_DIR}/${JWT_SECRET} | base64 -d >> $PUB_KEY_PATH
+awk '/jwtRS256.key.pub/{print $2}' ${MONOLITH_DIR}/${JWT_SECRET} | base64 -d > $PUB_KEY_PATH
 
 
 # Start PostgreSQL
@@ -112,10 +120,27 @@ done
 sudo -u postgres psql --command "ALTER USER postgres WITH PASSWORD '${POSTGRES_PASSWORD}';"
 
 
-# Start the ledgermonolith service
-nohup java -jar ${MONOLITH_DIR}/${APP_JAR} > ${MONOLITH_LOG} &
+# Setup ledgermonolith service
+cat <<EOF >${MONOLITH_DIR}/ledgermonolith-service.sh
+#!/bin/bash
+source <(sed -E -n 's/[^#]+/export &/ p' ${MONOLITH_DIR}/${APP_ENV})
+java -jar ${MONOLITH_DIR}/${APP_JAR} > ${MONOLITH_LOG}
+EOF
+chmod +x ${MONOLITH_DIR}/ledgermonolith-service.sh
 
+cat <<EOF >/etc/systemd/system/${MONOLITH_SERVICE}
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=${MONOLITH_DIR}/ledgermonolith-service.sh
 
-echo "Startup Complete"
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl enable ${MONOLITH_SERVICE}
+systemctl start ${MONOLITH_SERVICE}
+
+echo "Install Complete"
 exit
 

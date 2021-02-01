@@ -93,7 +93,7 @@ describe('Authenticated default user', function () {
         const paymentAmount = validPayment()
 
         cy.transfer(recipient, paymentAmount)
-        cy.get('.alert').contains(transferMsgs.success)
+        cy.get('#alert-message').contains(transferMsgs.success)
     })
 
     it('see balance update after transfer', function () {
@@ -110,7 +110,7 @@ describe('Authenticated default user', function () {
                                        .split('.')[0]
 
             cy.transfer(recipient, paymentAmount)
-            cy.get('.alert').contains(transferMsgs.success)
+            cy.get('#alert-message').contains(transferMsgs.success)
         })
         cy.visit('/home')
         cy.get('#current-balance').then(($span) => {
@@ -144,7 +144,7 @@ describe('Authenticated default user', function () {
         const paymentAmount = validPayment()
 
         cy.transferToNewContact(newRecipient, paymentAmount)
-        cy.get('.alert').contains(transferMsgs.success)
+        cy.get('#alert-message').contains(transferMsgs.success)
         cy.get('#paymentSpan').click()
         cy.get('#payment-accounts').contains(newRecipient.contactLabel)
         cy.get('#payment-accounts').contains(newRecipient.accountNum)
@@ -223,8 +223,8 @@ describe('Transfer is unsuccessful with invalid data', function () {
         const paymentAmount = validPayment()
 
         cy.transferToNewContact(self, paymentAmount)
-        cy.get('.alert').contains(transferMsgs.error)
-        cy.get('.alert').contains(transferMsgs.errSelf)
+        cy.get('#alert-message').contains(transferMsgs.error)
+        cy.get('#alert-message').contains(transferMsgs.errSelf)
     })
 
 })
