@@ -41,7 +41,7 @@ spec:
           value: "8080"
         # toggle Cloud Trace export
         - name: ENABLE_TRACING
-          value: "true"
+          value: "false"
         - name: ENABLE_METRICS
           value: "true"
         - name: POLL_MS

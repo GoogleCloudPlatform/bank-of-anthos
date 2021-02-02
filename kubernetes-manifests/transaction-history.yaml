@@ -40,7 +40,7 @@ spec:
         - name: PORT
           value: "8080"
         - name: ENABLE_TRACING
-          value: "true"
+          value: "false"
         - name: ENABLE_METRICS
           value: "true"
         - name: POLL_MS

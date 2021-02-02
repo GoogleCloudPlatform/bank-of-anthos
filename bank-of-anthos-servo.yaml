@@ -7,7 +7,7 @@ metadata:
       app.kubernetes.io/name: servo
       app.kubernetes.io/component: core
 data:
-  optimizer: OPSANI_OPTIMIZER
+  optimizer: dev.opsani.com/bank-of-anthos
   log_level: INFO
   servo.yaml: |
     opsani_dev:
@@ -139,18 +139,6 @@ spec:
                 operator: In
                 values:
                 - servo
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: servo-token
-  labels:
-    app.kubernetes.io/name: servo
-    app.kubernetes.io/component: core
-type: Opaque
-data:
-  token: OPSANITOKEN
-
 ---
 apiVersion: v1
 kind: ServiceAccount
