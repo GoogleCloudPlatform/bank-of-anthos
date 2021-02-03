@@ -51,12 +51,12 @@ spec:
       - name: servo
         image: opsani/servox:edge
         imagePullPolicy: Always
+        terminationMessagePolicy: FallbackToLogsOnError
         args:
           - 'check'
           - '--wait=30m'
           - '--delay=10s'
           - '--progressive'
-          # - '--remedy'
           - '--run'
         env:
         - name: OPSANI_OPTIMIZER
