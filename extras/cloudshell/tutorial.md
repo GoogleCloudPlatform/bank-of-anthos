@@ -103,9 +103,9 @@ You can start, stop, and debug apps from the Debug view.
 
 If you've deployed your app to a GKE cluster in your Google Cloud Platform project, you'll want to delete the cluster to avoid incurring charges.
 
-1. Navigate to the Google Kubernetes Engine Explorer in the Activity bar.
+1. Navigate to the <walkthrough-editor-spotlight spotlightId="activity-bar-cloud-k8s">Cloud Code - Kubernetes view</walkthrough-editor-spotlight> in the Activity bar.
 
-2. Right-click on your cluster and select **Delete Cluster**.
+2. Under the <walkthrough-editor-spotlight spotlightId="cloud-code-gke-explorer">Google Kubernetes Engine Explorer tab</walkthrough-editor-spotlight>, right-click on your cluster and select **Delete Cluster**.
 
 
 
