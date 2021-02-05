@@ -4,6 +4,10 @@
 
 **Bank of Anthos** is a sample HTTP-based web app that simulates a bank's payment processing network, allowing users to create artificial bank accounts and complete transactions.
 
+Opsani uses this application to demonstrate a real polyglot application under optimization in a Kubernetes enviornment.
+
+See [opsani-README](opsani/README.md) for details on launching the Bank-of-Anthos app for use with the Opsani Dev-Trial environment.
+
 Google uses this application to demonstrate how developers can modernize enterprise applications using GCP products, including: [GKE](https://cloud.google.com/kubernetes-engine), [Anthos Service Mesh](https://cloud.google.com/anthos/service-mesh), [Anthos Config Management](https://cloud.google.com/anthos/config-management), [Migrate for Anthos](https://cloud.google.com/migrate/anthos), [Spring Cloud GCP](https://spring.io/projects/spring-cloud-gcp), and [Cloud Operations](https://cloud.google.com/products/operations). This application works on any Kubernetes cluster.
 
 If you’re using this app, please ★Star the repository to show your interest!

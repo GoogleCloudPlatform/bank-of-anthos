@@ -17,6 +17,7 @@ kind: Deployment
 metadata:
   name: userservice
 spec:
+  replicas: 5
   selector:
     matchLabels:
       app: userservice
@@ -43,7 +44,7 @@ spec:
         - name: PORT
           value: "8080"
         - name: ENABLE_TRACING
-          value: "true"
+          value: "false"
         - name: TOKEN_EXPIRY_SECONDS
           value: "3600"
         - name: PRIV_KEY_PATH
@@ -65,8 +66,8 @@ spec:
           timeoutSeconds: 10
         resources:
           requests:
-            cpu: 100m
-            memory: 64Mi
+            cpu: 500m
+            memory: 256Mi
           limits:
             cpu: 500m
             memory: 256Mi
