@@ -39,7 +39,7 @@ gcloud container clusters create ${CLUSTER_1_NAME} \
 	--machine-type=e2-standard-4 --num-nodes=4 \
 	--workload-pool="${PROJECT_ID}.svc.id.goog" --enable-ip-alias
 
-gcloud container clusters create ${CLUSTER_1_NAME} \
+gcloud container clusters create ${CLUSTER_2_NAME} \
 	--project=${PROJECT_ID} --zone=${CLUSTER_2_ZONE} \
 	--machine-type=e2-standard-4 --num-nodes=4 \
 	--workload-pool="${PROJECT_ID}.svc.id.goog" --enable-ip-alias
