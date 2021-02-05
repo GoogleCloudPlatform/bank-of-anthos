@@ -38,7 +38,7 @@ Run the following commands, or the `deploy.sh` script in order to enable Bank-of
 
 ```sh
 echo "ensure NAMESPACE is an environment variable":
-export NAMESPACE=bank-of-anthos-opsani
+export NAMESPACE=${NAMESPACE:-bank-of-anthos-opsani}
 
 echo "create JWT token and store in k8s secret"
 openssl genrsa -out jwtRS256.key 4096
@@ -58,7 +58,7 @@ If a namespace was created for this project, the simplest approach is to simply 
 Alternatively, clean out the deployed manifests:
 
 ```sh
-kubectl delete -n ${NAMESPACE} -f ../kubernetes-manifests
+kubectl delete -n ${NAMESPACE} -f ../kubernetes-manifests/
 ```
 
 We will also want to clean up the manually deployed jwt-key secret:
