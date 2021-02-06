@@ -20,7 +20,7 @@ source bank-of-anthos.source
 
 The default cpu and memory parameters and optimization steps that are in the default Dev Trial manifest are appropraite for the Bank of Anthos applicatin, so the only changes that need to be made manually, are the replacement of the four parameters described above.
 
-You can also leverage this helper script to make the required changes (assuming your bank-of-anthos.source file is current):
+copy the opsani-manifests.yaml document from the servo_install folder to the dev-trial folder, modify the file with the parameters in the bank-of-anthos.source file, or you can leverage this helper script to make the required changes (assuming your bank-of-anthos.source file is current):
 
 ```sh
 update-opsani-manifest.sh
@@ -34,7 +34,25 @@ kubectl apply -f opsani-manifests.yaml
 
 In addition, there are a few additional annotations and labels required, and we will want Opsani's servo to inject the envoy sidecar into the target Deployment under optimization. you can run the inject-sidecar.sh script to enable these modifications, or follow the output of the servo log from the servo deployment.
 
-Once the envoy is injected, you can use the `update-svc.sh` script to redirect the service to the envoy port (9980 by default) 
+## Envoy sidecar injection.
+
+If you follow the Dev trials README document, you will be asked to look at the log output of servo. This will guide you through the steps needed to get envoy injected and working properly.  The following helper scripts support injecting the envoy, and will also update the service port mapping once envoy is injected.  You can also run the steps in the script manually, and then update the service remapping manually.  See the following section for a simple service update script that simplifies the process of editing the service manifest.
+
+### Inject Envoy
+
+```sh
+./inject-sidecar.sh
+```
+
+### Eject Envoy
+
+```sh
+./eject-sidecar.sh
+```
+
+### Service port remapping
+
+You can use the `update-svc.sh` script to redirect the service to the envoy port (9980 by default) or back directly to the app (8080 in most cases by default)
 
 ```sh
 ./update-svc.sh ${SERVICE} ${PORT}
@@ -52,10 +70,9 @@ or to remove the envoy metrics capture from the forwarding path:
 ./update-svc.sh ${SERVICE} 8080
 ```
 
-Clean-up is as follows:
+## Clean-up the enviornment (e.g. back to application only)
 
 ```sh
-./update-svc.sh ${SERVICE} 8080
 ./eject-sidecar.sh
 kubectl delete -f opsani-manifests.yaml
 ```

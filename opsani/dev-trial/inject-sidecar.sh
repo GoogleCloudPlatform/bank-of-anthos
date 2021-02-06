@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 source bank-of-anthos.source
 
 echo "Updating deployment adding the envoy sidecar"
