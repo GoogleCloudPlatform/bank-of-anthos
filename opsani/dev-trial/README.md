@@ -7,10 +7,10 @@
 
 As described in the Opsani Dev Trial documentation, there are four parameters that need to be appropriately configured in the opsani-manifest.yaml:
 
-* NAMESPACE: should match the namespace against which the opsani servo is configured (default: bank-of-anthos-opsani)
-* DEPLOYMENT:  Is the Kubernetes deployment name that is to be optimized (default: frontend)
-* SERVICE: Is the Kubernetes service that points to the deployment application components (default: frontend)
-* CONTAINER: Is the name of the container in the Deployment spec that will be optimized (default: front)
+* NAMESPACE: The namespace against which the opsani servo is configured (default: bank-of-anthos-opsani)
+* DEPLOYMENT: The Kubernetes deployment name that is to be optimized (default: frontend)
+* CONTAINER: The name of the container in the Deployment spec that will be optimized (default: front)
+* SERVICE: The Kubernetes service that points to the deployment application components (default: frontend)
 
 A helper file that can be sourced in a `bash` environment (e.g. `source bank-of-anthos.source`) will create environment variables that will simplify the fine tuning of the Dev Trial environment to the Bank of Anthos application. It is recommended that any changes you may have made to the app, or the namespace, be captured in this file and then execute the following command (on a bash command line)
 
