@@ -20,6 +20,7 @@ Exercises the frontend endpoints for the system
 
 import json
 import logging
+import os   
 from string import ascii_letters, digits
 from random import randint, random, choice
 
@@ -29,6 +30,9 @@ from locust import HttpUser, TaskSet, SequentialTaskSet, LoadTestShape, task, be
 MASTER_PASSWORD = "password"
 
 TRANSACTION_ACCT_LIST = [str(randint(1111100000, 1111199999)) for _ in range(50)]
+
+MULTIPLIER = int(os.getenv('MULTIPLIER', 16))
+
 
 def signup_helper(locust, username):
     """
@@ -250,10 +254,8 @@ class StagesShape(LoadTestShape):
         {"duration": 420, "users": 20, "spawn_rate": 1},
     ]
 
-    multiplier = int(os.getenv('MULTIPLIER', 16))
-
     def tick(self):
-        run_time = int((self.get_run_time()/multiplier)%480)
+        run_time = int((self.get_run_time()/MULTIPLIER) % 480)
 
         for stage in self.stages:
             if run_time < stage["duration"]:

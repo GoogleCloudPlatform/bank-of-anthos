@@ -33,6 +33,7 @@ spec:
       containers:
       - name: loadgenerator
         image: ghcr.io/opsani/bank-of-anthos/loadgenerator:0.4.1
+        imagePullPolicy: Always
         env:
         - name: FRONTEND_ADDR
           value: "frontend:80"
