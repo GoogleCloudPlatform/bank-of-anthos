@@ -138,16 +138,17 @@ class AllTasks(SequentialTaskSet):
                     if r_hist.status_code > 200 and r_hist.status_code < 400:
                         response.failure("Got redirect")
 
-        # @task(2)
-        # def view_index_close_session(self):
-        #     """
-        #     load the / page
-        #     fails if not logged on (redirects to /login)
-        #     """
-        #     with self.client.get("/", catch_response=True, headers={'Keep-Alive': 'max=0'}) as response:
-        #         for r_hist in response.history:
-        #             if r_hist.status_code > 200 and r_hist.status_code < 400:
-        #                 response.failure("Got redirect")
+        @task(2)
+        def view_index_close_session(self):
+            """
+            load the / page
+            fails if not logged on (redirects to /login)
+            """
+            with self.client.get("/", catch_response=True, headers={'Keep-Alive': 'max=0'}) as response:
+                for r_hist in response.history:
+                    if r_hist.status_code > 200 and r_hist.status_code < 400:
+                        response.failure("Got redirect")
+            self.client.close()
 
         @task(10)
         def view_home(self):
@@ -218,8 +219,9 @@ class AllTasks(SequentialTaskSet):
             fails if not logged in
             exits AuthenticatedTasks
             """
-            self.client.post("/logout",headers={'Keep-Alive': 'max=0'})
+            self.client.post("/logout")
             self.parent.username = None
+            self.client.close()
             # go to UnauthenticatedTasks
             self.interrupt()
 
@@ -246,12 +248,12 @@ class StagesShape(LoadTestShape):
     """
 
     stages = [
-        {"duration": 60, "users": 25, "spawn_rate": 5},
-        {"duration": 120, "users": 50, "spawn_rate": 5},
-        {"duration": 240, "users": 75, "spawn_rate": 10},
-        {"duration": 300, "users": 100, "spawn_rate": 15},
-        {"duration": 360, "users": 75, "spawn_rate": 10},
-        {"duration": 420, "users": 50, "spawn_rate": 5},
+        {"duration": 60, "users": 25, "spawn_rate": 50},
+        {"duration": 120, "users": 50, "spawn_rate": 50},
+        {"duration": 240, "users": 75, "spawn_rate": 50},
+        {"duration": 300, "users": 100, "spawn_rate": 50},
+        {"duration": 360, "users": 75, "spawn_rate": 50},
+        {"duration": 420, "users": 50, "spawn_rate": 50},
     ]
 
     def tick(self):
