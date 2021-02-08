@@ -1,6 +1,6 @@
 # Deploy Bank-of-Anthos for Opsani Optimization Trials
 
-Bank-of-Anthos is a polyglot application that can be used for a numbrer of purposes. Opsani is providing this update to support optmization trials with enough scale and a transaction defined load generator.
+Bank-of-Anthos is a polyglot application that can be used for a number of purposes. Opsani is providing this update to support optmization trials with enough scale and a transaction-defined load generator.
 
 This will support your efforts in deploying and validating this application.
 
@@ -27,7 +27,7 @@ In order to enable the Bank-of-Anthos app for Opsani dev trials, please ensure t
    *NOTE* you need kubernetes acces to the kube-system namespace
 
   ```sh
-  kubectl apply -f opsani/k8s-sig-metrics-server-0.4.1-components.yaml
+  kubectl apply -f k8s-sig-metrics-server-0.4.1-components.yaml
   ```
 
 ## Install Bank of Anthos
