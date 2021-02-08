@@ -138,16 +138,16 @@ class AllTasks(SequentialTaskSet):
                     if r_hist.status_code > 200 and r_hist.status_code < 400:
                         response.failure("Got redirect")
 
-        @task(2)
-        def view_index_close_session(self):
-            """
-            load the / page
-            fails if not logged on (redirects to /login)
-            """
-            with self.client.get("/", catch_response=True, headers={'Keep-Alive': 'max=0'}) as response:
-                for r_hist in response.history:
-                    if r_hist.status_code > 200 and r_hist.status_code < 400:
-                        response.failure("Got redirect")
+        # @task(2)
+        # def view_index_close_session(self):
+        #     """
+        #     load the / page
+        #     fails if not logged on (redirects to /login)
+        #     """
+        #     with self.client.get("/", catch_response=True, headers={'Keep-Alive': 'max=0'}) as response:
+        #         for r_hist in response.history:
+        #             if r_hist.status_code > 200 and r_hist.status_code < 400:
+        #                 response.failure("Got redirect")
 
         @task(10)
         def view_home(self):
@@ -246,12 +246,12 @@ class StagesShape(LoadTestShape):
     """
 
     stages = [
-        {"duration": 60, "users": 10, "spawn_rate": 1},
-        {"duration": 120, "users": 20, "spawn_rate": 1},
-        {"duration": 240, "users": 40, "spawn_rate": 2},
-        {"duration": 300, "users": 80, "spawn_rate": 4},
-        {"duration": 360, "users": 40, "spawn_rate": 2},
-        {"duration": 420, "users": 20, "spawn_rate": 1},
+        {"duration": 60, "users": 25, "spawn_rate": 5},
+        {"duration": 120, "users": 50, "spawn_rate": 5},
+        {"duration": 240, "users": 75, "spawn_rate": 10},
+        {"duration": 300, "users": 100, "spawn_rate": 15},
+        {"duration": 360, "users": 75, "spawn_rate": 10},
+        {"duration": 420, "users": 50, "spawn_rate": 5},
     ]
 
     def tick(self):
