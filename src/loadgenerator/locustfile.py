@@ -23,7 +23,8 @@ import logging
 from string import ascii_letters, digits
 from random import randint, random, choice
 
-from locust import HttpLocust, TaskSet, TaskSequence, task, seq_task, between
+from locust.contrib.fasthttp import FastHttpUser
+from locust import HttpUser, TaskSet, SequentialTaskSet, LoadTestShape, task, between
 
 MASTER_PASSWORD = "password"
 
@@ -63,11 +64,13 @@ def generate_username():
     alphanumeric username
     """
     return ''.join(choice(ascii_letters + digits) for _ in range(15))
-class AllTasks(TaskSequence):
+
+@task
+class AllTasks(SequentialTaskSet):
     """
     wrapper for UnauthenticatedTasks and AuthenticatedTasks sets
     """
-    @seq_task(1)
+    @task(1)
     class UnauthenticatedTasks(TaskSet):
         """
         set of tasks to run before obtaining an auth token
@@ -94,7 +97,7 @@ class AllTasks(TaskSequence):
                     if r_hist.status_code > 200 and r_hist.status_code < 400:
                         response.failure("Got redirect")
 
-        @task(1)
+        @task(2)
         def signup(self):
             """
             sends POST request to /signup to create a new user
@@ -105,10 +108,10 @@ class AllTasks(TaskSequence):
             success = signup_helper(self, new_username)
             if success:
                 # go to AuthenticatedTasks
-                self.locust.username = new_username
+                self.parent.username = new_username
                 self.interrupt()
 
-    @seq_task(2)
+    @task(2)
     class AuthenticatedTasks(TaskSet):
         """
         set of tasks to run after obtaining an auth token
@@ -127,6 +130,17 @@ class AllTasks(TaskSequence):
             fails if not logged on (redirects to /login)
             """
             with self.client.get("/", catch_response=True) as response:
+                for r_hist in response.history:
+                    if r_hist.status_code > 200 and r_hist.status_code < 400:
+                        response.failure("Got redirect")
+
+        @task(2)
+        def view_index_close_session(self):
+            """
+            load the / page
+            fails if not logged on (redirects to /login)
+            """
+            with self.client.get("/", catch_response=True, headers={'Keep-Alive': 'max=0'}) as response:
                 for r_hist in response.history:
                     if r_hist.status_code > 200 and r_hist.status_code < 400:
                         response.failure("Got redirect")
@@ -176,13 +190,13 @@ class AllTasks(TaskSequence):
                 if "failed" in response.url:
                     response.failure("deposit failed")
 
-        @task(5)
+        @task(2)
         def login(self):
             """
             sends POST request to /login with stored credentials
             succeeds if a token was returned
             """
-            with self.client.post("/login", {"username":self.locust.username,
+            with self.client.post("/login", {"username":self.parent.username,
                                              "password":MASTER_PASSWORD},
                                   catch_response=True) as response:
                 found_token = False
@@ -193,22 +207,57 @@ class AllTasks(TaskSequence):
                 else:
                     response.failure("login failed")
 
-        @task(1)
+        @task(2)
         def logout(self):
             """
             sends a /logout POST request
             fails if not logged in
             exits AuthenticatedTasks
             """
-            self.client.post("/logout")
-            self.locust.username = None
+            self.client.post("/logout",headers={'Keep-Alive': 'max=0'})
+            self.parent.username = None
             # go to UnauthenticatedTasks
             self.interrupt()
 
 
-class WebsiteUser(HttpLocust):
+class WebsiteUser(HttpUser):
     """
     Locust class to simulate HTTP users
     """
-    task_set = AllTasks
-    wait_time = between(1, 1)
+    tasks = {AllTasks}
+    wait_time = between(0.1, 1)
+
+
+class StagesShape(LoadTestShape):
+    """
+    A simply load test shape class that has different user and spawn_rate at
+    different stages.
+    Keyword arguments:
+        stages -- A list of dicts, each representing a stage with the following keys:
+            duration -- When this many seconds pass the test is advanced to the next stage
+            users -- Total user count
+            spawn_rate -- Number of users to start/stop per second
+            stop -- A boolean that can stop that test at a specific stage
+        stop_at_end -- Can be set to stop once all stages have run.
+    """
+
+    stages = [
+        {"duration": 60, "users": 10, "spawn_rate": 1},
+        {"duration": 120, "users": 20, "spawn_rate": 1},
+        {"duration": 240, "users": 40, "spawn_rate": 2},
+        {"duration": 300, "users": 80, "spawn_rate": 4},
+        {"duration": 360, "users": 40, "spawn_rate": 2},
+        {"duration": 420, "users": 20, "spawn_rate": 1},
+    ]
+
+    multiplier = int(os.getenv('MULTIPLIER', 16))
+
+    def tick(self):
+        run_time = int((self.get_run_time()/multiplier)%480)
+
+        for stage in self.stages:
+            if run_time < stage["duration"]:
+                tick_data = (stage["users"], stage["spawn_rate"])
+                return tick_data
+
+        return None
