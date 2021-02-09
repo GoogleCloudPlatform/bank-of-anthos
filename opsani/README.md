@@ -12,33 +12,87 @@ This will support your efforts in deploying and validating this application.
 4. ability to create a namespace, or define a namespace in the NAMESPACE enviornment variable for Bank-of-Anthos
 5. ability to create the metrics-service (or already have it installed) in the kube-systems administrative namespace
 
-# Deploy Bank-of-Anthos for Opsani Optimization Trials
+## QUICKSTART
 
-Bank-of-Anthos is a polyglot application that can be used for a number of purposes. Opsani is providing this update to support optmization trials with enough scale and a transaction-defined load generator.
+Run the `deploy.sh` script which will attempt to validate the pre-requisites and install any missing k8s service components:
 
-This will support your efforts in deploying and validating this application.
-
+```sh
+./deploy.sh
+```
 
 ## Install Bank of Anthos
 
-The following commands will deploy the basic Bank-of-Anthos app, updated to use more realistic resources (requests/limits), and a loadgenerator deployment that should drive ~ 5 frontend pods to run.
+The following commands will deploy the basic Bank-of-Anthos app, updated to use more realistic resources (requests/limits), and a loadgenerator deployment that should drive 3-5 frontend pods to run and scale up to ~10 pods over time (Currently ~ 1 hour).
 
-Run the following commands, or the `deploy.sh` script in order to enable Bank-of-Anthos:
+The following commands are run by the `deploy.sh` script, but can be run manually instead:
+
+### Ensure kubectl is installed and pointing to your cluster
+
+The following command will ensure that a) `kubectl` is installed, b) that you can talk to the cluster and c) that you see at least 6 nodes (the output should be a number).
+
+```sh
+kubectl get nodes | grep 'internal' | wc -l
+```
+
+### Ensure you have a namespace and to simplify followon processes, that the namespace is default
 
 ```sh
 echo "ensure NAMESPACE is an environment variable":
 export NAMESPACE=${NAMESPACE:-bank-of-anthos-opsani}
+if [ "`kubectl create ns ${NAMESPACE} >& /dev/null; echo $?`" ]; then
+  echo `kubectl get ns ${NAMESPACE} | grep ${NAMESPACE}`
+fi
+```
 
-echo "create JWT token and store in k8s secret"
+Also, you may want to add the namespace to your kubeconfig as the "Default" for this cluster:
+
+```sh
+kubectl config set-context `kubectl config get-contexts | awk '/^\*/ {print $2}'` --namespace ${NAMESPACE}
+```
+
+### Ensure that the metrics service is installed and running
+
+Metrics are needed to run the HPA pod autoscaler, and are simple point in time cpu and memory data captured from 
+the kubelet service on each node. You need access to the kube-system namespace and the ability to create Cluster Roles and Cluster Role Bindings in order to apply this manifest from the Kubernetes metrics-sig:
+
+```sh
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+```
+
+### Finally, we can install Bank-of-Anthos
+
+Step one is to create a JWT token to support login via the Web UI
+
+```sh
 openssl genrsa -out jwtRS256.key 4096
 openssl rsa -in jwtRS256.key -outform PEM -pubout -out jwtRS256.key.pub
 kubectl create -n ${NAMESPACE} secret generic jwt-key --from-file=./jwtRS256.key --from-file=./jwtRS256.key.pub
 rm ./jwt*key*
+```
 
-echo "Launch into ${NAMESPACE}"
+Step two is to launch all of the manifests from the kubernetes-manifests directory which will complete the application deployment.
 
+```sh
 kubectl apply -n ${NAMESPACE} -f ../kubernetes-manifests/
 ```
+
+### Verify that the service is up and running
+
+We can check to ensure that our pods are starting (this may take a moment):
+
+```sh
+kubectl -n ${NAMESPACE} get pods -w
+```
+
+This will wait and show you pods as they come online.  type ^C (control-C) to quit watching for new pods.
+
+Alternately, we can launch a port-forward to enable access to the Frontend service from our local machine:
+
+```sh
+kubectl port-forward -n ${NAMESPACE} svc/frontend 8080:http &
+```
+
+You should then be able to point to [http://localhost:8080](http://localhost:8080) and get a login page.  The default user is `testuser` and the default password is `password`
 
 ## Uninstall Bank-of-Anthos
 
@@ -56,80 +110,20 @@ We will also want to clean up the manually deployed jwt-key secret:
 kubectl delete secret jwt-key
 ```
 
-## Load generation
-
-Currently a single instance of a transaction load generator (based on locust.io) is launched along with the Bank-of-Anthos application.  This can be scaled at random times either by running the `genload.sh` script (this is scaled randomly between 1 and 4 load generator replicas):
+And to really clean things out, you can delete the namespace and the metrics service as well:
 
 ```sh
-nohup ./genload.sh &
-tail -f nohup.out
-```
-In order to enable the Bank-of-Anthos app for Opsani dev trials, please ensure the following:
-
-1.  You have an version of `kubectl` available that matches or exceeds your kubernetes version:
-
-  ```sh
-  kubectl version
-  ```
-
-2. Ensure you have a namespace for your deployment:
-
-  ```sh
-  kubectl create ns bank-of-anthos-opsani
-  export NAMESPACE=bank-of-anthos-opsani
-  ```
-
-3. Ensure you have adequate node capacity to run the app at reasonable scale. We currently recommend having access to at least 6 m5.xl or equivalent nodes. A node autoscale setup is also viable, so long as you can scale to the equivalent size of hosts.
-
-4. Enable the Kubernets Kubelet metrics service to support an HPA configuration:
-   *NOTE* you need kubernetes acces to the kube-system namespace
-
-  ```sh
-  kubectl apply -f k8s-sig-metrics-server-0.4.1-components.yaml
-  ```
-
-## Install Bank of Anthos
-
-The following commands will deploy the basic Bank-of-Anthos app, updated to use more realistic resources (requests/limits), and a loadgenerator deployment that should drive ~ 5 frontend pods to run.
-
-Run the following commands, or the `deploy.sh` script in order to enable Bank-of-Anthos:
-
-```sh
-echo "ensure NAMESPACE is an environment variable":
-export NAMESPACE=${NAMESPACE:-bank-of-anthos-opsani}
-
-echo "create JWT token and store in k8s secret"
-openssl genrsa -out jwtRS256.key 4096
-openssl rsa -in jwtRS256.key -outform PEM -pubout -out jwtRS256.key.pub
-kubectl create -n ${NAMESPACE} secret generic jwt-key --from-file=./jwtRS256.key --from-file=./jwtRS256.key.pub
-rm ./jwt*key*
-
-echo "Launch into ${NAMESPACE}"
-
-kubectl apply -n ${NAMESPACE} -f ../kubernetes-manifests/
-```
-
-## Uninstall Bank-of-Anthos
-
-If a namespace was created for this project, the simplest approach is to simply delete the namespace.
-
-Alternatively, clean out the deployed manifests:
-
-```sh
-kubectl delete -n ${NAMESPACE} -f ../kubernetes-manifests/
-```
-
-We will also want to clean up the manually deployed jwt-key secret:
-
-```sh
-kubectl delete secret jwt-key
+kubectl delete ns ${NAMESPACE}
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
 ```
 
 ## Load generation
 
-Currently a single instance of a transaction load generator (based on locust.io) is launched along with the Bank-of-Anthos application.  This can be scaled at random times either by running the `genload.sh` script (this is scaled randomly between 1 and 4 load generator replicas):
+Load is automatically generated in a dynamic fashion with the loadgenerator pod.  Opsani has modified
+this with the latest version of locust.io, and inlcudes a dynamic sinusoidal load patter.  You can modify the
+parameters of the `kubernetes-manifests/loadgenerator.yaml` document with the following parameters:
 
-```sh
-nohup ./genload.sh &
-tail -f nohup.out
-```
+  STEP_SEC: seconds per step, longer will generate a longer load range, usually 10 is good for initial tests, and 600 for longer term load.
+  USER_SCALE:  Number of users to vary, the more the heavier the load.  180 appears to be a good starting point for reasonable load.
+  SPAWN_RATE: How quickly to change during the step, there is likely no need to change this parameter.
+  MIN_USERS: As the sinusoidal shape varies between "0" and "1" multiplied by the USER_SCALE parameter, it is often good to ensure some load, we set this as 50 by default.

@@ -23,31 +23,30 @@ echo ""
 echo ""
 
 NAMESPACE="`kubectl config get-contexts | awk '/^\*/ {print $5}'`"
-if [ -z "${NAMESPACE}" ]; then
-  if [ ! "`kubectl get ns bank-of-anthos-opsani >& /dev/null; echo $?`" ]; then
-    NAMESPACE=bank-of-anthos-opsani
-    echo "Setting Kubernetes namespace to 'bank-of-anthos-opsani'"
-    echo "You will need to ensure that your opsani services use"
-    echo "this same namespace parameter"
-    echo ""
-    echo "you can set this as your default with:"
-    echo "kubectl config set-context `kubectl config get-contexts | awk '/^\*/ {print $2}'` --namespace bank-of-anthos-opsani"
-    echo ""
+if [ ! "`kubectl get ns ${NAMESPACE:-bank-of-anthos-opsani} >& /dev/null; echo $?`" ]; then
+  NAMESPACE=bank-of-anthos-opsani
+  echo "Setting Kubernetes namespace to 'bank-of-anthos-opsani'"
+  echo "You will need to ensure that your opsani services use"
+  echo "this same namespace parameter"
+  echo ""
+  echo "you can set this as your default with:"
+  echo "kubectl config set-context `kubectl config get-contexts | awk '/^\*/ {print $2}'` --namespace ${NAMESPACE}"
+  echo ""
+else
+  if [ ! "`kubectl create ns bank-of-anthos-opsani >& /dev/null; echo $?`" ]; then
+    echo "Couldn't create kubernetes namespace 'bank-of-anthos-opsani'"
+    echo "You must set the NAMESPACE enviornment variable for the target "
+    echo "e.g. `export NAMESPACE=bank-of-anthos-opsani`"
+    exit 1
   else
-    if [ ! "`kubectl create ns bank-of-anthos-opsani >& /dev/null; echo $?`" ]; then
-      echo "Couldn't create kubernetes namespace 'bank-of-anthos-opsani'"
-      echo "You must set the NAMESPACE enviornment variable for the target "
-      echo "e.g. `export NAMESPACE=bank-of-anthos-opsani`"
-      exit 1
-    else
-      NAMESPACE=bank-of-anthos-opsani
-      echo "created namespace $NAMESPACE"
-      echo "deploying into ${NAMESPACE}"
-      echo ""
-      echo ""
-    fi
+    NAMESPACE=bank-of-anthos-opsani
+    echo "created namespace $NAMESPACE"
+    echo "deploying into ${NAMESPACE}"
+    echo ""
+    echo ""
   fi
 fi
+
 echo ""
 
 if [ "`kubectl get svc -n kube-system metrics-server |  grep 'metrics-server' >& /dev/null; echo $?`" ]; then
