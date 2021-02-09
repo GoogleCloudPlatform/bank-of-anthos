@@ -1,6 +1,6 @@
-# Deploy Bank-of-Anthos for Opsani Optimization Trials
+# Deploy Bank of Anthos for Opsani Optimization Trials
 
-Bank-of-Anthos is a polyglot application that can be used for a number of purposes. Opsani is providing this update to support optmization trials with enough scale and a transaction-defined load generator.
+Bank of Anthos is a polyglot application that can be used for a number of purposes. Opsani is providing this update to support optmization trials with enough scale and a transaction-defined load generator.
 
 This will support your efforts in deploying and validating this application.
 
@@ -14,17 +14,17 @@ This will support your efforts in deploying and validating this application.
 
 ## QUICKSTART
 
-Run the `deploy.sh` script which will attempt to validate the pre-requisites and install any missing k8s service components:
+Run the `deploy.sh` script which will attempt to validate the pre-requisites, install any missing k8s service components, and install the Bank of Anthos application:
 
 ```sh
 ./deploy.sh
 ```
 
-## Install Bank of Anthos
+## Install Bank of Anthos (Manually)
 
 The following commands will deploy the basic Bank-of-Anthos app, updated to use more realistic resources (requests/limits), and a loadgenerator deployment that should drive 3-5 frontend pods to run and scale up to ~10 pods over time (Currently ~ 1 hour).
 
-The following commands are run by the `deploy.sh` script, but can be run manually instead:
+The following commands are run by the above `deploy.sh` script, but can be run manually instead:
 
 ### Ensure kubectl is installed and pointing to your cluster
 
@@ -92,7 +92,24 @@ Alternately, we can launch a port-forward to enable access to the Frontend servi
 kubectl port-forward -n ${NAMESPACE} svc/frontend 8080:http &
 ```
 
-You should then be able to point to [http://localhost:8080](http://localhost:8080) and get a login page.  The default user is `testuser` and the default password is `password`
+You should then be able to point to [http://localhost:8080](http://localhost:8080) and get a login page.  The default user is `testuser` and the default password is `password`.
+
+## Load generation
+
+Load is automatically generated in a dynamic fashion with the loadgenerator pod.  Opsani has modified
+this with the latest version of locust.io, and inlcudes a dynamic sinusoidal load pattern.  You can modify the
+parameters of the `kubernetes-manifests/loadgenerator.yaml` document with the following parameters:
+
+  STEP_SEC: seconds per step, longer will generate a longer load range, usually 10 is good for initial tests, and 600 for longer term load.
+  USER_SCALE:  Number of users to vary, the more the heavier the load.  180 appears to be a good starting point for reasonable load.
+  SPAWN_RATE: How quickly to change during the step, there is likely no need to change this parameter.
+  MIN_USERS: As the sinusoidal shape varies between "0" and "1" multiplied by the USER_SCALE parameter, it is often good to ensure some load, we set this as 50 by default.
+
+## Starting Optimization
+
+At this point, the Bank of Anthos application should be running on your Kubernetes cluster and should have dynamic load reaching it. You are now ready to install the Opsani servo to begin optimization.
+
+To do so, we suggest that you follow [dev-trial-README](dev-trial/README.md) for the simplest installation procedure. Alternatively, if you would like a more manual approach, the README.md located in the `servo_install.tar.gz` bundle that you downloaded is also suitable. If you do not have `servo_install.tar.gz`, check https://console.opsani.com or contact your Opsani support member.
 
 ## Uninstall Bank-of-Anthos
 
@@ -117,13 +134,4 @@ kubectl delete ns ${NAMESPACE}
 kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
 ```
 
-## Load generation
 
-Load is automatically generated in a dynamic fashion with the loadgenerator pod.  Opsani has modified
-this with the latest version of locust.io, and inlcudes a dynamic sinusoidal load patter.  You can modify the
-parameters of the `kubernetes-manifests/loadgenerator.yaml` document with the following parameters:
-
-  STEP_SEC: seconds per step, longer will generate a longer load range, usually 10 is good for initial tests, and 600 for longer term load.
-  USER_SCALE:  Number of users to vary, the more the heavier the load.  180 appears to be a good starting point for reasonable load.
-  SPAWN_RATE: How quickly to change during the step, there is likely no need to change this parameter.
-  MIN_USERS: As the sinusoidal shape varies between "0" and "1" multiplied by the USER_SCALE parameter, it is often good to ensure some load, we set this as 50 by default.
