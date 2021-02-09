@@ -3,9 +3,9 @@
 1. Deploy the Bank of Anthos application (see the instructions and helper scripts in the /opsani directory)
 2. Install the Dev Trial application as defined in the Dev Trial README that you either received from your Opsani engineering contact, or downloaded from your https://console.opsani.com account and application servo page.
 
-## Install
+## OR Ignore that, and use these scripts along with the opsani-manifest.yaml from the DevTrial "bundle"
 
-As described in the Opsani Dev Trial documentation, there are four parameters that need to be appropriately configured in the opsani-manifest.yaml:
+The opsani-manifest.yaml document has four parameters that need to be appropriately configured in the opsani-manifest.yaml:
 
 * NAMESPACE: The namespace against which the opsani servo is configured (default: bank-of-anthos-opsani)
 * DEPLOYMENT: The Kubernetes deployment name that is to be optimized (default: frontend)
@@ -18,9 +18,9 @@ A helper file that can be sourced in a `bash` environment (e.g. `source bank-of-
 source bank-of-anthos.source
 ```
 
-The default cpu and memory parameters and optimization steps that are in the default Dev Trial manifest are appropraite for the Bank of Anthos applicatin, so the only changes that need to be made manually, are the replacement of the four parameters described above.
+The default cpu and memory parameters and optimization steps that are in the default Dev Trial manifest are appropraite for the Bank of Anthos application, so the only changes that need to be made manually are the replacement of the four parameters described above.
 
-copy the opsani-manifests.yaml document from the servo_install folder to the dev-trial folder, modify the file with the parameters in the bank-of-anthos.source file, or you can leverage this helper script to make the required changes (assuming your bank-of-anthos.source file is current):
+If you haven't already, copy the opsani-manifests.yaml document from the servo_install folder that was extracted from the DevTrial bundle, and only if you are not using the default parameters, modify the file with the parameters in the bank-of-anthos.source file, and then run this helper script to replace the parameters in the opsani-manifests.yaml document (don't worry, we'll create a backup for you):
 
 ```sh
 update-opsani-manifest.sh
@@ -36,7 +36,7 @@ In addition, there are a few additional annotations and labels required, and we 
 
 ## Envoy sidecar injection.
 
-If you follow the Dev trials README document, you will be asked to look at the log output of servo. This will guide you through the steps needed to get envoy injected and working properly.  The following helper scripts support injecting the envoy, and will also update the service port mapping once envoy is injected.  You can also run the steps in the script manually, and then update the service remapping manually.  See the following section for a simple service update script that simplifies the process of editing the service manifest.
+If you follow the Dev trials README document, you will be asked to look at the log output of servo. This will guide you through the steps needed to get envoy injected and working properly.  The following helper scripts support injecting the envoy, and will also update the service port mapping once envoy is injected.  You can also run the steps in the script manually, and then update the service remapping manually.
 
 ### Inject Envoy
 
@@ -52,7 +52,7 @@ If you follow the Dev trials README document, you will be asked to look at the l
 
 ### Service port remapping
 
-You can use the `update-svc.sh` script to redirect the service to the envoy port (9980 by default) or back directly to the app (8080 in most cases by default)
+You can use the `update-svc.sh` script to redirect the service to the envoy port (9980 by default) or back directly to the app (8080 in most cases by default). This is the quickest way to "remove" the envoy sidecar from the application, as it will direct traffic directly back to the application for both the main and tuning instance (which is simply another replica of the main component under optimization)
 
 ```sh
 ./update-svc.sh ${SERVICE} ${PORT}
@@ -71,6 +71,8 @@ or to remove the envoy metrics capture from the forwarding path:
 ```
 
 ## Clean-up the enviornment (e.g. back to application only)
+
+To get back to a "generic" Bank-of-Anthos application with no Opsani elements, run the eject script, and then remove the services and configurations added for servo:
 
 ```sh
 ./eject-sidecar.sh
