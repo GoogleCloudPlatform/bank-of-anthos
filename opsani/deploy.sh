@@ -1,9 +1,13 @@
 #!/bin/bash
+echo ""
+echo ""
 
 if [ ! "`kubectl version ; echo $?`" ]; then
   echo "kubectl is either not installed or can not determine its version"
   echo "please install and configure kubectl to talk to your cluster"
   echo "See: https://kubernetes.io/docs/tasks/tools/install-kubectl/"
+  echo ""
+  echo ""
   exit 1
 fi
 
@@ -11,8 +15,12 @@ if [ "`kubectl get nodes | grep internal | wc -l`" -le "6" ] ; then
   echo "it appears that you do not have enough worker nodes to run this test"
   echo "currently there are `kubectl get nodes | grep internal | wc -l` nodes available"
   echo "the minimum is 6 nodes (and it is recommended that they be AWS m5.xl or larger)"
+  echo ""
+  echo ""
   exit 1
 fi
+echo ""
+echo ""
 
 NAMESPACE="`kubectl config get-contexts | awk '/^\*/ {print $5}'`"
 if [ -z "${NAMESPACE}" ]; then

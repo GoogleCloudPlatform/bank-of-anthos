@@ -20,8 +20,7 @@ Exercises the frontend endpoints for the system
 
 import json
 import logging
-import os
-import math
+import os   
 from string import ascii_letters, digits
 from random import randint, random, choice
 
@@ -32,9 +31,7 @@ MASTER_PASSWORD = "password"
 
 TRANSACTION_ACCT_LIST = [str(randint(1111100000, 1111199999)) for _ in range(50)]
 
-MULTIPLIER = int(os.getenv('MULTIPLIER', 600))
-MIN_USRES = int(os.getenv('MIN_USRES', 50))
-SPAWN_RATE = int(os.getenv('SPAWN_RATE', 50))
+MULTIPLIER = int(os.getenv('MULTIPLIER', 16))
 
 
 def signup_helper(locust, username):
@@ -250,11 +247,21 @@ class StagesShape(LoadTestShape):
         stop_at_end -- Can be set to stop once all stages have run.
     """
 
-    def tick(self):
-        run_time = self.get_run_time()
+    stages = [
+        {"duration": 60, "users": 25, "spawn_rate": 50},
+        {"duration": 120, "users": 50, "spawn_rate": 50},
+        {"duration": 240, "users": 75, "spawn_rate": 50},
+        {"duration": 300, "users": 100, "spawn_rate": 50},
+        {"duration": 360, "users": 75, "spawn_rate": 50},
+        {"duration": 420, "users": 50, "spawn_rate": 50},
+    ]
 
-        if run_time%5:
-            tick_data = (round(math.sin(run_time/MULTIPLIER/math.pi)*MULTIPLIER+MULTIPLIER+MIN_USRES), SPAWN_RATE)
-            return tick_data
+    def tick(self):
+        run_time = int((self.get_run_time()/MULTIPLIER) % 480)
+
+        for stage in self.stages:
+            if run_time < stage["duration"]:
+                tick_data = (stage["users"], stage["spawn_rate"])
+                return tick_data
 
         return None

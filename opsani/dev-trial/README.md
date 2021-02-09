@@ -29,7 +29,8 @@ update-opsani-manifest.sh
 ## Install the opsani servo via the opsani-manifests.yaml document
   
 ```sh
-kubectl apply -f opsani-manifests.yaml
+kubectl apply -n ${NAMESPACE:-bank-of-anthos-opsani} -f opsani-manifests.yaml
+
 ```
 
 In addition, there are a few additional annotations and labels required, and we will want Opsani's servo to inject the envoy sidecar into the target Deployment under optimization. you can run the inject-sidecar.sh script to enable these modifications, or follow the output of the servo log from the servo deployment.

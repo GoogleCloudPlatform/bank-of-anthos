@@ -24,4 +24,4 @@ spec:
   - name: http
     port: 80
     targetPort: ${PORT}
-"  | kubectl apply -f -
+"  | kubectl -n ${NAMESPACE} apply -f -
