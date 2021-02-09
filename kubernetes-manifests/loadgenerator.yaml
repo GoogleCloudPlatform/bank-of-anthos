@@ -41,6 +41,8 @@ spec:
           value: "180"
         - name: SPAWN_RATE
           value: "150"
+        - name: MIN_USERS
+          value: "50"
         - name: LOG_LEVEL
           value: "info"
         resources:
@@ -48,5 +50,5 @@ spec:
             cpu: 100m
             memory: 512Mi
           limits:
-            cpu: 500m
+            cpu: 1000m
             memory: 1Gi
