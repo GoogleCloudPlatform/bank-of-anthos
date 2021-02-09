@@ -32,15 +32,17 @@ spec:
       restartPolicy: Always
       containers:
       - name: loadgenerator
-        image: ghcr.io/opsani/bank-of-anthos/loadgenerator:0.4.2
+        image: ghcr.io/opsani/bank-of-anthos/loadgenerator:0.4.3
         imagePullPolicy: Always
         env:
         - name: FRONTEND_ADDR
           value: "frontend:80"
-        - name: MULTIPLIER
+        - name: STEP_SEC
+          value: "10"
+        - name: USER_SCALE
           value: "180"
         - name: SPAWN_RATE
-          value: "150"
+          value: "50"
         - name: MIN_USERS
           value: "50"
         - name: LOG_LEVEL

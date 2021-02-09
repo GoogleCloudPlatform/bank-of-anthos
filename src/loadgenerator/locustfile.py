@@ -25,16 +25,17 @@ import math
 from string import ascii_letters, digits
 from random import randint, random, choice
 
-from locust.contrib.fasthttp import FastHttpUser
+#from locust.contrib.fasthttp import FastHttpUser
 from locust import HttpUser, TaskSet, SequentialTaskSet, LoadTestShape, task, between
 
 MASTER_PASSWORD = "password"
 
-TRANSACTION_ACCT_LIST = [str(randint(1111100000, 1111199999)) for _ in range(50)]
-
-MULTIPLIER = int(os.getenv('MULTIPLIER', 600))
-MIN_USRES = int(os.getenv('MIN_USRES', 50))
+STEP_SEC = int(os.getenv('STEP_SEC', 60))
+MIN_USERS = int(os.getenv('MIN_USERS', 50))
 SPAWN_RATE = int(os.getenv('SPAWN_RATE', 50))
+USER_SCALE = int(os.getenv('USER_SCALE', 180))
+TRANSACTION_ACCT_LIST = [str(randint(1111100000, 1111199999))
+                         for _ in range(int(USER_SCALE+MIN_USERS))]
 
 
 def signup_helper(locust, username):
@@ -253,8 +254,9 @@ class StagesShape(LoadTestShape):
     def tick(self):
         run_time = self.get_run_time()
 
-        if run_time%5:
-            tick_data = (round(math.sin(run_time/MULTIPLIER/math.pi)*MULTIPLIER+MULTIPLIER+MIN_USRES), SPAWN_RATE)
+        if int(run_time)%STEP_SEC == 0.0:
+            tick_data = ((round((math.sin((math.pi/STEP_SEC)*(run_time/STEP_SEC))+1)/2)*USER_SCALE+MIN_USERS), SPAWN_RATE)
+            print(f"tick_data: {tick_data}")
             return tick_data
 
         return None
