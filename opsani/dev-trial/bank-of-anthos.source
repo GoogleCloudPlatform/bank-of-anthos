@@ -1,5 +1,0 @@
-export NAMESPACE=${NAMESPACE:-bank-of-anthos-opsani}
-export DEPLOYMENT=frontend
-export SERVICE=frontend
-export CONTAINER=front
-export SERVICE_PORT=8080

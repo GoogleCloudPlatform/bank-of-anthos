@@ -38,9 +38,9 @@ spec:
         - name: FRONTEND_ADDR
           value: "frontend:80"
         - name: STEP_SEC
-          value: "10"
+          value: "300"
         - name: USER_SCALE
-          value: "180"
+          value: "250"
         - name: SPAWN_RATE
           value: "50"
         - name: MIN_USERS

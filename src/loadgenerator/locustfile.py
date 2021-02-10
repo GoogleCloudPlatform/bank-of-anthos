@@ -254,9 +254,7 @@ class StagesShape(LoadTestShape):
     def tick(self):
         run_time = self.get_run_time()
 
-        if int(run_time)%STEP_SEC == 0.0:
-            tick_data = ((round((math.sin((math.pi/STEP_SEC)*(run_time/STEP_SEC))+1)/2)*USER_SCALE+MIN_USERS), SPAWN_RATE)
-            print(f"tick_data: {tick_data}")
-            return tick_data
+        tick_data = (int((math.sin((math.pi/STEP_SEC)*(run_time/STEP_SEC))+1)/2
+                         * USER_SCALE+MIN_USERS), SPAWN_RATE)
+        return tick_data
 
-        return None
