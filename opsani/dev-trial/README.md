@@ -17,13 +17,17 @@ The opsani-manifest.yaml document has four parameters that need to be appropriat
 * CONTAINER: The name of the container in the Deployment spec that will be optimized (default: front)
 * SERVICE: The Kubernetes service that points to the deployment application components (default: frontend)
 
-A helper file that can be sourced in a `bash` environment (e.g. `source bank-of-anthos.source`) will create environment variables that will simplify the fine tuning of the Dev Trial environment to the Bank of Anthos application. It is recommended that any changes you may have made to the app, or the namespace, be captured in this file and then execute the following command (on a bash command line)
+A helper file that can be sourced in a `bash` environment (e.g. `source bank-of-anthos.source`) will create environment variables that will simplify the fine tuning of the Dev Trial environment to the Bank of Anthos application. It is recommended that any changes you may have made to the app, or the namespace, be captured in  `bank-of-anthos.source` file. 
+
+Run the following command:
 
 ```sh
 source bank-of-anthos.source
 ```
 
-If you haven't already, copy the opsani-manifests.yaml document from the servo_install folder that was extracted from the DevTrial bundle, and only if you are not using the default parameters, modify the file with the parameters in the bank-of-anthos.source file, and then run this helper script to replace the parameters in the opsani-manifests.yaml document (don't worry, we'll create a backup for you):
+If you haven't already, copy the opsani-manifests.yaml document from the servo_install folder that was extracted from the DevTrial bundle, and only if you are not using the default parameters, modify the file with the parameters in the bank-of-anthos.source file. 
+
+Run this helper script to replace the parameters in the opsani-manifests.yaml document (don't worry, we'll create a backup for you):
 
 ```sh
 update-opsani-manifest.sh
@@ -66,6 +70,8 @@ For a manual clean-up, one can use the following commands:
 ```
 
 ### Service port remapping
+
+The following details how to disable metrics gathering without removing the envoy sidecar.
 
 You can use the `update-svc.sh` script to redirect the service to the envoy port (9980 by default) or back directly to the app (8080 in most cases by default). This is the quickest way to "remove" the envoy sidecar from the application, as it will direct traffic directly back to the application for both the main and tuning instance (which is simply another replica of the main component under optimization)
 
