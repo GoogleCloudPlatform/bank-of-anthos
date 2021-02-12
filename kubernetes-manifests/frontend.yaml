@@ -74,6 +74,13 @@ spec:
           initialDelaySeconds: 10
           periodSeconds: 5
           timeoutSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 15
+          timeoutSeconds: 30
         resources:
           requests:
             cpu: 100m
