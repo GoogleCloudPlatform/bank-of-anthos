@@ -78,10 +78,10 @@ spec:
         resources:
           requests:
             cpu: 500m
-            memory: 512Mi
+            memory: 1Gi
           limits:
             cpu: 500m
-            memory: 512Mi
+            memory: 1Gi
       volumes:
       - name: publickey
         secret:
