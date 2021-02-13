@@ -25,17 +25,19 @@ import math
 from string import ascii_letters, digits
 from random import randint, random, choice
 
-#from locust.contrib.fasthttp import FastHttpUser
+# from locust.contrib.fasthttp import FastHttpUser
 from locust import HttpUser, TaskSet, SequentialTaskSet, LoadTestShape, task, between
 
 MASTER_PASSWORD = "password"
 
-STEP_SEC = int(os.getenv('STEP_SEC', 60))
-MIN_USERS = int(os.getenv('MIN_USERS', 50))
-SPAWN_RATE = int(os.getenv('SPAWN_RATE', 50))
-USER_SCALE = int(os.getenv('USER_SCALE', 180))
-TRANSACTION_ACCT_LIST = [str(randint(1111100000, 1111199999))
-                         for _ in range(int(USER_SCALE+MIN_USERS))]
+NUM_STEPS = int(os.getenv("NUM_STEPS", 480))
+STEP_SEC = int(os.getenv("STEP_SEC", 15))
+MIN_USERS = int(os.getenv("MIN_USERS", 5))
+SPAWN_RATE = float(os.getenv("SPAWN_RATE", 1))
+USER_SCALE = int(os.getenv("USER_SCALE", 50))
+TRANSACTION_ACCT_LIST = [
+    str(randint(1111100000, 1111199999)) for _ in range(int(USER_SCALE + MIN_USERS))
+]
 
 
 def signup_helper(locust, username):
@@ -43,22 +45,24 @@ def signup_helper(locust, username):
     create a new user account in the system
     succeeds if token was returned
     """
-    userdata = {"username":username,
-                "password":MASTER_PASSWORD,
-                "password-repeat":MASTER_PASSWORD,
-                "firstname": username,
-                "lastname":"TestAccount",
-                "birthday":"01/01/2000",
-                "timezone":"82",
-                "address":"1021 Valley St",
-                "city":"Seattle",
-                "state":"WA",
-                "zip":"98103",
-                "ssn":"111-22-3333"}
+    userdata = {
+        "username": username,
+        "password": MASTER_PASSWORD,
+        "password-repeat": MASTER_PASSWORD,
+        "firstname": username,
+        "lastname": "TestAccount",
+        "birthday": "01/01/2000",
+        "timezone": "82",
+        "address": "1021 Valley St",
+        "city": "Seattle",
+        "state": "WA",
+        "zip": "98103",
+        "ssn": "111-22-3333",
+    }
     with locust.client.post("/signup", data=userdata, catch_response=True) as response:
         found_token = False
         for r_hist in response.history:
-            found_token |= r_hist.cookies.get('token') is not None
+            found_token |= r_hist.cookies.get("token") is not None
         if found_token:
             response.success()
             logging.debug("created user: %s", username)
@@ -66,23 +70,27 @@ def signup_helper(locust, username):
             response.failure("login failed")
         return found_token
 
+
 def generate_username():
     """
     generates random 15 character
     alphanumeric username
     """
-    return ''.join(choice(ascii_letters + digits) for _ in range(15))
+    return "".join(choice(ascii_letters + digits) for _ in range(15))
+
 
 @task
 class AllTasks(SequentialTaskSet):
     """
     wrapper for UnauthenticatedTasks and AuthenticatedTasks sets
     """
+
     @task(1)
     class UnauthenticatedTasks(TaskSet):
         """
         set of tasks to run before obtaining an auth token
         """
+
         @task(5)
         def view_login(self):
             """
@@ -124,6 +132,7 @@ class AllTasks(SequentialTaskSet):
         """
         set of tasks to run after obtaining an auth token
         """
+
         def on_start(self):
             """
             on start, deposit a large balance into each account
@@ -148,7 +157,9 @@ class AllTasks(SequentialTaskSet):
             load the / page
             fails if not logged on (redirects to /login)
             """
-            with self.client.get("/", catch_response=True, headers={'Keep-Alive': 'max=0'}) as response:
+            with self.client.get(
+                "/", catch_response=True, headers={"Keep-Alive": "max=0"}
+            ) as response:
                 for r_hist in response.history:
                     if r_hist.status_code > 200 and r_hist.status_code < 400:
                         response.failure("Got redirect")
@@ -172,12 +183,14 @@ class AllTasks(SequentialTaskSet):
             """
             if amount is None:
                 amount = random() * 1000
-            transaction = {"account_num": choice(TRANSACTION_ACCT_LIST),
-                           "amount": amount,
-                           "uuid": generate_username()}
-            with self.client.post("/payment",
-                                  data=transaction,
-                                  catch_response=True) as response:
+            transaction = {
+                "account_num": choice(TRANSACTION_ACCT_LIST),
+                "amount": amount,
+                "uuid": generate_username(),
+            }
+            with self.client.post(
+                "/payment", data=transaction, catch_response=True
+            ) as response:
                 if response.url is None or "failed" in response.url:
                     response.failure("payment failed")
 
@@ -188,15 +201,19 @@ class AllTasks(SequentialTaskSet):
             """
             if amount is None:
                 amount = random() * 1000
-            acct_info = {"account_num": choice(TRANSACTION_ACCT_LIST),
-                         "routing_num":"111111111"}
-            transaction = {"account": json.dumps(acct_info),
-                           "amount": amount,
-                           "uuid": generate_username()}
-            with self.client.post("/deposit",
-                                  data=transaction,
-                                  catch_response=True) as response:
-                if "failed" in response.url:
+            acct_info = {
+                "account_num": choice(TRANSACTION_ACCT_LIST),
+                "routing_num": "111111111",
+            }
+            transaction = {
+                "account": json.dumps(acct_info),
+                "amount": amount,
+                "uuid": generate_username(),
+            }
+            with self.client.post(
+                "/deposit", data=transaction, catch_response=True
+            ) as response:
+                if response.url is None or "failed" in response.url:
                     response.failure("deposit failed")
 
         @task(2)
@@ -205,12 +222,14 @@ class AllTasks(SequentialTaskSet):
             sends POST request to /login with stored credentials
             succeeds if a token was returned
             """
-            with self.client.post("/login", {"username":self.parent.username,
-                                             "password":MASTER_PASSWORD},
-                                  catch_response=True) as response:
+            with self.client.post(
+                "/login",
+                {"username": self.parent.username, "password": MASTER_PASSWORD},
+                catch_response=True,
+            ) as response:
                 found_token = False
                 for r_hist in response.history:
-                    found_token |= r_hist.cookies.get('token') is not None
+                    found_token |= r_hist.cookies.get("token") is not None
                 if found_token:
                     response.success()
                 else:
@@ -223,8 +242,9 @@ class AllTasks(SequentialTaskSet):
             fails if not logged in
             exits AuthenticatedTasks
             """
-            self.client.post("/logout")
-            self.parent.username = None
+            with self.client.post("/logout", catch_response=True) as response:
+                response.cookies.clear()
+                self.parent.username = None
             self.client.close()
             # go to UnauthenticatedTasks
             self.interrupt()
@@ -234,27 +254,36 @@ class WebsiteUser(HttpUser):
     """
     Locust class to simulate HTTP users
     """
+
     tasks = {AllTasks}
     wait_time = between(0.1, 1)
 
 
 class StagesShape(LoadTestShape):
     """
-    A simply load test shape class that has different user and spawn_rate at
-    different stages.
-    Keyword arguments:
-        stages -- A list of dicts, each representing a stage with the following keys:
-            duration -- When this many seconds pass the test is advanced to the next stage
-            users -- Total user count
-            spawn_rate -- Number of users to start/stop per second
-            stop -- A boolean that can stop that test at a specific stage
-        stop_at_end -- Can be set to stop once all stages have run.
+    A simply load test shape class that has a user rate based on a sine curve.
+    
     """
 
     def tick(self):
         run_time = self.get_run_time()
 
-        tick_data = (int((math.sin((math.pi/STEP_SEC)*(run_time/STEP_SEC))+1)/2
-                         * USER_SCALE+MIN_USERS), SPAWN_RATE)
-        return tick_data
+        tick_data = (
+            math.floor(
+                (
+                    (
+                        math.sin(
+                            math.pi / NUM_STEPS * math.floor(run_time / STEP_SEC)
+                            - math.pi / 2
+                        )
+                    )
+                    + 1
+                )
+                / 2
+                * USER_SCALE
+            )
+            + MIN_USERS,
+            SPAWN_RATE,
+        )
 
+        return tick_data
