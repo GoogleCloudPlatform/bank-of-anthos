@@ -67,7 +67,7 @@ def signup_helper(locust, username):
             response.success()
             logging.debug("created user: %s", username)
         else:
-            response.failure("login failed")
+            response.failure("signup failed")
         return found_token
 
 
@@ -84,8 +84,7 @@ class AllTasks(SequentialTaskSet):
     """
     wrapper for UnauthenticatedTasks and AuthenticatedTasks sets
     """
-
-    @task(1)
+    @task
     class UnauthenticatedTasks(TaskSet):
         """
         set of tasks to run before obtaining an auth token
@@ -100,7 +99,7 @@ class AllTasks(SequentialTaskSet):
             with self.client.get("/login", catch_response=True) as response:
                 for r_hist in response.history:
                     if r_hist.status_code > 200 and r_hist.status_code < 400:
-                        response.failure("Got redirect")
+                        response.success()
 
         @task(5)
         def view_signup(self):
@@ -111,7 +110,7 @@ class AllTasks(SequentialTaskSet):
             with self.client.get("/signup", catch_response=True) as response:
                 for r_hist in response.history:
                     if r_hist.status_code > 200 and r_hist.status_code < 400:
-                        response.failure("Got redirect")
+                        response.success()
 
         @task(2)
         def signup(self):
@@ -127,7 +126,7 @@ class AllTasks(SequentialTaskSet):
                 self.parent.username = new_username
                 self.interrupt()
 
-    @task(2)
+    @task
     class AuthenticatedTasks(TaskSet):
         """
         set of tasks to run after obtaining an auth token
@@ -138,7 +137,9 @@ class AllTasks(SequentialTaskSet):
             on start, deposit a large balance into each account
             to ensure all payments are covered
             """
+            self.login()
             self.deposit(1000000)
+
 
         @task(10)
         def view_index(self):
@@ -150,20 +151,9 @@ class AllTasks(SequentialTaskSet):
                 for r_hist in response.history:
                     if r_hist.status_code > 200 and r_hist.status_code < 400:
                         response.failure("Got redirect")
+                        self.client.close()
+                        self.interrupt()
 
-        @task(2)
-        def view_index_close_session(self):
-            """
-            load the / page
-            fails if not logged on (redirects to /login)
-            """
-            with self.client.get(
-                "/", catch_response=True, headers={"Keep-Alive": "max=0"}
-            ) as response:
-                for r_hist in response.history:
-                    if r_hist.status_code > 200 and r_hist.status_code < 400:
-                        response.failure("Got redirect")
-            self.client.close()
 
         @task(10)
         def view_home(self):
@@ -174,7 +164,9 @@ class AllTasks(SequentialTaskSet):
             with self.client.get("/home", catch_response=True) as response:
                 for r_hist in response.history:
                     if r_hist.status_code > 200 and r_hist.status_code < 400:
-                        response.failure("Got redirect")
+                        response.failure("Got redirect - wasn't logged on")
+                        self.client.close()
+                        self.interrupt()
 
         @task(5)
         def payment(self, amount=None):
@@ -191,7 +183,9 @@ class AllTasks(SequentialTaskSet):
             with self.client.post(
                 "/payment", data=transaction, catch_response=True
             ) as response:
-                if response.url is None or "failed" in response.url:
+                if response.url is None in response.url:
+                    response.success()
+                if response.url is "failed" in response.url:
                     response.failure("payment failed")
 
         @task(5)
@@ -234,6 +228,8 @@ class AllTasks(SequentialTaskSet):
                     response.success()
                 else:
                     response.failure("login failed")
+                    self.client.close()
+                    self.interrupt()
 
         @task(2)
         def logout(self):
@@ -246,8 +242,9 @@ class AllTasks(SequentialTaskSet):
                 response.cookies.clear()
                 self.parent.username = None
             self.client.close()
-            # go to UnauthenticatedTasks
             self.interrupt()
+
+    tasks = [UnauthenticatedTasks, AuthenticatedTasks]
 
 
 class WebsiteUser(HttpUser):
