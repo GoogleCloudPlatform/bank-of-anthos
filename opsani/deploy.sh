@@ -56,7 +56,7 @@ fi
 
 echo ""
 
-if [ "`kubectl get apiservices | grep metrics' >& /dev/null; echo $?`" ]; then
+if [ "`kubectl get --raw '/apis/metrics.k8s.io/v1beta1/nodes' >& /dev/null; echo $?`" ]; then
   echo "default metrics-server is not installed, this is a requirement"
   echo "to support proper functioning of the HPA service against the frontend and userdata services"
   echo ""
