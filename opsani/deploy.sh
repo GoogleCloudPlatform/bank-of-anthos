@@ -1,6 +1,4 @@
 #!/bin/bash
-echo ""
-echo ""
 
 if [ ! "`kubectl version ; echo $?`" ]; then
   echo "kubectl is either not installed or can not determine its version"
@@ -9,6 +7,10 @@ if [ ! "`kubectl version ; echo $?`" ]; then
   echo ""
   echo ""
   exit 1
+else
+  echo "kubectl installed"
+  echo ""
+  echo ""
 fi
 
 if [ "`kubectl get nodes | grep internal | wc -l`" -lt "6" ] ; then 
@@ -18,14 +20,18 @@ if [ "`kubectl get nodes | grep internal | wc -l`" -lt "6" ] ; then
   echo ""
   echo ""
   exit 1
+else
+  echo "It appears that you have at least 6 nodes available"
+  echo ""
+  echo ""
 fi
-echo ""
-echo ""
 
-NAMESPACE="`kubectl config get-contexts | awk '/^\*/ {print $5}'`"
+
+NAMESPACE=${NAMESPACE:-`kubectl config get-contexts | awk '/^\*/ {print $5}'`}
 if [ ! "`kubectl get ns ${NAMESPACE:-bank-of-anthos-opsani} >& /dev/null; echo $?`" ]; then
   NAMESPACE=bank-of-anthos-opsani
-  echo "Setting Kubernetes namespace to 'bank-of-anthos-opsani'"
+  echo "Namespace 'bank-of-anthos-opsani' exists"
+  echo ""
   echo "You will need to ensure that your opsani services use"
   echo "this same namespace parameter"
   echo ""
@@ -33,6 +39,7 @@ if [ ! "`kubectl get ns ${NAMESPACE:-bank-of-anthos-opsani} >& /dev/null; echo $
   echo "kubectl config set-context `kubectl config get-contexts | awk '/^\*/ {print $2}'` --namespace ${NAMESPACE}"
   echo ""
 else
+  echo "Creating bank-of-anthos-opsani namespace"
   if [ ! "`kubectl create ns bank-of-anthos-opsani >& /dev/null; echo $?`" ]; then
     echo "Couldn't create kubernetes namespace 'bank-of-anthos-opsani'"
     echo "You must set the NAMESPACE enviornment variable for the target "
@@ -49,7 +56,7 @@ fi
 
 echo ""
 
-if [ "`kubectl get svc -n kube-system metrics-server |  grep 'metrics-server' >& /dev/null; echo $?`" ]; then
+if [ "`kubectl get apiservices | grep metrics' >& /dev/null; echo $?`" ]; then
   echo "default metrics-server is not installed, this is a requirement"
   echo "to support proper functioning of the HPA service against the frontend and userdata services"
   echo ""
