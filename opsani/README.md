@@ -17,7 +17,7 @@ This will support your efforts in deploying and validating this application.
 Run the `deploy.sh` script which will attempt to validate the pre-requisites, install any missing k8s service components, and install the Bank of Anthos application:
 
 ```sh
-./deploy.sh
+cd opsani && ./deploy.sh
 ```
 
 ## Install Bank of Anthos (Manually)
