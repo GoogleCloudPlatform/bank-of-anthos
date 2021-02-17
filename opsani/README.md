@@ -8,7 +8,7 @@ This will support your efforts in deploying and validating this application.
 
 1. `kubectl` cli command version appropriate to your cluster
 2. bash command line interpreter (to run the deployment scripts)
-3. target kubernetes cluster with at least 6 AWS m5.xl equivalent nodes avaialble exclusively for this test
+3. target kubernetes cluster with at least **8** AWS m5.xl equivalent nodes avaialble exclusively for this test
 4. ability to create a namespace, or define a namespace in the NAMESPACE environment variable for Bank of Anthos
 5. ability to create the metrics-service (or already have it installed) in the kube-systems administrative namespace
 
@@ -133,5 +133,3 @@ And to really clean things out, you can delete the namespace and the metrics ser
 kubectl delete ns ${NAMESPACE}
 kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
 ```
-
-

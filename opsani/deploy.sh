@@ -13,7 +13,7 @@ else
   echo ""
 fi
 
-if [ "`kubectl get nodes | grep internal | wc -l`" -lt "6" ] ; then 
+if [ "`kubectl get nodes | grep internal | wc -l`" -lt "8" ] ; then 
   echo "it appears that you do not have enough worker nodes to run this test"
   echo "currently there are `kubectl get nodes | grep internal | wc -l` nodes available"
   echo "the minimum is 6 nodes (and it is recommended that they be AWS m5.xl or larger)"
