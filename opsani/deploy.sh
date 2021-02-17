@@ -89,6 +89,7 @@ kubectl apply -n ${NAMESPACE} -f ../kubernetes-manifests/
 if [ ! "echo $?" ]; then
   echo ""
   echo "a component may have failed to install.  Please look at the above output for errors"
+  exit 1
 else
   echo ""
   echo ""
