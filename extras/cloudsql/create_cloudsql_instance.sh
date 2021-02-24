@@ -11,37 +11,32 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# !/bin/bash 
+# !/bin/bash
 
-INSTANCE_NAME='bank-of-anthos-db'
+INSTANCE_NAME='bank-of-anthos-db-multi'
 
-echo "☁️ Enabling the Cloud SQL API..."  
+echo "☁️ Enabling the Cloud SQL API..."
 gcloud config set project ${PROJECT_ID}
 gcloud services enable sqladmin.googleapis.com
 
-echo "☁️ Creating Cloud SQL instance: ${INSTANCE_NAME} ..."  
+echo "☁️ Creating Cloud SQL instance: ${INSTANCE_NAME} ..."
 gcloud sql instances create $INSTANCE_NAME \
     --database-version=POSTGRES_12 --tier=db-custom-1-3840 \
-    --region=${REGION} --project ${PROJECT_ID}
+    --region=${DB_REGION} --project ${PROJECT_ID}
 
-echo "☁️ All done creating ${INSTANCE_NAME} ..."  
+echo "☁️ All done creating ${INSTANCE_NAME} ..."
 INSTANCE_CONNECTION_NAME=$(gcloud sql instances describe $INSTANCE_NAME --format='value(connectionName)')
 
-echo "☁️ Creating admin user..."  
+echo "☁️ Creating admin user..."
 gcloud sql users create admin \
-   --instance=$INSTANCE_NAME --password=admin 
-
-echo "☁️ Creating a K8s Secret with project, connection, and admin user credentials..."  
-kubectl create secret -n ${NAMESPACE} generic cloud-sql-admin \
- --from-literal=username=admin --from-literal=password=admin \
- --from-literal=connectionName=${INSTANCE_CONNECTION_NAME}
+   --instance=$INSTANCE_NAME --password=admin
 
 # Create Accounts DB
-echo "☁️ Creating accounts-db in ${INSTANCE_NAME}..."  
+echo "☁️ Creating accounts-db in ${INSTANCE_NAME}..."
 gcloud sql databases create accounts-db --instance=$INSTANCE_NAME
 
-# Create Ledger DB  
-echo "☁️ Creating ledger-db in ${INSTANCE_NAME}..."  
+# Create Ledger DB
+echo "☁️ Creating ledger-db in ${INSTANCE_NAME}..."
 gcloud sql databases create ledger-db --instance=$INSTANCE_NAME
 
 echo "⭐️ Done."

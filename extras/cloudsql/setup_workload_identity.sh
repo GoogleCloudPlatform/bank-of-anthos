@@ -11,21 +11,24 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# !/bin/bash 
+# !/bin/bash
 
 
 export KSA_NAME="boa-ksa"
 export GSA_NAME="boa-gsa"
 
-echo "✅ Creating namespace..." 
-kubectl create namespace $NAMESPACE 
 
-echo "✅ Creating GCP and K8s service accounts..." 
+gcloud config set project ${PROJECT_ID}
+
+echo "✅ Creating namespace..."
+kubectl create namespace $NAMESPACE
+
+echo "✅ Creating GCP and K8s service accounts..."
 kubectl create serviceaccount --namespace $NAMESPACE $KSA_NAME
 gcloud iam service-accounts create $GSA_NAME
 
 
-echo "✅ Annotating service accounts to connect your GSA and KSA..." 
+echo "✅ Annotating service accounts to connect your GSA and KSA..."
 gcloud iam service-accounts add-iam-policy-binding \
   --role roles/iam.workloadIdentityUser \
   --member "serviceAccount:${PROJECT_ID}.svc.id.goog[$NAMESPACE/$KSA_NAME]" \
