@@ -29,14 +29,14 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: front
-        image: gcr.io/bank-of-anthos/frontend:v0.4.1
+        image: gcr.io/bank-of-anthos/frontend:v0.4.2
         volumeMounts:
         - name: publickey
           mountPath: "/root/.ssh"
           readOnly: true
         env:
         - name: VERSION
-          value: "v0.4.1"
+          value: "v0.4.2"
         - name: PORT
           value: "8080"
         - name: ENABLE_TRACING
@@ -74,6 +74,13 @@ spec:
           initialDelaySeconds: 10
           periodSeconds: 5
           timeoutSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 15
+          timeoutSeconds: 30
         resources:
           requests:
             cpu: 100m
