@@ -28,6 +28,7 @@ jobs:
     - name: License Check
       run: |
         set -x
+        pwd
         git init
         git add --all
         git -c user.name="CI Bot" -c user.email="<>" commit -m "initial state"
