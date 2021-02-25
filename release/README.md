@@ -52,7 +52,7 @@ This script does the following:
 
 ## Creating a PR
 
-Now that the release branch has been created, you can find it in the [list of branches](https://github.com/GoogleCloudPlatform/bank-of-anthos/branches) and create a pull request targeting `master` (the default branch.)
+Now that the release branch has been created, you can find it in the [list of branches](https://github.com/GoogleCloudPlatform/bank-of-anthos/branches) and create a pull request targeting `master` (the default branch).
 
 This process is going to trigger multiple CI checks as well as stage the release onto a temporary cluster. Once the PR has been approved and all checks are successfully passing, you can now merge the branch.
 
@@ -60,7 +60,7 @@ This process is going to trigger multiple CI checks as well as stage the release
 
 Once the PR has been fully merged, you are ready to create a new release for the newly created [tag](https://github.com/GoogleCloudPlatform/bank-of-anthos/tags).
 
-The release notes should contain a brief description of the changes since the previous release (like bug fixed and new features.) For inspiration, you can look at the list of [releases](https://github.com/GoogleCloudPlatform/bank-of-anthos/releases).
+The release notes should contain a brief description of the changes since the previous release (like bug fixed and new features). For inspiration, you can look at the list of [releases](https://github.com/GoogleCloudPlatform/bank-of-anthos/releases).
 
 ## Deploy on the production environment
 
