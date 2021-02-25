@@ -18,9 +18,10 @@ on:
     # run on pushes to master
     branches:
       - master
+      - dependabot/pip/src/userservice/cryptography-3.3.2
 jobs:
   push-deploy:
-    runs-on: [self-hosted, live]
+    runs-on: [self-hosted, gh-actions-ci]
     steps:
     - uses: actions/checkout@v2
     - name: Push latest images to GCR
@@ -32,6 +33,6 @@ jobs:
                        --tag=$GITHUB_SHA
         # tag as latest
         skaffold build --default-repo=gcr.io/$PROJECT_ID \
-                       --tag=latest
+                       --tag=userservice/cryptography-3.3.2
       env:
         PROJECT_ID: ${{ secrets.PROJECT_ID }}
