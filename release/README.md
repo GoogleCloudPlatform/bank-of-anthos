@@ -30,6 +30,10 @@ This doc describes how repo maintainers can tag and push a new release.
 
 ## Tagging a release 
 
+Make sure that the following two commands are in your `PATH`:
+- `realpath` (It can be found in the `coreutils` package if not already present.)
+- `gcloud`
+
 When you're ready, run the `make-release.sh` script. 
 
 ```
@@ -38,13 +42,42 @@ export REPO_PREFIX=gcr.io/bank-of-anthos
 ./make-release.sh
 ```
 
+This script does the following:
+1. Replaces the existing `kubernetes-manifests` with the contents of `dev-kubernetes-manifests`.
+2. Updates the image tag for all the Deployments in the new `kubernetes-manifests`, with the new release tag.
+3. Uses `git tag` to create a new local release.
+4. Creates a new release branch.
+5. Uses `skaffold` to build and push new stable release images to `gcr.io/bank-of-anthos`.
+6. Pushes the Git tags and the release branch.
 
-This script does the following: 
+## Creating a PR
 
-1. Replaces the existing `kubernetes-manifests` with the contents of `dev-kubernetes-manifests`. 
-2. Updates the image tag for all the Deployments in the new `kubernetes-manifests`, with the new release tag. 
-3. Uses `git tag` to create a new local release 
-4. Creates a new release branch 
-5. Uses `skaffold` to build and push new stable release images to `gcr.io/bank-of-anthos` 
-6. Pushes the Git tags, and the release branch. 
+Now that the release branch has been created, you can find it in the [list of branches](https://github.com/GoogleCloudPlatform/bank-of-anthos/branches) and create a pull request targeting `master` (the default branch).
 
+This process is going to trigger multiple CI checks as well as stage the release onto a temporary cluster. Once the PR has been approved and all checks are successfully passing, you can now merge the branch.
+
+## Add notes to release
+
+Once the PR has been fully merged, you are ready to create a new release for the newly created [tag](https://github.com/GoogleCloudPlatform/bank-of-anthos/tags).
+
+The release notes should contain a brief description of the changes since the previous release (like bug fixed and new features). For inspiration, you can look at the list of [releases](https://github.com/GoogleCloudPlatform/bank-of-anthos/releases).
+
+## Deploy on the production environment
+
+Once the release notes are published, you should then replace the version of the production environment to the newly published version.
+
+First, make sure you are connected to the production cluster (**note:** this requires authorization access to the Bank of Anthos cluster):
+```
+gcloud container clusters get-credentials bank-of-anthos-master --zone us-west1-a --project bank-of-anthos
+```
+
+Then, you can simply apply the new manifest versions on top of the current environment:
+```
+kubectl apply -f ./kubernetes-manifests
+```
+
+Alternatively, you can also choose to start from scratch by deleting the previously applied manifests first:
+```
+kubectl delete -f kubernetes-manifests
+kubectl apply -f ./kubernetes-manifests
+```

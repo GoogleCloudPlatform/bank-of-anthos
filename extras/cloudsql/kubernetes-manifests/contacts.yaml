@@ -13,7 +13,7 @@
 # limitations under the License.
 
 apiVersion: apps/v1
-kind: Deployment 
+kind: Deployment
 metadata:
   name: contacts
 spec:
@@ -29,7 +29,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: contacts
-        image: gcr.io/bank-of-anthos/contacts:v0.3.1
+        image: gcr.io/bank-of-anthos/contacts:v0.4.1
         volumeMounts:
         - name: publickey
           mountPath: "/root/.ssh"

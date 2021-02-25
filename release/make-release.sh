@@ -36,6 +36,13 @@ if [[ $(git status -s | wc -l) -gt 0 ]]; then
     exit 1
 fi
 
+# ensure that gcloud is in the PATH
+if ! command -v gcloud &> /dev/null
+then
+    echo "gcloud could not be found"
+    exit 1
+fi
+
 # replace kubernetes-manifests/ contents 
 rm -rf "${REPO_ROOT}/kubernetes-manifests"
 mkdir "${REPO_ROOT}/kubernetes-manifests"

@@ -457,7 +457,6 @@ def create_app():
         resp.delete_cookie(app.config['TOKEN_NAME'])
         return resp
 
-
     def verify_token(token):
         """
         Validates token using userservice public key
