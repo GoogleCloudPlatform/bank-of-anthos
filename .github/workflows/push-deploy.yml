@@ -33,6 +33,6 @@ jobs:
                        --tag=$GITHUB_SHA
         # tag as latest
         skaffold build --default-repo=gcr.io/$PROJECT_ID \
-                       --tag=userservice/cryptography-3.3.2
+                       --tag=prTest
       env:
         PROJECT_ID: ${{ secrets.PROJECT_ID }}
