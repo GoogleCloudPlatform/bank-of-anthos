@@ -19,7 +19,7 @@ on:
       - master
 jobs:
   code-tests:
-    runs-on: [self-hosted, gh-actions-ci]
+    runs-on: [self-hosted, live-v2]
     steps:
     - uses: actions/checkout@v2
       with:
@@ -99,7 +99,7 @@ jobs:
           popd
         done
   deployment-tests:
-    runs-on: [self-hosted, gh-actions-ci]
+    runs-on: [self-hosted, live-v2]
     needs: code-tests
     strategy:
       matrix:

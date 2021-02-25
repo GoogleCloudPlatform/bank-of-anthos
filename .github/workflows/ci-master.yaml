@@ -21,7 +21,7 @@ on:
       - release/*
 jobs:
   code-tests:
-    runs-on: [self-hosted, live]
+    runs-on: [self-hosted, live-v2]
     steps:
     - uses: actions/checkout@v2
     - name: License Check
@@ -95,7 +95,7 @@ jobs:
           popd
         done
   deployment-tests:
-    runs-on: [self-hosted, live]
+    runs-on: [self-hosted, live-v2]
     needs: code-tests
     strategy:
       matrix:
