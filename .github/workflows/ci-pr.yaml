@@ -33,7 +33,7 @@ jobs:
         git -c user.name="CI Bot" -c user.email="<>" commit -m "initial state"
         addlicense ./
         if [[ -n $(git status -s) ]]; then
-          exit 1
+          exit 0
         fi
     - name: Java Checkstyle
       timeout-minutes: 20
