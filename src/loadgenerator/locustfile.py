@@ -124,6 +124,7 @@ class AllTasks(SequentialTaskSet):
             if success:
                 # go to AuthenticatedTasks
                 self.parent.username = new_username
+                self.client.close()
                 self.interrupt()
 
     @task
@@ -151,8 +152,6 @@ class AllTasks(SequentialTaskSet):
                 for r_hist in response.history:
                     if r_hist.status_code > 200 and r_hist.status_code < 400:
                         response.failure("Got redirect")
-                        self.client.close()
-                        self.interrupt()
 
 
         @task(10)
@@ -165,8 +164,6 @@ class AllTasks(SequentialTaskSet):
                 for r_hist in response.history:
                     if r_hist.status_code > 200 and r_hist.status_code < 400:
                         response.failure("Got redirect - wasn't logged on")
-                        self.client.close()
-                        self.interrupt()
 
         @task(5)
         def payment(self, amount=None):
@@ -228,8 +225,6 @@ class AllTasks(SequentialTaskSet):
                     response.success()
                 else:
                     response.failure("login failed")
-                    self.client.close()
-                    self.interrupt()
 
         @task(2)
         def logout(self):
