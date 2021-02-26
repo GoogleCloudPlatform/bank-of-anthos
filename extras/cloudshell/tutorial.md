@@ -18,13 +18,13 @@ Set up a Kubernetes cluster using the instructions below for either **minikube**
 
 Minikube creates a local Kubernetes cluster on Cloud Shell.
 
-1. Click <walkthrough-editor-spotlight spotlightId="minikube-status-bar">Minikube Stopped</walkthrough-editor-spotlight> on the status bar.
+1. Click <walkthrough-editor-spotlight spotlightId="minikube-status-bar">minikube</walkthrough-editor-spotlight> on the status bar located at the bottom of the editor window.
 
-2. Click **Start**. 
+2. The command palette will prompt you to choose which minikube cluster to control. Select **minikube** and, in the next prompt, click **Start**. 
 
 3. If prompted, authorize Cloud Shell to make a GCP API call with your credentials.
 
-Once the status bar says <walkthrough-editor-spotlight spotlightId="minikube-status-bar">Minikube Running</walkthrough-editor-spotlight>, you're ready to move on to the next step.
+Once minikube has finished starting, you're ready to move on to the next step.
 
 
 --- 
@@ -67,8 +67,9 @@ To deploy the token:
 
 5. Click **Create**.   
 
-This deploys the demo JWT public key to the minikube cluster as a Secret.
+This deploys the demo JWT public key to your cluster as a Secret.
 
+For more information about using JWT keys in Bank of Anthos, check out the <walkthrough-editor-open-file filePath="extras/jwt/README.md">JWT Key Pair Secret README</walkthrough-editor-open-file>.
 
 ## Run on Kubernetes
 
@@ -84,10 +85,12 @@ Now you can run Bank of Anthos on your Kubernetes cluster!
 
 Cloud Code uses configurations defined in <walkthrough-editor-open-file filePath="skaffold.yaml">skaffold.yaml</walkthrough-editor-open-file> to build and deploy the app. *It may take a minute for the deploy to complete.*
 
-5. Once the app is running, the local URLs will be displayed in the <walkthrough-editor-spotlight spotlightId="output">Output</walkthrough-editor-spotlight> terminal.
+5. Once the app is running, the local URLs will be displayed in the <walkthrough-editor-spotlight spotlightId="output">Output</walkthrough-editor-spotlight> terminal. 
 
-6. Launch your Bank of Anthos app in your browser by clicking on the `frontend` URL in the <walkthrough-editor-spotlight spotlightId="output">Output</walkthrough-editor-spotlight>.
+7. To access your Bank of Anthos frontend service, click on the <walkthrough-spotlight-pointer spotlightId="devshell-web-preview-button" target="cloudshell">Web Preview button</walkthrough-spotlight-pointer> in the upper right of the editor window.
 
+8. Select **Change Port** and enter '4503' as the port, then click **Change and Preview**. Your app will open in a new window. 
+ 
 
 ## Stop the app
 
