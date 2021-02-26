@@ -118,6 +118,8 @@ If you've deployed your app to a GKE cluster in your Google Cloud Platform proje
 
 Congratulations! You've successfully deployed Bank of Anthos using Cloud Shell.
 
+<walkthrough-inline-feedback></walkthrough-inline-feedback>
+
 ##### What's next?
 
 Explore the GCP products used in Bank of Anthos: [GKE](https://cloud.google.com/kubernetes-engine), [Anthos Service Mesh](https://cloud.google.com/anthos/service-mesh), [Anthos Config Management](https://cloud.google.com/anthos/config-management), [Migrate for Anthos](https://cloud.google.com/migrate/anthos), [Spring Cloud GCP](https://spring.io/projects/spring-cloud-gcp), and [Cloud Operations](https://cloud.google.com/products/operations).
