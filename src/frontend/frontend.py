@@ -308,8 +308,8 @@ def create_app():
                              timeout=app.config['BACKEND_TIMEOUT'])
         try:
             resp.raise_for_status() # Raise on HTTP Status code 4XX or 5XX
-        except requests.exceptions.HTTPError:
-            raise UserWarning(resp.text)
+        except requests.exceptions.HTTPError as http_request_err:
+            raise UserWarning(resp.text) from http_request_err
 
 
     def _add_contact(label, acct_num, routing_num, is_external_acct=False):
@@ -336,8 +336,8 @@ def create_app():
                              timeout=app.config['BACKEND_TIMEOUT'])
         try:
             resp.raise_for_status() # Raise on HTTP Status code 4XX or 5XX
-        except requests.exceptions.HTTPError:
-            raise UserWarning(resp.text)
+        except requests.exceptions.HTTPError as http_request_err:
+            raise UserWarning(resp.text) from http_request_err
 
 
     @app.route("/login", methods=['GET'])
