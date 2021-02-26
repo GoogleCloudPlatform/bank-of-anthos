@@ -35,7 +35,7 @@ click==7.1.1
     #   flask
 coverage==5.3
     # via pytest-cov
-cryptography==3.2
+cryptography==3.3.2
     # via -r requirements.in
 flask==1.1.2
     # via
