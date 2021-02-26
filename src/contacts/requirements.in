@@ -9,7 +9,6 @@ click==7.1.1
 cryptography==3.3.2
 flask==1.1.2
 pyjwt==1.7.1
-cryptography==3.3.2
 google-api-core==1.22.2
 google-auth==1.21.2
 google-cloud-core==1.4.1
