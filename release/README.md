@@ -1,16 +1,16 @@
 # Bank of Anthos Release Workflow
 
-This doc describes how repo maintainers can tag and push a new release. 
+This doc describes how repo maintainers can tag and push a new release.
 
 
-## Prerequisites for tagging a release 
+## Prerequisites for tagging a release
 
-1. **Complete a team-wide Fishfood day** off the latest master commit. Divide and conquer tasks, to test and verify the user journeys below. If you encounter any bugs or docs in need of fixing, make those changes before proceeding with the release. 
+1. **Complete a team-wide Fishfood day** off the latest master commit. Divide and conquer tasks, to test and verify the user journeys below. If you encounter any bugs or docs in need of fixing, make those changes before proceeding with the release.
 
-- User can deploy Bank of Anthos on a new GCP project/GKE cluster following README instructions, replacing `kubernetes-manifests/` with `dev-kubernetes-manifests/` 
-- User can deploy Bank of ANthos on a GKE cluster with the latest Anthos Service Mesh enabled, by deploying `istio-manifests/` on top of the kubernetes manifests 
+- User can deploy Bank of Anthos on a new GCP project/GKE cluster following README instructions, replacing `kubernetes-manifests/` with `dev-kubernetes-manifests/`
+- User can deploy Bank of ANthos on a GKE cluster with the latest Anthos Service Mesh enabled, by deploying `istio-manifests/` on top of the kubernetes manifests
 - User can deploy Bank of Anthos on a GKE cluster with Workload Identity enabled, using the WI instructions in the README.
-- User can see Java app-level metrics by creating the Cloud Monitoring dashboard in the `extras/` directory 
+- User can see Java app-level metrics by creating the Cloud Monitoring dashboard in the `extras/` directory
 - User can see traces in Cloud Trace
 - User can toggle `ENABLE_METRICS=false` and `ENABLE_TRACING=false` to turn off metrics/trace export to Cloud Operations
 - User can create an account and see expected home page
@@ -25,16 +25,16 @@ This doc describes how repo maintainers can tag and push a new release.
 - Makefile commands reflect what is in docs
 
 
-2. **Choose the logical [next release tag](https://github.com/GoogleCloudPlatform/bank-of-anthos/releases)**, using [semantic versioning](https://semver.org/): `vX.Y.Z`. If this release includes significant feature changes, update the minor version (`Y`). Otherwise, for bug-fix releases or standard quarterly release, update the patch version `Z`). 
+2. **Choose the logical [next release tag](https://github.com/GoogleCloudPlatform/bank-of-anthos/releases)**, using [semantic versioning](https://semver.org/): `vX.Y.Z`. If this release includes significant feature changes, update the minor version (`Y`). Otherwise, for bug-fix releases or standard quarterly release, update the patch version `Z`).
 
 
-## Tagging a release 
+## Tagging a release
 
 Make sure that the following two commands are in your `PATH`:
 - `realpath` (It can be found in the `coreutils` package if not already present.)
 - `gcloud`
 
-When you're ready, run the `make-release.sh` script. 
+When you're ready, run the `make-release.sh` script.
 
 ```
 export NEW_VERSION=vX.Y.Z
@@ -70,8 +70,15 @@ First, make sure you are connected to the production cluster (**note:** this req
 ```
 gcloud container clusters get-credentials bank-of-anthos-master --zone us-west1-a --project bank-of-anthos
 ```
+1. ***[Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity) enabled production cluster***
 
-Then, you can simply apply the new manifest versions on top of the current environment:
+Currently the `bank-of-anthos-master` cluster has [Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity) enabled. Thus, when deploying to this cluster the pod service account (`boa-ksa-master`) used by _Workload Identity_ must be used as the serviceAccount in the manifests.
+
+Follow the steps 3 and 4 of the the [workload identity setup](https://github.com/GoogleCloudPlatform/bank-of-anthos/blob/master/docs/workload-identity.md) with `boa-ksa-master` as the `KSA_NAME` to deploy into production.
+
+2. ***Non Workload Identity cluster***
+
+You can simply apply the new manifest versions on top of the current environment:
 ```
 kubectl apply -f ./kubernetes-manifests
 ```
