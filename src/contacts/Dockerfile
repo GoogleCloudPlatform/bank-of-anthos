@@ -33,6 +33,12 @@ ENV PATH /env/bin:$PATH
 # explicitly set a fallback log level in case no log level is defined by Kubernetes
 ENV LOG_LEVEL info
 
+# Copy uwsgi conf
+COPY uwsgi-conf.ini /uwsgi-conf.ini
+
+# Copy logging configuration for gunicorn
+COPY logging.conf /logging.conf
+
 # Install dependencies.
 ADD requirements.txt /app/requirements.txt
 RUN pip install -r /app/requirements.txt
@@ -40,8 +46,7 @@ RUN pip install -r /app/requirements.txt
 # Add application code.
 ADD *.py /app/
 
-# Copy logging configuration for gunicorn
-COPY logging.conf /logging.conf
-
 # Start server using gunicorn
-CMD gunicorn -b :$PORT --threads 4 --log-config /logging.conf --log-level=$LOG_LEVEL "contacts:create_app()"
+# CMD gunicorn -b :$PORT --threads 4 --log-config /logging.conf --log-level=$LOG_LEVEL "contacts:create_app()"
+
+CMD uwsgi --ini /uwsgi-conf.ini
