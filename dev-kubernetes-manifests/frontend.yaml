@@ -43,7 +43,7 @@ spec:
           value: "true"
         - name: SCHEME
           value: "http"
-         # Valid levels are debug, info, warning, error, critical. If no valid level is set, gunicorn will default to info.
+         # Valid levels are debug, info, warning, error, critical. If no valid level is set, defaults to info.
         - name: LOG_LEVEL
           value: "info"
         # Set to "true" to enable the CymbalBank logo + title
