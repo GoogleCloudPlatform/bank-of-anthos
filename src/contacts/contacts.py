@@ -205,7 +205,7 @@ def create_app():
     level = logging.INFO #default
     user_log_level = os.environ.get("LOG_LEVEL")
     if user_log_level is not None and user_log_level.upper() in log_levels:
-        level = log_levels.get(user_log_level)
+        level = log_levels.get(user_log_level.upper())
     app.logger.setLevel(level)
 
     # init logger
