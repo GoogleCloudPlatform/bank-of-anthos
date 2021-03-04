@@ -37,6 +37,8 @@ from opentelemetry.exporter.cloud_trace import CloudTraceSpanExporter
 from opentelemetry.tools.cloud_trace_propagator import CloudTraceFormatPropagator
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
 
+log_levels = {"DEBUG": logging.DEBUG, "WARNING": logging.WARNING, "INFO": logging.INFO, "ERROR": logging.ERROR, "CRITICAL": logging.CRITICAL}
+
 def create_app():
     """Flask application factory to create instances
     of the Contact Service Flask App
@@ -189,9 +191,22 @@ def create_app():
         """Executed when web app is terminated."""
         app.logger.info("Stopping contacts service.")
 
-    # set up logger
-    app.logger.handlers = logging.getLogger("gunicorn.error").handlers
-    app.logger.setLevel(logging.getLogger("gunicorn.error").level)
+    # set log formatting
+    date_format = "%Y-%m-%d %H:%M:%S"
+    message_format = '%(asctime)s | [%(levelname)s] | %(funcName)s | %(message)s'
+    logging.basicConfig(format= message_format, datefmt= date_format, stream=sys.stdout)
+
+    # set log level
+    level = logging.INFO #default
+    user_log_level = os.environ["LOG_LEVEL"]
+    user_log_level = user_log_level.upper()
+    if user_log_level in log_levels:
+        level = log_levels[user_log_level]
+    app.logger.setLevel(level)
+
+    # init logger
+    handler = logging.StreamHandler(sys.stdout)
+    app.logger.addHandler(handler)
     app.logger.info("Starting contacts service.")
 
     # Set up tracing and export spans to Cloud Trace.
