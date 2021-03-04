@@ -1,4 +1,4 @@
-# Copyright 2020 Google LLC
+# Copyright 2021 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 # libraries. The source is on github at:
 #   https://github.com/GoogleCloudPlatform/python-docker
 FROM gcr.io/google-appengine/python
+
 
 # show python logs as they occur
 ENV PYTHONUNBUFFERED=0
@@ -43,5 +44,5 @@ COPY uwsgi-conf.ini /uwsgi-conf.ini
 # Add application code.
 ADD *.py /app/
 
-# Start server
-CMD uwsgi --ini /uwsgi-conf.ini --http :${PORT}
+# Start server with user-provided PORT
+CMD uwsgi --ini /uwsgi-conf.ini  --http :${PORT}

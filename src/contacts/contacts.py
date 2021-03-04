@@ -37,8 +37,6 @@ from opentelemetry.exporter.cloud_trace import CloudTraceSpanExporter
 from opentelemetry.tools.cloud_trace_propagator import CloudTraceFormatPropagator
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
 
-log_levels = {"DEBUG": logging.DEBUG, "WARNING": logging.WARNING, "INFO": logging.INFO, "ERROR": logging.ERROR, "CRITICAL": logging.CRITICAL}
-
 def create_app():
     """Flask application factory to create instances
     of the Contact Service Flask App
@@ -197,6 +195,7 @@ def create_app():
     logging.basicConfig(format= message_format, datefmt= date_format, stream=sys.stdout)
 
     # set log level
+    log_levels = {"DEBUG": logging.DEBUG, "WARNING": logging.WARNING, "INFO": logging.INFO, "ERROR": logging.ERROR, "CRITICAL": logging.CRITICAL}
     level = logging.INFO #default
     user_log_level = os.environ["LOG_LEVEL"]
     user_log_level = user_log_level.upper()
