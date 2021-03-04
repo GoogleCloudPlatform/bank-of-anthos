@@ -223,7 +223,14 @@ def create_app():
     logging.basicConfig(format= message_format, datefmt= date_format, stream=sys.stdout)
 
     # set log level
-    log_levels = {"DEBUG": logging.DEBUG, "WARNING": logging.WARNING, "INFO": logging.INFO, "ERROR": logging.ERROR, "CRITICAL": logging.CRITICAL}
+    log_levels = {
+        "DEBUG": logging.DEBUG,
+        "WARNING": logging.WARNING,
+        "INFO": logging.INFO,
+        "ERROR": logging.ERROR,
+        "CRITICAL": logging.CRITICAL
+    }
+
     level = logging.INFO #default
     user_log_level = os.environ["LOG_LEVEL"]
     user_log_level = user_log_level.upper()
