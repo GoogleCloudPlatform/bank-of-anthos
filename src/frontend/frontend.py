@@ -561,11 +561,15 @@ def create_app():
         "ERROR": logging.ERROR,
         "CRITICAL": logging.CRITICAL
     }
+
     level = logging.INFO #default
-    user_log_level = os.environ["LOG_LEVEL"]
-    user_log_level = user_log_level.upper()
-    if user_log_level in log_levels:
-        level = log_levels.get(user_log_level)
+    try:
+        user_log_level = os.environ.get("LOG_LEVEL")
+        user_log_level = user_log_level.upper()
+        if user_log_level in log_levels:
+            level = log_levels.get(user_log_level)
+    except Exception as e:
+        print("log level not specified, using INFO")
     app.logger.setLevel(level)
 
     # init logger
