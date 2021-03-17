@@ -5,4 +5,5 @@ disable=F0401,  # import loading
         E1101,  # function members
         R0801,  # duplicate code
         R0903,  # public methods
-        R0915   # too many statements
+        R0915,   # too many statements
+        R0914   # too many local variables
