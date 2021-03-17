@@ -36,6 +36,8 @@ from contacts.tests.constants import (
     INVALID_ROUTING_NUMS,
 )
 
+LOG_LEVEL="info"
+
 def create_new_contact(**kwargs):
     """Helper method for creating new contacts from template"""
     example_contact = EXAMPLE_CONTACT.copy()

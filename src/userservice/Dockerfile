@@ -1,4 +1,4 @@
-# Copyright 2019 Google LLC
+# Copyright 2021 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 # and various os-level packages to allow installation of popular Python
 # libraries. The source is on github at:
 #   https://github.com/GoogleCloudPlatform/python-docker
+
 FROM gcr.io/google-appengine/python
 
 # show python logs as they occur
@@ -40,8 +41,8 @@ RUN pip install -r /app/requirements.txt
 # Add application code.
 ADD *.py /app/
 
-# Copy logging configuration for gunicorn
-COPY logging.conf /logging.conf
+# Copy uwsgi conf
+COPY uwsgi-conf.ini /uwsgi-conf.ini
 
-# Start server using gunicorn
-CMD gunicorn -b :$PORT --threads 2 --log-config /logging.conf --log-level=$LOG_LEVEL "userservice:create_app()"
+# Start server with user-provided PORT
+CMD uwsgi --ini /uwsgi-conf.ini  --http :${PORT}

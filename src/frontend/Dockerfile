@@ -47,8 +47,11 @@ ADD static /app/static
 ADD templates /app/templates
 ADD *.py /app/
 
-# Copy logging configuration for gunicorn
-COPY logging.conf /logging.conf
+# Copy uwsgi conf
+COPY uwsgi-conf.ini /uwsgi-conf.ini
 
-# Start server using gunicorn
-CMD gunicorn -b :$PORT --threads 4 --log-config /logging.conf --log-level=$LOG_LEVEL "frontend:create_app()"
+# Add application code.
+ADD *.py /app/
+
+# Start server with user-provided PORT
+CMD uwsgi --ini /uwsgi-conf.ini  --http :${PORT}

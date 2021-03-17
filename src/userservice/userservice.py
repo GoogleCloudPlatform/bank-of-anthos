@@ -217,11 +217,25 @@ def create_app():
         """Executed when web app is terminated."""
         app.logger.info("Stopping userservice.")
 
-    # Set up logger
-    app.logger.handlers = logging.getLogger('gunicorn.error').handlers
-    app.logger.setLevel(logging.getLogger('gunicorn.error').level)
-    app.logger.info('Starting userservice.')
+    # set log formatting
+    date_format = "%Y-%m-%d %H:%M:%S"
+    message_format = '%(asctime)s | [%(levelname)s] | %(funcName)s | %(message)s'
+    logging.basicConfig(format= message_format, datefmt= date_format, stream=sys.stdout)
 
+    # set log level
+    log_levels = {
+        "DEBUG": logging.DEBUG,
+        "WARNING": logging.WARNING,
+        "INFO": logging.INFO,
+        "ERROR": logging.ERROR,
+        "CRITICAL": logging.CRITICAL
+    }
+    level = logging.INFO #default
+    user_log_level = os.environ.get("LOG_LEVEL")
+    if user_log_level is not None and user_log_level.upper() in log_levels:
+        level = log_levels.get(user_log_level.upper())
+    app.logger.setLevel(level)
+    app.logger.info("Starting userservice.")
 
     # Set up tracing and export spans to Cloud Trace.
     if os.environ['ENABLE_TRACING'] == "true":

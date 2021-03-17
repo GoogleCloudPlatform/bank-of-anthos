@@ -32,6 +32,8 @@ def get_random_string(length):
     """Generate random string of given length"""
     return ''.join(random.choice(string.ascii_lowercase) for i in range(length))
 
+LOG_LEVEL="info"
+
 EXAMPLE_PRIVATE_KEY, EXAMPLE_PUBLIC_KEY = generate_rsa_key()
 
 TIMESTAMP_FORMAT = '%Y-%m-%d'
