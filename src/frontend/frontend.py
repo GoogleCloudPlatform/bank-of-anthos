@@ -566,10 +566,6 @@ def create_app():
     if user_log_level is not None and user_log_level.upper() in log_levels:
         level = log_levels.get(user_log_level.upper())
     app.logger.setLevel(level)
-
-    # init logger
-    handler = logging.StreamHandler(sys.stdout)
-    app.logger.addHandler(handler)
     app.logger.info("Starting frontend.")
 
     # Set up tracing and export spans to Cloud Trace.
