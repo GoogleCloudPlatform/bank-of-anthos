@@ -66,7 +66,7 @@ gcloud beta container clusters create bank-of-anthos \
 4. **Get credentials for the created cluster**
 
 ```
-gcloud container clusters get-credentials bank-of-anthos --project=${PROJECT} --zone=${ZONE}
+gcloud container clusters get-credentials bank-of-anthos --project=${PROJECT_ID} --zone=${ZONE}
 ```
 
 5. **Deploy the demo JWT public key** to the cluster as a Secret. This key is used for user account creation and authentication.
