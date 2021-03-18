@@ -54,11 +54,11 @@ This script does the following:
 
 ### Troubleshooting script failures
 
-In the event of any of the steps above failing you might have to revert the repository to it's original state. Follow the steps below as required:
+In the event of any of the steps above failing you might have to revert the repository to its original state. Follow the steps below as required:
 ```sh
 # delete the newly created release branch & tag before re-running the script
 git checkout master
-git branch -D release/v$NEW_VERSION
+git branch -D release/$NEW_VERSION
 git tag -d $NEW_VERSION
 
 # delete temporary files created
@@ -79,7 +79,7 @@ Once the PR has been fully merged, you are ready to create a new release for the
 
 The release notes should contain a brief description of the changes since the previous release (like bug fixed and new features). For inspiration, you can look at the list of [releases](https://github.com/GoogleCloudPlatform/bank-of-anthos/releases).
 
-> ***Note:*** No assets needs to be uploaded. They are picked up automatically from the tagged revision
+> ***Note:*** No assets need to be uploaded. They are picked up automatically from the tagged revision
 
 ## Deploy on the production environment
 
@@ -93,7 +93,7 @@ gcloud container clusters get-credentials bank-of-anthos-master --zone us-west1-
 
 Currently the `bank-of-anthos-master` cluster has [Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity) enabled. Thus, when deploying to this cluster the pod service account (`boa-ksa-master`) used by _Workload Identity_ must be used as the serviceAccount in the manifests.
 
-Follow the steps 3 and 4 of the the [workload identity setup](https://github.com/GoogleCloudPlatform/bank-of-anthos/blob/master/docs/workload-identity.md) with the following config values to deploy into production:
+Follow steps 3 and 4 of the [workload identity setup](https://github.com/GoogleCloudPlatform/bank-of-anthos/blob/master/docs/workload-identity.md) with the following config values to deploy into production:
 - `boa-ksa-master` as the `KSA_NAME`
 - `default` as the `NAMESPACE`
 
