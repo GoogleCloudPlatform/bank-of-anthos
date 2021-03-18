@@ -32,14 +32,16 @@ This doc describes how repo maintainers can tag and push a new release.
 
 Make sure that the following two commands are in your `PATH`:
 - `realpath` (It can be found in the `coreutils` package if not already present.)
+- `skaffold`
 - `gcloud`
 
-When you're ready, run the `make-release.sh` script.
+When you're ready, run the `make-release.sh` script found inside the `release` folder.
 
-```
+```sh
+# assuming you are inside the root path of the bank-of-anthos repository
 export NEW_VERSION=vX.Y.Z
 export REPO_PREFIX=gcr.io/bank-of-anthos
-./make-release.sh
+./release/make-release.sh
 ```
 
 This script does the following:
@@ -50,6 +52,19 @@ This script does the following:
 5. Uses `skaffold` to build and push new stable release images to `gcr.io/bank-of-anthos`.
 6. Pushes the Git tags and the release branch.
 
+### Troubleshooting script failures
+
+In the event of any of the steps above failing you might have to revert the repository to it's original state. Follow the steps below as required:
+```sh
+# delete the newly created release branch & tag before re-running the script
+git checkout master
+git branch -D release/v$NEW_VERSION
+git tag -d $NEW_VERSION
+
+# delete temporary files created
+rm kubernetes-manifests/*-e
+```
+
 ## Creating a PR
 
 Now that the release branch has been created, you can find it in the [list of branches](https://github.com/GoogleCloudPlatform/bank-of-anthos/branches) and create a pull request targeting `master` (the default branch).
@@ -59,8 +74,12 @@ This process is going to trigger multiple CI checks as well as stage the release
 ## Add notes to release
 
 Once the PR has been fully merged, you are ready to create a new release for the newly created [tag](https://github.com/GoogleCloudPlatform/bank-of-anthos/tags).
+- Click the breadcrumbs on the row of the latest tag that was created in the [tags](https://github.com/GoogleCloudPlatform/bank-of-anthos/tags) page
+- Select the `Create release` option
 
 The release notes should contain a brief description of the changes since the previous release (like bug fixed and new features). For inspiration, you can look at the list of [releases](https://github.com/GoogleCloudPlatform/bank-of-anthos/releases).
+
+> ***Note:*** No assets needs to be uploaded. They are picked up automatically from the tagged revision
 
 ## Deploy on the production environment
 
@@ -74,7 +93,9 @@ gcloud container clusters get-credentials bank-of-anthos-master --zone us-west1-
 
 Currently the `bank-of-anthos-master` cluster has [Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity) enabled. Thus, when deploying to this cluster the pod service account (`boa-ksa-master`) used by _Workload Identity_ must be used as the serviceAccount in the manifests.
 
-Follow the steps 3 and 4 of the the [workload identity setup](https://github.com/GoogleCloudPlatform/bank-of-anthos/blob/master/docs/workload-identity.md) with `boa-ksa-master` as the `KSA_NAME` to deploy into production.
+Follow the steps 3 and 4 of the the [workload identity setup](https://github.com/GoogleCloudPlatform/bank-of-anthos/blob/master/docs/workload-identity.md) with the following config values to deploy into production:
+- `boa-ksa-master` as the `KSA_NAME`
+- `default` as the `NAMESPACE`
 
 2. ***Non Workload Identity cluster***
 
