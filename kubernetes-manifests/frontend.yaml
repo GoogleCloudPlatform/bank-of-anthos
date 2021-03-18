@@ -29,21 +29,21 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: front
-        image: gcr.io/bank-of-anthos/frontend:v0.4.2
+        image: gcr.io/bank-of-anthos/frontend:v0.4.3
         volumeMounts:
         - name: publickey
           mountPath: "/root/.ssh"
           readOnly: true
         env:
         - name: VERSION
-          value: "v0.4.2"
+          value: "v0.4.3"
         - name: PORT
           value: "8080"
         - name: ENABLE_TRACING
           value: "true"
         - name: SCHEME
           value: "http"
-         # Valid levels are debug, info, warning, error, critical. If no valid level is set, gunicorn will default to info.
+         # Valid levels are debug, info, warning, error, critical. If no valid level is set, defaults to info.
         - name: LOG_LEVEL
           value: "info"
         # Set to "true" to enable the CymbalBank logo + title
