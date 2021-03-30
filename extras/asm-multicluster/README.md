@@ -59,10 +59,24 @@ gke-cluster-1-default-pool-855fbe61-tw2z   Ready    <none>   62m   v1.18.15-gke.
 
 ```
 kubectx cluster-1 
-kubectl apply -f boa-cluster-1/
+kubectl apply -f services-all.yaml 
+kubectl apply -f ../../kubernetes-manifests/config.yaml
+kubectl apply -f ../../extras/jwt/jwt-secret.yaml
+kubectl apply -f ../../kubernetes-manifests/accounts-db.yaml 
+kubectl apply -f ../../kubernetes-manifests/contacts.yaml
+kubectl apply -f ../../kubernetes-manifests/frontend.yaml
+kubectl apply -f ../../kubernetes-manifests/userservice.yaml
+kubectl apply -f ../../kubernetes-manifests/loadgenerator.yaml
+kubectl apply -f ../../istio-manifests/frontend-ingress.yaml
 
 kubectx cluster-2 
-kubectl apply -f boa-cluster-2/ 
+kubectl apply -f services-all.yaml 
+kubectl apply -f ../../kubernetes-manifests/config.yaml
+kubectl apply -f ../../extras/jwt/jwt-secret.yaml
+kubectl apply -f ../../kubernetes-manifests/ledger-db.yaml
+kubectl apply -f ../../kubernetes-manifests/balance-reader.yaml
+kubectl apply -f ../../kubernetes-manifests/ledger-writer.yaml
+kubectl apply -f ../../kubernetes-manifests/transaction-history.yaml
 ```
 
 5. **Verify that the pods start up successfully.** Note that you should see 2 containers per pod `(2/2)`, one containing the Bank of Anthos service container, the other containing the ASM sidecar proxy (Envoy). 
