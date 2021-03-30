@@ -32,7 +32,7 @@ brew install kpt
 export PROJECT_ID="<your-project-id>" 
 ```
 
-1. **Run the cluster setup script**. This script creates 2 GKE clusters, `cluster-1` and `cluster-2`, installs Anthos Service Mesh, and sets up cross-cluster endpoint discovery. This script takes about 10 minutes to run. 
+2. **Run the cluster setup script**. This script creates 2 GKE clusters, `cluster-1` and `cluster-2`, installs Anthos Service Mesh, and sets up cross-cluster endpoint discovery. This script takes about 10 minutes to run. 
 
 ```
 ./cluster-setup.sh
