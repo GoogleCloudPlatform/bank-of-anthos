@@ -1,6 +1,6 @@
 # Anthos Service Mesh - Multicluster 
 
-This demo shows how to install Bank of Anthos across 2 clusters, using Anthos Service Mesh endpoint discovery for cross-cluster routing.  
+This demo shows how to install Bank of Anthos across 2 clusters, using [Anthos Service Mesh endpoint discovery](https://cloud.google.com/service-mesh/docs/managed-control-plane#configure_endpoint_discovery_only_for_multi-cluster_installations) for cross-cluster routing.  
 
 For a "replicated" multicluster setup with no cross-cluster traffic, see the [Cloud SQL + Multicluster](/extras/cloudsql-multicluster) demo. 
 
@@ -11,7 +11,7 @@ For a "replicated" multicluster setup with no cross-cluster traffic, see the [Cl
 
 ### Prerequisites 
 
-1. A Google Cloud project 
+1. A Google Cloud project. 
 2. The following tools installed in your local environment: 
 - [gcloud](https://cloud.google.com/sdk/docs/install), up to date with `gcloud components update` 
 - [kubectl](https://cloud.google.com/sdk/gcloud/reference/components/install) - you can install this via gcloud: `gcloud components install kubectl`
@@ -26,19 +26,19 @@ brew install kpt
 
 ### Steps 
 
-1. Set variables. 
+1. **Set variables.**
 
 ```
 export PROJECT_ID="<your-project-id>" 
 ```
 
-2. Run the cluster setup script. This will create 2 clusters, `cluster-1` and `cluster-2`, install Anthos Service Mesh, and set up cross-cluster endpoint discovery. This script takes 5-10 minutes to run. 
+1. **Run the cluster setup script**. This script creates 2 GKE clusters, `cluster-1` and `cluster-2`, installs Anthos Service Mesh, and sets up cross-cluster endpoint discovery. This script takes about 10 minutes to run. 
 
 ```
 ./cluster-setup.sh
 ```
 
-3. Verify that your local kubectx is set up for `cluster-1` and `cluster-2`, and that you can access both clusters. 
+3. **Verify that your local kubectx is set up** for `cluster-1` and `cluster-2`, and that you can access both clusters. 
 
 ```
 kubectx cluster-1 
@@ -55,7 +55,7 @@ gke-cluster-1-default-pool-855fbe61-f3qw   Ready    <none>   62m   v1.18.15-gke.
 gke-cluster-1-default-pool-855fbe61-tw2z   Ready    <none>   62m   v1.18.15-gke.1501
 ```
 
-4. Deploy the Bank of Anthos app across both clusters. This will deploy the frontend and Python backends to cluster-1, and the Java backends to cluster 2. Note that ASM endpoint discovery only works if all the Kubernetes Services are deployed to both clusters, so that's what we're doing here.   
+4. **Deploy the Bank of Anthos app across both clusters**. This will deploy the frontend and Python backends to cluster-1, and the Java backends to cluster 2. Note that ASM endpoint discovery only works if all the Kubernetes Services are deployed to both clusters, so that's what we're doing here.   
 
 ```
 kubectx cluster-1 
@@ -65,7 +65,7 @@ kubectx cluster-2
 kubectl apply -f boa-cluster-2/ 
 ```
 
-5. Verify that the pods start up successfully. 
+5. **Verify that the pods start up successfully.** Note that you should see 2 containers per pod `(2/2)`, one containing the Bank of Anthos service container, the other containing the ASM sidecar proxy (Envoy). 
 
 ```
 kubectx cluster-1; kubectl get pods 
@@ -98,7 +98,7 @@ ledgerwriter-7d88d5898c-vhs5l         2/2     Running   0          14m
 transactionhistory-84cf479f65-lzgdt   2/2     Running   0          14m
 ```
 
-6. Access the Bank of Anthos frontend using the Istio IngressGateway's LoadBalancer IP. 
+6. **Access the Bank of Anthos frontend** using the Istio IngressGateway's LoadBalancer IP. 
 
 ```
 kubectx cluster-1; kubectl get svc istio-ingressgateway -n istio-system 
@@ -109,7 +109,7 @@ istio-ingressgateway   LoadBalancer   10.7.254.103   <EXTERNAL_IP>  15021:30429/
 
 Navigate to the `EXTERNAL_IP` in a browser; you should see the Bank of Anthos login page. 
 
-7. Open the Google Cloud Console, and view the services in the Anthos Service Mesh dashboard. In the Table view, you should see metrics populated for services in both cluster-1 and cluster 2. 
+7. **Open the Google Cloud Console, and navigate to Anthos > Servic Mesh**. View the Bank of Anthos services in the Anthos Service Mesh dashboard. In the Table view, you should see metrics populated for services in both cluster-1 and cluster 2. 
 
 ![table](screenshots/asm-table.png)
 
