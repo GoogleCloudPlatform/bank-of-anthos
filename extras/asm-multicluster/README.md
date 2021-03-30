@@ -4,12 +4,12 @@ This demo shows how to install Bank of Anthos across 2 clusters, using [Anthos S
 
 For a "replicated" multicluster setup with no cross-cluster traffic, see the [Cloud SQL + Multicluster](/extras/cloudsql-multicluster) demo. 
 
-### Architecture 
+## Architecture 
 
 ![architecture](screenshots/architecture.png)
 
 
-### Prerequisites 
+## Prerequisites 
 
 1. A Google Cloud project. 
 2. The following tools installed in your local environment: 
@@ -24,7 +24,7 @@ brew tap GoogleContainerTools/kpt https://github.com/GoogleContainerTools/kpt.gi
 brew install kpt
 ```
 
-### Steps 
+## Steps 
 
 1. **Set variables.**
 
