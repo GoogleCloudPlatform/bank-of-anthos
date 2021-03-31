@@ -34,15 +34,15 @@ spec:
       restartPolicy: Always
       containers:
       - name: loadgenerator
-        image: ghcr.io/opsani/bank-of-anthos/loadgenerator:0.4.7
+        image: ghcr.io/opsani/bank-of-anthos/loadgenerator:0.4.8
         imagePullPolicy: Always
         env:
         - name: FRONTEND_ADDR
           value: "frontend:80"
         - name: NUM_STEPS
-          value: "480"
+          value: "24"
         - name: STEP_SEC
-          value: "15"
+          value: "14"
         - name: USER_SCALE
           value: "50"
         - name: SPAWN_RATE
@@ -51,6 +51,8 @@ spec:
           value: "5"
         - name: LOG_LEVEL
           value: "info"
+        - name: DYNAMIC_LOAD
+          value: "False"
         resources:
           requests:
             cpu: 1000m

@@ -52,11 +52,11 @@ spec:
             name: accounts-db-config
         resources:
           requests:
-            cpu: 100m
-            memory: 64Mi
+            cpu: 500m
+            memory: 512Mi
           limits:
             cpu: 500m
-            memory: 256Mi
+            memory: 512Mi
         readinessProbe:
           httpGet:
             path: /ready

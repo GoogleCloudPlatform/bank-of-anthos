@@ -30,6 +30,8 @@ from locust import HttpUser, TaskSet, SequentialTaskSet, LoadTestShape, task, be
 
 MASTER_PASSWORD = "password"
 
+
+DYNAMIC_LOAD = os.getenv("DYNAMIC_LOAD", "True")
 NUM_STEPS = int(os.getenv("NUM_STEPS", 480))
 STEP_SEC = int(os.getenv("STEP_SEC", 15))
 MIN_USERS = int(os.getenv("MIN_USERS", 5))
@@ -246,7 +248,6 @@ class WebsiteUser(HttpUser):
     """
     Locust class to simulate HTTP users
     """
-
     tasks = {AllTasks}
     wait_time = between(0.1, 1)
 
@@ -260,22 +261,28 @@ class StagesShape(LoadTestShape):
     def tick(self):
         run_time = self.get_run_time()
 
-        tick_data = (
-            math.floor(
-                (
-                    (
-                        math.sin(
-                            math.pi / NUM_STEPS * math.floor(run_time / STEP_SEC)
-                            - math.pi / 2
-                        )
-                    )
-                    + 1
-                )
-                / 2
-                * USER_SCALE
-            )
-            + MIN_USERS,
-            SPAWN_RATE,
-        )
+	
+        if DYNAMIC_LOAD == "True":
 
-        return tick_data
+            tick_data = (
+                math.floor(
+                    (
+                        (
+                            math.sin(
+                                math.pi / NUM_STEPS * math.floor(run_time / STEP_SEC)
+                                - math.pi / 2
+                            )
+                        )
+                        + 1
+                    )
+                    / 2
+                    * USER_SCALE
+                )
+                + MIN_USERS,
+                SPAWN_RATE,
+            )
+
+            return tick_data
+        else:
+            tick_data = (MIN_USERS+USER_SCALE, SPAWN_RATE)
+            return tick_data
