@@ -40,9 +40,9 @@ spec:
         - name: FRONTEND_ADDR
           value: "frontend:80"
         - name: NUM_STEPS
-          value: "24"
+          value: "480"
         - name: STEP_SEC
-          value: "14"
+          value: "15"
         - name: USER_SCALE
           value: "50"
         - name: SPAWN_RATE
