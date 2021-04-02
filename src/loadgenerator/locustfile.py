@@ -31,7 +31,7 @@ from locust import HttpUser, TaskSet, SequentialTaskSet, LoadTestShape, task, be
 MASTER_PASSWORD = "password"
 
 
-DYNAMIC_LOAD = os.getenv("DYNAMIC_LOAD", "True")
+DYNAMIC_LOAD = os.getenv("DYNAMIC_LOAD")
 NUM_STEPS = int(os.getenv("NUM_STEPS", 480))
 STEP_SEC = int(os.getenv("STEP_SEC", 15))
 MIN_USERS = int(os.getenv("MIN_USERS", 5))
@@ -262,7 +262,7 @@ class StagesShape(LoadTestShape):
         run_time = self.get_run_time()
 
 	
-        if DYNAMIC_LOAD == "True":
+        if DYNAMIC_LOAD:
 
             tick_data = (
                 math.floor(
