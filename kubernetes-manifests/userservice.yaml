@@ -66,11 +66,11 @@ spec:
           timeoutSeconds: 10
         resources:
           requests:
-            cpu: 500m
-            memory: 512Mi
+            cpu: 1000m
+            memory: 1Gi
           limits:
-            cpu: 500m
-            memory: 512Mi
+            cpu: 1000m
+            memory: 1Gi
       volumes:
       - name: keys
         secret:

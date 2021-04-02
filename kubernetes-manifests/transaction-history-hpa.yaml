@@ -4,7 +4,7 @@ metadata:
   name: transactionhistory
 spec:
   maxReplicas: 7
-  minReplicas: 2
+  minReplicas: 1
   targetCPUUtilizationPercentage: 80
   scaleTargetRef:
     apiVersion: apps/v1

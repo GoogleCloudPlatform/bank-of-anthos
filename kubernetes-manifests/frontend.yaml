@@ -17,7 +17,6 @@ kind: Deployment
 metadata:
   name: frontend
 spec:
-  replicas: 2
   selector:
     matchLabels:
       app: frontend
@@ -77,10 +76,10 @@ spec:
           timeoutSeconds: 10
         resources:
           requests:
-            cpu: 500m
+            cpu: 1000m
             memory: 1Gi
           limits:
-            cpu: 500m
+            cpu: 1000m
             memory: 1Gi
       volumes:
       - name: publickey
