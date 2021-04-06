@@ -34,16 +34,17 @@ export CLUSTER_2_ZONE="us-central1-b"
 # Note - workload identity is required for ASM 
 echo "☸️ Creating clusters..."
 
-gcloud config set projec ${PROJECT_ID}
-gcloud services enable container.googleapis.com 
+gcloud config set project ${PROJECT_ID}
 
 gcloud beta container clusters create ${CLUSTER_1_NAME} \
 --project=${PROJECT_ID} --zone=${CLUSTER_1_ZONE} \
+--release-channel=regular  --image-type cos_containerd \
 --machine-type=e2-standard-4 --num-nodes=4 \
 --workload-pool=${PROJECT_ID}.svc.id.goog --async 
 
 gcloud beta container clusters create ${CLUSTER_2_NAME} \
 --project=${PROJECT_ID} --zone=${CLUSTER_2_ZONE} \
+--release-channel=regular  --image-type cos_containerd \
 --machine-type=e2-standard-4 --num-nodes=4 \
 --workload-pool=${PROJECT_ID}.svc.id.goog 
 
@@ -58,21 +59,21 @@ kubectx cluster-2=.
 
 echo "⬇️ Installing required tools for ASM..."
 # https://cloud.google.com/service-mesh/docs/scripted-install/asm-onboarding#installing_required_tools 
-# https://cloud.google.com/service-mesh/docs/managed-control-plane 
 curl https://storage.googleapis.com/csm-artifacts/asm/install_asm_1.9 > install_asm
 curl https://storage.googleapis.com/csm-artifacts/asm/install_asm_1.9.sha256 > install_asm.sha256
-sha256sum -c --ignore-missing install_asm.sha256
+sha256sum -c --ignore-missing install_asm.sha256 
 chmod +x install_asm
 
 echo "🕸 Installing ASM on cluster-1..."
+# https://cloud.google.com/service-mesh/docs/managed-control-plane 
 kubectx cluster-1 
 
 ./install_asm --mode install --managed -p ${PROJECT_ID} \
     -l ${CLUSTER_1_ZONE} -n ${CLUSTER_1_NAME} -v \
-    --output_dir asm-${CLUSTER_1_NAME} --enable-all
+    --output_dir asm-${CLUSTER_1_NAME} --enable-all 
 
 echo "⛵️ Installing the Istio IngressGateway on cluster-1..."
-./asm-${CLUSTER_1_NAME}/istio-1.9.1-asm.1/bin/istioctl install -f ./asm-${CLUSTER_1_NAME}/managed_control_plane_gateway.yaml --set revision=asm-managed -y
+./asm-${CLUSTER_1_NAME}/istio-1.9.2-asm.1/bin/istioctl install -f ./asm-${CLUSTER_1_NAME}/managed_control_plane_gateway.yaml --set revision=asm-managed -y
 
 echo "🕸 Installing ASM on cluster-2..."
 kubectx cluster-2 
@@ -89,14 +90,13 @@ export CTX_1="cluster-1"
 export CTX_2="cluster-2"
 
 echo "Letting cluster 1 know about cluster 2..."  
-./asm-${CLUSTER_1_NAME}/istio-1.9.1-asm.1/bin/istioctl x create-remote-secret --context=${CTX_2} --name=cluster2 | kubectl apply -f - --context=${CTX_1}
+./asm-${CLUSTER_1_NAME}/istio-1.9.2-asm.1/bin/istioctl x create-remote-secret --context=${CTX_2} --name=cluster2 | kubectl apply -f - --context=${CTX_1}
 
 kubectx cluster-1 
 kubectl get secret istio-remote-secret-cluster2 -n istio-system 
 
 # Let cluster 2 know about cluster 1 
-./asm-${CLUSTER_1_NAME}/istio-1.9.1-asm.1/bin/istioctl x create-remote-secret --context=${CTX_1} --name=cluster1 | \
-kubectl apply -f - --context=${CTX_2}
+./asm-${CLUSTER_1_NAME}/istio-1.9.2-asm.1/bin/istioctl x create-remote-secret --context=${CTX_1} --name=cluster1 | kubectl apply -f - --context=${CTX_2}
 
 kubectx cluster-2 
 kubectl get secret istio-remote-secret-cluster1 -n istio-system
