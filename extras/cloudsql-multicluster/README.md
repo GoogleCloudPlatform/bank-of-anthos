@@ -8,13 +8,15 @@ The use case for this setup is to demo running a global, scaled app, where even 
 
 Note that in this setup, there is no service communication between the two clusters/regions. Each cluster has a dedicated frontend and set of backends. Both regions, however, share the same Cloud SQL instance, which houses the two databases (Accounts and Ledger).
 
+For an HTTPS setup using self-managed certs, [see the HTTPS section](#https-option) at the bottom of this page. 
+
 ## Prerequisites
 
 Install the kubectx command line tool
 
 Anthos license
 
-## Steps
+## Steps (HTTP)
 
 1. **Create a [Google Cloud project](https://cloud.google.com/resource-manager/docs/creating-managing-projects)** if you don't already have one.
 
@@ -176,3 +178,30 @@ Cluster: boa-2, Pod: frontend-74675b56f-2ln5w, Zone: europe-west3-a
 ```
 
 🎉 **Congrats!** You just deployed a globally-available version of Bank of Anthos!
+
+
+## HTTPS Option 
+
+https://cloud.google.com/kubernetes-engine/docs/how-to/multi-cluster-ingress#https_support 
+
+1. Create a global static IP, `mci-ip`. 
+
+```
+gcloud compute addresses create mci-ip --global
+```
+
+2. Create a self-signed SSL certificate. 
+
+```
+openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365
+```
+
+3. Create a Kubernetes secret, `mci-tls`, from your SSL certificate. 
+
+```
+kubectl -n prod create secret mci-tls secret-name --key `pwd`/key.pem --cert `pwd`/cert.pem
+```
+
+Follow the rest of the instructions in the HTTP section. The only difference is that when you reach the section where you deploy `multicluster-ingress.yaml`, **instead deploy `multicluster-ingress-https.yaml`.** This updated MCI resource points to the static IP and cert secret you created. 
+
+For more information, see the [Multi-cluster ingress docs](https://cloud.google.com/kubernetes-engine/docs/how-to/multi-cluster-ingress#https_support). 

@@ -48,6 +48,18 @@ def create_app():
     """
     app = Flask(__name__)
 
+    # Ensure redirect to HTTPS when SCHEME=HTTPS 
+    @app.before_request
+    def https_redirect():
+        print("🔀 Enter HTTPS redirect")
+        if (request.endpoint in app.view_functions and 
+            os.environ.get('SCHEME') is 'https' and 
+            not request.is_secure):
+            print("⭐️ Redirecting to")
+            return redirect(request.url.replace('http://', 'https://'))
+        else:
+            print("⛔️ Not redirecting, keeping HTTP")
+
     # Disabling unused-variable for lines with route decorated functions
     # as pylint thinks they are unused
     # pylint: disable=unused-variable

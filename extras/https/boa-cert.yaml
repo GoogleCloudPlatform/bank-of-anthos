@@ -1,0 +1,7 @@
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: boa-cert
+spec:
+  domains:
+    - anthosdpe.dev
