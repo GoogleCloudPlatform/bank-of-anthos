@@ -51,11 +51,10 @@ def create_app():
     # Ensure redirect to HTTPS when SCHEME=HTTPS 
     @app.before_request
     def https_redirect():
-        print("🔀 Enter HTTPS redirect")
-        if (request.endpoint in app.view_functions and 
-            os.environ.get('SCHEME') is 'https' and 
-            not request.is_secure):
-            print("⭐️ Redirecting to")
+        print("🔀 Enter HTTPS redirect") 
+        scheme = os.environ.get('SCHEME').lower()  
+        if (scheme == 'https'):
+            print("⭐️ Redirecting to https")
             return redirect(request.url.replace('http://', 'https://'))
         else:
             print("⛔️ Not redirecting, keeping HTTP")

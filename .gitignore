@@ -2,6 +2,7 @@
 *.swp
 *.key
 *.pub
+*.pem
 target/
 .settings
 .project

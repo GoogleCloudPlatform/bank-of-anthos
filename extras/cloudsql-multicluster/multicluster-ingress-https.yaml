@@ -30,9 +30,13 @@ apiVersion: networking.gke.io/v1
 kind: MultiClusterIngress
 metadata:
   name: frontend-global-ingress
+  annotations:
+    networking.gke.io/static-ip: 34.120.62.149
 spec:
   template:
     spec:
       backend:
         serviceName: frontend-mcs
         servicePort: 8080
+      tls:
+      - secretName: mci-tls

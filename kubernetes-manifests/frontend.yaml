@@ -29,7 +29,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: front
-        image: gcr.io/bank-of-anthos/frontend:v0.4.3
+        image:  gcr.io/megan-fall20/boa-https/gcr.io/bank-of-anthos/frontend:v1
         volumeMounts:
         - name: publickey
           mountPath: "/root/.ssh"
@@ -42,7 +42,7 @@ spec:
         - name: ENABLE_TRACING
           value: "true"
         - name: SCHEME
-          value: "http"
+          value: "https"
          # Valid levels are debug, info, warning, error, critical. If no valid level is set, defaults to info.
         - name: LOG_LEVEL
           value: "info"
@@ -67,20 +67,20 @@ spec:
             name: environment-config
         - configMapRef:
             name: service-api-config
-        readinessProbe:
-          httpGet:
-            path: /ready
-            port: 8080
-          initialDelaySeconds: 10
-          periodSeconds: 5
-          timeoutSeconds: 10
-        livenessProbe:
-          httpGet:
-            path: /ready
-            port: 8080
-          initialDelaySeconds: 60
-          periodSeconds: 15
-          timeoutSeconds: 30
+        # readinessProbe:
+        #   httpGet:
+        #     path: /ready
+        #     port: 8080
+        #   initialDelaySeconds: 10
+        #   periodSeconds: 5
+        #   timeoutSeconds: 10
+        # livenessProbe:
+        #   httpGet:
+        #     path: /ready
+        #     port: 8080
+        #   initialDelaySeconds: 60
+        #   periodSeconds: 15
+        #   timeoutSeconds: 30
         resources:
           requests:
             cpu: 100m
