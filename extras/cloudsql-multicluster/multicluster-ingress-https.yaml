@@ -31,7 +31,7 @@ kind: MultiClusterIngress
 metadata:
   name: frontend-global-ingress
   annotations:
-    networking.gke.io/static-ip: 34.120.62.149
+    networking.gke.io/static-ip: 35.201.73.151
 spec:
   template:
     spec:

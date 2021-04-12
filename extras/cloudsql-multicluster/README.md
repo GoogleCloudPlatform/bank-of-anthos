@@ -33,10 +33,10 @@ export NAMESPACE="default"
 
 
 export PROJECT_ID="megan-fall20"
-export DB_REGION="us-central1"
-export CLUSTER_1_NAME="boa-mci-https-1"
-export CLUSTER_1_ZONE="us-central1-b"
-export CLUSTER_2_NAME="boa-mci-https-2"
+export DB_REGION="us-east1"
+export CLUSTER_1_NAME="boa-1"
+export CLUSTER_1_ZONE="us-east1-b"
+export CLUSTER_2_NAME="boa-2"
 export CLUSTER_2_ZONE="europe-west3-a"
 export NAMESPACE="default"
 ```
@@ -84,7 +84,7 @@ kubectx cluster2
 7. **Create Cloud SQL admin secrets** in your GKE clusters. This gives your in-cluster Cloud SQL clients a username and password to access Cloud SQL. (Note that admin/admin credentials are for demo use only and should never be used in a production environment.)
 
 ```
-INSTANCE_NAME='bank-of-anthos-db-multi2'
+INSTANCE_NAME='bank-of-anthos-db-multi3'
 INSTANCE_CONNECTION_NAME=$(gcloud sql instances describe $INSTANCE_NAME --format='value(connectionName)')
 
 kubectx cluster1
@@ -202,16 +202,16 @@ https://cloud.google.com/kubernetes-engine/docs/how-to/multi-cluster-ingress#htt
 1. Create a global static IP, `mci-ip`. 
 
 ```
-gcloud compute addresses create mci-ip --global
+gcloud compute addresses create mci-ip2 --global
 ```
 
-1. Get the IP value of `mci-ip` and copy to the clipboard. 
+2. Get the IP value of `mci-ip` and copy to the clipboard. 
 
 ```
-gcloud compute addresses describe mci-ip --global
+gcloud compute addresses describe mci-ip2 --global
 ```
 
-2. Create a self-signed SSL certificate. **At the openssl prompt, list your mci-ip value as the CN (Common Name).** 
+3. Create a self-signed SSL certificate. **At the openssl prompt, list your mci-ip value as the CN (Common Name).** 
 
 ```
 openssl genrsa -out private-key.pem 2048
@@ -219,7 +219,7 @@ openssl rsa -in private-key.pem -pubout -out public-key.pem
 openssl req -new -x509 -key private-key.pem -out cert.pem -days 360
 ```
 
-1. (After creating the GKE cluster / step 3 above) Switch to the cluster 1 context, and create a Kubernetes secret, `mci-tls`, from your SSL key and cert.
+4. (After creating the GKE cluster / step 3 above) Switch to the cluster 1 context, and create a Kubernetes secret, `mci-tls`, from your SSL key and cert.
 
 ```
 kubectx cluster1 
@@ -232,8 +232,7 @@ Expected output:
 secret/mci-tls created
 ```
 
-
-1. In `multicluster-ingress.https.yaml`, replace [MCI_IP] with the value of your `mci-ip`. 
+5. In `multicluster-ingress.https.yaml`, replace [MCI_IP] with the value of your `mci-ip`. 
 
 Follow the rest of the instructions in the HTTP section. The only difference is that when you reach the section where you deploy `multicluster-ingress.yaml`, **instead deploy `multicluster-ingress-https.yaml`.** This updated MCI resource points to the static IP and cert secret you created. 
 
