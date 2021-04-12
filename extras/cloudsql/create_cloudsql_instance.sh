@@ -13,7 +13,7 @@
 # limitations under the License.
 # !/bin/bash
 
-INSTANCE_NAME='bank-of-anthos-db-multi3'
+INSTANCE_NAME='bank-of-anthos-db-multi'
 
 echo "☁️ Enabling the Cloud SQL API..."
 gcloud config set project ${PROJECT_ID}
