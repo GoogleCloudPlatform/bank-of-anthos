@@ -113,6 +113,13 @@ kubectl apply  -n ${NAMESPACE} -f ../cloudsql/kubernetes-manifests
 
 kubectx cluster2
 kubectl apply  -n ${NAMESPACE} -f ../cloudsql/kubernetes-manifests
+
+
+kubectx cluster1
+kubectl delete  -n ${NAMESPACE} -f ../cloudsql/kubernetes-manifests
+
+kubectx cluster2
+kubectl delete  -n ${NAMESPACE} -f ../cloudsql/kubernetes-manifests
 ```
 
 11. **Run the Multi-cluster Ingress setup script.** This registers both GKE clusters to Anthos with "memberships," and sets cluster 1 as the "config cluster" to administer the Multi-cluster Ingress resources.

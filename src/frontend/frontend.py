@@ -48,6 +48,14 @@ def create_app():
     """
     app = Flask(__name__)
 
+    # Ensure redirect to HTTPS when SCHEME=HTTPS. Readiness probes within k8s can be HTTP.
+    # @app.before_request
+    # def before_request():
+    #     scheme = os.environ.get('SCHEME').lower()  
+    #     if scheme == 'https' and request.url.startswith('http://') and request.endpoint != "readiness":
+    #         url = request.url.replace('http://', 'https://', 1)
+    #         return redirect(url, code=301)
+
     # Disabling unused-variable for lines with route decorated functions
     # as pylint thinks they are unused
     # pylint: disable=unused-variable
