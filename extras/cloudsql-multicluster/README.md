@@ -183,3 +183,17 @@ Cluster: boa-2, Pod: frontend-74675b56f-2ln5w, Zone: europe-west3-a
 ```
 
 🎉 **Congrats!** You just deployed a globally-available version of Bank of Anthos!
+
+
+## HTTPS Version 
+
+1. Follow this guide as-is but **stop before step 12** (creating the multicluster ingress.yaml resource). 
+
+2. Follow steps 1-6 in the [single cluster HTTPS guide](/extras/frontend-https) to create the self-signed certs and global static IP. 
+
+3. In `multicluster-ingress-https.yaml` replace `[YOUR_STATIC_IP]` with the value of your static IP. 
+   
+4. Run `kubectl apply -f multicluster-ingress-https.yaml`
+
+5. Resume this guide at step 13.
+
