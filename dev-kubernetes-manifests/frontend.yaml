@@ -31,9 +31,12 @@ spec:
       - name: front
         image: gcr.io/bank-of-anthos/frontend:latest
         volumeMounts:
-        - name: publickey
+        - name: publickey # JWT 
           mountPath: "/root/.ssh"
           readOnly: true
+        - name: tls # TLS 
+          mountPath: "/tls"
+          readOnly: false
         env:
         - name: VERSION
           value: "v0.2.0"
@@ -42,7 +45,7 @@ spec:
         - name: ENABLE_TRACING
           value: "true"
         - name: SCHEME
-          value: "http"
+          value: "https"
          # Valid levels are debug, info, warning, error, critical. If no valid level is set, defaults to info.
         - name: LOG_LEVEL
           value: "info"
@@ -69,6 +72,7 @@ spec:
             name: service-api-config
         readinessProbe:
           httpGet:
+            scheme: HTTPS
             path: /ready
             port: 8080
           initialDelaySeconds: 10
@@ -76,6 +80,7 @@ spec:
           timeoutSeconds: 10
         livenessProbe:
           httpGet:
+            scheme: HTTPS 
             path: /ready
             port: 8080
           initialDelaySeconds: 60
@@ -95,6 +100,14 @@ spec:
           items:
           - key: jwtRS256.key.pub
             path: publickey
+      - name: tls
+        secret:
+          secretName: frontend-tls
+          items:
+          - key: tls.crt
+            path: public.crt
+          - key: tls.key
+            path: private.key
 ---
 apiVersion: v1
 kind: Service
@@ -105,6 +118,6 @@ spec:
   selector:
     app: frontend
   ports:
-  - name: http
+  - name: https
     port: 80
     targetPort: 8080

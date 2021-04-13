@@ -47,11 +47,12 @@ ADD static /app/static
 ADD templates /app/templates
 ADD *.py /app/
 
-# Copy uwsgi conf
+# Copy uwsgi conf + startup script 
 COPY uwsgi-conf.ini /uwsgi-conf.ini
+COPY startup.sh /startup.sh 
 
 # Add application code.
 ADD *.py /app/
 
-# Start server with user-provided PORT
-CMD uwsgi --ini /uwsgi-conf.ini  --http :${PORT}
+# Start uwsgi server w/ the frontend flask app 
+CMD PORT=${PORT} SCHEME=${SCHEME} bash /startup.sh 
