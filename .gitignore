@@ -167,6 +167,6 @@ src/ledgermonolith/istio/istio-1.*
 register-key.json
 
 
-.crt 
-.csr 
-.key
+*.crt
+*.csr
+*.key

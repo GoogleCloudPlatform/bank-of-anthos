@@ -1,0 +1,12 @@
+#######################################################################
+# The FrontEendConfig CRD enables HTTP to HTTPS redirection with
+# with GKE Ingress.
+# (See: https://cloud.google.com/kubernetes-engine/docs/how-to/ingress-features#https_redirect)
+#######################################################################
+apiVersion: networking.gke.io/v1beta1
+kind: FrontendConfig
+metadata:
+  name: boa-frontendconfig
+spec:
+  redirectToHttps:
+    enabled: true
