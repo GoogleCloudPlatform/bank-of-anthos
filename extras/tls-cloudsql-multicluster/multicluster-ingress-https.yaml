@@ -21,7 +21,7 @@ spec:
       selector:
         app: frontend
       ports:
-      - name: http
+      - name: https
         protocol: TCP
         port: 8080
         targetPort: 8080
