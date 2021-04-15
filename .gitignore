@@ -170,3 +170,5 @@ register-key.json
 .csr
 .key
 .crt
+
+env
