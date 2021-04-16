@@ -33,10 +33,10 @@ metadata:
   annotations:
     networking.gke.io/static-ip: 34.102.238.83
 spec:
-  tls:
-    secretName: frontend-tls-multi
   template:
     spec:
       backend:
         serviceName: frontend-mcs
         servicePort: 8080
+      tls:
+      - secretName: frontend-tls-multi
