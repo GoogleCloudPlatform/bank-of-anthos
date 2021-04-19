@@ -166,6 +166,10 @@ src/ledgermonolith/istio/istio-1.*
 # Ingress for Anthos service account key
 register-key.json
 
+
+# SSL
 *.crt
 *.csr
-private.key
+*.key
+
+env
