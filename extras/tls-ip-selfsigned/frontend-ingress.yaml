@@ -17,7 +17,6 @@ metadata:
   name: frontend-ingress
   annotations:
     kubernetes.io/ingress.global-static-ip-name: boa-single-cluster-ip
-    # kubernetes.io/ingress.allow-http: "false"
     networking.gke.io/v1beta1.FrontendConfig: "boa-frontend-config" #http -> https redirect
 spec:
   tls:
