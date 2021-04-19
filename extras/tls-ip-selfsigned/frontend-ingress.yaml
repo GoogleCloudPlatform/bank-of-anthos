@@ -13,39 +13,7 @@
 # limitations under the License.
 
 ######################################################################
-# Setup up the FrontendConfig resource that enables HTTP -> HTTPS
-# redirection in at the Ingress Loadbalancer
-######################################################################
-apiVersion: networking.gke.io/v1beta1
-kind: FrontendConfig
-metadata:
-  name: boa-frontend-config
-spec:
-  redirectToHttps:
-    enabled: true
-    responseCodeName: MOVED_PERMANENTLY_DEFAULT
----
-######################################################################
-# Modify the default Service LoadBalancer to be 'Internal' to ensure
-# only traffic via the Ingress is allowed
-######################################################################
-apiVersion: v1
-kind: Service
-metadata:
-  name: frontend
-  annotations:
-    networking.gke.io/load-balancer-type: "Internal"
-spec:
-  type: LoadBalancer
-  selector:
-    app: frontend
-  ports:
-  - name: http
-    port: 80
-    targetPort: 8080
----
-######################################################################
-# COnfigure the Ingress to use the FrontendConfig that takes care of
+# Configure the Ingress to use the FrontendConfig that takes care of
 # redirecting HTTP requests to HTTPS
 ######################################################################
 apiVersion: extensions/v1beta1
