@@ -53,8 +53,8 @@ spec:
           value: "info"
         # Add this environment variable to enable load that cycles
         # between  MIN_USERS and MIN_USERS+USER_SCALE
-        #- name: DYNAMIC_LOAD
-        #  value: "True"
+        - name: DYNAMIC_LOAD
+          value: "True"
         resources:
           requests:
             cpu: 1000m
