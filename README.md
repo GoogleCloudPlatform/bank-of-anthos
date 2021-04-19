@@ -63,19 +63,25 @@ gcloud beta container clusters create bank-of-anthos \
 --tags=bank-of-anthos --labels csm=
 ```
 
-4. **Deploy the demo JWT public key** to the cluster as a Secret. This key is used for user account creation and authentication.
+4. **Get credentials for the created cluster**
+
+```
+gcloud container clusters get-credentials bank-of-anthos --project=${PROJECT_ID} --zone=${ZONE}
+```
+
+5. **Deploy the demo JWT public key** to the cluster as a Secret. This key is used for user account creation and authentication.
 
 ```
 kubectl apply -f ./extras/jwt/jwt-secret.yaml
 ```
 
-5. **Deploy the sample app to the cluster.**
+6. **Deploy the sample app to the cluster.**
 
 ```
 kubectl apply -f ./kubernetes-manifests
 ```
 
-6. **Wait for the Pods to be ready.**
+7. **Wait for the Pods to be ready.**
 
 ```
 kubectl get pods
@@ -96,7 +102,7 @@ transactionhistory-5569754896-z94cn   1/1     Running   0          97s
 userservice-78dc876bff-pdhtl          1/1     Running   0          96s
 ```
 
-7. **Access the web frontend in a browser** using the frontend's `EXTERNAL_IP`.
+8. **Access the web frontend in a browser** using the frontend's `EXTERNAL_IP`.
 
 ```
 kubectl get service frontend | awk '{print $4}'

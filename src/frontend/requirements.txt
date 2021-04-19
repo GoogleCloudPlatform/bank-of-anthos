@@ -43,7 +43,7 @@ idna==2.9
     # via requests
 itsdangerous==1.1.0
     # via flask
-jinja2==2.11.1
+jinja2==2.11.3
     # via
     #   flask
     #   opentelemetry-instrumentation-jinja2
