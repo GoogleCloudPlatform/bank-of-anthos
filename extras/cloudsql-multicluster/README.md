@@ -10,9 +10,8 @@ Note that in this setup, there is no service communication between the two clust
 
 ## Prerequisites
 
-Install the kubectx command line tool
-
-Anthos license
+- Install the kubectx command line tool
+- Anthos license
 
 ## Steps
 
