@@ -108,7 +108,7 @@ requests==2.23.0
     #   google-api-core
     #   opentelemetry-instrumentation-requests
     #   opentelemetry-tools-google-cloud
-rsa==4.6
+rsa==4.7
     # via google-auth
 six==1.14.0
     # via
