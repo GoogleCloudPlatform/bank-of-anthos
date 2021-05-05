@@ -32,7 +32,7 @@ packaging==20.4
 pluggy==0.13.1
 protobuf==3.12.2
 psycopg2==2.7.7
-py==1.9.0
+py==1.10.0
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
 pycparser==2.20
@@ -43,7 +43,7 @@ pytest==5.4.1
 pytest-cov==2.10.0
 pytz==2020.1
 requests==2.24.0
-rsa==4.6
+rsa==4.7
 six==1.14.0
 urllib3==1.25.9
 uwsgi==2.0.19.1

@@ -137,7 +137,7 @@ protobuf==3.12.2
     #   googleapis-common-protos
 psycopg2==2.7.7
     # via -r requirements.in
-py==1.9.0
+py==1.10.0
     # via
     #   -r requirements.in
     #   pytest
@@ -177,7 +177,7 @@ requests==2.24.0
     #   -r requirements.in
     #   google-api-core
     #   opentelemetry-tools-google-cloud
-rsa==4.6
+rsa==4.7
     # via
     #   -r requirements.in
     #   google-auth
