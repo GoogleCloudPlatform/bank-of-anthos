@@ -12,42 +12,35 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-apiVersion: skaffold/v2alpha4
+
+apiVersion: skaffold/v2beta15
 kind: Config
+metadata:
+  name: frontend-svc
 build:
-  artifacts:
-  - image: gcr.io/bank-of-anthos/frontend
-    context: src/frontend
-  - image: gcr.io/bank-of-anthos/ledgerwriter
-    jib:
-      project: src/ledgerwriter
-  - image: gcr.io/bank-of-anthos/balancereader
-    jib:
-      project: src/balancereader
-  - image: gcr.io/bank-of-anthos/transactionhistory
-    jib:
-      project: src/transactionhistory
-  - image: gcr.io/bank-of-anthos/contacts
-    context: src/contacts
-  - image: gcr.io/bank-of-anthos/userservice
-    context: src/userservice
-  - image: gcr.io/bank-of-anthos/loadgenerator
-    context: src/loadgenerator
-  - image: gcr.io/bank-of-anthos/accounts-db
-    context: src/accounts-db
-  - image: gcr.io/bank-of-anthos/ledger-db
-    context: src/ledger-db
-  tagPolicy:
-    gitCommit: {}
-  local:
-    concurrency: 0
-deploy:
-  statusCheckDeadlineSeconds: 300
-  kubectl:
-    manifests:
-    - ./dev-kubernetes-manifests/**.yaml
-    # deploy a pre-build secret
-    # in practice, this should not be checked in to source control
-    - ./extras/jwt/jwt-secret.yaml
-profiles:
-  - name: local-code
+requires:
+  - configs: [backend-svc]
+  - path: ./skaffold-modules/frontend.yaml
+
+---
+
+apiVersion: skaffold/v2beta15
+kind: Config
+metadata:
+  name: loadgenerator-svc
+requires:
+  - configs: [backend-svc]
+  - path: ./skaffold-modules/loadgenerator.yaml
+
+---
+
+apiVersion: skaffold/v2beta12
+kind: Config
+metadata:
+  name: backend-svc
+requires:
+  - path: ./skaffold-modules/userservice.yaml
+  - path: ./skaffold-modules/contacts.yaml
+  - path: ./skaffold-modules/ledger-writer.yaml
+  - path: ./skaffold-modules/balance-reader.yaml
+  - path: ./skaffold-modules/transaction-history.yaml
