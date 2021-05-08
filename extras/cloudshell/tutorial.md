@@ -47,30 +47,6 @@ In order to create a GKE cluster, you'll need to **[create a Google Cloud Platfo
 
 5. Click **Create Cluster**. Once your cluster has been created successfully, you can move on to the next step.
 
-
-## Deploy JWT token
-
-Bank of Anthos uses a JWT token for user account creation and authentication. 
-
-To deploy the token:
-
-1. Open <walkthrough-editor-open-file filePath="extras/jwt/jwt-secret.yaml">jwt-secret.yaml
-</walkthrough-editor-open-file>. 
-
-2. Access the command palette by going to **View > Find Command**.
-
-3. Run the command **"Cloud Code: Apply the current JSON/YAML file to the kubernetes deployed resource"**.   
-
-4. The following warning will pop up:  
-
-> ⚠️ Resource Secret/jwt-key does not exist - this will create a new resource.
-
-5. Click **Create**.   
-
-This deploys the demo JWT public key to your cluster as a Secret.
-
-For more information about using JWT keys in Bank of Anthos, check out the <walkthrough-editor-open-file filePath="extras/jwt/README.md">JWT Key Pair Secret README</walkthrough-editor-open-file>.
-
 ## Run on Kubernetes
 
 Now you can run Bank of Anthos on your Kubernetes cluster!
