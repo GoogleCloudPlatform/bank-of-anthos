@@ -9,7 +9,7 @@ steps:
   - '-c'
   - |
       gcloud container clusters get-credentials ${_CONTAINER_CLUSTER} --region ${_ZONE} --project $PROJECT_ID
-      skaffold run
+      skaffold run --skip-tests=true
 substitutions:
     _ZONE: europe-central2-a
     _SKAFFOLD_VERSION: v1.24.0 
