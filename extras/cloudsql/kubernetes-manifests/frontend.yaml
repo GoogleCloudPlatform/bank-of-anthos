@@ -30,7 +30,7 @@ spec:
       containers:
       - name: front
         imagePullPolicy: Always
-        image: gcr.io/bank-of-anthos/frontend:v0.4.1
+        image: gcr.io/bank-of-anthos/frontend:v0.4.3
         ports:
         - containerPort: 8080
         volumeMounts:

@@ -170,3 +170,9 @@ register-key.json
 install_asm* 
 extras/asm-multicluster/asm-cluster-1/* 
 extras/asm-multicluster/asm-cluster-2/*
+
+# SSL 
+.csr
+.key
+.crt
+env
