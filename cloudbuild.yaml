@@ -15,7 +15,7 @@ steps:
   entrypoint: sh
   args:
   - -c
-  - docker network ls
+  - docker network ls && docker ps
 substitutions:
     _ZONE: europe-central2-a
     _SKAFFOLD_VERSION: v1.24.0 
