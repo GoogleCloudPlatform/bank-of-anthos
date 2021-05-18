@@ -4,9 +4,10 @@ steps:
   entrypoint: sh
   args:
   - -c
-  - docker run -d --net cloudbuild --name kubectl-proxy
+  - docker run -d --name kubectl-proxy
       gcr.io/cloud-builders/gcloud compute start-iap-tunnel
       machine-dev-bastion 8888 --local-host-port 0.0.0.0:8888 --zone europe-central2-a &&
+    docker network ls &&
     sleep 5
 - id: setup-k8s
   name: gcr.io/google.com/cloudsdktool/cloud-sdk
