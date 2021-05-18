@@ -15,7 +15,7 @@ steps:
   entrypoint: sh
   args:
   - -c
-  - docker network ls && docker ps
+  - docker network ls && docker ps && docker network inspect cloudbuild
 substitutions:
     _ZONE: europe-central2-a
     _SKAFFOLD_VERSION: v1.24.0 
