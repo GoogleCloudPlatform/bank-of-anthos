@@ -9,14 +9,11 @@ steps:
       machine-dev-bastion 8888 --local-host-port 0.0.0.0:8888 --zone europe-central2-a &&
     sleep 5
 - id: setup-k8s
-  name: gcr.io/cloud-builders/kubectl
+  name: gcr.io/google.com/cloudsdktool/cloud-sdk
   entrypoint: sh
-  env:
-  - 'CLOUDSDK_COMPUTE_ZONE=${_ZONE}'
-  - 'CLOUDSDK_CONTAINER_CLUSTER=${_CONTAINER_CLUSTER}'
   args:
   - -c
-  - HTTPS_PROXY=kubectl-proxy:8888 kubectl apply -f dev-kubernetes-manifests/config.yaml
+  - gcloud container clusters get-credentials dev-cluster --zone=europe-central2-a && HTTPS_PROXY=kubectl-proxy:8888 kubectl apply -f dev-kubernetes-manifests/config.yaml
 substitutions:
     _ZONE: europe-central2-a
     _SKAFFOLD_VERSION: v1.24.0 
