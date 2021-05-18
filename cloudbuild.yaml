@@ -11,6 +11,9 @@ steps:
 - id: setup-k8s
   name: gcr.io/cloud-builders/kubectl
   entrypoint: sh
+  env:
+  - 'CLOUDSDK_COMPUTE_ZONE=${_ZONE}'
+  - 'CLOUDSDK_CONTAINER_CLUSTER=${_CONTAINER_CLUSTER}'
   args:
   - -c
   - HTTPS_PROXY=kubectl-proxy:8888 kubectl apply -f dev-kubernetes-manifests/config.yaml
