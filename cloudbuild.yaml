@@ -1,15 +1,11 @@
 steps:
-- id: 'Skaffold run'
-  name: 'gcr.io/k8s-skaffold/skaffold:v1.24.0'
-  env:
-  - 'CLOUDSDK_COMPUTE_ZONE=${_ZONE}'
-  - 'CLOUDSDK_CONTAINER_CLUSTER=${_CONTAINER_CLUSTER}'
-  entrypoint: 'sh'
+- name: "gcr.io/cloud-builders/gke-deploy"
   args:
-  - '-c'
-  - |
-      gcloud container clusters get-credentials ${_CONTAINER_CLUSTER} --region ${_ZONE} --project $PROJECT_ID
-      skaffold run --skip-tests=true
+  - run
+  - --filename=dev-kubernetes-manifests/frontend.yaml
+  - --image=gcr.io/bank-of-anthos/frontend:latest
+  - --location=europe-central2-a
+  - --cluster=dev-cluster
 substitutions:
     _ZONE: europe-central2-a
     _SKAFFOLD_VERSION: v1.24.0 
