@@ -8,13 +8,14 @@ steps:
       gcr.io/cloud-builders/gcloud compute start-iap-tunnel
       machine-dev-bastion 8888 --local-host-port 0.0.0.0:8888 --zone europe-central2-a &&
     docker network ls &&
+    docker network inspect cloudbuild &&
     sleep 5
 - id: setup-k8s
   name: gcr.io/google.com/cloudsdktool/cloud-sdk
   entrypoint: sh
   args:
   - -c
-  - gcloud container clusters get-credentials dev-cluster --zone=europe-central2-a && HTTPS_PROXY=kubectl-proxy:8888 kubectl apply -f dev-kubernetes-manifests/config.yaml
+  - docker network ls
 substitutions:
     _ZONE: europe-central2-a
     _SKAFFOLD_VERSION: v1.24.0 
