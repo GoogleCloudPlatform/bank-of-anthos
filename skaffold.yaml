@@ -4,6 +4,15 @@ build:
   artifacts:
   - image: gcr.io/pol-pod11-dev-01/frontend
     context: src/frontend
+  - image: gcr.io/pol-pod11-dev-01/ledgerwriter
+    jib:
+      project: src/ledgerwriter
+  - image: gcr.io/pol-pod11-dev-01/balancereader
+    jib:
+      project: src/balancereader
+  - image: gcr.io/pol-pod11-dev-01/transactionhistory
+    jib:
+      project: src/transactionhistory
   - image: gcr.io/pol-pod11-dev-01/contacts
     context: src/contacts
   - image: gcr.io/pol-pod11-dev-01/userservice
