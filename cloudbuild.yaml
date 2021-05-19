@@ -7,7 +7,7 @@ steps:
   env:
     # Use Container Optimized OS
     # https://cloud.google.com/container-optimized-os/docs/
-    - INSTANCE_ARGS=--image-project cos-cloud --image-family cos-stable --network=dev-vpc-network
+    - INSTANCE_ARGS=--image-project cos-cloud --image-family cos-stable --network=dev-vpc-network --subnet=subnet-dev-01
     - ZONE=${_ZONE}
     - USERNAME=cloud-user
     # Run a script from the local build context in a Docker container
