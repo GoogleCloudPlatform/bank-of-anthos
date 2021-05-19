@@ -1,8 +1,9 @@
 steps:
-- name: 'gcr.io/cloud-builders/docker'
+- id: remote-builder
+  name: 'gcr.io/cloud-builders/docker'
   args: [ 'build', '-t', 'gcr.io/$PROJECT_ID/remote-builder', 'src/remote-builder' ]
 - name: gcr.io/$PROJECT_ID/remote-builder
-  waitFor: ["-"]
+  waitFor: ["remote-builder"]
   env:
     # Use Container Optimized OS
     # https://cloud.google.com/container-optimized-os/docs/
