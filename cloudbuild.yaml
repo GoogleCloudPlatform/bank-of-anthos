@@ -11,7 +11,7 @@ steps:
     - ZONE=${_ZONE}
     - USERNAME=cloud-user
     # Run a script from the local build context in a Docker container
-    - COMMAND=sudo apt-get install -y docker.io && docker run -v /home/cloud-user/workspace:/workspace gcr.io/k8s-skaffold/skaffold:v1.24.0 /bin/bash -c "gcloud container clusters get-credentials dev-cluster --zone=europe-central2-a && cd /workspace && skaffold run --skip-tests=true" 
+    - COMMAND=sudo apt-get install -y docker.io && sudo docker run -v /home/cloud-user/workspace:/workspace gcr.io/k8s-skaffold/skaffold:v1.24.0 /bin/bash -c "gcloud container clusters get-credentials dev-cluster --zone=europe-central2-a && cd /workspace && skaffold run --skip-tests=true" 
 # - id: setup-k8s
 #   name: gcr.io/google.com/cloudsdktool/cloud-sdk
 #   entrypoint: sh
