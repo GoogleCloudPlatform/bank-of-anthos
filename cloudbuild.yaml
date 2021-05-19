@@ -1,12 +1,27 @@
 steps:
-- id: setup-k8s
-  name: gcr.io/google.com/cloudsdktool/cloud-sdk
-  entrypoint: sh
-  args:
-  - -c
-  - gcloud compute start-iap-tunnel machine-dev-bastion 8888 --local-host-port 0.0.0.0:8888 --zone europe-central2-a &&
-    gcloud container clusters get-credentials dev-cluster --zone=europe-central2-a &&
-    HTTPS_PROXY=localhost:8888 kubectl get nodes
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ 'build', '-t', 'gcr.io/$PROJECT_ID/remote-builder', 'src/remote-builder' ]
+- name: gcr.io/$PROJECT_ID/remote-builder
+  waitFor: ["-"]
+  env:
+    # Use Container Optimized OS
+    # https://cloud.google.com/container-optimized-os/docs/
+    - INSTANCE_ARGS=--image-project cos-cloud --image-family cos-stable --network=dev-vpc-network
+    - ZONE=${_ZONE}
+    - USERNAME=cloud-user
+    # Run a script from the local build context in a Docker container
+    - COMMAND=ip a s
+# - id: setup-k8s
+#   name: gcr.io/google.com/cloudsdktool/cloud-sdk
+#   entrypoint: sh
+#   args:
+#   - -c
+#   - gcloud beta compute ssh bastion-host --tunnel-through-iap --project ${BASTION_PROJECT_ID} --zone ${BASTION_ZONE} -- -4 -N -L 8888:127.0.0.1:8888 -o "ExitOnForwardFailure yes" -o "ServerAliveInterval 10" &
+#   gcloud compute start-iap-tunnel machine-dev-bastion 8888 --local-host-port 0.0.0.0:8888 --zone europe-central2-a &&
+#     gcloud container clusters get-credentials dev-cluster --zone=europe-central2-a &&
+#     HTTPS_PROXY=localhost:8888 kubectl get nodes
+images:
+- 'gcr.io/$PROJECT_ID/remote-builder'
 substitutions:
     _ZONE: europe-central2-a
     _SKAFFOLD_VERSION: v1.24.0 
