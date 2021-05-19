@@ -8,10 +8,11 @@ steps:
     # Use Container Optimized OS
     # https://cloud.google.com/container-optimized-os/docs/
     - INSTANCE_ARGS=--image-project cos-cloud --image-family cos-stable --network=dev-vpc-network --subnet=subnet-dev-01 --scopes=https://www.googleapis.com/auth/cloud-platform --preemptible
+    - REMOTE_WORKSPACE=/workspace
     - ZONE=${_ZONE}
     - USERNAME=cloud-user
     # Run a script from the local build context in a Docker container
-    - COMMAND=docker run -v /home/cloud-user/workspace:/workspace gcr.io/k8s-skaffold/skaffold:v1.24.0 /bin/bash -c "gcloud container clusters get-credentials dev-cluster --zone=europe-central2-a && cd /workspace && skaffold run --skip-tests=true" 
+    - COMMAND=docker run -v /workspace:/workspace gcr.io/k8s-skaffold/skaffold:v1.24.0 /bin/bash -c "gcloud container clusters get-credentials dev-cluster --zone=europe-central2-a && cd /workspace && skaffold run --skip-tests=true" 
 # - id: setup-k8s
 #   name: gcr.io/google.com/cloudsdktool/cloud-sdk
 #   entrypoint: sh
