@@ -7,7 +7,7 @@ steps:
   env:
     # Use Container Optimized OS
     # https://cloud.google.com/container-optimized-os/docs/
-    - INSTANCE_ARGS=--image-project debian-cloud --image-family debian-10 --network=dev-vpc-network --subnet=subnet-dev-01
+    - INSTANCE_ARGS=--image-project debian-cloud --image-family debian-10 --network=dev-vpc-network --subnet=subnet-dev-01 --scopes=https://www.googleapis.com/auth/cloud-platform
     - ZONE=${_ZONE}
     - USERNAME=cloud-user
     # Run a script from the local build context in a Docker container
