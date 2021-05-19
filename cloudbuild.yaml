@@ -5,22 +5,10 @@ steps:
 - name: gcr.io/$PROJECT_ID/remote-builder
   waitFor: ["remote-builder"]
   env:
-    # Use Container Optimized OS
-    # https://cloud.google.com/container-optimized-os/docs/
     - INSTANCE_ARGS=--image-project debian-cloud --image-family debian-10 --network=dev-vpc-network --subnet=subnet-dev-01 --scopes=https://www.googleapis.com/auth/cloud-platform --preemptible
     - ZONE=${_ZONE}
     - USERNAME=cloud-user
-    # Run a script from the local build context in a Docker container
     - COMMAND=sudo apt-get install -y docker.io && sudo docker run -v /home/cloud-user/workspace:/workspace gcr.io/k8s-skaffold/skaffold:v1.24.0 /bin/bash -c "gcloud container clusters get-credentials dev-cluster --zone=europe-central2-a && cd /workspace && skaffold run --skip-tests=true" 
-# - id: setup-k8s
-#   name: gcr.io/google.com/cloudsdktool/cloud-sdk
-#   entrypoint: sh
-#   args:
-#   - -c
-#   - gcloud beta compute ssh bastion-host --tunnel-through-iap --project ${BASTION_PROJECT_ID} --zone ${BASTION_ZONE} -- -4 -N -L 8888:127.0.0.1:8888 -o "ExitOnForwardFailure yes" -o "ServerAliveInterval 10" &
-#   gcloud compute start-iap-tunnel machine-dev-bastion 8888 --local-host-port 0.0.0.0:8888 --zone europe-central2-a &&
-#     gcloud container clusters get-credentials dev-cluster --zone=europe-central2-a &&
-#     HTTPS_PROXY=localhost:8888 kubectl get nodes
 images:
 - 'gcr.io/$PROJECT_ID/remote-builder'
 substitutions:
