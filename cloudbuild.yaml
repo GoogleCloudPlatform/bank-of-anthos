@@ -7,11 +7,11 @@ steps:
   env:
     # Use Container Optimized OS
     # https://cloud.google.com/container-optimized-os/docs/
-    - INSTANCE_ARGS=--image-project cos-cloud --image-family cos-stable --network=dev-vpc-network --subnet=subnet-dev-01
+    - INSTANCE_ARGS=--image-project debian-cloud --image debian-10 --network=dev-vpc-network --subnet=subnet-dev-01
     - ZONE=${_ZONE}
     - USERNAME=cloud-user
     # Run a script from the local build context in a Docker container
-    - COMMAND=ip a s
+    - COMMAND=sudo apt-get install google-cloud-sdk-skaffold && gcloud container clusters get-credentials dev-cluster --zone=europe-central2-a && ls -l && skaffold run --skip-tests=true
 # - id: setup-k8s
 #   name: gcr.io/google.com/cloudsdktool/cloud-sdk
 #   entrypoint: sh
