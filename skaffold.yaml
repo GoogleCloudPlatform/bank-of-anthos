@@ -24,7 +24,7 @@ build:
   - image: gcr.io/pol-pod11-dev-01/ledger-db
     context: src/ledger-db
   tagPolicy:
-    gitCommit: {}
+    sha256: {}
   googleCloudBuild:
     concurrency: 0
     timeout: 900.0s
