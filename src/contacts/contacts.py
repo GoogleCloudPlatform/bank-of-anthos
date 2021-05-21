@@ -242,4 +242,3 @@ if __name__ == "__main__":
     # Create an instance of flask server when called directly
     CONTACTS = create_app()
     CONTACTS.run()
-
