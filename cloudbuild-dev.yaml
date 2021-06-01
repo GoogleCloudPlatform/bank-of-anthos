@@ -1,7 +1,4 @@
 steps:
-- id: 'Build remote-builder image'
-  name: 'gcr.io/cloud-builders/docker'
-  args: [ 'build', '-t', 'gcr.io/$PROJECT_ID/remote-builder', 'src/remote-builder' ]
 - id: 'Run skaffold with remote-builder'
   name: gcr.io/$PROJECT_ID/remote-builder
   env:
