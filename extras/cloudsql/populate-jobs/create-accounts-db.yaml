@@ -60,6 +60,9 @@ spec:
           name: accounts-init-config
       restartPolicy: Never
   backoffLimit: 4
+
+---
+
 apiVersion: v1
 kind: ConfigMap
 metadata:
