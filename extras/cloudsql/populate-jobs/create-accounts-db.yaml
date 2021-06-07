@@ -9,13 +9,10 @@ spec:
       serviceAccountName: iden-dev-cluster
       containers:
       - name: create-accounts-db
-        image: postgres:13.0
+        image: postgres:13.0-alpine
         command: ['bash', '-c']
         args:
-          - |
-            sleep 20;
-            psql -h 127.0.0.1 -p 5432 -f /scripts/0-accountsdb-init.sql;
-            sql_proxy_pid=$(pgrep cloud_sql_proxy) && kill -INT $sql_proxy_pid;
+          - "sleep 20 && psql -h 127.0.0.1 -p 5432 -d postgres -f /scripts/0-accountsdb-init.sql; apk add pcre-tools && sql_proxy_pid=$(/usr/bin/pgrep cloud_sql_proxy) && kill -INT $sql_proxy_pid"
         securityContext:
           capabilities:
             add:
