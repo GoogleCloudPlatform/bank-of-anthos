@@ -35,6 +35,7 @@ export CLUSTER_2_ZONE="us-central1-b"
 echo "☸️ Creating clusters..."
 
 gcloud config set project ${PROJECT_ID}
+gcloud services enable container.googleapis.com
 
 gcloud beta container clusters create ${CLUSTER_1_NAME} \
 --project=${PROJECT_ID} --zone=${CLUSTER_1_ZONE} \
@@ -72,8 +73,14 @@ kubectx cluster-1
     -l ${CLUSTER_1_ZONE} -n ${CLUSTER_1_NAME} -v \
     --output_dir asm-${CLUSTER_1_NAME} --enable-all 
 
+# get "revision" from directory created by install_asm script 
+for dir in asm-${CLUSTER_1_NAME}/istio-*/ ; do
+    export REVISION=`basename $dir`
+    echo "Revision is: $REVISION" 
+done
+
 echo "⛵️ Installing the Istio IngressGateway on cluster-1..."
-./asm-${CLUSTER_1_NAME}/istio-1.9.2-asm.1/bin/istioctl install -f ./asm-${CLUSTER_1_NAME}/managed_control_plane_gateway.yaml --set revision=asm-managed -y
+./asm-${CLUSTER_1_NAME}/$REVISION/bin/istioctl install -f ./asm-${CLUSTER_1_NAME}/managed_control_plane_gateway.yaml --set revision=asm-managed -y
 
 echo "🕸 Installing ASM on cluster-2..."
 kubectx cluster-2 
@@ -90,13 +97,13 @@ export CTX_1="cluster-1"
 export CTX_2="cluster-2"
 
 echo "Letting cluster 1 know about cluster 2..."  
-./asm-${CLUSTER_1_NAME}/istio-1.9.2-asm.1/bin/istioctl x create-remote-secret --context=${CTX_2} --name=cluster2 | kubectl apply -f - --context=${CTX_1}
+./asm-${CLUSTER_1_NAME}/$REVISION/bin/istioctl x create-remote-secret --context=${CTX_2} --name=cluster2 | kubectl apply -f - --context=${CTX_1}
 
 kubectx cluster-1 
 kubectl get secret istio-remote-secret-cluster2 -n istio-system 
 
 # Let cluster 2 know about cluster 1 
-./asm-${CLUSTER_1_NAME}/istio-1.9.2-asm.1/bin/istioctl x create-remote-secret --context=${CTX_1} --name=cluster1 | kubectl apply -f - --context=${CTX_2}
+./asm-${CLUSTER_1_NAME}/$REVISION/bin/istioctl x create-remote-secret --context=${CTX_1} --name=cluster1 | kubectl apply -f - --context=${CTX_2}
 
 kubectx cluster-2 
 kubectl get secret istio-remote-secret-cluster1 -n istio-system
