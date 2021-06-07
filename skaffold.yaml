@@ -2,26 +2,26 @@ apiVersion: skaffold/v2alpha4
 kind: Config
 build:
   artifacts:
-  - image: gcr.io/pol-pod11-dev-01/frontend
+  - image: eu.gcr.io/pol-pod11-dev-01/frontend
     context: src/frontend
-  - image: gcr.io/pol-pod11-dev-01/ledgerwriter
+  - image: eu.gcr.io/pol-pod11-dev-01/ledgerwriter
     jib:
       project: src/ledgerwriter
-  - image: gcr.io/pol-pod11-dev-01/balancereader
+  - image: eu.gcr.io/pol-pod11-dev-01/balancereader
     jib:
       project: src/balancereader
-  - image: gcr.io/pol-pod11-dev-01/transactionhistory
+  - image: eu.gcr.io/pol-pod11-dev-01/transactionhistory
     jib:
       project: src/transactionhistory
-  - image: gcr.io/pol-pod11-dev-01/contacts
+  - image: eu.gcr.io/pol-pod11-dev-01/contacts
     context: src/contacts
-  - image: gcr.io/pol-pod11-dev-01/userservice
+  - image: eu.gcr.io/pol-pod11-dev-01/userservice
     context: src/userservice
-  - image: gcr.io/pol-pod11-dev-01/loadgenerator
+  - image: eu.gcr.io/pol-pod11-dev-01/loadgenerator
     context: src/loadgenerator
-  - image: gcr.io/pol-pod11-dev-01/accounts-db
+  - image: eu.gcr.io/pol-pod11-dev-01/accounts-db
     context: src/accounts-db
-  - image: gcr.io/pol-pod11-dev-01/ledger-db
+  - image: eu.gcr.io/pol-pod11-dev-01/ledger-db
     context: src/ledger-db
   tagPolicy:
     sha256: {}
@@ -32,7 +32,6 @@ deploy:
   statusCheckDeadlineSeconds: 300
   kubectl:
     manifests:
-    - ./dev-kubernetes-manifests/**.yaml
-    # deploy a pre-build secret
-    # in practice, this should not be checked in to source control
-    - ./extras/jwt/jwt-secret.yaml
+    - ./extras/cloudsql/populate-jobs/create-accounts-db.yaml
+    - ./extras/cloudsql/populate-jobs/populate-accounts-db.yaml
+    - ./extras/cloudsql/kubernetes-manifests/**.yaml
