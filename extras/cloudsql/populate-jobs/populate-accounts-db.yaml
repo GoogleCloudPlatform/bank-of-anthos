@@ -34,7 +34,7 @@ spec:
             memory: "100Mi"
       - name: populate-accounts-db
         image: postgres:13.0
-        command: ['bash', '-c','. /scripts/initialize-database.sh 127.0.0.1 5432 accounts-db']
+        command: ['bash', '-c','. /scripts/initialize-database.sh 127.0.0.1 5432 accountsdb']
         volumeMounts:
         - name: scripts
           mountPath: "/scripts"
@@ -62,7 +62,7 @@ spec:
               name: demo-data-config
               key: USE_DEMO_DATA
         - name: POSTGRES_DB
-          value: "accounts-db"
+          value: "accountsdb"
         - name: PGHOSTADDR
           value: "127.0.0.1"
         - name: POSTGRES_USER
