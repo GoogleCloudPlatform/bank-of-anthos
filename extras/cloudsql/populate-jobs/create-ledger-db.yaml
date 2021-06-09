@@ -54,6 +54,6 @@ spec:
       volumes:
       - name: scripts
         configMap:
-          name: ledger-db-config
+          name: ledger-init-config
       restartPolicy: Never
   backoffLimit: 4
