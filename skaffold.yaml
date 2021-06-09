@@ -32,5 +32,5 @@ deploy:
   statusCheckDeadlineSeconds: 300
   kubectl:
     manifests:
-    - ./extras/cloudsql/populate-jobs/populate-accounts-db.yaml
+    - ./extras/cloudsql/populate-jobs/**.yaml
     - ./extras/cloudsql/kubernetes-manifests/**.yaml
