@@ -1,0 +1,59 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: create-ledger-db
+spec:
+  template:
+    spec:
+      shareProcessNamespace: true # Important to stop all processes
+      serviceAccountName: iden-dev-cluster
+      containers:
+      - name: create-ledger-db
+        image: postgres:13.0-alpine
+        command: ['bash', '-c']
+        args:
+          - "sleep 5 && psql -h 127.0.0.1 -p 5432 -d postgres -f /scripts/0-ledgerdb-init.sql; apk add pcre-tools && sql_proxy_pid=$(/usr/bin/pgrep cloud_sql_proxy) && kill -INT $sql_proxy_pid"
+        securityContext:
+          capabilities:
+            add:
+              - SYS_PTRACE
+        env:
+        - name: PGDATABASE
+          value: "ledgerdb"
+        env:
+        - name: PGUSER
+          valueFrom:
+            secretKeyRef:
+              name: cloud-sql-admin
+              key: username
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: cloud-sql-admin
+              key: password
+        volumeMounts:
+        - name: scripts
+          mountPath: "/scripts"
+          readOnly: true
+      - name: cloudsql-proxy
+        resources:
+          limits:
+            cpu: "200m"
+            memory: "100Mi"
+        image: gcr.io/cloudsql-docker/gce-proxy:1.19.0-alpine
+        env:
+        - name: CONNECTION_NAME
+          valueFrom:
+            secretKeyRef:
+              name: cloud-sql-admin
+              key: connectionName
+        command: ["/cloud_sql_proxy",
+                  "-instances=$(CONNECTION_NAME)=tcp:5432"]
+        securityContext:
+          runAsNonRoot: true
+      volumes:
+      - name: scripts
+        configMap:
+          name: ledger-db-config
+      restartPolicy: Never
+  backoffLimit: 4
