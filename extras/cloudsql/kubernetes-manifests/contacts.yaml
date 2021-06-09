@@ -25,7 +25,7 @@ spec:
       labels:
         app: contacts
     spec:
-      serviceAccountName: iden-dev-cluster
+      serviceAccountName: cluster-sa
       terminationGracePeriodSeconds: 5
       containers:
       - name: contacts

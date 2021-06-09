@@ -19,7 +19,7 @@ spec:
   template:
     spec:
       shareProcessNamespace: true # Important to stop all processes
-      serviceAccountName: iden-dev-cluster
+      serviceAccountName: cluster-sa
       containers:
       - name: sidecar-controller
         image: bash
