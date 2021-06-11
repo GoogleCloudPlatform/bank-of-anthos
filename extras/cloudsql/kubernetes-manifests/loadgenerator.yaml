@@ -27,7 +27,7 @@ spec:
       annotations:
         sidecar.istio.io/rewriteAppHTTPProbers: "true"
     spec:
-      serviceAccountName: cluster-sa
+      serviceAccountName: boa-ksa
       terminationGracePeriodSeconds: 5
       restartPolicy: Always
       containers:

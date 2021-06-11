@@ -19,7 +19,7 @@ spec:
   template:
     spec:
       shareProcessNamespace: true # Important to stop all processes
-      serviceAccountName: cluster-sa
+      serviceAccountName: boa-ksa
       containers:
       - name: sidecar-controller
         image: bash

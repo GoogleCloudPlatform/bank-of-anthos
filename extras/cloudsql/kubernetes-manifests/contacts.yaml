@@ -25,7 +25,7 @@ spec:
       labels:
         app: contacts
     spec:
-      serviceAccountName: cluster-sa
+      serviceAccountName: boa-ksa
       terminationGracePeriodSeconds: 5
       containers:
       - name: contacts
