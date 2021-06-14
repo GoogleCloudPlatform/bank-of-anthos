@@ -25,7 +25,7 @@ spec:
       labels:
         app: frontend
     spec:
-      serviceAccountName: iden-dev-cluster
+      serviceAccountName: boa-ksa
       terminationGracePeriodSeconds: 5
       containers:
       - name: front
