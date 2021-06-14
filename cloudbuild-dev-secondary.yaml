@@ -7,7 +7,7 @@ steps:
     - USERNAME=cloud-user
     - COMMAND=sudo apt-get install -y docker.io && sudo docker run -v /home/cloud-user/workspace:/workspace gcr.io/k8s-skaffold/skaffold:${_SKAFFOLD_VERSION} /bin/bash -c "gcloud container clusters get-credentials ${_CONTAINER_CLUSTER} --zone=${_ZONE} && cd /workspace && skaffold run --skip-tests=true" 
 images:
-- 'gcr.io/$PROJECT_ID/remote-builder'
+- 'eu.gcr.io/$PROJECT_ID/remote-builder'
 substitutions:
     _ZONE: europe-west3-a
     _SKAFFOLD_VERSION: v1.24.1
