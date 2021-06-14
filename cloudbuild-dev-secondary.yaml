@@ -9,7 +9,7 @@ steps:
 images:
 - 'gcr.io/$PROJECT_ID/remote-builder'
 substitutions:
-    _ZONE: europe-north1-a
+    _ZONE: europe-west3-a
     _SKAFFOLD_VERSION: v1.24.1
     _CONTAINER_CLUSTER: ${BRANCH_NAME}-cluster
 timeout: 1800s
