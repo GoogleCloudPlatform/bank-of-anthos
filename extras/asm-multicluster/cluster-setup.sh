@@ -96,14 +96,18 @@ echo "🌏 Setting up Endpoint Discovery between clusters..."
 export CTX_1="cluster-1"
 export CTX_2="cluster-2"
 
+export CLUSTER_1_FULL_NAME="gke_${PROJECT_ID}_${CLUSTER_1_ZONE}_${CLUSTER_1_NAME}"
+export CLUSTER_2_FULL_NAME="gke_${PROJECT_ID}_${CLUSTER_2_ZONE}_${CLUSTER_2_NAME}"
+
+
 echo "Letting cluster 1 know about cluster 2..."  
-./asm-${CLUSTER_1_NAME}/$REVISION/bin/istioctl x create-remote-secret --context=${CTX_2} --name=cluster2 | kubectl apply -f - --context=${CTX_1}
+./asm-${CLUSTER_1_NAME}/$REVISION/bin/istioctl x create-remote-secret --context=${CTX_2} --name=${CLUSTER_2_FULL_NAME} | kubectl apply -f - --context=${CTX_1}
 
 kubectx cluster-1 
 kubectl get secret istio-remote-secret-cluster2 -n istio-system 
 
 # Let cluster 2 know about cluster 1 
-./asm-${CLUSTER_1_NAME}/$REVISION/bin/istioctl x create-remote-secret --context=${CTX_1} --name=cluster1 | kubectl apply -f - --context=${CTX_2}
+./asm-${CLUSTER_1_NAME}/$REVISION/bin/istioctl x create-remote-secret --context=${CTX_1} --name=${CLUSTER_1_FULL_NAME} | kubectl apply -f - --context=${CTX_2}
 
 kubectx cluster-2 
 kubectl get secret istio-remote-secret-cluster1 -n istio-system
