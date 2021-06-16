@@ -5,7 +5,7 @@ This directory contains manifests for deploying the Bank of Anthos frontend with
 ## Prerequisites 
 
 - A GCP project
-- 1 GKE cluster 
+- A GKE cluster 
 - openssl tool 
 
 

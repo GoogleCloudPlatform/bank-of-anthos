@@ -11,7 +11,7 @@ Note that in this setup, there is no service communication between the two clust
 ## Prerequisites
 
 - Install the kubectx command line tool
-- Anthos license
+- An active [Anthos license](https://cloud.google.com/kubernetes-engine/docs/concepts/multi-cluster-ingress#pricing_and_trials)
 
 ## Steps
 
