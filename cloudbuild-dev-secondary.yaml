@@ -1,15 +1,23 @@
 steps:
-- id: 'Run skaffold with remote-builder'
+- id: 'Run populate database jobs'
   name: eu.gcr.io/$PROJECT_ID/remote-builder
   env:
     - INSTANCE_ARGS=--image-project debian-cloud --image-family debian-10 --network=${BRANCH_NAME}-vpc-network --subnet=subnet-${BRANCH_NAME}-01 --scopes=https://www.googleapis.com/auth/cloud-platform --preemptible
     - ZONE=${_ZONE}
     - USERNAME=cloud-user
-    - COMMAND=sudo apt-get install -y docker.io && sudo docker run -v /home/cloud-user/workspace:/workspace gcr.io/k8s-skaffold/skaffold:${_SKAFFOLD_VERSION} /bin/bash -c "gcloud container clusters get-credentials ${_CONTAINER_CLUSTER} --zone=${_ZONE} && cd /workspace && skaffold run --skip-tests=true" 
+    - COMMAND=sudo apt-get install -y docker.io && sudo docker run -v /home/cloud-user/workspace:/workspace gcr.io/google.com/cloudsdktool/cloud-sdk:${_CLOUDSDK_VERSION} /bin/bash -c "gcloud container clusters get-credentials ${_CONTAINER_CLUSTER} --zone=${_ZONE} && cd /workspace && kubectl apply -f ./extras/cloudsql/populate-jobs/"
+- id: 'Deploy application with Skaffold'
+  name: eu.gcr.io/$PROJECT_ID/remote-builder
+  env:
+    - INSTANCE_ARGS=--image-project debian-cloud --image-family debian-10 --network=${BRANCH_NAME}-vpc-network --subnet=subnet-${BRANCH_NAME}-01 --scopes=https://www.googleapis.com/auth/cloud-platform --preemptible
+    - ZONE=${_ZONE}
+    - USERNAME=cloud-user
+    - COMMAND=sudo apt-get install -y docker.io && sudo docker run -v /home/cloud-user/workspace:/workspace gcr.io/k8s-skaffold/skaffold:${_SKAFFOLD_VERSION} /bin/bash -c "gcloud container clusters get-credentials ${_CONTAINER_CLUSTER} --zone=${_ZONE} && cd /workspace && skaffold run --skip-tests=true"
 images:
 - 'eu.gcr.io/$PROJECT_ID/remote-builder'
 substitutions:
     _ZONE: europe-west3-a
     _SKAFFOLD_VERSION: v1.24.1
+    _CLOUDSDK_VERSION: 344.0.0
     _CONTAINER_CLUSTER: ${BRANCH_NAME}-cluster
 timeout: 1800s
