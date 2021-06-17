@@ -19,10 +19,6 @@ build:
     context: src/userservice
   - image: eu.gcr.io/pol-pod11-dev-01/loadgenerator
     context: src/loadgenerator
-  - image: eu.gcr.io/pol-pod11-dev-01/accounts-db
-    context: src/accounts-db
-  - image: eu.gcr.io/pol-pod11-dev-01/ledger-db
-    context: src/ledger-db
   tagPolicy:
     sha256: {}
   googleCloudBuild:
