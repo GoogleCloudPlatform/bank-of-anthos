@@ -57,6 +57,20 @@ kubectx cluster-1=.
 gcloud container clusters get-credentials ${CLUSTER_2_NAME} --zone ${CLUSTER_2_ZONE} 
 kubectx cluster-2=. 
 
+echo "🔥 Adding a firewall rule for cross-cluster pod traffic..."
+function join_by { local IFS="$1"; shift; echo "$*"; }
+
+ALL_CLUSTER_CIDRS=$(gcloud container clusters list --format='value(clusterIpv4Cidr)' | sort | uniq)
+ALL_CLUSTER_CIDRS=$(join_by , $(echo "${ALL_CLUSTER_CIDRS}"))
+ALL_CLUSTER_NETTAGS=$(gcloud compute instances list --format='value(tags.items.[0])' | sort | uniq)
+ALL_CLUSTER_NETTAGS=$(join_by , $(echo "${ALL_CLUSTER_NETTAGS}"))
+
+gcloud compute firewall-rules create istio-multicluster-test-pods \
+  --allow=tcp,udp,icmp,esp,ah,sctp \
+  --direction=INGRESS \
+  --priority=900 \
+  --source-ranges="${ALL_CLUSTER_CIDRS}" \
+  --target-tags="${ALL_CLUSTER_NETTAGS}" --quiet
 
 echo "⬇️ Installing required tools for ASM..."
 # https://cloud.google.com/service-mesh/docs/scripted-install/asm-onboarding#installing_required_tools 
