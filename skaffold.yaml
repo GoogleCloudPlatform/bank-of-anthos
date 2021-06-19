@@ -16,7 +16,6 @@ apiVersion: skaffold/v2alpha4
 kind: Config
 build:
   artifacts:
-  artifacts:
   - image: gcr.io/bank-of-anthos/frontend
     context: src/frontend
   - image: gcr.io/bank-of-anthos/ledgerwriter
