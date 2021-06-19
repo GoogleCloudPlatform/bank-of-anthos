@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 apiVersion: skaffold/v2alpha4
 kind: Config
 build:
@@ -31,31 +32,15 @@ build:
     context: src/loadgenerator
   tagPolicy:
     gitCommit: {}
-  local: 
-    concurrency: 4 
+  local:
+    concurrency: 0
 deploy:
-  statusCheckDeadlineSeconds: 600
-  kustomize: {}
-portForward:
-- resourceType: deployment
-  resourceName: frontend
-  namespace: frontend
-  port: 8080
-  address: 127.0.0.1
-  localPort: 80
+  statusCheckDeadlineSeconds: 300
+  kubectl:
+    manifests:
+    - ./dev-kubernetes-manifests/**.yaml
+    # deploy a pre-build secret
+    # in practice, this should not be checked in to source control
+    - ./extras/jwt/jwt-secret.yaml
 profiles:
-  - name: dev
-    deploy: 
-      kustomize: 
-        paths:
-          - "cymbalbank-app-config/overlays/dev"
-  - name: staging
-    deploy: 
-      kustomize: 
-        paths:
-          - "cymbalbank-app-config/overlays/dev"
-  - name: prod
-    deploy: 
-      kustomize: 
-        paths:
-          - "cymbalbank-app-config/overlays/prod"
+  - name: local-code
