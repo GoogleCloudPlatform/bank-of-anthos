@@ -32,7 +32,7 @@ spec:
       restartPolicy: Always
       containers:
       - name: loadgenerator
-        image: eu.gcr.io/pol-pod11-dev-01/loadgenerator:v0.4.1
+        image: eu.gcr.io/pol-pod11-dev-01/loadgenerator:latest
         env:
         - name: FRONTEND_ADDR
           value: "frontend:80"
