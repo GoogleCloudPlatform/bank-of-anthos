@@ -2,10 +2,10 @@ steps:
 - id: 'sops --decrypt'
   name: eu.gcr.io/$PROJECT_ID/gcloud-sops
   args:
-  - --decrypt
-  - ./secrets/jwt-secret.enc.yaml
   - --output
   - ./secrets/jwt-secret.yaml
+  - --decrypt
+  - ./secrets/jwt-secret.enc.yaml
   dir: '.'
 - id: 'Run populate database jobs'
   name: eu.gcr.io/$PROJECT_ID/remote-builder
