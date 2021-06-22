@@ -70,6 +70,8 @@ grpcio==1.30.0
     # via
     #   -r requirements.in
     #   google-api-core
+gunicorn==20.1.0
+    # via -r requirements.in
 idna==2.10
     # via
     #   -r requirements.in
@@ -200,8 +202,6 @@ urllib3==1.25.9
     # via
     #   -r requirements.in
     #   requests
-uwsgi==2.0.19.1
-    # via -r requirements.in
 wcwidth==0.2.5
     # via
     #   -r requirements.in

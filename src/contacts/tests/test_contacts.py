@@ -1,4 +1,4 @@
-# Copyright 2020 Google LLC
+# Copyright 2021 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,8 +35,6 @@ from contacts.tests.constants import (
     INVALID_LABELS,
     INVALID_ROUTING_NUMS,
 )
-
-LOG_LEVEL="info"
 
 def create_new_contact(**kwargs):
     """Helper method for creating new contacts from template"""
