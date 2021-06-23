@@ -1,0 +1,17 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+bases:
+- ../../kubernetes-manifests
+# NEED TO CHECK ACCOUNTS DB CONFIG BEHAVIOR, release fields still there
+# Remove the in cluster DB - NOT POSSIBLE  - NEED INSTRUCTION TO MANUALLY DELETE
+patchesStrategicMerge:
+- ledger-db-config.yaml 
+- accounts-db-config.yaml 
+- balance-reader.yaml
+- ledger-writer.yaml
+- transaction-history.yaml
+- userservice.yaml 
+- contacts.yaml
+resources: 
+- populate-ledger-db.yaml 
+- populate-accounts-db.yaml
