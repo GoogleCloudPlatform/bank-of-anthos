@@ -16,7 +16,6 @@
 # and various os-level packages to allow installation of popular Python
 # libraries. The source is on github at:
 #   https://github.com/GoogleCloudPlatform/python-docker
-
 FROM gcr.io/google-appengine/python
 
 # show python logs as they occur
@@ -41,8 +40,8 @@ RUN pip install -r /app/requirements.txt
 # Add application code.
 ADD *.py /app/
 
-# Copy uwsgi conf
-COPY uwsgi-conf.ini /uwsgi-conf.ini
+# Copy logging configuration for gunicorn
+COPY logging.conf /logging.conf
 
-# Start server with user-provided PORT
-CMD uwsgi --ini /uwsgi-conf.ini  --http :${PORT}
+# Start server using gunicorn
+CMD gunicorn -b :$PORT --threads 2 --log-config /logging.conf --log-level=$LOG_LEVEL "userservice:create_app()"
