@@ -5,7 +5,7 @@ steps:
     - INSTANCE_ARGS=--image-family remote-skaffold-runner --network=${BRANCH_NAME}-vpc-network --subnet=subnet-vpc --scopes=https://www.googleapis.com/auth/cloud-platform --preemptible
     - ZONE=${_ZONE}
     - USERNAME=cloud-user
-    - COMMAND=gcloud container clusters get-credentials ${_CONTAINER_CLUSTER} --zone=${_ZONE} && cd /workspace && skaffold build --skip-tests=true
+    - COMMAND=gcloud container clusters get-credentials ${_CONTAINER_CLUSTER} --zone=${_ZONE} && cd /home/cloud-user/workspace/ && skaffold build --skip-tests=true
 substitutions:
     _ZONE: europe-west4-a
     _CONTAINER_CLUSTER: ${BRANCH_NAME}-cluster-1
