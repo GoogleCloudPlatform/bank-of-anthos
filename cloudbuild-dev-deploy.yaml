@@ -28,6 +28,13 @@ steps:
     - ZONE=${_ZONE_2}
     - USERNAME=cloud-user
     - COMMAND=gcloud container clusters get-credentials ${_CONTAINER_CLUSTER_2} --zone=${_ZONE_2} && cd /home/cloud-user/workspace/ && skaffold deploy --skip-render=true
+- id: 'Run multicluster ingress'
+  name: eu.gcr.io/$PROJECT_ID/remote-builder
+  env:
+    - INSTANCE_ARGS=--image-family remote-skaffold-runner --network=${BRANCH_NAME}-vpc-network --subnet=subnet-vpc --scopes=https://www.googleapis.com/auth/cloud-platform --preemptible --machine-type=f1-micro
+    - ZONE=${_ZONE}
+    - USERNAME=cloud-user
+    - COMMAND=gcloud container clusters get-credentials ${_CONTAINER_CLUSTER} --zone=${_ZONE} && cd /home/cloud-user/workspace/ && kubectl apply -f ./extras/cloudsql/cloudsql-multicluster/multicluster-ingress.yaml
 substitutions:
     _ZONE: europe-west4-a
     _ZONE_2: europe-west6-a
