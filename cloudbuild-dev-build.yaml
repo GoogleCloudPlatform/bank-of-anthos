@@ -8,5 +8,5 @@ steps:
     - COMMAND=gcloud container clusters get-credentials ${_CONTAINER_CLUSTER} --zone=${_ZONE} && cd /workspace && skaffold build --skip-tests=true
 substitutions:
     _ZONE: europe-west4-a
-    _CONTAINER_CLUSTER: ${BRANCH_NAME}-cluster
+    _CONTAINER_CLUSTER: ${BRANCH_NAME}-cluster-1
 timeout: 1800s
