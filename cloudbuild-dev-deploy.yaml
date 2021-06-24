@@ -31,7 +31,7 @@ steps:
 - id: 'Ingress enable'
   name: gcr.io/google.com/cloudsdktool/cloud-sdk
   entrypoint: 'gcloud'
-  args: ['alpha', 'container', 'hub', 'ingress', 'enable', '--config-membership=projects/${_PROJECT_ID}/locations/global/memberships/${_CONTAINER_CLUSTER}']
+  args: ['alpha', 'container', 'hub', 'ingress', 'enable', '--config-membership=projects/${_PROJECT_ID}/locations/global/memberships/membership-name-${_CONTAINER_CLUSTER}']
 - id: 'Run multicluster ingress'
   name: eu.gcr.io/$PROJECT_ID/remote-builder
   env:
