@@ -1,53 +1,31 @@
-# Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 apiVersion: skaffold/v2alpha4
 kind: Config
 build:
   artifacts:
-  - image: gcr.io/bank-of-anthos/frontend
+  - image: eu.gcr.io/pol-pod11-dev-01/frontend
     context: src/frontend
-  - image: gcr.io/bank-of-anthos/ledgerwriter
+  - image: eu.gcr.io/pol-pod11-dev-01/ledgerwriter
     jib:
       project: src/ledgerwriter
-  - image: gcr.io/bank-of-anthos/balancereader
+  - image: eu.gcr.io/pol-pod11-dev-01/balancereader
     jib:
       project: src/balancereader
-  - image: gcr.io/bank-of-anthos/transactionhistory
+  - image: eu.gcr.io/pol-pod11-dev-01/transactionhistory
     jib:
       project: src/transactionhistory
-  - image: gcr.io/bank-of-anthos/contacts
+  - image: eu.gcr.io/pol-pod11-dev-01/contacts
     context: src/contacts
-  - image: gcr.io/bank-of-anthos/userservice
+  - image: eu.gcr.io/pol-pod11-dev-01/userservice
     context: src/userservice
-  - image: gcr.io/bank-of-anthos/loadgenerator
+  - image: eu.gcr.io/pol-pod11-dev-01/loadgenerator
     context: src/loadgenerator
-  - image: gcr.io/bank-of-anthos/accounts-db
-    context: src/accounts-db
-  - image: gcr.io/bank-of-anthos/ledger-db
-    context: src/ledger-db
   tagPolicy:
-    gitCommit: {}
-  local:
+    sha256: {}
+  googleCloudBuild:
     concurrency: 0
+    timeout: 900.0s
 deploy:
   statusCheckDeadlineSeconds: 300
   kubectl:
     manifests:
-    - ./dev-kubernetes-manifests/**.yaml
-    # deploy a pre-build secret
-    # in practice, this should not be checked in to source control
-    - ./extras/jwt/jwt-secret.yaml
-profiles:
-  - name: local-code
+    - ./extras/cloudsql/kubernetes-manifests/**.yaml
