@@ -29,7 +29,6 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: front
-        imagePullPolicy: Always
         image: eu.gcr.io/pol-pod11-dev-01/frontend:latest
         ports:
         - containerPort: 8080
