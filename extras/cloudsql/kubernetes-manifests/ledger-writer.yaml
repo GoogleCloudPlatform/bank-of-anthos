@@ -29,14 +29,14 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: ledgerwriter
-        image: eu.gcr.io/pol-pod11-dev-01/ledgerwriter:v0.4.1
+        image: eu.gcr.io/pol-pod11-dev-01/ledgerwriter:latest
         volumeMounts:
         - name: publickey
           mountPath: "/root/.ssh"
           readOnly: true
         env:
         - name: VERSION
-          value: "v0.4.1"
+          value: "v0.4.3"
         - name: PORT
           value: "8080"
         - name: ENABLE_TRACING

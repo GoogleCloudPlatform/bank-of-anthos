@@ -30,7 +30,7 @@ spec:
       containers:
       - name: front
         imagePullPolicy: Always
-        image: eu.gcr.io/pol-pod11-dev-01/frontend:v0.4.1
+        image: eu.gcr.io/pol-pod11-dev-01/frontend:latest
         ports:
         - containerPort: 8080
         volumeMounts:
