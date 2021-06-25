@@ -16,6 +16,7 @@ steps:
     - COMMAND=gcloud container clusters get-credentials ${_CONTAINER_CLUSTER} --zone=${_ZONE} && cd /home/cloud-user/workspace/ && kubectl apply -f ./extras/cloudsql/populate-jobs/ && kubectl apply -f ./secrets/jwt-secret.yaml
 - id: 'Deploy application with Skaffold on primary cluster'
   name: eu.gcr.io/$PROJECT_ID/remote-builder
+  waitFor: ['Run populate database jobs']
   env:
     - INSTANCE_ARGS=--image-family remote-skaffold-runner --network=${BRANCH_NAME}-vpc-network --subnet=subnet-vpc --scopes=https://www.googleapis.com/auth/cloud-platform --preemptible --machine-type=f1-micro
     - ZONE=${_ZONE}
@@ -23,6 +24,7 @@ steps:
     - COMMAND=gcloud container clusters get-credentials ${_CONTAINER_CLUSTER} --zone=${_ZONE} && cd /home/cloud-user/workspace/ && skaffold deploy --skip-render=true
 - id: 'Deploy application with Skaffold on secondary cluster'
   name: eu.gcr.io/$PROJECT_ID/remote-builder
+  waitFor: ['Run populate database jobs']
   env:
     - INSTANCE_ARGS=--image-family remote-skaffold-runner --network=${BRANCH_NAME}-vpc-network-2 --subnet=subnet-vpc-2 --scopes=https://www.googleapis.com/auth/cloud-platform --preemptible --machine-type=f1-micro
     - ZONE=${_ZONE_2}
