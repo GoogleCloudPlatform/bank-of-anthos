@@ -1,4 +1,4 @@
-# Copyright 2019 Google LLC
+# Copyright 2021 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,21 +29,21 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: front
-        image: gcr.io/bank-of-anthos/frontend:v0.4.3
+        image: gcr.io/bank-of-anthos/frontend:v0.5.0
         volumeMounts:
         - name: publickey
           mountPath: "/root/.ssh"
           readOnly: true
         env:
         - name: VERSION
-          value: "v0.4.3"
+          value: "v0.5.0"
         - name: PORT
           value: "8080"
         - name: ENABLE_TRACING
           value: "true"
         - name: SCHEME
           value: "http"
-         # Valid levels are debug, info, warning, error, critical. If no valid level is set, defaults to info.
+         # Valid levels are debug, info, warning, error, critical. If no valid level is set, gunicorn will default to info.
         - name: LOG_LEVEL
           value: "info"
         # Set to "true" to enable the CymbalBank logo + title
