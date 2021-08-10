@@ -57,9 +57,7 @@ cd bank-of-anthos
 - GKE Autopilot mode (see [GKE Autopilot overview](https://cloud.google.com/kubernetes-engine/docs/concepts/autopilot-overview) to learn more):
 
 ```
-gcloud services enable \
-  container.googleapis.com \
-  monitoring.googleapis.com
+gcloud services enable container.googleapis.com monitoring.googleapis.com \
   --project $PROJECT_ID
 
 REGION=us-central1
