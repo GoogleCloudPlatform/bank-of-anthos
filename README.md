@@ -54,7 +54,7 @@ cd bank-of-anthos
 
 3. **Create a GKE cluster.**
 
-- GKE autopilot mode (see [GKE Autopilot overview](https://cloud.google.com/kubernetes-engine/docs/concepts/autopilot-overview) to learn more):
+- GKE Autopilot mode (see [GKE Autopilot overview](https://cloud.google.com/kubernetes-engine/docs/concepts/autopilot-overview) to learn more):
 
 ```
 gcloud services enable \
@@ -67,7 +67,7 @@ gcloud container clusters create-auto bank-of-anthos \
   --project=${PROJECT_ID} --region=${REGION}
 ```
 
-- GKE standard mode:
+- GKE Standard mode:
 
 ```
 ZONE=us-central1-b
@@ -80,13 +80,13 @@ gcloud beta container clusters create bank-of-anthos \
 
 4. **Get credentials for the created cluster**
 
-- GKE autopilot mode:
+- GKE Autopilot mode:
 
 ```
 gcloud container clusters get-credentials bank-of-anthos --project=${PROJECT_ID} --region=${REGION}
 ```
 
-- GKE standard mode:
+- GKE Standard mode:
 
 ```
 gcloud container clusters get-credentials bank-of-anthos --project=${PROJECT_ID} --zone=${ZONE}
