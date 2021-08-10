@@ -58,7 +58,7 @@ cd bank-of-anthos
 
 ```
 gcloud services enable container.googleapis.com monitoring.googleapis.com \
-  --project $PROJECT_ID
+  --project ${PROJECT_ID}
 
 REGION=us-central1
 gcloud container clusters create-auto bank-of-anthos \
