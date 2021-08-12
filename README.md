@@ -54,19 +54,42 @@ cd bank-of-anthos
 
 3. **Create a GKE cluster.**
 
+- GKE Autopilot mode (see [GKE Autopilot overview](https://cloud.google.com/kubernetes-engine/docs/concepts/autopilot-overview) to learn more):
+
+```
+gcloud services enable container.googleapis.com monitoring.googleapis.com \
+  --project ${PROJECT_ID}
+
+REGION=us-central1
+gcloud container clusters create-auto bank-of-anthos \
+  --project=${PROJECT_ID} --region=${REGION}
+```
+
+- GKE Standard mode:
+
 ```
 ZONE=us-central1-b
 gcloud beta container clusters create bank-of-anthos \
---project=${PROJECT_ID} --zone=${ZONE} \
---machine-type=e2-standard-2 --num-nodes=4 \
---enable-stackdriver-kubernetes --subnetwork=default \
---tags=bank-of-anthos --labels csm=
+  --project=${PROJECT_ID} --zone=${ZONE} \
+  --machine-type=e2-standard-2 --num-nodes=4 \
+  --enable-stackdriver-kubernetes --subnetwork=default \
+  --tags=bank-of-anthos --labels csm=
 ```
 
 4. **Get credentials for the created cluster**
 
+- GKE Autopilot mode:
+
 ```
-gcloud container clusters get-credentials bank-of-anthos --project=${PROJECT_ID} --zone=${ZONE}
+gcloud container clusters get-credentials bank-of-anthos \
+  --project=${PROJECT_ID} --region=${REGION}
+```
+
+- GKE Standard mode:
+
+```
+gcloud container clusters get-credentials bank-of-anthos \
+  --project=${PROJECT_ID} --zone=${ZONE}
 ```
 
 5. **Deploy the demo JWT public key** to the cluster as a Secret. This key is used for user account creation and authentication.
@@ -135,4 +158,3 @@ See the [Development guide](./docs/development.md) to learn how to run and devel
 ## Talks/Demos using Bank of Anthos
 
 - [Google Cloud Next '20 - Hands-on Keynote](https://www.youtube.com/watch?v=7QR1z35h_yc)  (Anthos, Cloud Operations, Spring Cloud GCP, BigQuery, AutoML)
-
