@@ -182,9 +182,9 @@ class AllTasks(SequentialTaskSet):
             with self.client.post(
                 "/payment", data=transaction, catch_response=True
             ) as response:
-                if response.url is None in response.url:
+                if response.url is None:
                     response.success()
-                if response.url is "failed" in response.url:
+                if "failed" in response.url:
                     response.failure("payment failed")
 
         @task(5)
