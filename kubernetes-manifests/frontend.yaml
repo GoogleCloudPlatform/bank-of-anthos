@@ -22,13 +22,14 @@ spec:
       app: frontend
   template:
     metadata:
+      annotations: {}
       labels:
         app: frontend
     spec:
       serviceAccountName: default
       terminationGracePeriodSeconds: 5
       containers:
-      - name: front
+      - name: frontend
         image: gcr.io/bank-of-anthos/frontend:v0.4.1
         volumeMounts:
         - name: publickey
@@ -77,10 +78,10 @@ spec:
         resources:
           requests:
             cpu: 1000m
-            memory: 1Gi
+            memory: 1.0Gi
           limits:
             cpu: 1000m
-            memory: 1Gi
+            memory: 1.0Gi
       volumes:
       - name: publickey
         secret:

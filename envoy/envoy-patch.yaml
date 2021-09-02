@@ -1,0 +1,47 @@
+- op: add
+  path: /spec/template/spec/containers/-
+  value:
+    env:
+    - name: OPSANI_ENVOY_PROXY_SERVICE_PORT
+      value: "9980"
+    - name: OPSANI_ENVOY_PROXIED_CONTAINER_PORT
+      value: "8080"
+    - name: OPSANI_ENVOY_PROXY_METRICS_PORT
+      value: "9901"
+    image: opsani/envoy-proxy:servox-v0.9.0
+    imagePullPolicy: IfNotPresent
+    name: opsani-envoy
+    ports:
+    - containerPort: 9980
+      name: opsani-proxy
+      protocol: TCP
+    - containerPort: 9901
+      name: opsani-metrics
+      protocol: TCP
+    resources:
+      limits:
+        cpu: 250m
+        memory: 256Mi
+      requests:
+        cpu: 125m
+        memory: 128Mi
+
+- op: add
+  path: "/spec/template/metadata/labels/opsani_role"
+  value: "mainline"
+
+- op: add
+  path: "/spec/template/metadata/annotations/prometheus.io~1path"
+  value: "/stats/prometheus"
+
+- op: add
+  path: "/spec/template/metadata/annotations/prometheus.io~1port"
+  value: "9901"
+
+- op: add
+  path: "/spec/template/metadata/annotations/prometheus.io~1scheme"
+  value: "http"
+
+- op: add
+  path: "/spec/template/metadata/annotations/prometheus.io~1scrape"
+  value: "true"

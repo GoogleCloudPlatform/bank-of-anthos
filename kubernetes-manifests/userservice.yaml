@@ -17,12 +17,13 @@ kind: Deployment
 metadata:
   name: userservice
 spec:
-  replicas: 5
+  replicas: 2
   selector:
     matchLabels:
       app: userservice
   template:
     metadata:
+      annotations: {}
       labels:
         app: userservice
     spec:
@@ -66,11 +67,11 @@ spec:
           timeoutSeconds: 10
         resources:
           requests:
-            cpu: 1000m
-            memory: 1Gi
+            cpu: 500m
+            memory: 0.5Gi
           limits:
-            cpu: 1000m
-            memory: 1Gi
+            cpu: 1500m
+            memory: 1.5Gi
       volumes:
       - name: keys
         secret:

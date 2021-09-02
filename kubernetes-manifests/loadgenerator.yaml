@@ -21,7 +21,7 @@ spec:
   selector:
     matchLabels:
       app: loadgenerator
-  replicas: 2
+  replicas: 1
   template:
     metadata:
       labels:
@@ -44,7 +44,7 @@ spec:
         - name: STEP_SEC
           value: "15"
         - name: USER_SCALE
-          value: "50"
+          value: "100"
         - name: SPAWN_RATE
           value: "1"
         - name: MIN_USERS
@@ -57,8 +57,8 @@ spec:
           value: "True"
         resources:
           requests:
-            cpu: 1000m
-            memory: 1Gi
+            cpu: 800m
+            memory: 0.75Gi
           limits:
             cpu: 1000m
             memory: 1Gi
