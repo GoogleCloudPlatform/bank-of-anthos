@@ -80,8 +80,6 @@ apiVersion: skaffold/v2beta18
 kind: Config
 metadata:
   name: frontend # module defining frontend service
-requires:
-  - configs: [backend]
 build:
   artifacts:
   - image: gcr.io/bank-of-anthos/frontend
@@ -97,8 +95,6 @@ apiVersion: skaffold/v2beta18
 kind: Config
 metadata:
   name: loadgenerator # module defining a load generator service
-requires:
-  - configs: [backend]
 build:
   artifacts:
   - image: gcr.io/bank-of-anthos/loadgenerator
