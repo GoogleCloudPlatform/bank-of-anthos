@@ -155,6 +155,8 @@ See the [Troubleshooting guide](./docs/troubleshooting.md) for resolving common 
 
 See the [Development guide](./docs/development.md) to learn how to run and develop this app locally.
 
-## Talks/Demos using Bank of Anthos
-
+## Demos Featuring Bank of Anthos
+- [Explore Anthos (Google Cloud docs)](https://cloud.google.com/anthos/docs/tutorials/explore-anthos)
+- [Tutorial - Migrate for Anthos - Migrating a monolith VM to GKE](https://cloud.google.com/migrate/anthos/docs/migrating-monolith-vm-overview-setup)
+- [Google Cloud Architecture Center - Running distributed services on GKE private clusters using Anthos Service Mesh](https://cloud.google.com/architecture/distributed-services-on-gke-private-using-anthos-service-mesh)
 - [Google Cloud Next '20 - Hands-on Keynote](https://www.youtube.com/watch?v=7QR1z35h_yc)  (Anthos, Cloud Operations, Spring Cloud GCP, BigQuery, AutoML)
