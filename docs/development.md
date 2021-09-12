@@ -92,6 +92,25 @@ The [`skaffold run`](https://skaffold.dev/docs/references/cli/#skaffold-run) com
 skaffold run --default-repo=gcr.io/${PROJECT_ID}/bank-of-anthos
 ```
 
+### Running services selectively
+
+Skaffold reads the [skaffold.yaml](../skaffold.yaml) file to understand the project setup. Here, it's split into modules that can be iterated on individually:
+- the `backend` module comprising of the five backend services.
+- the `frontend` module for the single frontend service.
+- the `loadbalancer` module for the single loadbalancer service. 
+
+To work with only the `frontend` module, run:
+
+```
+skaffold dev --default-repo=gcr.io/${PROJECT_ID}/bank-of-anthos -m frontend
+```
+
+To work with both `frontend` and `backend` modules, run:
+
+```
+skaffold dev --default-repo=gcr.io/${PROJECT_ID}/bank-of-anthos -m frontend -m backend
+```
+
 ## Continuous Integration
 
 When you're ready to create a Pull Request for your branch, you will notice that the Github Actions CI workflows run on your branch. This includes both code and deploy tests into a separate GKE cluster owned by the maintainers. The GitHub Actions CI workflows are [described here](../.github/workflows).
