@@ -13,7 +13,6 @@ resources:
 - contacts.yaml
 - frontend-hpa.yaml
 - frontend.yaml
-- kustomization.yaml
 - ledger-db.yaml
 - ledger-writer-hpa.yaml
 - ledger-writer.yaml
