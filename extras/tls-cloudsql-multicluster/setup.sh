@@ -14,8 +14,10 @@
 
 #!/bin/bash
 
+echo "☸️ Enabling container.googleapis.com service..."
+gcloud services enable container.googleapis.com --project=${PROJECT_ID}
 
-echo "☸️ Creating clusters..." 
+echo "☸️ Creating clusters..."
 gcloud container clusters create ${CLUSTER_1_NAME} \
 	--project=${PROJECT_ID} --zone=${CLUSTER_1_ZONE} \
 	--machine-type=e2-standard-4 --num-nodes=4 \
@@ -71,10 +73,10 @@ kubectl delete svc frontend
 
 echo "Creating a static IP..."
 gcloud compute addresses create boa-multi-cluster-ip --global
-IP=`gcloud compute addresses describe boa-multi-cluster-ip --global --format="value(address)"`
+STATIC_IP=`gcloud compute addresses describe boa-multi-cluster-ip --global --format="value(address)"`
 
 echo "Injecting the static IP value into the MCI resource..."
-gsed -i "s/STATIC_IP/${IP}/g" multicluster-ingress-https.yaml
+envsubst < multicluster-ingress-https.template > multicluster-ingress-https.yaml
 
 echo "Creating SSL certificate..."
 openssl genrsa -out private.key 2048
@@ -85,7 +87,7 @@ openssl req -new -key private.key -out frontend.csr \
 openssl x509 -req -days 365 -in frontend.csr -signkey private.key \
     -out public.crt
 
-kubectx cluster1 
+kubectx cluster1
 kubectl create secret tls frontend-tls-multi --cert=public.crt --key=private.key
 
 echo "Deploying Multicluster Ingress..."

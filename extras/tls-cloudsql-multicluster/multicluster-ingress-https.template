@@ -11,6 +11,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+apiVersion: networking.gke.io/v1beta1
+kind: FrontendConfig
+metadata:
+  name: frontend-redirect-tls
+spec:
+  redirectToHttps:
+    enabled: true
+---
 apiVersion: networking.gke.io/v1
 kind: MultiClusterService
 metadata:
@@ -31,7 +40,8 @@ kind: MultiClusterIngress
 metadata:
   name: frontend-global-ingress
   annotations:
-    networking.gke.io/static-ip: 34.102.238.83
+    networking.gke.io/frontend-config: frontend-redirect-tls
+    networking.gke.io/static-ip: ${STATIC_IP}
 spec:
   template:
     spec:
