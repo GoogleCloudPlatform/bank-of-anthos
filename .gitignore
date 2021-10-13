@@ -88,7 +88,6 @@ docs/_build/
 
 # PyBuilder
 .pybuilder/
-target/
 
 # Jupyter Notebook
 .ipynb_checkpoints
@@ -166,13 +165,14 @@ src/ledgermonolith/istio/istio-1.*
 # Ingress for Anthos service account key
 register-key.json
 
-# ASM 
-install_asm* 
-extras/asm-multicluster/asm-cluster-1/* 
+# ASM
+install_asm*
+extras/asm-multicluster/asm-cluster-1/*
 extras/asm-multicluster/asm-cluster-2/*
 
-# SSL 
-.csr
-.key
-.crt
+# SSL
+*.csr
+*.key
+*.crt
 env
+multicluster-ingress-https.yaml
