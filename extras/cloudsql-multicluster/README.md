@@ -4,16 +4,30 @@ This doc contains instructions for deploying the Cloud SQL version of Bank of An
 
 The use case for this setup is to demo running a global, scaled app, where even if one cluster goes down, users will be routed to the next available cluster. These instructions also show how to use [Multi-cluster Ingress](https://cloud.google.com/kubernetes-engine/docs/concepts/multi-cluster-ingress) to route users to the closest GKE cluster, demonstrating a low-latency use case.
 
+This guide has two parts to it:
+1. Deploy Bank of Anthos on 2 GKE clusters with **Multi Cluster Ingress** for
+   intelligent load balancing between the 2 clusters.
+2. Configure the **Multi Cluster Ingress** to use **TLS** with a self-signed
+   certificate and enforce **HTTP to HTTPS** redirection for all inbound
+   traffic.
+
 ![multi-region](architecture.png)
 
-Note that in this setup, there is no service communication between the two clusters/regions. Each cluster has a dedicated frontend and set of backends. Both regions, however, share the same Cloud SQL instance, which houses the two databases (Accounts and Ledger).
+Note that in this setup, there is no service communication between the two
+clusters/regions. Each cluster has a dedicated frontend and set of backends.
+Both regions, however, share the same Cloud SQL instance, which houses the two
+databases ***(Accounts and Ledger)***.
 
-## Prerequisites
+---
 
-- Install the kubectx command line tool
+### Prerequisites
+
+- The [**kubectx**](https://github.com/ahmetb/kubectx) command line tool
+  installed
 - An active [Anthos license](https://cloud.google.com/kubernetes-engine/docs/concepts/multi-cluster-ingress#pricing_and_trials)
 
-## Steps
+---
+### Part 1
 
 1. **Create a [Google Cloud project](https://cloud.google.com/resource-manager/docs/creating-managing-projects)** if you don't already have one.
 
@@ -175,3 +189,9 @@ Cluster: boa-2, Pod: frontend-74675b56f-2ln5w, Zone: europe-west3-a
 ```
 
 🎉 **Congrats!** You just deployed a globally-available version of Bank of Anthos!
+
+---
+## Part 2
+
+Follow the [second part](tls-for-mci.md) of this guide to enable **TLS** support with
+**HTTP to HTTPS** redirection on the **Multi Cluster Ingress** resource.
