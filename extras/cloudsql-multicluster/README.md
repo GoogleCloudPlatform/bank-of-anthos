@@ -189,7 +189,7 @@ export VIP=<your-VIP>
 17. **Test the geo-aware routing** by curling the `/whereami` frontend endpoint using the global VIP you copied. You could also create a Google Compute Engine instance in a specific region to test further. **Note that you may see a `404` or `502` error** for several minutes while the forwarding rules propagate.
 
 ```
-watch curl http://${VIP}:80/whereami
+watch curl http://$VIP:80/whereami
 ```
 
 Example output, from a US-based client where the two GKE regions are `us-west1` and `europe-west3-a`:
@@ -203,6 +203,22 @@ Example output, from an EU-based GCE instance:
 ```
 Cluster: boa-2, Pod: frontend-74675b56f-2ln5w, Zone: europe-west3-a
 ```
+
+> **Note:** You can create a GCE instance in a European region and try the same
+> `curl` command from inside that VM.
+> ```sh
+> gcloud compute instances create europe-instance \
+>    --image-family=debian-9 \
+>    --image-project=debian-cloud \
+>    --network=default \
+>    --subnet=default \
+>    --zone=europe-west3-a \
+>    --tags=allow-ssh
+>
+> gcloud compute ssh europe-instance --zone=europe-west3-a
+> ```
+> Try hitting the `/whereami` endpoint from inside this VM and see if you get a
+> response from the `boa-2` cluster.
 
 🎉 **Congrats!** You just deployed a globally-available version of Bank of Anthos!
 

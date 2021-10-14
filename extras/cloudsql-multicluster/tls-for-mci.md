@@ -58,7 +58,8 @@ kubectl apply -n ${NAMESPACE} -f multicluster-ingress-https.yaml
 ```
 
 6. **Verify that the multicluster ingress resource was updated.**
-   This may take a few minutes.
+   This may take a few minutes. Wait until the **VIP** of the `MultiClusterIngress`
+   has been updated to your newly created STATIC_IP.
 
 ```sh
 watch kubectl describe mci frontend-global-ingress -n ${NAMESPACE}
@@ -74,15 +75,14 @@ Status:
   VIP:        <YOUR_STATIC_IP>
 ```
 
-7. **Copy the `VIP` field** to the clipboard and set as an env variable:
+7. **Test HTTP to HTTPS redirection**
+
+> **Note:** It may take several minutes _(approximately 5 minutes)_ for the
+> ingress routes to be propagated and configured. So you might see **404** or
+> **502** errors until the setup is complete.
 
 ```sh
-export VIP=<your-VIP>
-```
-
-8. **Test HTTP to HTTPS redirection**
-```sh
-curl -k -I http://${VIP}
+curl -k -I http://$STATIC_IP
 ```
 
 Expected output:
@@ -97,9 +97,9 @@ Content-Length: 219
 Date: Thu, 14 Oct 2021 03:11:00 GMT
 ```
 
-9. **Test TLS connection via HTTPS**
+1. **Test TLS connection via HTTPS**
 ```sh
-curl -k -I https://${VIP}
+curl -k -I https://$STATIC_IP
 ```
 
 Expected output:
