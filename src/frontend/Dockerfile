@@ -1,4 +1,4 @@
-# Copyright 2020 Google LLC
+# Copyright 2021 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -47,11 +47,8 @@ ADD static /app/static
 ADD templates /app/templates
 ADD *.py /app/
 
-# Copy uwsgi conf
-COPY uwsgi-conf.ini /uwsgi-conf.ini
+# Copy logging configuration for gunicorn
+COPY logging.conf /logging.conf
 
-# Add application code.
-ADD *.py /app/
-
-# Start server with user-provided PORT
-CMD uwsgi --ini /uwsgi-conf.ini  --http :${PORT}
+# Start server using gunicorn
+CMD gunicorn -b :$PORT --threads 4 --log-config /logging.conf --log-level=$LOG_LEVEL "frontend:create_app()"

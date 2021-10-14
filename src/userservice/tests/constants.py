@@ -1,4 +1,4 @@
-# Copyright 2019 Google LLC
+# Copyright 2021 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,8 +31,6 @@ def generate_rsa_key():
 def get_random_string(length):
     """Generate random string of given length"""
     return ''.join(random.choice(string.ascii_lowercase) for i in range(length))
-
-LOG_LEVEL="info"
 
 EXAMPLE_PRIVATE_KEY, EXAMPLE_PUBLIC_KEY = generate_rsa_key()
 

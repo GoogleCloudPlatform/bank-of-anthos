@@ -1,4 +1,4 @@
-# Copyright 2020 Google LLC
+# Copyright 2021 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: userservice
-        image: gcr.io/bank-of-anthos/userservice:v0.4.3
+        image: gcr.io/bank-of-anthos/userservice:v0.5.0
         volumeMounts:
         - name: keys
           mountPath: "/root/.ssh"
@@ -39,7 +39,7 @@ spec:
           containerPort: 8080
         env:
         - name: VERSION
-          value: "v0.3.0"
+          value: "v0.5.0"
         - name: PORT
           value: "8080"
         - name: ENABLE_TRACING
@@ -48,7 +48,7 @@ spec:
           value: "3600"
         - name: PRIV_KEY_PATH
           value: "/root/.ssh/privatekey"
-         # Valid levels are debug, info, warning, error, critical. If no valid level is set, defaults to info.
+        # Valid levels are debug, info, warning, error, critical. If no valid level is set, gunicorn will default to info.
         - name: LOG_LEVEL
           value: "info"
         envFrom:
@@ -75,7 +75,7 @@ spec:
           limits:
             cpu: "200m"
             memory: "100Mi"
-        image: gcr.io/cloudsql-docker/gce-proxy:1.19.0-alpine
+        image: gcr.io/cloudsql-docker/gce-proxy:1.24.0-alpine
         env:
         - name: CONNECTION_NAME
           valueFrom:

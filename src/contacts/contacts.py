@@ -1,4 +1,4 @@
-# Copyright 2020 Google LLC
+# Copyright 2021 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -189,24 +189,9 @@ def create_app():
         """Executed when web app is terminated."""
         app.logger.info("Stopping contacts service.")
 
-    # set log formatting
-    date_format = "%Y-%m-%d %H:%M:%S"
-    message_format = '%(asctime)s | [%(levelname)s] | %(funcName)s | %(message)s'
-    logging.basicConfig(format= message_format, datefmt= date_format, stream=sys.stdout)
-
-    # set log level
-    log_levels = {
-        "DEBUG": logging.DEBUG,
-        "WARNING": logging.WARNING,
-        "INFO": logging.INFO,
-        "ERROR": logging.ERROR,
-        "CRITICAL": logging.CRITICAL
-    }
-    level = logging.INFO #default
-    user_log_level = os.environ.get("LOG_LEVEL")
-    if user_log_level is not None and user_log_level.upper() in log_levels:
-        level = log_levels.get(user_log_level.upper())
-    app.logger.setLevel(level)
+    # set up logger
+    app.logger.handlers = logging.getLogger("gunicorn.error").handlers
+    app.logger.setLevel(logging.getLogger("gunicorn.error").level)
     app.logger.info("Starting contacts service.")
 
     # Set up tracing and export spans to Cloud Trace.

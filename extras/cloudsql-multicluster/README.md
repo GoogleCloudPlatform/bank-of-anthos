@@ -92,7 +92,7 @@ kubectx cluster2
 8. **Create Cloud SQL admin secrets** in your GKE clusters. This gives your in-cluster Cloud SQL clients a username and password to access Cloud SQL. (Note that admin/admin credentials are for demo use only and should never be used in a production environment.)
 
 ```
-INSTANCE_NAME='bank-of-anthos-db-multi'
+INSTANCE_NAME='bank-of-anthos-db'
 INSTANCE_CONNECTION_NAME=$(gcloud sql instances describe $INSTANCE_NAME --format='value(connectionName)')
 
 kubectx cluster1

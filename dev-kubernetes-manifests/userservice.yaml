@@ -1,4 +1,4 @@
-# Copyright 2019 Google LLC
+# Copyright 2021 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ spec:
           value: "3600"
         - name: PRIV_KEY_PATH
           value: "/root/.ssh/privatekey"
-         # Valid levels are debug, info, warning, error, critical. If no valid level is set, defaults to info.
+        # Valid levels are debug, info, warning, error, critical. If no valid level is set, gunicorn will default to info.
         - name: LOG_LEVEL
           value: "info"
         envFrom:
