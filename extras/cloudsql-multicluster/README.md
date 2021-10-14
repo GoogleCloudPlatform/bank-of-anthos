@@ -133,14 +133,25 @@ kubectx cluster2
 kubectl apply  -n ${NAMESPACE} -f ../cloudsql/kubernetes-manifests
 ```
 
-12. **Run the Multi-cluster Ingress setup script.** This registers both GKE clusters to Anthos with "memberships," and sets cluster 1 as the "config cluster" to administer the Multi-cluster Ingress resources.
+12. **Delete the LoadBalancer type frontend services**. With `MultiClusterIngress`
+    we will be using a `MultiClusterService`.
+
+```sh
+kubectx cluster1
+kubectl delete svc frontend -n ${NAMESPACE}
+
+kubectx cluster2
+kubectl delete svc frontend -n ${NAMESPACE}
+```
+
+13.  **Run the Multi-cluster Ingress setup script.** This registers both GKE clusters to Anthos with "memberships," and sets cluster 1 as the "config cluster" to administer the Multi-cluster Ingress resources.
 
 ```
 ./register_clusters.sh
 ```
 
 
-13. **Create Multi-cluster Ingress resources for global routing.**  This YAML file contains two resources a headless Multicluster Kubernetes Service ("MCS") mapped to the `frontend` Pods, and a multi cluster Ingress resource, `frontend-global-ingress`, with `frontend-mcs` as the MCS backend. Note that we're only deploying this to Cluster 1, which we've designated as the multicluster ingress "config cluster."
+14. **Create Multi-cluster Ingress resources for global routing.**  This YAML file contains two resources a headless Multicluster Kubernetes Service ("MCS") mapped to the `frontend` Pods, and a multi cluster Ingress resource, `frontend-global-ingress`, with `frontend-mcs` as the MCS backend. Note that we're only deploying this to Cluster 1, which we've designated as the multicluster ingress "config cluster."
 
 ```
 kubectx cluster1
@@ -148,7 +159,7 @@ kubectl apply -n ${NAMESPACE} -f multicluster-ingress.yaml
 ```
 
 
-14. **Verify that the multicluster ingress resource was created.** Look for the `Status` field to be populated with two Network Endpoint Groups (NEGs) corresponding to the regions where your 2 GKE clusters are running. This may take a few minutes.
+15. **Verify that the multicluster ingress resource was created.** Look for the `Status` field to be populated with two Network Endpoint Groups (NEGs) corresponding to the regions where your 2 GKE clusters are running. This may take a few minutes.
 
 ```
 watch kubectl describe mci frontend-global-ingress -n ${NAMESPACE}
@@ -169,13 +180,13 @@ Status:
 ```
 
 
-15. **Copy the `VIP` field** to the clipboard and set as an env variable:
+16. **Copy the `VIP` field** to the clipboard and set as an env variable:
 
 ```
 export VIP=<your-VIP>
 ```
 
-16. **Test the geo-aware routing** by curling the `/whereami` frontend endpoint using the global VIP you copied. You could also create a Google Compute Engine instance in a specific region to test further. **Note that you may see a `404` or `502` error** for several minutes while the forwarding rules propagate.
+17. **Test the geo-aware routing** by curling the `/whereami` frontend endpoint using the global VIP you copied. You could also create a Google Compute Engine instance in a specific region to test further. **Note that you may see a `404` or `502` error** for several minutes while the forwarding rules propagate.
 
 ```
 watch curl http://${VIP}:80/whereami
