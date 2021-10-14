@@ -20,14 +20,14 @@ databases ***(Accounts and Ledger)***.
 
 ---
 
-### Prerequisites
+## Prerequisites
 
 - The [**kubectx**](https://github.com/ahmetb/kubectx) command line tool
   installed
 - An active [Anthos license](https://cloud.google.com/kubernetes-engine/docs/concepts/multi-cluster-ingress#pricing_and_trials)
 
 ---
-### Part 1
+## Part 1
 
 1. **Create a [Google Cloud project](https://cloud.google.com/resource-manager/docs/creating-managing-projects)** if you don't already have one.
 

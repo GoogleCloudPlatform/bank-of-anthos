@@ -1,11 +1,11 @@
-## Enable TLS support on the Multi Cluster Ingress
+# Enable TLS support on the Multi Cluster Ingress
 ---
 
 In this section we will enable **TLS** support _(with
 **HTTP to HTTPS** redirection)_ on the **Multi Cluster Ingress** resource that was
 created in the [Multi Cluster Bank of Anthos with Cloud SQL](README.md) guide.
 
-### Prerequisites
+## Prerequisites
 
 - Bank of Anthos deployed in multiple clusters with access to Cloud SQL as shown
   in the [previous guide](README.md).
@@ -16,7 +16,7 @@ created in the [Multi Cluster Bank of Anthos with Cloud SQL](README.md) guide.
 
 ---
 
-### Part 2
+## Part 2
 
 1. **Create a static IP address**. This will be used to generate the _self-signed_
    certificate.
