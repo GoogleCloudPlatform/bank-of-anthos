@@ -1,8 +1,6 @@
 ---
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-metadata:
-  name: bank-of-anthos
 
 resources:
 - accounts-db.yaml
@@ -13,7 +11,6 @@ resources:
 - contacts.yaml
 - frontend-hpa.yaml
 - frontend.yaml
-- kustomization.yaml
 - ledger-db.yaml
 - ledger-writer-hpa.yaml
 - ledger-writer.yaml

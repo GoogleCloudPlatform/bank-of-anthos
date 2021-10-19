@@ -85,7 +85,7 @@ echo ""
 echo ""
 echo "Launch Bank-of-Anthos into ${NAMESPACE}"
 
-kubectl apply -n ${NAMESPACE} -f ../kubernetes-manifests/
+kubectl apply -n ${NAMESPACE} -k ../kubernetes-manifests/
 if [ ! "echo $?" ]; then
   echo ""
   echo "a component may have failed to install.  Please look at the above output for errors"
