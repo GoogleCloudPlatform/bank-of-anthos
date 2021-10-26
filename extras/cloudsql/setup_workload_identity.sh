@@ -25,8 +25,11 @@ kubectl create namespace $NAMESPACE
 
 echo "✅ Creating GCP and K8s service accounts..."
 kubectl create serviceaccount --namespace $NAMESPACE $KSA_NAME
-gcloud iam service-accounts create $GSA_NAME
 
+SA_EXISTS=$(gcloud iam service-accounts list --filter="${GSA_NAME}")
+if [ $SA_EXISTS = "Listed 0 items." ]; then
+   gcloud iam service-accounts create $GSA_NAME
+fi
 
 echo "✅ Annotating service accounts to connect your GSA and KSA..."
 gcloud iam service-accounts add-iam-policy-binding \

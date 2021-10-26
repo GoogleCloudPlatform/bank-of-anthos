@@ -73,7 +73,7 @@ gcloud container clusters get-credentials ${CLUSTER_2_NAME} --zone ${CLUSTER_2_Z
 kubectx cluster2="gke_${PROJECT_ID}_${CLUSTER_2_ZONE}_${CLUSTER_2_NAME}"
 ```
 
-6. **Set up Workload Identity** for both clusters. When the script is run for the second time, you'll see some errors (GCP service account already exists), this is ok.
+6. **Set up Workload Identity** for both clusters.
 
 ```
 kubectx cluster1
@@ -83,7 +83,7 @@ kubectx cluster2
 ../cloudsql/setup_workload_identity.sh
 ```
 
-7. **Run the Cloud SQL instance create script** on both clusters. You'll see errors when running on the second cluster, this is ok.
+7. **Run the Cloud SQL instance create script** on both clusters.
 
 ```
 kubectx cluster1
