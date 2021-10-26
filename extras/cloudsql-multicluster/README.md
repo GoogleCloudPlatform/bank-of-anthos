@@ -86,6 +86,10 @@ kubectx cluster2
 7. **Run the Cloud SQL instance create script** on both clusters. You'll see errors when running on the second cluster, this is ok.
 
 ```
+kubectx cluster1
+../cloudsql/create_cloudsql_instance.sh
+
+kubectx cluster2
 ../cloudsql/create_cloudsql_instance.sh
 ```
 
@@ -107,7 +111,7 @@ kubectl create secret -n ${NAMESPACE} generic cloud-sql-admin \
 ```
 
 
-9. **Deploy the DB population jobs.**  These are one-off bash scripts that initialize the Accounts and Ledger databases with data. You only need to run these Jobs once, so we deploy them only to cluster1.
+9. **Deploy the DB population jobs.**  These are one-off bash scripts that initialize the Accounts and Ledger databases with data. You only need to run these Jobs once, so we deploy them only on `cluster1`.
 
 ```
 kubectx cluster1
@@ -115,12 +119,15 @@ kubectl apply  -n ${NAMESPACE} -f ../cloudsql/kubernetes-manifests/config.yaml
 kubectl apply -n ${NAMESPACE} -f ../cloudsql/populate-jobs
 ```
 
-10. Wait a few minutes for the Jobs to complete. The Pods will be marked as  `0/3 - Completed` when they finish successfully.
-
+10. Verify that the Database population Jobs have completed. Wait until the
+    `COMPLETIONS` for both the Jobs are `1/1`.
 ```
-NAME                         READY   STATUS      RESTARTS   AGE
-populate-accounts-db-js8lw   0/3     Completed   0          71s
-populate-ledger-db-z9p2g     0/3     Completed   0          70s
+kubectl get jobs
+```
+```
+NAME                   COMPLETIONS   DURATION   AGE
+populate-accounts-db   1/1           43s        119s
+populate-ledger-db     1/1           43s        119s
 ```
 
 11. **Deploy Bank of Anthos services to both clusters.**
