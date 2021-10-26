@@ -151,7 +151,7 @@ kubectx cluster2
 kubectl delete svc frontend -n ${NAMESPACE}
 ```
 
-13.  **Run the Multi-cluster Ingress setup script.** This registers both GKE clusters to Anthos with "memberships," and sets cluster 1 as the "config cluster" to administer the Multi-cluster Ingress resources.
+13.  **Run the Multi-cluster Ingress setup script.** This registers both GKE clusters to Anthos with ***"memberships"*** and sets cluster 1 as the ***"config cluster"*** to administer the Multi-cluster Ingress resources.
 
 ```
 ./register_clusters.sh
@@ -166,7 +166,10 @@ kubectl apply -n ${NAMESPACE} -f multicluster-ingress.yaml
 ```
 
 
-15. **Verify that the multicluster ingress resource was created.** Look for the `Status` field to be populated with two Network Endpoint Groups (NEGs) corresponding to the regions where your 2 GKE clusters are running. This may take a few minutes.
+15. **Verify that the multicluster ingress resource was created.** Look for the `Status` field to be populated with two Network Endpoint Groups (NEGs) corresponding to the regions where your 2 GKE clusters are running.
+
+> **Note:** It may take up to 90 seconds before a `VIP` is assigned to the
+> MultiClusterIngress resource.
 
 ```
 watch kubectl describe mci frontend-global-ingress -n ${NAMESPACE}
@@ -186,14 +189,18 @@ Status:
   VIP:        34.120.172.105
 ```
 
-
 16. **Copy the `VIP` field** to the clipboard and set as an env variable:
 
 ```
 export VIP=<your-VIP>
 ```
 
-17. **Test the geo-aware routing** by curling the `/whereami` frontend endpoint using the global VIP you copied. You could also create a Google Compute Engine instance in a specific region to test further. **Note that you may see a `404` or `502` error** for several minutes while the forwarding rules propagate.
+17. **Test the geo-aware routing** by curling the `/whereami` frontend endpoint using the global VIP you copied. You could also create a Google Compute Engine instance in a specific region to test further.
+
+> **Note:** You may see `404` or `502` errors for several minutes while the
+> forwarding rules propagate. It can take up to 3 minutes and 30 seconds for the
+> endpoint to become ready to serve requests.
+
 
 ```
 watch curl http://$VIP:80/whereami
