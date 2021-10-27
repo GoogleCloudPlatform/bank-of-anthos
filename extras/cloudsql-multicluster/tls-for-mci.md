@@ -97,7 +97,7 @@ Content-Length: 219
 Date: Thu, 14 Oct 2021 03:11:00 GMT
 ```
 
-1. **Test TLS connection via HTTPS**
+8. **Test TLS connection via HTTPS**
 ```sh
 curl -k -I https://$STATIC_IP
 ```
