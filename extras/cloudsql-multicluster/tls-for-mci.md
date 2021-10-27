@@ -22,7 +22,7 @@ created in the [Multi Cluster Bank of Anthos with Cloud SQL](README.md) guide.
    certificate.
 ```sh
 gcloud compute addresses create boa-multi-cluster-ip --global
-STATIC_IP=`gcloud compute addresses describe boa-multi-cluster-ip --global --format="value(address)"`
+export STATIC_IP=`gcloud compute addresses describe boa-multi-cluster-ip --global --format="value(address)"`
 
 echo $STATIC_IP
 ```
