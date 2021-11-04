@@ -65,7 +65,7 @@ echo "🌏 Listing your Anthos cluster memberships:"
 gcloud container hub memberships list
 
 
-echo "🌏 Adding cluster 1 as the Multi-cluster ingress config cluster..."
+echo "🌏 Adding cluster 1 as the Multi Cluster Ingress config cluster..."
 gcloud alpha container hub ingress enable \
   --config-membership=projects/${PROJECT_ID}/locations/global/memberships/${CLUSTER_1_NAME}
 
