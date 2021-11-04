@@ -12,7 +12,7 @@ created in the [Multi Cluster Bank of Anthos with Cloud SQL](README.md) guide.
 - This guide assumes that all the environment variables and **kubectx**(s) -
   _cluster1 & cluster2_ - are still valid
 - This guide assumes that all the commands are executed from the same directory
-  as this README ***`(extras/cloudsql-multicluster/tls-for-mci.md)`***
+  as this file ***`(extras/cloudsql-multicluster/tls-for-mci.md)`***
 
 ---
 
@@ -57,7 +57,7 @@ envsubst < multicluster-ingress-https.template > multicluster-ingress-https.yaml
 kubectl apply -n ${NAMESPACE} -f multicluster-ingress-https.yaml
 ```
 
-6. **Verify that the multicluster ingress resource was updated.**
+6. **Verify that the Multi Cluster Ingress resource was updated.**
    This may take a few minutes. Wait until the **VIP** of the `MultiClusterIngress`
    has been updated to your newly created STATIC_IP.
 

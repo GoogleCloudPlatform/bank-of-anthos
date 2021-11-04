@@ -1,8 +1,8 @@
-# Multi-cluster Bank of Anthos with Cloud SQL
+# Multi Cluster Bank of Anthos with Cloud SQL
 
 This doc contains instructions for deploying the Cloud SQL version of Bank of Anthos in a multi-region high availability / global configuration.
 
-The use case for this setup is to demo running a global, scaled app, where even if one cluster goes down, users will be routed to the next available cluster. These instructions also show how to use [Multi-cluster Ingress](https://cloud.google.com/kubernetes-engine/docs/concepts/multi-cluster-ingress) to route users to the closest GKE cluster, demonstrating a low-latency use case.
+The use case for this setup is to demo running a global, scaled app, where even if one cluster goes down, users will be routed to the next available cluster. These instructions also show how to use [Multi Cluster Ingress](https://cloud.google.com/kubernetes-engine/docs/concepts/multi-cluster-ingress) to route users to the closest GKE cluster, demonstrating a low-latency use case.
 
 This guide has two parts to it:
 1. Deploy Bank of Anthos on 2 GKE clusters with **Multi Cluster Ingress** for
@@ -63,6 +63,8 @@ gcloud container clusters create ${CLUSTER_2_NAME} \
 	--workload-pool="${PROJECT_ID}.svc.id.goog" --enable-ip-alias
 ```
 
+> Note: It can take more than **10 minutes** for both clusters to get created.
+
 5. **Configure kubectx for the clusters.**
 
 ```
@@ -92,6 +94,7 @@ kubectx cluster1
 kubectx cluster2
 ../cloudsql/create_cloudsql_instance.sh
 ```
+> Note: Setting up the `CloudSQL` instance can sometimes take more than 10 minutes.
 
 8. **Create Cloud SQL admin secrets** in your GKE clusters. This gives your in-cluster Cloud SQL clients a username and password to access Cloud SQL. (Note that admin/admin credentials are for demo use only and should never be used in a production environment.)
 
@@ -109,7 +112,6 @@ kubectl create secret -n ${NAMESPACE} generic cloud-sql-admin \
  --from-literal=username=admin --from-literal=password=admin \
  --from-literal=connectionName=${INSTANCE_CONNECTION_NAME}
 ```
-
 
 9. **Deploy the DB population jobs.**  These are one-off bash scripts that initialize the Accounts and Ledger databases with data. You only need to run these Jobs once, so we deploy them only on `cluster1`.
 
@@ -151,14 +153,14 @@ kubectx cluster2
 kubectl delete svc frontend -n ${NAMESPACE}
 ```
 
-13.  **Run the Multi-cluster Ingress setup script.** This registers both GKE clusters to Anthos with ***"memberships"*** and sets cluster 1 as the ***"config cluster"*** to administer the Multi-cluster Ingress resources.
+13.  **Run the Multi Cluster Ingress setup script.** This registers both GKE clusters to Anthos with ***"memberships"*** and sets cluster 1 as the ***"config cluster"*** to administer the Multi Cluster Ingress resources.
 
 ```
 ./register_clusters.sh
 ```
 
 
-14. **Create Multi-cluster Ingress resources for global routing.**  This YAML file contains two resources a headless Multicluster Kubernetes Service ("MCS") mapped to the `frontend` Pods, and a multi cluster Ingress resource, `frontend-global-ingress`, with `frontend-mcs` as the MCS backend. Note that we're only deploying this to Cluster 1, which we've designated as the multicluster ingress "config cluster."
+14. **Create Multi Cluster Ingress resources for global routing.**  This YAML file contains two resources a headless Multi Cluster Kubernetes Service ("MCS") mapped to the `frontend` Pods, and a Multi Cluster Ingress resource, `frontend-global-ingress`, with `frontend-mcs` as the MCS backend. Note that we're only deploying this to Cluster 1, which we've designated as the Multi Cluster Ingress "config cluster."
 
 ```
 kubectx cluster1
@@ -166,7 +168,7 @@ kubectl apply -n ${NAMESPACE} -f multicluster-ingress.yaml
 ```
 
 
-15. **Verify that the multicluster ingress resource was created.** Look for the `Status` field to be populated with two Network Endpoint Groups (NEGs) corresponding to the regions where your 2 GKE clusters are running.
+15. **Verify that the Multi Cluster Ingress resource was created.** Look for the `Status` field to be populated with two Network Endpoint Groups (NEGs) corresponding to the regions where your 2 GKE clusters are running.
 
 > **Note:** It may take up to 90 seconds before a `VIP` is assigned to the
 > MultiClusterIngress resource.
