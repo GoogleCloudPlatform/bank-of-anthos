@@ -7,6 +7,10 @@ assignees: ''
 
 ---
 
+Please check the [open issues](https://github.com/GoogleCloudPlatform/bank-of-anthos/issues) for this repository to verify that the same `issue/bug` has not been already reported. 
+
+If you see the bug being already reported, please upvote and comment on the existing issue instead of opening a new one. If you notice a `bug/issue` which is not the same as yours but is related, create a new one and link to the existing `bug/issue`.
+
 ### Describe the bug 
 <!-- A clear and concise description of what the bug is. -->
 
@@ -24,7 +28,7 @@ assignees: ''
 
 ### Environment 
 <!--  - OS: [e.g. MacOS Big Sur v11.6] -->
-<!--  - Kubernetes distribution, version: [e.g. minikube, GKE (Standard or Autopilot), EKS, AWS ... ] -->
+<!--  - Kubernetes distribution, version: [e.g. minikube, GKE (Standard or Autopilot), EKS, AKS ... ] -->
 <!--  - Any relevant tool version: [e.g. Docker v20.10.8] -->
 
 ### Additional context 

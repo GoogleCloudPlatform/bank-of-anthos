@@ -1,8 +1,8 @@
+### Fixes #<ISSUE_NUMBER>
+
 ### Background 
 <!-- What was happening before this PR, and the problem(s) it solves -->
 
-### Fixes 
-<!-- Link the issue(s) this PR fixes-->
 ### Change Summary
 <!-- Short summary of the changes submitted -->
 
