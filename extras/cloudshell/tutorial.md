@@ -1,4 +1,4 @@
-# Bank of Anthos Minikube Quickstart
+# Bank of Anthos Quickstart
 
 ## 
 This tutorial shows you how to deploy the Bank of Anthos app to a Kubernetes cluster.
@@ -9,44 +9,49 @@ You'll be able to run Bank of Anthos on:
 
 Let's get started!
 
+## Select a GCP project
+
+In order to create a Google Kubernetes Engine cluster, you'll need to create a Google Cloud Platform project or use an existing project.
+
+Note: If you choose to deploy to minikube instead of GKE, you can skip this step.
+
+<walkthrough-project-setup></walkthrough-project-setup>
+
 ## Kubernetes cluster setup
 
-Set up a Kubernetes cluster using the instructions below for either **minikube** or **GKE**.
+This section shows you how to set up a Kubernetes cluster using either **minikube** or **GKE**.
 
----
+1. Navigate to the <walkthrough-editor-spotlight spotlightId="cloud-code-k8s-explorer">**Clusters**</walkthrough-editor-spotlight> explorer in the <walkthrough-editor-spotlight spotlightId="activity-bar-cloud-k8s">Cloud Code - Kubernetes sidebar</walkthrough-editor-spotlight> using the left side Activity bar.
+
+2. Click <walkthrough-editor-spotlight spotlightId="cloud-code-k8s-explorer-add-cluster">'+'</walkthrough-editor-spotlight> in the title bar of the Clusters explorer to create a new cluster.
+
+3. Choose either **Minikube** or **Google Kubernetes Engine** and follow the instructions below.
+
+
 ### Minikube
 
-Minikube creates a local Kubernetes cluster on Cloud Shell.
+4. Select the **minikube** profile.
 
-1. Click <walkthrough-editor-spotlight spotlightId="minikube-status-bar">minikube</walkthrough-editor-spotlight> on the status bar located at the bottom of the editor window.
+5. Select **Start**. Cloud Code will initiate a minikube cluster.
 
-2. The command palette will prompt you to choose which minikube cluster to control. Select **minikube** and, in the next prompt, click **Start**. 
+6. If prompted, authorize Cloud Shell to make a GCP API call with your credentials.
 
-3. If prompted, authorize Cloud Shell to make a GCP API call with your credentials.
-
-Once minikube has finished starting, you're ready to move on to the next step.
-
-
---- 
 
 ### GKE
 
-In order to create a GKE cluster, you'll need to **[create a Google Cloud Platform project](https://cloud.google.com/resource-manager/docs/creating-managing-projects#creating_a_project)** or use an existing project.
+4. Click **+ Create a new GKE Cluster**.
 
-1. Access the command palette by going to **View > Find Command**.
+5. Select the cluster mode **Standard**.
 
-2. Run the command **"Cloud Code: Create GKE cluster"**.
-
-3. Select your GCP project. 
-
-4. Apply the following configurations in the GKE wizard:  
+6. Apply the following configurations:
 > - Zone: us-central1-b
 > - Cluster name: bank-of-anthos
 > - Node count: 4
 > - Machine type: e2-standard-2
 
-5. Click **Create Cluster**. Once your cluster has been created successfully, you can move on to the next step.
+7. Click **Create Cluster**. Once the cluster has finished being created, it will be added to the <walkthrough-editor-spotlight spotlightId="cloud-code-k8s-explorer">**Clusters**</walkthrough-editor-spotlight> explorer and set as the default context.
 
+Once you've configured your minikube or GKE cluster, you're ready to move on to the next step.
 
 ## Deploy JWT token
 
@@ -79,11 +84,11 @@ Now you can run Bank of Anthos on your Kubernetes cluster!
 
 2. If prompted to select a Skaffold Profile, select **[default]**.
 
-3. Select **Yes** to confirm your current context.
+3. Select **Use current context** to confirm your current context.
 
 4. If you're using a GKE cluster, you'll need to confirm your container image registry.
 
-Cloud Code uses configurations defined in <walkthrough-editor-open-file filePath="skaffold.yaml">skaffold.yaml</walkthrough-editor-open-file> to build and deploy the app. *It may take a minute for the deploy to complete.*
+Cloud Code uses configurations defined in <walkthrough-editor-open-file filePath="skaffold.yaml">skaffold.yaml</walkthrough-editor-open-file> to build and deploy the app. *It may take a few minutes for the deploy to complete.*
 
 5. Once the app is running, the local URLs will be displayed in the <walkthrough-editor-spotlight spotlightId="output">Output</walkthrough-editor-spotlight> terminal. 
 
@@ -100,15 +105,16 @@ To stop running the app:
 
 2. Click the 'Stop' icon. 🟥
 
-3. Select **Yes** to clean up deployed resources. 
+3. If prompted, select **Yes** to clean up deployed resources.
 
 You can start, stop, and debug apps from the Debug view.
 
+### Cleanup
 If you've deployed your app to a GKE cluster in your Google Cloud Platform project, you'll want to delete the cluster to avoid incurring charges.
 
 1. Navigate to the <walkthrough-editor-spotlight spotlightId="activity-bar-cloud-k8s">Cloud Code - Kubernetes view</walkthrough-editor-spotlight> in the Activity bar.
 
-2. Under the <walkthrough-editor-spotlight spotlightId="cloud-code-gke-explorer">Google Kubernetes Engine Explorer tab</walkthrough-editor-spotlight>, right-click on your cluster and select **Delete Cluster**.
+2. Under the <walkthrough-editor-spotlight spotlightId="cloud-code-gke-explorer">Clusters Explorer tab</walkthrough-editor-spotlight>, right-click on your cluster and select **Delete Cluster**.
 
 
 
