@@ -25,7 +25,7 @@ This section shows you how to set up a Kubernetes cluster using either **minikub
 
 2. In the <walkthrough-editor-spotlight spotlightId="cloud-code-k8s-explorer">**Clusters**</walkthrough-editor-spotlight> explorer, click <walkthrough-editor-spotlight spotlightId="cloud-code-k8s-explorer-add-cluster">'+'</walkthrough-editor-spotlight> in the title bar to create a new cluster.
 
-3. Choose either **Minikube** or **Google Kubernetes Engine** and follow the instructions below.
+3. Choose either **Minikube** or **Google Kubernetes Engine** and follow the relevant instructions below.
 
 
 ### Minikube
@@ -39,6 +39,7 @@ This section shows you how to set up a Kubernetes cluster using either **minikub
 
 
 ### GKE
+*(skip this section if you're planning on deploying to minikube)*
 
 4. Click **+ Create a new GKE Cluster**.
 
