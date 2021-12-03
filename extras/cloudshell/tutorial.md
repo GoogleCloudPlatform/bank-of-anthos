@@ -21,16 +21,17 @@ Note: If you choose to deploy to minikube instead of GKE, you can skip this step
 
 This section shows you how to set up a Kubernetes cluster using either **minikube** or **GKE**.
 
-1. Navigate to the <walkthrough-editor-spotlight spotlightId="cloud-code-k8s-explorer">**Clusters**</walkthrough-editor-spotlight> explorer in the <walkthrough-editor-spotlight spotlightId="activity-bar-cloud-k8s">Cloud Code - Kubernetes sidebar</walkthrough-editor-spotlight> using the left side Activity bar.
+1. Open the <walkthrough-editor-spotlight spotlightId="activity-bar-cloud-k8s">Cloud Code - Kubernetes</walkthrough-editor-spotlight> sidebar using the left side Activity bar.
 
-2. Click <walkthrough-editor-spotlight spotlightId="cloud-code-k8s-explorer-add-cluster">'+'</walkthrough-editor-spotlight> in the title bar of the Clusters explorer to create a new cluster.
+2. In the <walkthrough-editor-spotlight spotlightId="cloud-code-k8s-explorer">**Clusters**</walkthrough-editor-spotlight> explorer, click <walkthrough-editor-spotlight spotlightId="cloud-code-k8s-explorer-add-cluster">'+'</walkthrough-editor-spotlight> in the title bar to create a new cluster.
 
 3. Choose either **Minikube** or **Google Kubernetes Engine** and follow the instructions below.
 
 
 ### Minikube
+*(skip this section if you're planning on deploying to GKE)*
 
-4. Select the **minikube** profile.
+4. Select the **minikube** [profile](https://minikube.sigs.k8s.io/docs/commands/profile/).
 
 5. Select **Start**. Cloud Code will initiate a minikube cluster.
 
@@ -114,7 +115,7 @@ If you've deployed your app to a GKE cluster in your Google Cloud Platform proje
 
 1. Navigate to the <walkthrough-editor-spotlight spotlightId="activity-bar-cloud-k8s">Cloud Code - Kubernetes view</walkthrough-editor-spotlight> in the Activity bar.
 
-2. Under the <walkthrough-editor-spotlight spotlightId="cloud-code-gke-explorer">Clusters Explorer tab</walkthrough-editor-spotlight>, right-click on your cluster and select **Delete Cluster**.
+2. Under the <walkthrough-editor-spotlight spotlightId="cloud-code-gke-explorer">**Clusters**</walkthrough-editor-spotlight> explorer, right-click on your cluster and select **Delete Cluster**.
 
 
 
