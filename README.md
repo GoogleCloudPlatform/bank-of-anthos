@@ -72,7 +72,7 @@ ZONE=us-central1-b
 gcloud beta container clusters create bank-of-anthos \
   --project=${PROJECT_ID} --zone=${ZONE} \
   --machine-type=e2-standard-2 --num-nodes=4 \
-  --enable-stackdriver-kubernetes --subnetwork=default \
+  --monitoring=SYSTEM --logging=SYSTEM,WORKLOAD --subnetwork=default \
   --tags=bank-of-anthos --labels csm=
 ```
 
