@@ -1,14 +1,14 @@
 # Deploy Bank of Anthos for Opsani Optimization Trials
 
-Bank of Anthos is a polyglot application that can be used for a number of purposes. Opsani is providing this update to support optmization trials with enough scale and a transaction-defined load generator.
+Bank of Anthos is a polyglot application that can be used for a number of purposes. Opsani is providing this update to support optimization trials with enough scale and a transaction-defined load generator.
 
 This will support your efforts in deploying and validating this application.
 
-## Prerequistes and Components
+## Prerequisites and Components
 
 1. `kubectl` cli command version appropriate to your cluster
 2. bash command line interpreter (to run the deployment scripts)
-3. target kubernetes cluster with at least **8** AWS m5.xl equivalent nodes avaialble exclusively for this test
+3. target kubernetes cluster with at least **8** AWS m5.xl equivalent nodes available exclusively for this test
 4. ability to create a namespace, or define a namespace in the NAMESPACE environment variable for Bank of Anthos
 5. ability to create the metrics-service (or already have it installed) in the kube-systems administrative namespace
 
@@ -97,7 +97,7 @@ You should then be able to point to [http://localhost:8080](http://localhost:808
 ## Load generation
 
 Load is automatically generated in a dynamic fashion with the loadgenerator pod.  Opsani has modified
-this with the latest version of locust.io, and inlcudes a dynamic sinusoidal load pattern.  You can modify the
+this with the latest version of locust.io, and includes a dynamic sinusoidal load pattern.  You can modify the
 parameters of the `kubernetes-manifests/loadgenerator.yaml` document with the following parameters:
 
   STEP_SEC: seconds per step, longer will generate a longer load range, usually 10 is good for initial tests, and 600 for longer term load.
