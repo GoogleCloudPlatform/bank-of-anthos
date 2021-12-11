@@ -20,7 +20,7 @@ import json
 import logging
 import os
 import socket
-from decimal import Decimal
+from decimal import Decimal, DecimalException
 
 import requests
 from requests.exceptions import HTTPError, RequestException
@@ -206,11 +206,13 @@ def create_app():
                                  app.config['LOCAL_ROUTING'],
                                  False)
 
+            userInput = request.form['amount']
+            paymentAmount = int(Decimal(userInput) * 100)
             transaction_data = {"fromAccountNum": account_id,
                                 "fromRoutingNum": app.config['LOCAL_ROUTING'],
                                 "toAccountNum": recipient,
                                 "toRoutingNum": app.config['LOCAL_ROUTING'],
-                                "amount": int(Decimal(request.form['amount']) * 100),
+                                "amount": paymentAmount,
                                 "uuid": request.form['uuid']}
             _submit_transaction(transaction_data)
             app.logger.info('Payment initiated successfully.')
@@ -226,6 +228,13 @@ def create_app():
             msg = 'Payment failed: {}'.format(str(warn))
             return redirect(url_for('home',
                                     msg=msg,
+                                    _external=True,
+                                    _scheme=app.config['SCHEME']))
+        except (ValueError, DecimalException) as numErr:
+            app.logger.error('Error submitting payment: %s', str(numErr))
+            msg = 'Payment failed: {} is not a valid number'.format(userInput)
+            return redirect(url_for('home',
+                                    msg=numErr,
                                     _external=True,
                                     _scheme=app.config['SCHEME']))
 
