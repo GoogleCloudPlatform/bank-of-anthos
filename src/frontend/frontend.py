@@ -206,13 +206,13 @@ def create_app():
                                  app.config['LOCAL_ROUTING'],
                                  False)
 
-            userInput = request.form['amount']
-            paymentAmount = int(Decimal(userInput) * 100)
+            user_input = request.form['amount']
+            payment_amount = int(Decimal(user_input) * 100)
             transaction_data = {"fromAccountNum": account_id,
                                 "fromRoutingNum": app.config['LOCAL_ROUTING'],
                                 "toAccountNum": recipient,
                                 "toRoutingNum": app.config['LOCAL_ROUTING'],
-                                "amount": paymentAmount,
+                                "amount": payment_amount,
                                 "uuid": request.form['uuid']}
             _submit_transaction(transaction_data)
             app.logger.info('Payment initiated successfully.')
@@ -230,11 +230,11 @@ def create_app():
                                     msg=msg,
                                     _external=True,
                                     _scheme=app.config['SCHEME']))
-        except (ValueError, DecimalException) as numErr:
-            app.logger.error('Error submitting payment: %s', str(numErr))
-            msg = 'Payment failed: {} is not a valid number'.format(userInput)
+        except (ValueError, DecimalException) as num_err:
+            app.logger.error('Error submitting payment: %s', str(num_err))
+            msg = 'Payment failed: {} is not a valid number'.format(user_input)
             return redirect(url_for('home',
-                                    msg=numErr,
+                                    msg=num_err,
                                     _external=True,
                                     _scheme=app.config['SCHEME']))
 
