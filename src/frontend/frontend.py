@@ -233,10 +233,6 @@ def create_app():
         except (ValueError, DecimalException) as num_err:
             app.logger.error('Error submitting payment: %s', str(num_err))
             msg = 'Payment failed: {} is not a valid number'.format(user_input)
-            return redirect(url_for('home',
-                                    msg=num_err,
-                                    _external=True,
-                                    _scheme=app.config['SCHEME']))
 
         return redirect(url_for('home',
                                 msg='Payment failed',
