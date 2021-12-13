@@ -99,7 +99,7 @@ jobs:
           popd
         done
   deployment-tests:
-    runs-on: [self-hosted, runner-1]
+    runs-on: [self-hosted, runner-2]
     needs: code-tests
     strategy:
       matrix:
