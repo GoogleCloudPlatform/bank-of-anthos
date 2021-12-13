@@ -19,8 +19,8 @@ set -euo pipefail
 sudo apt-get -y install git kubectl maven default-jdk python3-pip python3-venv
 
 # install go
-curl -O https://storage.googleapis.com/golang/go1.12.9.linux-amd64.tar.gz
-tar -xvf go1.12.9.linux-amd64.tar.gz
+curl -O https://storage.googleapis.com/golang/go1.17.5.linux-amd64.tar.gz
+tar -xvf go1.17.5.linux-amd64.tar.gz
 sudo chown -R root:root ./go
 sudo mv go /usr/local
 echo 'export GOPATH=$HOME/go' >> ~/.profile
