@@ -19,7 +19,7 @@ on:
       - master
 jobs:
   code-tests:
-    runs-on: [self-hosted, runner-1]
+    runs-on: [self-hosted, runner-2]
     steps:
     - uses: actions/checkout@v2
       with:
