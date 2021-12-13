@@ -90,7 +90,7 @@ def create_app():
         token = request.cookies.get(app.config['TOKEN_NAME'])
         if not verify_token(token):
             # user isn't authenticated
-            app.logger.debug('User isn\'t authenticated. Redirecting to login page.')
+            app.logger.debug('User isn\'t authenticated. Redirecting to login page. Boo!')
             return redirect(url_for('login_page',
                                     _external=True,
                                     _scheme=app.config['SCHEME']))
