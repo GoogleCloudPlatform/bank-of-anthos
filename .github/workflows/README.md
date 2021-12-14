@@ -19,7 +19,7 @@ These tests run on every commit for every open PR, as well as any commit to mast
 3. Runs all Python service unit tests, with test coverage reporting (`pytest --cov`)
 
 
-### Deploy Tests- [ci.yaml](ci.yaml)
+### Deploy Tests - [ci.yaml](ci.yaml)
 
 These tests run on every commit for every open PR, as well as any commit to master / any release branch. This workflow:
 
@@ -51,14 +51,13 @@ Should one of the two self-hosted Github Actions runners (GCE instances) fail, o
     - VM should be at least n1-standard-4 with 50GB persistent disk
     - VM should use custom service account with only permissions to push images to GCR
 2. SSH into new VM through Google Cloud Console
-3. Follow the instructions to add a new runner on the [Actions Settings page](https://github.com/GoogleCloudPlatform/bank-of-anthos/settings/actions) to authenticate the new runner
+3. Follow the instructions to add a new runner on the [GitHub Actions settings](https://github.com/GoogleCloudPlatform/bank-of-anthos/settings/actions) to authenticate the new runner
 4. Start GitHub Actions as a background service:
 ```
 sudo ~/actions-runner/svc.sh install ; sudo ~/actions-runner/svc.sh start
 ```
 5. Install project-specific dependencies, including docker, skaffold, and kubectl:
-
 ```
 wget -O - https://raw.githubusercontent.com/GoogleCloudPlatform/bank-of-anthos/master/.github/workflows/install-dependencies.sh | bash
 ```
-
+6. Add `self-hosted` and `runners-v2` labels on the [GitHub Actions runners settings](https://github.com/GoogleCloudPlatform/bank-of-anthos/settings/actions/runners).
