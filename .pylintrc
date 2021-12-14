@@ -5,8 +5,4 @@ disable=F0401,  # import loading
         E1101,  # function members
         R0801,  # duplicate code
         R0903,  # public methods
-        R0915,  # too many statements
-        R1732,  # consider-using-with
-        W1514,  # unspecified-encoding 
-        C0209,  # consider-using-f-string 
-        R1734   # use-list-literal
+        R0915   # too many statements
