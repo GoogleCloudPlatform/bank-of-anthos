@@ -28,7 +28,7 @@ echo 'export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin' >> ~/.profile
 source ~/.profile
 
 # install addlicense
-go get -u github.com/google/addlicense
+go install github.com/google/addlicense@latest
 sudo ln -s $HOME/go/bin/addlicense /bin
 
 # install pylint
