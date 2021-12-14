@@ -414,8 +414,8 @@
 
 /* Deposit / payment accepted alert */
     .snackbar-body {
-      padding-bottom: 8px;
-      padding-top: 8px;
+      padding-bottom: 1em;
+      padding-top: 1em;
       vertical-align: middle !important;
     }
 
