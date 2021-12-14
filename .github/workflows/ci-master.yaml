@@ -21,7 +21,7 @@ on:
       - release/*
 jobs:
   code-tests:
-    runs-on: [self-hosted, live-v2]
+    runs-on: [self-hosted, runners-v2]
     steps:
     - uses: actions/checkout@v2
     - name: License Check
@@ -98,7 +98,7 @@ jobs:
           popd
         done
   deployment-tests:
-    runs-on: [self-hosted, live-v2]
+    runs-on: [self-hosted, runners-v2]
     needs: code-tests
     strategy:
       matrix:
@@ -125,8 +125,8 @@ jobs:
         skaffold config set --global local-cluster false
         skaffold run --default-repo=gcr.io/$PROJECT_ID/$GITHUB_REF --tag=$GITHUB_SHA --namespace=$NAMESPACE
       env:
-        PROJECT_ID: "bank-of-anthos"
-        PR_CLUSTER: "bank-of-anthos-pr-2"
+        PROJECT_ID: "bank-of-anthos-ci"
+        PR_CLUSTER: "bank-of-anthos-prs"
         ZONE: "us-central1-c"
         ACTIONS_ALLOW_UNSECURE_COMMANDS: true
     - name: Wait For Pods

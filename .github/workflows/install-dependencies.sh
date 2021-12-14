@@ -19,8 +19,8 @@ set -euo pipefail
 sudo apt-get -y install git kubectl maven default-jdk python3-pip python3-venv
 
 # install go
-curl -O https://storage.googleapis.com/golang/go1.12.9.linux-amd64.tar.gz
-tar -xvf go1.12.9.linux-amd64.tar.gz
+curl -O https://storage.googleapis.com/golang/go1.17.5.linux-amd64.tar.gz
+tar -xvf go1.17.5.linux-amd64.tar.gz
 sudo chown -R root:root ./go
 sudo mv go /usr/local
 echo 'export GOPATH=$HOME/go' >> ~/.profile
@@ -28,7 +28,7 @@ echo 'export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin' >> ~/.profile
 source ~/.profile
 
 # install addlicense
-go get -u github.com/google/addlicense
+go install github.com/google/addlicense@latest
 sudo ln -s $HOME/go/bin/addlicense /bin
 
 # install pylint
