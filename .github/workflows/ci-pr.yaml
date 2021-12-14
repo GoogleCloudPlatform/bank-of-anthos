@@ -19,7 +19,7 @@ on:
       - master
 jobs:
   code-tests:
-    runs-on: [self-hosted, runners-v2]
+    runs-on: [self-hosted, live-v2]
     steps:
     - uses: actions/checkout@v2
       with:
@@ -99,7 +99,7 @@ jobs:
           popd
         done
   deployment-tests:
-    runs-on: [self-hosted, runners-v2]
+    runs-on: [self-hosted, live-v2]
     needs: code-tests
     strategy:
       matrix:
@@ -128,8 +128,8 @@ jobs:
         skaffold run --default-repo=gcr.io/$PROJECT_ID/refs/$PR_NUMBER --tag=$GITHUB_SHA --namespace=$NAMESPACE
       env:
         PR_NUMBER: ${{ github.event.pull_request.number }}
-        PROJECT_ID: "bank-of-anthos-ci"
-        PR_CLUSTER: "bank-of-anthos-prs"
+        PROJECT_ID: "bank-of-anthos"
+        PR_CLUSTER: "bank-of-anthos-pr-2"
         ZONE: "us-central1-c"
         ACTIONS_ALLOW_UNSECURE_COMMANDS: true
     - name: Wait For Pods
