@@ -32,9 +32,9 @@ requires:
   - configs: [setup]
 build:
   artifacts:
-  - image: gcr.io/bank-of-anthos/accounts-db
+  - image: gcr.io/bank-of-anthos-ci/accounts-db
     context: src/accounts-db
-  - image: gcr.io/bank-of-anthos/ledger-db
+  - image: gcr.io/bank-of-anthos-ci/ledger-db
     context: src/ledger-db
 deploy:
   kubectl:
@@ -52,18 +52,18 @@ requires:
   - configs: [db]
 build:
   artifacts:
-  - image: gcr.io/bank-of-anthos/ledgerwriter
+  - image: gcr.io/bank-of-anthos-ci/ledgerwriter
     jib:
       project: src/ledgerwriter
-  - image: gcr.io/bank-of-anthos/balancereader
+  - image: gcr.io/bank-of-anthos-ci/balancereader
     jib:
       project: src/balancereader
-  - image: gcr.io/bank-of-anthos/transactionhistory
+  - image: gcr.io/bank-of-anthos-ci/transactionhistory
     jib:
       project: src/transactionhistory
-  - image: gcr.io/bank-of-anthos/contacts
+  - image: gcr.io/bank-of-anthos-ci/contacts
     context: src/contacts
-  - image: gcr.io/bank-of-anthos/userservice
+  - image: gcr.io/bank-of-anthos-ci/userservice
     context: src/userservice
 deploy:
   kubectl:
@@ -82,7 +82,7 @@ metadata:
   name: frontend # module defining frontend service
 build:
   artifacts:
-  - image: gcr.io/bank-of-anthos/frontend
+  - image: gcr.io/bank-of-anthos-ci/frontend
     context: src/frontend
 deploy:
   kubectl:
@@ -97,7 +97,7 @@ metadata:
   name: loadgenerator # module defining a load generator service
 build:
   artifacts:
-  - image: gcr.io/bank-of-anthos/loadgenerator
+  - image: gcr.io/bank-of-anthos-ci/loadgenerator
     context: src/loadgenerator
 deploy:
   kubectl:
