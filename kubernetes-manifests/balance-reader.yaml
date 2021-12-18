@@ -29,14 +29,14 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: balancereader
-        image: gcr.io/bank-of-anthos-ci/balancereader:v0.5.1
+        image: gcr.io/bank-of-anthos-ci/balancereader:v0.5.2
         volumeMounts:
         - name: publickey
           mountPath: "/root/.ssh"
           readOnly: true
         env:
         - name: VERSION
-          value: "v0.5.1"
+          value: "v0.5.2"
         - name: PORT
           value: "8080"
         # toggle Cloud Trace export
