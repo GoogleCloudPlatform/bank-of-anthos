@@ -21,7 +21,7 @@ on:
     types: closed
 jobs:
   cleanup-namespace:
-    runs-on: [self-hosted, live-v2]
+    runs-on: [self-hosted, runners-v2]
     steps:
       - uses: actions/checkout@v2
         with:
@@ -36,7 +36,7 @@ jobs:
           NAMESPACE="pr${PR_NUMBER}"
           kubectl delete namespace $NAMESPACE
         env:
-          PROJECT_ID: "bank-of-anthos"
-          PR_CLUSTER: "bank-of-anthos-pr-2"
+          PROJECT_ID: "bank-of-anthos-ci"
+          PR_CLUSTER: "bank-of-anthos-prs"
           ZONE: "us-central1-c"
           PR_NUMBER: ${{ github.event.number }}

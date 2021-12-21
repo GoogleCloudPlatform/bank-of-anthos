@@ -32,7 +32,7 @@ spec:
       restartPolicy: Always
       containers:
       - name: loadgenerator
-        image: gcr.io/bank-of-anthos/loadgenerator:latest
+        image: gcr.io/bank-of-anthos-ci/loadgenerator:latest
         env:
         - name: FRONTEND_ADDR
           value: "frontend:80"
