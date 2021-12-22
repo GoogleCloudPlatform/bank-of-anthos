@@ -4,8 +4,8 @@
 
 > **⚠ ATTENTION: Apache Log4j 2 advisory.**  
 > Due to [vulnerabilities](https://cloud.google.com/log4j2-security-advisory) present in earlier versions
-> of Log4j 2, we have taken down all affected container images. We encourage all demos and forks to use
-> up-to-date images from the [latest release](https://github.com/GoogleCloudPlatform/bank-of-anthos/releases) instead.
+> of Log4j 2, we have taken down all affected container images. We highly recommend all demos and forks to now
+> use images from releases [>= v0.5.2](https://github.com/GoogleCloudPlatform/bank-of-anthos/releases) instead.
 
 **Bank of Anthos** is a sample HTTP-based web app that simulates a bank's payment processing network, allowing users to create artificial bank accounts and complete transactions.
 
