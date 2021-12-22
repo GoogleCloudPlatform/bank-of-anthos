@@ -2,6 +2,11 @@
 
 # Bank of Anthos
 
+> **⚠ ATTENTION: Apache Log4j 2 advisory.**  
+> Due to [vulnerabilities](https://cloud.google.com/log4j2-security-advisory) present in earlier versions
+> of Log4j 2, we have taken down all affected container images. We encourage all demos and forks to use
+> up-to-date images from the [latest release](https://github.com/GoogleCloudPlatform/bank-of-anthos/releases) instead.
+
 **Bank of Anthos** is a sample HTTP-based web app that simulates a bank's payment processing network, allowing users to create artificial bank accounts and complete transactions.
 
 Google uses this application to demonstrate how developers can modernize enterprise applications using GCP products, including: [GKE](https://cloud.google.com/kubernetes-engine), [Anthos Service Mesh](https://cloud.google.com/anthos/service-mesh), [Anthos Config Management](https://cloud.google.com/anthos/config-management), [Migrate for Anthos](https://cloud.google.com/migrate/anthos), [Spring Cloud GCP](https://spring.io/projects/spring-cloud-gcp), and [Cloud Operations](https://cloud.google.com/products/operations). This application works on any Kubernetes cluster.
