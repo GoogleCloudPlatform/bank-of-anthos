@@ -10,9 +10,8 @@ See [opsani-README](opsani/README.md) for details on launching the Bank-of-Antho
 
 Google uses this application to demonstrate how developers can modernize enterprise applications using GCP products, including: [GKE](https://cloud.google.com/kubernetes-engine), [Anthos Service Mesh](https://cloud.google.com/anthos/service-mesh), [Anthos Config Management](https://cloud.google.com/anthos/config-management), [Migrate for Anthos](https://cloud.google.com/migrate/anthos), [Spring Cloud GCP](https://spring.io/projects/spring-cloud-gcp), and [Cloud Operations](https://cloud.google.com/products/operations). This application works on any Kubernetes cluster.
 
-If you’re using this app, please ★Star the repository to show your interest!
+NOTE: This application utilizes log4j, and all relevant container images have been patched to address the [major security vulnerability](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-45046) identified in December, 2021.
 
-> 👓 Note to Googlers: Please fill out the form at go/bank-of-anthos-form if you are using this application.
 
 ## Screenshots
 
