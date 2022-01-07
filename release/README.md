@@ -40,7 +40,7 @@ When you're ready, run the `make-release.sh` script found inside the `release` f
 ```sh
 # assuming you are inside the root path of the bank-of-anthos repository
 export NEW_VERSION=vX.Y.Z
-export REPO_PREFIX=gcr.io/bank-of-anthos
+export REPO_PREFIX=gcr.io/bank-of-anthos-ci
 ./release/make-release.sh
 ```
 
