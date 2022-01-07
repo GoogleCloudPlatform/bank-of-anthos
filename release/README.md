@@ -49,7 +49,7 @@ This script does the following:
 2. Updates the image tag for all the Deployments in the new `kubernetes-manifests`, with the new release tag.
 3. Uses `git tag` to create a new local release.
 4. Creates a new release branch.
-5. Uses `skaffold` to build and push new stable release images to `gcr.io/bank-of-anthos`.
+5. Uses `skaffold` to build and push new stable release images to `gcr.io/bank-of-anthos-ci`.
 6. Pushes the Git tags and the release branch.
 
 ### Troubleshooting script failures
