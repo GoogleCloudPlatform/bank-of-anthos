@@ -49,7 +49,7 @@ This script does the following:
 2. Updates the image tag for all the Deployments in the new `kubernetes-manifests`, with the new release tag.
 3. Uses `git tag` to create a new local release.
 4. Creates a new release branch.
-5. Uses `skaffold` to build and push new stable release images to `gcr.io/bank-of-anthos`.
+5. Uses `skaffold` to build and push new stable release images to `gcr.io/bank-of-anthos-ci`.
 6. Pushes the Git tags and the release branch.
 
 ### Troubleshooting script failures
@@ -87,11 +87,11 @@ Once the release notes are published, you should then replace the version of the
 
 First, make sure you are connected to the production cluster (**note:** this requires authorization access to the Bank of Anthos cluster):
 ```
-gcloud container clusters get-credentials bank-of-anthos-master --zone us-west1-a --project bank-of-anthos
+gcloud container clusters get-credentials bank-of-anthos-release --zone us-central1-c --project bank-of-anthos-ci
 ```
 1. ***[Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity) enabled production cluster***
 
-Currently the `bank-of-anthos-master` cluster has [Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity) enabled. Thus, when deploying to this cluster the pod service account (`boa-ksa-master`) used by _Workload Identity_ must be used as the serviceAccount in the manifests.
+Currently the `bank-of-anthos-release` cluster has [Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity) enabled. Thus, when deploying to this cluster the pod service account (`boa-ksa-master`) used by _Workload Identity_ must be used as the serviceAccount in the manifests.
 
 Follow steps 3 and 4 of the [workload identity setup](https://github.com/GoogleCloudPlatform/bank-of-anthos/blob/master/docs/workload-identity.md) with the following config values to deploy into production:
 - `boa-ksa-master` as the `KSA_NAME`
