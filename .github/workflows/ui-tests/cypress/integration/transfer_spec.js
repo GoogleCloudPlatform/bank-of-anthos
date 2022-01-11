@@ -191,16 +191,6 @@ describe('Transfer is unsuccessful with invalid data', function () {
         cy.get('.invalid-feedback').contains(invalidFeedback.payment)
     })
 
-    // TODO: [issue-182]
-    it.skip('cannot contain more than 2 decimal digits', function () {
-        const invalidPayment = `5\.02\.35\.459`
-
-        cy.transfer(recipient, invalidPayment)
-        cy.get('.invalid-feedback').should('be.visible')
-        cy.get('.invalid-feedback').contains(invalidFeedback.payment)
-
-    })
-
     it('cannot reference invalid account', function () {
         const invalidRecipient = {
             accountNum: randomInt(100,10000000),
