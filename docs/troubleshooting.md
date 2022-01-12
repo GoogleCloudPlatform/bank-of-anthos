@@ -4,7 +4,7 @@ This doc describes how to debug a running instance of Bank of Anthos on a GKE cl
 
 ## Background 
 
-The conatiner images used in [`kubernetes-manifests/`](/kubernetes-manifests) correspond to a tagged, stable release (`v0.x.x`) that is ready for public consumption. Per the [README deploy instructions](/README.md), we highly recommend using these stable image tags, not the `latest` tag. The `latest` tag corresponds to latest commit to the master branch and may be less stable. 
+The conatiner images used in [`kubernetes-manifests/`](/kubernetes-manifests) correspond to a tagged, stable release (`v0.x.x`) that is ready for public consumption. Per the [README deploy instructions](/README.md), we highly recommend using these stable image tags, not the `latest` tag. The `latest` tag corresponds to latest commit to the main branch and may be less stable. 
 
 No matter what image tags you're using, you may encounter errors when running the Bank of Anthos app. Use the following steps to debug and fix problems. 
 

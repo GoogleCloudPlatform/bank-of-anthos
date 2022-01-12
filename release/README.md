@@ -57,7 +57,7 @@ This script does the following:
 In the event of any of the steps above failing you might have to revert the repository to its original state. Follow the steps below as required:
 ```sh
 # delete the newly created release branch & tag before re-running the script
-git checkout master
+git checkout main
 git branch -D release/$NEW_VERSION
 git tag -d $NEW_VERSION
 
@@ -67,7 +67,7 @@ rm kubernetes-manifests/*-e
 
 ## Creating a PR
 
-Now that the release branch has been created, you can find it in the [list of branches](https://github.com/GoogleCloudPlatform/bank-of-anthos/branches) and create a pull request targeting `master` (the default branch).
+Now that the release branch has been created, you can find it in the [list of branches](https://github.com/GoogleCloudPlatform/bank-of-anthos/branches) and create a pull request targeting `main` (the default branch).
 
 This process is going to trigger multiple CI checks as well as stage the release onto a temporary cluster. Once the PR has been approved and all checks are successfully passing, you can now merge the branch.
 
@@ -93,7 +93,7 @@ gcloud container clusters get-credentials bank-of-anthos-release --zone us-centr
 
 Currently the `bank-of-anthos-release` cluster has [Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity) enabled. Thus, when deploying to this cluster the pod service account (`boa-ksa-master`) used by _Workload Identity_ must be used as the serviceAccount in the manifests.
 
-Follow steps 3 and 4 of the [workload identity setup](https://github.com/GoogleCloudPlatform/bank-of-anthos/blob/master/docs/workload-identity.md) with the following config values to deploy into production:
+Follow steps 3 and 4 of the [workload identity setup](https://github.com/GoogleCloudPlatform/bank-of-anthos/blob/main/docs/workload-identity.md) with the following config values to deploy into production:
 - `boa-ksa-master` as the `KSA_NAME`
 - `default` as the `NAMESPACE`
 
