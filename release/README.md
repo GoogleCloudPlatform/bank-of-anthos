@@ -5,7 +5,7 @@ This doc describes how repo maintainers can tag and push a new release.
 
 ## Prerequisites for tagging a release
 
-1. **Complete a team-wide Fishfood day** off the latest master commit. Divide and conquer tasks, to test and verify the user journeys below. If you encounter any bugs or docs in need of fixing, make those changes before proceeding with the release.
+1. **Complete a team-wide Fishfood day** off the latest main commit. Divide and conquer tasks, to test and verify the user journeys below. If you encounter any bugs or docs in need of fixing, make those changes before proceeding with the release.
 
 - User can deploy Bank of Anthos on a new GCP project/GKE cluster following README instructions, replacing `kubernetes-manifests/` with `dev-kubernetes-manifests/`
 - User can deploy Bank of ANthos on a GKE cluster with the latest Anthos Service Mesh enabled, by deploying `istio-manifests/` on top of the kubernetes manifests
@@ -57,7 +57,7 @@ This script does the following:
 In the event of any of the steps above failing you might have to revert the repository to its original state. Follow the steps below as required:
 ```sh
 # delete the newly created release branch & tag before re-running the script
-git checkout master
+git checkout main
 git branch -D release/$NEW_VERSION
 git tag -d $NEW_VERSION
 
@@ -67,7 +67,7 @@ rm kubernetes-manifests/*-e
 
 ## Creating a PR
 
-Now that the release branch has been created, you can find it in the [list of branches](https://github.com/GoogleCloudPlatform/bank-of-anthos/branches) and create a pull request targeting `master` (the default branch).
+Now that the release branch has been created, you can find it in the [list of branches](https://github.com/GoogleCloudPlatform/bank-of-anthos/branches) and create a pull request targeting `main` (the default branch).
 
 This process is going to trigger multiple CI checks as well as stage the release onto a temporary cluster. Once the PR has been approved and all checks are successfully passing, you can now merge the branch.
 
@@ -91,10 +91,10 @@ gcloud container clusters get-credentials bank-of-anthos-release --zone us-centr
 ```
 1. ***[Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity) enabled production cluster***
 
-Currently the `bank-of-anthos-release` cluster has [Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity) enabled. Thus, when deploying to this cluster the pod service account (`boa-ksa-master`) used by _Workload Identity_ must be used as the serviceAccount in the manifests.
+Currently the `bank-of-anthos-release` cluster has [Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity) enabled. Thus, when deploying to this cluster the pod service account (`boa-ksa-release`) used by _Workload Identity_ must be used as the serviceAccount in the manifests.
 
-Follow steps 3 and 4 of the [workload identity setup](https://github.com/GoogleCloudPlatform/bank-of-anthos/blob/master/docs/workload-identity.md) with the following config values to deploy into production:
-- `boa-ksa-master` as the `KSA_NAME`
+Follow steps 3 and 4 of the [workload identity setup](https://github.com/GoogleCloudPlatform/bank-of-anthos/blob/main/docs/workload-identity.md) with the following config values to deploy into production:
+- `boa-ksa-release` as the `KSA_NAME`
 - `default` as the `NAMESPACE`
 
 2. ***Non Workload Identity cluster***
