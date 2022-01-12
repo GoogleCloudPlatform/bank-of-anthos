@@ -91,10 +91,10 @@ gcloud container clusters get-credentials bank-of-anthos-release --zone us-centr
 ```
 1. ***[Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity) enabled production cluster***
 
-Currently the `bank-of-anthos-release` cluster has [Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity) enabled. Thus, when deploying to this cluster the pod service account (`boa-ksa-master`) used by _Workload Identity_ must be used as the serviceAccount in the manifests.
+Currently the `bank-of-anthos-release` cluster has [Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity) enabled. Thus, when deploying to this cluster the pod service account (`boa-ksa-release`) used by _Workload Identity_ must be used as the serviceAccount in the manifests.
 
 Follow steps 3 and 4 of the [workload identity setup](https://github.com/GoogleCloudPlatform/bank-of-anthos/blob/main/docs/workload-identity.md) with the following config values to deploy into production:
-- `boa-ksa-master` as the `KSA_NAME`
+- `boa-ksa-release` as the `KSA_NAME`
 - `default` as the `NAMESPACE`
 
 2. ***Non Workload Identity cluster***
