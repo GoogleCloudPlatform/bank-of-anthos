@@ -20,7 +20,7 @@ certifi==2021.10.8
     # via
     #   -r /Users/obourgeois/workspace/repos/bank-of-anthos/src/contacts/requirements.in
     #   requests
-cffi==1.15.0
+cffi==1.14.0
     # via
     #   -r /Users/obourgeois/workspace/repos/bank-of-anthos/src/contacts/requirements.in
     #   bcrypt
