@@ -76,6 +76,7 @@ jobs:
           pushd src/$SERVICE
             python3 -m venv $HOME/venv-$SERVICE
             source $HOME/venv-$SERVICE/bin/activate
+            pip install --upgrade pip
             pip install -r requirements.txt
             python -m pytest -v -p no:warnings
             deactivate
@@ -91,6 +92,7 @@ jobs:
           pushd src/$SERVICE
             python3 -m venv $HOME/venv-$SERVICE
             source $HOME/venv-$SERVICE/bin/activate
+            pip install --upgrade pip
             pip install -r requirements.txt
             python -m pytest --cov=./ tests/
             deactivate
