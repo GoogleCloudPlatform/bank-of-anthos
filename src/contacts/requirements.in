@@ -31,7 +31,7 @@ opentelemetry-instrumentation-flask==0.13b0
 opentelemetry-instrumentation-sqlalchemy==0.13b0
 packaging==20.9
 pluggy==0.13.1
-protobuf==3.19.3
+protobuf==3.19.4
 py==1.11.0
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
