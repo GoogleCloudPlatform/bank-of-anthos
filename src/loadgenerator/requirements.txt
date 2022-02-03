@@ -16,7 +16,7 @@ configargparse==1.2
     # via locustio
 flask==1.0.2
     # via locustio
-gevent==1.5a3
+gevent==1.5.0
     # via
     #   geventhttpclient-wheels
     #   locustio
