@@ -20,7 +20,7 @@ gevent==1.5a3
     # via
     #   geventhttpclient-wheels
     #   locustio
-geventhttpclient-wheels==1.3.1.dev2
+geventhttpclient-wheels==1.3.1.dev3
     # via locustio
 greenlet==0.4.15
     # via gevent
