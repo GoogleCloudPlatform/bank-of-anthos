@@ -1,4 +1,5 @@
 #!/bin/bash
+# [START gke_tls_ip_selfsigned_setup]
 # Copyright 2021 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -45,3 +46,5 @@ kubectl apply -f frontend-config.yaml
 
 # Create ingress, referencing the cert secret and static IP
 kubectl apply -f frontend-ingress.yaml
+
+# [END gke_tls_ip_selfsigned_setup]

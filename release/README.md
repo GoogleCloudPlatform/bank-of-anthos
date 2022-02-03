@@ -8,7 +8,7 @@ This doc describes how repo maintainers can tag and push a new release.
 1. **Complete a team-wide Fishfood day** off the latest main commit. Divide and conquer tasks, to test and verify the user journeys below. If you encounter any bugs or docs in need of fixing, make those changes before proceeding with the release.
 
 - User can deploy Bank of Anthos on a new GCP project/GKE cluster following README instructions, replacing `kubernetes-manifests/` with `dev-kubernetes-manifests/`
-- User can deploy Bank of ANthos on a GKE cluster with the latest Anthos Service Mesh enabled, by deploying `istio-manifests/` on top of the kubernetes manifests
+- User can deploy Bank of Anthos on a GKE cluster with the latest Anthos Service Mesh enabled, by deploying `istio-manifests/` on top of the kubernetes manifests
 - User can deploy Bank of Anthos on a GKE cluster with Workload Identity enabled, using the WI instructions in the README.
 - User can see Java app-level metrics by creating the Cloud Monitoring dashboard in the `extras/` directory
 - User can see traces in Cloud Trace

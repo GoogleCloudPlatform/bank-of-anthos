@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# [START gke_dev_kubernetes_manifests_transaction_history_deployment_transactionhistory]
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -98,7 +99,9 @@ spec:
           items:
           - key: jwtRS256.key.pub
             path: publickey
+# [END gke_dev_kubernetes_manifests_transaction_history_deployment_transactionhistory]
 ---
+# [START gke_dev_kubernetes_manifests_transaction_history_service_transactionhistory]
 apiVersion: v1
 kind: Service
 metadata:
@@ -111,3 +114,4 @@ spec:
   - name: http
     port: 8080
     targetPort: 8080
+# [END gke_dev_kubernetes_manifests_transaction_history_service_transactionhistory]

@@ -11,6 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+# [START gke_populate_jobs_populate_accounts_db_job_populate_accounts_db]
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -99,8 +101,9 @@ spec:
           name: accounts-schema-config
       restartPolicy: Never
   backoffLimit: 4
-
+# [END gke_populate_jobs_populate_accounts_db_job_populate_accounts_db]
 ---
+# [START gke_populate_jobs_populate_accounts_db_configmap_accounts_schema_config]
 # kubectl create configmap accounts-schema-config --from-file=src/accounts-db/initdb/0-accounts-schema.sql --dry-run -o yaml (copy and add below)
 # kubectl create configmap accounts-schema-config --from-file=src/accounts-db/initdb/1-load-testdata.sh --dry-run -o yaml (copy and add below)
 apiVersion: v1
@@ -335,3 +338,4 @@ data:
 
     main
 
+# [END gke_populate_jobs_populate_accounts_db_configmap_accounts_schema_config]

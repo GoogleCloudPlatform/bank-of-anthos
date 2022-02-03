@@ -1,4 +1,5 @@
 #!/bin/bash
+# [START gke_scripts_build_artifacts]
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -56,3 +57,5 @@ gsutil -m cp -r $CWD/../../ledger-db/initdb gs://${GCS_PATH}
 echo "Pushing sample JWT key..." 
 gsutil cp $CWD/../../../extras/jwt/jwt-secret.yaml gs://${GCS_PATH}/jwt-secret.yaml
 
+
+# [END gke_scripts_build_artifacts]

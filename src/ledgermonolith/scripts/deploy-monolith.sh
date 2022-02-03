@@ -1,4 +1,5 @@
 #!/bin/bash
+# [START gke_scripts_deploy_monolith]
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -70,3 +71,4 @@ gcloud compute instances create ledgermonolith-service \
     --metadata-from-file startup-script=${CWD}/../init/install-script.sh \
     --tags monolith \
     --quiet
+# [END gke_scripts_deploy_monolith]

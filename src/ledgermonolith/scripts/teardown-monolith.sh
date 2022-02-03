@@ -1,4 +1,5 @@
 #!/bin/bash
+# [START gke_scripts_teardown_monolith]
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -53,3 +54,5 @@ if [ $? -eq 0 ]; then
       --project $PROJECT_ID \
       --quiet
 fi
+
+# [END gke_scripts_teardown_monolith]

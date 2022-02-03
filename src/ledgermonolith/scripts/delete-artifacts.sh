@@ -1,4 +1,5 @@
 #!/bin/bash
+# [START gke_scripts_delete_artifacts]
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,3 +31,5 @@ GCS_PATH=${GCS_BUCKET}/monolith
 # Delete the artifacts in GCS
 gsutil -m rm -r gs://${GCS_PATH}
 echo "Deleted $GCS_PATH from Google Cloud Storage"
+
+# [END gke_scripts_delete_artifacts]

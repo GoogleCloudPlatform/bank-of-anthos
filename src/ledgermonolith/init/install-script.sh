@@ -1,4 +1,5 @@
 #!/bin/bash
+# [START gke_init_install_script]
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -143,3 +144,5 @@ systemctl start ${MONOLITH_SERVICE}
 
 echo "Install Complete"
 exit
+
+# [END gke_init_install_script]

@@ -1,3 +1,5 @@
+# !/bin/bash
+# [START gke_cloudsql_setup_workload_identity]
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -11,7 +13,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# !/bin/bash
 
 
 export KSA_NAME="boa-ksa"
@@ -57,3 +58,5 @@ gcloud projects add-iam-policy-binding ${PROJECT_ID} \
   --role roles/cloudsql.client
 
 echo "⭐️ Done."
+
+# [END gke_cloudsql_setup_workload_identity]

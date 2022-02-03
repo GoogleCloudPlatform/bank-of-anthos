@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# [START gke_tls_ip_selfsigned_frontend_config_frontendconfig_boa_frontend_config]
 ######################################################################
 # Setup up the FrontendConfig resource that enables HTTP -> HTTPS
 # redirection in at the Ingress Loadbalancer
@@ -24,4 +25,5 @@ spec:
   redirectToHttps:
     enabled: true
     responseCodeName: MOVED_PERMANENTLY_DEFAULT
+# [END gke_tls_ip_selfsigned_frontend_config_frontendconfig_boa_frontend_config]
 
