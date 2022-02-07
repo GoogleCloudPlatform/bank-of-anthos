@@ -1,5 +1,4 @@
 #!/bin/bash
-# [START gke_scripts_delete_artifacts]
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# [START gke_scripts_delete_artifacts]
 
 # Script to delete build artifacts on GCS for the ledgermonolith service
 

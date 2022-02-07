@@ -1,5 +1,4 @@
 # !/bin/bash
-# [START gke_cloudsql_create_cloudsql_instance]
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# [START gke_cloudsql_create_cloudsql_instance]
 INSTANCE_NAME='bank-of-anthos-db'
 
 echo "☁️ Enabling the Cloud SQL API..."

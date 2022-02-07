@@ -1,5 +1,4 @@
 #!/bin/bash 
-# [START servicemesh_asm_multicluster_cluster_setup]
 # Copyright 2021 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# [START servicemesh_asm_multicluster_cluster_setup]
 
 # USES ASM 1.9 - SINGLE PROJECT - GOOGLE-MANAGED CONTROL PLANE 
 # https://cloud.google.com/service-mesh/docs/gke-install-multi-cluster 
