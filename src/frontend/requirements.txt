@@ -10,7 +10,7 @@ certifi==2020.4.5.1
     # via requests
 cffi==1.14.0
     # via cryptography
-charset-normalizer==2.0.4
+charset-normalizer==2.0.12
     # via requests
 click==7.1.1
     # via flask
