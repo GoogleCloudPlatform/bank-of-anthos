@@ -196,7 +196,7 @@ six==1.16.0
     #   google-auth
     #   google-cloud-core
     #   grpcio
-sqlalchemy==1.4.29
+sqlalchemy==1.4.31
     # via
     #   -r requirements.in
     #   opentelemetry-instrumentation-sqlalchemy
