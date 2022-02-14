@@ -8,7 +8,7 @@ cachetools==4.2.4
     # via google-auth
 certifi==2020.12.5
     # via requests
-cffi==1.14.0
+cffi==1.15.0
     # via cryptography
 charset-normalizer==2.0.12
     # via requests

@@ -3,7 +3,7 @@ bcrypt==3.2.0
 bleach==4.1.0
 cachetools==4.2.4
 certifi==2021.10.8
-cffi==1.14.0
+cffi==1.15.0
 chardet==4.0.0
 click==7.1.2
 cryptography==3.4.8
