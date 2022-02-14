@@ -6,7 +6,7 @@
 #
 cachetools==4.2.4
     # via google-auth
-certifi==2020.4.5.1
+certifi==2020.12.5
     # via requests
 cffi==1.14.0
     # via cryptography
