@@ -88,7 +88,7 @@ opentelemetry-sdk==0.13b0
     #   opentelemetry-tools-google-cloud
 opentelemetry-tools-google-cloud==0.13b0
     # via -r requirements.in
-protobuf==3.12.2
+protobuf==3.19.4
     # via
     #   google-api-core
     #   googleapis-common-protos
