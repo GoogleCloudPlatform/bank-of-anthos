@@ -10,7 +10,7 @@ certifi==2018.11.29
     # via
     #   geventhttpclient
     #   requests
-charset-normalizer==2.0.11
+charset-normalizer==2.0.12
     # via requests
 click==8.0.3
     # via flask
