@@ -20,7 +20,7 @@ certifi==2021.10.8
     # via
     #   -r requirements.in
     #   requests
-cffi==1.14.0
+cffi==1.15.0
     # via
     #   -r requirements.in
     #   bcrypt
