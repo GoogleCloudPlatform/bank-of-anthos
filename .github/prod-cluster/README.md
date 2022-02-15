@@ -2,7 +2,7 @@
 
 This directory contains extra deploy manifests for configuring a domain name/static IP to point to an Bank of Anthos deployment running in GKE and for setting up Cloud Armor.
 
-_Note: before moving forward, the Bank of Anthos apps should already be deployed [on the bank-of-anthos-release GKE cluster](../..#quickstart-gke)._
+_Note: before moving forward, the Bank of Anthos apps should already be deployed in the GKE cluster._
 
 Create the static public IP address:
 ```
