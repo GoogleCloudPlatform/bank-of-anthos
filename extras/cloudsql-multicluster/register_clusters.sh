@@ -1,3 +1,4 @@
+# !/bin/bash
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -11,8 +12,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# !/bin/bash
 
+# [START gke_cloudsql_multicluster_register_clusters]
 gcloud config set project ${PROJECT_ID}
 
 export MEMBERSHIP_NAME="boa-membership"
@@ -72,3 +73,5 @@ gcloud alpha container hub ingress enable \
 gcloud alpha container hub ingress describe
 
 echo "⭐️ Done."
+
+# [END gke_cloudsql_multicluster_register_clusters]

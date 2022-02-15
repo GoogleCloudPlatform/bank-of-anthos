@@ -1,3 +1,4 @@
+#!/bin/bash 
 # Copyright 2021 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#!/bin/bash 
+# [START servicemesh_asm_multicluster_cluster_setup]
 
 # USES ASM 1.9 - SINGLE PROJECT - GOOGLE-MANAGED CONTROL PLANE 
 # https://cloud.google.com/service-mesh/docs/gke-install-multi-cluster 
@@ -165,3 +166,4 @@ gcloud projects add-iam-policy-binding ${PROJECT_ID} \
   --role roles/monitoring.metricWriter
 
 echo "✅ Done setting up clusters."
+# [END servicemesh_asm_multicluster_cluster_setup]

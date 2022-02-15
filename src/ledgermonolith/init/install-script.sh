@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# [START gke_init_install_script]
 
 # Boot script to install and start the ledgermonolith service from a JAR.
 #
@@ -143,3 +144,5 @@ systemctl start ${MONOLITH_SERVICE}
 
 echo "Install Complete"
 exit
+
+# [END gke_init_install_script]

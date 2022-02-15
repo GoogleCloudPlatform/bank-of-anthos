@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# [START gke_scripts_deploy_monolith]
 
 # Script to deploy the ledgermonolith service on a GCE VM
 # Will delete and recreate any existing ledgermonolith VM
@@ -70,3 +71,4 @@ gcloud compute instances create ledgermonolith-service \
     --metadata-from-file startup-script=${CWD}/../init/install-script.sh \
     --tags monolith \
     --quiet
+# [END gke_scripts_deploy_monolith]

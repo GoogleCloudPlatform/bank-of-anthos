@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# [START gke_tls_ip_selfsigned_frontend_ingress_ingress_frontend_ingress]
 ######################################################################
 # Configure the Ingress to use the FrontendConfig that takes care of
 # redirecting HTTP requests to HTTPS
@@ -30,3 +31,4 @@ spec:
   backend:
     serviceName: frontend
     servicePort: 80
+# [END gke_tls_ip_selfsigned_frontend_ingress_ingress_frontend_ingress]

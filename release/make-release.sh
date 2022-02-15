@@ -51,8 +51,11 @@ cp -a "${REPO_ROOT}/dev-kubernetes-manifests/." "${REPO_ROOT}/kubernetes-manifes
 # update version in manifests
 CURRENT_VERSION=$(grep -A 1 VERSION ${REPO_ROOT}/kubernetes-manifests/*.yaml | grep value | head -n 1 | awk '{print $3}' |  tr -d '"')
 find "${REPO_ROOT}/kubernetes-manifests" -name '*.yaml' -exec sed -i -e "s/${CURRENT_VERSION}/${NEW_VERSION}/g" {} \;
-# tag image with explicit version
+# # tag image with explicit version
 find "${REPO_ROOT}/kubernetes-manifests" -name '*.yaml' -exec sed -i -e "s/:latest/:${NEW_VERSION}/g" {} \;
+
+# remove the region tags so that there are no duplicates 
+find "${REPO_ROOT}/kubernetes-manifests" -name '*.yaml' -exec sed -i -e  "s/dev_kubernetes_manifests/boa_kubernetes_manifests/g" {} \;
 
 # push release PR
 git checkout -b "release/${NEW_VERSION}"

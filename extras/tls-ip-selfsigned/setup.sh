@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# [START gke_tls_ip_selfsigned_setup]
 gcloud config set project $PROJECT_ID
 
 # Create static IP
@@ -45,3 +46,5 @@ kubectl apply -f frontend-config.yaml
 
 # Create ingress, referencing the cert secret and static IP
 kubectl apply -f frontend-ingress.yaml
+
+# [END gke_tls_ip_selfsigned_setup]

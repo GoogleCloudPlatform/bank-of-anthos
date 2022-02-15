@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# [START gke_scripts_build_artifacts]
 
 # Script to push build artifacts for the ledgermonolith service to GCS
 
@@ -56,3 +57,5 @@ gsutil -m cp -r $CWD/../../ledger-db/initdb gs://${GCS_PATH}
 echo "Pushing sample JWT key..." 
 gsutil cp $CWD/../../../extras/jwt/jwt-secret.yaml gs://${GCS_PATH}/jwt-secret.yaml
 
+
+# [END gke_scripts_build_artifacts]
