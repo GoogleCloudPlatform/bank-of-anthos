@@ -53,7 +53,7 @@ requests==2.27.1
     # via locust
 roundrobin==0.0.2
     # via locust
-six==1.12.0
+six==1.16.0
     # via
     #   flask-cors
     #   geventhttpclient
