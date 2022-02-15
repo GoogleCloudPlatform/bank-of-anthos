@@ -20,20 +20,20 @@ certifi==2021.10.8
     # via
     #   -r requirements.in
     #   requests
-cffi==1.14.0
+cffi==1.15.0
     # via
     #   -r requirements.in
     #   bcrypt
     #   cryptography
 chardet==4.0.0
     # via -r requirements.in
-charset-normalizer==2.0.4
+charset-normalizer==2.0.12
     # via requests
 click==7.1.2
     # via
     #   -r requirements.in
     #   flask
-coverage==5.3
+coverage==5.5
     # via pytest-cov
 cryptography==3.4.8
     # via -r requirements.in
@@ -136,7 +136,7 @@ pluggy==0.13.1
     # via
     #   -r requirements.in
     #   pytest
-protobuf==3.19.3
+protobuf==3.19.4
     # via
     #   -r requirements.in
     #   google-api-core
@@ -196,7 +196,7 @@ six==1.16.0
     #   google-auth
     #   google-cloud-core
     #   grpcio
-sqlalchemy==1.4.29
+sqlalchemy==1.4.31
     # via
     #   -r requirements.in
     #   opentelemetry-instrumentation-sqlalchemy

@@ -3,7 +3,7 @@ bcrypt==3.2.0
 bleach==4.1.0
 cachetools==4.2.4
 certifi==2021.10.8
-cffi==1.14.0
+cffi==1.15.0
 chardet==4.0.0
 click==7.1.2
 cryptography==3.4.8
@@ -28,7 +28,7 @@ opentelemetry-instrumentation-flask==0.13b0
 opentelemetry-instrumentation-sqlalchemy==0.13b0
 packaging==20.9
 pluggy==0.13.1
-protobuf==3.19.3
+protobuf==3.19.4
 psycopg2==2.9.3
 py==1.11.0
 pyasn1==0.4.8
@@ -43,7 +43,7 @@ pytz==2020.5
 requests==2.27.1
 rsa==4.8
 six==1.16.0
-sqlalchemy==1.4.29
+sqlalchemy==1.4.31
 urllib3==1.26.8
 wcwidth==0.2.5
 webencodings==0.5.1
