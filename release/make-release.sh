@@ -30,18 +30,18 @@ if [[ ! "${NEW_VERSION}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
     exit 1
 fi
 
-# # ensure there are no uncommitted changes
-# if [[ $(git status -s | wc -l) -gt 0 ]]; then
-#     echo "error: can't have uncommitted changes"
-#     exit 1
-# fi
+# ensure there are no uncommitted changes
+if [[ $(git status -s | wc -l) -gt 0 ]]; then
+    echo "error: can't have uncommitted changes"
+    exit 1
+fi
 
-# # ensure that gcloud is in the PATH
-# if ! command -v gcloud &> /dev/null
-# then
-#     echo "gcloud could not be found"
-#     exit 1
-# fi
+# ensure that gcloud is in the PATH
+if ! command -v gcloud &> /dev/null
+then
+    echo "gcloud could not be found"
+    exit 1
+fi
 
 # replace kubernetes-manifests/ contents 
 rm -rf "${REPO_ROOT}/kubernetes-manifests"
@@ -54,19 +54,19 @@ find "${REPO_ROOT}/kubernetes-manifests" -name '*.yaml' -exec sed -i -e "s'image
 # remove the region tags so that there are no duplicates 
 find "${REPO_ROOT}/kubernetes-manifests" -name '*.yaml' -exec sed -i -e  "s/dev_kubernetes_manifests/boa_kubernetes_manifests/g" {} \;
 
-# # push release PR
-# git checkout -b "release/${NEW_VERSION}"
-# git add "${REPO_ROOT}/kubernetes-manifests/*.yaml"
-# git commit -m "release/${NEW_VERSION}"
+# push release PR
+git checkout -b "release/${NEW_VERSION}"
+git add "${REPO_ROOT}/kubernetes-manifests/*.yaml"
+git commit -m "release/${NEW_VERSION}"
 
-# # add tag
-# git tag "${NEW_VERSION}"
+# add tag
+git tag "${NEW_VERSION}"
 
-# # build and push release images
-# skaffold config set local-cluster false
-# skaffold build --default-repo="${REPO_PREFIX}" --tag="${NEW_VERSION}"
-# skaffold config unset local-cluster
+# build and push release images
+skaffold config set local-cluster false
+skaffold build --default-repo="${REPO_PREFIX}" --tag="${NEW_VERSION}"
+skaffold config unset local-cluster
 
-# # push to repo
-# git push --set-upstream origin "release/${NEW_VERSION}"
-# git push --tags
+# push to repo
+git push --set-upstream origin "release/${NEW_VERSION}"
+git push --tags
