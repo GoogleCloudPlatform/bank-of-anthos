@@ -25,7 +25,7 @@ google-api-core[grpc]==1.21.0
     #   google-cloud-core
     #   google-cloud-monitoring
     #   google-cloud-trace
-google-auth==1.18.0
+google-auth==1.35.0
     # via
     #   google-api-core
     #   opentelemetry-tools-google-cloud
