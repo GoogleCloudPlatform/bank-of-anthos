@@ -22,7 +22,7 @@ metadata:
 spec:
   defaultBackend:
     service:
-      name: frontend
+      name: frontend-clusterip
       port:
         number: 80
   rules:
@@ -32,6 +32,6 @@ spec:
         pathType: ImplementationSpecific
         backend:
           service:
-            name: frontend
+            name: frontend-clusterip
             port:
               number: 80
