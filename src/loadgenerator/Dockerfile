@@ -44,4 +44,4 @@ RUN pip install -r /app/requirements.txt
 ADD locustfile.py /app
 
 # start loadgenerator
-ENTRYPOINT locust --host="http://${FRONTEND_ADDR}" --loglevel $LOG_LEVEL --no-web -c "${USERS:-10}" 2>&1
+ENTRYPOINT locust --host="http://${FRONTEND_ADDR}" --loglevel $LOG_LEVEL --headless --users="${USERS:-10}" 2>&1
