@@ -102,7 +102,7 @@ pycparser==2.20
     # via cffi
 pyjwt==1.7.1
     # via -r requirements.in
-pytz==2020.1
+pytz==2020.5
     # via google-api-core
 requests==2.27.1
     # via
