@@ -2,7 +2,7 @@
 
 This directory contains extra deploy manifests for configuring a domain name/static IP to point to an Bank of Anthos deployment running in GKE and for setting up Cloud Armor.
 
-_Note: before moving forward, the Bank of Anthos apps should already be deployed [on the bank-of-anthos-release GKE cluster](../../hack#quickstart-gke)._
+_Note: before moving forward, the Bank of Anthos apps should already be deployed [on the bank-of-anthos-release GKE cluster](../../#quickstart-gke)._
 
 Create the static public IP address:
 ```
@@ -58,7 +58,7 @@ kubectl get managedcertificates
 
 Remove the default `LoadBalancer` `Service` not used at this point:
 ```
-kubectl delete service frontend-external
+kubectl delete service frontend
 ```
 
 Remove the `loadgenerator` `Deployment` not used at this point:
