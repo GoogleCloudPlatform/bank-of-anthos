@@ -20,7 +20,7 @@ flask==1.1.4
     # via
     #   -r requirements.in
     #   opentelemetry-instrumentation-flask
-google-api-core[grpc]==1.21.0
+google-api-core[grpc]==1.31.5
     # via
     #   google-cloud-core
     #   google-cloud-monitoring
