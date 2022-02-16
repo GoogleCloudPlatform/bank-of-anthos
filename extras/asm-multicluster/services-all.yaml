@@ -11,6 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+# [START servicemesh_asm_multicluster_services_all_service_accounts_db]
 apiVersion: v1
 kind: Service
 metadata:
@@ -27,7 +29,9 @@ spec:
   selector:
     app: accounts-db
     tier: db
+# [END servicemesh_asm_multicluster_services_all_service_accounts_db]
 ---
+# [START servicemesh_asm_multicluster_services_all_service_balancereader]
 apiVersion: v1
 kind: Service
 metadata:
@@ -40,7 +44,9 @@ spec:
   - name: http
     port: 8080
     targetPort: 8080
+# [END servicemesh_asm_multicluster_services_all_service_balancereader]
 ---
+# [START servicemesh_asm_multicluster_services_all_service_contacts]
 apiVersion: v1
 kind: Service
 metadata:
@@ -53,7 +59,9 @@ spec:
   - name: http
     port: 8080
     targetPort: 8080
+# [END servicemesh_asm_multicluster_services_all_service_contacts]
 ---
+# [START servicemesh_asm_multicluster_services_all_service_frontend]
 apiVersion: v1
 kind: Service
 metadata:
@@ -66,7 +74,9 @@ spec:
   - name: http
     port: 80
     targetPort: 8080
+# [END servicemesh_asm_multicluster_services_all_service_frontend]
 ---
+# [START servicemesh_asm_multicluster_services_all_service_ledger_db]
 apiVersion: v1
 kind: Service
 metadata:
@@ -79,7 +89,9 @@ spec:
   - name: tcp
     port: 5432
     targetPort: 5432
+# [END servicemesh_asm_multicluster_services_all_service_ledger_db]
 ---
+# [START servicemesh_asm_multicluster_services_all_service_ledgerwriter]
 apiVersion: v1
 kind: Service
 metadata:
@@ -92,7 +104,9 @@ spec:
   - name: http
     port: 8080
     targetPort: 8080
+# [END servicemesh_asm_multicluster_services_all_service_ledgerwriter]
 ---
+# [START servicemesh_asm_multicluster_services_all_service_transactionhistory]
 apiVersion: v1
 kind: Service
 metadata:
@@ -105,7 +119,9 @@ spec:
   - name: http
     port: 8080
     targetPort: 8080
+# [END servicemesh_asm_multicluster_services_all_service_transactionhistory]
 ---
+# [START servicemesh_asm_multicluster_services_all_service_userservice]
 apiVersion: v1
 kind: Service
 metadata:
@@ -118,4 +134,4 @@ spec:
   - name: http
     port: 8080
     targetPort: 8080
-
+# [END servicemesh_asm_multicluster_services_all_service_userservice]

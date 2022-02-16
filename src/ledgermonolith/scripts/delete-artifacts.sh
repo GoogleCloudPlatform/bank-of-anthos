@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# [START gke_scripts_delete_artifacts]
 
 # Script to delete build artifacts on GCS for the ledgermonolith service
 
@@ -30,3 +31,5 @@ GCS_PATH=${GCS_BUCKET}/monolith
 # Delete the artifacts in GCS
 gsutil -m rm -r gs://${GCS_PATH}
 echo "Deleted $GCS_PATH from Google Cloud Storage"
+
+# [END gke_scripts_delete_artifacts]

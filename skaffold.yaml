@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# [START gke_bank_of_anthos_skaffold_config_setup]
 apiVersion: skaffold/v2beta18
 kind: Config
 metadata:
@@ -21,9 +22,9 @@ deploy:
     manifests: 
     - extras/jwt/jwt-secret.yaml
     - dev-kubernetes-manifests/config.yaml
-
+# [END gke_bank_of_anthos_skaffold_config_setup]
 ---
-
+# [START gke_bank_of_anthos_skaffold_config_db]
 apiVersion: skaffold/v2beta18
 kind: Config
 metadata:
@@ -41,9 +42,9 @@ deploy:
     manifests:
     - dev-kubernetes-manifests/accounts-db.yaml
     - dev-kubernetes-manifests/ledger-db.yaml
-
+# [END gke_bank_of_anthos_skaffold_config_db]
 ---
-
+# [START gke_bank_of_anthos_skaffold_config_backend]
 apiVersion: skaffold/v2beta18
 kind: Config
 metadata:
@@ -73,9 +74,9 @@ deploy:
     - dev-kubernetes-manifests/ledger-writer.yaml
     - dev-kubernetes-manifests/transaction-history.yaml
     - dev-kubernetes-manifests/userservice.yaml
-
+# [END gke_bank_of_anthos_skaffold_config_backend]
 ---
-
+# [START gke_bank_of_anthos_skaffold_config_frontend]
 apiVersion: skaffold/v2beta18
 kind: Config
 metadata:
@@ -88,9 +89,9 @@ deploy:
   kubectl:
     manifests:
     - dev-kubernetes-manifests/frontend.yaml
-
+# [END gke_bank_of_anthos_skaffold_config_frontend]
 ---
-
+# [START gke_bank_of_anthos_skaffold_config_loadgenerator]
 apiVersion: skaffold/v2beta18
 kind: Config
 metadata:
@@ -103,3 +104,4 @@ deploy:
   kubectl:
     manifests:
     - dev-kubernetes-manifests/loadgenerator.yaml
+# [END gke_bank_of_anthos_skaffold_config_loadgenerator]

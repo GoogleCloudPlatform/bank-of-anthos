@@ -37,11 +37,11 @@ google-cloud-trace==0.24.0
     # via opentelemetry-exporter-google-cloud
 googleapis-common-protos==1.54.0
     # via google-api-core
-grpcio==1.30.0
+grpcio==1.43.0
     # via google-api-core
 gunicorn==20.1.0
     # via -r requirements.in
-idna==2.9
+idna==2.10
     # via requests
 itsdangerous==1.1.0
     # via flask
@@ -98,11 +98,11 @@ pyasn1==0.4.8
     #   rsa
 pyasn1-modules==0.2.8
     # via google-auth
-pycparser==2.20
+pycparser==2.21
     # via cffi
 pyjwt==1.7.1
     # via -r requirements.in
-pytz==2020.1
+pytz==2020.5
     # via google-api-core
 requests==2.27.1
     # via
@@ -110,7 +110,7 @@ requests==2.27.1
     #   google-api-core
     #   opentelemetry-instrumentation-requests
     #   opentelemetry-tools-google-cloud
-rsa==4.7
+rsa==4.8
     # via google-auth
 six==1.14.0
     # via
