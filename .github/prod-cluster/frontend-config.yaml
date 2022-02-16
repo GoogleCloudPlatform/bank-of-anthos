@@ -11,15 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-apiVersion: v1
-kind: Service
+apiVersion: networking.gke.io/v1beta1
+kind: FrontendConfig
 metadata:
-  name: frontend-nodeport
+  name: frontend-frontend-config
 spec:
-  selector:
-    app: frontend
-  type: NodePort
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 8080
+  sslPolicy: bank-of-anthos-ssl-policy
+  redirectToHttps:
+    enabled: true
+    responseCodeName: MOVED_PERMANENTLY_DEFAULT

@@ -11,27 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
 metadata:
-  name: frontend-ingress
-  annotations:
-    kubernetes.io/ingress.global-static-ip-name: bank-of-anthos-ip
-    networking.gke.io/managed-certificates: bank-of-anthos-cert
-    networking.gke.io/v1beta1.FrontendConfig: frontend-frontend-config
+  name: frontend-backend-config
 spec:
-  defaultBackend:
-    service:
-      name: frontend-clusterip
-      port:
-        number: 80
-  rules:
-  - http:
-      paths:
-      - path: /*
-        pathType: ImplementationSpecific
-        backend:
-          service:
-            name: frontend-clusterip
-            port:
-              number: 80
+  securityPolicy:
+    name: bank-of-anthos-security-policy
