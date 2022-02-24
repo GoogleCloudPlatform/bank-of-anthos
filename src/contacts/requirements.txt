@@ -12,7 +12,7 @@ bcrypt==3.2.0
     # via -r requirements.in
 bleach==4.1.0
     # via -r requirements.in
-cachetools==4.2.4
+cachetools==5.0.0
     # via
     #   -r requirements.in
     #   google-auth
