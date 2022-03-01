@@ -37,7 +37,7 @@ google-cloud-trace==0.24.0
     # via opentelemetry-exporter-google-cloud
 googleapis-common-protos==1.55.0
     # via google-api-core
-grpcio==1.43.0
+grpcio==1.44.0
     # via google-api-core
 gunicorn==20.1.0
     # via -r requirements.in

@@ -69,7 +69,7 @@ googleapis-common-protos==1.55.0
     #   google-api-core
 greenlet==1.1.2
     # via sqlalchemy
-grpcio==1.43.0
+grpcio==1.44.0
     # via
     #   -r requirements.in
     #   google-api-core
