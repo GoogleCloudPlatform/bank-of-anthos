@@ -6,6 +6,9 @@
     "enabled": true,
     "fileMatch": ["(^|/)requirements\\.in$"]
   },
+  "pip_requirements": {
+    "enabled": false
+  },
   "constraints": {
     "python": "3.7"
   }
