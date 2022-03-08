@@ -85,7 +85,7 @@ itsdangerous==1.1.0
     # via
     #   -r requirements.in
     #   flask
-jinja2==2.11.3
+jinja2==3.0.3
     # via
     #   -r requirements.in
     #   flask
