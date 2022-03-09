@@ -7,6 +7,6 @@
     "fileMatch": ["(^|/)requirements\\.in$"]
   },
   "constraints": {
-    "python": "3.7"
+    "python": "3.7.0"
   }
 }
