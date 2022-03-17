@@ -25,7 +25,7 @@ google-api-core[grpc]==1.31.5
     #   google-cloud-core
     #   google-cloud-monitoring
     #   google-cloud-trace
-google-auth==1.35.0
+google-auth==2.6.2
     # via
     #   google-api-core
     #   google-cloud-core

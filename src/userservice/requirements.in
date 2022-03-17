@@ -9,7 +9,7 @@ click==7.1.2
 cryptography==36.0.1
 flask==1.1.4
 google-api-core==1.31.5
-google-auth==1.35.0
+google-auth==2.6.2
 google-cloud-core==1.7.2
 google-cloud-trace==0.24.0
 googleapis-common-protos==1.55.0
