@@ -7,6 +7,24 @@
     "fileMatch": ["(^|/)requirements\\.in$"]
   },
   "constraints": {
-    "python": "3.7.0"
+    "python": "~=3.7.0"
+  },
+  "prConcurrentLimit":5,
+  "stabilityDays":7,
+  "vulnerabilityAlerts":{
+     "labels":[
+       "type:security" 
+     ],
+     "stabilityDays":0
+  },
+  "labels": ["dependencies"],
+  "python":{
+    "addLabels": ["lang: python"]
+  },
+  "java":{
+    "addLabels": ["lang: java"]
+  },
+  "golang":{
+    "addLabels": ["lang: go"]
   }
 }
