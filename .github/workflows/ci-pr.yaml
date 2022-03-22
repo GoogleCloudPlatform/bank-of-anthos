@@ -181,7 +181,7 @@ jobs:
     - name: Run UI tests (Cypress)
       run: |
         docker run -t -v $PWD/.github/workflows/ui-tests:/e2e -w /e2e -e CYPRESS_baseUrl=http://$EXTERNAL_IP -u node cypress/included:5.0.0
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
       if: failure()
       with:
           name: cypress-screenshots
