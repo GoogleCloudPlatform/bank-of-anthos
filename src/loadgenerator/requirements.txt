@@ -43,7 +43,7 @@ locust==2.8.4
     # via -r requirements.in
 markupsafe==2.0.1
     # via jinja2
-msgpack==0.6.2
+msgpack==1.0.3
     # via locust
 psutil==5.9.0
     # via locust
