@@ -133,7 +133,7 @@ urllib3==1.26.9
     #   requests
 werkzeug==1.0.1
     # via flask
-wrapt==1.13.3
+wrapt==1.14.0
     # via
     #   opentelemetry-instrumentation
     #   opentelemetry-instrumentation-jinja2
