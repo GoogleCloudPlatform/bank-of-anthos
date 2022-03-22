@@ -6,7 +6,7 @@ certifi==2021.10.8
 cffi==1.15.0
 chardet==4.0.0
 click==7.1.2
-cryptography==36.0.1
+cryptography==36.0.2
 flask==1.1.4
 google-api-core==1.31.5
 google-auth==1.35.0
@@ -43,10 +43,10 @@ pytz==2020.5
 requests==2.27.1
 rsa==4.8
 six==1.16.0
-sqlalchemy==1.4.31
-urllib3==1.26.8
+sqlalchemy==1.4.32
+urllib3==1.26.9
 wcwidth==0.2.5
 webencodings==0.5.1
 Werkzeug==1.0.1
-wrapt==1.13.3
+wrapt==1.14.0
 zipp==1.2.0
