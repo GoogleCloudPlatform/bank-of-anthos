@@ -52,7 +52,7 @@ jinja2==2.11.3
     # via
     #   flask
     #   opentelemetry-instrumentation-jinja2
-markupsafe==1.1.1
+markupsafe==2.1.1
     # via jinja2
 opentelemetry-api==0.13b0
     # via

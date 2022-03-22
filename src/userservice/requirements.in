@@ -19,7 +19,7 @@ idna==3.3
 importlib-metadata==4.11.3
 itsdangerous==1.1.0
 Jinja2==2.11.3
-MarkupSafe==1.1.1
+MarkupSafe==2.1.1
 more-itertools==8.12.0
 opentelemetry-sdk==0.13b0
 opentelemetry-exporter-google-cloud==0.13b0
