@@ -36,7 +36,7 @@ google-cloud-monitoring==1.1.0
     # via opentelemetry-exporter-google-cloud
 google-cloud-trace==0.24.0
     # via opentelemetry-exporter-google-cloud
-googleapis-common-protos==1.55.0
+googleapis-common-protos==1.56.0
     # via google-api-core
 greenlet==1.1.2
     # via sqlalchemy
