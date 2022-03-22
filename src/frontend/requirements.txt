@@ -54,7 +54,7 @@ jinja2==2.11.3
     #   opentelemetry-instrumentation-jinja2
 markupsafe==1.1.1
     # via jinja2
-opentelemetry-api==0.13b0
+opentelemetry-api==1.10.0
     # via
     #   opentelemetry-exporter-google-cloud
     #   opentelemetry-instrumentation
