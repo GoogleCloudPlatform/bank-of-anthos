@@ -35,7 +35,7 @@ greenlet==1.1.2
     # via gevent
 idna==3.3
     # via requests
-itsdangerous==2.0.1
+itsdangerous==2.1.1
     # via flask
 jinja2==3.0.3
     # via flask
