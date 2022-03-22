@@ -44,7 +44,7 @@ grpcio==1.44.0
     # via google-api-core
 gunicorn==20.1.0
     # via -r requirements.in
-idna==2.10
+idna==3.3
     # via requests
 itsdangerous==1.1.0
     # via flask
