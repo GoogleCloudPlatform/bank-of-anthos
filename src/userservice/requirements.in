@@ -36,7 +36,7 @@ pyasn1-modules==0.2.8
 pycparser==2.21
 pycryptodome==3.14.1
 pyjwt==1.7.1
-pyparsing==2.4.7
+pyparsing==3.0.7
 pytest==7.1.1
 pytest-cov==2.12.1
 pytz==2020.5
