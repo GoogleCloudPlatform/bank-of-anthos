@@ -40,7 +40,7 @@ pycryptodome==3.14.1
 PyJWT==1.7.1
 pyparsing==3.0.7
 pytest==7.1.1
-pytest-cov==2.12.1
+pytest-cov==3.0.0
 pytz==2020.5
 requests==2.27.1
 rsa==4.8
