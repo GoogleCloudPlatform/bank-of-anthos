@@ -41,7 +41,7 @@ PyJWT==1.7.1
 pyparsing==3.0.7
 pytest==7.1.1
 pytest-cov==3.0.0
-pytz==2020.5
+pytz==2022.1
 requests==2.27.1
 rsa==4.8
 six==1.16.0

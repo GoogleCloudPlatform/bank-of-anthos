@@ -109,7 +109,7 @@ pyjwt==1.7.1
     # via -r requirements.in
 pyparsing==3.0.7
     # via packaging
-pytz==2020.5
+pytz==2022.1
     # via google-api-core
 requests==2.27.1
     # via

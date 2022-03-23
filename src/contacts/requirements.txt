@@ -174,7 +174,7 @@ pytest==7.1.1
     #   pytest-cov
 pytest-cov==3.0.0
     # via -r requirements.in
-pytz==2020.5
+pytz==2022.1
     # via
     #   -r requirements.in
     #   google-api-core
