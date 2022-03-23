@@ -50,4 +50,4 @@ wcwidth==0.2.5
 webencodings==0.5.1
 Werkzeug==1.0.1
 wrapt==1.14.0
-zipp==1.2.0
+zipp==3.7.0
