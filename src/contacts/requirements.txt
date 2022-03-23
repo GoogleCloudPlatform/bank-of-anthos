@@ -132,7 +132,7 @@ packaging==20.9
     #   bleach
     #   google-api-core
     #   pytest
-pluggy==0.13.1
+pluggy==1.0.0
     # via
     #   -r requirements.in
     #   pytest
