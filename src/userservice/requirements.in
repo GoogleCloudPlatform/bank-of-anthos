@@ -27,7 +27,7 @@ opentelemetry-tools-google-cloud==0.13b0
 opentelemetry-instrumentation-flask==0.13b0
 opentelemetry-instrumentation-sqlalchemy==0.13b0
 packaging==20.9
-pluggy==0.13.1
+pluggy==1.0.0
 protobuf==3.19.4
 psycopg2==2.9.3
 py==1.11.0
