@@ -40,7 +40,7 @@ googleapis-common-protos==1.56.0
     # via google-api-core
 greenlet==1.1.2
     # via sqlalchemy
-grpcio==1.44.0
+grpcio==1.45.0
     # via google-api-core
 gunicorn==20.1.0
     # via -r requirements.in
