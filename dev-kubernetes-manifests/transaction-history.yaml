@@ -54,7 +54,7 @@ spec:
           value: "100"
           # tell Java to obey container memory limits
         - name: JVM_OPTS
-          value: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
+          value: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Xms128m -Xmx256m"
         #- name: EXTRA_LATENCY_MILLIS
         #  value: "5000"
         # Valid levels are debug, info, warn, error, fatal.
@@ -74,10 +74,10 @@ spec:
         resources:
           requests:
             cpu: 100m
-            memory: 512Mi
+            memory: 256Mi
           limits:
-            cpu: 500m
-            memory: 1Gi
+            cpu: 250m
+            memory: 512Mi
         readinessProbe:
           httpGet:
             path: /ready
