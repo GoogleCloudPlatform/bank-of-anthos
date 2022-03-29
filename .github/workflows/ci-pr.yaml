@@ -50,10 +50,13 @@ jobs:
       timeout-minutes: 20
       run: |
         # TODO: REMOVE ME
+        export JAVA_HOME=/opt/jdk17
+        export PATH=$JAVA_HOME/bin:$PATH
         echo $JAVA_HOME
         java -version
         mvn -version
         # END TODO
+
         mvn test
     - name: Java Code Coverage
       timeout-minutes: 20
