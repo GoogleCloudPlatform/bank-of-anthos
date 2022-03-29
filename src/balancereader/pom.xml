@@ -32,7 +32,7 @@
     </parent>
 
     <properties>
-        <java.version>17</java.version>
+        <java.version>1.17</java.version>
         <bootstrap.version>4.2.1</bootstrap.version>
         <checkstyle.config.location>./checkstyle.xml</checkstyle.config.location>
         <spring-cloud.version>Hoxton.SR5</spring-cloud.version>
