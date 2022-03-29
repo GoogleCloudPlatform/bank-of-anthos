@@ -49,6 +49,11 @@ jobs:
     - name: Java Unit Tests
       timeout-minutes: 20
       run: |
+        # TODO: REMOVE ME
+        echo $JAVA_HOME
+        java -version
+        mvn -version
+        # END TODO
         mvn test
     - name: Java Code Coverage
       timeout-minutes: 20
