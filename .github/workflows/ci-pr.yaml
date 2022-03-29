@@ -125,6 +125,16 @@ jobs:
     - name: Build + Deploy PR images to GKE
       timeout-minutes: 20
       run: |
+        # TODO: REMOVE ME
+        export JAVA_HOME="/opt/jdk17"
+        export M2_HOME="/opt/apache-maven-3.8.5"
+        export MAVEN_HOME="/opt/apache-maven-3.8.5"
+        export PATH=$M2_HOME/bin:$JAVA_HOME/bin:$PATH
+        echo $JAVA_HOME
+        java -version
+        mvn -version
+        # END TODO
+
         NAMESPACE="pr${PR_NUMBER}"
         echo "::set-env name=NAMESPACE::$NAMESPACE"
 
