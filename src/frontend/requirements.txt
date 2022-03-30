@@ -16,7 +16,7 @@ click==7.1.2
     # via flask
 cryptography==36.0.2
     # via -r requirements.in
-flask==1.1.4
+flask==2.1.1
     # via
     #   -r requirements.in
     #   opentelemetry-instrumentation-flask
