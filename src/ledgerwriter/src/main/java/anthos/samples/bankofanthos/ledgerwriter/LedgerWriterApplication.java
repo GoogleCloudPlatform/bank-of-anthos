@@ -16,6 +16,7 @@
 
 package anthos.samples.bankofanthos.ledgerwriter;
 
+
 import com.google.cloud.MetadataConfig;
 import io.micrometer.stackdriver.StackdriverConfig;
 import io.micrometer.stackdriver.StackdriverMeterRegistry;

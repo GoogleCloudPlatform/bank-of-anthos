@@ -24,6 +24,7 @@
     <name>Balance Reader</name>
     <description>Balance Reader</description>
     <version>1.0</version>
+   
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -47,7 +48,17 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-        </dependencies>
+ 
+      <dependency>
+        <groupId>com.google.cloud</groupId>
+        <artifactId>libraries-bom</artifactId>
+        <version>25.0.0</version>
+        <type>pom</type>
+        <scope>import</scope>
+       </dependency>
+     </dependencies>
+
+
     </dependencyManagement>
 
 
