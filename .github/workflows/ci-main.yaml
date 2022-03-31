@@ -114,6 +114,7 @@ jobs:
     - name: Build + Deploy PR images to GKE
       timeout-minutes: 20
       run: |
+        source /etc/profile.d/java.sh
         PR_NUMBER=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
         NAMESPACE="pr${PR_NUMBER}"
         echo "::set-env name=NAMESPACE::$NAMESPACE"

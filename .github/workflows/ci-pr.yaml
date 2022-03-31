@@ -118,6 +118,7 @@ jobs:
     - name: Build + Deploy PR images to GKE
       timeout-minutes: 20
       run: |
+        source /etc/profile.d/java.sh
         NAMESPACE="pr${PR_NUMBER}"
         echo "::set-env name=NAMESPACE::$NAMESPACE"
 
