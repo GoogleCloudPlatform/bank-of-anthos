@@ -24,6 +24,9 @@ jobs:
     runs-on: [self-hosted, runners-v2]
     steps:
     - uses: actions/checkout@v3
+    - name: Source Envs
+      run: |
+        source /etc/profile.d/java.sh
     - name: License Check
       run: |
         set -x
@@ -108,6 +111,9 @@ jobs:
       fail-fast: true
     steps:
     - uses: actions/checkout@v3
+    - name: Source Envs
+      run: |
+        source /etc/profile.d/java.sh
     - name: Build + Deploy PR images to GKE
       timeout-minutes: 20
       run: |

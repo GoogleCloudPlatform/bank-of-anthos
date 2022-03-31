@@ -25,6 +25,9 @@ jobs:
       with:
         ref: ${{github.event.pull_request.head.ref}}
         repository: ${{github.event.pull_request.head.repo.full_name}}
+    - name: Source Envs
+      run: |
+        source /etc/profile.d/java.sh
     - name: License Check
       run: |
         set -x
@@ -49,19 +52,6 @@ jobs:
     - name: Java Unit Tests
       timeout-minutes: 20
       run: |
-        # TODO: REMOVE ME
-        #export JAVA_HOME="/opt/jdk17"
-        #export M2_HOME="/opt/apache-maven-3.8.5"
-        #export MAVEN_HOME="/opt/apache-maven-3.8.5"
-        #export PATH=$M2_HOME/bin:$JAVA_HOME/bin:$PATH
-        source /etc/profile.d/java.sh
-        whoami
-        pwd
-        echo $JAVA_HOME
-        java -version
-        mvn -version
-        # END TODO
-
         mvn test
     - name: Java Code Coverage
       timeout-minutes: 20
@@ -125,19 +115,12 @@ jobs:
       with:
         ref: ${{github.event.pull_request.head.ref}}
         repository: ${{github.event.pull_request.head.repo.full_name}}
+    - name: Source Envs
+      run: |
+        source /etc/profile.d/java.sh
     - name: Build + Deploy PR images to GKE
       timeout-minutes: 20
       run: |
-        # TODO: REMOVE ME
-        #export JAVA_HOME="/opt/jdk17"
-        #export M2_HOME="/opt/apache-maven-3.8.5"
-        #export MAVEN_HOME="/opt/apache-maven-3.8.5"
-        #export PATH=$M2_HOME/bin:$JAVA_HOME/bin:$PATH
-        echo $JAVA_HOME
-        java -version
-        mvn -version
-        # END TODO
-
         NAMESPACE="pr${PR_NUMBER}"
         echo "::set-env name=NAMESPACE::$NAMESPACE"
 
