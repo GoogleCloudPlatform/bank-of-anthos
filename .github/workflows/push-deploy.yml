@@ -26,6 +26,7 @@ jobs:
     - name: Push latest images to GCR
       timeout-minutes: 20
       run: |
+        source /etc/profile.d/java.sh
         skaffold config set --global local-cluster false
         # tag with git hash
         skaffold build --default-repo=gcr.io/$PROJECT_ID \
