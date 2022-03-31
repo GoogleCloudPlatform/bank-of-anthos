@@ -25,9 +25,6 @@ jobs:
       with:
         ref: ${{github.event.pull_request.head.ref}}
         repository: ${{github.event.pull_request.head.repo.full_name}}
-    - name: Source Envs
-      run: |
-        source /etc/profile.d/java.sh
     - name: License Check
       run: |
         set -x
@@ -44,6 +41,7 @@ jobs:
     - name: Java Checkstyle
       timeout-minutes: 20
       run: |
+        source /etc/profile.d/java.sh
         mvn checkstyle:check
     - name: Python Checkstyle
       timeout-minutes: 20
@@ -52,10 +50,12 @@ jobs:
     - name: Java Unit Tests
       timeout-minutes: 20
       run: |
+        source /etc/profile.d/java.sh
         mvn test
     - name: Java Code Coverage
       timeout-minutes: 20
       run: |
+        source /etc/profile.d/java.sh
         for SERVICE in "balancereader" "ledgerwriter" "transactionhistory"; do
           echo "checking $SERVICE..."
           # save current working dir to memory and cd to src/$SERVICE
@@ -115,9 +115,6 @@ jobs:
       with:
         ref: ${{github.event.pull_request.head.ref}}
         repository: ${{github.event.pull_request.head.repo.full_name}}
-    - name: Source Envs
-      run: |
-        source /etc/profile.d/java.sh
     - name: Build + Deploy PR images to GKE
       timeout-minutes: 20
       run: |
