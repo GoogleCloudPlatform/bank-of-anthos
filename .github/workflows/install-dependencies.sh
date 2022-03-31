@@ -54,3 +54,21 @@ sudo usermod -aG docker ${USER}
 
 # reboot for docker setup
 sudo reboot
+
+# download jdk 17
+wget https://download.java.net/java/GA/jdk17.0.1/2a2082e5a09d4267845be086888add4f/12/GPL/openjdk-17.0.1_linux-x64_bin.tar.gz
+sudo tar xf openjdk-*.tar.gz -C /opt
+
+# download maven 3.8
+wget https://dlcdn.apache.org/maven/maven-3/3.8.5/binaries/apache-maven-3.8.5-bin.tar.gz
+sudo tar xf apache-maven-*.tar.gz -C /opt
+
+# set up profile for jdk and maven
+sudo tee /etc/profile.d/java.sh <<EOF
+export JAVA_HOME=/opt/jdk-17.0.1
+export M2_HOME=/opt/apache-maven-3.8.5
+export MAVEN_HOME=/opt/apache-maven-3.8.5
+export PATH=\$JAVA_HOME/bin:\$M2_HOME/bin:\$PATH
+EOF
+sudo chmod +x /etc/profile.d/java.sh
+source /etc/profile.d/java.sh

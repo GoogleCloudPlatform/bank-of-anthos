@@ -14,11 +14,45 @@ You can use MacOS or Linux as your dev environment - all these languages and too
 1. [Docker Desktop](https://www.docker.com/products/docker-desktop) 
 1. [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) (can be installed separately or via [gcloud](https://cloud.google.com/sdk/install)) 
 1. [skaffold **1.27+**](https://skaffold.dev/docs/install/) (latest version recommended)
-1. [OpenJDK **14**](https://openjdk.java.net/projects/jdk/14/) (newer versions might cause issues)
-1. [Maven **3.6**](https://downloads.apache.org/maven/maven-3/) (newer versions might cause issues)
-1. [Python3](https://www.python.org/downloads/)  
+1. [OpenJDK **17**](https://openjdk.java.net/projects/jdk/17/) (newer versions not tested)
+1. [Maven **3.8**](https://downloads.apache.org/maven/maven-3/) (newer versions not tested)
+1. [Python **3.7+**](https://www.python.org/downloads/)  
 1. [piptools](https://pypi.org/project/pip-tools/)
 
+### Installing JDK 17 and Maven 3.8
+
+If your package manager doesn't allow you to install JDK 17 or Maven 3.8 (for example, if you're on an older version of Ubuntu), you can follow the following instructions.
+
+Find the [latest release of JDK 17](https://jdk.java.net/17/) and extract it to the `/opt` directory:
+```
+wget https://download.java.net/java/GA/jdk17.0.1/2a2082e5a09d4267845be086888add4f/12/GPL/openjdk-17.0.1_linux-x64_bin.tar.gz
+tar xvf openjdk-17.0.1_linux-x64_bin.tar.gz
+sudo mv jdk-17*/ /opt/jdk17
+```
+
+Find the [latest release of Maven 3.8](https://maven.apache.org/download.cgi) and extract it to the `/opt` directory:
+```
+wget https://dlcdn.apache.org/maven/maven-3/3.8.5/binaries/apache-maven-3.8.5-bin.tar.gz
+sudo tar xf apache-maven-*.tar.gz -C /opt
+```
+
+Create a profile containing the paths of the newly extracted JDK and Maven directories:
+```
+sudo tee /etc/profile.d/java.sh <<EOF
+export JAVA_HOME=/opt/jdk-17.0.1
+export M2_HOME=/opt/apache-maven-3.8.5
+export MAVEN_HOME=/opt/apache-maven-3.8.5
+export PATH=\$JAVA_HOME/bin:\$M2_HOME/bin:\$PATH
+EOF
+sudo chmod +x /etc/profile.d/java.sh
+```
+
+Verify that the versions are correct:
+```
+source /etc/profile.d/java.sh
+java -version
+mvn -version
+```
 
 ## Adding External Packages 
 
