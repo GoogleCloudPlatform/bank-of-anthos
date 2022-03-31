@@ -54,6 +54,7 @@ jobs:
         #export M2_HOME="/opt/apache-maven-3.8.5"
         #export MAVEN_HOME="/opt/apache-maven-3.8.5"
         #export PATH=$M2_HOME/bin:$JAVA_HOME/bin:$PATH
+        source /etc/profile.d/java.sh
         whoami
         pwd
         echo $JAVA_HOME
