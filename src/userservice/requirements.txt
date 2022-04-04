@@ -136,7 +136,7 @@ pluggy==1.0.0
     # via
     #   -r requirements.in
     #   pytest
-protobuf==3.19.4
+protobuf==3.20.0
     # via
     #   -r requirements.in
     #   google-api-core
@@ -196,7 +196,7 @@ six==1.16.0
     #   google-auth
     #   google-cloud-core
     #   grpcio
-sqlalchemy==1.4.32
+sqlalchemy==1.4.34
     # via
     #   -r requirements.in
     #   opentelemetry-instrumentation-sqlalchemy

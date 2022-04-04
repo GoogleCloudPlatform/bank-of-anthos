@@ -47,6 +47,6 @@ spec:
             cpu: 100m
             memory: 512Mi
           limits:
-            cpu: 500m
+            cpu: 250m
             memory: 1Gi
 # [END gke_dev_kubernetes_manifests_loadgenerator_deployment_loadgenerator]

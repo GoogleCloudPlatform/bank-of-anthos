@@ -95,7 +95,7 @@ opentelemetry-tools-google-cloud==0.13b0
     # via -r requirements.in
 packaging==21.3
     # via google-api-core
-protobuf==3.19.4
+protobuf==3.20.0
     # via
     #   google-api-core
     #   googleapis-common-protos
@@ -127,7 +127,7 @@ six==1.16.0
     #   google-auth
     #   google-cloud-core
     #   grpcio
-sqlalchemy==1.4.32
+sqlalchemy==1.4.34
     # via opentelemetry-instrumentation-sqlalchemy
 typing-extensions==4.1.1
     # via importlib-metadata
