@@ -32,7 +32,7 @@ google-auth==1.35.0
     #   opentelemetry-tools-google-cloud
 google-cloud-core==1.7.2
     # via google-cloud-trace
-google-cloud-monitoring==1.1.0
+google-cloud-monitoring==1.1.1
     # via opentelemetry-exporter-google-cloud
 google-cloud-trace==0.24.0
     # via opentelemetry-exporter-google-cloud
