@@ -39,7 +39,7 @@ sudo tar xf apache-maven-*.tar.gz -C /opt
 Create a profile containing the paths of the newly extracted JDK and Maven directories:
 ```
 sudo tee /etc/profile.d/java.sh <<EOF
-export JAVA_HOME=/opt/jdk-17.0.1
+export JAVA_HOME=/opt/jdk17
 export M2_HOME=/opt/apache-maven-3.8.5
 export MAVEN_HOME=/opt/apache-maven-3.8.5
 export PATH=\$JAVA_HOME/bin:\$M2_HOME/bin:\$PATH
