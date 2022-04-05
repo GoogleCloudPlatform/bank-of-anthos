@@ -30,7 +30,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: contacts
-        image: gcr.io/bank-of-anthos-ci/contacts:v0.5.3
+        image: gcr.io/bank-of-anthos-ci/contacts:v0.5.4
         volumeMounts:
         - name: publickey
           mountPath: "/root/.ssh"
@@ -56,8 +56,8 @@ spec:
             cpu: 100m
             memory: 64Mi
           limits:
-            cpu: 500m
-            memory: 256Mi
+            cpu: 250m
+            memory: 128Mi
         readinessProbe:
           httpGet:
             path: /ready

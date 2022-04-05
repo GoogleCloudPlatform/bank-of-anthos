@@ -30,7 +30,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: balancereader
-        image: gcr.io/bank-of-anthos-ci/balancereader:v0.5.3
+        image: gcr.io/bank-of-anthos-ci/balancereader:v0.5.4
         volumeMounts:
         - name: publickey
           mountPath: "/root/.ssh"
@@ -51,7 +51,7 @@ spec:
           value: "1000000"
         # tell Java to obey container memory limits
         - name: JVM_OPTS
-          value: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
+          value: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Xms128m -Xmx256m"
         # Valid levels are debug, info, warn, error, fatal.
         # If no valid level is set, will default to info.
         - name: LOG_LEVEL
@@ -69,10 +69,10 @@ spec:
         resources:
           requests:
             cpu: 100m
-            memory: 512Mi
+            memory: 256Mi
           limits:
-            cpu: 500m
-            memory: 1Gi
+            cpu: 250m
+            memory: 512Mi
         readinessProbe:
           httpGet:
             path: /ready
