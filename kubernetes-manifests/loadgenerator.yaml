@@ -34,7 +34,7 @@ spec:
       restartPolicy: Always
       containers:
       - name: loadgenerator
-        image: gcr.io/bank-of-anthos-ci/loadgenerator:v0.5.3
+        image: gcr.io/bank-of-anthos-ci/loadgenerator:v0.5.4
         env:
         - name: FRONTEND_ADDR
           value: "frontend:80"
@@ -47,6 +47,6 @@ spec:
             cpu: 100m
             memory: 512Mi
           limits:
-            cpu: 500m
+            cpu: 250m
             memory: 1Gi
 # [END gke_boa_kubernetes_manifests_loadgenerator_deployment_loadgenerator]

@@ -31,7 +31,7 @@ spec:
       serviceAccountName: default
       containers:
         - name: postgres
-          image: gcr.io/bank-of-anthos-ci/ledger-db:v0.5.3
+          image: gcr.io/bank-of-anthos-ci/ledger-db:v0.5.4
           ports:
             - containerPort: 5432
           envFrom:
@@ -46,7 +46,7 @@ spec:
               cpu: 100m
               memory: 512Mi
             limits:
-              cpu: 500m
+              cpu: 250m
               memory: 1Gi
           volumeMounts:
             - name: postgresdb
