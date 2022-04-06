@@ -37,7 +37,7 @@ spec:
           readOnly: true
         env:
         - name: VERSION
-          value: "v0.5.3"
+          value: "dev"
         - name: PORT
           value: "8080"
         - name: ENABLE_TRACING

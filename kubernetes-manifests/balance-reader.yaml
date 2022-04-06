@@ -37,7 +37,7 @@ spec:
           readOnly: true
         env:
         - name: VERSION
-          value: "v0.5.3"
+          value: "v0.5.4"
         - name: PORT
           value: "8080"
         # toggle Cloud Trace export
