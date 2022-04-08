@@ -43,7 +43,7 @@ jinja2==3.0.3
     # via
     #   flask
     #   locust
-locust==2.8.5
+locust==2.8.6
     # via -r requirements.in
 markupsafe==2.0.1
     # via jinja2
