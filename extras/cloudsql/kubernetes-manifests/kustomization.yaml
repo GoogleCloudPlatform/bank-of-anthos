@@ -1,4 +1,4 @@
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,11 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: loadgenerator
-spec:
-  template:
-    spec:
-      serviceAccountName: boa-ksa
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+bases:
+- ../../../extras/jwt
+patchesStrategicMerge:
+# - accounts-db-config.yaml
+- balance-reader.yaml
+- contacts.yaml
+- delete-accounts-db.yaml
+- delete-ledger-db.yaml
+- frontend.yaml
+- ledger-db-config.yaml
+- ledger-writer.yaml
+- loadgenerator.yaml
+- transaction-history.yaml
