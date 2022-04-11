@@ -10,7 +10,7 @@ attrs==21.4.0
     #   pytest
 bcrypt==3.2.0
     # via -r requirements.in
-bleach==4.1.0
+bleach==5.0.0
     # via -r requirements.in
 cachetools==4.2.4
     # via
@@ -57,9 +57,9 @@ google-cloud-core==1.7.2
     # via
     #   -r requirements.in
     #   google-cloud-trace
-google-cloud-monitoring==1.1.0
+google-cloud-monitoring==1.1.1
     # via opentelemetry-exporter-google-cloud
-google-cloud-trace==0.24.0
+google-cloud-trace==0.24.1
     # via
     #   -r requirements.in
     #   opentelemetry-exporter-google-cloud
@@ -196,7 +196,7 @@ six==1.16.0
     #   google-auth
     #   google-cloud-core
     #   grpcio
-sqlalchemy==1.4.34
+sqlalchemy==1.4.35
     # via
     #   -r requirements.in
     #   opentelemetry-instrumentation-sqlalchemy
@@ -223,7 +223,7 @@ wrapt==1.14.0
     #   -r requirements.in
     #   opentelemetry-instrumentation
     #   opentelemetry-instrumentation-sqlalchemy
-zipp==3.7.0
+zipp==3.8.0
     # via
     #   -r requirements.in
     #   importlib-metadata

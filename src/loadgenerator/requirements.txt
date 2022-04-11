@@ -43,7 +43,7 @@ jinja2==3.0.3
     # via
     #   flask
     #   locust
-locust==2.8.5
+locust==2.8.6
     # via -r requirements.in
 markupsafe==2.1.1
     # via jinja2
@@ -71,7 +71,7 @@ werkzeug==2.0.3
     # via
     #   flask
     #   locust
-zipp==3.7.0
+zipp==3.8.0
     # via importlib-metadata
 zope-event==4.5.0
     # via gevent
