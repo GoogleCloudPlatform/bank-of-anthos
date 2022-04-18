@@ -533,7 +533,8 @@ def create_app():
         if req.ok:
             cluster_name = str(req.text)
     except (RequestException, HTTPError) as err:
-        app.logger.warning(f"Unable to retrieve cluster name from metadata server {metadata_server}.")
+        app.logger.warning(
+            f"Unable to retrieve cluster name from metadata server {metadata_server}.")
 
     # get GKE pod name
     pod_name = "unknown"
