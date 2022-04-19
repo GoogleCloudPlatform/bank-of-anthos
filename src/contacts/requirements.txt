@@ -164,7 +164,7 @@ pycryptodome==3.14.1
     # via -r requirements.in
 pyjwt==1.7.1
     # via -r requirements.in
-pyparsing==3.0.7
+pyparsing==3.0.8
     # via
     #   -r requirements.in
     #   packaging
