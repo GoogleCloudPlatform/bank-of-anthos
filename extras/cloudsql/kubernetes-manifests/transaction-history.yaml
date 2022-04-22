@@ -30,14 +30,14 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: transactionhistory
-        image: gcr.io/bank-of-anthos-ci/transactionhistory:v0.5.1
+        image: gcr.io/bank-of-anthos-ci/transactionhistory:v0.5.4
         volumeMounts:
         - name: publickey
           mountPath: "/root/.ssh"
           readOnly: true
         env:
         - name: VERSION
-          value: "v0.5.1"
+          value: "v0.5.4"
         - name: PORT
           value: "8080"
         - name: ENABLE_TRACING
@@ -97,7 +97,7 @@ spec:
           limits:
             cpu: "200m"
             memory: "100Mi"
-        image: gcr.io/cloudsql-docker/gce-proxy:1.24.0-alpine
+        image: gcr.io/cloudsql-docker/gce-proxy:1.30.0
         env:
         - name: CONNECTION_NAME
           valueFrom:
