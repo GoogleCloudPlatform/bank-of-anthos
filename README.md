@@ -2,18 +2,13 @@
 
 # Bank of Anthos
 
-> **⚠ ATTENTION: Apache Log4j 2 advisory.**  
-> Due to [vulnerabilities](https://cloud.google.com/log4j2-security-advisory) present in earlier versions
-> of Log4j 2, we have taken down all affected container images. We highly recommend all demos and forks to now
-> use images from releases [>= v0.5.2](https://github.com/GoogleCloudPlatform/bank-of-anthos/releases).
-
 **Bank of Anthos** is a sample HTTP-based web app that simulates a bank's payment processing network, allowing users to create artificial bank accounts and complete transactions.
 
-Google uses this application to demonstrate how developers can modernize enterprise applications using GCP products, including: [GKE](https://cloud.google.com/kubernetes-engine), [Anthos Service Mesh](https://cloud.google.com/anthos/service-mesh), [Anthos Config Management](https://cloud.google.com/anthos/config-management), [Migrate for Anthos](https://cloud.google.com/migrate/anthos), [Spring Cloud GCP](https://spring.io/projects/spring-cloud-gcp), and [Cloud Operations](https://cloud.google.com/products/operations). This application works on any Kubernetes cluster.
+Google uses this application to demonstrate how developers can modernize enterprise applications using GCP products, including: [Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine), [Anthos Service Mesh](https://cloud.google.com/anthos/service-mesh), [Anthos Config Management](https://cloud.google.com/anthos/config-management), [Migrate for Anthos](https://cloud.google.com/migrate/anthos), [Spring Cloud GCP](https://spring.io/projects/spring-cloud-gcp), [Cloud Operations](https://cloud.google.com/products/operations), and [Cloud SQL](https://cloud.google.com/sql/docs). This application works on any Kubernetes cluster.
 
-If you’re using this app, please ★Star the repository to show your interest!
+If you are using Bank of Anthos, please ★Star this repository to show your interest!
 
-> 👓 Note to Googlers: Please fill out the form at go/bank-of-anthos-form if you are using this application.
+**Note to Googlers:** Please fill out the form at [go/bank-of-anthos-form](https://goto2.corp.google.com/bank-of-anthos-form).
 
 ## Screenshots
 
@@ -22,7 +17,7 @@ If you’re using this app, please ★Star the repository to show your interest!
 | [![Login](./docs/login.png)](./docs/login.png) | [![User Transactions](./docs/transactions.png)](./docs/transactions.png) |
 
 
-## Service Architecture
+## Service architecture
 
 ![Architecture Diagram](./docs/architecture.png)
 
@@ -38,15 +33,18 @@ If you’re using this app, please ★Star the repository to show your interest!
 | [accounts-db](./src/accounts-db)                 | PostgreSQL | Database for user accounts and associated data. Option to pre-populate with demo users.                                                      |
 | [loadgenerator](./src/loadgenerator)             | Python/Locust | Continuously sends requests imitating users to the frontend. Periodically creates new accounts and simulates transactions between them.      |
 
-## Quickstart (GKE)
+## Interactive quickstart (GKE)
+
+The following button opens up an interactive tutorial showing how to deploy Bank of Anthos in GKE:
 
 [![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.svg)](https://ssh.cloud.google.com/cloudshell/editor?show=ide&cloudshell_git_repo=https://github.com/GoogleCloudPlatform/bank-of-anthos&cloudshell_workspace=.&cloudshell_tutorial=extras/cloudshell/tutorial.md)
 
+## Quickstart (GKE)
 
 1. **[Create a Google Cloud Platform project](https://cloud.google.com/resource-manager/docs/creating-managing-projects#creating_a_project)** or use an existing project. Set the `PROJECT_ID` environment variable and ensure the Google Kubernetes Engine API is enabled.
 
 ```
-PROJECT_ID=""
+PROJECT_ID=<YOUR-PROJECT-ID>
 gcloud services enable container --project ${PROJECT_ID}
 ```
 
@@ -54,12 +52,12 @@ gcloud services enable container --project ${PROJECT_ID}
 
 ```
 git clone https://github.com/GoogleCloudPlatform/bank-of-anthos.git
-cd bank-of-anthos
+cd bank-of-anthos/
 ```
 
-3. **Create a GKE cluster.**
+3. **Create a GKE cluster** and get the credentials for it.
 
-- GKE Autopilot mode (see [GKE Autopilot overview](https://cloud.google.com/kubernetes-engine/docs/concepts/autopilot-overview) to learn more):
+We recommend using [GKE Autopilot](https://cloud.google.com/kubernetes-engine/docs/concepts/autopilot-overview):
 
 ```
 gcloud services enable container.googleapis.com monitoring.googleapis.com \
@@ -68,9 +66,12 @@ gcloud services enable container.googleapis.com monitoring.googleapis.com \
 REGION=us-central1
 gcloud container clusters create-auto bank-of-anthos \
   --project=${PROJECT_ID} --region=${REGION}
+
+gcloud container clusters get-credentials bank-of-anthos \
+  --project=${PROJECT_ID} --region=${REGION}
 ```
 
-- GKE Standard mode:
+Alternatively, you can deploy using GKE Standard instead:
 
 ```
 ZONE=us-central1-b
@@ -79,43 +80,25 @@ gcloud beta container clusters create bank-of-anthos \
   --machine-type=e2-standard-2 --num-nodes=4 \
   --monitoring=SYSTEM --logging=SYSTEM,WORKLOAD --subnetwork=default \
   --tags=bank-of-anthos --labels csm=
-```
 
-4. **Get credentials for the created cluster**
-
-- GKE Autopilot mode:
-
-```
-gcloud container clusters get-credentials bank-of-anthos \
-  --project=${PROJECT_ID} --region=${REGION}
-```
-
-- GKE Standard mode:
-
-```
 gcloud container clusters get-credentials bank-of-anthos \
   --project=${PROJECT_ID} --zone=${ZONE}
 ```
 
-5. **Deploy the demo JWT public key** to the cluster as a Secret. This key is used for user account creation and authentication.
+4. **Deploy Bank of Anthos to the cluster.**
 
 ```
 kubectl apply -f ./extras/jwt/jwt-secret.yaml
-```
-
-6. **Deploy the sample app to the cluster.**
-
-```
 kubectl apply -f ./kubernetes-manifests
 ```
 
-7. **Wait for the Pods to be ready.**
+5. **Wait for the Pods to be ready.**
 
 ```
 kubectl get pods
 ```
 
-After a few minutes, you should see:
+After a few minutes, you should see the Pods in a `Running` state:
 
 ```
 NAME                                  READY   STATUS    RESTARTS   AGE
@@ -130,20 +113,15 @@ transactionhistory-5569754896-z94cn   1/1     Running   0          97s
 userservice-78dc876bff-pdhtl          1/1     Running   0          96s
 ```
 
-8. **Access the web frontend in a browser** using the frontend's `EXTERNAL_IP`.
+6. **Access the web frontend in a browser** using the frontend's external IP.
 
 ```
 kubectl get service frontend | awk '{print $4}'
 ```
 
-*Example output - do not copy*
+Visit `https://EXTERNAL_IP` to access your instance of Bank of Anthos.
 
-```
-EXTERNAL-IP
-35.223.69.29
-```
-
-## Other Deployment Options
+## Additional deployment options
 
 - **Workload Identity**: [See these instructions.](./docs/workload-identity.md)
 - **Cloud SQL**: [See these instructions](./extras/cloudsql) to replace the in-cluster databases with hosted Google Cloud SQL.
@@ -154,13 +132,13 @@ EXTERNAL-IP
 
 ## Troubleshooting
 
-See the [Troubleshooting guide](./docs/troubleshooting.md) for resolving common problems.
+See the [troubleshooting guide](./docs/troubleshooting.md) for resolving common problems.
 
 ## Development
 
-See the [Development guide](./docs/development.md) to learn how to run and develop this app locally.
+See the [development guide](./docs/development.md) to learn how to run and develop this app locally.
 
-## Demos Featuring Bank of Anthos
+## Demos featuring Bank of Anthos
 - [Explore Anthos (Google Cloud docs)](https://cloud.google.com/anthos/docs/tutorials/explore-anthos)
 - [Tutorial - Migrate for Anthos - Migrating a monolith VM to GKE](https://cloud.google.com/migrate/anthos/docs/migrating-monolith-vm-overview-setup)
 - [Google Cloud Architecture Center - Running distributed services on GKE private clusters using Anthos Service Mesh](https://cloud.google.com/architecture/distributed-services-on-gke-private-using-anthos-service-mesh)
