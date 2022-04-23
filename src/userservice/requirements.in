@@ -37,7 +37,7 @@ pycparser==2.21
 pycryptodome==3.14.1
 pyjwt==1.7.1
 pyparsing==3.0.8
-pytest==7.1.1
+pytest==7.1.2
 pytest-cov==3.0.0
 pytz==2022.1
 requests==2.27.1
