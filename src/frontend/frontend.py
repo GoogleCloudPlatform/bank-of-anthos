@@ -316,7 +316,8 @@ def create_app():
         except requests.exceptions.HTTPError as http_request_err:
             raise UserWarning(resp.text) from http_request_err
         else:
-            # Short delay to allow the transaction to propagate to balancereader and transaction-history
+            # Short delay to allow the transaction to propagate to balancereader
+            # and transaction-history
             sleep(0.25)
 
     def _add_contact(label, acct_num, routing_num, is_external_acct=False):
