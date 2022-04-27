@@ -80,7 +80,7 @@ limitations under the License.
                 <div class="card-body sign-in">
                   <div class="row align-items-center mt-2">
                     <div class="col-10 offset-1 mb-4">
-                      <div id="alertBanner" class="alert alert-danger mb-4" role="alert">
+                      <div id="alertBanner" class="alert alert-danger mb-4 hidden" role="alert">
                         <span class="error-icon mr-2 material-icons">error</span>Login failed.
                       </div>
                       <form id="login-form" class="needs-validation" novalidate="" method="POST" action="/login">
@@ -155,9 +155,6 @@ limitations under the License.
           var showAlert = (window.location.search == "?msg=Login+Failed");
           if (showAlert){
               document.querySelector("#alertBanner").classList.remove("hidden");
-          }
-          else {
-              document.querySelector("#alertBanner").classList.add("hidden");
           }
         });
       </script>
