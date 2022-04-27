@@ -168,8 +168,8 @@ register-key.json
 
 # ASM
 asmcli*
-asm-cluster-1/*
-asm-cluster-2/*
+asm-cluster-1/
+asm-cluster-2/
 
 # SSL
 *.csr
