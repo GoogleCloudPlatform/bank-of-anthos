@@ -144,7 +144,7 @@ for dir in asm-${CLUSTER_1_NAME}/istio-*/; do
 done
 
 echo "⛵️ Installing the Istio IngressGateway on cluster-1..."
-export GATEWAY_NAMESPACE="asm-gateways"
+export GATEWAY_NAMESPACE="asm-ingress"
 kubectl create namespace ${GATEWAY_NAMESPACE}
 kubectl label namespace ${GATEWAY_NAMESPACE} istio-injection- istio.io/rev=asm-managed --overwrite
 kubectl -n ${GATEWAY_NAMESPACE} apply -f ./asm-${CLUSTER_1_NAME}/samples/gateways/istio-ingressgateway

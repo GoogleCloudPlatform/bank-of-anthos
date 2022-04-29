@@ -126,7 +126,7 @@ transactionhistory-84cf479f65-lzgdt   2/2     Running   0          14m
 7. **Access the Bank of Anthos frontend** using the Istio IngressGateway's LoadBalancer IP.
 
 ```
-kubectx cluster-1; kubectl get svc istio-ingressgateway -n asm-gateways
+kubectx cluster-1; kubectl get svc istio-ingressgateway --namespace asm-ingress
 
 NAME                   TYPE           CLUSTER-IP     EXTERNAL-IP     PORT(S)                                                                      AGE
 istio-ingressgateway   LoadBalancer   10.7.254.103   <EXTERNAL_IP>  15021:30429/TCP,80:32101/TCP,443:31503/TCP,15012:30573/TCP,15443:31131/TCP   21m
