@@ -8,17 +8,18 @@ For a "replicated" multicluster setup with no cross-cluster traffic, see the [Cl
 
 ![architecture](screenshots/architecture.png)
 
-
 ## Prerequisites
 
 1. A Google Cloud project.
 2. The following tools installed in your local environment:
+
 - [gcloud](https://cloud.google.com/sdk/docs/install), up to date with `gcloud components update`
 - [kubectl](https://cloud.google.com/sdk/gcloud/reference/components/install) - you can install this via gcloud: `gcloud components install kubectl`
 - [kubectx](https://github.com/ahmetb/kubectx#installation)
 - (MacOS only) coreutils: `brew install coreutils`
 - (MacOS only) jq: `brew install jq`
 - (MacOS only) kpt:
+
 ```
 brew tap GoogleContainerTools/kpt https://github.com/GoogleContainerTools/kpt.git
 brew install kpt
@@ -32,7 +33,6 @@ brew install kpt
 export PROJECT_ID="<your-project-id>"
 gcloud config set project $PROJECT_ID
 ```
-
 
 2. **Enable APIs.**
 
@@ -126,7 +126,7 @@ transactionhistory-84cf479f65-lzgdt   2/2     Running   0          14m
 7. **Access the Bank of Anthos frontend** using the Istio IngressGateway's LoadBalancer IP.
 
 ```
-kubectx cluster-1; kubectl get svc istio-ingressgateway -n istio-system
+kubectx cluster-1; kubectl get svc istio-ingressgateway --namespace asm-ingress
 
 NAME                   TYPE           CLUSTER-IP     EXTERNAL-IP     PORT(S)                                                                      AGE
 istio-ingressgateway   LoadBalancer   10.7.254.103   <EXTERNAL_IP>  15021:30429/TCP,80:32101/TCP,443:31503/TCP,15012:30573/TCP,15443:31131/TCP   21m
@@ -138,11 +138,9 @@ Navigate to the `EXTERNAL_IP` in a browser; you should see the Bank of Anthos lo
 
 ![enable anthos](screenshots/enable-anthos.png)
 
-
 9. View the Bank of Anthos services in the Anthos Service Mesh dashboard. In the Table view, you should see metrics populated for services in both cluster-1 and cluster 2.
 
 ![table](screenshots/asm-table.png)
-
 
 In the topology view, you should see traffic flowing from cluster 1 services (frontend) to cluster 2 services (eg. transactionhistory).
 
