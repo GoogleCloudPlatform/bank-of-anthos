@@ -76,7 +76,7 @@ spec:
             cpu: 100m
             memory: 256Mi
           limits:
-            cpu: 250m
+            cpu: 500m
             memory: 512Mi
         readinessProbe:
           httpGet:
@@ -92,6 +92,12 @@ spec:
           initialDelaySeconds: 120
           periodSeconds: 5
           timeoutSeconds: 10
+        startupProbe:
+          httpGet:
+            path: /healthy
+            port: 8080
+          failureThreshold: 30
+          periodSeconds: 10
       volumes:
       - name: publickey
         secret:
