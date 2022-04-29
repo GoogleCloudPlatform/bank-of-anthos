@@ -17,7 +17,7 @@ kind: Kustomization
 bases:
 - ../../../extras/jwt
 patchesStrategicMerge:
-# - accounts-db-config.yaml
+- accounts-db-config.yaml
 - balance-reader.yaml
 - contacts.yaml
 - delete-accounts-db.yaml
