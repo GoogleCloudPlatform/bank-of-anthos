@@ -29,7 +29,7 @@
         },
         "defaultUser": {
             "username": "testuser",
-            "password": "password",
+            "password": "bankofanthos",
             "name": "Test",
             "accountNum": "1011226111",
             "externalAccounts": [

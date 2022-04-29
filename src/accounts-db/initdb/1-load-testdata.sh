@@ -98,9 +98,9 @@ main() {
     fi
   done
 
-  # A password hash + salt for the demo password 'password'
+  # A password hash + salt for the demo password 'bankofanthos'
   # Via Python3:  bycrypt.hashpw('password'.encode('utf-8'), bcrypt.gensalt())
-  DEFAULT_PASSHASH='\x243262243132245273764737474f39777562452f4a786a79444a7263756f386568466b762e634e5262356e6867746b474752584c6634437969346643'
+  DEFAULT_PASSHASH='\x243262243132244c48334f54422e70653274596d6834534b756673727563564b3848774630494d2f34717044746868366e42352e744b575978314e61'
 
   create_accounts
 }

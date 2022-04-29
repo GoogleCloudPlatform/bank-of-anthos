@@ -26,7 +26,7 @@ limitations under the License.
       <title>{{ bank_name }}</title>
       {% endif %}
 
-      <link rel="icon" href=”static/img/favicon.png”/>
+      <link rel="icon" href="static/img/favicon.png"/>
       <link rel="stylesheet" href="https://unpkg.com/bootstrap-material-design@4.1.1/dist/css/bootstrap-material-design.min.css" integrity="sha384-wXznGJNEXNG1NFsbm0ugrLFMQPWswR3lds2VeinahP8N0zJw9VWSopbjv2x7WCvX" crossorigin="anonymous">
       <link rel="preconnect" href="https://fonts.gstatic.com">
       <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
@@ -80,7 +80,7 @@ limitations under the License.
                 <div class="card-body sign-in">
                   <div class="row align-items-center mt-2">
                     <div class="col-10 offset-1 mb-4">
-                      <div id="alertBanner" class="alert alert-danger mb-4" role="alert">
+                      <div id="alertBanner" class="alert alert-danger mb-4 hidden" role="alert">
                         <span class="error-icon mr-2 material-icons">error</span>Login failed.
                       </div>
                       <form id="login-form" class="needs-validation" novalidate="" method="POST" action="/login">
@@ -155,9 +155,6 @@ limitations under the License.
           var showAlert = (window.location.search == "?msg=Login+Failed");
           if (showAlert){
               document.querySelector("#alertBanner").classList.remove("hidden");
-          }
-          else {
-              document.querySelector("#alertBanner").classList.add("hidden");
           }
         });
       </script>

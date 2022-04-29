@@ -30,14 +30,14 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: front
-        image: gcr.io/bank-of-anthos-ci/frontend:v0.5.1
+        image: gcr.io/bank-of-anthos-ci/frontend:v0.5.4
         volumeMounts:
         - name: publickey
           mountPath: "/root/.ssh"
           readOnly: true
         env:
         - name: VERSION
-          value: "v0.5.1"
+          value: "v0.5.4"
         - name: PORT
           value: "8080"
         - name: ENABLE_TRACING
@@ -53,6 +53,9 @@ spec:
         # Customize the bank name used in the header. Defaults to 'Bank of Anthos' - when CYMBAL_LOGO is true, uses 'CymbalBank'
         # - name: BANK_NAME
         #   value: ""
+        # Customize the cluster name if it cannot be retrieved from the metadata server
+        #- name: CLUSTER_NAME
+        #  value: "my-cluster"
         - name: DEFAULT_USERNAME
           valueFrom:
             configMapKeyRef:
@@ -68,6 +71,12 @@ spec:
             name: environment-config
         - configMapRef:
             name: service-api-config
+        # Customize the metadata server hostname to query for metadata
+        #- name: METADATA_SERVER
+        #  value: "my-metadata-server"
+        # Customize the pod zone if it cannot be retrieved from the metadata server
+        #- name: POD_ZONE
+        #  value: "my-zone"
         readinessProbe:
           httpGet:
             path: /ready
