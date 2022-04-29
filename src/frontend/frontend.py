@@ -21,6 +21,7 @@ import logging
 import os
 import socket
 from decimal import Decimal, DecimalException
+from time import sleep
 
 import requests
 from requests.exceptions import HTTPError, RequestException
@@ -37,7 +38,6 @@ from opentelemetry.tools.cloud_trace_propagator import CloudTraceFormatPropagato
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
 from opentelemetry.instrumentation.requests import RequestsInstrumentor
 from opentelemetry.instrumentation.jinja2 import Jinja2Instrumentor
-
 
 
 # pylint: disable-msg=too-many-locals
@@ -146,7 +146,6 @@ def create_app():
                                message=request.args.get('msg', None),
                                bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'))
 
-
     def _populate_contact_labels(account_id, transactions, contacts):
         """
         Populate contact labels for the passed transactions.
@@ -176,7 +175,6 @@ def create_app():
                 trans['accountLabel'] = contact_map.get(trans['fromAccountNum'])
             elif trans['fromAccountNum'] == account_id:
                 trans['accountLabel'] = contact_map.get(trans['toAccountNum'])
-
 
     @app.route('/payment', methods=['POST'])
     def payment():
@@ -216,10 +214,11 @@ def create_app():
                                 "uuid": request.form['uuid']}
             _submit_transaction(transaction_data)
             app.logger.info('Payment initiated successfully.')
-            return redirect(url_for('home',
-                                    msg='Payment successful',
-                                    _external=True,
-                                    _scheme=app.config['SCHEME']))
+            return redirect(code=303,
+                            location=url_for('home',
+                                             msg='Payment successful',
+                                             _external=True,
+                                             _scheme=app.config['SCHEME']))
 
         except requests.exceptions.RequestException as err:
             app.logger.error('Error submitting payment: %s', str(err))
@@ -282,10 +281,11 @@ def create_app():
                                 "uuid": request.form['uuid']}
             _submit_transaction(transaction_data)
             app.logger.info('Deposit submitted successfully.')
-            return redirect(url_for('home',
-                                    msg='Deposit successful',
-                                    _external=True,
-                                    _scheme=app.config['SCHEME']))
+            return redirect(code=303,
+                            location=url_for('home',
+                                             msg='Deposit successful',
+                                             _external=True,
+                                             _scheme=app.config['SCHEME']))
 
         except requests.exceptions.RequestException as err:
             app.logger.error('Error submitting deposit: %s', str(err))
@@ -312,10 +312,13 @@ def create_app():
                              headers=hed,
                              timeout=app.config['BACKEND_TIMEOUT'])
         try:
-            resp.raise_for_status() # Raise on HTTP Status code 4XX or 5XX
+            resp.raise_for_status()  # Raise on HTTP Status code 4XX or 5XX
         except requests.exceptions.HTTPError as http_request_err:
             raise UserWarning(resp.text) from http_request_err
-
+        else:
+            # Short delay to allow the transaction to propagate to balancereader
+            # and transaction-history
+            sleep(0.25)
 
     def _add_contact(label, acct_num, routing_num, is_external_acct=False):
         """
@@ -340,10 +343,9 @@ def create_app():
                              headers=hed,
                              timeout=app.config['BACKEND_TIMEOUT'])
         try:
-            resp.raise_for_status() # Raise on HTTP Status code 4XX or 5XX
+            resp.raise_for_status()  # Raise on HTTP Status code 4XX or 5XX
         except requests.exceptions.HTTPError as http_request_err:
             raise UserWarning(resp.text) from http_request_err
-
 
     @app.route("/login", methods=['GET'])
     def login_page():
@@ -368,7 +370,6 @@ def create_app():
                                default_password=os.getenv('DEFAULT_PASSWORD', ''),
                                bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'))
 
-
     @app.route('/login', methods=['POST'])
     def login():
         """
@@ -379,13 +380,12 @@ def create_app():
         return _login_helper(request.form['username'],
                              request.form['password'])
 
-
     def _login_helper(username, password):
         try:
             app.logger.debug('Logging in.')
             req = requests.get(url=app.config["LOGIN_URI"],
                                params={'username': username, 'password': password})
-            req.raise_for_status() # Raise on HTTP Status code 4XX or 5XX
+            req.raise_for_status()  # Raise on HTTP Status code 4XX or 5XX
 
             # login success
             token = req.json()['token'].encode('utf-8')
@@ -403,7 +403,6 @@ def create_app():
                                 msg='Login Failed',
                                 _external=True,
                                 _scheme=app.config['SCHEME']))
-
 
     @app.route("/signup", methods=['GET'])
     def signup_page():
@@ -423,7 +422,6 @@ def create_app():
                                pod_name=pod_name,
                                pod_zone=pod_zone,
                                bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'))
-
 
     @app.route("/signup", methods=['POST'])
     def signup():
@@ -498,7 +496,6 @@ def create_app():
         if int_amount < 0:
             amount_str = '-' + amount_str
         return amount_str
-
 
     # set up global variables
     app.config["TRANSACTIONS_URI"] = 'http://{}/transactions'.format(
