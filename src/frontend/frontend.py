@@ -30,11 +30,11 @@ from flask import Flask, abort, jsonify, make_response, redirect, \
     render_template, request, url_for
 
 from opentelemetry import trace
-from opentelemetry.sdk.trace.export import BatchExportSpanProcessor
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.propagators import set_global_textmap
+from opentelemetry.propagate import set_global_textmap
 from opentelemetry.exporter.cloud_trace import CloudTraceSpanExporter
-from opentelemetry.tools.cloud_trace_propagator import CloudTraceFormatPropagator
+from opentelemetry.propagators.cloud_trace_propagator import CloudTraceFormatPropagator
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
 from opentelemetry.instrumentation.requests import RequestsInstrumentor
 from opentelemetry.instrumentation.jinja2 import Jinja2Instrumentor
@@ -94,7 +94,7 @@ def create_app():
             return redirect(url_for('login_page',
                                     _external=True,
                                     _scheme=app.config['SCHEME']))
-        token_data = jwt.decode(token, verify=False)
+        token_data = decode_token(token)
         display_name = token_data['name']
         username = token_data['user']
         account_id = token_data['acct']
@@ -192,7 +192,7 @@ def create_app():
             app.logger.error('Error submitting payment: user is not authenticated.')
             return abort(401)
         try:
-            account_id = jwt.decode(token, verify=False)['acct']
+            account_id = decode_token(token)['acct']
             recipient = request.form['account_num']
             if recipient == 'add':
                 recipient = request.form['contact_account_num']
@@ -255,7 +255,7 @@ def create_app():
             return abort(401)
         try:
             # get account id from token
-            account_id = jwt.decode(token, verify=False)['acct']
+            account_id = decode_token(token)['acct']
             if request.form['account'] == 'add':
                 external_account_num = request.form['external_account_num']
                 external_routing_num = request.form['external_routing_num']
@@ -336,7 +336,7 @@ def create_app():
             'routing_num': routing_num,
             'is_external': is_external_acct
         }
-        token_data = jwt.decode(token, verify=False)
+        token_data = decode_token(token)
         url = '{}/{}'.format(app.config["CONTACTS_URI"], token_data['user'])
         resp = requests.post(url=url,
                              data=jsonify(contact_data).data,
@@ -389,7 +389,7 @@ def create_app():
 
             # login success
             token = req.json()['token'].encode('utf-8')
-            claims = jwt.decode(token, verify=False)
+            claims = decode_token(token)
             max_age = claims['exp'] - claims['iat']
             resp = make_response(redirect(url_for('home',
                                                   _external=True,
@@ -460,6 +460,11 @@ def create_app():
         resp.delete_cookie(app.config['TOKEN_NAME'])
         return resp
 
+    def decode_token(token):
+        return jwt.decode(algorithms='RS256',
+                          jwt=token,
+                          options={"verify_signature": False})
+
     def verify_token(token):
         """
         Validates token using userservice public key
@@ -468,7 +473,10 @@ def create_app():
         if token is None:
             return False
         try:
-            jwt.decode(token, key=app.config['PUBLIC_KEY'], algorithms='RS256', verify=True)
+            jwt.decode(algorithms='RS256',
+                       jwt=token,
+                       key=app.config['PUBLIC_KEY'],
+                       options={"verify_signature": True})
             app.logger.debug('Token verified.')
             return True
         except jwt.exceptions.InvalidTokenError as err:
@@ -563,7 +571,7 @@ def create_app():
         trace.set_tracer_provider(TracerProvider())
         cloud_trace_exporter = CloudTraceSpanExporter()
         trace.get_tracer_provider().add_span_processor(
-            BatchExportSpanProcessor(cloud_trace_exporter)
+            BatchSpanProcessor(cloud_trace_exporter)
         )
         set_global_textmap(CloudTraceFormatPropagator())
         # Add tracing auto-instrumentation for Flask, jinja and requests
