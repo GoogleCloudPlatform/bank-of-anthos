@@ -30,12 +30,13 @@ from sqlalchemy.exc import OperationalError, SQLAlchemyError
 from db import ContactsDb
 
 from opentelemetry import trace
-from opentelemetry.sdk.trace.export import BatchExportSpanProcessor
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.propagators import set_global_textmap
+from opentelemetry.propagate import set_global_textmap
 from opentelemetry.exporter.cloud_trace import CloudTraceSpanExporter
-from opentelemetry.tools.cloud_trace_propagator import CloudTraceFormatPropagator
+from opentelemetry.propagators.cloud_trace_propagator import CloudTraceFormatPropagator
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
+
 
 def create_app():
     """Flask application factory to create instances
@@ -43,10 +44,10 @@ def create_app():
     """
     app = Flask(__name__)
 
-
     # Disabling unused-variable for lines with route decorated functions
     # as pylint thinks they are unused
     # pylint: disable=unused-variable
+
     @app.route("/version", methods=["GET"])
     def version():
         """
@@ -79,7 +80,7 @@ def create_app():
                 raise PermissionError
 
             contacts_list = contacts_db.get_contacts(username)
-            app.logger.debug("Succesfully retrieved contacts.")
+            app.logger.debug("Successfully retrieved contacts.")
             return jsonify(contacts_list), 200
         except (PermissionError, jwt.exceptions.InvalidTokenError) as err:
             app.logger.error("Error retrieving contacts list: %s", str(err))
@@ -201,13 +202,12 @@ def create_app():
         trace.set_tracer_provider(TracerProvider())
         cloud_trace_exporter = CloudTraceSpanExporter()
         trace.get_tracer_provider().add_span_processor(
-            BatchExportSpanProcessor(cloud_trace_exporter)
+            BatchSpanProcessor(cloud_trace_exporter)
         )
         set_global_textmap(CloudTraceFormatPropagator())
         FlaskInstrumentor().instrument_app(app)
     else:
         app.logger.info("🚫 Tracing disabled.")
-
 
     # setup global variables
     app.config["VERSION"] = os.environ.get("VERSION")
