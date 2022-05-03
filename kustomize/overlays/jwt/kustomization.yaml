@@ -19,4 +19,4 @@ bases:
   - ../../base
 resources:
   - jwt-secret.yaml
-# [START gke_boa_kustomize_overlays_jwt_kustomization]
+# [END gke_boa_kustomize_overlays_jwt_kustomization]

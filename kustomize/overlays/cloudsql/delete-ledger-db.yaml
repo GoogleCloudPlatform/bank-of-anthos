@@ -12,8 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# [START gke_boa_kustomize_overlays_cloudsql_delete_ledger_db]
 $patch: delete
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: ledger-db
+# [END gke_boa_kustomize_overlays_cloudsql_delete_ledger_db]
