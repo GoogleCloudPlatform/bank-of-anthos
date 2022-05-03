@@ -20,7 +20,7 @@ metadata:
 deploy:
   kubectl:
     manifests: 
-    - extras/jwt/jwt-secret.yaml
+    - kustomize/overlays/jwt/jwt-secret.yaml
     - dev-kubernetes-manifests/config.yaml
 # [END gke_bank_of_anthos_skaffold_config_setup]
 ---
