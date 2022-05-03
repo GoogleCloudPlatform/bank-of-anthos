@@ -64,7 +64,7 @@ This command will also deploy two Kubernetes Jobs, to populate the accounts and 
 
 ```
 kubectl apply -n ${NAMESPACE} -f ./populate-jobs
-kubectl apply -n ${NAMESPACE} -k ./kubernetes-manifests
+kubectl apply -n ${NAMESPACE} -k ../../kustomize/overlays/cloudsql
 ```
 
 8. Wait a few minutes for all the pods to be `RUNNING`. (Except for the two `populate-` Jobs. They should be marked `0/3 - Completed` when they finish successfully.)

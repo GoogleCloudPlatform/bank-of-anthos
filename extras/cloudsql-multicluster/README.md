@@ -117,7 +117,7 @@ kubectl create secret -n ${NAMESPACE} generic cloud-sql-admin \
 
 ```
 kubectx cluster1
-kubectl apply  -n ${NAMESPACE} -f ../cloudsql/kubernetes-manifests/config.yaml
+kubectl apply  -n ${NAMESPACE} -f ../../kustomize/overlays/cloudsql/config.yaml
 kubectl apply -n ${NAMESPACE} -f ../cloudsql/populate-jobs
 ```
 
@@ -136,10 +136,10 @@ populate-ledger-db     1/1           43s        119s
 
 ```
 kubectx cluster1
-kubectl apply  -n ${NAMESPACE} -f ../cloudsql/kubernetes-manifests
+kubectl apply -n ${NAMESPACE} -k ../../kustomize/overlays/cloudsql
 
 kubectx cluster2
-kubectl apply  -n ${NAMESPACE} -f ../cloudsql/kubernetes-manifests
+kubectl apply -n ${NAMESPACE} -k ../../kustomize/overlays/cloudsql
 ```
 
 12. **Delete the LoadBalancer type frontend services**. With `MultiClusterIngress`
