@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START gke_kubernetes_manifests_ledger_writer_deployment_ledgerwriter]
+# [START gke_boa_kustomize_overlays_cloudsql_ledger_writer_deployment_ledgerwriter]
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -38,4 +38,4 @@ spec:
                   "-instances=$(CONNECTION_NAME)=tcp:5432"]
         securityContext:
           runAsNonRoot: true
-# [END gke_kubernetes_manifests_ledger_writer_deployment_ledgerwriter]
+# [END gke_boa_kustomize_overlays_cloudsql_ledger_writer_deployment_ledgerwriter]

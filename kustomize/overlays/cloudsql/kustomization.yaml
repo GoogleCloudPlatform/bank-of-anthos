@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# [START gke_boa_kustomize_overlays_cloudsql_kustomization]
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 bases:
@@ -27,3 +28,4 @@ patchesStrategicMerge:
 - ledger-writer.yaml
 - loadgenerator.yaml
 - transaction-history.yaml
+# [START gke_boa_kustomize_overlays_cloudsql_kustomization]

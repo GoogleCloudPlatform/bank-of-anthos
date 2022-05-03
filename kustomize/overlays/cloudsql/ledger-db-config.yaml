@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START gke_kubernetes_manifests_ledger_db_config_configmap_ledger_db_config]
+# [START gke_boa_kustomize_overlays_cloudsql_ledger_db_config_configmap_ledger_db_config]
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -27,4 +27,4 @@ data:
   SPRING_DATASOURCE_URL: jdbc:postgresql://127.0.0.1:5432/ledger-db
   SPRING_DATASOURCE_USERNAME: admin # should match POSTGRES_USER
   SPRING_DATASOURCE_PASSWORD: admin # should match POSTGRES_PASSWORD
-# [END gke_kubernetes_manifests_ledger_db_config_configmap_ledger_db_config]
+# [END gke_boa_kustomize_overlays_cloudsql_ledger_db_config_configmap_ledger_db_config]
