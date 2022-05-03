@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START gke_boa_kubernetes_manifests_balance_reader_deployment_balancereader]
+# [START gke_boa_kustomize_base_balance_reader_deployment_balancereader]
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -94,9 +94,9 @@ spec:
           items:
           - key: jwtRS256.key.pub
             path: publickey
-# [END gke_boa_kubernetes_manifests_balance_reader_deployment_balancereader]
+# [END gke_boa_kustomize_base_balance_reader_deployment_balancereader]
 ---
-# [START gke_boa_kubernetes_manifests_balance_reader_service_balancereader]
+# [START gke_boa_kustomize_base_balance_reader_service_balancereader]
 apiVersion: v1
 kind: Service
 metadata:
@@ -109,4 +109,4 @@ spec:
   - name: http
     port: 8080
     targetPort: 8080
-# [END gke_boa_kubernetes_manifests_balance_reader_service_balancereader]
+# [END gke_boa_kustomize_base_balance_reader_service_balancereader]
