@@ -28,4 +28,4 @@ patchesStrategicMerge:
 - ledger-writer.yaml
 - loadgenerator.yaml
 - transaction-history.yaml
-# [START gke_boa_kustomize_overlays_cloudsql_kustomization]
+# [END gke_boa_kustomize_overlays_cloudsql_kustomization]
