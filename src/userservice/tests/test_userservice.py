@@ -206,7 +206,9 @@ class TestUserservice(unittest.TestCase):
         # assert we get a json response with just token key
         self.assertEqual(list(response.json.keys()), ['token'])
         # decode payload using public key
-        decoded_value = jwt.decode(response.json['token'], EXAMPLE_PUBLIC_KEY, algorithm='RS256')
+        decoded_value = jwt.decode(algorithms='RS256',
+                                   jwt=response.json['token'],
+                                   key=EXAMPLE_PUBLIC_KEY,)
         # assert fields match user request
         self.assertEqual(decoded_value['user'], EXAMPLE_USER['username'])
         self.assertEqual(
@@ -259,7 +261,7 @@ class TestUserservice(unittest.TestCase):
             # send request to test client
             response = self.test_app.post('/users', data=example_user_request)
             self.assertEqual(response.status_code, 400,
-                'username {} returned incorrect status code'.format(invalid_username))
+                             'username {} returned incorrect status code'.format(invalid_username))
             if invalid_username:
                 # assert we get correct error message
                 self.assertEqual(
