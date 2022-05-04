@@ -153,7 +153,6 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-
 # workload identity generated manifests
 wi-kubernetes-manifests/
 
@@ -168,7 +167,7 @@ src/ledgermonolith/istio/istio-1.*
 register-key.json
 
 # ASM
-install_asm*
+asmcli*
 extras/asm-multicluster/asm-cluster-1/*
 extras/asm-multicluster/asm-cluster-2/*
 
