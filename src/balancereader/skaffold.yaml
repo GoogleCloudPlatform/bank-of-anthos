@@ -21,7 +21,7 @@ build:
   artifacts:
   - image: balancereader
     jib:
-      project: ../
+      project: ./
 deploy:
   kubectl:
     manifests:
