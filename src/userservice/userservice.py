@@ -31,13 +31,12 @@ from sqlalchemy.exc import OperationalError, SQLAlchemyError
 from db import UserDb
 
 from opentelemetry import trace
-from opentelemetry.sdk.trace.export import BatchExportSpanProcessor
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.propagators import set_global_textmap
+from opentelemetry.propagate import set_global_textmap
 from opentelemetry.exporter.cloud_trace import CloudTraceSpanExporter
-from opentelemetry.tools.cloud_trace_propagator import CloudTraceFormatPropagator
+from opentelemetry.propagators.cloud_trace_propagator import CloudTraceFormatPropagator
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
-
 
 
 def create_app():
@@ -46,10 +45,10 @@ def create_app():
     """
     app = Flask(__name__)
 
-
     # Disabling unused-variable for lines with route decorated functions
     # as pylint thinks they are unused
     # pylint: disable=unused-variable
+
     @app.route('/version', methods=['GET'])
     def version():
         """
@@ -200,7 +199,7 @@ def create_app():
             app.logger.debug('Creating jwt token.')
             token = jwt.encode(payload, app.config['PRIVATE_KEY'], algorithm='RS256')
             app.logger.info('Login Successful.')
-            return jsonify({'token': token.decode("utf-8")}), 200
+            return jsonify({'token': token}), 200
 
         except LookupError as err:
             app.logger.error('Error logging in: %s', str(err))
@@ -222,7 +221,6 @@ def create_app():
     app.logger.setLevel(logging.getLogger('gunicorn.error').level)
     app.logger.info('Starting userservice.')
 
-
     # Set up tracing and export spans to Cloud Trace.
     if os.environ['ENABLE_TRACING'] == "true":
         app.logger.info("✅ Tracing enabled.")
@@ -230,13 +228,12 @@ def create_app():
         trace.set_tracer_provider(TracerProvider())
         cloud_trace_exporter = CloudTraceSpanExporter()
         trace.get_tracer_provider().add_span_processor(
-            BatchExportSpanProcessor(cloud_trace_exporter)
+            BatchSpanProcessor(cloud_trace_exporter)
         )
         set_global_textmap(CloudTraceFormatPropagator())
         FlaskInstrumentor().instrument_app(app)
     else:
         app.logger.info("🚫 Tracing disabled.")
-
 
     app.config['VERSION'] = os.environ.get('VERSION')
     app.config['EXPIRY_SECONDS'] = int(os.environ.get('TOKEN_EXPIRY_SECONDS'))
