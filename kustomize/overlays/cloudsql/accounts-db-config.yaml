@@ -13,7 +13,6 @@
 # limitations under the License.
 
 # [START gke_boa_kustomize_overlays_cloudsql_accounts_db_config_configmap_accounts_db_config]
-$patch: replace
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -21,6 +20,7 @@ metadata:
   labels:
     app: accounts-db
 data:
+  $patch: replace
   # Updated to use CloudSQL Proxy
   ACCOUNTS_DB_URI: postgresql://admin:admin@127.0.0.1:5432/accounts-db
 # [END gke_boa_kustomize_overlays_cloudsql_accounts_db_config_configmap_accounts_db_config]
