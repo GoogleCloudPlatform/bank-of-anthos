@@ -127,7 +127,7 @@ urllib3==1.26.9
     #   requests
 werkzeug==2.1.2
     # via flask
-wrapt==1.14.0
+wrapt==1.14.1
     # via
     #   deprecated
     #   opentelemetry-instrumentation
