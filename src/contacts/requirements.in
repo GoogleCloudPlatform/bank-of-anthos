@@ -1,5 +1,5 @@
 attrs==21.4.0
-bcrypt==3.2.0
+bcrypt==3.2.2
 bleach==5.0.0
 cachetools==4.2.4
 certifi==2021.10.8
