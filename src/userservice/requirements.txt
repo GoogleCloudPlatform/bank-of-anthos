@@ -8,7 +8,7 @@ attrs==21.4.0
     # via
     #   -r requirements.in
     #   pytest
-bcrypt==3.2.0
+bcrypt==3.2.2
     # via -r requirements.in
 bleach==5.0.0
     # via -r requirements.in
