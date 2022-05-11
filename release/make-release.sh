@@ -48,16 +48,25 @@ rm -rf "${REPO_ROOT}/kubernetes-manifests"
 mkdir "${REPO_ROOT}/kubernetes-manifests"
 cp -a "${REPO_ROOT}/dev-kubernetes-manifests/." "${REPO_ROOT}/kubernetes-manifests/"
 
+# replace kustomize/base/ contents
+rm -rf "${REPO_ROOT}/kustomize/base"
+mkdir "${REPO_ROOT}/kustomize/base"
+cp -a "${REPO_ROOT}/dev-kubernetes-manifests/." "${REPO_ROOT}/kustomize/base"
+
 # update version in manifests
 find "${REPO_ROOT}/kubernetes-manifests" -name '*.yaml' -exec sed -i -e "s'image: \(.*\)'image: ${REPO_PREFIX}\/\1:${NEW_VERSION}'g" {} \;
 find "${REPO_ROOT}/kubernetes-manifests" -name '*.yaml' -exec sed -i -e "s'value: \"dev\"'value: \"${NEW_VERSION}\"'g" {} \;
+find "${REPO_ROOT}/kustomize/base" -name '*.yaml' -exec sed -i -e "s'image: \(.*\)'image: ${REPO_PREFIX}\/\1:${NEW_VERSION}'g" {} \;
+find "${REPO_ROOT}/kustomize/base" -name '*.yaml' -exec sed -i -e "s'value: \"dev\"'value: \"${NEW_VERSION}\"'g" {} \;
 
 # remove the region tags so that there are no duplicates 
 find "${REPO_ROOT}/kubernetes-manifests" -name '*.yaml' -exec sed -i -e  "s/dev_kubernetes_manifests/boa_kubernetes_manifests/g" {} \;
+find "${REPO_ROOT}/kustomize/base" -name '*.yaml' -exec sed -i -e  "s/gke_dev_kubernetes_manifests_/gke_boa_kustomize_base_/g" {} \;
 
 # push release PR
 git checkout -b "release/${NEW_VERSION}"
 git add "${REPO_ROOT}/kubernetes-manifests/*.yaml"
+git add "${REPO_ROOT}/kustomize/base/*.yaml"
 git commit -m "release/${NEW_VERSION}"
 
 # add tag
