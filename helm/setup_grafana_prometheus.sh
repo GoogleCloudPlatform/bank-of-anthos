@@ -7,7 +7,7 @@ helm repo update
 
 echo create the metrics namespace and install prometheus and grafana
 
-if [ ! "`kubectl get ns | grep metrics; echo $?`" ]; then
+if ! kubectl get ns metrics >/dev/null 2>&1; then
  kubectl create ns metrics
 fi
 if [ ! "`kubectl get ns | grep istio-system; echo $?`" ]; then
