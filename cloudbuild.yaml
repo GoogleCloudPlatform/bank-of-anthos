@@ -7,7 +7,7 @@ steps:
       - "build"
       - "--file-output=/workspace/artifacts.json"
       - "--default-repo=europe-west3-docker.pkg.dev/skaffold-build-cache/bank-of-anthos"
-      - "--cache-file=/workspace/cache"
+      #- "--cache-file=/workspace/cache"
       - "--filename=src/$_DEPLOY_UNIT/skaffold.yaml"
       - "--verbosity=debug"      
     env:
