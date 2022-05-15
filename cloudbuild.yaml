@@ -8,11 +8,12 @@ steps:
       - "build"
       - "--file-output=/workspace/artifacts.json"
       - "--default-repo=europe-west3-docker.pkg.dev/skaffold-build-cache/bank-of-anthos"
-      #- "--cache-file=/workspace/cache"
+      - "--cache-file=/workspace/cache"
       - "--filename=src/$_DEPLOY_UNIT/skaffold.yaml"
       - "--verbosity=debug"      
     env:
       - "M2_HOME=/workspace/.m2"
+      - "MAVEN_HOME=/workspace/.m2"
   - name: gcr.io/cloud-builders/gsutil
     args: ['cp', '/workspace/cache',  'gs://skaffold-cache/$_DEPLOY_UNIT/cache']
   - name: gcr.io/cloud-builders/gcloud
