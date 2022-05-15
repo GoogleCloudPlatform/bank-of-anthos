@@ -3,7 +3,7 @@ kind: Config
 metadata: 
   name: userservice
 requires:
-  - configs: [db]
+  - configs: [accounts-db]
     path: ../accounts-db/skaffold.yaml
 build:
   artifacts:
