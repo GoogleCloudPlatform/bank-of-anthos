@@ -9,6 +9,9 @@ build:
   artifacts:
     - image: accounts-db
       context: .
+deploy:
+  kustomize:
+    paths: ["k8s/base"]
 profiles:
   - name: staging
     deploy:

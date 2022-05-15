@@ -26,12 +26,10 @@ spec:
   selector:
     matchLabels:
       app: accounts-db
-      tier: db
   template:
     metadata:
       labels:
         app: accounts-db
-        tier: db
     spec:
       serviceAccountName: default
       containers:
