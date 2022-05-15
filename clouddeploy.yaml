@@ -18,9 +18,9 @@ description: Delivery pipeline for accounts deploy unit
 serialPipeline:
  stages:
  - targetId: staging
-   profiles: []
+   profiles: [staging]
  - targetId: production
-   profiles: []
+   profiles: [production]
 ---
 apiVersion: deploy.cloud.google.com/v1
 kind: DeliveryPipeline
@@ -30,9 +30,9 @@ description: Delivery pipeline for ledger deploy unit
 serialPipeline:
  stages:
  - targetId: staging
-   profiles: []
+   profiles: [staging]
  - targetId: production
-   profiles: []
+   profiles: [production]
 ---
 apiVersion: deploy.cloud.google.com/v1
 kind: DeliveryPipeline
@@ -42,9 +42,9 @@ description: Delivery pipeline for frontend deploy unit
 serialPipeline:
  stages:
  - targetId: staging
-   profiles: []
+   profiles: [staging]
  - targetId: production
-   profiles: []
+   profiles: [production]
 ---
 apiVersion: deploy.cloud.google.com/v1
 kind: DeliveryPipeline
@@ -54,9 +54,9 @@ description: Delivery pipeline for loadgenerator deploy unit
 serialPipeline:
  stages:
  - targetId: staging
-   profiles: []
+   profiles: [staging]
  - targetId: production
-   profiles: []
+   profiles: [production]
 ---
 apiVersion: deploy.cloud.google.com/v1
 kind: Target
