@@ -9,7 +9,7 @@ steps:
       - "--default-repo=europe-west3-docker.pkg.dev/skaffold-build-cache/bank-of-anthos"
       - "--cache-file=/workspace/cache"
       - "--filename=src/$_DEPLOY_UNIT/skaffold.yaml"
-      - "-v debug"      
+      - "--verbosity=debug"      
     env:
       - "M2_HOME=/workspace/.m2"
   - name: gcr.io/cloud-builders/gsutil
