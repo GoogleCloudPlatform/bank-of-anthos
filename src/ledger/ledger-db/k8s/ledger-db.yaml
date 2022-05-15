@@ -1,0 +1,89 @@
+# Copyright 2019 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# [START gke_boa_kubernetes_manifests_ledger_db_statefulset_ledger_db]
+kind: StatefulSet
+apiVersion: apps/v1
+metadata:
+  name: ledger-db
+spec:
+  serviceName: "ledger-db"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ledger-db
+  template:
+    metadata:
+      labels:
+        app: ledger-db
+    spec:
+      serviceAccountName: default
+      containers:
+        - name: postgres
+          image: gcr.io/bank-of-anthos-ci/ledger-db:v0.5.4
+          ports:
+            - containerPort: 5432
+          envFrom:
+            - configMapRef:
+                name: environment-config
+            - configMapRef:
+                name: ledger-db-config
+            - configMapRef:
+                name: demo-data-config
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              cpu: 250m
+              memory: 1Gi
+          volumeMounts:
+            - name: postgresdb
+              mountPath: /var/lib/postgresql/data
+              subPath: postgres
+      volumes:
+        - name: postgresdb
+          emptyDir: {}
+# [END gke_boa_kubernetes_manifests_ledger_db_statefulset_ledger_db]
+---
+# [START gke_boa_kubernetes_manifests_ledger_db_configmap_ledger_db_config]
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ledger-db-config
+  labels:
+    app: postgres
+data:
+  POSTGRES_DB: postgresdb
+  POSTGRES_USER: admin
+  POSTGRES_PASSWORD: password
+  SPRING_DATASOURCE_URL: jdbc:postgresql://ledger-db:5432/postgresdb
+  SPRING_DATASOURCE_USERNAME: admin # should match POSTGRES_USER
+  SPRING_DATASOURCE_PASSWORD: password # should match POSTGRES_PASSWORD
+# [END gke_boa_kubernetes_manifests_ledger_db_configmap_ledger_db_config]
+---
+# [START gke_boa_kubernetes_manifests_ledger_db_service_ledger_db]
+apiVersion: v1
+kind: Service
+metadata:
+  name: ledger-db
+spec:
+  type: ClusterIP
+  selector:
+    app: ledger-db
+  ports:
+  - name: tcp
+    port: 5432
+    targetPort: 5432
+# [END gke_boa_kubernetes_manifests_ledger_db_service_ledger_db]
