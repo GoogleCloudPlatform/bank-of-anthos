@@ -8,8 +8,9 @@ requires:
 build:
   artifacts:
     - image: transactionhistory
+      context: ../../../
       jib:
-        project: :transactionhistory
+        project: src/ledger/transactionhistory
 deploy:
   kubectl:
     manifests:

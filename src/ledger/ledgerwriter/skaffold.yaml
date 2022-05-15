@@ -8,8 +8,9 @@ requires:
 build:
   artifacts:
     - image: ledgerwriter
+      context: ../../../
       jib:
-        project: :ledgerwriter
+        project: src/ledger/ledgerwriter
 deploy:
   kubectl:
     manifests:
