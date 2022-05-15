@@ -6,9 +6,9 @@ description: Entire application delivery pipeline
 serialPipeline:
  stages:
  - targetId: staging
-   profiles: []
+   profiles: [staging]
  - targetId: production
-   profiles: []
+   profiles: [production]
 ---
 apiVersion: deploy.cloud.google.com/v1
 kind: DeliveryPipeline
