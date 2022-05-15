@@ -18,7 +18,7 @@ steps:
       - "releases"
       - "create"
       - "$_DEPLOY_UNIT-$SHORT_SHA"
-      - "--delivery-pipeline=application"
+      - "--delivery-pipeline=$_DEPLOY_UNIT"
       - "--build-artifacts=artifacts.json"
       - "--skaffold-file=src/$_DEPLOY_UNIT/skaffold.yaml"
       - "--region=europe-west1"
