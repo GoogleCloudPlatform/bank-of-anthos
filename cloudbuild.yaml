@@ -5,7 +5,7 @@ steps:
     args:
       - "skaffold"
       - "build"
-      - "--file-output=artifacts.json"
+      - "--file-output=/workspace/artifacts.json"
       - "--default-repo=europe-west3-docker.pkg.dev/skaffold-build-cache/bank-of-anthos"
       - "--cache-file=/workspace/cache"
       - "--filename=skaffold.yaml"
@@ -19,7 +19,7 @@ steps:
       - "create"
       - "$_DEPLOY_UNIT-$SHORT_SHA"
       - "--delivery-pipeline=$_DEPLOY_UNIT"
-      - "--build-artifacts=artifacts.json"
+      - "--build-artifacts=/workspace/artifacts.json"
       - "--skaffold-file=skaffold.yaml"
       - "--region=europe-west1"
     dir: "src/$_DEPLOY_UNIT"
