@@ -5,7 +5,7 @@ metadata:
 build:
   artifacts:
     - image: frontend
-      context: src/frontend
+      context: .
 profiles:
   - name: staging
     deploy:
