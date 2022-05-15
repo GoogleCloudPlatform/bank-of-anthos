@@ -99,4 +99,3 @@ class UserDb:
             result = conn.execute(statement).first()
         self.logger.debug('RESULT: fetched user data for %s', username)
         return dict(result) if result is not None else None
-
