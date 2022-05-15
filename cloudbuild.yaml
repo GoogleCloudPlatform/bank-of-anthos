@@ -20,5 +20,6 @@ steps:
       - "$_DEPLOY_UNIT-$SHORT_SHA"
       - "--delivery-pipeline=$_DEPLOY_UNIT"
       - "--build-artifacts=artifacts.json"
-      - "--skaffold-file=src/$_DEPLOY_UNIT/skaffold.yaml"
+      - "--skaffold-file=skaffold.yaml"
       - "--region=europe-west1"
+    dir: "src/$_DEPLOY_UNIT"
