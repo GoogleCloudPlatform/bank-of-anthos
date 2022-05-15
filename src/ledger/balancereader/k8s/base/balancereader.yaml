@@ -31,10 +31,6 @@ spec:
       containers:
       - name: balancereader
         image: balancereader
-        volumeMounts:
-        - name: publickey
-          mountPath: "/root/.ssh"
-          readOnly: true
         env:
         - name: VERSION
           value: "v0.5.4"
@@ -87,13 +83,6 @@ spec:
           initialDelaySeconds: 120
           periodSeconds: 5
           timeoutSeconds: 10
-      volumes:
-      - name: publickey
-        secret:
-          secretName: jwt-key
-          items:
-          - key: jwtRS256.key.pub
-            path: publickey
 # [END gke_boa_kubernetes_manifests_balance_reader_deployment_balancereader]
 ---
 # [START gke_boa_kubernetes_manifests_balance_reader_service_balancereader]
