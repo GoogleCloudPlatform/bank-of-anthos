@@ -9,7 +9,12 @@ build:
   artifacts:
     - image: accounts-db
       context: .
-deploy:
-  kubectl:
-    manifests:
-      - k8s/accounts-db.yaml
+profiles:
+  - name: staging
+    deploy:
+      kustomize:
+        paths: ["k8s/staging"]
+  - name: production
+    deploy:
+      kustomize:
+        paths: ["k8s/production"]

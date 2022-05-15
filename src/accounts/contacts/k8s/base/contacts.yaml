@@ -31,10 +31,6 @@ spec:
       containers:
       - name: contacts
         image: contacts
-        volumeMounts:
-        - name: publickey
-          mountPath: "/root/.ssh"
-          readOnly: true
         env:
         - name: VERSION
           value: "dev"
@@ -65,13 +61,6 @@ spec:
           initialDelaySeconds: 10
           periodSeconds: 5
           timeoutSeconds: 10
-      volumes:
-      - name: publickey
-        secret:
-          secretName: jwt-key
-          items:
-          - key: jwtRS256.key.pub
-            path: publickey
 # [END gke_dev_kubernetes_manifests_contacts_deployment_contacts]
 ---
 # [START gke_dev_kubernetes_manifests_contacts_service_contacts]

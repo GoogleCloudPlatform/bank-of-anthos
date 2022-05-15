@@ -9,7 +9,12 @@ build:
   artifacts:
     - image: userservice
       context: .
-deploy:
-  kubectl:
-    manifests:
-      - k8s/userservice.yaml
+profiles:
+  - name: staging
+    deploy:
+      kustomize:
+        paths: ["k8s/staging"]
+  - name: production
+    deploy:
+      kustomize:
+        paths: ["k8s/production"]
