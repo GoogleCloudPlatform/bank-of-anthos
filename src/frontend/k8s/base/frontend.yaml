@@ -20,21 +20,17 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: frontend
+      tier: placeholder
   template:
     metadata:
       labels:
-        app: frontend
+        tier: placeholder
     spec:
       serviceAccountName: default
       terminationGracePeriodSeconds: 5
       containers:
       - name: front
         image: frontend
-        volumeMounts:
-        - name: publickey
-          mountPath: "/root/.ssh"
-          readOnly: true
         env:
         - name: VERSION
           value: "dev"
@@ -98,13 +94,6 @@ spec:
           limits:
             cpu: 250m
             memory: 128Mi
-      volumes:
-      - name: publickey
-        secret:
-          secretName: jwt-key
-          items:
-          - key: jwtRS256.key.pub
-            path: publickey
 # [END gke_dev_kubernetes_manifests_frontend_deployment_frontend]
 ---
 # [START gke_dev_kubernetes_manifests_frontend_service_frontend]
