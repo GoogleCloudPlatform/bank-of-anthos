@@ -6,5 +6,4 @@ commonLabels:
 resources:
   - frontend.yaml
 components:
-  - ../../../k8s/base/add-app-label
   - ../../../k8s/base/add-public-key-volume
