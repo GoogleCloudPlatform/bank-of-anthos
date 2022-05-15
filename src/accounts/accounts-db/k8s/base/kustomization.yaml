@@ -5,4 +5,4 @@ commonLabels:
 resources:
   - accounts-db.yaml
 components:
-  - ../../../k8s/base/common-accounts
+  - ../../../k8s/base/common
