@@ -11,6 +11,8 @@ steps:
       - "--also-make"
       - "jib:_skaffold-files-v2"      
       - "--batch-mode"
+    env:
+      - "MAVEN_USER_HOME=/workspace/.m2"
   - name: gcr.io/k8s-skaffold/skaffold:v1.37.1-lts
     args:
       - "/workspace/mvnw"
@@ -21,6 +23,8 @@ steps:
       - "--also-make"
       - "jib:_skaffold-files-v2"      
       - "--batch-mode"
+    env:
+      - "MAVEN_USER_HOME=/workspace/.m2"
   - name: gcr.io/k8s-skaffold/skaffold:v1.37.1-lts
     args:
       - "/workspace/mvnw"
@@ -31,6 +35,8 @@ steps:
       - "--also-make"
       - "jib:_skaffold-files-v2"      
       - "--batch-mode"
+    env:
+      - "MAVEN_USER_HOME=/workspace/.m2"
   - name: gcr.io/k8s-skaffold/skaffold:v1.37.1-lts
     args:
       - "skaffold"
@@ -40,6 +46,8 @@ steps:
       - "--cache-file=/workspace/cache"
       - "--filename=src/$_DEPLOY_UNIT/skaffold.yaml"
       - "--verbosity=debug"
+    env:
+      - "MAVEN_USER_HOME=/workspace/.m2"
   - name: gcr.io/cloud-builders/gsutil
     args: ['cp', '/workspace/cache',  'gs://skaffold-cache/$_DEPLOY_UNIT/cache']
   - name: gcr.io/cloud-builders/gcloud
