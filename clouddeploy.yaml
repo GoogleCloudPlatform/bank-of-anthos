@@ -1,0 +1,29 @@
+apiVersion: deploy.cloud.google.com/v1
+kind: DeliveryPipeline
+metadata:
+ name: bank-of-anthos
+description: Entire application deployment pipeline
+serialPipeline:
+ stages:
+ - targetId: staging
+   profiles: []
+ - targetId: production
+   profiles: []
+---
+
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+metadata:
+ name: staging
+description: development cluster
+gke:
+ cluster: projects/skaffold-build-cache/locations/europe-west1-b/clusters/dev
+---
+
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+metadata:
+ name: production
+description: production cluster
+gke:
+ cluster: projects/skaffold-build-cache/locations/europe-west1-b/clusters/prod
