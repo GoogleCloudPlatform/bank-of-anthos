@@ -5,8 +5,8 @@ metadata:
 requires:
   - configs: [ledger-db]
     path: ledger-db/skaffold.yaml
-  - configs: [balancereader]
-    path: balancereader/skaffold.yaml
+  #- configs: [balancereader]
+  #  path: balancereader/skaffold.yaml
   - configs: [ledgerwriter]
     path: ledgerwriter/skaffold.yaml
   - configs: [transactionhistory]
