@@ -3,4 +3,4 @@ kind: Component
 commonLabels:
   tier: backend
 components:
-  - ../common-accounts
+  - ../common

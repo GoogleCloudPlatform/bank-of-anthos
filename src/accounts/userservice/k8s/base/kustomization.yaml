@@ -3,7 +3,7 @@ kind: Kustomization
 resources:
   - userservice.yaml
 components:
-  - ../../../k8s/base/common-python-pod
+  - ../../../k8s/base/python-pod
 patches:
   - target:
       kind: Deployment
