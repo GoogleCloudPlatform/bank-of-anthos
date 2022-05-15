@@ -1,0 +1,24 @@
+steps:
+  - name: gcr.io/cloud-builders/gsutil
+    args: ['cp', 'gs://skaffold-cache/$_SERVICE/cache', '/workspace/cache']
+  - name: gcr.io/k8s-skaffold/skaffold:v1.37.1-lts
+    args:
+      - "skaffold"
+      - "build"
+      - "--file-output=artifacts.json"
+      - "--default-repo=europe-west3-docker.pkg.dev/skaffold-build-cache/bank-of-anthos"
+      - "--cache-file=/workspace/cache"
+      - "--filename=skaffold.yaml"
+    dir: "src/$_DEPLOY_UNIT"
+  - name: gcr.io/cloud-builders/gsutil
+    args: ['cp', '/workspace/cache',  'gs://skaffold-cache/$_DEPLOY_UNIT/cache']
+  - name: gcr.io/cloud-builders/gcloud
+    args: 
+      - "deploy"
+      - "releases"
+      - "create"
+      - "$_DEPLOY_UNIT-$SHORT_SHA"
+      - "--delivery-pipeline=application"
+      - "--build-artifacts=artifacts.json"
+      - "--skaffold-file=kustomize/$_DEPLOY_UNIT/skaffold.yaml"
+      - "--region=europe-west1"
