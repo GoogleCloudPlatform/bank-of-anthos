@@ -31,10 +31,6 @@ spec:
       containers:
       - name: userservice
         image: userservice
-        volumeMounts:
-        - name: keys
-          mountPath: "/root/.ssh"
-          readOnly: true
         ports:
         - name: http-server
           containerPort: 8080
@@ -71,15 +67,6 @@ spec:
           limits:
             cpu: 250m
             memory: 256Mi
-      volumes:
-      - name: keys
-        secret:
-          secretName: jwt-key
-          items:
-          - key: jwtRS256.key
-            path: privatekey
-          - key: jwtRS256.key.pub
-            path: publickey
 # [END gke_dev_kubernetes_manifests_userservice_deployment_userservice]
 ---
 # [START gke_dev_kubernetes_manifests_userservice_service_userservice]
