@@ -1,18 +1,6 @@
 apiVersion: deploy.cloud.google.com/v1
 kind: DeliveryPipeline
 metadata:
- name: bank-of-anthos
-description: Entire application delivery pipeline
-serialPipeline:
- stages:
- - targetId: staging
-   profiles: [staging]
- - targetId: production
-   profiles: [production]
----
-apiVersion: deploy.cloud.google.com/v1
-kind: DeliveryPipeline
-metadata:
  name: accounts
 description: Delivery pipeline for accounts deploy unit
 serialPipeline:
@@ -39,18 +27,6 @@ kind: DeliveryPipeline
 metadata:
  name: frontend
 description: Delivery pipeline for frontend deploy unit
-serialPipeline:
- stages:
- - targetId: staging
-   profiles: [staging]
- - targetId: production
-   profiles: [production]
----
-apiVersion: deploy.cloud.google.com/v1
-kind: DeliveryPipeline
-metadata:
- name: loadgenerator
-description: Delivery pipeline for loadgenerator deploy unit
 serialPipeline:
  stages:
  - targetId: staging
