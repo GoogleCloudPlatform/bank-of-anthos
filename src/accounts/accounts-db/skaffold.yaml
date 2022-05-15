@@ -1,0 +1,15 @@
+apiVersion: skaffold/v2beta26
+kind: Config
+metadata: 
+  name: accounts-db
+requires:
+  - configs: [config]
+    path: ../../shared/config/skaffold.yaml
+build:
+  artifacts:
+    - image: accounts-db
+      context: .
+deploy:
+  kubectl:
+    manifests:
+      - k8s/accounts-db.yaml
