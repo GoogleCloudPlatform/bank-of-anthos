@@ -3,4 +3,5 @@ kind: Kustomization
 resources:
   - transactionhistory.yaml
 components:
-  - ../../../k8s/base/common-java-pod
+  - ../../../k8s/base/common
+  - ../../../k8s/base/java-pod
