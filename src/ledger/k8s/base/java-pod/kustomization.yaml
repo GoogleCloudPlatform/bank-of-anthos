@@ -3,5 +3,4 @@ kind: Component
 commonLabels:
   tier: backend
 components:
-  - ../common-ledger
   - ../../../../k8s/base/add-public-key-volume
