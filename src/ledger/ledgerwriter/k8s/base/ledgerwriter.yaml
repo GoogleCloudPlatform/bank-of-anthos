@@ -31,10 +31,6 @@ spec:
       containers:
       - name: ledgerwriter
         image: ledgerwriter
-        volumeMounts:
-        - name: publickey
-          mountPath: "/root/.ssh"
-          readOnly: true
         env:
         - name: VERSION
           value: "v0.5.4"
@@ -76,13 +72,6 @@ spec:
           initialDelaySeconds: 60
           periodSeconds: 5
           timeoutSeconds: 10
-      volumes:
-      - name: publickey
-        secret:
-          secretName: jwt-key
-          items:
-          - key: jwtRS256.key.pub
-            path: publickey
 # [END gke_boa_kubernetes_manifests_ledger_writer_deployment_ledgerwriter]
 ---
 # [START gke_boa_kubernetes_manifests_ledger_writer_service_ledgerwriter]
