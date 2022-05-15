@@ -8,8 +8,9 @@ requires:
 build:
   artifacts:
     - image: balancereader
+      context: ../../../
       jib:
-        project: :balancereader
+        project: src/ledger/balancereader
 deploy:
   kubectl:
     manifests:

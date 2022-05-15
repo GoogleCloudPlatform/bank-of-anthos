@@ -26,9 +26,9 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>src/ledgerwriter</module>
-        <module>src/transactionhistory</module>
-        <module>src/balancereader</module>
+        <module>src/ledger/ledgerwriter</module>
+        <module>src/ledger/transactionhistory</module>
+        <module>src/ledger/balancereader</module>
         <module>src/ledgermonolith</module>
     </modules>
 
