@@ -1,0 +1,15 @@
+apiVersion: skaffold/v2beta26
+kind: Config
+metadata: 
+  name: userservice
+requires:
+  - configs: [db]
+    path: ../accounts-db/skaffold.yaml
+build:
+  artifacts:
+    - image: userservice
+      context: .
+deploy:
+  kubectl:
+    manifests:
+      - k8s/userservice.yaml
