@@ -9,3 +9,9 @@
           path: privatekey
         - key: jwtRS256.key.pub
           path: publickey
+- op: add
+  path: spec/template/spec/containers/0/volumeMounts
+  value:
+    - name: keys
+      mountPath: "/root/.ssh"
+      readOnly: true
