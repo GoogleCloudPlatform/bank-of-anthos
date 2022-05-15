@@ -21,7 +21,6 @@ steps:
       - "--default-repo=europe-west3-docker.pkg.dev/skaffold-build-cache/bank-of-anthos"
       - "--cache-file=/workspace/cache"
       - "--filename=src/$_DEPLOY_UNIT/skaffold.yaml"
-      - "--verbosity=debug"
     env:
       - "MAVEN_USER_HOME=/workspace/.m2"
   - name: gcr.io/cloud-builders/gsutil
