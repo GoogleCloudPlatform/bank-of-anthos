@@ -20,11 +20,11 @@ metadata:
 spec:
   selector:
     matchLabels:
-      tier: placeholder
+      app: frontend
   template:
     metadata:
       labels:
-        tier: placeholder
+        app: frontend
     spec:
       serviceAccountName: default
       terminationGracePeriodSeconds: 5
