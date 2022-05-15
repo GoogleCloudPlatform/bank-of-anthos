@@ -3,6 +3,7 @@ steps:
     args: ['cp', 'gs://skaffold-cache/$_DEPLOY_UNIT/cache', '/workspace/cache']
   - name: gcr.io/k8s-skaffold/skaffold:v1.37.1-lts
     args:
+      - "M2_HOME=/workspace/.m2"
       - "skaffold"
       - "build"
       - "--file-output=/workspace/artifacts.json"
