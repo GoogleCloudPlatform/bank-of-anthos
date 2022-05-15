@@ -43,3 +43,4 @@ CREATE TABLE IF NOT EXISTS contacts (
 );
 
 CREATE INDEX IF NOT EXISTS idx_contacts_username ON contacts (username);
+
