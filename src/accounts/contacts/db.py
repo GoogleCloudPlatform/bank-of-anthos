@@ -83,3 +83,4 @@ class ContactsDb:
             contacts.append(contact)
         self.logger.debug("RESULT: Fetched %d contacts.", len(contacts))
         return contacts
+
