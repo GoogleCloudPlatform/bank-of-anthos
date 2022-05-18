@@ -56,14 +56,14 @@ skaffold render --build-artifacts=$ARTIFACTS_PATH --output="${RELEASE_PATH}/${DE
 skaffold config unset local-cluster
 
 # push release PR
-#git checkout -b "release/${NEW_VERSION}/${DEPLOY_UNIT}"
-#git add "${REPO_ROOT}/release/${NEW_VERSION}"
-#git commit -m "release/${NEW_VERSION}/${DEPLOY_UNIT}"
+git checkout -b "release/${NEW_VERSION}/${DEPLOY_UNIT}"
+git add "${REPO_ROOT}/release/${NEW_VERSION}"
+git commit -m "release/${NEW_VERSION}/${DEPLOY_UNIT}"
 
 # add tag
-#git tag "${NEW_VERSION}/${DEPLOY_UNIT}"
+git tag "${NEW_VERSION}-${DEPLOY_UNIT}"
 
 
 # push to repo
-#git push --set-upstream origin "release/${NEW_VERSION}/${DEPLOY_UNIT}"
-#git push --tags
+git push --set-upstream origin "release/${NEW_VERSION}/${DEPLOY_UNIT}"
+git push --tags
