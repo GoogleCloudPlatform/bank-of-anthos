@@ -1,0 +1,101 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    team: frontend
+    tier: web
+  name: frontend
+spec:
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080
+  selector:
+    app: frontend
+    team: frontend
+    tier: web
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    team: frontend
+    tier: web
+  name: frontend
+spec:
+  selector:
+    matchLabels:
+      app: frontend
+      team: frontend
+      tier: web
+  template:
+    metadata:
+      labels:
+        app: frontend
+        team: frontend
+        tier: web
+    spec:
+      containers:
+      - env:
+        - name: VERSION
+          value: dev
+        - name: PORT
+          value: "8080"
+        - name: ENABLE_TRACING
+          value: "true"
+        - name: SCHEME
+          value: http
+        - name: LOG_LEVEL
+          value: info
+        - name: DEFAULT_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              key: DEMO_LOGIN_USERNAME
+              name: demo-data-config
+        - name: DEFAULT_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              key: DEMO_LOGIN_PASSWORD
+              name: demo-data-config
+        envFrom:
+        - configMapRef:
+            name: environment-config
+        - configMapRef:
+            name: service-api-config
+        image: europe-west3-docker.pkg.dev/skaffold-build-cache/bank-of-anthos/frontend:v0.5.5@sha256:7a879136b953cb02af9597def11d37eace02d8b5e27cafd5b7e3c1cf916cc068
+        livenessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 15
+          timeoutSeconds: 30
+        name: front
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 10
+        resources:
+          limits:
+            cpu: 250m
+            memory: 128Mi
+          requests:
+            cpu: 100m
+            memory: 64Mi
+        volumeMounts:
+        - mountPath: /root/.ssh
+          name: publickey
+          readOnly: true
+      serviceAccountName: default
+      terminationGracePeriodSeconds: 5
+      volumes:
+      - name: publickey
+        secret:
+          items:
+          - key: jwtRS256.key.pub
+            path: publickey
+          secretName: jwt-key
