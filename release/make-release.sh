@@ -57,7 +57,7 @@ skaffold config unset local-cluster
 
 # push release PR
 git checkout -b "release/${NEW_VERSION}/${DEPLOY_UNIT}"
-git add "${REPO_ROOT}/release/${NEW_VERSION}/${DEPLOY_UNIT}/"
+git add "${REPO_ROOT}/release/${NEW_VERSION}"
 git commit -m "release/${NEW_VERSION}/${DEPLOY_UNIT}"
 
 # add tag
