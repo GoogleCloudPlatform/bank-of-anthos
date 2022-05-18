@@ -40,7 +40,7 @@ metadata:
  name: staging
 description: development cluster
 gke:
- cluster: projects/skaffold-build-cache/locations/europe-west1-b/clusters/dev
+ cluster: projects/skaffold-build-cache/locations/us-central1-c/clusters/staging
 ---
 
 apiVersion: deploy.cloud.google.com/v1
