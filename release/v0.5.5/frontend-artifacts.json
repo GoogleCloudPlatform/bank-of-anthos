@@ -1,0 +1,1 @@
+{"builds":[{"imageName":"frontend","tag":"europe-west3-docker.pkg.dev/skaffold-build-cache/bank-of-anthos/frontend:v0.5.5@sha256:7a879136b953cb02af9597def11d37eace02d8b5e27cafd5b7e3c1cf916cc068"}]}
