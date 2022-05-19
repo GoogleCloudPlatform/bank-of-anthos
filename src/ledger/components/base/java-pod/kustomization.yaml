@@ -1,6 +1,6 @@
 apiVersion: kustomize.config.k8s.io/v1alpha1
 kind: Component
 commonLabels:
-  team: ledger
+  tier: backend
 components:
-  - ../../../../k8s/base/common
+  - ../../../../components/base/add-public-key-volume

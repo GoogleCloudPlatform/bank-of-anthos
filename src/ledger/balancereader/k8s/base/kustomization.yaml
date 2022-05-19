@@ -3,5 +3,5 @@ kind: Kustomization
 resources:
   - balancereader.yaml
 components:
-  - ../../../k8s/base/common
-  - ../../../k8s/base/java-pod
+  - ../../../components/base/common
+  - ../../../components/base/java-pod

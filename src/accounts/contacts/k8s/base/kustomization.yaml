@@ -3,6 +3,6 @@ kind: Kustomization
 resources:
   - contacts.yaml
 components:
-  - ../../../k8s/base/common
-  - ../../../k8s/base/python-pod
-  - ../../../../k8s/base/add-public-key-volume
+  - ../../../components/base/common
+  - ../../../components/base/python-pod
+  - ../../../../components/base/add-public-key-volume
