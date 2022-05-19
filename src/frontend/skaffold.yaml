@@ -2,6 +2,9 @@ apiVersion: skaffold/v2beta26
 kind: Config
 metadata: 
   name: frontend
+requires:
+  - configs: [config]
+    path: ../k8s/config/skaffold.yaml
 build:
   artifacts:
     - image: frontend
