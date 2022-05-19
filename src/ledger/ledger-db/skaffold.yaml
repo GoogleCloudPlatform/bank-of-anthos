@@ -4,7 +4,7 @@ metadata:
   name: ledger-db
 requires:
   - configs: [config]
-    path: ../../k8s/config/skaffold.yaml
+    path: ../../components/config/skaffold.yaml
 build:
   artifacts:
     - image: ledger-db

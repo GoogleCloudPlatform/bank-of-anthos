@@ -3,4 +3,4 @@ kind: Kustomization
 resources:
   - ../base
 components:
-  - ../../../k8s/production/common
+  - ../../../components/production/common

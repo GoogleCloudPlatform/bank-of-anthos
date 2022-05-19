@@ -5,4 +5,4 @@ commonLabels:
 resources:
   - ledger-db.yaml
 components:
-  - ../../../k8s/base/common
+  - ../../../components/base/common

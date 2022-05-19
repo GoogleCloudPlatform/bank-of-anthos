@@ -3,4 +3,4 @@ kind: Kustomization
 resources:
   - ../base
 components:
-  - ../../../../k8s/staging/common
+  - ../../../../components/staging/common

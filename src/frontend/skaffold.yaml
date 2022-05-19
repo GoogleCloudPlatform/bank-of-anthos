@@ -4,7 +4,7 @@ metadata:
   name: frontend
 requires:
   - configs: [config]
-    path: ../k8s/config/skaffold.yaml
+    path: ../components/config/skaffold.yaml
 build:
   artifacts:
     - image: frontend
