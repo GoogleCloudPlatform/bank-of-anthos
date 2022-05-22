@@ -7,16 +7,86 @@ configuration:
     type: String
   google-native:region: 
     type: String
-  registryName:
-    default: bank-of-anthos
+  boa:project-owner:
+    type: String
 
 variables:
   project:
     Fn::Invoke:
       Function: gcp:organizations:getProject
       Arguments: {}
+  registry-name: bank-of-anthos
 
 resources:
+### Project wide IAM Policies
+  project-iam-bindings:
+    type: google-native:cloudresourcemanager/v3:ProjectIamPolicy
+    properties:
+      bindings:
+      - members:
+        - serviceAccount:service-${project.number}@gcp-sa-artifactregistry.iam.gserviceaccount.com
+        role: roles/artifactregistry.serviceAgent
+      - members:
+        - serviceAccount:${project.number}@cloudbuild.gserviceaccount.com
+        role: roles/cloudbuild.builds.builder
+      - members:
+        - serviceAccount:service-${project.number}@gcp-sa-cloudbuild.iam.gserviceaccount.com
+        role: roles/cloudbuild.serviceAgent
+      - members:
+        - serviceAccount:${project.number}@cloudbuild.gserviceaccount.com
+        role: roles/clouddeploy.releaser
+      - members:
+        - serviceAccount:service-${project.number}@gcp-sa-clouddeploy.iam.gserviceaccount.com
+        role: roles/clouddeploy.serviceAgent
+      - members:
+        - serviceAccount:${project.number}-compute@developer.gserviceaccount.com
+        role: roles/cloudtrace.agent
+      - members:
+        - serviceAccount:service-${project.number}@compute-system.iam.gserviceaccount.com
+        role: roles/compute.serviceAgent
+      - members:
+        - serviceAccount:${project.number}-compute@developer.gserviceaccount.com
+        - serviceAccount:service-${project.number}@gcp-sa-gkenode.iam.gserviceaccount.com
+        role: roles/container.nodeServiceAgent
+      - members:
+        - serviceAccount:service-${project.number}@container-engine-robot.iam.gserviceaccount.com
+        role: roles/container.serviceAgent
+      - members:
+        - serviceAccount:service-${project.number}@containerregistry.iam.gserviceaccount.com
+        role: roles/containerregistry.ServiceAgent
+      - members:
+        - serviceAccount:${project.number}@cloudservices.gserviceaccount.com
+        role: roles/editor
+      - members:
+        - serviceAccount:${project.number}-compute@developer.gserviceaccount.com
+        role: roles/logging.logWriter
+      - members:
+        - serviceAccount:${project.number}-compute@developer.gserviceaccount.com
+        role: roles/monitoring.metricWriter
+      - members:
+        - user:${boa:project-owner}
+        role: roles/owner
+      - members:
+        - serviceAccount:service-${project.number}@gcp-sa-pubsub.iam.gserviceaccount.com
+        role: roles/pubsub.serviceAgent
+      - members:
+        - serviceAccount:${project.number}-compute@developer.gserviceaccount.com
+        role: roles/storage.objectCreator
+      - members:
+        - serviceAccount:${project.number}-compute@developer.gserviceaccount.com
+        role: roles/container.developer
+      - members:
+        - serviceAccount:${project.number}@cloudbuild.gserviceaccount.com
+        role: roles/container.developer
+      - members:
+        - serviceAccount:${project.number}@cloudbuild.gserviceaccount.com
+        role: roles/iam.serviceAccountUser
+      - members:
+        - serviceAccount:${project.number}@cloudbuild.gserviceaccount.com
+        role: roles/cloudbuild.workerPoolUser
+      - members:
+        - serviceAccount:${project.number}@cloudbuild.gserviceaccount.com
+        role: roles/cloudbuild.builds.builder        
 ### APIs
   api-artifactregistry:
     type: gcp:projects:Service
@@ -86,12 +156,12 @@ resources:
         - ${api-artifactregistry}
     properties:
       format: DOCKER
-      repositoryId: ${registryName}
+      repositoryId: ${registry-name}
 
   artifact-registry-iam:
     type: google-native:artifactregistry/v1:RepositoryIamPolicy
     properties:
-      repositoryId: ${registryName}
+      repositoryId: ${registry-name}
       bindings:
         members:
           - serviceAccount:811077352066-compute@developer.gserviceaccount.com
@@ -126,7 +196,7 @@ resources:
       substitutions:
         _DEPLOY_UNIT: accounts
         _CACHE_URI: gs://${cache-bucket.name}/${cache-accounts.name}
-        _CONTAINER_REGISTRY: ${google-native:region}-docker.pkg.dev/${google-native:project}/${registryName}      
+        _CONTAINER_REGISTRY: ${google-native:region}-docker.pkg.dev/${google-native:project}/${registry-name}      
     options:
       dependsOn:
         - ${api-cloudbuild}
@@ -148,7 +218,7 @@ resources:
       substitutions:
         _DEPLOY_UNIT: frontend
         _CACHE_URI: gs://${cache-bucket.name}/${cache-frontend.name}
-        _CONTAINER_REGISTRY: ${google-native:region}-docker.pkg.dev/${google-native:project}/${registryName}
+        _CONTAINER_REGISTRY: ${google-native:region}-docker.pkg.dev/${google-native:project}/${registry-name}
     options:
       dependsOn:
         - ${api-cloudbuild}
@@ -158,7 +228,7 @@ resources:
     properties:
       projectId: ${project.projectId}
       eventType: REPO
-      filename: cloudbuild.yaml
+      filename: cloudbuild-mvnw.yaml
       includedFiles: 
          - src/ledger/**
          - src/components/**
@@ -170,7 +240,7 @@ resources:
       substitutions:
         _DEPLOY_UNIT: ledger
         _CACHE_URI: gs://${cache-bucket.name}/${cache-ledger.name}
-        _CONTAINER_REGISTRY: ${google-native:region}-docker.pkg.dev/${google-native:project}/${registryName}
+        _CONTAINER_REGISTRY: ${google-native:region}-docker.pkg.dev/${google-native:project}/${registry-name}
     options:
       dependsOn:
         - ${api-cloudbuild}
@@ -192,19 +262,6 @@ resources:
         - ${api-clouddeploy}
         - ${target-staging}
         - ${target-production}
-  cloud-deploy-accounts-iam:
-    type: google-native:clouddeploy/v1:DeliveryPipelineIamPolicy
-    properties:
-      deliveryPipelineId: accounts
-      bindings:
-        - members:
-          - serviceAccount:${project.number}@cloudbuild.gserviceaccount.com
-          - serviceAccount:${project.number}-compute@developer.gserviceaccount.com
-          role: roles/clouddeploy.releaser
-    options:
-      dependsOn: 
-        - ${api-clouddeploy}
-        - ${cloud-deploy-accounts}
   # cloud deploy delivery pipeline frontend
   cloud-deploy-frontend:
     type: google-native:clouddeploy/v1:DeliveryPipeline
@@ -222,19 +279,6 @@ resources:
         - ${api-clouddeploy}
         - ${target-staging}
         - ${target-production}
-  cloud-deploy-frontend-iam:
-    type: google-native:clouddeploy/v1:DeliveryPipelineIamPolicy
-    properties:
-      deliveryPipelineId: frontend
-      bindings:
-        - members:
-          - serviceAccount:${project.number}@cloudbuild.gserviceaccount.com
-          - serviceAccount:${project.number}-compute@developer.gserviceaccount.com
-          role: roles/clouddeploy.releaser
-    options:
-      dependsOn: 
-        - ${api-clouddeploy}
-        - ${cloud-deploy-frontend}
   # cloud deploy delivery pipeline ledger
   cloud-deploy-ledger:
     type: google-native:clouddeploy/v1:DeliveryPipeline
@@ -252,19 +296,6 @@ resources:
         - ${api-clouddeploy}
         - ${target-staging}
         - ${target-production}
-  cloud-deploy-ledger-iam:
-    type: google-native:clouddeploy/v1:DeliveryPipelineIamPolicy
-    properties:
-      deliveryPipelineId: ledger
-      bindings:
-        - members:
-          - serviceAccount:${project.number}@cloudbuild.gserviceaccount.com
-          - serviceAccount:${project.number}-compute@developer.gserviceaccount.com
-          role: roles/clouddeploy.releaser
-    options:
-      dependsOn: 
-        - ${api-clouddeploy}
-        - ${cloud-deploy-ledger}
   cloud-build-impersonate-compute-sa:
     type: google-native:iam/v1:ServiceAccountIamPolicy
     properties:
@@ -349,4 +380,4 @@ resources:
 outputs:
   # Export the bucket self-link
   cache-url: ${cache-bucket.url}
-  stdout: skaffold config set default-repo ${google-native:region}-docker.pkg.dev/${google-native:project}/${registryName} && gcloud auth configure-docker europe-west1-docker.pkg.dev
+  stdout: skaffold config set default-repo ${google-native:region}-docker.pkg.dev/${google-native:project}/${registry-name} && gcloud auth configure-docker europe-west1-docker.pkg.dev
