@@ -21,5 +21,3 @@ steps:
       - "--build-artifacts=/workspace/artifacts.json"
       - "--skaffold-file=src/$_DEPLOY_UNIT/skaffold.yaml"
       - "--region=europe-west1"
-options:
-  logging: CLOUD_LOGGING_ONLY
