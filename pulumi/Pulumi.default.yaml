@@ -1,3 +1,4 @@
 config:
   google-native:project: boa-cicd
   google-native:region: europe-west1
+  boa:project-owner: admin@bielski.altostrat.com

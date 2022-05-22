@@ -1,6 +1,6 @@
 steps:
   - name: gcr.io/cloud-builders/gsutil
-    args: ['cp', 'gs://skaffold-cache/$_DEPLOY_UNIT/cache', '/workspace/cache']
+    args: ['cp', $_CACHE_URI, '/workspace/cache']
   - name: gcr.io/k8s-skaffold/skaffold:v1.37.1-lts
     args:
       - "/workspace/mvnw"
@@ -18,13 +18,13 @@ steps:
       - "skaffold"
       - "build"
       - "--file-output=/workspace/artifacts.json"
-      - "--default-repo=europe-west3-docker.pkg.dev/skaffold-build-cache/bank-of-anthos"
+      - "--default-repo=$_CONTAINER_REGISTRY"
       - "--cache-file=/workspace/cache"
       - "--filename=src/$_DEPLOY_UNIT/skaffold.yaml"
     env:
       - "MAVEN_USER_HOME=/workspace/.m2"
   - name: gcr.io/cloud-builders/gsutil
-    args: ['cp', '/workspace/cache',  'gs://skaffold-cache/$_DEPLOY_UNIT/cache']
+    args: ['cp', '/workspace/cache',  $_CACHE_URI]
   - name: gcr.io/cloud-builders/gcloud
     args: 
       - "deploy"

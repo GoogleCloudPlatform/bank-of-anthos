@@ -1,6 +1,6 @@
 steps:
   - name: gcr.io/cloud-builders/gsutil
-    args: ['cp', $_CACHE_URI, '/workspace/cache']
+    args: ['cp', , '/workspace/cache']
   - name: gcr.io/k8s-skaffold/skaffold:v1.37.1-lts
     args:
       - "skaffold"
