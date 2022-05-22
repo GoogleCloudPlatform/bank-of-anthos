@@ -1,0 +1,352 @@
+name: boa-cicd
+runtime: yaml
+description: Continuous integration and continuous delivery with skaffold, kustomize, Cloud Build, Cloud Deploy
+
+configuration:
+  google-native:project: 
+    type: String
+  google-native:region: 
+    type: String
+  registryName:
+    default: bank-of-anthos
+
+variables:
+  project:
+    Fn::Invoke:
+      Function: gcp:organizations:getProject
+      Arguments: {}
+
+resources:
+### APIs
+  api-artifactregistry:
+    type: gcp:projects:Service
+    properties:
+      disableDependentServices: true
+      service: artifactregistry.googleapis.com
+  api-sourcerepo:
+    type: gcp:projects:Service
+    properties:
+      disableDependentServices: true
+      service: sourcerepo.googleapis.com
+  api-cloudbuild:
+    type: gcp:projects:Service
+    properties:
+      disableDependentServices: true
+      service: cloudbuild.googleapis.com
+  api-clouddeploy:
+    type: gcp:projects:Service
+    properties:
+      disableDependentServices: true
+      service: clouddeploy.googleapis.com
+  api-container:
+    type: gcp:projects:Service
+    properties:
+      disableDependentServices: true
+      service: container.googleapis.com
+
+### CACHE
+  # bucket for cache
+  cache-bucket:
+    type: google-native:storage/v1:Bucket
+    properties:
+      name: skaffold-cache-${project.number}
+      iamConfiguration:
+        uniformBucketLevelAccess: true
+  # initialize cache for accounts
+  cache-accounts:
+    type: google-native:storage/v1:BucketObject
+    properties:
+      bucket: ${cache-bucket.name}
+      name: accounts/cache
+      source: 
+        Fn::FileAsset: ./resources/cache
+  # initialize cache for ledger
+  cache-ledger:
+    type: google-native:storage/v1:BucketObject
+    properties:
+      bucket: ${cache-bucket.name}
+      name: ledger/cache
+      source: 
+        Fn::FileAsset: ./resources/cache
+  # initialize cache for frontend
+  cache-frontend:
+    type: google-native:storage/v1:BucketObject
+    properties:
+      bucket: ${cache-bucket.name}
+      name: frontend/cache
+      source: 
+        Fn::FileAsset: ./resources/cache
+
+### REPOs
+  # artifacts registry
+  artifact-registry:
+    type: google-native:artifactregistry/v1:Repository
+    options:
+      dependsOn: 
+        - ${api-artifactregistry}
+    properties:
+      format: DOCKER
+      repositoryId: ${registryName}
+
+  artifact-registry-iam:
+    type: google-native:artifactregistry/v1:RepositoryIamPolicy
+    properties:
+      repositoryId: ${registryName}
+      bindings:
+        members:
+          - serviceAccount:811077352066-compute@developer.gserviceaccount.com
+        role: roles/artifactregistry.reader
+
+  # source repository
+  source-mirror:
+    type: google-native:sourcerepo/v1:Repo
+    properties:
+      name: projects/${project.name}/repos/bank-of-anthos
+    options:
+      dependsOn: 
+        - ${api-sourcerepo}
+
+### CI
+  # ACCOUNTS
+  # cloud build trigger accounts
+  cloud-build-accounts:
+    type: google-native:cloudbuild/v1:Trigger
+    properties:
+      eventType: REPO
+      filename: cloudbuild.yaml
+      includedFiles: 
+         - src/accounts/**
+         - src/components/**
+      name: accounts-ci
+      projectId: ${project.projectId}
+      triggerTemplate:
+        branchName: "^cicd-skaffold-kustomize$"
+        repoName: bank-of-anthos
+        project: ${project.projectId}
+      substitutions:
+        _DEPLOY_UNIT: accounts
+        _CACHE_URI: gs://${cache-bucket.name}/${cache-accounts.name}
+        _CONTAINER_REGISTRY: ${google-native:region}-docker.pkg.dev/${google-native:project}/${registryName}      
+    options:
+      dependsOn:
+        - ${api-cloudbuild}
+  # cloud build trigger frontend
+  cloud-build-frontend:
+    type: google-native:cloudbuild/v1:Trigger
+    properties:
+      projectId: ${project.projectId}
+      eventType: REPO
+      filename: cloudbuild.yaml
+      includedFiles: 
+         - src/frontend/**
+         - src/components/**
+      name: frontend-ci
+      triggerTemplate:
+        branchName: "^cicd-skaffold-kustomize$"
+        repoName: bank-of-anthos
+        project: ${project.projectId}
+      substitutions:
+        _DEPLOY_UNIT: frontend
+        _CACHE_URI: gs://${cache-bucket.name}/${cache-frontend.name}
+        _CONTAINER_REGISTRY: ${google-native:region}-docker.pkg.dev/${google-native:project}/${registryName}
+    options:
+      dependsOn:
+        - ${api-cloudbuild}
+  # cloud build trigger frontend
+  cloud-build-ledger:
+    type: google-native:cloudbuild/v1:Trigger
+    properties:
+      projectId: ${project.projectId}
+      eventType: REPO
+      filename: cloudbuild.yaml
+      includedFiles: 
+         - src/ledger/**
+         - src/components/**
+      name: ledger-ci
+      triggerTemplate:
+        branchName: "^cicd-skaffold-kustomize$"
+        repoName: bank-of-anthos
+        project: ${project.projectId}
+      substitutions:
+        _DEPLOY_UNIT: ledger
+        _CACHE_URI: gs://${cache-bucket.name}/${cache-ledger.name}
+        _CONTAINER_REGISTRY: ${google-native:region}-docker.pkg.dev/${google-native:project}/${registryName}
+    options:
+      dependsOn:
+        - ${api-cloudbuild}
+### CD
+  # cloud deploy delivery pipeline accounts
+  cloud-deploy-accounts:
+    type: google-native:clouddeploy/v1:DeliveryPipeline
+    properties:
+      deliveryPipelineId: accounts
+      description: Delivery pipeline for accounts deploy unit.
+      serialPipeline:
+        stages:
+        - targetId: staging
+          profiles: [staging]
+        - targetId: production
+          profiles: [production]
+    options:
+      dependsOn: 
+        - ${api-clouddeploy}
+        - ${target-staging}
+        - ${target-production}
+  cloud-deploy-accounts-iam:
+    type: google-native:clouddeploy/v1:DeliveryPipelineIamPolicy
+    properties:
+      deliveryPipelineId: accounts
+      bindings:
+        - members:
+          - serviceAccount:${project.number}@cloudbuild.gserviceaccount.com
+          - serviceAccount:${project.number}-compute@developer.gserviceaccount.com
+          role: roles/clouddeploy.releaser
+    options:
+      dependsOn: 
+        - ${api-clouddeploy}
+        - ${cloud-deploy-accounts}
+  # cloud deploy delivery pipeline frontend
+  cloud-deploy-frontend:
+    type: google-native:clouddeploy/v1:DeliveryPipeline
+    properties:
+      deliveryPipelineId: frontend
+      description: Delivery pipeline for frontend deploy unit.
+      serialPipeline:
+        stages:
+        - targetId: staging
+          profiles: [staging]
+        - targetId: production
+          profiles: [production]
+    options:
+      dependsOn: 
+        - ${api-clouddeploy}
+        - ${target-staging}
+        - ${target-production}
+  cloud-deploy-frontend-iam:
+    type: google-native:clouddeploy/v1:DeliveryPipelineIamPolicy
+    properties:
+      deliveryPipelineId: frontend
+      bindings:
+        - members:
+          - serviceAccount:${project.number}@cloudbuild.gserviceaccount.com
+          - serviceAccount:${project.number}-compute@developer.gserviceaccount.com
+          role: roles/clouddeploy.releaser
+    options:
+      dependsOn: 
+        - ${api-clouddeploy}
+        - ${cloud-deploy-frontend}
+  # cloud deploy delivery pipeline ledger
+  cloud-deploy-ledger:
+    type: google-native:clouddeploy/v1:DeliveryPipeline
+    properties:
+      deliveryPipelineId: ledger
+      description: Delivery pipeline for ledger deploy unit.
+      serialPipeline:
+        stages:
+        - targetId: staging
+          profiles: [staging]
+        - targetId: production
+          profiles: [production]
+    options:
+      dependsOn: 
+        - ${api-clouddeploy}
+        - ${target-staging}
+        - ${target-production}
+  cloud-deploy-ledger-iam:
+    type: google-native:clouddeploy/v1:DeliveryPipelineIamPolicy
+    properties:
+      deliveryPipelineId: ledger
+      bindings:
+        - members:
+          - serviceAccount:${project.number}@cloudbuild.gserviceaccount.com
+          - serviceAccount:${project.number}-compute@developer.gserviceaccount.com
+          role: roles/clouddeploy.releaser
+    options:
+      dependsOn: 
+        - ${api-clouddeploy}
+        - ${cloud-deploy-ledger}
+  cloud-build-impersonate-compute-sa:
+    type: google-native:iam/v1:ServiceAccountIamPolicy
+    properties:
+      serviceAccountId: ${project.number}-compute@developer.gserviceaccount.com
+      bindings:
+        - members:
+          - serviceAccount:${project.number}@cloudbuild.gserviceaccount.com
+          role: roles/iam.serviceAccountUser
+### NETWORK
+  network-development:
+    type: google-native:compute/v1:Network
+    properties:
+      name: development
+      autoCreateSubnetworks: true
+  network-staging:
+    type: google-native:compute/v1:Network
+    properties:
+      name: staging
+      autoCreateSubnetworks: true
+  network-production:
+    type: google-native:compute/v1:Network
+    properties:
+      name: production
+      autoCreateSubnetworks: true
+### GKE  
+  cluster-development:
+    type: google-native:container/v1:Cluster
+    properties:
+      name: development
+      autopilot:
+        enabled: true
+      network: development
+    options:
+      dependsOn:
+        - ${api-container}
+        - ${network-development}
+  
+  cluster-staging:
+    type: google-native:container/v1:Cluster
+    properties:
+      name: staging
+      autopilot:
+        enabled: true
+      network: staging
+    options:
+      dependsOn:
+        - ${api-container}
+        - ${network-staging}
+
+  target-staging:
+    type: google-native:clouddeploy/v1:Target
+    properties:
+      targetId: staging
+      gke:
+        cluster: projects/${google-native:project}/locations/${google-native:region}/clusters/staging
+    options:
+      dependsOn:
+        - ${cluster-staging}
+
+  cluster-production:
+    type: google-native:container/v1:Cluster
+    properties:
+      name: production
+      autopilot:
+        enabled: true
+      network: production
+    options:
+      dependsOn:
+        - ${api-container}
+        - ${network-production}
+  
+  target-production:
+    type: google-native:clouddeploy/v1:Target
+    properties:
+      targetId: production
+      gke:
+        cluster: projects/${google-native:project}/locations/${google-native:region}/clusters/production
+    options:
+      dependsOn:
+        - ${cluster-production}
+
+outputs:
+  # Export the bucket self-link
+  cache-url: ${cache-bucket.url}
+  stdout: skaffold config set default-repo ${google-native:region}-docker.pkg.dev/${google-native:project}/${registryName} && gcloud auth configure-docker europe-west1-docker.pkg.dev
