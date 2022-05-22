@@ -171,7 +171,7 @@ resources:
   source-mirror:
     type: google-native:sourcerepo/v1:Repo
     properties:
-      name: projects/${project.name}/repos/bank-of-anthos
+      name: projects/${project.name}/repos/${registry-name}
     options:
       dependsOn: 
         - ${api-sourcerepo}
@@ -380,4 +380,4 @@ resources:
 outputs:
   # Export the bucket self-link
   cache-url: ${cache-bucket.url}
-  stdout: skaffold config set default-repo ${google-native:region}-docker.pkg.dev/${google-native:project}/${registry-name} && gcloud auth configure-docker europe-west1-docker.pkg.dev
+  stdout: skaffold config set default-repo ${google-native:region}-docker.pkg.dev/${google-native:project}/${registry-name} && git remote add google https://source.developers.google.com/p/${google-native:project}/r/${registry-name} && gcloud auth configure-docker europe-west1-docker.pkg.dev
