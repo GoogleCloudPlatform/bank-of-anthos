@@ -1,0 +1,3 @@
+config:
+  google-native:project: boa-cicd
+  google-native:region: europe-west1
