@@ -20,6 +20,24 @@ variables:
   registry-name: bank-of-anthos
 
 resources:
+### Workload identity service accounts
+  sa-gke-workload:
+    type: google-native:iam/v1:ServiceAccount
+    properties:
+      accountId: gke-workload
+  sa-gke-workload-iam:
+    type: google-native:iam/v1:ServiceAccountIamPolicy
+    properties:
+      serviceAccountId: ${sa-gke-workload.email}
+      bindings:
+        - members:
+          - serviceAccount:${google-native:project}.svc.id.goog[default/default]
+          role: roles/iam.workloadIdentityUser
+    options:
+      dependsOn:
+        - ${cluster-staging}
+        - ${cluster-development}
+        - ${cluster-production}
 ### Project wide IAM Policies
   project-iam-bindings:
     type: google-native:cloudresourcemanager/v3:ProjectIamPolicy
@@ -38,7 +56,7 @@ resources:
         - serviceAccount:${project.projectNumber}@cloudbuild.gserviceaccount.com
         role: roles/clouddeploy.releaser
       - members:
-        - serviceAccount:${project.projectNumber}-compute@developer.gserviceaccount.com
+        - serviceAccount:${sa-gke-workload.email}
         role: roles/cloudtrace.agent
       - members:
         - serviceAccount:service-${project.projectNumber}@compute-system.iam.gserviceaccount.com
@@ -58,9 +76,10 @@ resources:
         role: roles/editor
       - members:
         - serviceAccount:${project.projectNumber}-compute@developer.gserviceaccount.com
+        - serviceAccount:${sa-gke-workload.email}
         role: roles/logging.logWriter
       - members:
-        - serviceAccount:${project.projectNumber}-compute@developer.gserviceaccount.com
+        - serviceAccount:${sa-gke-workload.email}
         role: roles/monitoring.metricWriter
       - members:
         - user:${boa:project-owner}
@@ -82,6 +101,8 @@ resources:
         - ${api-clouddeploy}
         - ${api-container}
         - ${api-compute}
+        - ${sa-gke-workload}
+        - ${artifact-registry}
 ### APIs
   api-artifactregistry:
     type: gcp:projects:Service
@@ -169,8 +190,11 @@ resources:
     options:
       dependsOn:
         - ${api-compute}
-        - ${artifact-registry}        
-    
+        - ${artifact-registry}     
+        - ${project-iam-bindings}
+        - ${cluster-staging}
+        - ${cluster-production}
+        - ${cluster-development}
 
   # source repository
   source-mirror:
@@ -396,4 +420,4 @@ resources:
         - ${cluster-production}
 
 outputs:
-  stdout: gcloud auth configure-docker europe-west1-docker.pkg.dev && skaffold config set default-repo ${google-native:region}-docker.pkg.dev/${google-native:project}/${registry-name} && git remote add ${google-native:project} https://source.developers.google.com/p/${google-native:project}/r/${registry-name} && git push --all ${google-native:project}
+  stdout: gcloud container clusters get-credentials development --region ${google-native:region} --project=${google-native:project} && kubectl annotate serviceaccount default --namespace=default iam.gke.io/gcp-service-account=gke-workload@${google-native:project}.iam.gserviceaccount.com && gcloud auth configure-docker europe-west1-docker.pkg.dev && skaffold config set default-repo ${google-native:region}-docker.pkg.dev/${google-native:project}/${registry-name} && git remote add ${google-native:project} https://source.developers.google.com/p/${google-native:project}/r/${registry-name} && git push --all ${google-native:project}
