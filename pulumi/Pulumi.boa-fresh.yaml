@@ -1,0 +1,4 @@
+config:
+  boa:project-owner: admin@bielski.altostrat.com
+  google-native:project: boa-fresh-351109
+  google-native:region: europe-west1

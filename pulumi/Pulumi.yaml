@@ -45,7 +45,7 @@ resources:
         role: roles/compute.serviceAgent
       - members:
         - serviceAccount:${project.projectNumber}-compute@developer.gserviceaccount.com
-        - serviceAccount:service-${project.projectNumber}@gcp-sa-gkenode.iam.gserviceaccount.com
+        #- serviceAccount:service-${project.projectNumber}@gcp-sa-gkenode.iam.gserviceaccount.com
         role: roles/container.nodeServiceAgent
       - members:
         - serviceAccount:service-${project.projectNumber}@container-engine-robot.iam.gserviceaccount.com
@@ -176,10 +176,11 @@ resources:
   source-mirror:
     type: google-native:sourcerepo/v1:Repo
     properties:
-      name: projects/${project.name}/repos/${registry-name}
+      name: projects/${google-native:project}/repos/${registry-name}
     options:
       dependsOn: 
         - ${api-sourcerepo}
+        - ${project-iam-bindings}
 
 ### CI
   # ACCOUNTS
