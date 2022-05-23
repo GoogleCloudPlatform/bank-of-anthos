@@ -9,11 +9,13 @@ configuration:
     type: String
   boa:project-owner:
     type: String
+  gcp:project:
+    default: ${google-native:project}
 
 variables:
   project:
     Fn::Invoke:
-      Function: gcp:organizations:getProject
+      Function: google-native:cloudresourcemanager/v1:getProject
       Arguments: {}
   registry-name: bank-of-anthos
 
@@ -24,69 +26,62 @@ resources:
     properties:
       bindings:
       - members:
-        - serviceAccount:service-${project.number}@gcp-sa-artifactregistry.iam.gserviceaccount.com
+        - serviceAccount:service-${project.projectNumber}@gcp-sa-artifactregistry.iam.gserviceaccount.com
         role: roles/artifactregistry.serviceAgent
       - members:
-        - serviceAccount:${project.number}@cloudbuild.gserviceaccount.com
+        - serviceAccount:${project.projectNumber}@cloudbuild.gserviceaccount.com
         role: roles/cloudbuild.builds.builder
       - members:
-        - serviceAccount:service-${project.number}@gcp-sa-cloudbuild.iam.gserviceaccount.com
+        - serviceAccount:service-${project.projectNumber}@gcp-sa-cloudbuild.iam.gserviceaccount.com
         role: roles/cloudbuild.serviceAgent
       - members:
-        - serviceAccount:${project.number}@cloudbuild.gserviceaccount.com
+        - serviceAccount:${project.projectNumber}@cloudbuild.gserviceaccount.com
         role: roles/clouddeploy.releaser
       - members:
-        - serviceAccount:service-${project.number}@gcp-sa-clouddeploy.iam.gserviceaccount.com
-        role: roles/clouddeploy.serviceAgent
-      - members:
-        - serviceAccount:${project.number}-compute@developer.gserviceaccount.com
+        - serviceAccount:${project.projectNumber}-compute@developer.gserviceaccount.com
         role: roles/cloudtrace.agent
       - members:
-        - serviceAccount:service-${project.number}@compute-system.iam.gserviceaccount.com
+        - serviceAccount:service-${project.projectNumber}@compute-system.iam.gserviceaccount.com
         role: roles/compute.serviceAgent
       - members:
-        - serviceAccount:${project.number}-compute@developer.gserviceaccount.com
-        - serviceAccount:service-${project.number}@gcp-sa-gkenode.iam.gserviceaccount.com
+        - serviceAccount:${project.projectNumber}-compute@developer.gserviceaccount.com
+        - serviceAccount:service-${project.projectNumber}@gcp-sa-gkenode.iam.gserviceaccount.com
         role: roles/container.nodeServiceAgent
       - members:
-        - serviceAccount:service-${project.number}@container-engine-robot.iam.gserviceaccount.com
+        - serviceAccount:service-${project.projectNumber}@container-engine-robot.iam.gserviceaccount.com
         role: roles/container.serviceAgent
       - members:
-        - serviceAccount:service-${project.number}@containerregistry.iam.gserviceaccount.com
+        - serviceAccount:service-${project.projectNumber}@containerregistry.iam.gserviceaccount.com
         role: roles/containerregistry.ServiceAgent
       - members:
-        - serviceAccount:${project.number}@cloudservices.gserviceaccount.com
+        - serviceAccount:${project.projectNumber}@cloudservices.gserviceaccount.com
         role: roles/editor
       - members:
-        - serviceAccount:${project.number}-compute@developer.gserviceaccount.com
+        - serviceAccount:${project.projectNumber}-compute@developer.gserviceaccount.com
         role: roles/logging.logWriter
       - members:
-        - serviceAccount:${project.number}-compute@developer.gserviceaccount.com
+        - serviceAccount:${project.projectNumber}-compute@developer.gserviceaccount.com
         role: roles/monitoring.metricWriter
       - members:
         - user:${boa:project-owner}
         role: roles/owner
       - members:
-        - serviceAccount:service-${project.number}@gcp-sa-pubsub.iam.gserviceaccount.com
+        - serviceAccount:service-${project.projectNumber}@gcp-sa-pubsub.iam.gserviceaccount.com
         role: roles/pubsub.serviceAgent
       - members:
-        - serviceAccount:${project.number}-compute@developer.gserviceaccount.com
+        - serviceAccount:${project.projectNumber}-compute@developer.gserviceaccount.com
         role: roles/storage.objectCreator
       - members:
-        - serviceAccount:${project.number}-compute@developer.gserviceaccount.com
+        - serviceAccount:${project.projectNumber}-compute@developer.gserviceaccount.com
         role: roles/container.developer
-      - members:
-        - serviceAccount:${project.number}@cloudbuild.gserviceaccount.com
-        role: roles/container.developer
-      - members:
-        - serviceAccount:${project.number}@cloudbuild.gserviceaccount.com
-        role: roles/iam.serviceAccountUser
-      - members:
-        - serviceAccount:${project.number}@cloudbuild.gserviceaccount.com
-        role: roles/cloudbuild.workerPoolUser
-      - members:
-        - serviceAccount:${project.number}@cloudbuild.gserviceaccount.com
-        role: roles/cloudbuild.builds.builder        
+    options:
+      dependsOn:
+        - ${api-artifactregistry}
+        - ${api-sourcerepo}
+        - ${api-cloudbuild}
+        - ${api-clouddeploy}
+        - ${api-container}
+        - ${api-compute}
 ### APIs
   api-artifactregistry:
     type: gcp:projects:Service
@@ -113,13 +108,18 @@ resources:
     properties:
       disableDependentServices: true
       service: container.googleapis.com
+  api-compute:
+    type: gcp:projects:Service
+    properties:
+      disableDependentServices: true
+      service: compute.googleapis.com
 
 ### CACHE
   # bucket for cache
   cache-bucket:
     type: google-native:storage/v1:Bucket
     properties:
-      name: skaffold-cache-${project.number}
+      name: skaffold-cache-${project.projectNumber}
       iamConfiguration:
         uniformBucketLevelAccess: true
   # initialize cache for accounts
@@ -164,8 +164,13 @@ resources:
       repositoryId: ${registry-name}
       bindings:
         members:
-          - serviceAccount:811077352066-compute@developer.gserviceaccount.com
+          - serviceAccount:${project.projectNumber}-compute@developer.gserviceaccount.com
         role: roles/artifactregistry.reader
+    options:
+      dependsOn:
+        - ${api-compute}
+        - ${artifact-registry}        
+    
 
   # source repository
   source-mirror:
@@ -299,27 +304,39 @@ resources:
   cloud-build-impersonate-compute-sa:
     type: google-native:iam/v1:ServiceAccountIamPolicy
     properties:
-      serviceAccountId: ${project.number}-compute@developer.gserviceaccount.com
+      serviceAccountId: ${project.projectNumber}-compute@developer.gserviceaccount.com
       bindings:
         - members:
-          - serviceAccount:${project.number}@cloudbuild.gserviceaccount.com
+          - serviceAccount:${project.projectNumber}@cloudbuild.gserviceaccount.com
           role: roles/iam.serviceAccountUser
+    options:
+      dependsOn:
+        - ${api-compute}
 ### NETWORK
   network-development:
     type: google-native:compute/v1:Network
     properties:
       name: development
       autoCreateSubnetworks: true
+    options:
+      dependsOn:
+        - ${api-compute}
   network-staging:
     type: google-native:compute/v1:Network
     properties:
       name: staging
       autoCreateSubnetworks: true
+    options:
+      dependsOn:
+        - ${api-compute}
   network-production:
     type: google-native:compute/v1:Network
     properties:
       name: production
       autoCreateSubnetworks: true
+    options:
+      dependsOn:
+        - ${api-compute}
 ### GKE  
   cluster-development:
     type: google-native:container/v1:Cluster
@@ -378,4 +395,4 @@ resources:
         - ${cluster-production}
 
 outputs:
-  stdout: skaffold config set default-repo ${google-native:region}-docker.pkg.dev/${google-native:project}/${registry-name} && git remote add google https://source.developers.google.com/p/${google-native:project}/r/${registry-name} && gcloud auth configure-docker europe-west1-docker.pkg.dev && git push --all google
+  stdout: gcloud auth configure-docker europe-west1-docker.pkg.dev && skaffold config set default-repo ${google-native:region}-docker.pkg.dev/${google-native:project}/${registry-name} && git remote add ${google-native:project} https://source.developers.google.com/p/${google-native:project}/r/${registry-name} && git push --all ${google-native:project}
