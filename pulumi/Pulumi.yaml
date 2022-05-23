@@ -420,4 +420,9 @@ resources:
         - ${cluster-production}
 
 outputs:
-  stdout: gcloud container clusters get-credentials development --region ${google-native:region} --project=${google-native:project} && kubectl annotate serviceaccount default --namespace=default iam.gke.io/gcp-service-account=gke-workload@${google-native:project}.iam.gserviceaccount.com && gcloud auth configure-docker europe-west1-docker.pkg.dev && skaffold config set default-repo ${google-native:region}-docker.pkg.dev/${google-native:project}/${registry-name} && git remote add ${google-native:project} https://source.developers.google.com/p/${google-native:project}/r/${registry-name} && git push --all ${google-native:project}
+  stdout: >
+    gcloud container clusters get-credentials production --region ${google-native:region} --project=${google-native:project} && kubectl annotate serviceaccount default --namespace=default iam.gke.io/gcp-service-account=gke-workload@${google-native:project}.iam.gserviceaccount.com && \
+    gcloud container clusters get-credentials staging --region ${google-native:region} --project=${google-native:project} && kubectl annotate serviceaccount default --namespace=default iam.gke.io/gcp-service-account=gke-workload@${google-native:project}.iam.gserviceaccount.com && \
+    gcloud container clusters get-credentials development --region ${google-native:region} --project=${google-native:project} && kubectl annotate serviceaccount default --namespace=default iam.gke.io/gcp-service-account=gke-workload@${google-native:project}.iam.gserviceaccount.com && \
+    gcloud auth configure-docker europe-west1-docker.pkg.dev && skaffold config set default-repo ${google-native:region}-docker.pkg.dev/${google-native:project}/${registry-name} && \ 
+    git remote add ${google-native:project} https://source.developers.google.com/p/${google-native:project}/r/${registry-name} && git push --all ${google-native:project}
