@@ -1,0 +1,11 @@
+apiVersion: skaffold/v2beta26
+kind: Config
+metadata: 
+  name: accounts
+requires:
+  - configs: [accounts-db]
+    path: accounts-db/skaffold.yaml
+  - configs: [contacts]
+    path: contacts/skaffold.yaml
+  - configs: [userservice]
+    path: userservice/skaffold.yaml

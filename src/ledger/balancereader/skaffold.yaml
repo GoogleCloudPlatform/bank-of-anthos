@@ -1,0 +1,25 @@
+apiVersion: skaffold/v2beta26
+kind: Config
+metadata: 
+  name: balancereader
+requires:
+  - configs: [ledger-db]
+    path: ../ledger-db/skaffold.yaml
+build:
+  artifacts:
+    - image: balancereader
+      context: ../../../
+      jib:
+        project: src/ledger/balancereader
+deploy:
+  kustomize:
+    paths: ["k8s/base"]
+profiles:
+  - name: staging
+    deploy:
+      kustomize:
+        paths: ["k8s/staging"]
+  - name: production
+    deploy:
+      kustomize:
+        paths: ["k8s/production"]

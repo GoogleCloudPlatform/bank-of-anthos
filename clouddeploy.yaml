@@ -1,0 +1,52 @@
+apiVersion: deploy.cloud.google.com/v1
+kind: DeliveryPipeline
+metadata:
+ name: accounts
+description: Delivery pipeline for accounts deploy unit
+serialPipeline:
+ stages:
+ - targetId: staging
+   profiles: [staging]
+ - targetId: production
+   profiles: [production]
+---
+apiVersion: deploy.cloud.google.com/v1
+kind: DeliveryPipeline
+metadata:
+ name: ledger
+description: Delivery pipeline for ledger deploy unit
+serialPipeline:
+ stages:
+ - targetId: staging
+   profiles: [staging]
+ - targetId: production
+   profiles: [production]
+---
+apiVersion: deploy.cloud.google.com/v1
+kind: DeliveryPipeline
+metadata:
+ name: frontend
+description: Delivery pipeline for frontend deploy unit
+serialPipeline:
+ stages:
+ - targetId: staging
+   profiles: [staging]
+ - targetId: production
+   profiles: [production]
+---
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+metadata:
+ name: staging
+description: development cluster
+gke:
+ cluster: projects/skaffold-build-cache/locations/us-central1-c/clusters/staging
+---
+
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+metadata:
+ name: production
+description: production cluster
+gke:
+ cluster: projects/skaffold-build-cache/locations/europe-west1-b/clusters/prod

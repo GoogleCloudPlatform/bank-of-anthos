@@ -1,0 +1,12 @@
+apiVersion: skaffold/v2beta26
+kind: Config
+metadata: 
+  name: loadgenerator
+build:
+  artifacts:
+  - image: loadgenerator
+    context: .
+deploy:
+  kubectl:
+    manifests:
+    - k8s/loadgenerator.yaml

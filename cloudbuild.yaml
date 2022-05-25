@@ -1,0 +1,23 @@
+steps:
+  - name: gcr.io/cloud-builders/gsutil
+    args: ['cp', $_CACHE_URI, '/workspace/cache']
+  - name: gcr.io/k8s-skaffold/skaffold:v1.37.1-lts
+    args:
+      - "skaffold"
+      - "build"
+      - "--file-output=/workspace/artifacts.json"
+      - "--default-repo=$_CONTAINER_REGISTRY"
+      - "--cache-file=/workspace/cache"
+      - "--module=$_DEPLOY_UNIT"
+  - name: gcr.io/cloud-builders/gsutil
+    args: ['cp', '/workspace/cache',  $_CACHE_URI]
+  - name: gcr.io/cloud-builders/gcloud
+    args: 
+      - "deploy"
+      - "releases"
+      - "create"
+      - "$_DEPLOY_UNIT-$SHORT_SHA"
+      - "--delivery-pipeline=$_DEPLOY_UNIT"
+      - "--build-artifacts=/workspace/artifacts.json"
+      - "--skaffold-file=src/$_DEPLOY_UNIT/skaffold.yaml"
+      - "--region=europe-west1"

@@ -26,7 +26,7 @@ google-auth==2.6.6
     # via google-api-core
 google-cloud-trace==1.6.1
     # via opentelemetry-exporter-gcp-trace
-googleapis-common-protos==1.56.0
+googleapis-common-protos==1.56.1
     # via
     #   google-api-core
     #   grpcio-status
@@ -127,7 +127,7 @@ urllib3==1.26.9
     #   requests
 werkzeug==2.1.2
     # via flask
-wrapt==1.14.0
+wrapt==1.14.1
     # via
     #   deprecated
     #   opentelemetry-instrumentation

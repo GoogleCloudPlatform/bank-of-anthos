@@ -1,0 +1,13 @@
+apiVersion: skaffold/v2beta26
+kind: Config
+metadata: 
+  name: ledger
+requires:
+  - configs: [ledger-db]
+    path: ledger-db/skaffold.yaml
+  - configs: [balancereader]
+    path: balancereader/skaffold.yaml
+  - configs: [ledgerwriter]
+    path: ledgerwriter/skaffold.yaml
+  - configs: [transactionhistory]
+    path: transactionhistory/skaffold.yaml

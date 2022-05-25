@@ -1,0 +1,9 @@
+apiVersion: skaffold/v2beta26
+kind: Config
+metadata: 
+  name: config
+deploy:
+  kubectl:
+    manifests: 
+      - ../../../extras/jwt/jwt-secret.yaml
+      - ./config.yaml
