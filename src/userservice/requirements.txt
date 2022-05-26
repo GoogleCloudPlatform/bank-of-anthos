@@ -73,7 +73,7 @@ idna==3.3
     # via
     #   -r requirements.in
     #   requests
-importlib-metadata==4.11.3
+importlib-metadata==4.11.4
     # via -r requirements.in
 iniconfig==1.1.1
     # via pytest
