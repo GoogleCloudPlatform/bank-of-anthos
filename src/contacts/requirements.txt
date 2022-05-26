@@ -147,7 +147,7 @@ protobuf==3.20.1
     #   google-api-core
     #   googleapis-common-protos
     #   proto-plus
-psycopg2==2.9.3
+psycopg2-binary==2.9.3
     # via -r requirements.in
 py==1.11.0
     # via
