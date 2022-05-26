@@ -15,6 +15,9 @@
 # Use the official Python docker container, slim version, running Debian
 FROM python:3.10-slim
 
+# Set our working directory
+WORKDIR /app
+
 # show python logs as they occur
 ENV PYTHONUNBUFFERED=0
 
@@ -22,14 +25,11 @@ ENV PYTHONUNBUFFERED=0
 ENV LOG_LEVEL info
 
 # Install dependencies.
-ADD requirements.txt /app/requirements.txt
-RUN pip install -r /app/requirements.txt
+COPY requirements.txt .
+RUN pip install -r requirements.txt
 
 # Add application code.
-ADD *.py /app/
-
-# Copy logging configuration for gunicorn
-COPY logging.conf /logging.conf
+COPY . .
 
 # Start server using gunicorn
-CMD gunicorn -b :$PORT --threads 4 --log-config /logging.conf --log-level=$LOG_LEVEL "contacts:create_app()"
+CMD gunicorn -b :$PORT --threads 4 --log-config logging.conf --log-level=$LOG_LEVEL "contacts:create_app()"

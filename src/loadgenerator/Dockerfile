@@ -15,6 +15,9 @@
 # Use the official Python docker container, slim version, running Debian
 FROM python:3.10-slim
 
+# Set our working directory
+WORKDIR /app
+
 # show python logs as they occur
 ENV PYTHONUNBUFFERED=0
 
@@ -25,11 +28,11 @@ ENV GEVENT_SUPPORT=True
 ENV LOG_LEVEL info
 
 # Install dependencies.
-ADD requirements.txt /app/requirements.txt
-RUN pip install -r /app/requirements.txt
+COPY requirements.txt .
+RUN pip install -r requirements.txt
 
 # Add application code.
-ADD locustfile.py /app
+COPY locustfile.py .
 
 # start loadgenerator
 ENTRYPOINT locust --host="http://${FRONTEND_ADDR}" --loglevel $LOG_LEVEL --headless --users="${USERS:-10}" 2>&1

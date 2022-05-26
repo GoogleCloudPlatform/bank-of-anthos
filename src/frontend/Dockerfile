@@ -25,7 +25,7 @@ ENV PYTHONUNBUFFERED=0
 ENV LOG_LEVEL info
 
 # Install dependencies.
-ADD requirements.txt requirements.txt
+COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 # This is a workaround to use an unreleased version of grpcio, so that the cloud trace exporter and the OpenTelemetry RequestsInstrumentor do not create an infinite request loop.
