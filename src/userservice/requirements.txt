@@ -74,9 +74,7 @@ idna==3.3
     #   -r requirements.in
     #   requests
 importlib-metadata==4.11.3
-    # via
-    #   -r requirements.in
-    #   flask
+    # via -r requirements.in
 iniconfig==1.1.1
     # via pytest
 itsdangerous==2.1.2
@@ -170,7 +168,7 @@ pycparser==2.21
     #   cffi
 pycryptodome==3.14.1
     # via -r requirements.in
-pyjwt==2.3.0
+pyjwt==2.4.0
     # via -r requirements.in
 pyparsing==3.0.8
     # via
@@ -197,7 +195,6 @@ rsa==4.8
 six==1.16.0
     # via
     #   -r requirements.in
-    #   bcrypt
     #   bleach
     #   google-api-core
     #   google-auth
