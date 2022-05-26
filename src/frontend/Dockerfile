@@ -15,6 +15,9 @@
 # Use the official Python docker container, slim version, running Debian
 FROM python:3.10-slim
 
+# Set our working directory
+WORKDIR /app
+
 # show python logs as they occur
 ENV PYTHONUNBUFFERED=0
 
@@ -22,8 +25,8 @@ ENV PYTHONUNBUFFERED=0
 ENV LOG_LEVEL info
 
 # Install dependencies.
-ADD requirements.txt /app/requirements.txt
-RUN pip install -r /app/requirements.txt
+ADD requirements.txt requirements.txt
+RUN pip install -r requirements.txt
 
 # This is a workaround to use an unreleased version of grpcio, so that the cloud trace exporter and the OpenTelemetry RequestsInstrumentor do not create an infinite request loop.
 RUN pip install --pre --upgrade --force-reinstall --extra-index-url \
@@ -31,12 +34,7 @@ RUN pip install --pre --upgrade --force-reinstall --extra-index-url \
     grpcio
 
 # Add application code.
-ADD static /app/static
-ADD templates /app/templates
-ADD *.py /app/
-
-# Copy logging configuration for gunicorn
-COPY logging.conf /logging.conf
+COPY . .
 
 # Start server using gunicorn
-CMD gunicorn -b :$PORT --threads 4 --log-config /logging.conf --log-level=$LOG_LEVEL "frontend:create_app()"
+CMD gunicorn -b :$PORT --threads 4 --log-config logging.conf --log-level=$LOG_LEVEL "frontend:create_app()"
