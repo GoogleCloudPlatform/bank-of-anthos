@@ -40,8 +40,6 @@ gunicorn==20.1.0
     # via -r requirements.in
 idna==3.3
     # via requests
-importlib-metadata==4.11.3
-    # via flask
 itsdangerous==2.1.2
     # via flask
 jinja2==3.1.2
@@ -107,7 +105,7 @@ pyasn1-modules==0.2.8
     # via google-auth
 pycparser==2.21
     # via cffi
-pyjwt==2.3.0
+pyjwt==2.4.0
     # via -r requirements.in
 requests==2.27.1
     # via
@@ -132,8 +130,6 @@ wrapt==1.14.1
     #   deprecated
     #   opentelemetry-instrumentation
     #   opentelemetry-instrumentation-jinja2
-zipp==3.8.0
-    # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
