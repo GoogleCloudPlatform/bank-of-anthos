@@ -97,14 +97,17 @@ describe('User can create account', function() {
     })
 
     it('contain zero balance', function() {
+        cy.wait(500)
         cy.get('#current-balance').contains(expectedBalance)
     })
 
     it('sees correct username', function() {
+        cy.wait(500)
         cy.get('#accountDropdown').contains(`${firstName} ${lastName}`)
     })
 
     it('sees empty transaction history message', function() {
+        cy.wait(500)
         const transactionMsgs = Cypress.env('messages').transaction
         // sees empty transaction history message
         cy.get('#transaction-table').children('.card-table-header').contains(transactionMsgs.empty)
@@ -115,6 +118,7 @@ describe('User can create account', function() {
 
 
     it('sees no transactions', function() {
+        cy.wait(500)
         // new accounts only see empty history message
         // new accounts should not see a table
         cy.get('#transaction-table').children().should('have.length', 1)
