@@ -74,7 +74,7 @@ describe('Signup is unsuccessful with non-alphanumeric username', function() {
 
 
 describe('User can create account', function() {
-    const uuid = () => Cypress._.random(0, 1e6)
+    const uuid = () => Cypress._.random(0, 1e7)
     const password = 'bells'
     const firstName = 'Tom'
     const lastName = 'Nook'
@@ -85,7 +85,7 @@ describe('User can create account', function() {
         const user = {
             username: `user_${id}`,
             firstName: firstName,
-            lastName: `${lastName}-${id}`,
+            lastName: lastName,
             password: password
         }
 
