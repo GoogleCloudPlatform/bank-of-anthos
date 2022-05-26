@@ -35,7 +35,7 @@ greenlet==1.1.2
     # via gevent
 idna==3.3
     # via requests
-importlib-metadata==4.11.3
+importlib-metadata==4.11.4
     # via click
 itsdangerous==2.0.1
     # via flask
