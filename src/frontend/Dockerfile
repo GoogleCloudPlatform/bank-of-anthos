@@ -28,11 +28,6 @@ ENV LOG_LEVEL info
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
-# This is a workaround to use an unreleased version of grpcio, so that the cloud trace exporter and the OpenTelemetry RequestsInstrumentor do not create an infinite request loop.
-RUN pip install --pre --upgrade --force-reinstall --extra-index-url \
-    https://packages.grpc.io/archive/2020/06/635ded1749f990ffe6be0ca403e4b255cf62742f-983cbea2-bebc-4777-911c-14e4cb494b92/python \
-    grpcio
-
 # Add application code.
 COPY . .
 
