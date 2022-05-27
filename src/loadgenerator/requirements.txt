@@ -40,10 +40,8 @@ importlib-metadata==4.11.4
 itsdangerous==2.0.1
     # via flask
 jinja2==3.0.3
-    # via
-    #   flask
-    #   locust
-locust==2.8.6
+    # via flask
+locust==2.9.0
     # via -r requirements.in
 markupsafe==2.0.1
     # via jinja2
