@@ -102,7 +102,7 @@ def create_app():
 
         hed = {'Authorization': 'Bearer ' + token}
 
-        def _get_balance(): 
+        def _get_balance():
             balance = None
             try:
                 url = '{}/{}'.format(app.config["BALANCES_URI"], account_id)
@@ -113,7 +113,7 @@ def create_app():
             except (requests.exceptions.RequestException, ValueError) as err:
                 app.logger.error('Error getting account balance: %s', str(err))
             return balance
-       
+
         def _get_history():
             transaction_list = None
             try:
@@ -124,9 +124,9 @@ def create_app():
                     transaction_list = response.json()
             except (requests.exceptions.RequestException, ValueError) as err:
                 app.logger.error('Error getting transaction history: %s', str(err))
-            return transaction_list 
-        
-        def _get_contacts(): 
+            return transaction_list
+
+        def _get_contacts():
             contacts = []
             try:
                 url = '{}/{}'.format(app.config["CONTACTS_URI"], username)
@@ -137,7 +137,7 @@ def create_app():
             except (requests.exceptions.RequestException, ValueError) as err:
                 app.logger.error('Error getting contacts: %s', str(err))
             return contacts
-        
+
         executor = ThreadPoolExecutor(max_workers=3)
         balance = executor.submit(_get_balance())
         transaction_list = executor.sbumit(_get_history())
