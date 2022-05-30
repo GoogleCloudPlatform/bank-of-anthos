@@ -20,6 +20,7 @@ import json
 import logging
 import os
 import socket
+from concurrent.futures import ThreadPoolExecutor
 from decimal import Decimal, DecimalException
 from time import sleep
 
@@ -100,36 +101,47 @@ def create_app():
         account_id = token_data['acct']
 
         hed = {'Authorization': 'Bearer ' + token}
-        # get balance
-        balance = None
-        try:
-            url = '{}/{}'.format(app.config["BALANCES_URI"], account_id)
-            app.logger.debug('Getting account balance.')
-            response = requests.get(url=url, headers=hed, timeout=app.config['BACKEND_TIMEOUT'])
-            if response:
-                balance = response.json()
-        except (requests.exceptions.RequestException, ValueError) as err:
-            app.logger.error('Error getting account balance: %s', str(err))
-        # get history
-        transaction_list = None
-        try:
-            url = '{}/{}'.format(app.config["HISTORY_URI"], account_id)
-            app.logger.debug('Getting transaction history.')
-            response = requests.get(url=url, headers=hed, timeout=app.config['BACKEND_TIMEOUT'])
-            if response:
-                transaction_list = response.json()
-        except (requests.exceptions.RequestException, ValueError) as err:
-            app.logger.error('Error getting transaction history: %s', str(err))
-        # get contacts
-        contacts = []
-        try:
-            url = '{}/{}'.format(app.config["CONTACTS_URI"], username)
-            app.logger.debug('Getting contacts.')
-            response = requests.get(url=url, headers=hed, timeout=app.config['BACKEND_TIMEOUT'])
-            if response:
-                contacts = response.json()
-        except (requests.exceptions.RequestException, ValueError) as err:
-            app.logger.error('Error getting contacts: %s', str(err))
+
+        def _get_balance(): 
+            balance = None
+            try:
+                url = '{}/{}'.format(app.config["BALANCES_URI"], account_id)
+                app.logger.debug('Getting account balance.')
+                response = requests.get(url=url, headers=hed, timeout=app.config['BACKEND_TIMEOUT'])
+                if response:
+                    balance = response.json()
+            except (requests.exceptions.RequestException, ValueError) as err:
+                app.logger.error('Error getting account balance: %s', str(err))
+            return balance
+       
+        def _get_history():
+            transaction_list = None
+            try:
+                url = '{}/{}'.format(app.config["HISTORY_URI"], account_id)
+                app.logger.debug('Getting transaction history.')
+                response = requests.get(url=url, headers=hed, timeout=app.config['BACKEND_TIMEOUT'])
+                if response:
+                    transaction_list = response.json()
+            except (requests.exceptions.RequestException, ValueError) as err:
+                app.logger.error('Error getting transaction history: %s', str(err))
+            return transaction_list 
+        
+        def _get_contacts(): 
+            contacts = []
+            try:
+                url = '{}/{}'.format(app.config["CONTACTS_URI"], username)
+                app.logger.debug('Getting contacts.')
+                response = requests.get(url=url, headers=hed, timeout=app.config['BACKEND_TIMEOUT'])
+                if response:
+                    contacts = response.json()
+            except (requests.exceptions.RequestException, ValueError) as err:
+                app.logger.error('Error getting contacts: %s', str(err))
+            return contacts
+        
+        executor = ThreadPoolExecutor(max_workers=3)
+        balance = executor.submit(_get_balance())
+        transaction_list = executor.sbumit(_get_history())
+        contacts = executor.submit(_get_contacts())
 
         _populate_contact_labels(account_id, transaction_list, contacts)
 
