@@ -206,7 +206,7 @@ six==1.16.0
     #   google-auth
     #   google-cloud-core
     #   grpcio
-sqlalchemy==1.4.36
+sqlalchemy==1.4.37
     # via -r requirements.in
 tomli==2.0.1
     # via
