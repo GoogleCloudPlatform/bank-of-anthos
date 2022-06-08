@@ -30,14 +30,14 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: transactionhistory
-        image: gcr.io/bank-of-anthos-ci/transactionhistory:v0.5.4
+        image: gcr.io/bank-of-anthos-ci/transactionhistory:v0.5.5
         volumeMounts:
         - name: publickey
           mountPath: "/root/.ssh"
           readOnly: true
         env:
         - name: VERSION
-          value: "v0.5.4"
+          value: "v0.5.5"
         - name: PORT
           value: "8080"
         - name: ENABLE_TRACING
@@ -54,7 +54,7 @@ spec:
           value: "100"
           # tell Java to obey container memory limits
         - name: JVM_OPTS
-          value: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Xms128m -Xmx256m"
+          value: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Xms256m -Xmx512m"
         #- name: EXTRA_LATENCY_MILLIS
         #  value: "5000"
         # Valid levels are debug, info, warn, error, fatal.
@@ -76,7 +76,7 @@ spec:
             cpu: 100m
             memory: 256Mi
           limits:
-            cpu: 250m
+            cpu: 500m
             memory: 512Mi
         readinessProbe:
           httpGet:
@@ -92,6 +92,12 @@ spec:
           initialDelaySeconds: 120
           periodSeconds: 5
           timeoutSeconds: 10
+        startupProbe:
+          httpGet:
+            path: /healthy
+            port: 8080
+          failureThreshold: 30
+          periodSeconds: 10
       volumes:
       - name: publickey
         secret:
