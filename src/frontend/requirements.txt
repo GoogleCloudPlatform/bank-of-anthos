@@ -20,7 +20,7 @@ deprecated==1.2.13
     # via opentelemetry-api
 flask==2.1.2
     # via -r requirements.in
-google-api-core[grpc]==2.7.2
+google-api-core[grpc]==2.8.1
     # via google-cloud-trace
 google-auth==2.7.0
     # via google-api-core
