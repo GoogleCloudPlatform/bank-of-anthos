@@ -181,3 +181,9 @@ multicluster-ingress-https.yaml
 # Node
 node_modules
 install/.env.sh
+
+# terraform
+.terraform
+terraform.tfstate
+terraform.tfstate.backup
+.terraform.lock.hcl
