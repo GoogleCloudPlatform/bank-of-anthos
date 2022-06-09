@@ -1,0 +1,12 @@
+{
+		"name": "boa-cicd",
+		"devDependencies": {
+			"@types/node": "^14"
+		},
+		"dependencies": {
+			"typescript": "^4.0.0",
+			"@pulumi/pulumi": "^3.0.0",
+			"@pulumi/gcp": "6.24.0",
+			"@pulumi/google-native": "0.19.0"
+		}
+}
