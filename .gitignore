@@ -180,3 +180,4 @@ multicluster-ingress-https.yaml
 
 # Node
 node_modules
+install/.env.sh
