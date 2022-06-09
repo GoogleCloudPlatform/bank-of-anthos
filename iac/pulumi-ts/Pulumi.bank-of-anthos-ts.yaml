@@ -1,0 +1,6 @@
+encryptionsalt: v1:9Bn2QxaqSik=:v1:R2jcQCrFk8EA4XH6:CD7GRSubtoZUpFaVICHrfYHGURbtUA==
+config:
+  boa-cicd:projectOwner: admin@bielski.altostrat.com
+  boa-cicd:registryName: bank-of-anthos
+  google-native:project: bank-of-anthos-ts
+  google-native:region: europe-west1

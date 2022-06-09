@@ -5,6 +5,7 @@ Create project and note $PROJECT_ID (may contain a number in addition to project
 export PROJECT_ID=<PROJECT_ID>
 export OWNER_USER_EMAIL=<EMAIL_OF_THE_PROJECT_OWNER>
 export REGION=<REGION>
+export REGISTRY_NAME=bank-of-anthos
 ```
 
 # Set project for gcloud
@@ -26,11 +27,12 @@ gcloud auth application-default login
 # Set up pulumi config
 ```
 cd pulumi
-pulumi login –local
-pulumi stack init $STACK_NAME --copy-config-from=bank-of-anthos
+pulumi login –-local
+pulumi stack init $STACK_NAME
 pulumi config set google-native:project $PROJECT_ID
 pulumi config set google-native:region $REGION
 pulumi config set boa:project-owner $OWNER_USER_EMAIL
+pulumi config set boa:registry-name $REGISTRY_NAME
 ```
 
 

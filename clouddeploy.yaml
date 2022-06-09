@@ -49,4 +49,5 @@ metadata:
  name: production
 description: production cluster
 gke:
+# TODO(ricc): templatize this
  cluster: projects/skaffold-build-cache/locations/europe-west1-b/clusters/prod
