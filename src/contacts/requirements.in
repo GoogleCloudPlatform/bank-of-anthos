@@ -10,7 +10,7 @@ cryptography==37.0.2
 flask==2.1.2
 google-api-core==2.8.1
 google-auth==2.7.0
-google-cloud-core==2.3.0
+google-cloud-core==2.3.1
 google-cloud-trace==1.6.2
 googleapis-common-protos==1.56.2
 grpcio==1.46.3
