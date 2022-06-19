@@ -27,7 +27,7 @@ cffi==1.15.0
     #   cryptography
 chardet==4.0.0
     # via -r requirements.in
-charset-normalizer==2.0.12
+charset-normalizer==2.1.0
     # via requests
 click==8.1.3
     # via
