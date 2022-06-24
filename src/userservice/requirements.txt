@@ -207,7 +207,7 @@ six==1.16.0
     #   bleach
     #   google-auth
     #   grpcio
-sqlalchemy==1.4.37
+sqlalchemy==1.4.38
     # via -r requirements.in
 tomli==2.0.1
     # via
