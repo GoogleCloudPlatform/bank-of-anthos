@@ -10,7 +10,7 @@ attrs==21.4.0
     #   pytest
 bcrypt==3.2.2
     # via -r requirements.in
-bleach==5.0.0
+bleach==5.0.1
     # via -r requirements.in
 cachetools==5.2.0
     # via
