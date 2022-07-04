@@ -213,7 +213,7 @@ tomli==2.0.1
     # via
     #   coverage
     #   pytest
-typing-extensions==4.2.0
+typing-extensions==4.3.0
     # via
     #   importlib-metadata
     #   opentelemetry-sdk
