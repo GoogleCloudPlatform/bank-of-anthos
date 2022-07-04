@@ -10,7 +10,7 @@ attrs==21.4.0
     #   pytest
 bcrypt==3.2.2
     # via -r requirements.in
-bleach==5.0.0
+bleach==5.0.1
     # via -r requirements.in
 cachetools==5.2.0
     # via
@@ -20,12 +20,12 @@ certifi==2022.6.15
     # via
     #   -r requirements.in
     #   requests
-cffi==1.15.0
+cffi==1.15.1
     # via
     #   -r requirements.in
     #   bcrypt
     #   cryptography
-chardet==4.0.0
+chardet==5.0.0
     # via -r requirements.in
 charset-normalizer==2.0.12
     # via requests
@@ -46,7 +46,7 @@ google-api-core[grpc]==2.8.2
     #   -r requirements.in
     #   google-cloud-core
     #   google-cloud-trace
-google-auth==2.8.0
+google-auth==2.9.0
     # via
     #   -r requirements.in
     #   google-api-core
@@ -77,7 +77,7 @@ idna==3.3
     # via
     #   -r requirements.in
     #   requests
-importlib-metadata==4.11.4
+importlib-metadata==4.12.0
     # via
     #   -r requirements.in
     #   click
@@ -193,7 +193,7 @@ pytest-cov==3.0.0
     # via -r requirements.in
 pytz==2022.1
     # via -r requirements.in
-requests==2.28.0
+requests==2.28.1
     # via
     #   -r requirements.in
     #   google-api-core
@@ -213,7 +213,7 @@ tomli==2.0.1
     # via
     #   coverage
     #   pytest
-typing-extensions==4.2.0
+typing-extensions==4.3.0
     # via
     #   importlib-metadata
     #   opentelemetry-sdk
