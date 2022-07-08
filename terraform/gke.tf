@@ -47,7 +47,6 @@ module "gke" {
   depends_on = [
     module.enabled_google_apis
   ]
-
 }
 
 provider "kubernetes" {
