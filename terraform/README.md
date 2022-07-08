@@ -1,6 +1,6 @@
 # Deploy Bank of Anthos sample application on an Anthos cluster
 
-This page walks you through the steps required to deploy the [Bank of Anthos](https://github.com/GoogleCloudPlatform/bank-of-anthos) sample applications on an Anthos cluster using Terraform and Anthos Config Management (ACM).
+This page walks you through the steps required to deploy the [Bank of Anthos](https://github.com/GoogleCloudPlatform/bank-of-anthos) sample application on an Anthos cluster using Terraform and Anthos Config Management (ACM).
 
 ## Pre-requisites
 
@@ -35,7 +35,7 @@ Please note that this does not delete the project where the Anthos cluster was c
 
 ## Troubeshooting
 
-* Error about a GCP API not enable e.g.:
+* Error about a GCP API not enabled e.g.:
 
     ```
     Error: Error creating Feature: failed to create a diff: failed to retrieve Feature resource: googleapi: Error 403: GKE Hub API has not been used in project {project-number} before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/gkehub.googleapis.com/overview?project={project-number} then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry.
@@ -43,4 +43,10 @@ Please note that this does not delete the project where the Anthos cluster was c
 
   As the error suggests, sometime if an API has just been enabled, the action may not have propogated to all the systems. So wait a few minutes and apply the terraform again.
 
-* Error creating Feature: Resource already exists. GKE Hub feature or membership failed. This is likely because you already have the GKE Hub membership or feature enabled. To resolve the error, edit the `acm.tf` and remove the resource that already exists.
+* Failure to create GKE Hub membership or feature e.g.:
+
+    ```
+    Error creating Feature: Resource already exists.
+    ```
+
+  This is likely because you already have the GKE Hub membership or feature enabled. To resolve the error, edit the `acm.tf` and remove the resource that already exists.
