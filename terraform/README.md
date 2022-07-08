@@ -27,7 +27,7 @@ Once you have ensured the all the pre-requisites are met, follow the steps below
 
 ## Delete the sample and the cluster
 
-Once you have finished working wit the sample, you can tear down the sample application and the cluster 
+Once you have finished working with the sample, you can tear down the sample application and the cluster 
 
 1. Run `terraform destroy` from the `terraform` directory.
 
