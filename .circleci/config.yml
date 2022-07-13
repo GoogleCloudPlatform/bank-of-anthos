@@ -24,7 +24,7 @@ jobs:
             echo "checking $SERVICE..."
             # save current working dir to memory and cd to src/$SERVICE
             pushd src/$SERVICE
-            ./mvnw jacoco:report
+            ../../mvnw jacoco:report
             echo "Coverage for $SERVICE:"
             awk -F, \
             '{ instructions += $4 + $5; covered += $5 } END \
