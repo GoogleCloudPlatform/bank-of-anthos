@@ -35,7 +35,7 @@ jobs:
                 source $HOME/venv-$SERVICE/bin/activate
                 pip install --upgrade pip
                 pip install -r requirements.txt
-                python -m pytest --circleci-parallelize --junit-xml=../../test-reports/report-${SERVICE}.xml -v -p no:warnings
+                python -m pytest --junit-xml=../../test-reports/report-${SERVICE}.xml -v -p no:warnings
                 deactivate
               # return to previously saved path
               popd
