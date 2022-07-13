@@ -35,7 +35,7 @@ jobs:
             # return to previously saved path
             popd
             done
-        - store-test-results:
+        - store_test_results:
             path: test-report
         - store_artifacts:
             path: test-report
