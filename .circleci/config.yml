@@ -83,3 +83,5 @@ workflows:
     jobs:
       - java-checkstyle
       - java-test-and-code-cov
+      - python-checkstyle
+      - python-test
