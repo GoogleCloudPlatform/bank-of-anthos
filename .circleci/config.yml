@@ -1,0 +1,47 @@
+version: 2.1
+
+executors:
+  jdk17:
+    docker:
+      - image: cimg/openjdk:17.0.3
+
+jobs:
+  java-checkstyle:
+    executor: jdk17
+    steps:
+      - checkout
+      - run: |
+          ./mvnw checkstyle:check
+
+  java-test-and-code-cov:
+      executor: jdk17
+      steps:
+        - checkout
+        - run: mkdir test-report
+        - run: |
+            ./mvnw test
+            for SERVICE in "balancereader" "ledgerwriter" "transactionhistory"; do
+            echo "checking $SERVICE..."
+            # save current working dir to memory and cd to src/$SERVICE
+            pushd src/$SERVICE
+            ./mvnw jacoco:report
+            echo "Coverage for $SERVICE:"
+            awk -F, \
+            '{ instructions += $4 + $5; covered += $5 } END \
+            { print covered, "/", instructions, " instructions covered"; \
+            print int(100*covered/instructions), "% covered" }' \
+            target/site/jacoco/jacoco.csv
+            cp target/surefire-reports/*.xml ../../test-report
+            # return to previously saved path
+            popd
+            done
+        - store-test-results:
+            path: test-report
+        - store_artifacts:
+            path: test-report
+
+workflows:
+  main:
+    jobs:
+      - java-checkstyle
+      - java-test-and-code-cov
