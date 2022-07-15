@@ -45,6 +45,8 @@ data:
   DEMO_LOGIN_USERNAME: "testuser"
   # All demo user accounts are hardcoded to use the login password 'password'
   DEMO_LOGIN_PASSWORD: "password"
+  DEMO_OAUTH_CLIENT_ID: "apigee"
+  DEMO_OAUTH_REDIRECT_URI: "https://{APIGEE_DOMAIN}/oauth/callback"
 # [END gke_kubernetes_manifests_config_configmap_demo_data_config]
 ---
 # [START gke_kubernetes_manifests_config_configmap_accounts_db_config]

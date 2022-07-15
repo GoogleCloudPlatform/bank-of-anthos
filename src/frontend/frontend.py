@@ -350,15 +350,42 @@ def create_app():
     @app.route("/login", methods=['GET'])
     def login_page():
         """
-        Renders login page. Redirects to /home if user already has a valid token
+        Renders login page. Redirects to /home if user already has a valid token.
+        If this is an oauth flow, then redirect to a consent form.
         """
         token = request.cookies.get(app.config['TOKEN_NAME'])
-        if verify_token(token):
-            # already authenticated
-            app.logger.debug('User already authenticated. Redirecting to /home')
-            return redirect(url_for('home',
-                                    _external=True,
-                                    _scheme=app.config['SCHEME']))
+        response_type = request.args.get('response_type')
+        client_id = request.args.get('client_id')
+        app_name = request.args.get('app_name')
+        redirect_uri = request.args.get('redirect_uri')
+        state = request.args.get('state')
+        if response_type == 'code':
+            app.logger.debug('Login with response_type=code')
+            if client_id != os.environ['REGISTERED_OAUTH_CLIENT_ID']:
+                return redirect(url_for('login',
+                                        msg='Error: Invalid client_id',
+                                        _external=True,
+                                        _scheme=app.config['SCHEME']))
+            if redirect_uri != os.environ['ALLOWED_OAUTH_REDIRECT_URI']:
+                return redirect(url_for('login',
+                                        msg='Error: Invalid redirect_uri',
+                                        _external=True,
+                                        _scheme=app.config['SCHEME']))
+            if verify_token(token):
+                app.logger.debug('User already authenticated. Redirecting to /consent')
+                return make_response(redirect(url_for('consent',
+                                                state=state,
+                                                redirect_uri=redirect_uri,
+                                                app_name=app_name,
+                                                _external=True,
+                                                _scheme=app.config['SCHEME'])))
+        else:
+            if verify_token(token):
+                # already authenticated
+                app.logger.debug('User already authenticated. Redirecting to /home')
+                return redirect(url_for('home',
+                                        _external=True,
+                                        _scheme=app.config['SCHEME']))
 
         return render_template('login.html',
                                cymbal_logo=os.getenv('CYMBAL_LOGO', 'false'),
@@ -368,7 +395,11 @@ def create_app():
                                message=request.args.get('msg', None),
                                default_user=os.getenv('DEFAULT_USERNAME', ''),
                                default_password=os.getenv('DEFAULT_PASSWORD', ''),
-                               bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'))
+                               bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'),
+                               response_type=response_type,
+                               state=state,
+                               redirect_uri=redirect_uri,
+                               app_name=app_name)
 
     @app.route('/login', methods=['POST'])
     def login():
@@ -377,10 +408,18 @@ def create_app():
 
         Fails if userservice does not accept input username and password
         """
-        return _login_helper(request.form['username'],
-                             request.form['password'])
+        if 'response_type' in request.args and 'state' in request.args and 'redirect_uri' in request.args:
+            return _login_helper(request.form['username'],
+                                request.form['password'],
+                                request.args['response_type'],
+                                request.args['state'],
+                                request.args['redirect_uri'],
+                                request.args['app_name'])
+        else:
+            return _login_helper(request.form['username'],
+                                request.form['password'])
 
-    def _login_helper(username, password):
+    def _login_helper(username, password, response_type=None, state=None, redirect_uri=None, app_name=None):
         try:
             app.logger.debug('Logging in.')
             req = requests.get(url=app.config["LOGIN_URI"],
@@ -391,9 +430,18 @@ def create_app():
             token = req.json()['token'].encode('utf-8')
             claims = decode_token(token)
             max_age = claims['exp'] - claims['iat']
-            resp = make_response(redirect(url_for('home',
-                                                  _external=True,
-                                                  _scheme=app.config['SCHEME'])))
+
+            if response_type == 'code':
+                resp = make_response(redirect(url_for('consent',
+                                                    state=state,
+                                                    redirect_uri=redirect_uri,
+                                                    app_name=app_name,
+                                                    _external=True,
+                                                    _scheme=app.config['SCHEME'])))
+            else:
+                resp = make_response(redirect(url_for('home',
+                                                    _external=True,
+                                                    _scheme=app.config['SCHEME'])))
             resp.set_cookie(app.config['TOKEN_NAME'], token, max_age=max_age)
             app.logger.info('Successfully logged in.')
             return resp
@@ -403,6 +451,79 @@ def create_app():
                                 msg='Login Failed',
                                 _external=True,
                                 _scheme=app.config['SCHEME']))
+
+    @app.route("/consent", methods=['GET'])
+    def consent_page():
+        """
+        Renders consent page. Retrieves auth code if user already has already logged in and consented
+        """
+        redirect_uri = request.args.get('redirect_uri')
+        state = request.args.get('state')
+        app_name = request.args.get('app_name')
+        token = request.cookies.get(app.config['TOKEN_NAME'])
+        consented = request.cookies.get(app.config['CONSENT_COOKIE'])
+        if verify_token(token):
+            if consented == "true":
+                app.logger.debug('User consent already granted.')
+                resp = _auth_callback_helper(state, redirect_uri, token)
+                return resp
+            else:
+                return render_template('consent.html',
+                                    cymbal_logo=os.getenv('CYMBAL_LOGO', 'false'),
+                                    cluster_name=cluster_name,
+                                    pod_name=pod_name,
+                                    pod_zone=pod_zone,
+                                    bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'),
+                                    state=state,
+                                    redirect_uri=redirect_uri,
+                                    app_name=app_name)
+        else:
+            return make_response(redirect(url_for('login',
+                                            response_type="code",
+                                            state=state,
+                                            redirect_uri=redirect_uri,
+                                            app_name=app_name,
+                                            _external=True,
+                                            _scheme=app.config['SCHEME'])))
+
+    @app.route('/consent', methods=['POST'])
+    def consent():
+        """
+        Check consent, write cookie if yes, and redirect accordingly
+        """
+        consent = request.args['consent']
+        state = request.args['state']
+        redirect_uri = request.args['redirect_uri']
+        token = request.cookies.get(app.config['TOKEN_NAME'])
+
+        app.logger.debug('Checking consent. consent:' + consent)
+
+        if consent == "true":
+            app.logger.info('User consent granted.')
+            resp = _auth_callback_helper(state, redirect_uri, token)
+            resp.set_cookie(app.config['CONSENT_COOKIE'], 'true')
+        else:
+            app.logger.info('User consent denied.')
+            resp = make_response(redirect(redirect_uri + '#error=access_denied', 302))
+        return resp
+
+    def _auth_callback_helper(state, redirect_uri, token):
+        try:
+            app.logger.debug('Retrieving authorization code.')
+            callbackResponse = requests.post(url=redirect_uri,
+                                             data={'state': state, 'id_token': token},
+                                             timeout=app.config['BACKEND_TIMEOUT'],
+                                             allow_redirects=False)
+            if callbackResponse.status_code == requests.codes.found:
+                app.logger.info('Successfully retrieved auth code.')
+                location = callbackResponse.headers['Location']
+                return make_response(redirect(location, 302))
+            else:
+                app.logger.error('Unexpected response status: %s', callbackResponse.status_code)
+                return make_response(redirect(redirect_uri + '#error=server_error', 302))
+        except requests.exceptions.RequestException as err:
+            app.logger.error('Error retrieving auth code: %s', str(err))
+        return make_response(redirect(redirect_uri + '#error=server_error', 302))
 
     @app.route("/signup", methods=['GET'])
     def signup_page():
@@ -458,6 +579,7 @@ def create_app():
                                               _external=True,
                                               _scheme=app.config['SCHEME'])))
         resp.delete_cookie(app.config['TOKEN_NAME'])
+        resp.delete_cookie(app.config['CONSENT_COOKIE'])
         return resp
 
     def decode_token(token):
@@ -522,6 +644,7 @@ def create_app():
     app.config['LOCAL_ROUTING'] = os.getenv('LOCAL_ROUTING_NUM')
     app.config['BACKEND_TIMEOUT'] = 4  # timeout in seconds for calls to the backend
     app.config['TOKEN_NAME'] = 'token'
+    app.config['CONSENT_COOKIE'] = 'consented'
     app.config['TIMESTAMP_FORMAT'] = '%Y-%m-%dT%H:%M:%S.%f%z'
     app.config['SCHEME'] = os.environ.get('SCHEME', 'http')
 

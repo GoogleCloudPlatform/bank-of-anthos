@@ -1,5 +1,5 @@
 <!--
-Copyright 2021 Google LLC
+Copyright 2022 Google LLC
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ limitations under the License.
       <title>{{ bank_name }}</title>
       {% endif %}
 
-      <link rel="icon" href="static/img/favicon.png"/>
+      <link rel="icon" href=”static/img/favicon.png”/>
       <link rel="stylesheet" href="https://unpkg.com/bootstrap-material-design@4.1.1/dist/css/bootstrap-material-design.min.css" integrity="sha384-wXznGJNEXNG1NFsbm0ugrLFMQPWswR3lds2VeinahP8N0zJw9VWSopbjv2x7WCvX" crossorigin="anonymous">
       <link rel="preconnect" href="https://fonts.gstatic.com">
       <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
@@ -58,61 +58,21 @@ limitations under the License.
       <main class="container">
         <!-- Sign-in card -->
         <div class="row mt-5 mb-5">
-          <!-- Alert on load -->
-          {% if message != None and message != 'Login Failed' %}
-          <div class="col-md-8 offset-md-2">
-            <div class="alert alert-info alert-dismissible fade show" role="alert">
-              <span class="error-icon mr-2 material-icons">error</span>{{ message }}
-              <button type="button" class="close btn-primary" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">×</span>
-              </button>
-            </div>
-          </div>
-          {% endif %}
           <div class="col-lg-6 offset-lg-3">
               <div class="card">
                 <div class="card-title header-body">
                   <div class="text-center col-10 offset-1">
-                    <p class="text-uppercase text-muted secondary-text">Welcome</p>
-                    <h2 class="mb-4 header-title">SIGN IN</h2>
+                    <p class="text-muted secondary-text">"{{ app_name }}" is requesting access to your account information</p>
+                    <h2 class="mb-4 header-title">Do you consent?</h2>
                   </div>
                 </div>
                 <div class="card-body sign-in">
                   <div class="row align-items-center mt-2">
                     <div class="col-10 offset-1 mb-4">
-                      <div id="alertBanner" class="alert alert-danger mb-4 hidden" role="alert">
-                        <span class="error-icon mr-2 material-icons">error</span>Login failed.
-                      </div>
-                      {% if response_type == "code" %}
-                      <form id="login-form" class="needs-validation" novalidate="" method="POST" action="/login?response_type={{ response_type }}&state={{ state }}&redirect_uri={{ redirect_uri }}&app_name={{ app_name }}">
-                      {% else %}
-                      <form id="login-form" class="needs-validation" novalidate="" method="POST" action="/login">
-                      {% endif %}
-                        <label class="text-uppercase text-muted secondary-text" for="username">Username</label>
-                        <div class="input-group mt-2d mb-5">
-                          <div class="input-group-prepend mr-2">
-                            <span class="input-group-text"><span class="material-icons">account_circle</span></span>
-                          </div>
-                          <input class="form-control" type="text" id="login-username" name="username" autocomplete="off" pattern="([a-zA-Z0-9_]){2,15}" value="{{ default_user }}" required>
-                          <div class="invalid-feedback">
-                            Please enter your username.
-                          </div>
+                      <form id="consent-form" class="needs-validation" novalidate="" method="POST">
                         </div>
-                        <label class="text-uppercase text-muted secondary-text" for="password">Password</label>
-                        <div class="input-group mt-2 mb-5">
-                          <div class="input-group-prepend mr-2">
-                            <span class="input-group-text"><span class="material-icons">lock</span></span>
-                          </div>
-                          <input class="form-control" type="password" id="login-password" name="password" value="{{ default_password }}" required>
-                          <div class="invalid-feedback">
-                            Please enter your password.
-                        </div>
-                        </div>
-                        <button class="btn btn-sign-in btn-block mb-4" type="submit">Sign in</button>
-                        <small class="text-uppercase secondary-text text-muted">
-                          Not registered?
-                        </small>
-                        <a href="/signup" class="btn btn-secondary btn-block mt-2 mb-4" id="create-account-btn" type="button">Create an Account</a>
+                        <button class="btn btn-sign-in btn-block mb-4" type="submit" formaction="/consent?consent=true&state={{ state }}&redirect_uri={{ redirect_uri }}">Approve</button>
+                        <button class="btn btn-deny btn-block mb-4" type="submit" formaction="/consent?consent=false&state={{ state }}&redirect_uri={{ redirect_uri }}">Deny</button>
                       </form>
                     </div>
                   </div>
@@ -125,7 +85,7 @@ limitations under the License.
       <!-- Page Footer -->
       <footer class="footer">
         <div class="container">
-            <div class="row mb-2" class="footer-google-inc">© 2021 Google Inc</div>
+            <div class="row mb-2" class="footer-google-inc">© 2022 Google Inc</div>
             <div class="row mb-3">
               <small class="footer-disclaimer">
                 <b>Cluster: </b>{{ cluster_name }}, <b>Pod: </b>{{ pod_name }}<b>, Zone: </b>{{ pod_zone }}
@@ -144,23 +104,5 @@ limitations under the License.
       <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
       <script src="https://unpkg.com/popper.js@1.12.6/dist/umd/popper.js" integrity="sha384-fA23ZRQ3G/J53mElWqVJEGJzU0sTs+SvzG8fXVWP+kJQ1lwFAOkcUOysnlKJC33U" crossorigin="anonymous"></script>
       <script src="https://unpkg.com/bootstrap-material-design@4.1.1/dist/js/bootstrap-material-design.js" integrity="sha384-CauSuKpEqAFajSpkdjv3z9t8E7RlpJ1UP0lKM/+NdtSarroVKu069AlsRPKkFBz9" crossorigin="anonymous"></script>
-      <script>
-        document.addEventListener("DOMContentLoaded", function(event) {
-          // Login client-side validation
-          var login = document.querySelector("#login-form");
-          login.addEventListener("submit", function(e) {
-            if(!login.checkValidity()){
-              e.preventDefault();
-              e.stopPropagation();
-            }
-            login.classList.add('was-validated');
-          });
-
-          var showAlert = (window.location.search == "?msg=Login+Failed");
-          if (showAlert){
-              document.querySelector("#alertBanner").classList.remove("hidden");
-          }
-        });
-      </script>
     </body>
 </html>
