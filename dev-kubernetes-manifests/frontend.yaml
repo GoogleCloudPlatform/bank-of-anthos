@@ -28,13 +28,27 @@ spec:
     spec:
       serviceAccountName: default
       terminationGracePeriodSeconds: 5
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
       containers:
       - name: front
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - all
+          privileged: false
+          readOnlyRootFilesystem: true
         image: frontend
         volumeMounts:
         - name: publickey
-          mountPath: "/root/.ssh"
+          mountPath: "/tmp/.ssh"
           readOnly: true
+        - mountPath: /tmp
+          name: tmp
         env:
         - name: VERSION
           value: "dev"
@@ -105,6 +119,8 @@ spec:
           items:
           - key: jwtRS256.key.pub
             path: publickey
+      - emptyDir: {}
+        name: tmp
 # [END gke_dev_kubernetes_manifests_frontend_deployment_frontend]
 ---
 # [START gke_dev_kubernetes_manifests_frontend_service_frontend]

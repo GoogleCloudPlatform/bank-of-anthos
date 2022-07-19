@@ -28,13 +28,27 @@ spec:
     spec:
       serviceAccountName: default
       terminationGracePeriodSeconds: 5
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
       containers:
       - name: contacts
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - all
+          privileged: false
+          readOnlyRootFilesystem: true
         image: contacts
         volumeMounts:
         - name: publickey
-          mountPath: "/root/.ssh"
+          mountPath: "/tmp/.ssh"
           readOnly: true
+        - mountPath: /tmp
+          name: tmp
         env:
         - name: VERSION
           value: "dev"
@@ -72,6 +86,8 @@ spec:
           items:
           - key: jwtRS256.key.pub
             path: publickey
+      - emptyDir: {}
+        name: tmp
 # [END gke_dev_kubernetes_manifests_contacts_deployment_contacts]
 ---
 # [START gke_dev_kubernetes_manifests_contacts_service_contacts]

@@ -19,7 +19,7 @@ metadata:
   name: environment-config
 data:
   LOCAL_ROUTING_NUM: "883745000"
-  PUB_KEY_PATH: "/root/.ssh/publickey"
+  PUB_KEY_PATH: "/tmp/.ssh/publickey"
 # [END gke_dev_kubernetes_manifests_config_configmap_environment_config]
 ---
 # [START gke_dev_kubernetes_manifests_config_configmap_service_api_config]

@@ -1,5 +1,5 @@
 <!--
-Copyright 2021 Google LLC
+Copyright 2020 Google LLC
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ limitations under the License.
       <link rel="icon" href="static/img/favicon.png"/>
       <link rel="stylesheet" href="https://unpkg.com/bootstrap-material-design@4.1.1/dist/css/bootstrap-material-design.min.css" integrity="sha384-wXznGJNEXNG1NFsbm0ugrLFMQPWswR3lds2VeinahP8N0zJw9VWSopbjv2x7WCvX" crossorigin="anonymous">
       <link rel="preconnect" href="https://fonts.gstatic.com">
-      <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+      <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
       <link rel="stylesheet" href="static/styles/cymbal.css">
       <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
@@ -113,6 +113,8 @@ limitations under the License.
                         <!-- <small class="text-uppercase text-muted secondary-text">Section 2</small> -->
                         <h4 class="mb-4">Personal Information</h4>
 
+                        <h6 class="mb-5">Some fields are read-only for this demo for security purposes.</h6>
+
                         <div class="row mb-5">
                           <div class="col-md-6">
                             <label class="text-uppercase text-muted secondary-text" for="firstname">First name</label>
@@ -132,7 +134,7 @@ limitations under the License.
 
                         <div class="mb-5">
                           <label class="text-uppercase text-muted secondary-text" for="address">Address</label>
-                          <input type="text" class="form-control" id="address" name="address" value="Bowling Green, New York City" readonly>
+                          <input type="text" class="form-control" id="address" name="address" value="123 Nth Avenue, New York City" readonly>
                           <div class="invalid-feedback">
                             Please enter your address.
                           </div>
@@ -226,7 +228,7 @@ limitations under the License.
                             </div>
                           </div>
                           <div class="col-md-6">
-                            <label class="text-uppercase text-muted secondary-text" for="birthday">Birthday (mm/dd/yyyy)</label>
+                            <label class="text-uppercase text-muted secondary-text" for="birthday">Birthday</label>
                             <input type="date" class="form-control" id="signup-birthday" name="birthday"  min="1900-01-01" required>
                             <div class="invalid-feedback">
                               Valid birthday is required.
@@ -341,14 +343,14 @@ limitations under the License.
       <!-- Page Footer -->
       <footer class="footer">
         <div class="container">
-            <div class="row mb-2" class="footer-google-inc">© 2021 Google Inc</div>
+            <div class="row mb-2" class="footer-google-inc">© 2020-2022 Google LLC</div>
             <div class="row mb-3">
-              <small class="footer-disclaimer">
+              <small>
                 <b>Cluster: </b>{{ cluster_name }}, <b>Pod: </b>{{ pod_name }}<b>, Zone: </b>{{ pod_zone }}
               </small>
             </div>
             <div class="row mb-3">
-              <small class="footer-disclaimer">
+              <small>
                 This website is hosted for demo purposes only. It is not an
                 actual bank. This is not an official Google project.
               </small>
