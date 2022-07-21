@@ -1,7 +1,6 @@
-# Bank of Anthos Quickstart
+# Bank of Anthos quickstart
 
-## 
-This tutorial shows you how to deploy the Bank of Anthos app to a Kubernetes cluster.
+This tutorial shows you how to deploy **[Bank of Anthos](https://github.com/GoogleCloudPlatform/bank-of-anthos)** to a Kubernetes cluster.
 
 You'll be able to run Bank of Anthos on:
 - a local **[minikube](https://minikube.sigs.k8s.io/docs/)** cluster, which comes built in to the Cloud Shell instance
@@ -9,13 +8,15 @@ You'll be able to run Bank of Anthos on:
 
 Let's get started!
 
+
 ## Select a GCP project
 
 In order to create a Google Kubernetes Engine cluster, you'll need to create a Google Cloud Platform project or use an existing project.
 
-Note: If you choose to deploy to minikube instead of GKE, you can skip this step.
+**Note:** If you choose to deploy to minikube instead of GKE, you can skip this step.
 
 <walkthrough-project-setup></walkthrough-project-setup>
+
 
 ## Kubernetes cluster setup
 
@@ -27,7 +28,6 @@ This section shows you how to set up a Kubernetes cluster using either **minikub
 
 3. Choose either **Minikube** or **Google Kubernetes Engine** and follow the relevant instructions below.
 
-
 ### Minikube
 *(skip this section if you're planning on deploying to GKE)*
 
@@ -36,7 +36,6 @@ This section shows you how to set up a Kubernetes cluster using either **minikub
 5. Select **Start**. Cloud Code will initiate a minikube cluster.
 
 6. If prompted, authorize Cloud Shell to make a GCP API call with your credentials.
-
 
 ### GKE
 *(skip this section if you're planning on deploying to minikube)*
@@ -55,7 +54,8 @@ This section shows you how to set up a Kubernetes cluster using either **minikub
 
 Once you've configured your minikube or GKE cluster, you're ready to move on to the next step.
 
-## Deploy JWT token
+
+## Deploy the JWT token
 
 Bank of Anthos uses a JWT token for user account creation and authentication. 
 
@@ -77,6 +77,7 @@ To deploy the token:
 This deploys the demo JWT public key to your cluster as a Secret.
 
 For more information about using JWT keys in Bank of Anthos, check out the <walkthrough-editor-open-file filePath="extras/jwt/README.md">JWT Key Pair Secret README</walkthrough-editor-open-file>.
+
 
 ## Run on Kubernetes
 
@@ -105,19 +106,19 @@ To stop running the app:
 
 1. Go to the <walkthrough-editor-spotlight spotlightId="activity-bar-debug">Debug view</walkthrough-editor-spotlight> 
 
-2. Click the 'Stop' icon. 🟥
+2. Click the **Stop** icon.
 
 3. If prompted, select **Yes** to clean up deployed resources.
 
 You can start, stop, and debug apps from the Debug view.
 
 ### Cleanup
+
 If you've deployed your app to a GKE cluster in your Google Cloud Platform project, you'll want to delete the cluster to avoid incurring charges.
 
 1. Navigate to the <walkthrough-editor-spotlight spotlightId="activity-bar-cloud-k8s">Cloud Code - Kubernetes view</walkthrough-editor-spotlight> in the Activity bar.
 
 2. Under the <walkthrough-editor-spotlight spotlightId="cloud-code-gke-explorer">**Clusters**</walkthrough-editor-spotlight> explorer, right-click on your cluster and select **Delete Cluster**.
-
 
 
 ## Conclusion
