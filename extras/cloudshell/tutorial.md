@@ -1,6 +1,6 @@
 # Bank of Anthos quickstart
 
-This tutorial shows you how to deploy Bank of Anthos to a Kubernetes cluster.
+This tutorial shows you how to deploy **[Bank of Anthos](https://github.com/GoogleCloudPlatform/bank-of-anthos)** to a Kubernetes cluster.
 
 You'll be able to run Bank of Anthos on:
 - a local **[minikube](https://minikube.sigs.k8s.io/docs/)** cluster, which comes built in to the Cloud Shell instance
