@@ -64,7 +64,7 @@ To deploy the token:
 1. Open <walkthrough-editor-open-file filePath="extras/jwt/jwt-secret.yaml">jwt-secret.yaml
 </walkthrough-editor-open-file>. 
 
-2. Access the command palette by going to **View > Find Command**.
+2. Access the command palette by going to **View > Command Palette...**.
 
 3. Run the command **"Cloud Code: Apply the current JSON/YAML file to the kubernetes deployed resource"**.   
 
