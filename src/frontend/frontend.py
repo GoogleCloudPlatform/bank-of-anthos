@@ -359,7 +359,7 @@ def create_app():
         app_name = request.args.get('app_name')
         redirect_uri = request.args.get('redirect_uri')
         state = request.args.get('state')
-        if response_type == 'code':
+        if 'REGISTERED_OAUTH_CLIENT_ID' in os.environ and 'ALLOWED_OAUTH_REDIRECT_URI' in os.environ and response_type == 'code':
             app.logger.debug('Login with response_type=code')
             if client_id != os.environ['REGISTERED_OAUTH_CLIENT_ID']:
                 return redirect(url_for('login',

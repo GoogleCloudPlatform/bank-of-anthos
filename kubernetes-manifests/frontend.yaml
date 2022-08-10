@@ -69,13 +69,15 @@ spec:
         - name: REGISTERED_OAUTH_CLIENT_ID
           valueFrom:
             configMapKeyRef:
-              name: demo-data-config
+              name: oauth-config
               key: DEMO_OAUTH_CLIENT_ID
+              optional: true
         - name: ALLOWED_OAUTH_REDIRECT_URI
           valueFrom:
             configMapKeyRef:
-              name: demo-data-config
-              key: DEMO_OAUTH_REDIRECT_URI              
+              name: oauth-config
+              key: DEMO_OAUTH_REDIRECT_URI
+              optional: true
         # Customize the metadata server hostname to query for metadata
         #- name: METADATA_SERVER
         #  value: "my-metadata-server"
