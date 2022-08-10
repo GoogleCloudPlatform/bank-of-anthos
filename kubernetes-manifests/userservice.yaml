@@ -30,7 +30,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: userservice
-        image: gcr.io/bank-of-anthos-ci/userservice:v0.5.4
+        image: gcr.io/bank-of-anthos-ci/userservice:v0.5.5
         volumeMounts:
         - name: keys
           mountPath: "/root/.ssh"
@@ -40,7 +40,7 @@ spec:
           containerPort: 8080
         env:
         - name: VERSION
-          value: "v0.5.4"
+          value: "v0.5.5"
         - name: PORT
           value: "8080"
         - name: ENABLE_TRACING
@@ -66,10 +66,10 @@ spec:
           timeoutSeconds: 10
         resources:
           requests:
-            cpu: 100m
+            cpu: 200m
             memory: 64Mi
           limits:
-            cpu: 250m
+            cpu: 500m
             memory: 256Mi
       volumes:
       - name: keys

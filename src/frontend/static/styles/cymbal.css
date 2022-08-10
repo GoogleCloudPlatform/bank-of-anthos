@@ -15,134 +15,125 @@
  */
 
  html, body {
-  font-family: 'DM Sans', sans-serif !important;
-  font-size: 1.1rem;
-  margin: 0;
-  padding: 0;
-  background-color: #ffffff !important;
-}
-p {
-  margin-bottom: 0rem !important;
-}
-small {
-  font-size: 0.9rem;
-}
-.pop-up-label {
-  font-size: 24px;
-  font-weight: 500;
-  color: #343434;
-}
-label {
-  font-size: 0.9rem;
-}
+    font-family: 'Roboto', sans-serif !important;
+    font-size: 1.1rem;
+    margin: 0;
+    padding: 0;
+    background-color: #ffffff !important;
+  }
+  p {
+    margin-bottom: 0rem !important;
+  }
+  small {
+    font-size: 0.9rem;
+  }
+  .pop-up-label {
+    font-size: 24px;
+    font-weight: 500;
+    color: #343434;
+  }
+  label {
+    font-size: 0.9rem;
+  }
 
 /* MATERIAL ICONS */
-.material-icons {
-  color: #008A20;
-  vertical-align:middle !important;
-}
-.button-icon {
-  font-size: 24px;
-  color: #008A20;
-}
-.money-icon {
-  font-size: 24px;
-  color: #008A20;
-}
-.modal-icon {
-  font-size: 18px !important;
-  margin-right: 8px;
-  width: 18px;
-  color: #008A20;
-}
-.arrow-back {
-  font-size: 15px;
-  color: #008A20;
-}
-#deposit-icon {
-  color: white !important;
-  vertical-align:middle !important;
-}
-#payment-icon {
-  color: white !important;
-  vertical-align:middle !important;
-}
+  .material-icons {
+    color: #008A20;
+    vertical-align:middle !important;
+  }
+  .button-icon {
+    font-size: 24px;
+    color: #008A20;
+  }
+  .money-icon {
+    font-size: 24px;
+    color: #008A20;
+  }
+  .modal-icon {
+    font-size: 18px !important;
+    margin-right: 8px;
+    width: 18px;
+    color: #008A20;
+  }
+  .arrow-back {
+    font-size: 15px;
+    color: #008A20;
+  }
+  #deposit-icon {
+    color: white !important;
+    vertical-align:middle !important;
+  }
+  #payment-icon {
+    color: white !important;
+    vertical-align:middle !important;
+  }
 
 
 
 /* TOP NAVIGATION  */
-.header {
-  margin-bottom: 2rem;
-}
+  .header {
+    margin-bottom: 2rem;
+  }
 
-.header-title, .card-header-title {
-  font-weight: 500;
-  font-family: DM Sans;
-  font-style: normal;
-  font-weight: normal;
-  color: #343434;
-}
-.logo-container {
-}
-#cymbal-logo {
-  max-width: 80%;
-  max-height: 80%;
-  vertical-align: middle;
-  /* margin: auto;
-  display: block;
-  object-fit: contain; */
-}
-.navbar-top {
-  background-color: white;
-  min-height: 80px;
-  color: white;
-  position: relative;
-}
-.nav-item {
-  font-size: 24px !important;
-  margin: auto;
-  margin-left: 20px;
-}
-.nav-link {
-  color: #343434;
-  text-transform: none !important;
-  font-size: 1rem !important;
-}
-.navbar-brand {
-  font-family: DM Sans;
-  font-style: normal;
-  font-weight: 700;
-  font-size: 1.5rem !important;
-  letter-spacing: -0.04em !important;
-  color: #000000 !important;
-}
-.nav-link i {
-  font-size: 20px;
-}
-.nav-link:hover {
-  color: #343434;
-  transition: all 0.2s ease-in;
-}
-#account-user-name {
-  font-family: DM Sans;
-  font-style: normal;
-  font-weight: 500;
-  font-size: 1.1rem;
-  color: #000101;
-}
-.account-user-avatar {
-  margin-right: 5px;
-}
-#logout-form a:hover {
-  cursor: pointer;
-}
-.fa-icon-spacer {
-  margin-left: 8px;
-}
-.header-body {
-  padding-top: 1.5rem;
-  /* border-bottom: 1px solid black;  */
-}
+  .header-title, .card-header-title {
+    font-weight: 500;
+    color: #343434;
+  }
+  #cymbal-logo {
+    max-width: 80%;
+    max-height: 80%;
+    vertical-align: middle;
+    /* margin: auto;
+    display: block;
+    object-fit: contain; */
+  }
+  .navbar-top {
+    background-color: white;
+    min-height: 80px;
+    color: white;
+    position: relative;
+  }
+  .nav-item {
+    font-size: 24px !important;
+    margin: auto;
+    margin-left: 20px;
+  }
+  .nav-link {
+    color: #343434;
+    text-transform: none !important;
+    font-size: 1rem !important;
+  }
+  .navbar-brand {
+    font-weight: 700;
+    font-size: 1.5rem !important;
+    letter-spacing: -0.04em !important;
+    color: #000000 !important;
+  }
+  .nav-link i {
+    font-size: 20px;
+  }
+  .nav-link:hover {
+    color: #343434;
+    transition: all 0.2s ease-in;
+  }
+  #account-user-name {
+    font-weight: 500;
+    font-size: 1.1rem;
+    color: #000101;
+  }
+  .account-user-avatar {
+    margin-right: 5px;
+  }
+  #logout-form a:hover {
+    cursor: pointer;
+  }
+  .fa-icon-spacer {
+    margin-left: 8px;
+  }
+  .header-body {
+    padding-top: 1.5rem;
+    /* border-bottom: 1px solid black;  */
+  }
 
 
 #popup {
@@ -471,8 +462,8 @@ input {
     display: flex;
   }
 
-  .check-mark-container {
-    display: flex;
-    align-items: center;
-    margin-right: 5px;
-  }
+    .check-mark-container {
+      display: flex;
+      align-items: center;
+      margin-right: 15px;
+    }
