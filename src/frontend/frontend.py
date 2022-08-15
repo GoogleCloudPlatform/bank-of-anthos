@@ -359,7 +359,9 @@ def create_app():
         app_name = request.args.get('app_name')
         redirect_uri = request.args.get('redirect_uri')
         state = request.args.get('state')
-        if 'REGISTERED_OAUTH_CLIENT_ID' in os.environ and 'ALLOWED_OAUTH_REDIRECT_URI' in os.environ and response_type == 'code':
+        if ('REGISTERED_OAUTH_CLIENT_ID' in os.environ and
+            'ALLOWED_OAUTH_REDIRECT_URI' in os.environ and
+            response_type == 'code'):
             app.logger.debug('Login with response_type=code')
             if client_id != os.environ['REGISTERED_OAUTH_CLIENT_ID']:
                 return redirect(url_for('login',
@@ -408,18 +410,11 @@ def create_app():
 
         Fails if userservice does not accept input username and password
         """
-        if 'response_type' in request.args and 'state' in request.args and 'redirect_uri' in request.args:
-            return _login_helper(request.form['username'],
-                                request.form['password'],
-                                request.args['response_type'],
-                                request.args['state'],
-                                request.args['redirect_uri'],
-                                request.args['app_name'])
-        else:
-            return _login_helper(request.form['username'],
-                                request.form['password'])
+        return _login_helper(request.form['username'],
+                            request.form['password'],
+                            request.args)
 
-    def _login_helper(username, password, response_type=None, state=None, redirect_uri=None, app_name=None):
+    def _login_helper(username, password, request_args):
         try:
             app.logger.debug('Logging in.')
             req = requests.get(url=app.config["LOGIN_URI"],
@@ -431,11 +426,14 @@ def create_app():
             claims = decode_token(token)
             max_age = claims['exp'] - claims['iat']
 
-            if response_type == 'code':
+            if ('response_type' in request_args and
+                'state' in request_args and
+                'redirect_uri' in request_args and
+                request_args['response_type'] == 'code'):
                 resp = make_response(redirect(url_for('consent',
-                                                    state=state,
-                                                    redirect_uri=redirect_uri,
-                                                    app_name=app_name,
+                                                    state=request_args['state'],
+                                                    redirect_uri=request_args['redirect_uri'],
+                                                    app_name=request_args['app_name'],
                                                     _external=True,
                                                     _scheme=app.config['SCHEME'])))
             else:
@@ -454,8 +452,10 @@ def create_app():
 
     @app.route("/consent", methods=['GET'])
     def consent_page():
-        """
-        Renders consent page. Retrieves auth code if user already has already logged in and consented
+        """Renders consent page.
+
+        Retrieves auth code if the user has
+        already logged in and consented.
         """
         redirect_uri = request.args.get('redirect_uri')
         state = request.args.get('state')
@@ -467,16 +467,16 @@ def create_app():
                 app.logger.debug('User consent already granted.')
                 resp = _auth_callback_helper(state, redirect_uri, token)
                 return resp
-            else:
-                return render_template('consent.html',
-                                    cymbal_logo=os.getenv('CYMBAL_LOGO', 'false'),
-                                    cluster_name=cluster_name,
-                                    pod_name=pod_name,
-                                    pod_zone=pod_zone,
-                                    bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'),
-                                    state=state,
-                                    redirect_uri=redirect_uri,
-                                    app_name=app_name)
+
+            return render_template('consent.html',
+                                cymbal_logo=os.getenv('CYMBAL_LOGO', 'false'),
+                                cluster_name=cluster_name,
+                                pod_name=pod_name,
+                                pod_zone=pod_zone,
+                                bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'),
+                                state=state,
+                                redirect_uri=redirect_uri,
+                                app_name=app_name)
         else:
             return make_response(redirect(url_for('login',
                                             response_type="code",
@@ -510,17 +510,17 @@ def create_app():
     def _auth_callback_helper(state, redirect_uri, token):
         try:
             app.logger.debug('Retrieving authorization code.')
-            callbackResponse = requests.post(url=redirect_uri,
+            callback_response = requests.post(url=redirect_uri,
                                              data={'state': state, 'id_token': token},
                                              timeout=app.config['BACKEND_TIMEOUT'],
                                              allow_redirects=False)
-            if callbackResponse.status_code == requests.codes.found:
+            if callback_response.status_code == requests.codes.found:
                 app.logger.info('Successfully retrieved auth code.')
-                location = callbackResponse.headers['Location']
+                location = callback_response.headers['Location']
                 return make_response(redirect(location, 302))
-            else:
-                app.logger.error('Unexpected response status: %s', callbackResponse.status_code)
-                return make_response(redirect(redirect_uri + '#error=server_error', 302))
+
+            app.logger.error('Unexpected response status: %s', callback_response.status_code)
+            return make_response(redirect(redirect_uri + '#error=server_error', 302))
         except requests.exceptions.RequestException as err:
             app.logger.error('Error retrieving auth code: %s', str(err))
         return make_response(redirect(redirect_uri + '#error=server_error', 302))
