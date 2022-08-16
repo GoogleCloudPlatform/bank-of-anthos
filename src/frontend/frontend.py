@@ -477,14 +477,14 @@ def create_app():
                                 state=state,
                                 redirect_uri=redirect_uri,
                                 app_name=app_name)
-        else:
-            return make_response(redirect(url_for('login',
-                                            response_type="code",
-                                            state=state,
-                                            redirect_uri=redirect_uri,
-                                            app_name=app_name,
-                                            _external=True,
-                                            _scheme=app.config['SCHEME'])))
+
+        return make_response(redirect(url_for('login',
+                                        response_type="code",
+                                        state=state,
+                                        redirect_uri=redirect_uri,
+                                        app_name=app_name,
+                                        _external=True,
+                                        _scheme=app.config['SCHEME'])))
 
     @app.route('/consent', methods=['POST'])
     def consent():
@@ -561,7 +561,8 @@ def create_app():
                 # user created. Attempt login
                 app.logger.info('New user created.')
                 return _login_helper(request.form['username'],
-                                     request.form['password'])
+                                     request.form['password'],
+                                     request.args)
         except requests.exceptions.RequestException as err:
             app.logger.error('Error creating new user: %s', str(err))
         return redirect(url_for('login',
