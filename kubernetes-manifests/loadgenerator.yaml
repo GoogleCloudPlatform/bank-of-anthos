@@ -32,9 +32,21 @@ spec:
       serviceAccountName: default
       terminationGracePeriodSeconds: 5
       restartPolicy: Always
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
       containers:
       - name: loadgenerator
-        image: gcr.io/bank-of-anthos-ci/loadgenerator:v0.5.5
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - all
+          privileged: false
+          readOnlyRootFilesystem: true
+        image: gcr.io/bank-of-anthos-ci/loadgenerator:v0.5.6
         env:
         - name: FRONTEND_ADDR
           value: "frontend:80"
