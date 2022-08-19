@@ -28,16 +28,30 @@ spec:
     spec:
       serviceAccountName: default
       terminationGracePeriodSeconds: 5
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
       containers:
       - name: balancereader
-        image: gcr.io/bank-of-anthos-ci/balancereader:v0.5.5
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - all
+          privileged: false
+          readOnlyRootFilesystem: true
+        image: gcr.io/bank-of-anthos-ci/balancereader:v0.5.6
         volumeMounts:
         - name: publickey
-          mountPath: "/root/.ssh"
+          mountPath: "/tmp/.ssh"
           readOnly: true
+        - mountPath: /tmp
+          name: tmp
         env:
         - name: VERSION
-          value: "v0.5.5"
+          value: "v0.5.6"
         - name: PORT
           value: "8080"
         # toggle Cloud Trace export
@@ -100,6 +114,8 @@ spec:
           items:
           - key: jwtRS256.key.pub
             path: publickey
+      - emptyDir: {}
+        name: tmp
 # [END gke_boa_kubernetes_manifests_balance_reader_deployment_balancereader]
 ---
 # [START gke_boa_kubernetes_manifests_balance_reader_service_balancereader]
