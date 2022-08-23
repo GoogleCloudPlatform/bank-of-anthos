@@ -57,7 +57,7 @@ google-cloud-trace==1.6.2
     # via
     #   -r requirements.in
     #   opentelemetry-exporter-gcp-trace
-googleapis-common-protos==1.56.3
+googleapis-common-protos==1.56.4
     # via
     #   -r requirements.in
     #   google-api-core
