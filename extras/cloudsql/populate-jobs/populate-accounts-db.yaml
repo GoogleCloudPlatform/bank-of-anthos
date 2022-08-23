@@ -328,9 +328,9 @@ data:
         fi
       done
 
-      # A password hash + salt for the demo password 'password'
-      # Via Python3:  bycrypt.hashpw('password'.encode('utf-8'), bcrypt.gensalt())
-      DEFAULT_PASSHASH='\x243262243132245273764737474f39777562452f4a786a79444a7263756f386568466b762e634e5262356e6867746b474752584c6634437969346643'
+      # A password hash + salt for the demo password 'bankofanthos'
+      # Via Python3:  bcrypt.hashpw('bankofanthos'.encode('utf-8'), bcrypt.gensalt()).hex()
+      DEFAULT_PASSHASH='\x2432622431322477595638423166664b50667a41524a6b69614d6c5075784847466961636b6d333349595952786d59645a6834435946696f49434943'
 
       create_accounts
     }
