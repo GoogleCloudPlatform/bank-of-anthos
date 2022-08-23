@@ -126,7 +126,7 @@ typing-extensions==4.3.0
     # via
     #   importlib-metadata
     #   opentelemetry-sdk
-urllib3==1.26.9
+urllib3==1.26.12
     # via
     #   -r requirements.in
     #   requests
