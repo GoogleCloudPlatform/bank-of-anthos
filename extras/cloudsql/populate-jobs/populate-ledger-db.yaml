@@ -170,7 +170,7 @@ data:
 
 
     add_transaction() {
-        DATE=$(date -u +"%Y-%m-%d %H:%M:%S.%3N%z" --date="@$(($6))")
+        DATE=$(date -u +"%Y-%m-%d %H:%M:%S%z" --date="@$(($6))")
         echo "adding demo transaction: $1 -> $2"
         psql -X -v ON_ERROR_STOP=1 -v fromacct="$1" -v toacct="$2" -v fromroute="$3" -v toroute="$4" -v amount="$5" --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
             INSERT INTO TRANSACTIONS (FROM_ACCT, TO_ACCT, FROM_ROUTE, TO_ROUTE, AMOUNT, TIMESTAMP)
