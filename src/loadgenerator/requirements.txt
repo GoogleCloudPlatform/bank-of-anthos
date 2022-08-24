@@ -65,7 +65,7 @@ typing-extensions==4.3.0
     # via
     #   importlib-metadata
     #   locust
-urllib3==1.26.9
+urllib3==1.26.12
     # via requests
 werkzeug==2.1.2
     # via
