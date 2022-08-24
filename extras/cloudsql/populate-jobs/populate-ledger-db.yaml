@@ -12,95 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START gke_populate_jobs_populate_ledger_db_job_populate_ledger_db]
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: populate-ledger-db
-spec:
-  template:
-    spec:
-      shareProcessNamespace: true # Important to stop all processes
-      serviceAccountName: boa-ksa
-      containers:
-      - name: sidecar-controller
-        image: bash
-        command: ['bash', '-c', '. /scripts/wait-to-complete-sidecar.sh "initialize-database.sh" "cloud_sql_proxy"']
-        volumeMounts:
-        - name: scripts
-          mountPath: "/scripts"
-          readOnly: true
-        resources:
-          limits:
-            cpu: "200m"
-            memory: "100Mi"
-      - name: populate-ledger-db
-        image: postgres:13.0
-        command: ['bash', '-c','. /scripts/initialize-database.sh 127.0.0.1 5432 ledger-db']
-        volumeMounts:
-        - name: scripts
-          mountPath: "/scripts"
-          readOnly: true
-        env:
-        - name: PGUSER
-          valueFrom:
-            secretKeyRef:
-              name: cloud-sql-admin
-              key: username
-        - name: PGPASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: cloud-sql-admin
-              key: password
-        # /start: Required for testing data
-        - name: LOCAL_ROUTING_NUM
-          valueFrom:
-            configMapKeyRef:
-              name: environment-config
-              key: LOCAL_ROUTING_NUM
-        - name: USE_DEMO_DATA
-          valueFrom:
-            configMapKeyRef:
-              name: demo-data-config
-              key: USE_DEMO_DATA
-        - name: POSTGRES_DB
-          value: "ledger-db"
-        - name: PGHOSTADDR
-          value: "127.0.0.1"
-        - name: POSTGRES_USER
-          valueFrom:
-            secretKeyRef:
-              name: cloud-sql-admin
-              key: username
-        - name: POSTGRES_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: cloud-sql-admin
-              key: password
-      # /end: Required for testing data
-      # CloudSQL Proxy
-      - name: cloudsql-proxy
-        resources:
-          limits:
-            cpu: "200m"
-            memory: "100Mi"
-        image: gcr.io/cloudsql-docker/gce-proxy:1.30.0
-        env:
-        - name: CONNECTION_NAME
-          valueFrom:
-            secretKeyRef:
-              name: cloud-sql-admin
-              key: connectionName
-        command: ["/cloud_sql_proxy",
-                  "-instances=$(CONNECTION_NAME)=tcp:5432"]
-      volumes:
-      - name: scripts
-        configMap:
-          name: ledger-schema-config
-      restartPolicy: Never
-  backoffLimit: 4
-# [END gke_populate_jobs_populate_ledger_db_job_populate_ledger_db]
----
 # [START gke_populate_jobs_populate_ledger_db_configmap_ledger_schema_config]
 # kubectl create configmap ledger-schema-config --from-file=src/ledger-db/initdb/0-ledger-schema.sql --dry-run -o yaml (copy and add below)
 # kubectl create configmap ledger-schema-config --from-file=src/ledger-db/initdb/1-load-testdata.sh --dry-run -o yaml (copy and add below)
@@ -259,7 +170,7 @@ data:
 
 
     add_transaction() {
-        DATE=$(date -u +"%Y-%m-%d %H:%M:%S.%3N%z" --date="@$(($6))")
+        DATE=$(date -u +"%Y-%m-%d %H:%M:%S%z" --date="@$(($6))")
         echo "adding demo transaction: $1 -> $2"
         psql -X -v ON_ERROR_STOP=1 -v fromacct="$1" -v toacct="$2" -v fromroute="$3" -v toroute="$4" -v amount="$5" --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
             INSERT INTO TRANSACTIONS (FROM_ACCT, TO_ACCT, FROM_ROUTE, TO_ROUTE, AMOUNT, TIMESTAMP)
@@ -334,3 +245,94 @@ data:
     main
 
 # [END gke_populate_jobs_populate_ledger_db_configmap_ledger_schema_config]
+---
+# [START gke_populate_jobs_populate_ledger_db_job_populate_ledger_db]
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: populate-ledger-db
+spec:
+  template:
+    spec:
+      shareProcessNamespace: true # Important to stop all processes
+      serviceAccountName: boa-ksa
+      containers:
+      - name: sidecar-controller
+        image: bash
+        command: ['bash', '-c', '. /scripts/wait-to-complete-sidecar.sh "initialize-database.sh" "cloud_sql_proxy"']
+        volumeMounts:
+        - name: scripts
+          mountPath: "/scripts"
+          readOnly: true
+        resources:
+          limits:
+            cpu: "200m"
+            memory: "100Mi"
+      - name: populate-ledger-db
+        image: postgres:14-alpine
+        command: ['bash', '-c','. /scripts/initialize-database.sh 127.0.0.1 5432 ledger-db']
+        volumeMounts:
+        - name: scripts
+          mountPath: "/scripts"
+          readOnly: true
+        env:
+        - name: PGUSER
+          valueFrom:
+            secretKeyRef:
+              name: cloud-sql-admin
+              key: username
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: cloud-sql-admin
+              key: password
+        # /start: Required for testing data
+        - name: LOCAL_ROUTING_NUM
+          valueFrom:
+            configMapKeyRef:
+              name: environment-config
+              key: LOCAL_ROUTING_NUM
+        - name: USE_DEMO_DATA
+          valueFrom:
+            configMapKeyRef:
+              name: demo-data-config
+              key: USE_DEMO_DATA
+        - name: POSTGRES_DB
+          value: "ledger-db"
+        - name: PGHOSTADDR
+          value: "127.0.0.1"
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: cloud-sql-admin
+              key: username
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: cloud-sql-admin
+              key: password
+      # /end: Required for testing data
+      # CloudSQL Proxy
+      - name: cloudsql-proxy
+        resources:
+          limits:
+            cpu: "200m"
+            memory: "100Mi"
+        image: gcr.io/cloudsql-docker/gce-proxy:1.30.0
+        env:
+        - name: CONNECTION_NAME
+          valueFrom:
+            secretKeyRef:
+              name: cloud-sql-admin
+              key: connectionName
+        command: ["/cloud_sql_proxy",
+                  "-instances=$(CONNECTION_NAME)=tcp:5432"]
+        securityContext:
+          runAsNonRoot: true
+      volumes:
+      - name: scripts
+        configMap:
+          name: ledger-schema-config
+      restartPolicy: Never
+  backoffLimit: 4
+# [END gke_populate_jobs_populate_ledger_db_job_populate_ledger_db]
