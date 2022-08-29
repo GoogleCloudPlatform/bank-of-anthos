@@ -27,7 +27,7 @@ cffi==1.15.1
     #   cryptography
 chardet==5.0.0
     # via -r requirements.in
-charset-normalizer==2.0.12
+charset-normalizer==2.1.1
     # via requests
 click==8.1.3
     # via
@@ -39,14 +39,14 @@ cryptography==37.0.4
     # via -r requirements.in
 deprecated==1.2.13
     # via opentelemetry-api
-flask==2.1.2
+flask==2.2.2
     # via -r requirements.in
 google-api-core[grpc]==2.8.2
     # via
     #   -r requirements.in
     #   google-cloud-core
     #   google-cloud-trace
-google-auth==2.9.0
+google-auth==2.11.0
     # via
     #   -r requirements.in
     #   google-api-core
@@ -99,6 +99,7 @@ markupsafe==2.1.1
     # via
     #   -r requirements.in
     #   jinja2
+    #   werkzeug
 more-itertools==8.13.0
     # via -r requirements.in
 opentelemetry-api==1.11.1
@@ -227,7 +228,7 @@ webencodings==0.5.1
     # via
     #   -r requirements.in
     #   bleach
-werkzeug==2.1.2
+werkzeug==2.2.2
     # via
     #   -r requirements.in
     #   flask

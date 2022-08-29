@@ -10,13 +10,13 @@ certifi==2022.6.15
     # via
     #   geventhttpclient
     #   requests
-charset-normalizer==2.0.12
+charset-normalizer==2.1.1
     # via requests
 click==8.1.3
     # via flask
 configargparse==1.5.3
     # via locust
-flask==2.1.2
+flask==2.2.2
     # via
     #   flask-basicauth
     #   flask-cors
@@ -67,7 +67,7 @@ typing-extensions==4.3.0
     #   locust
 urllib3==1.26.12
     # via requests
-werkzeug==2.1.2
+werkzeug==2.2.2
     # via
     #   flask
     #   locust
