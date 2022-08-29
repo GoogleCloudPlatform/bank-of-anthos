@@ -99,6 +99,7 @@ markupsafe==2.1.1
     # via
     #   -r requirements.in
     #   jinja2
+    #   werkzeug
 more-itertools==8.13.0
     # via -r requirements.in
 opentelemetry-api==1.11.1
@@ -227,7 +228,7 @@ webencodings==0.5.1
     # via
     #   -r requirements.in
     #   bleach
-werkzeug==2.1.2
+werkzeug==2.2.2
     # via
     #   -r requirements.in
     #   flask
