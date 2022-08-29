@@ -69,6 +69,7 @@ kubectl create secret -n $NAMESPACE generic cloud-sql-admin \
 This command will also deploy two Kubernetes Jobs, to populate the accounts and ledger dbs with Tables and test data.
 
 ```
+kubectl apply -n $NAMESPACE -f ./kubernetes-manifests/config.yaml
 kubectl apply -n $NAMESPACE -f ./populate-jobs
 kubectl apply -n $NAMESPACE -f ./kubernetes-manifests
 ```
