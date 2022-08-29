@@ -43,10 +43,12 @@ itsdangerous==2.1.2
     # via flask
 jinja2==3.1.2
     # via flask
-locust==2.11.0
+locust==2.11.1
     # via -r requirements.in
 markupsafe==2.1.1
-    # via jinja2
+    # via
+    #   jinja2
+    #   werkzeug
 msgpack==1.0.4
     # via locust
 psutil==5.9.1
