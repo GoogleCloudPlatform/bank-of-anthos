@@ -161,7 +161,7 @@
                 <version>3.2.1</version>
                 <configuration>
                     <from>
-                        <image>openjdk:17</image>
+                        <image>openjdk:17-slim</image>
                     </from>
                 </configuration>
             </plugin>
