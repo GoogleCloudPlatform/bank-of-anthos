@@ -1,4 +1,4 @@
-attrs==21.4.0
+attrs==22.1.0
 bcrypt==3.2.2
 bleach==5.0.1
 cachetools==5.2.0
