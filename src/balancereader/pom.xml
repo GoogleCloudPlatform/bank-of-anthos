@@ -163,6 +163,9 @@
                     <from>
                         <image>openjdk:17-slim</image>
                     </from>
+                    <to>
+                        <image>openjdk:17-slim</image>
+                    </to>
                 </configuration>
             </plugin>
             <plugin>
