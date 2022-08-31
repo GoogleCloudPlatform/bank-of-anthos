@@ -95,9 +95,9 @@ opentelemetry-util-http==0.30b1
     #   opentelemetry-instrumentation-flask
     #   opentelemetry-instrumentation-requests
     #   opentelemetry-instrumentation-wsgi
-proto-plus==1.22.0
+proto-plus==1.22.1
     # via google-cloud-trace
-protobuf==3.20.1
+protobuf==4.21.5
     # via
     #   google-api-core
     #   google-cloud-trace
@@ -118,7 +118,7 @@ requests==2.28.1
     # via
     #   -r requirements.in
     #   google-api-core
-rsa==4.8
+rsa==4.9
     # via google-auth
 six==1.16.0
     # via
