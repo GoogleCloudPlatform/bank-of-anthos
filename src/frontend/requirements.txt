@@ -48,7 +48,7 @@ markupsafe==2.1.1
     # via
     #   jinja2
     #   werkzeug
-opentelemetry-api==1.11.1
+opentelemetry-api==1.12.0
     # via
     #   opentelemetry-exporter-gcp-trace
     #   opentelemetry-instrumentation
