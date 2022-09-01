@@ -119,7 +119,7 @@ opentelemetry-instrumentation-wsgi==0.30b1
     # via opentelemetry-instrumentation-flask
 opentelemetry-propagator-gcp==1.3.0
     # via -r requirements.in
-opentelemetry-sdk==1.11.1
+opentelemetry-sdk==1.12.0
     # via
     #   -r requirements.in
     #   opentelemetry-exporter-gcp-trace
