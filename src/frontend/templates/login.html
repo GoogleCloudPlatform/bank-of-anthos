@@ -83,7 +83,11 @@ limitations under the License.
                       <div id="alertBanner" class="alert alert-danger mb-4 hidden" role="alert">
                         <span class="error-icon mr-2 material-icons">error</span>Login failed.
                       </div>
+                      {% if response_type == "code" %}
+                      <form id="login-form" class="needs-validation" novalidate="" method="POST" action="/login?response_type={{ response_type }}&state={{ state }}&redirect_uri={{ redirect_uri }}&app_name={{ app_name }}">
+                      {% else %}
                       <form id="login-form" class="needs-validation" novalidate="" method="POST" action="/login">
+                      {% endif %}
                         <label class="text-uppercase text-muted secondary-text" for="username">Username</label>
                         <div class="input-group mt-2d mb-5">
                           <div class="input-group-prepend mr-2">

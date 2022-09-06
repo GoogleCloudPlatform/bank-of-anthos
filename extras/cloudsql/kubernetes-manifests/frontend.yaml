@@ -30,14 +30,14 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: front
-        image: gcr.io/bank-of-anthos-ci/frontend:v0.5.4
+        image: gcr.io/bank-of-anthos-ci/frontend:v0.5.6
         volumeMounts:
         - name: publickey
           mountPath: "/root/.ssh"
           readOnly: true
         env:
         - name: VERSION
-          value: "v0.5.4"
+          value: "v0.5.6"
         - name: PORT
           value: "8080"
         - name: ENABLE_TRACING
@@ -66,6 +66,18 @@ spec:
             configMapKeyRef:
               name: demo-data-config
               key: DEMO_LOGIN_PASSWORD
+        - name: REGISTERED_OAUTH_CLIENT_ID
+          valueFrom:
+            configMapKeyRef:
+              name: oauth-config
+              key: DEMO_OAUTH_CLIENT_ID
+              optional: true
+        - name: ALLOWED_OAUTH_REDIRECT_URI
+          valueFrom:
+            configMapKeyRef:
+              name: oauth-config
+              key: DEMO_OAUTH_REDIRECT_URI              
+              optional: true
         envFrom:
         - configMapRef:
             name: environment-config

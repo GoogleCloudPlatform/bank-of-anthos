@@ -137,327 +137,330 @@
 
 
 #popup {
-  /* top: auto;
-  bottom: 10px;
-   */
+/* top: auto;
+bottom: 10px;
+ */
 
-   top: 0;
-   bottom: 100px;
-   position: absolute;
+ top: 0;
+ bottom: 100px;
+ position: absolute;
 }
 
 
 
-  /* FOOTER */
-  .footer {
-    color: #343434;
-    background-color: white;
+/* FOOTER */
+.footer {
+  color: #343434;
+  background-color: white;
 
-    border-top: 2px solid #F8F8F8;;
-    bottom: 0;
-    padding: 20px 24px 20px;
-    right: 0;
-  }
+  border-top: 2px solid #F8F8F8;;
+  bottom: 0;
+  padding: 20px 24px 20px;
+  right: 0;
+}
 
-  /* CARDS */
-  .card  {
-    color: #343434;
-    background-color: #F8F8F8;
-    margin-bottom: 1.5rem;
-    border-radius: 10px;
+/* CARDS */
+.card  {
+  color: #343434;
+  background-color: #F8F8F8;
+  margin-bottom: 1.5rem;
+  border-radius: 10px;
 
-    -webkit-box-shadow: none !important;
-    -moz-box-shadow: none !important;
-    box-shadow: none !important;
-  }
-  .card-icon {
-    font-size: 36px !important;
-    color: #A3FD8C;
-  }
+  -webkit-box-shadow: none !important;
+  -moz-box-shadow: none !important;
+  box-shadow: none !important;
+}
+.card-icon {
+  font-size: 36px !important;
+  color: #A3FD8C;
+}
 
-   /* ACCOUNT HOME */
-  .account-info {
-     font-size: 20px;
-     margin-top: auto;
-      margin-bottom: auto;
-   }
+ /* ACCOUNT HOME */
+.account-info {
+   font-size: 20px;
+   margin-top: auto;
+    margin-bottom: auto;
+ }
 
 
-  .account-overview {
-    margin-right: 5px;
-    font-size: 24px;
-  }
-  .account-icon {
-    vertical-align:middle !important;
-  }
+.account-overview {
+  margin-right: 5px;
+  font-size: 24px;
+}
+.account-icon {
+  vertical-align:middle !important;
+}
 
-  .account-num-text {
-    font-weight: 600;
-    margin-right: 8px;
-    vertical-align: middle !important;
-    display: inline-block !important;
-  }
-  .account-number {
-    font-weight: 200;
-    vertical-align: middle !important;
-    display: inline-block !important;
-  }
+.account-num-text {
+  font-weight: 600;
+  margin-right: 8px;
+  vertical-align: middle !important;
+  display: inline-block !important;
+}
+.account-number {
+  font-weight: 200;
+  vertical-align: middle !important;
+  display: inline-block !important;
+}
 
 
 /* TRANSACTION TABLE */
-  .card-table {
-    margin-bottom: 0 !important;
-  }
-  .card-table tbody td:first-child, .card-table thead th:first-child {
-    padding-left: 1.5rem!important;
-  }
-  .card-table-header {
-    padding: 1.5rem 1.5rem;
-    margin-bottom: 0;
-    background-color: transparent;
-  }
-  .table-sm td, .table-sm th {
-    padding: 1.1rem !important;
-  }
-  .table td {
+.card-table {
+  margin-bottom: 0 !important;
+}
+.card-table tbody td:first-child, .card-table thead th:first-child {
+  padding-left: 1.5rem!important;
+}
+.card-table-header {
+  padding: 1.5rem 1.5rem;
+  margin-bottom: 0;
+  background-color: transparent;
+}
+.table-sm td, .table-sm th {
+  padding: 1.1rem !important;
+}
+.table td {
+  vertical-align: middle !important;
+  font-size: 1.05rem !important;
+}
+.table thead th {
+  color: #343434;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: .08em;
+  border-bottom-width: 1px;
+}
+.table [data-sort]::after {
+  margin-left: .25rem;
+}
+.list tr:hover {
+  transition: all 0.3s ease-in;
+}
+.text-credit {
+  color: #FF0000;
+}
+.text-debit {
+  color: #008A20;
+}
+.transaction-amount {
+  text-align: right !important;
+}
+.transaction-amount-credit{
+  color: #008A20;
+}
+.transaction-amount-debit {
+  color: #FF0000;
+}
+
+/* .transaction-date {
+  font-size: 18px;
+} */
+.transaction-label-none {
+  color: #343434;
+}
+.text-transaction-header {
+  color: #343434;
+}
+.date-month {
+  margin-right: 5px;
+}
+
+
+
+
+/* HOME - DEPOSIT / MAKE PAYMENT POP-UPS */
+.modal-header {
+  padding-bottom: 1rem !important;
+  /* border-bottom: 1px solid black;  */
+}
+.modal-content .modal-body {
+  padding: 20px 24px 0px;
+}
+
+.amount-font {
+  font-size: 28px !important;
+}
+.amount-font::-webkit-input-placeholder {
+  font-size: 28px !important;
+}
+.custom-select:focus {
+  /* border-color: black;  */
+  outline: 0;
+  box-shadow: 0px 1px 3px #A3FD8C;
+}
+
+.invalid-feedback {
+  color: #FF0000;
+  font-size: 1.05rem;
+}
+
+
+/* SIGN IN PAGE  */
+.sign-in i {
+  color: #008A20;
+  font-size: 1.125rem;
+}
+.sign-in input {
+  color: #343434;
+  font-size: 1.15rem;
+}
+.hidden {
+  display: none;
+}
+
+
+
+
+/* BUTTONS */
+.btn, .btn-primary, .card-button, .btn-block, form button  {
+  align-items: center;
+  background: #008A20 !important;
+  color: white !important;
+  border-radius: 50px;
+  font-weight: 500 !important;
+  text-transform: capitalize !important;
+}
+.btn-deny  {
+  background: #c80000 !important;
+}
+.btn-secondary {
+  background-color: white !important;
+  color: #008A20 !important;
+  border: 1px solid #008A20 !important;
+}
+.btn:hover, .card-button:hover, .btn-primary:hover, .btn-secondary:hover, .btn:focus, .btn-primary:focus, .btn-secondary:focus {
+  cursor: pointer !important;
+  transition: all 0.3s ease-in-out !important;
+}
+.btn:hover, .card-button:hover, .btn-primary:hover, .btn:focus, .btn-primary:focus {
+  background-color: #006200  !important;
+}
+.btn:active, .card-button:active, .btn-primary:active, .btn-secondary:active {
+  background-color: #A3FD8C !important;
+  border: 1px solid #A3FD8C !important;
+}
+
+.btn-primary.custom-file-control:before, .btn.btn-primary {
+  background-color: #008A20 !important;
+  color: white !important;
+  border-radius: 50px;
+}
+
+.btn-secondary.custom-file-control:before, .btn.btn-secondary {
+  background-color: white !important;
+  color: #008A20 !important;
+  border: 1px solid #008A20;
+}
+
+.btn-primary.custom-file-control:focus, .btn-primary.custom-file-control:hover {
+  background-color: #006200 !important;
+}
+
+.btn-primary.custom-file-control:active, .btn-primary.custom-file-control:active, .btn-secondary.custom-file-control:active, .btn.btn-secondary:active {
+  background-color: #A3FD8C !important;
+  border: 1px solid #A3FD8C !important;
+}
+
+/* inside modal */
+.deposit-send-button {
+  margin-left: 0.5rem !important;
+}
+/* on homepage */
+.deposit-send-payment-div {
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+.account-number-div {
+  vertical-align: middle;
+}
+
+/*FORMS */
+.form-control:focus {
+  background-color: white !important;
+  border-color: #A3FD8C !important;
+}
+input .form-control {
+  background-color: #F8F8F8 !important;
+}
+input {
+  background-color:rgba(0,0,0,0) !important;
+  border:none !important;
+}
+
+.custom-file-control, .form-control, .is-focused .custom-file-control, .is-focused .form-control {
+  background-image: linear-gradient(0deg,#008A20 2px,rgba(0,150,136,0) 0),linear-gradient(0deg,rgba(0,0,0,.26) 1px,transparent 0);
+}
+
+.custom-file-control:invalid, .form-control:invalid{
+  background-image: linear-gradient(0deg,#008A20 2px,rgba(213,0,0,0) 0),linear-gradient(0deg,rgba(0,0,0,.26) 1px,transparent 0);
+}
+
+/* "x" icons in pop-ups, deposit accepted alert */
+.close, .deposit-cancel .payment-cancel {
+  background-color: Transparent !important;
+  background-repeat:no-repeat !important;
+  overflow: hidden !important;
+  outline:none !important;
+  border: none !important;
+  color: #343434 !important;
+}
+
+/* Deposit / payment accepted alert */
+  .snackbar-body {
+    padding-bottom: 1em;
+    padding-top: 1em;
     vertical-align: middle !important;
-    font-size: 1.05rem !important;
-  }
-  .table thead th {
-    color: #343434;
-    text-transform: uppercase;
-    font-weight: 600;
-    letter-spacing: .08em;
-    border-bottom-width: 1px;
-  }
-  .table [data-sort]::after {
-    margin-left: .25rem;
-  }
-  .list tr:hover {
-    transition: all 0.3s ease-in;
-  }
-  .text-credit {
-    color: #FF0000;
-  }
-  .text-debit {
-    color: #008A20;
-  }
-  .transaction-amount {
-    text-align: right !important;
-  }
-  .transaction-amount-credit{
-    color: #008A20;
-  }
-  .transaction-amount-debit {
-    color: #FF0000;
   }
 
-  /* .transaction-date {
-    font-size: 18px;
-  } */
-  .transaction-label-none {
-    color: #343434;
-  }
-  .text-transaction-header {
-    color: #343434;
-  }
-  .date-month {
-    margin-right: 5px;
+  .snackbar-card {
+      margin-top: 25px;
+      background-color: #202020 !important;
+      color: white !important;
+      margin-bottom: 0px;
+      border-radius: 10px;
+
+      font-weight: 500;
+
+      -webkit-box-shadow: none !important;
+      -moz-box-shadow: none !important;
+      box-shadow: none !important;
   }
 
-
-
-
-  /* HOME - DEPOSIT / MAKE PAYMENT POP-UPS */
-  .modal-header {
-    padding-bottom: 1rem !important;
-    /* border-bottom: 1px solid black;  */
-  }
-  .modal-content .modal-body {
-    padding: 20px 24px 0px;
-  }
-
-  .amount-font {
-    font-size: 28px !important;
-  }
-  .amount-font::-webkit-input-placeholder {
-    font-size: 28px !important;
-  }
-  .custom-select:focus {
-    /* border-color: black;  */
-    outline: 0;
-    box-shadow: 0px 1px 3px #A3FD8C;
-  }
-
-  .invalid-feedback {
-    color: #FF0000;
-    font-size: 1.05rem;
-  }
-
-
-  /* SIGN IN PAGE  */
-  .sign-in i {
-    color: #008A20;
-    font-size: 1.125rem;
-  }
-  .sign-in input {
-    color: #343434;
-    font-size: 1.15rem;
-  }
-  .hidden {
-    display: none;
-  }
-
-
-
-
-  /* BUTTONS */
-  .btn, .btn-primary, .card-button, .btn-block, form button  {
-    align-items: center;
-    background: #008A20 !important;
-    color: white !important;
-    border-radius: 50px;
-    font-weight: 500 !important;
-    text-transform: capitalize !important;
-  }
-  .btn-secondary {
-    background-color: white !important;
-    color: #008A20 !important;
-    border: 1px solid #008A20 !important;
-  }
-  .btn:hover, .card-button:hover, .btn-primary:hover, .btn-secondary:hover, .btn:focus, .btn-primary:focus, .btn-secondary:focus {
-    cursor: pointer !important;
-    transition: all 0.3s ease-in-out !important;
-  }
-  .btn:hover, .card-button:hover, .btn-primary:hover, .btn:focus, .btn-primary:focus {
-    background-color: #006200  !important;
-  }
-  .btn:active, .card-button:active, .btn-primary:active, .btn-secondary:active {
-    background-color: #A3FD8C !important;
-    border: 1px solid #A3FD8C !important;
-  }
-
-  .btn-primary.custom-file-control:before, .btn.btn-primary {
-    background-color: #008A20 !important;
-    color: white !important;
-    border-radius: 50px;
-  }
-
-  .btn-secondary.custom-file-control:before, .btn.btn-secondary {
-    background-color: white !important;
-    color: #008A20 !important;
-    border: 1px solid #008A20;
-  }
-
-  .btn-primary.custom-file-control:focus, .btn-primary.custom-file-control:hover {
-    background-color: #006200 !important;
-  }
-
-  .btn-primary.custom-file-control:active, .btn-primary.custom-file-control:active, .btn-secondary.custom-file-control:active, .btn.btn-secondary:active {
-    background-color: #A3FD8C !important;
-    border: 1px solid #A3FD8C !important;
-  }
-
-  /* inside modal */
-  .deposit-send-button {
-    margin-left: 0.5rem !important;
-  }
-  /* on homepage */
-  .deposit-send-payment-div {
-    margin-top: auto;
-    margin-bottom: auto;
-  }
-
-  .account-number-div {
-    vertical-align: middle;
-  }
-
-  /*FORMS */
-  .form-control:focus {
-    background-color: white !important;
-    border-color: #A3FD8C !important;
-  }
-  input .form-control {
-    background-color: #F8F8F8 !important;
-  }
-  input {
-    background-color:rgba(0,0,0,0) !important;
-    border:none !important;
-  }
-
-  .custom-file-control, .form-control, .is-focused .custom-file-control, .is-focused .form-control {
-    background-image: linear-gradient(0deg,#008A20 2px,rgba(0,150,136,0) 0),linear-gradient(0deg,rgba(0,0,0,.26) 1px,transparent 0);
-  }
-
-  .custom-file-control:invalid, .form-control:invalid{
-    background-image: linear-gradient(0deg,#008A20 2px,rgba(213,0,0,0) 0),linear-gradient(0deg,rgba(0,0,0,.26) 1px,transparent 0);
-  }
-
-  /* "x" icons in pop-ups, deposit accepted alert */
-  .close, .deposit-cancel .payment-cancel {
+  .snackbar-close {
     background-color: Transparent !important;
     background-repeat:no-repeat !important;
     overflow: hidden !important;
     outline:none !important;
     border: none !important;
-    color: #343434 !important;
+    color: #A3FD8C !important;
+    vertical-align: middle !important;
   }
 
-/* Deposit / payment accepted alert */
-    .snackbar-body {
-      padding-bottom: 1em;
-      padding-top: 1em;
-      vertical-align: middle !important;
-    }
-
-    .snackbar-card {
-        margin-top: 25px;
-        background-color: #202020 !important;
-        color: white !important;
-        margin-bottom: 0px;
-        border-radius: 10px;
-
-        font-weight: 500;
-
-        -webkit-box-shadow: none !important;
-        -moz-box-shadow: none !important;
-        box-shadow: none !important;
-    }
-
-    .snackbar-close {
-      background-color: Transparent !important;
-      background-repeat:no-repeat !important;
-      overflow: hidden !important;
-      outline:none !important;
-      border: none !important;
-      color: #A3FD8C !important;
-      vertical-align: middle !important;
-    }
-
-    .snackbar-close:hover {
-      cursor: pointer;
-    }
+  .snackbar-close:hover {
+    cursor: pointer;
+  }
 
 
-    /* Signup "danger" alert, eg. passwords don't match */
-    .alert-danger {
-      background-color: #FF0000 !important;
-      color: white !important;
-    }
+  /* Signup "danger" alert, eg. passwords don't match */
+  .alert-danger {
+    background-color: #FF0000 !important;
+    color: white !important;
+  }
 
-    .error-icon {
-      color: white !important;
-    }
+  .error-icon {
+    color: white !important;
+  }
 
-    .top-row {
-      margin-top: 30px;
-      margin-bottom: 30px;
-    }
+  .top-row {
+    margin-top: 30px;
+    margin-bottom: 30px;
+  }
 
-    .alert-message-container {
-      margin-bottom: 0px;
-      display: flex;
-    }
+  .alert-message-container {
+    margin-bottom: 0px;
+    display: flex;
+  }
 
     .check-mark-container {
       display: flex;
