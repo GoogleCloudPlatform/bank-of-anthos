@@ -49,4 +49,4 @@ Please note that this does not delete the project where the Anthos cluster was c
     Error creating Feature: Resource already exists.
     ```
 
-  This is likely because you already have the GKE Hub membership or feature enabled. To resolve the error, edit the `acm.tf` and remove the resource that already exists.
+  This is likely because you already have the GKE Hub membership or feature enabled. To resolve the error, edit the `acm.tf` and add the appropriate variables `enable_fleet_registration` and `enable_fleet_feature` and set them to `false` to prevent the module from trying to add the resource that already exists.
