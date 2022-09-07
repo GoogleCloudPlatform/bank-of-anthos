@@ -13,9 +13,9 @@ You can use MacOS or Linux as your dev environment - all these languages and too
 
 1. [Docker Desktop](https://www.docker.com/products/docker-desktop) 
 1. [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) (can be installed separately or via [gcloud](https://cloud.google.com/sdk/install)) 
-1. [skaffold](https://skaffold.dev/docs/install/) 
-1. [JDK 14](https://www.oracle.com/java/technologies/javase-jdk14-downloads.html)
-1. [Maven 3.6](https://maven.apache.org/install.html)
+1. [skaffold **1.27+**](https://skaffold.dev/docs/install/) (latest version recommended)
+1. [JDK **14**](https://www.oracle.com/java/technologies/javase/jdk14-archive-downloads.html) (newer versions might cause issues)
+1. [Maven **3.6**](https://downloads.apache.org/maven/maven-3/) (newer versions might cause issues)
 1. [Python3](https://www.python.org/downloads/)  
 1. [piptools](https://pypi.org/project/pip-tools/)
 
@@ -90,6 +90,25 @@ The [`skaffold run`](https://skaffold.dev/docs/references/cli/#skaffold-run) com
 
 ```
 skaffold run --default-repo=gcr.io/${PROJECT_ID}/bank-of-anthos
+```
+
+### Running services selectively
+
+Skaffold reads the [skaffold.yaml](../skaffold.yaml) file to understand the project setup. Here, it's split into modules that can be iterated on individually:
+- the `backend` module comprising of the five backend services.
+- the `frontend` module for the single frontend service.
+- the `loadbalancer` module for the single loadbalancer service. 
+
+To work with only the `frontend` module, run:
+
+```
+skaffold dev --default-repo=gcr.io/${PROJECT_ID}/bank-of-anthos -m frontend
+```
+
+To work with both `frontend` and `backend` modules, run:
+
+```
+skaffold dev --default-repo=gcr.io/${PROJECT_ID}/bank-of-anthos -m frontend -m backend
 ```
 
 ## Continuous Integration
