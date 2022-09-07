@@ -16,8 +16,8 @@ Once you have ensured the all the pre-requisites are met, follow the steps below
 `export TF_VAR_project=<your project id>`
 1. Enable Terraform to use the default service account. Follow the prompts to login via the URL and enter the verification code:
 `gcloud auth application-default login --no-launch-browser`
-1. Move into the terraform directory that has the installation scripts:
-`cd terraform`
+1. Move into the terraform/anthos-gke directory that has the installation scripts:
+`cd terraform/anthos-gke`
 1. Initialize Terraform:
 `terraform init`
 1. See what resources will be created:
@@ -29,7 +29,7 @@ Once you have ensured the all the pre-requisites are met, follow the steps below
 
 Once you have finished working with the sample, you can tear down the sample application and the cluster 
 
-1. Run `terraform destroy` from the `terraform` directory.
+1. Run `terraform destroy` from the `terraform/anthos-gke` directory.
 
 Please note that this does not delete the project where the Anthos cluster was created.
 

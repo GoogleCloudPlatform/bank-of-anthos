@@ -16,12 +16,12 @@
 
 module "asm" {
   source                    = "terraform-google-modules/kubernetes-engine/google//modules/asm"
-  version                   = "~> 21.2"
+  version                   = "~> 23.0"
   project_id                = data.google_project.project.project_id
   cluster_name              = module.gke.name
   cluster_location          = module.gke.location
   enable_cni                = true
-  enable_fleet_registration = true
+  enable_fleet_registration = false
   enable_mesh_feature       = true
 }
 
