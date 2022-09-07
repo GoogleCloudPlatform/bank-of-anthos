@@ -23,7 +23,8 @@ spec:
       app: userservice
   template:
     metadata:
-      annotations: {}
+      annotations:
+        instrumentation.opentelemetry.io/inject-python: "true"
       labels:
         app: userservice
     spec:
@@ -31,7 +32,10 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: userservice
-        image: gcr.io/bank-of-anthos-ci/userservice:v0.5.3
+        image: danielhhowell/userservice:no-otel
+        imagePullPolicy: Always
+        command: [ "/bin/sh" ]
+        args: [ "-c", 'export OTEL_RESOURCE_ATTRIBUTES="$OTEL_RESOURCE_ATTRIBUTES","container.id="$(sed -rn "s/^1:.+:\/.+\/(.+)$/\1/p" /proc/self/cgroup) && gunicorn -b :$PORT --threads 2 --log-config /logging.conf --log-level=$LOG_LEVEL "userservice:create_app()"' ]
         volumeMounts:
         - name: keys
           mountPath: "/root/.ssh"

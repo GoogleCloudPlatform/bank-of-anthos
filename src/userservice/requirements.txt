@@ -94,35 +94,6 @@ more-itertools==8.4.0
     # via
     #   -r requirements.in
     #   pytest
-opentelemetry-api==0.13b0
-    # via
-    #   opentelemetry-exporter-google-cloud
-    #   opentelemetry-instrumentation
-    #   opentelemetry-instrumentation-flask
-    #   opentelemetry-instrumentation-sqlalchemy
-    #   opentelemetry-instrumentation-wsgi
-    #   opentelemetry-sdk
-    #   opentelemetry-tools-google-cloud
-opentelemetry-exporter-google-cloud==0.13b0
-    # via -r requirements.in
-opentelemetry-instrumentation==0.13b0
-    # via
-    #   opentelemetry-instrumentation-flask
-    #   opentelemetry-instrumentation-sqlalchemy
-    #   opentelemetry-instrumentation-wsgi
-opentelemetry-instrumentation-flask==0.13b0
-    # via -r requirements.in
-opentelemetry-instrumentation-sqlalchemy==0.13b0
-    # via -r requirements.in
-opentelemetry-instrumentation-wsgi==0.13b0
-    # via opentelemetry-instrumentation-flask
-opentelemetry-sdk==0.13b0
-    # via
-    #   -r requirements.in
-    #   opentelemetry-exporter-google-cloud
-    #   opentelemetry-tools-google-cloud
-opentelemetry-tools-google-cloud==0.13b0
-    # via -r requirements.in
 packaging==20.4
     # via
     #   -r requirements.in

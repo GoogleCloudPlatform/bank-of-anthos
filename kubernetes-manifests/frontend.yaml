@@ -22,7 +22,8 @@ spec:
       app: frontend
   template:
     metadata:
-      annotations: {}
+      annotations:
+        instrumentation.opentelemetry.io/inject-python: "true"
       labels:
         app: frontend
     spec:
@@ -30,7 +31,10 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: frontend
-        image: gcr.io/bank-of-anthos-ci/frontend:v0.5.3
+        image: ghcr.io/opsani/bank-of-anthos/frontend:0.5.3-no-otel
+        imagePullPolicy: Always
+        command: ["/bin/sh"]
+        args: [ "-c", 'export OTEL_RESOURCE_ATTRIBUTES="$OTEL_RESOURCE_ATTRIBUTES","container.id="$(sed -rn "s/^1:.+:\/.+\/(.+)$/\1/p" /proc/self/cgroup) && gunicorn -b :$PORT --threads 4 --log-config /logging.conf --log-level=$LOG_LEVEL "frontend:create_app()"' ]
         volumeMounts:
         - name: publickey
           mountPath: "/root/.ssh"
