@@ -2,7 +2,7 @@
 
 This page walks you through the steps required to deploy the [Bank of Anthos](https://github.com/GoogleCloudPlatform/bank-of-anthos) sample application on an Anthos cluster using Terraform and Anthos Config Management (ACM).
 
-## Pre-requisites
+## Prerequisites
 
 Setting up the sample requires that you have a [Google Cloud Platform (GCP) project](https://cloud.google.com/resource-manager/docs/creating-managing-projects#console), connected to your billing account.
 
