@@ -6,7 +6,7 @@ This page walks you through the steps required to deploy Bank of Anthos on an An
 
 Setting up the sample requires that you have a [Google Cloud Platform (GCP) project](https://cloud.google.com/resource-manager/docs/creating-managing-projects#console), connected to your billing account.
 
-## Deploy the sample
+## Deploy Bank of Anthos
 
 Once you have ensured that all the prerequisites are met, follow the steps below to create an Anthos cluster and deploy Bank of Anthos.
 
