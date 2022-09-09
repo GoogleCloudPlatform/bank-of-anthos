@@ -1,6 +1,6 @@
 # Deploy Bank of Anthos on an Anthos cluster
 
-This page walks you through the steps required to deploy the [Bank of Anthos](https://github.com/GoogleCloudPlatform/bank-of-anthos) sample application on an Anthos cluster using Terraform and Anthos Config Management (ACM).
+This page walks you through the steps required to deploy Bank of Anthos on an Anthos cluster using [Terraform](https://www.terraform.io/) and [Anthos Config Management (ACM)](https://cloud.google.com/anthos/config-management).
 
 ## Prerequisites
 
