@@ -8,7 +8,7 @@ Setting up the sample requires that you have a [Google Cloud Platform (GCP) proj
 
 ## Deploy the sample
 
-Once you have ensured the all the pre-requisites are met, follow the steps below to create an Anthos cluster and deploy the sample application.
+Once you have ensured that all the prerequisites are met, follow the steps below to create an Anthos cluster and deploy Bank of Anthos.
 
 1. Clone the repo:
 `git clone https://github.com/GoogleCloudPlatform/bank-of-anthos.git`
