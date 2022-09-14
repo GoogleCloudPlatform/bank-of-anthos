@@ -72,7 +72,7 @@ grpcio-status==1.48.1
     # via google-api-core
 gunicorn==20.1.0
     # via -r requirements.in
-idna==3.3
+idna==3.4
     # via
     #   -r requirements.in
     #   requests
