@@ -28,7 +28,7 @@ Anthos Service Mesh (ASM) must be installed in your cluster. See [here](https://
 
 An Apigee Organization must be provisioned. Learn how to provision a free eval org [here](https://cloud.google.com/apigee/docs/api-platform/get-started/eval-orgs).
 
-During Apigee provisioning the instance must be configured with external internet access enabled. For instructions see [here](https://cloud.google.com/apigee/docs/api-platform/get-started/eval-orgs#access-routing). The instance should be deployed in the same GCP region as the Bank of Anthos cluster.
+During Apigee provisioning the instance must be configured with external internet access enabled. For instructions see [here](https://cloud.google.com/apigee/docs/api-platform/get-started/eval-orgs#access-routing). The instance should be deployed in the same GCP region and VPC network as the Bank of Anthos cluster.
 
 Make sure the following tools are available in your terminal `$PATH`. If you're running in [Google Cloud Shell](https://cloud.google.com/shell) some of these will already be available.
 - zip
