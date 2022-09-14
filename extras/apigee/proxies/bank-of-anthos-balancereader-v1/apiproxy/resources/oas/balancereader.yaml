@@ -1,0 +1,58 @@
+# Copyright 2022 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+openapi: 3.0.2
+info:
+  description: API for retrieving account balance
+  version: 1.0.0
+  title: Balance API
+servers:
+- url: "{SERVER_URL}/v1/boa-balancereader"
+security:
+  - oAuth2AuthCode: [] 
+paths:
+  /balances/{account-id}:
+    get:
+      summary: Retrieve the account balance
+      description: Retrieve the balance for the supplied account ID
+      parameters:
+      - name: account-id
+        in: path
+        required: true
+        description: Account identifier
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Balance'    
+components:
+  securitySchemes:
+    oAuth2AuthCode:
+      type: oauth2
+      description: See https://cloud.google.com/apigee/docs/api-platform/security/oauth/oauth-v2-policy-authorization-code-grant-type
+      flows: 
+        authorizationCode:
+          authorizationUrl: {SERVER_URL}/oauth/authorize
+          tokenUrl: {SERVER_URL}/oauth/token
+          scopes: {}
+  schemas:
+    Balance:
+      type: object
+      properties:
+        balance:
+          type: integer

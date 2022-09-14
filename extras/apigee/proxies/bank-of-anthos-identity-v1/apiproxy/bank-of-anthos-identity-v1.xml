@@ -1,0 +1,52 @@
+<!--
+ Copyright 2022 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+<APIProxy revision="1" name="bank-of-anthos-identity-v1">
+    <DisplayName>oauth</DisplayName>
+    <Description>An API proxy that enforces OAuth 2.0 Authorization Code flow</Description>
+    <CreatedAt>1652834045605</CreatedAt>
+    <LastModifiedAt>1652834045605</LastModifiedAt>
+    <BasePaths>/oauth</BasePaths>
+    <Policies>
+        <Policy>RefreshAccessToken</Policy>
+        <Policy>Add-CORS</Policy>
+        <Policy>VAK-VerifyAPIKey-ClientId-Query</Policy>
+        <Policy>EV-InputQueryParams</Policy>
+        <Policy>RF-InvalidRequest</Policy>
+        <Policy>RF-UnsupportedResponseType-Redirect</Policy>
+        <Policy>OA2-GenerateAzCode-State2</Policy>
+        <Policy>AM-GenerateState2ForIdp</Policy>
+        <Policy>AM-RedirectToIdpAuth</Policy>
+        <Policy>RF-InvalidGrant</Policy>
+        <Policy>OA2-AttributesFromAzCode-State2</Policy>
+        <Policy>AM-StateAttributes</Policy>
+        <Policy>OA2-GenerateAuthorizationCode</Policy>
+        <Policy>EV-InputFormParamsCallback</Policy>
+        <Policy>RF-UnsupportedGrantType</Policy>
+        <Policy>OA2-GetOriginalStateAttributes</Policy>
+        <Policy>OA-VerifyAPIKey-and-Secret-Code</Policy>
+        <Policy>OA2-GenerateAccessToken-Code</Policy>
+        <Policy>KVM-IdpParameters</Policy>
+        <Policy>AM-RedirectToApp</Policy>
+        <Policy>AM-GetCodeInfo</Policy>
+        <Policy>OA2-GetClientInfo</Policy>
+    </Policies>
+    <ProxyEndpoints>
+        <ProxyEndpoint>default</ProxyEndpoint>
+    </ProxyEndpoints>
+    <TargetEndpoints>
+        <TargetEndpoint>default</TargetEndpoint>
+    </TargetEndpoints>
+</APIProxy>

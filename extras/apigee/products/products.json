@@ -1,0 +1,178 @@
+[
+    {
+        "approvalType": "auto",
+        "attributes": [
+            {
+                "name": "access",
+                "value": "public"
+            }
+        ],
+        "description": "Provides access to account balances",
+        "displayName": "Bank of Anthos Balance",
+        "environments": [
+            "eval"
+        ],
+        "name": "bank-of-anthos-balancereader-v1",
+        "operationGroup": {
+            "operationConfigType": "proxy",
+            "operationConfigs": [
+                {
+                    "apiSource": "bank-of-anthos-balancereader-v1",
+                    "operations": [
+                        {
+                            "methods": [
+                                "GET"
+                            ],
+                            "resource": "/"
+                        }
+                    ],
+                    "quota": {}
+                }
+            ]
+        },
+        "quota": "50",
+        "quotaInterval": "1",
+        "quotaTimeUnit": "minute"
+    },
+    {
+        "approvalType": "auto",
+        "attributes": [
+            {
+                "name": "access",
+                "value": "public"
+            }
+        ],
+        "description": "Provides limited read only access to contact info",
+        "displayName": "Bank of Anthos Contacts - Basic",
+        "environments": [
+            "eval"
+        ],
+        "name": "bank-of-anthos-contacts-v1-basic",
+        "operationGroup": {
+            "operationConfigType": "proxy",
+            "operationConfigs": [
+                {
+                    "apiSource": "bank-of-anthos-contacts-v1",
+                    "operations": [
+                        {
+                            "methods": [
+                                "GET"
+                            ],
+                            "resource": "/"
+                        }
+                    ],
+                    "quota": {}
+                }
+            ]
+        },
+        "quota": "100",
+        "quotaInterval": "1",
+        "quotaTimeUnit": "day"
+    },
+    {
+        "approvalType": "auto",
+        "attributes": [
+            {
+                "name": "access",
+                "value": "public"
+            }
+        ],
+        "description": "Provides premium read-write access to contact info",
+        "displayName": "Bank of Anthos Contacts - Premium",
+        "environments": [
+            "eval"
+        ],
+        "name": "bank-of-anthos-contacts-v1-premium",
+        "operationGroup": {
+            "operationConfigType": "proxy",
+            "operationConfigs": [
+                {
+                    "apiSource": "bank-of-anthos-contacts-v1",
+                    "operations": [
+                        {
+                            "methods": [
+                                "DELETE",
+                                "GET",
+                                "POST",
+                                "PUT"
+                            ],
+                            "resource": "/"
+                        }
+                    ],
+                    "quota": {}
+                }
+            ]
+        },
+        "quota": "1000",
+        "quotaInterval": "1",
+        "quotaTimeUnit": "minute"
+    },
+    {
+        "approvalType": "auto",
+        "attributes": [
+            {
+                "name": "access",
+                "value": "private"
+            }
+        ],
+        "description": "Authentication API",
+        "displayName": "Bank of Anthos Identity",
+        "environments": [
+            "eval"
+        ],
+        "name": "bank-of-anthos-identity-v1",
+        "operationGroup": {
+            "operationConfigType": "proxy",
+            "operationConfigs": [
+                {
+                    "apiSource": "bank-of-anthos-identity-v1",
+                    "operations": [
+                        {
+                            "methods": [
+                                "GET",
+                                "POST"
+                            ],
+                            "resource": "/"
+                        }
+                    ],
+                    "quota": {}
+                }
+            ]
+        }
+    },    
+    {
+        "approvalType": "auto",
+        "attributes": [
+            {
+                "name": "access",
+                "value": "public"
+            }
+        ],
+        "description": "Provides access to account transaction history",
+        "displayName": "Bank of Anthos Transaction History",
+        "environments": [
+            "eval"
+        ],
+        "name": "bank-of-anthos-transactionhistory-v1",
+        "operationGroup": {
+            "operationConfigType": "proxy",
+            "operationConfigs": [
+                {
+                    "apiSource": "bank-of-anthos-transactionhistory-v1",
+                    "operations": [
+                        {
+                            "methods": [
+                                "GET"
+                            ],
+                            "resource": "/"
+                        }
+                    ],
+                    "quota": {}
+                }
+            ]
+        },
+        "quota": "50",
+        "quotaInterval": "1",
+        "quotaTimeUnit": "minute"
+    }
+]

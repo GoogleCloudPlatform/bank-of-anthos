@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+ Copyright 2022 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+<OAuthV2 name="OA2-GenerateAzCode-State2">
+    <ExternalAuthorization>false</ExternalAuthorization>
+    <Operation>GenerateAuthorizationCode</Operation>
+    <ResponseType>oauth.flow.authorize.response_type</ResponseType>
+    <ClientId>oauth.flow.authorize.client_id</ClientId>
+    <RedirectUri>oauth.flow.authorize.redirect_uri</RedirectUri>
+    <!-- Set query params as attributes of state2 (= az_code) -->
+    <Attributes>
+        <Attribute name="client_id" ref="oauth.flow.authorize.client_id" display="false"/>
+        <Attribute name="redirect_uri" ref="oauth.flow.authorize.redirect_uri" display="false"/>
+        <Attribute name="response_type" ref="oauth.flow.authorize.response_type" display="false"/>
+        <Attribute name="scope" ref="oauth.flow.authorize.scope" display="false"/>
+    </Attributes>
+</OAuthV2>

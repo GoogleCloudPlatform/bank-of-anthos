@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+ Copyright 2022 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+<ProxyEndpoint name="default">
+    <Description/>
+    <FaultRules/>
+    <PreFlow name="PreFlow">
+        <Request>
+            <Step>
+                <Name>Add-CORS</Name>
+            </Step>
+        </Request>
+        <Response/>
+    </PreFlow>
+    <Flows>
+        <Flow name="/refreshtoken">
+            <Description/>
+            <Request>
+                <Step>
+                    <FaultRules/>
+                    <Name>RefreshAccessToken</Name>
+                </Step>
+            </Request>
+            <Response/>
+            <Condition>(proxy.pathsuffix MatchesPath "/refreshtoken") and (request.verb = "POST")</Condition>
+        </Flow>
+        <Flow name="/authorize">
+            <Description/>
+            <Request>
+                <Step>
+                    <Name>VAK-VerifyAPIKey-ClientId-Query</Name>
+                </Step>
+                <Step>
+                    <Name>EV-InputQueryParams</Name>
+                </Step>
+                <Step>
+                    <Condition>( verifyapikey.VAK-VerifyAPIKey-ClientId-Query.redirection_uris != oauth.flow.authorize.redirect_uri )</Condition>
+                    <Name>RF-InvalidRequest</Name>
+                </Step>
+                <Step>
+                    <Condition>( oauth.flow.authorize.response_type != "code" ) and ( oauth.flow.authorize.response_type != "token" )</Condition>
+                    <Name>RF-UnsupportedResponseType-Redirect</Name>
+                </Step>
+                <Step>
+                    <Name>OA2-GenerateAzCode-State2</Name>
+                </Step>
+                <Step>
+                    <Name>AM-GenerateState2ForIdp</Name>
+                </Step>
+            </Request>
+            <Response>
+                <Step>
+                    <Name>KVM-IdpParameters</Name>
+                </Step>
+                <Step>
+                    <Name>AM-RedirectToIdpAuth</Name>
+                </Step>
+            </Response>
+            <Condition>(proxy.pathsuffix MatchesPath "/authorize") and (request.verb = "GET")</Condition>
+        </Flow>
+        <Flow name="/callback">
+            <Description/>
+            <Request>
+                <Step>
+                    <Name>EV-InputFormParamsCallback</Name>
+                </Step>
+                <Step>
+                    <Condition>( request.formparam.id_token Is null ) or ( request.formparam.id_token = "" )</Condition>
+                    <Name>RF-InvalidRequest</Name>
+                </Step>
+                <Step>
+                    <Condition>( request.formparam.state Is null ) or ( request.formparam.state = "" )</Condition>
+                    <Name>RF-InvalidRequest</Name>
+                </Step>
+                <Step>
+                    <Name>OA2-AttributesFromAzCode-State2</Name>
+                </Step>
+                <Step>
+                    <Name>AM-StateAttributes</Name>
+                </Step>
+                <Step>
+                    <Name>OA2-GenerateAuthorizationCode</Name>
+                </Step>
+            </Request>
+            <Response>
+                <Step>
+                    <Name>AM-RedirectToApp</Name>
+                </Step>
+            </Response>
+            <Condition>(proxy.pathsuffix MatchesPath "/callback") and (request.verb = "POST")</Condition>
+        </Flow>
+        <Flow name="/token (code)">
+            <Description/>
+            <Request>
+                <Step>
+                    <Name>OA-VerifyAPIKey-and-Secret-Code</Name>
+                </Step>
+                <Step>
+                    <Name>OA2-GetClientInfo</Name>
+                </Step>
+                <Step>
+                    <Condition>( oauthv2client.OA2-GetClientInfo.redirection_uris != request.formparam.redirect_uri )</Condition>
+                    <Name>RF-InvalidRequest</Name>
+                </Step>
+                <Step>
+                    <Condition>( request.formparam.grant_type != "authorization_code" )</Condition>
+                    <Name>RF-UnsupportedGrantType</Name>
+                </Step>
+                <Step>
+                    <Condition>( request.formparam.code Is null ) or ( request.formparam.code = "" )</Condition>
+                    <Name>RF-InvalidGrant</Name>
+                </Step>
+                <Step>
+                    <Name>OA2-GetOriginalStateAttributes</Name>
+                </Step>
+                <Step>
+                    <Name>OA2-GenerateAccessToken-Code</Name>
+                </Step>
+            </Request>
+            <Response/>
+            <Condition>(request.verb = "POST") and (proxy.pathsuffix MatchesPath "/token") and (request.formparam.grant_type = "authorization_code")</Condition>
+        </Flow>
+        <Flow name="/coderesponse">
+            <Description/>
+            <Request/>
+            <Response>
+                <Step>
+                    <Name>AM-GetCodeInfo</Name>
+                </Step>
+            </Response>
+            <Condition>(proxy.pathsuffix MatchesPath "/coderesponse") and (request.verb = "GET")</Condition>
+        </Flow>
+    </Flows>
+    <HTTPProxyConnection>
+        <BasePath>/oauth</BasePath>
+        <Properties/>
+        <VirtualHost>secure</VirtualHost>
+    </HTTPProxyConnection>
+    <RouteRule name="NoRoute"/>
+</ProxyEndpoint>

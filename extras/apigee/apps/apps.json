@@ -1,0 +1,37 @@
+[
+    {
+        "attributes": [
+            {
+                "name": "DisplayName",
+                "value": "Bank-of-Anthos-Demo-App"
+            }
+        ],
+        "callbackUrl": "{SERVER_URL}/oauth/coderesponse",
+        "credentials": [
+            {
+                "apiProducts": [
+                    {
+                        "apiproduct": "bank-of-anthos-balancereader-v1"
+                    },
+                    {
+                        "apiproduct": "bank-of-anthos-transactionhistory-v1"
+                    },
+                    {
+                        "apiproduct": "bank-of-anthos-identity-v1"
+                    },
+                    {
+                        "apiproduct": "bank-of-anthos-contacts-v1-premium"
+                    }
+                ],
+                "consumerKey": "btJi6SWKGJWFD1FLoACB91AqDO8oIGFuJZXuUZaUGEUApkyV",
+                "consumerSecret": "ugWXZXCF8cAAJFCLBpPAPdD0uChlBBptmrxmFkbaGgC23ziXs7hrB2UWbxf4TBuh",
+                "expiresAt": "-1",
+                "status": "approved",
+                "scopes": []
+            }
+        ],
+        "developerId": "importeddev",
+        "name": "bank-of-anthos-demo-app",
+        "status": "approved"
+    }
+]

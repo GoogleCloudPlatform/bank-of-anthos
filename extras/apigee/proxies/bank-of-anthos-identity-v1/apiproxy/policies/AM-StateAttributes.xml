@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+ Copyright 2022 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+<AssignMessage name="AM-StateAttributes">
+    <AssignVariable>
+        <Name>request.formparam.client_id</Name>
+        <Ref>oauthv2authcode.OA2-AttributesFromAzCode-State2.client_id</Ref>
+    </AssignVariable>
+    <AssignVariable>
+        <Name>oauth.flow.callback.redirect_uri</Name>
+        <Ref>oauthv2authcode.OA2-AttributesFromAzCode-State2.redirect_uri</Ref>
+    </AssignVariable>
+    <AssignVariable>
+        <Name>oauth.flow.callback.response_type</Name>
+        <Ref>oauthv2authcode.OA2-AttributesFromAzCode-State2.response_type</Ref>
+    </AssignVariable>
+    <!--<AssignVariable>-->
+    <!--    <Name>oauth.flow.callback.scope</Name>-->
+    <!--    <Ref>oauthv2authcode.OA2-AttributesFromAzCode-State2.scope</Ref>-->
+    <!--</AssignVariable>-->
+    <IgnoreUnresolvedVariables>false</IgnoreUnresolvedVariables>
+    <AssignTo createNew="false" type="request"/>
+</AssignMessage>

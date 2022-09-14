@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+ Copyright 2022 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+<AssignMessage name="AM-RedirectToIdpAuth">
+    <DisplayName>AM-RedirectToIdpAuth</DisplayName>
+    <Properties/>
+    <Set>
+        <Headers>
+            <Header name="Location">http://{private.oauth.flow.login.hostname}/login?client_id={private.oauth.flow.apigee.client_id}&amp;response_type=code&amp;state={oauth.flow.authorization.state2}&amp;redirect_uri=https://{request.header.host}/oauth/callback&amp;app_name={verifyapikey.VAK-VerifyAPIKey-ClientId-Query.developer.app.name}&amp;prompt=consent</Header>
+        </Headers>
+        <StatusCode>302</StatusCode>
+        <ReasonPhrase>Found</ReasonPhrase>
+    </Set>
+    <IgnoreUnresolvedVariables>false</IgnoreUnresolvedVariables>
+    <AssignTo createNew="false" type="response"/>
+</AssignMessage>

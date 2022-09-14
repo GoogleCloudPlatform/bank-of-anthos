@@ -1,0 +1,94 @@
+# Copyright 2022 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+openapi: 3.0.2
+info:
+  description: API for managing user contacts
+  version: 1.0.0
+  title: Contacts API
+servers:
+- url: "{SERVER_URL}/v1/boa-contacts"
+security:
+  - oAuth2AuthCode: [] 
+paths:
+  /contacts/{username}:
+    get:
+      summary: Retrieve a list of contacts
+      description: Retrieve the contacts list for the authenticated user
+      parameters:
+      - name: username
+        in: path
+        required: true
+        description: User name
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactList'
+    post:
+      summary: Add a new contact
+      description: Add a new account to user's contacts list
+      parameters:
+      - name: username
+        in: path
+        required: true
+        description: User name
+        schema:
+          type: string      
+      requestBody:
+        description: The Contact object to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Contact'
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactList'    
+components:
+  securitySchemes:
+    oAuth2AuthCode:
+      type: oauth2
+      description: See https://cloud.google.com/apigee/docs/api-platform/security/oauth/oauth-v2-policy-authorization-code-grant-type
+      flows: 
+        authorizationCode:
+          authorizationUrl: {SERVER_URL}/oauth/authorize
+          tokenUrl: {SERVER_URL}/oauth/token
+          scopes: {}
+  schemas:
+    ContactList:
+      title: List of contacts
+      type: array
+      items:
+        $ref: '#/components/schemas/Contact'
+    Contact:
+      title: Contact
+      type: object
+      properties:
+        account_num:
+          type: string
+        is_external:
+          type: boolean
+        label:
+          type: string
+        routing_num:
+          type: string
