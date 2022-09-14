@@ -118,24 +118,24 @@ else
 fi
 
 echo "Importing and Deploying SF-bank-of-anthos-auth-v1 Sharedflow"
-REV=$(apigeecli sharedflows import -f apigee/output/SF-bank-of-anthos-auth-v1.zip --org $PROJECT --token $TOKEN | grep -v 'WARNING' | jq ."revision" -r)
+REV=$(apigeecli sharedflows import -f output/SF-bank-of-anthos-auth-v1.zip --org $PROJECT --token $TOKEN | grep -v 'WARNING' | jq ."revision" -r)
 apigeecli sharedflows deploy --name SF-bank-of-anthos-auth-v1 --ovr --rev $REV --org $PROJECT --env $APIGEE_ENV --token $TOKEN
 
 echo "Importing and Deploying Apigee bank-of-anthos-balancereader-v1 proxy..."
-REV=$(apigeecli apis import -f apigee/output/bank-of-anthos-balancereader-v1.zip --org $PROJECT --token $TOKEN | grep -v 'WARNING' | jq ."revision" -r)
-apigeecli apis deploy-wait --name bank-of-anthos-balancereader-v1 --ovr --rev $REV --org $PROJECT --env $APIGEE_ENV --token $TOKEN
+REV=$(apigeecli apis import -f output/bank-of-anthos-balancereader-v1.zip --org $PROJECT --token $TOKEN | grep -v 'WARNING' | jq ."revision" -r)
+apigeecli apis deploy --wait --name bank-of-anthos-balancereader-v1 --ovr --rev $REV --org $PROJECT --env $APIGEE_ENV --token $TOKEN
 
 echo "Importing and Deploying Apigee bank-of-anthos-contacts-v1 proxy..."
-REV=$(apigeecli apis import -f apigee/output/bank-of-anthos-contacts-v1.zip --org $PROJECT --token $TOKEN | grep -v 'WARNING' |jq ."revision" -r)
-apigeecli apis deploy-wait --name bank-of-anthos-contacts-v1 --ovr --rev $REV --org $PROJECT --env $APIGEE_ENV --token $TOKEN
+REV=$(apigeecli apis import -f output/bank-of-anthos-contacts-v1.zip --org $PROJECT --token $TOKEN | grep -v 'WARNING' |jq ."revision" -r)
+apigeecli apis deploy --wait --name bank-of-anthos-contacts-v1 --ovr --rev $REV --org $PROJECT --env $APIGEE_ENV --token $TOKEN
 
 echo "Importing and Deploying Apigee bank-of-anthos-transactionhistory-v1 proxy..."
-REV=$(apigeecli apis import -f apigee/output/bank-of-anthos-transactionhistory-v1.zip --org $PROJECT --token $TOKEN | grep -v 'WARNING' | jq ."revision" -r)
-apigeecli apis deploy-wait --name bank-of-anthos-transactionhistory-v1 --ovr --rev $REV --org $PROJECT --env $APIGEE_ENV --token $TOKEN
+REV=$(apigeecli apis import -f output/bank-of-anthos-transactionhistory-v1.zip --org $PROJECT --token $TOKEN | grep -v 'WARNING' | jq ."revision" -r)
+apigeecli apis deploy --wait --name bank-of-anthos-transactionhistory-v1 --ovr --rev $REV --org $PROJECT --env $APIGEE_ENV --token $TOKEN
 
 echo "Importing and Deploying Apigee bank-of-anthos-identity-v1 proxy..."
-REV=$(apigeecli apis import -f apigee/output/bank-of-anthos-identity-v1.zip --org $PROJECT --token $TOKEN | grep -v 'WARNING' | jq ."revision" -r)
-apigeecli apis deploy-wait --name bank-of-anthos-identity-v1 --ovr --rev $REV --org $PROJECT --env $APIGEE_ENV --token $TOKEN
+REV=$(apigeecli apis import -f output/bank-of-anthos-identity-v1.zip --org $PROJECT --token $TOKEN | grep -v 'WARNING' | jq ."revision" -r)
+apigeecli apis deploy --wait --name bank-of-anthos-identity-v1 --ovr --rev $REV --org $PROJECT --env $APIGEE_ENV --token $TOKEN
 
 echo "Creating API Products"
 apigeecli products import --org $PROJECT --token $TOKEN --file ./products/products.json --upsert
