@@ -8,7 +8,7 @@ chardet==5.0.0
 click==8.1.3
 cryptography==38.0.1
 flask==2.2.2
-google-api-core==2.10.0
+google-api-core==2.10.1
 google-auth==2.11.0
 google-cloud-core==2.3.2
 google-cloud-trace==1.7.1
