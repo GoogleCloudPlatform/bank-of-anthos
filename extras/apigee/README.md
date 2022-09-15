@@ -57,7 +57,7 @@ export APIGEE_HOST="34.110.30.110.nip.io"
 ./deploy-api-ingress.sh
 ```
 
-3. **Run the Apigee artifact deployment script**.
+3. **Run the Apigee artifact deployment script**. This will take a few minutes to complete.
 
 ```
 ./deploy-apigee-artifacts.sh
