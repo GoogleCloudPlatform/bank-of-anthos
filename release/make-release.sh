@@ -61,6 +61,7 @@ find "${REPO_ROOT}/kubernetes-manifests" -name '*.yaml' -exec sed -i -e  "s/dev_
 # push release PR
 git checkout -b "release/${NEW_VERSION}"
 git add "${REPO_ROOT}/kubernetes-manifests/*.yaml"
+git add "${REPO_ROOT}/iac/tf-anthos-gke/terraform.tfvars"
 git commit -m "release/${NEW_VERSION}"
 
 # add tag
