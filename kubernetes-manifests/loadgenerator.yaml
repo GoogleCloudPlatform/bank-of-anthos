@@ -46,7 +46,7 @@ spec:
               - all
           privileged: false
           readOnlyRootFilesystem: true
-        image: gcr.io/bank-of-anthos-ci/loadgenerator:v0.5.6
+        image: gcr.io/bank-of-anthos-ci/loadgenerator:v0.5.7
         env:
         - name: FRONTEND_ADDR
           value: "frontend:80"
