@@ -52,6 +52,9 @@ cp -a "${REPO_ROOT}/dev-kubernetes-manifests/." "${REPO_ROOT}/kubernetes-manifes
 find "${REPO_ROOT}/kubernetes-manifests" -name '*.yaml' -exec sed -i -e "s'image: \(.*\)'image: ${REPO_PREFIX}\/\1:${NEW_VERSION}'g" {} \;
 find "${REPO_ROOT}/kubernetes-manifests" -name '*.yaml' -exec sed -i -e "s'value: \"dev\"'value: \"${NEW_VERSION}\"'g" {} \;
 
+# update version in terraform scripts
+sed -i -e "s@sync_branch  = .*@sync_branch  = \"${NEW_VERSION}\"@g" ${REPO_ROOT}/iac/tf-anthos-gke/terraform.tfvars
+
 # remove the region tags so that there are no duplicates 
 find "${REPO_ROOT}/kubernetes-manifests" -name '*.yaml' -exec sed -i -e  "s/dev_kubernetes_manifests/boa_kubernetes_manifests/g" {} \;
 
