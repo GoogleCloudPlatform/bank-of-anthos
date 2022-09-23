@@ -42,7 +42,7 @@ spec:
               - all
           privileged: false
           readOnlyRootFilesystem: true
-        image: gcr.io/bank-of-anthos-ci/transactionhistory:v0.5.6
+        image: gcr.io/bank-of-anthos-ci/transactionhistory:v0.5.7
         volumeMounts:
         - name: publickey
           mountPath: "/tmp/.ssh"
@@ -51,7 +51,7 @@ spec:
           name: tmp
         env:
         - name: VERSION
-          value: "v0.5.6"
+          value: "v0.5.7"
         - name: PORT
           value: "8080"
         - name: ENABLE_TRACING
