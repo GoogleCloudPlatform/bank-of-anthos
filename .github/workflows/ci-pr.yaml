@@ -17,6 +17,10 @@ on:
   pull_request:
     branches:
       - main
+    paths-ignore:
+      - '**/README.md'
+      - 'iac/tf-anthos-gke/**'
+      - '.github/workflows/tf-validate-ci.yml'
 jobs:
   code-tests:
     runs-on: [self-hosted, runners-v2]
