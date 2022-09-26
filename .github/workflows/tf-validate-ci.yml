@@ -1,0 +1,22 @@
+name: tf-validate-ci
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'iac/tf-anthos-gke/**'
+      - '.github/workflows/tf-validate-ci.yml'
+  pull_request:
+    paths:
+      - 'iac/tf-anthos-gke/**'
+      - '.github/workflows/tf-validate-ci.yml'
+jobs:
+  job:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: terraform init & validate
+        run: |
+          cd iac/tf-anthos-gke/
+          terraform init -backend=false
+          terraform validate
