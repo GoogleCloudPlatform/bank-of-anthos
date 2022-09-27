@@ -163,9 +163,6 @@
                     <from>
                         <image>openjdk:17-alpine</image>
                     </from>
-                    <to>
-                        <image>openjdk:17-alpine</image>
-                    </to>
                 </configuration>
             </plugin>
             <plugin>
