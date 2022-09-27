@@ -20,7 +20,7 @@ on:
     paths-ignore:
       - '**/README.md'
       - 'iac/tf-anthos-gke/**'
-      - '.github/workflows/tf-validate-ci.yml'
+      - '.github/workflows/terraform-validate-ci.yaml'
 jobs:
   code-tests:
     runs-on: [self-hosted, runners-v2]
