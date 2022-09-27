@@ -150,11 +150,8 @@
                 <version>3.3.0</version>
                 <configuration>
                     <from>
-                        <image>openjdk:17-slim</image>
+                        <image>openjdk:17-alpine</image>
                     </from>
-                    <to>
-                        <image>openjdk:17-slim</image>
-                    </to>
                 </configuration>
             </plugin>
             <plugin>
