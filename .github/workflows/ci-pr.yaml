@@ -17,6 +17,10 @@ on:
   pull_request:
     branches:
       - main
+    paths-ignore:
+      - '**/README.md'
+      - 'iac/tf-anthos-gke/**'
+      - '.github/workflows/terraform-validate-ci.yaml'
 jobs:
   code-tests:
     runs-on: [self-hosted, runners-v2]
