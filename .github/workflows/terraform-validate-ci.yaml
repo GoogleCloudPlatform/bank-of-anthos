@@ -19,11 +19,11 @@ on:
       - main
     paths:
       - 'iac/tf-anthos-gke/**'
-      - '.github/workflows/tf-validate-ci.yml'
+      - '.github/workflows/terraform-validate-ci.yaml'
   pull_request:
     paths:
       - 'iac/tf-anthos-gke/**'
-      - '.github/workflows/tf-validate-ci.yml'
+      - '.github/workflows/terraform-validate-ci.yaml'
 jobs:
   job:
     runs-on: ubuntu-22.04
