@@ -95,7 +95,7 @@ opentelemetry-util-http==0.34b0
     #   opentelemetry-instrumentation-wsgi
 proto-plus==1.22.1
     # via google-cloud-trace
-protobuf==4.21.6
+protobuf==4.21.7
     # via
     #   google-api-core
     #   google-cloud-trace
