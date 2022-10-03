@@ -28,7 +28,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.3</version>
+        <version>2.7.4</version>
     </parent>
 
     <properties>
@@ -150,11 +150,8 @@
                 <version>3.3.0</version>
                 <configuration>
                     <from>
-                        <image>openjdk:17-slim</image>
+                        <image>eclipse-temurin:17-jre-alpine</image>
                     </from>
-                    <to>
-                        <image>openjdk:17-slim</image>
-                    </to>
                 </configuration>
             </plugin>
             <plugin>
