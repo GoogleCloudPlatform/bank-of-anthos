@@ -30,14 +30,14 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: contacts
-        image: gcr.io/bank-of-anthos-ci/contacts:v0.5.6
+        image: gcr.io/bank-of-anthos-ci/contacts:v0.5.8
         volumeMounts:
         - name: publickey
           mountPath: "/root/.ssh"
           readOnly: true
         env:
         - name: VERSION
-          value: "v0.5.6"
+          value: "v0.5.8"
         - name: PORT
           value: "8080"
         - name: ENABLE_TRACING
