@@ -122,7 +122,7 @@ six==1.16.0
     # via
     #   google-auth
     #   grpcio
-typing-extensions==4.3.0
+typing-extensions==4.4.0
     # via opentelemetry-sdk
 urllib3==1.26.12
     # via
