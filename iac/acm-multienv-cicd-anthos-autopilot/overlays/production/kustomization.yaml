@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: bank-of-anthos-production
+resources:
+  - namespace.yaml
+  - configmap.yaml
+components:
+  - ../../base
+patches:
+  - target: # configure workload identity
+      kind: ServiceAccount
+    patch: |-
+      - op: add
+        path: /metadata/annotations/iam.gke.io~1gcp-service-account
+        value: gke-workload-production@boa-tf-max-6.iam.gserviceaccount.com 
