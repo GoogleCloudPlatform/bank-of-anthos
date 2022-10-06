@@ -16,4 +16,4 @@ kind: ConfigMap
 metadata:
   name: cloud-sql-admin
 data:
-  connectionName: boa-tf-max-6:europe-west1:bank-of-anthos-db-staging
+  connectionName: boa-aablsk:europe-west1:bank-of-anthos-db-staging

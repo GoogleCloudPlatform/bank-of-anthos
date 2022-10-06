@@ -12,4 +12,4 @@ patches:
     patch: |-
       - op: add
         path: /metadata/annotations/iam.gke.io~1gcp-service-account
-        value: gke-workload-production@boa-tf-max-6.iam.gserviceaccount.com 
+        value: gke-workload-production@boa-aablsk.iam.gserviceaccount.com 
