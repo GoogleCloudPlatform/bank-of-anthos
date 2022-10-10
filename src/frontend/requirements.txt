@@ -20,7 +20,7 @@ deprecated==1.2.13
     # via opentelemetry-api
 flask==2.2.2
     # via -r requirements.in
-google-api-core[grpc]==2.10.1
+google-api-core[grpc]==2.10.2
     # via google-cloud-trace
 google-auth==2.12.0
     # via google-api-core
@@ -122,7 +122,7 @@ six==1.16.0
     # via
     #   google-auth
     #   grpcio
-typing-extensions==4.3.0
+typing-extensions==4.4.0
     # via opentelemetry-sdk
 urllib3==1.26.12
     # via
@@ -135,7 +135,7 @@ wrapt==1.14.1
     #   deprecated
     #   opentelemetry-instrumentation
     #   opentelemetry-instrumentation-jinja2
-zipp==3.8.1
+zipp==3.9.0
     # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:

@@ -8,7 +8,7 @@ attrs==22.1.0
     # via
     #   -r requirements.in
     #   pytest
-bcrypt==4.0.0
+bcrypt==4.0.1
     # via -r requirements.in
 bleach==5.0.1
     # via -r requirements.in
@@ -40,7 +40,7 @@ deprecated==1.2.13
     # via opentelemetry-api
 flask==2.2.2
     # via -r requirements.in
-google-api-core[grpc]==2.10.1
+google-api-core[grpc]==2.10.2
     # via
     #   -r requirements.in
     #   google-cloud-core
@@ -152,7 +152,7 @@ protobuf==4.21.7
     #   googleapis-common-protos
     #   grpcio-status
     #   proto-plus
-psycopg2-binary==2.9.3
+psycopg2-binary==2.9.4
     # via -r requirements.in
 py==1.11.0
     # via
@@ -207,7 +207,7 @@ tomli==2.0.1
     # via
     #   coverage
     #   pytest
-typing-extensions==4.3.0
+typing-extensions==4.4.0
     # via opentelemetry-sdk
 urllib3==1.26.12
     # via
@@ -229,7 +229,7 @@ wrapt==1.14.1
     #   deprecated
     #   opentelemetry-instrumentation
     #   opentelemetry-instrumentation-sqlalchemy
-zipp==3.8.1
+zipp==3.9.0
     # via
     #   -r requirements.in
     #   importlib-metadata
