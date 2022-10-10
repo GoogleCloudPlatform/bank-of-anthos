@@ -58,3 +58,8 @@ variable "clusters" {
     )
     description = "Clusters that have been created and shall be used as targets. Keys must be a superset of targets list."
 }
+
+variable "repo_branch" {
+    type = string
+    description = "Name of the branch that should trigger CICD when pushed to."
+}

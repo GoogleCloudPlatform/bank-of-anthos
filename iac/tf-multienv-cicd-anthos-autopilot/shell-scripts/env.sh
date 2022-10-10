@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-export PROJECT_ID=boa-tf-max-6
+export PROJECT_ID=bank-of-anthos-aablsk
 export REGION=europe-west1
 export ZONE=europe-west1-b
 export GITHUB_REPO_OWNER=aablsk
+export SYNC_BRANCH=iac-multienv-cicd-anthos-autopilot

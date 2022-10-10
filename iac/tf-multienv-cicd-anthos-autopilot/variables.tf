@@ -39,12 +39,12 @@ variable "targets" {
 
 variable "sync_repo" {
     type = string
-    description = "Short version of repository to sync ACM configs from (e.g. 'bank-of-anthos' for https://www.github.com/aablsk/bank-of-anthos)"
+    description = "Short version of repository to sync ACM configs from & use source for CI (e.g. 'bank-of-anthos' for https://www.github.com/aablsk/bank-of-anthos)"
 }
 
 variable "sync_branch" {
     type = string
-    description = "Branch to sync ACM configs from"
+    description = "Branch to sync ACM configs from & trigger CICD if pushed to."
 }
 
 variable "repo_owner" {

@@ -24,6 +24,7 @@ terraform -chdir=iac/tf-multienv-cicd-anthos-autopilot apply \
 -var="region=$REGION" \
 -var="zone=$ZONE" \
 -var="repo_owner=$GITHUB_REPO_OWNER" \
+-var="sync_branch=$SYNC_BRANCH" \
 -auto-approve
 
 echo '✅  Finished ./02-terraform.sh'

@@ -39,7 +39,12 @@ if [[ -z "${GITHUB_REPO_OWNER}" ]]; then
     exit 1
 fi
 
-set -Eeuxo pipefail
+if [[ -z "${SYNC_BRANCH}" ]]; then
+    echo >&2 "Please set \$SYNC_BRANCH environment variable in './iac/tf-multienv-cicd-anthos-autopilot/shell-scripts/env.sh'"
+    exit 1
+fi
+
+set -Eeuo pipefail
 
 echo "PROJECT_ID=$PROJECT_ID"
 echo "REGION=$REGION"

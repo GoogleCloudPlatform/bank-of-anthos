@@ -21,7 +21,7 @@ resource "google_cloudbuild_trigger" "ci" {
       name = var.repo_name
 
       push {
-        branch = "^main$"
+        branch = "^${var.repo_branch}$"
       }
   }
   included_files = ["src/${var.team}/**", "src/components/**"]
