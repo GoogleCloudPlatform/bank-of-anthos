@@ -16,4 +16,4 @@ kind: ConfigMap
 metadata:
   name: cloud-sql-admin
 data:
-  connectionName: boa-aablsk:europe-west1:bank-of-anthos-db-production
+  connectionName: bank-of-anthos-aablsk:europe-west1:bank-of-anthos-db-production
