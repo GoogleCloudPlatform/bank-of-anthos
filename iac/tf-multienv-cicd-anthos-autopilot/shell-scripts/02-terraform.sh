@@ -14,7 +14,7 @@
 
 set -Eeuo pipefail
 
-echo '🚀  Starting ./02-terraform.sh'
+echo "🚀  Starting $0"
 echo '🛠 Setting up project infrastructure with terraform.'
 echo '🍵 🧉 🫖  This will take some time - why not get a hot beverage?  🍵 🧉 🫖'
 terraform -chdir=iac/tf-multienv-cicd-anthos-autopilot init
@@ -27,4 +27,4 @@ terraform -chdir=iac/tf-multienv-cicd-anthos-autopilot apply \
 -var="sync_branch=$SYNC_BRANCH" \
 -auto-approve
 
-echo '✅  Finished ./02-terraform.sh'
+echo "✅  Finished $0"

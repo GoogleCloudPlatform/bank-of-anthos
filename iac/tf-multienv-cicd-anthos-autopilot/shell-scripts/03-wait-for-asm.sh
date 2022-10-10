@@ -14,7 +14,7 @@
 
 set -Eeuo pipefail
 
-echo '🚀  Starting ./03-wait-for-asm.sh'
+echo "🚀  Starting $0"
 echo '🕰  Waiting for GKE cluster setup to complete provisioning managed Service Mesh with managed Control Plane and managed Data Plane.'
 echo '🍵 🧉 🫖  This will possibly take dozens of minutes - why not get ANOTHER hot beverage?  🍵 🧉 🫖'
 while true
@@ -28,4 +28,4 @@ do
         echo -ne "."
     fi
 done
-echo '✅  Finished ./03-wait-for-asm.sh'
+echo "✅  Finished $0"

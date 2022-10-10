@@ -14,7 +14,7 @@
 
 set -uo pipefail
 
-echo '🚀  Starting ./04-init-cloud-sql.sh'
+echo "🚀  Starting $0"
 
 echo '🌱  Initializing staging db...'
 echo '🔑  Getting cluster credentials...'
@@ -34,4 +34,4 @@ skaffold run --profile=init-db-production
 echo '🕰  Wait for production-db initialization to complete...'
 kubectl wait --for=condition=complete job/populate-accounts-db job/populate-ledger-db -n bank-of-anthos-production --timeout=300s
 
-echo '✅  Finished ./04-init-cloud-sql.sh'
+echo "✅  Finished $0"

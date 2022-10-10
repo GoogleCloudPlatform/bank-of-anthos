@@ -14,7 +14,7 @@
 
 set -Eeuo pipefail
 
-echo '🚀  Starting ./05-trigger-cicd.sh'
+echo "🚀  Starting $0"
 
 echo '🌈  Triggering CI/CD for Frontend team'
 gcloud beta builds triggers run frontend-ci --branch $SYNC_BRANCH
@@ -23,4 +23,4 @@ gcloud beta builds triggers run accounts-ci --branch $SYNC_BRANCH
 echo '📒  Triggering CI/CD for Ledger team'
 gcloud beta builds triggers run ledger-ci --branch $SYNC_BRANCH
 
-echo '✅  Finished ./05-trigger-cicd.sh'
+echo "✅  Finished $0"
