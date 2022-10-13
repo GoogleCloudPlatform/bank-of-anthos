@@ -47,4 +47,3 @@ Setting up the sample requires that you have a [Google Cloud Platform (GCP) proj
 
 # Troubleshooting
 1. Sometimes the one-click-setup fails (e.g. because autopilot clusters need to be repaired, ASM is re-provisioning data plane, shell timeout). In that case just run the 00-setup-all-the-things.sh again as it is idempotent.
-
