@@ -22,17 +22,22 @@ provider "kubernetes" {
 
 # development autopilot cluster
 module "gke_development" {
-  source = "terraform-google-modules/kubernetes-engine/google//modules/beta-autopilot-public-cluster"
+  source = "terraform-google-modules/kubernetes-engine/google//modules/beta-autopilot-private-cluster"
 
-  project_id        = var.project_id
-  name              = "development"
-  regional          = true
-  region            = var.region
-  network           = local.network_name
-  subnetwork        = local.network.development.subnetwork
-  ip_range_pods     = local.network.development.ip_range_pods
-  ip_range_services = local.network.development.ip_range_services
-  #master_authorized_networks      = local.network.development.master_auth_subnet_name
+  project_id              = var.project_id
+  name                    = "development"
+  regional                = true
+  region                  = var.region
+  network                 = local.network_name
+  subnetwork              = local.network.development.subnetwork
+  ip_range_pods           = local.network.development.ip_range_pods
+  ip_range_services       = local.network.development.ip_range_services
+  enable_private_nodes    = true
+  enable_private_endpoint = true
+  master_authorized_networks = [{
+    cidr_block   = module.network.subnets["${var.region}/${local.network.development.master_auth_subnet_name}"].ip_cidr_range
+    display_name = local.network.development.subnetwork
+  }]
   release_channel                 = "RAPID"
   enable_vertical_pod_autoscaling = true
   horizontal_pod_autoscaling      = true
@@ -84,14 +89,22 @@ resource "google_gke_hub_membership" "development" {
 
 # configure ASM for development GKE cluster
 module "asm-development" {
-    source = "terraform-google-modules/gcloud/google"
+  source = "terraform-google-modules/gcloud/google"
 
-    platform = "linux"
-    
-    create_cmd_entrypoint = "gcloud"
-    create_cmd_body = "container fleet mesh update --management automatic --memberships ${google_gke_hub_membership.development.membership_id} --project ${var.project_id}"
-    destroy_cmd_entrypoint = "gcloud"
-    destroy_cmd_body = "container fleet mesh update --management manual --memberships ${google_gke_hub_membership.development.membership_id} --project ${var.project_id}"
+  platform = "linux"
+
+  create_cmd_entrypoint  = "gcloud"
+  create_cmd_body        = "container fleet mesh update --management automatic --memberships ${google_gke_hub_membership.development.membership_id} --project ${var.project_id}"
+  destroy_cmd_entrypoint = "gcloud"
+  destroy_cmd_body       = "container fleet mesh update --management manual --memberships ${google_gke_hub_membership.development.membership_id} --project ${var.project_id}"
+}
+
+# configure kubernetes provider for private cluster through anthos connect
+provider "kubernetes" {
+  alias = "development_anthos_connect"
+  host  = "https://connectgateway.googleapis.com/v1/projects/${data.google_project.project.number}/locations/global/gkeMemberships/${google_gke_hub_membership.development.membership_id}"
+  token = data.google_client_config.default.access_token
+  ignore_labels = ["wait_for_${google_gke_hub_membership.development.id}"] # workaround as provider does not support depends_on 🤷
 }
 
 # configure ACM for development GKE cluster
@@ -114,6 +127,6 @@ module "acm-development" {
   ]
 
   providers = {
-    kubernetes = kubernetes.development
+    kubernetes = kubernetes.development_anthos_connect
   }
 }
