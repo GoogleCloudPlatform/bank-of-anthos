@@ -38,6 +38,7 @@ module "gke_development" {
     cidr_block   = module.network.subnets["${var.region}/${local.network.development.master_auth_subnet_name}"].ip_cidr_range
     display_name = local.network.development.subnetwork
   }]
+  master_ipv4_cidr_block          = "10.6.0.0/28"
   release_channel                 = "RAPID"
   enable_vertical_pod_autoscaling = true
   horizontal_pod_autoscaling      = true
@@ -101,9 +102,9 @@ module "asm-development" {
 
 # configure kubernetes provider for private cluster through anthos connect
 provider "kubernetes" {
-  alias = "development_anthos_connect"
-  host  = "https://connectgateway.googleapis.com/v1/projects/${data.google_project.project.number}/locations/global/gkeMemberships/${google_gke_hub_membership.development.membership_id}"
-  token = data.google_client_config.default.access_token
+  alias         = "development_anthos_connect"
+  host          = "https://connectgateway.googleapis.com/v1/projects/${data.google_project.project.number}/locations/global/gkeMemberships/${google_gke_hub_membership.development.membership_id}"
+  token         = data.google_client_config.default.access_token
   ignore_labels = ["wait_for_${google_gke_hub_membership.development.id}"] # workaround as provider does not support depends_on 🤷
 }
 

@@ -22,7 +22,7 @@ provider "kubernetes" {
 
 # staging autopilot cluster
 module "gke_staging" {
-  source = "terraform-google-modules/kubernetes-engine/google//modules/beta-autopilot-public-cluster"
+  source = "terraform-google-modules/kubernetes-engine/google//modules/beta-autopilot-private-cluster"
 
   project_id        = var.project_id
   name              = "staging"
@@ -32,7 +32,13 @@ module "gke_staging" {
   subnetwork        = local.network.staging.subnetwork
   ip_range_pods     = local.network.staging.ip_range_pods
   ip_range_services = local.network.staging.ip_range_services
-  #master_authorized_networks      = local.network.staging.master_auth_subnet_name
+  enable_private_nodes    = true
+  enable_private_endpoint = true
+  master_authorized_networks = [{
+    cidr_block   = module.network.subnets["${var.region}/${local.network.staging.master_auth_subnet_name}"].ip_cidr_range
+    display_name = local.network.staging.subnetwork
+  }]
+  master_ipv4_cidr_block          = "10.6.0.32/28"
   release_channel                 = "RAPID"
   enable_vertical_pod_autoscaling = true
   horizontal_pod_autoscaling      = true
@@ -125,6 +131,15 @@ module "asm-staging" {
     destroy_cmd_body = "container fleet mesh update --management manual --memberships ${google_gke_hub_membership.staging.membership_id} --project ${var.project_id}"
 }
 
+
+# configure kubernetes provider for private cluster through anthos connect
+provider "kubernetes" {
+  alias = "staging_anthos_connect"
+  host  = "https://connectgateway.googleapis.com/v1/projects/${data.google_project.project.number}/locations/global/gkeMemberships/${google_gke_hub_membership.staging.membership_id}"
+  token = data.google_client_config.default.access_token
+  ignore_labels = ["wait_for_${google_gke_hub_membership.staging.id}"] # workaround as provider does not support depends_on 🤷 (and sometimes this)
+}
+
 # configure ACM for staging GKE cluster
 module "acm-staging" {
   source = "terraform-google-modules/kubernetes-engine/google//modules/acm"
@@ -145,6 +160,6 @@ module "acm-staging" {
   ]
 
   providers = {
-    kubernetes = kubernetes.staging
+    kubernetes = kubernetes.staging_anthos_connect
   }
 }

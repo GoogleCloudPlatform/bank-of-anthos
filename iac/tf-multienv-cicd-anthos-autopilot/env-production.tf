@@ -22,7 +22,7 @@ provider "kubernetes" {
 
 # production autopilot cluster
 module "gke_production" {
-  source = "terraform-google-modules/kubernetes-engine/google//modules/beta-autopilot-public-cluster"
+  source = "terraform-google-modules/kubernetes-engine/google//modules/beta-autopilot-private-cluster"
 
   project_id        = var.project_id
   name              = "production"
@@ -32,7 +32,13 @@ module "gke_production" {
   subnetwork        = local.network.production.subnetwork
   ip_range_pods     = local.network.production.ip_range_pods
   ip_range_services = local.network.production.ip_range_services
-  #master_authorized_networks      = local.network.production.master_auth_subnet_name
+  enable_private_nodes    = true
+  enable_private_endpoint = true
+  master_authorized_networks = [{
+    cidr_block   = module.network.subnets["${var.region}/${local.network.production.master_auth_subnet_name}"].ip_cidr_range
+    display_name = local.network.production.subnetwork
+  }]
+  master_ipv4_cidr_block          = "10.6.0.16/28"
   release_channel                 = "RAPID"
   enable_vertical_pod_autoscaling = true
   horizontal_pod_autoscaling      = true
@@ -124,6 +130,15 @@ module "asm-production" {
     destroy_cmd_body = "container fleet mesh update --management manual --memberships ${google_gke_hub_membership.production.membership_id} --project ${var.project_id}"
 }
 
+
+# configure kubernetes provider for private cluster through anthos connect
+provider "kubernetes" {
+  alias = "production_anthos_connect"
+  host  = "https://connectgateway.googleapis.com/v1/projects/${data.google_project.project.number}/locations/global/gkeMemberships/${google_gke_hub_membership.production.membership_id}"
+  token = data.google_client_config.default.access_token
+  ignore_labels = ["wait_for_${google_gke_hub_membership.production.id}"] # workaround as provider does not support depends_on 🤷 
+}
+
 # configure ACM for production GKE cluster
 module "acm-production" {
   source = "terraform-google-modules/kubernetes-engine/google//modules/acm"
@@ -144,7 +159,7 @@ module "acm-production" {
   ]
 
   providers = {
-    kubernetes = kubernetes.production
+    kubernetes = kubernetes.production_anthos_connect
   }
 }
 

@@ -23,7 +23,7 @@ module "network" {
   subnets = [
     {
       subnet_name           = local.network.development.subnetwork
-      subnet_ip             = "10.6.0.0/16"
+      subnet_ip             = "10.0.0.0/16"
       subnet_region         = var.region
       subnet_private_access = true
     },
