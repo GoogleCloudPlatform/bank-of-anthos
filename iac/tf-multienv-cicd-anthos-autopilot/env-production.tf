@@ -162,4 +162,3 @@ module "acm-production" {
     kubernetes = kubernetes.production_anthos_connect
   }
 }
-
