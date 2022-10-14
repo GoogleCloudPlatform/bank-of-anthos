@@ -14,7 +14,7 @@ charset-normalizer==2.1.1
     # via requests
 click==8.1.3
     # via flask
-cryptography==38.0.1
+cryptography==38.0.2
     # via -r requirements.in
 deprecated==1.2.13
     # via opentelemetry-api
@@ -24,7 +24,7 @@ google-api-core[grpc]==2.10.2
     # via google-cloud-trace
 google-auth==2.12.0
     # via google-api-core
-google-cloud-trace==1.7.2
+google-cloud-trace==1.7.3
     # via opentelemetry-exporter-gcp-trace
 googleapis-common-protos==1.56.4
     # via
@@ -40,8 +40,6 @@ gunicorn==20.1.0
     # via -r requirements.in
 idna==3.4
     # via requests
-importlib-metadata==5.0.0
-    # via flask
 itsdangerous==2.1.2
     # via flask
 jinja2==3.1.2
@@ -135,8 +133,6 @@ wrapt==1.14.1
     #   deprecated
     #   opentelemetry-instrumentation
     #   opentelemetry-instrumentation-jinja2
-zipp==3.9.0
-    # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
