@@ -47,16 +47,14 @@ def signup_helper(locust, username):
                 "zip":"98103",
                 "ssn":"111-22-3333"}
     with locust.client.post("/signup", data=userdata, catch_response=True) as response:
-        found_token = False
         for r_hist in response.history:
-            found_token |= r_hist.cookies.get('token') is not None
-            if found_token:
+            if r_hist.cookies.get('token') is not None:
                 response.success()
                 logging.debug("created user = %s", username)
-                return found_token
+                return True
 
         response.failure("login failed")
-        return found_token
+        return False
 
 def generate_username():
     """
@@ -187,13 +185,11 @@ class AllTasks(SequentialTaskSet):
             with self.client.post("/login", {"username":self.user.username,
                                              "password":MASTER_PASSWORD},
                                   catch_response=True) as response:
-                found_token = False
                 for r_hist in response.history:
-                    found_token |= r_hist.cookies.get('token') is not None
-                    if found_token:
+                    if r_hist.cookies.get('token') is not None:
                         response.success()
-                    else:
-                        response.failure("login failed")
+                        return
+                response.failure("login failed")
 
         @task(1)
         def logout(self):
