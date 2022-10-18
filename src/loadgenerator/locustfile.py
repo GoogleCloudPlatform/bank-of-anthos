@@ -54,8 +54,8 @@ def signup_helper(locust, username):
                 response.success()
                 logging.debug("created user = %s", username)
                 return found_token
-            else:
-                response.failure("login failed")
+
+        response.failure("login failed")
         return found_token
 
 def generate_username():
