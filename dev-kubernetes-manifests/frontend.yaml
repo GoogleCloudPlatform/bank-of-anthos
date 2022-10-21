@@ -34,7 +34,7 @@ spec:
         runAsNonRoot: true
         runAsUser: 1000
       containers:
-      - name: front
+      - name: frontend
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
