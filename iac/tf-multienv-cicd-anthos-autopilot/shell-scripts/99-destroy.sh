@@ -11,9 +11,20 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+set -Eeuo pipefail
 
-export PROJECT_ID=bank-of-anthos-aablsk
-export REGION=europe-west1
-export ZONE=europe-west1-b
-export GITHUB_REPO_OWNER=aablsk
-export SYNC_BRANCH=private-clusters
+source ./iac/tf-multienv-cicd-anthos-autopilot/shell-scripts/env.sh
+
+echo "🚀  Starting $0"
+echo '🛠 Destroying project infrastructure with terraform.'
+echo '🍵 🧉 🫖  This will take some time - why not get a hot beverage?  🍵 🧉 🫖'
+
+terraform -chdir=iac/tf-multienv-cicd-anthos-autopilot destroy \
+-var="project_id=$PROJECT_ID" \
+-var="region=$REGION" \
+-var="zone=$ZONE" \
+-var="repo_owner=$GITHUB_REPO_OWNER" \
+-var="sync_branch=$SYNC_BRANCH" \
+-auto-approve
+
+echo "✅  Finished $0"
