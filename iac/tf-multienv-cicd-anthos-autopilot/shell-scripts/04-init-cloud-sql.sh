@@ -18,25 +18,25 @@ echo "🚀  Starting $0"
 
 echo '🌱  Initializing setting up development config...'
 echo '🔑  Getting cluster credentials...'
-gcloud container clusters get-credentials development --region=$REGION
+gcloud container fleet memberships get-credentials development-membership
 echo '🙌  Setting default container registry for development...'
-skaffold config set default-repo $REGION-docker.pkg.dev/$PROJECT_ID/bank-of-anthos
+/usr/local/bin/skaffold config set default-repo $REGION-docker.pkg.dev/$PROJECT_ID/bank-of-anthos
 
 echo '🌱  Initializing staging db...'
 echo '🔑  Getting cluster credentials...'
-gcloud container clusters get-credentials staging --region=$REGION
+gcloud container fleet memberships get-credentials staging-membership
 echo '🙌  Deploying populate-db jobs for staging...'
-skaffold config set default-repo $REGION-docker.pkg.dev/$PROJECT_ID/bank-of-anthos
-skaffold run --profile=init-db-staging
+/usr/local/bin/skaffold config set default-repo $REGION-docker.pkg.dev/$PROJECT_ID/bank-of-anthos
+/usr/local/bin/skaffold run --profile=init-db-staging
 echo '🕰  Wait for staging-db initialization to complete...'
 kubectl wait --for=condition=complete job/populate-accounts-db job/populate-ledger-db -n bank-of-anthos-staging --timeout=300s
 
 echo '🌱  Initializing production db...'
 echo '🔑  Getting cluster credentials...'
-gcloud container clusters get-credentials production --region=$REGION
+gcloud container fleet memberships get-credentials production-membership
 echo '🙌  Deploying populate-db jobs for staging...'
-skaffold config set default-repo $REGION-docker.pkg.dev/$PROJECT_ID/bank-of-anthos
-skaffold run --profile=init-db-production
+/usr/local/bin/skaffold config set default-repo $REGION-docker.pkg.dev/$PROJECT_ID/bank-of-anthos
+/usr/local/bin/skaffold run --profile=init-db-production
 echo '🕰  Wait for production-db initialization to complete...'
 kubectl wait --for=condition=complete job/populate-accounts-db job/populate-ledger-db -n bank-of-anthos-production --timeout=300s
 
