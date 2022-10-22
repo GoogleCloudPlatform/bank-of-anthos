@@ -137,7 +137,7 @@ provider "kubernetes" {
   alias = "staging_anthos_connect"
   host  = "https://connectgateway.googleapis.com/v1/projects/${data.google_project.project.number}/locations/global/gkeMemberships/${google_gke_hub_membership.staging.membership_id}"
   token = data.google_client_config.default.access_token
-  ignore_labels = ["wait_for_${google_gke_hub_membership.staging.id}"] # workaround as provider does not support depends_on 🤷 (and sometimes this)
+  ignore_labels = ["wait_for_${google_gke_hub_membership.staging.id}"] # workaround as provider does not support depends_on 🤷
 }
 
 # configure ACM for staging GKE cluster
