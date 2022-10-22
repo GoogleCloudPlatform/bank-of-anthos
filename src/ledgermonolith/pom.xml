@@ -126,11 +126,7 @@
         <dependency>
             <groupId>com.auth0</groupId>
             <artifactId>java-jwt</artifactId>
-<<<<<<< HEAD
-            <version>4.0.0</version>
-=======
             <version>4.2.0</version>
->>>>>>> 02f0f44c4eaf9f3bd9dc9f73e87412db8e882db9
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>

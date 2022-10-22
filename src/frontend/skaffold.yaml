@@ -1,33 +1,38 @@
-apiVersion: skaffold/v2beta26
+apiVersion: skaffold/v3
 kind: Config
-metadata: 
+metadata:
   name: frontend
 build:
+  artifacts:
+  - image: frontend
+    context: .
+    sync:
+      infer:
+      - '**/*.py'
+      - logging.conf
+      - static/**
+      - templates/*.html
   tagPolicy:
     sha256: {}
-  artifacts:
-    - image: frontend
-      context: .
-      sync:
-        infer:
-          - '**/*.py'
-          - 'logging.conf'
-          - 'static/**'
-          - 'templates/*.html'
 profiles:
-  - name: development
-    activation:
-      - command: dev
-    deploy:
-      kustomize:
-        paths: ["k8s/overlays/development"]
-  - name: staging
-    deploy:
-      kustomize:
-        paths: ["k8s/overlays/staging"]
-      statusCheck: false
-  - name: production
-    deploy:
-      kustomize:
-        paths: ["k8s/overlays/production"]
-      statusCheck: false
+- name: development
+  activation:
+  - command: dev
+  manifests:
+    kustomize:
+      paths:
+      - k8s/overlays/development
+- name: staging
+  manifests:
+    kustomize:
+      paths:
+      - k8s/overlays/staging
+  deploy:
+    statusCheck: false
+- name: production
+  manifests:
+    kustomize:
+      paths:
+      - k8s/overlays/production
+  deploy:
+    statusCheck: false

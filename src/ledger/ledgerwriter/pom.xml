@@ -117,11 +117,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-<<<<<<< HEAD:src/ledger/ledgerwriter/pom.xml
-            <version>2.13.4</version>
-=======
             <version>2.13.4.2</version>
->>>>>>> 02f0f44c4eaf9f3bd9dc9f73e87412db8e882db9:src/ledgerwriter/pom.xml
         </dependency>
         <dependency>
             <groupId>io.lettuce</groupId>

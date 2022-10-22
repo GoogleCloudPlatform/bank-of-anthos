@@ -16,6 +16,12 @@ set -uo pipefail
 
 echo "🚀  Starting $0"
 
+echo '🌱  Initializing setting up development config...'
+echo '🔑  Getting cluster credentials...'
+gcloud container clusters get-credentials development --region=$REGION
+echo '🙌  Setting default container registry for development...'
+skaffold config set default-repo $REGION-docker.pkg.dev/$PROJECT_ID/bank-of-anthos
+
 echo '🌱  Initializing staging db...'
 echo '🔑  Getting cluster credentials...'
 gcloud container clusters get-credentials staging --region=$REGION
