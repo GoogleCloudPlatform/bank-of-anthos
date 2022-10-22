@@ -1,0 +1,30 @@
+apiVersion: skaffold/v2beta26
+kind: Config
+metadata: 
+  name: transactionhistory
+requires:
+  - configs: [ledger-db]
+    path: ../ledger-db/skaffold.yaml
+build:
+  tagPolicy:
+    sha256: {}
+  artifacts:
+    - image: transactionhistory
+      context: ../../../
+      jib:
+        project: src/ledger/transactionhistory
+profiles:
+  - name: development
+    activation:
+      - command: dev
+    deploy:
+      kustomize:
+        paths: ["k8s/overlays/development"]
+  - name: staging
+    deploy:
+      kustomize:
+        paths: ["k8s/overlays/staging"]
+  - name: production
+    deploy:
+      kustomize:
+        paths: ["k8s/overlays/production"]

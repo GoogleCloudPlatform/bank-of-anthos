@@ -1,0 +1,16 @@
+apiVersion: skaffold/v2beta26
+kind: Config
+metadata: 
+  name: loadgenerator
+profiles:
+  - name: staging
+    build:
+      tagPolicy:
+        sha256: {}
+      artifacts:
+      - image: loadgenerator
+        context: .
+    deploy:
+      kustomize:
+        paths: ["k8s/overlays/staging"]
+      statusCheck: false

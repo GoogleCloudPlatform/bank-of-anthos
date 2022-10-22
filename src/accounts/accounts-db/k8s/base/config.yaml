@@ -1,0 +1,13 @@
+# [START gke_dev_kubernetes_manifests_accounts_db_configmap_accounts_db_config]
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: accounts-db-config
+  labels:
+    app: accounts-db
+data:
+  POSTGRES_DB: accounts-db
+  POSTGRES_USER: accounts-admin
+  POSTGRES_PASSWORD: accounts-pwd
+  ACCOUNTS_DB_URI: postgresql://accounts-admin:accounts-pwd@accounts-db:5432/accounts-db
+# [END gke_dev_kubernetes_manifests_accounts_db_configmap_accounts_db_config]

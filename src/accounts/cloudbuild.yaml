@@ -1,0 +1,27 @@
+steps:
+  - name: gcr.io/cloud-builders/gsutil
+    args: ['cp', $_CACHE_URI, '/workspace/cache'] # always write skaffold cache to filename cache in workspace
+  - name: gcr.io/k8s-skaffold/skaffold:v1.37.2-lts
+    args:
+      - "skaffold"
+      - "build"
+      - "--file-output=/workspace/artifacts.json"
+      - "--default-repo=$_CONTAINER_REGISTRY"
+      - "--cache-file=/workspace/$_CACHE" # set _CACHE to anything other than "cache" e.g. "no-cache" to reset skaffold cache
+      - "--module=$_TEAM"
+  - name: gcr.io/cloud-builders/gsutil
+    args: ['cp', '/workspace/$_CACHE',  $_CACHE_URI]
+  - name: gcr.io/cloud-builders/gcloud
+    args: 
+      - "deploy"
+      - "releases"
+      - "create"
+      - "$_TEAM-$SHORT_SHA-$$DATE-$$TIME"
+      - "--delivery-pipeline=$_TEAM"
+      - "--build-artifacts=/workspace/artifacts.json"
+      - "--skaffold-file=src/$_TEAM/skaffold.yaml"
+      - "--region=europe-west1"
+      - "--gcs-source-staging-dir=$_SOURCE_STAGING_BUCKET/$SHORT_SHA"
+      - "--skaffold-version=skaffold_preview"
+options:
+  logging: CLOUD_LOGGING_ONLY

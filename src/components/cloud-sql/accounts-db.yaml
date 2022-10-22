@@ -1,0 +1,5 @@
+kind: ConfigMap
+metadata:
+  name: accounts-db-config
+data:
+  ACCOUNTS_DB_URI: postgresql://admin:admin@127.0.0.1:5432/accounts-db

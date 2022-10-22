@@ -1,0 +1,33 @@
+apiVersion: skaffold/v2beta26
+kind: Config
+metadata: 
+  name: accounts-db
+profiles:
+  - name: development
+    activation:
+      - command: dev
+    deploy:
+      kustomize:
+        paths: ["k8s/overlays/development"]
+    build:
+      tagPolicy:
+        sha256: {}
+      artifacts:
+        - image: accounts-db
+          context: .
+  - name: staging
+    deploy:
+      kustomize:
+        paths: ["k8s/overlays/staging"]
+  - name: production
+    deploy:
+      kustomize:
+        paths: ["k8s/overlays/production"]
+  - name: init-db-staging
+    deploy:
+      kustomize:
+        paths: ["k8s/overlays/init-db-staging"]
+  - name: init-db-production
+    deploy:
+      kustomize:
+        paths: ["k8s/overlays/init-db-production"]

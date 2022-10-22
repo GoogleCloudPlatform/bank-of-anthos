@@ -70,7 +70,7 @@ def create_app():
         Returns the cluster name + zone name where this Pod is running.
 
         """
-        return "Cluster: " + cluster_name + ", Pod: " + pod_name + ", Zone: " + pod_zone, 200
+        return "🌻Cluster: " + cluster_name + ", Pod: " + pod_name + ", Zone: " + pod_zone, 200
 
     @app.route("/")
     def root():

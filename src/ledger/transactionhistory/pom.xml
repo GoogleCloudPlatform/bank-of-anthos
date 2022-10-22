@@ -19,10 +19,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>ledgermonolith</artifactId>
+    <artifactId>transactionhistory</artifactId>
     <packaging>jar</packaging>
-    <name>Ledger Monolith</name>
-    <description>Ledger Monolith</description>
+    <name>Transaction History</name>
+    <description>Transaction History</description>
     <version>1.0</version>
 
     <parent>
@@ -79,6 +79,17 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-stackdriver</artifactId>
+            <version>1.9.5</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -159,6 +170,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <addResources>true</addResources>
+                    <mainClass>anthos.samples.bankofanthos.transactionhistory.TransActionHistoryApplication</mainClass>
                 </configuration>
             </plugin>
             <plugin>
@@ -177,7 +189,6 @@
                 <version>0.8.8</version>
                 <executions>
                     <execution>
-                        <id>default-prepare-agent</id>
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>

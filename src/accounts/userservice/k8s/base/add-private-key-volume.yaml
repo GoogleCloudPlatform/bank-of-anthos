@@ -1,0 +1,17 @@
+- op: add
+  path: /spec/template/spec/volumes/-
+  value:
+    name: keys
+    secret:
+      secretName: jwt-key
+      items:
+      - key: jwtRS256.key
+        path: privatekey
+      - key: jwtRS256.key.pub
+        path: publickey
+- op: add
+  path: /spec/template/spec/containers/0/volumeMounts/-
+  value:
+    name: keys
+    mountPath: "/tmp/.ssh"
+    readOnly: true

@@ -1,0 +1,31 @@
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+patches:
+  - target:
+      kind: Deployment
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/-
+        value:
+          name: cloudsql-proxy
+          resources:
+            limits:
+              cpu: "0.25"
+              memory: "100Mi"
+          image: gcr.io/cloudsql-docker/gce-proxy:latest 
+          env:
+          - name: CONNECTION_NAME
+            valueFrom:
+              configMapKeyRef:
+                name: cloud-sql-admin
+                key: connectionName
+          command: ["/cloud_sql_proxy",
+                    "-instances=$(CONNECTION_NAME)=tcp:5432"]
+  - path: ledger-db.yaml
+    target:
+      kind: ConfigMap
+      name: ledger-db-config
+  - path: accounts-db.yaml
+    target:
+      kind: ConfigMap
+      name: accounts-db-config
