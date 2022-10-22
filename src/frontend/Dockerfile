@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # Use the official Python docker container, slim version, running Debian
-FROM python:3.10-slim
+FROM python:3.10.8-slim
 
 # Set our working directory
 WORKDIR /app
