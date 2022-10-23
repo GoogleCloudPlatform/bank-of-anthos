@@ -151,7 +151,7 @@
                 <version>3.3.0</version>
                 <configuration>
                     <from>
-                        <image>eclipse-temurin:17-jre-alpine</image>
+                        <image>eclipse-temurin:17.0.4.1_1-jre-alpine</image>
                     </from>
                 </configuration>
             </plugin>
