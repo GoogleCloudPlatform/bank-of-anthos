@@ -154,7 +154,7 @@ protobuf==4.21.8
     #   googleapis-common-protos
     #   grpcio-status
     #   proto-plus
-psycopg2-binary==2.9.4
+psycopg2-binary==2.9.5
     # via -r requirements.in
 py==1.11.0
     # via -r requirements.in
