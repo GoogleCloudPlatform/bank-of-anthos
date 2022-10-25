@@ -38,6 +38,8 @@ cryptography==38.0.2
     # via -r requirements.in
 deprecated==1.2.13
     # via opentelemetry-api
+exceptiongroup==1.0.0rc9
+    # via pytest
 flask==2.2.2
     # via -r requirements.in
 google-api-core[grpc]==2.10.2
@@ -155,9 +157,7 @@ protobuf==4.21.8
 psycopg2-binary==2.9.4
     # via -r requirements.in
 py==1.11.0
-    # via
-    #   -r requirements.in
-    #   pytest
+    # via -r requirements.in
 pyasn1==0.4.8
     # via
     #   -r requirements.in
@@ -179,7 +179,7 @@ pyparsing==3.0.9
     # via
     #   -r requirements.in
     #   packaging
-pytest==7.1.3
+pytest==7.2.0
     # via
     #   -r requirements.in
     #   pytest-cov
