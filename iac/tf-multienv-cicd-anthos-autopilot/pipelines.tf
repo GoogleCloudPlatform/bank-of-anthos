@@ -17,7 +17,7 @@ module "ci-cd-pipeline" {
   source = "./modules/ci-cd-pipeline"
 
   # create CICD pipeline per team
-  for_each = toset(var.teams)
+  for_each = toset(local.teams)
 
   project_id = var.project_id
   region = var.region
@@ -26,7 +26,7 @@ module "ci-cd-pipeline" {
   repo_name = var.sync_repo
   team = each.value
   clusters = local.clusters
-  targets = var.targets
+  targets = local.targets
   repo_branch = var.sync_branch
 
   depends_on = [

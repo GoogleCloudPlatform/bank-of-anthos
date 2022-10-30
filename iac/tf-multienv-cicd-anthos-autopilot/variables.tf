@@ -22,27 +22,17 @@ variable "region" {
     description = "Region where regional resources will be deployed (e.g. europe-west1)"
 }
 
-variable "teams" {
-    type = list(string)
-    description = "Map with team names as string and ci-pipeline-configuration path in value"
-}
-
-variable "targets" {
-    type = list(string)
-    description = "List of targets for delivery in order of deployment stages"
-}
-
 variable "sync_repo" {
     type = string
-    description = "Short version of repository to sync ACM configs from & use source for CI (e.g. 'bank-of-anthos' for https://www.github.com/aablsk/bank-of-anthos)"
+    description = "Short version of repository to sync ACM configs from & use source for CI (e.g. 'bank-of-anthos' for https://www.github.com/GoogleCloudPlatform/bank-of-anthos)"
+}
+
+variable "repo_owner" {
+    type = string
+    description = "Github username of the github repo owner whose fork shall be used for ACM, CloudBuild triggers (e.g. 'GoogleCloudPlatform' for https://www.github.com/GoogleCloudPlatform/bank-of-anthos)"
 }
 
 variable "sync_branch" {
     type = string
     description = "Branch to sync ACM configs from & trigger CICD if pushed to."
-}
-
-variable "repo_owner" {
-    type = string
-    description = "Github username of the github repo owner whose fork shall be used for ACM, CloudBuild triggers (e.g. 'aablsk' for https://www.github.com/aablsk/bank-of-anthos)"
 }

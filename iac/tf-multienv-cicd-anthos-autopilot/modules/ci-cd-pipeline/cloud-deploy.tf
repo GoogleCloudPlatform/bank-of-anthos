@@ -15,7 +15,7 @@
 # create CloudDeploy targets
 resource "google_clouddeploy_target" "targets" {
   # one CloudDeploy target per target defined in vars
-  for_each = toset(var.targets)
+  for_each = toset(local.targets)
 
   project  = var.project_id
   name     = "${each.value}-${var.team}"
@@ -41,7 +41,7 @@ resource "google_clouddeploy_delivery_pipeline" "delivery-pipeline" {
   name     = var.team
   serial_pipeline {
     dynamic "stages" {
-      for_each = { for idx, target in var.targets : idx => target }
+      for_each = { for idx, target in local.targets : idx => target }
       content {
         profiles  = [stages.value]
         target_id = google_clouddeploy_target.targets[stages.value].name
