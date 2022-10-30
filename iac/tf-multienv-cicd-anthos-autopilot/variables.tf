@@ -19,12 +19,7 @@ variable "project_id" {
 
 variable "region" {
     type = string
-    description = "Region where regional resources will be deployed"
-}
-
-variable "zone" {
-    type = string
-    description = "Zone where zonal resources will be deployed (should be within region)"
+    description = "Region where regional resources will be deployed (e.g. europe-west1)"
 }
 
 variable "teams" {

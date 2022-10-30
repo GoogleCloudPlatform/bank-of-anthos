@@ -14,6 +14,5 @@
 
 export PROJECT_ID=bank-of-anthos-aablsk
 export REGION=europe-west1
-export ZONE=europe-west1-b
 export GITHUB_REPO_OWNER=aablsk
 export SYNC_BRANCH=iac-multienv-cicd-anthos-autopilot
