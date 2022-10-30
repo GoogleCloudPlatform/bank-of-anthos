@@ -79,6 +79,7 @@ module "cloudsql_staging" {
   tier                = "db-custom-1-3840"
   deletion_protection = false
   availability_type   = "REGIONAL"
+  zone                = var.zone
 
   additional_databases = [
     {

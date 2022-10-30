@@ -22,6 +22,11 @@ variable "region" {
     description = "Region where regional resources will be deployed (e.g. europe-west1)"
 }
 
+variable "zone" {
+    type = string
+    description = "Zone for the CloudSQL master instance (e.g. europe-west1-b)"
+}
+
 variable "sync_repo" {
     type = string
     description = "Short version of repository to sync ACM configs from & use source for CI (e.g. 'bank-of-anthos' for https://www.github.com/GoogleCloudPlatform/bank-of-anthos)"
