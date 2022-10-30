@@ -62,6 +62,8 @@ Setting up the sample requires that you have a [Google Cloud Platform (GCP) proj
    ```
 
 ## Provision infrastructure with terraform
+1. Create a GCS bucket in your project to hold your terraform state. `gsutil mb gs://$YOUR_TF_STATE_GCS_BUCKET_NAME`
+1. Replace "YOUR_TF_STATE_GCS_BUCKET_NAME" in `iac/tf-multienv-cicd-anthos-autopilot/main.tf` with your chosen bucket name.
 1. Configure terraform variables in `iac/tf-multienv-cicd-anthos-autopilot/terraform.tfvars` - at a minimum replace `$PROJECT_ID` and `$REGION` with the same values you used for the ACM substitution.
 1. Provision infrastructure with terraform.
    ```bash

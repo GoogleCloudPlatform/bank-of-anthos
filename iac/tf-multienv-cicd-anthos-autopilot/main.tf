@@ -13,10 +13,10 @@
 # limitations under the License.
 
 terraform {
-  /* backend "gcs" {
-      bucket = "tf-state-boa-tf"
+  backend "gcs" {
+      bucket = "YOUR_TF_STATE_GCS_BUCKET_NAME"
       prefix = "bank-of-anthos"
-  } */
+  }
 }
 
 # google-beta provider for fleet API, artifact registry
