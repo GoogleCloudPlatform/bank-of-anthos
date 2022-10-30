@@ -32,7 +32,6 @@ module "gke_staging" {
   subnetwork        = local.network.staging.subnetwork
   ip_range_pods     = local.network.staging.ip_range_pods
   ip_range_services = local.network.staging.ip_range_services
-  #master_authorized_networks      = local.network.staging.master_auth_subnet_name
   release_channel                 = "RAPID"
   enable_vertical_pod_autoscaling = true
   horizontal_pod_autoscaling      = true

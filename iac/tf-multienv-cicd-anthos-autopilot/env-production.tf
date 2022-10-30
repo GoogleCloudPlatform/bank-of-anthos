@@ -32,7 +32,6 @@ module "gke_production" {
   subnetwork        = local.network.production.subnetwork
   ip_range_pods     = local.network.production.ip_range_pods
   ip_range_services = local.network.production.ip_range_services
-  #master_authorized_networks      = local.network.production.master_auth_subnet_name
   release_channel                 = "RAPID"
   enable_vertical_pod_autoscaling = true
   horizontal_pod_autoscaling      = true
