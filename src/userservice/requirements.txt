@@ -38,7 +38,7 @@ cryptography==38.0.2
     # via -r requirements.in
 deprecated==1.2.13
     # via opentelemetry-api
-exceptiongroup==1.0.0rc9
+exceptiongroup==1.0.0
     # via pytest
 flask==2.2.2
     # via -r requirements.in
