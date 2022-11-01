@@ -146,7 +146,7 @@ pluggy==1.0.0
     #   pytest
 proto-plus==1.22.1
     # via google-cloud-trace
-protobuf==4.21.8
+protobuf==4.21.9
     # via
     #   -r requirements.in
     #   google-api-core
