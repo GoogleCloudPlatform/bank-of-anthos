@@ -51,7 +51,7 @@ deploy:
 apiVersion: skaffold/v3
 kind: Config
 metadata:
-  name: backend # module defining backend service
+  name: backend # module defining backend services
 requires:
 - configs:
   - db
