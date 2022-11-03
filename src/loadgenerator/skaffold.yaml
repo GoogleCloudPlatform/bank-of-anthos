@@ -16,3 +16,4 @@ profiles:
       - k8s/overlays/staging
   deploy:
     statusCheck: false
+    kubectl: {}

@@ -12,6 +12,8 @@ build:
     context: .
   tagPolicy:
     sha256: {}
+deploy:
+  kubectl: {}
 profiles:
 - name: development
   activation:

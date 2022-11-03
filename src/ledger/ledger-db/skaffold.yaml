@@ -2,6 +2,8 @@ apiVersion: skaffold/v3
 kind: Config
 metadata:
   name: ledger-db
+deploy:
+  kubectl: {}
 profiles:
 - name: development
   activation:
