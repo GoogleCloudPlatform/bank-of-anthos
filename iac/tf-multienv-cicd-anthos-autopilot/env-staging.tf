@@ -79,14 +79,14 @@ module "cloudsql_staging" {
 
   project_id = var.project_id
   region     = var.region
-  zone       = var.zone
 
-  name              = "${local.application_name}-db-staging"
-  database_version  = "POSTGRES_14"
-  enable_default_db = false
-  # ip_configuration - should we use this or is default ok?
-  tier = "db-custom-1-3840"
+  name                = "${local.application_name}-db-staging"
+  database_version    = "POSTGRES_14"
+  enable_default_db   = false
+  tier                = "db-custom-1-3840"
   deletion_protection = false
+  availability_type   = "REGIONAL"
+  zone                = var.zone
 
   additional_databases = [
     {
@@ -121,14 +121,14 @@ resource "google_gke_hub_membership" "staging" {
 
 # configure ASM for staging GKE cluster
 module "asm-staging" {
-    source = "terraform-google-modules/gcloud/google"
+  source = "terraform-google-modules/gcloud/google"
 
-    platform = "linux"
-    
-    create_cmd_entrypoint = "gcloud"
-    create_cmd_body = "container fleet mesh update --management automatic --memberships ${google_gke_hub_membership.staging.membership_id} --project ${var.project_id}"
-    destroy_cmd_entrypoint = "gcloud"
-    destroy_cmd_body = "container fleet mesh update --management manual --memberships ${google_gke_hub_membership.staging.membership_id} --project ${var.project_id}"
+  platform = "linux"
+
+  create_cmd_entrypoint  = "gcloud"
+  create_cmd_body        = "container fleet mesh update --management automatic --memberships ${google_gke_hub_membership.staging.membership_id} --project ${var.project_id}"
+  destroy_cmd_entrypoint = "gcloud"
+  destroy_cmd_body       = "container fleet mesh update --management manual --memberships ${google_gke_hub_membership.staging.membership_id} --project ${var.project_id}"
 }
 
 

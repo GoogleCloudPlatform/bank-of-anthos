@@ -79,13 +79,14 @@ module "cloudsql_production" {
 
   project_id = var.project_id
   region     = var.region
-  zone       = var.zone
 
-  name              = "${local.application_name}-db-production"
-  database_version  = "POSTGRES_14"
-  enable_default_db = false
-  tier = "db-custom-1-3840"
+  name                = "${local.application_name}-db-production"
+  database_version    = "POSTGRES_14"
+  enable_default_db   = false
+  tier                = "db-custom-1-3840"
   deletion_protection = false
+  availability_type   = "REGIONAL"
+  zone                = var.zone
 
   additional_databases = [
     {
@@ -120,14 +121,14 @@ resource "google_gke_hub_membership" "production" {
 
 # configure ASM for production GKE cluster
 module "asm-production" {
-    source = "terraform-google-modules/gcloud/google"
+  source = "terraform-google-modules/gcloud/google"
 
-    platform = "linux"
-    
-    create_cmd_entrypoint = "gcloud"
-    create_cmd_body = "container fleet mesh update --management automatic --memberships ${google_gke_hub_membership.production.membership_id} --project ${var.project_id}"
-    destroy_cmd_entrypoint = "gcloud"
-    destroy_cmd_body = "container fleet mesh update --management manual --memberships ${google_gke_hub_membership.production.membership_id} --project ${var.project_id}"
+  platform = "linux"
+
+  create_cmd_entrypoint  = "gcloud"
+  create_cmd_body        = "container fleet mesh update --management automatic --memberships ${google_gke_hub_membership.production.membership_id} --project ${var.project_id}"
+  destroy_cmd_entrypoint = "gcloud"
+  destroy_cmd_body       = "container fleet mesh update --management manual --memberships ${google_gke_hub_membership.production.membership_id} --project ${var.project_id}"
 }
 
 
