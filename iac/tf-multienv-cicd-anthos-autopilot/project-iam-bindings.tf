@@ -48,7 +48,7 @@ module "project-iam-bindings" {
       ],
       local.cloud_build_sas
     ),
-    "roles/gkehub.gatewayReader" = local.cloud_deploy_sas,
+    "roles/gkehub.gatewayEditor" = local.cloud_deploy_sas,
     "roles/gkehub.viewer" = local.cloud_deploy_sas,
     "roles/clouddeploy.releaser" = local.cloud_build_sas,
     "roles/container.developer"  = local.cloud_deploy_sas,
