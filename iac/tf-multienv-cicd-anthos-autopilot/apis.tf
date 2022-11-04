@@ -24,6 +24,7 @@ module "enabled_google_apis" {
     "sourcerepo.googleapis.com",
     "cloudbuild.googleapis.com",
     "clouddeploy.googleapis.com",
+    "cloudresourcemanager.googleapis.com",
     "compute.googleapis.com",
     "anthos.googleapis.com",
     "container.googleapis.com",
