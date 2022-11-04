@@ -24,14 +24,14 @@ provider "kubernetes" {
 module "gke_production" {
   source = "terraform-google-modules/kubernetes-engine/google//modules/beta-autopilot-private-cluster"
 
-  project_id        = var.project_id
-  name              = "production"
-  regional          = true
-  region            = var.region
-  network           = local.network_name
-  subnetwork        = local.network.production.subnetwork
-  ip_range_pods     = local.network.production.ip_range_pods
-  ip_range_services = local.network.production.ip_range_services
+  project_id              = var.project_id
+  name                    = "production"
+  regional                = true
+  region                  = var.region
+  network                 = local.network_name
+  subnetwork              = local.network.production.subnetwork
+  ip_range_pods           = local.network.production.ip_range_pods
+  ip_range_services       = local.network.production.ip_range_services
   enable_private_nodes    = true
   enable_private_endpoint = true
   master_authorized_networks = [{
@@ -134,9 +134,9 @@ module "asm-production" {
 
 # configure kubernetes provider for private cluster through anthos connect
 provider "kubernetes" {
-  alias = "production_anthos_connect"
-  host  = "https://connectgateway.googleapis.com/v1/projects/${data.google_project.project.number}/locations/global/gkeMemberships/${google_gke_hub_membership.production.membership_id}"
-  token = data.google_client_config.default.access_token
+  alias         = "production_anthos_connect"
+  host          = "https://connectgateway.googleapis.com/v1/projects/${data.google_project.project.number}/locations/global/gkeMemberships/${google_gke_hub_membership.production.membership_id}"
+  token         = data.google_client_config.default.access_token
   ignore_labels = ["wait_for_${google_gke_hub_membership.production.id}"] # workaround as provider does not support depends_on 🤷 
 }
 
@@ -162,4 +162,75 @@ module "acm-production" {
   providers = {
     kubernetes = kubernetes.production_anthos_connect
   }
+}
+
+resource "google_compute_global_address" "production_ip" {
+  name = "bank-of-anthos-ip" # hardcoded in frontend ingress k8s manifest
+
+  depends_on = [
+    module.enabled_google_apis,
+  ]
+}
+
+resource "google_compute_security_policy" "production_security_policy" {
+  name        = "bank-of-anthos-security-policy" # hardcoded in backendconfig k8s manifest
+  description = "Block various attacks against bank of anthos production deployment"
+
+  rule {
+    description = "XSS attack filtering"
+    priority    = "1000"
+    action      = "deny(403)"
+    match {
+      expr {
+        expression = "evaluatePreconfiguredExpr('xss-stable')"
+      }
+    }
+  }
+
+  rule {
+    description = "CVE-2021-44228 and CVE-2021-45046"
+    priority    = "12345"
+    action      = "deny(403)"
+    match {
+      expr {
+        expression = "evaluatePreconfiguredExpr('cve-canary')"
+      }
+    }
+  }
+
+  rule {
+    description = "default rule"
+    priority    = "2147483647"
+    action      = "allow"
+    match {
+      versioned_expr = "SRC_IPS_V1"
+      config {
+        src_ip_ranges = ["*"]
+      }
+    }
+  }
+
+  adaptive_protection_config {
+    layer_7_ddos_defense_config {
+      enable = true
+    }
+  }
+
+  advanced_options_config {
+    log_level = "VERBOSE"
+  }
+
+  depends_on = [
+    module.enabled_google_apis,
+  ]
+}
+
+resource "google_compute_ssl_policy" "production_ssl_policy" {
+  name            = "bank-of-anthos-ssl-policy" # hardcoded in frontendconfig k8s manifest
+  profile         = "COMPATIBLE"
+  min_tls_version = "TLS_1_0" # TODO: consider increasing this
+
+  depends_on = [
+    module.enabled_google_apis,
+  ]
 }
