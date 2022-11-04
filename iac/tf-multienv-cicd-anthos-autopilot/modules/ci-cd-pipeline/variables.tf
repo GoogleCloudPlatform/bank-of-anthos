@@ -51,12 +51,12 @@ variable "targets" {
     description = "List of the target names that shall be deployed to in order of deployment stages"
 }
 
-variable "clusters" {
+variable "cluster_memberships" {
     type = map(object({
-        cluster_id = string
+        id = string
         })
     )
-    description = "Clusters that have been created and shall be used as targets. Keys must be a superset of targets list."
+    description = "Clusters that have been added to Anthos fleet and shall be used as targets. Keys must be a superset of targets list."
 }
 
 variable "repo_branch" {

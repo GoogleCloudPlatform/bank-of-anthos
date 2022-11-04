@@ -21,8 +21,8 @@ resource "google_clouddeploy_target" "targets" {
   name     = "${each.value}-${var.team}"
   location = var.region
 
-  gke {
-    cluster = var.clusters[each.key].cluster_id
+  anthos_cluster {
+    membership = var.cluster_memberships[each.key].id
   }
 
   execution_configs{

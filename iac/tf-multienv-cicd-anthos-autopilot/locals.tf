@@ -25,10 +25,10 @@ locals {
       ip_range_pods           = "${name}-ip-range-pods"
       ip_range_services       = "${name}-ip-range-svc"
   } }
-  clusters = { # maps cluster_names to tf resources for pipeline configuration
-    "development" = module.gke_development
-    "staging"     = module.gke_staging
-    "production"  = module.gke_production
+  cluster_memberships = { # maps cluster_names to tf resource for pipeline configuration
+    "development" = google_gke_hub_membership.development
+    "staging"     = google_gke_hub_membership.staging
+    "production"  = google_gke_hub_membership.production
   }
   sync_repo_url    = "https://www.github.com/${var.repo_owner}/${var.sync_repo}" # repository containing source
   cloud_build_sas  = [for team in local.teams : module.ci-cd-pipeline[team].cloud_build_sa] # cloud build service accounts used for CI

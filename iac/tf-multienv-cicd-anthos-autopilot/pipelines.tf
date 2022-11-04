@@ -25,7 +25,7 @@ module "ci-cd-pipeline" {
   repo_owner = var.repo_owner
   repo_name = var.sync_repo
   team = each.value
-  clusters = local.clusters
+  cluster_memberships = local.cluster_memberships
   targets = local.targets
   repo_branch = var.sync_branch
 
