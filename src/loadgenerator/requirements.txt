@@ -31,7 +31,7 @@ gevent==22.10.2
     #   locust
 geventhttpclient==2.0.8
     # via locust
-greenlet==2.0.0
+greenlet==2.0.1
     # via gevent
 idna==3.4
     # via requests
@@ -47,7 +47,7 @@ markupsafe==2.1.1
     #   werkzeug
 msgpack==1.0.4
     # via locust
-psutil==5.9.3
+psutil==5.9.4
     # via locust
 pyzmq==24.0.1
     # via locust
