@@ -1,10 +1,27 @@
+# Copyright 2022 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# [START gke_boa_kubernetes_manifests_pgpool_operator_serviceaccount_pgpool_operator]
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   namespace: "default"
   name: pgpool-operator
+# [END gke_boa_kubernetes_manifests_pgpool_operator_serviceaccount_pgpool_operator]
 ---
+# [START gke_boa_kubernetes_manifests_pgpool_operator_clusterrole_pgpool_operator_cluster_role]
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -16,8 +33,10 @@ rules:
     verbs: ["*"]
   - apiGroups: [apiextensions.k8s.io]
     resources: [customresourcedefinitions]
-    verbs: [watch, list]    
+    verbs: [watch, list]
+# [END gke_boa_kubernetes_manifests_pgpool_operator_clusterrole_pgpool_operator_cluster_role]
 ---
+# [START gke_boa_kubernetes_manifests_pgpool_operator_role_pgpool_operator_role]
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
@@ -27,7 +46,9 @@ rules:
   - apiGroups: ["apps"]
     resources: ["deployments", "statefulsets"]
     verbs: ["*"]
+# [END gke_boa_kubernetes_manifests_pgpool_operator_role_pgpool_operator_role]
 ---
+# [START gke_boa_kubernetes_manifests_pgpool_operator_clusterrolebinding_pgpool_operator_cluter_rolebinding]
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
@@ -40,7 +61,9 @@ subjects:
   - kind: ServiceAccount
     name: pgpool-operator
     namespace: "default"
+# [END gke_boa_kubernetes_manifests_pgpool_operator_clusterrolebinding_pgpool_operator_cluter_rolebinding]
 ---
+# [START gke_boa_kubernetes_manifests_pgpool_operator_rolebinding_pgpool_operator_rolebinding]
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
@@ -54,7 +77,9 @@ subjects:
   - kind: ServiceAccount
     namespace: "default"
     name: pgpool-operator
+# [END gke_boa_kubernetes_manifests_pgpool_operator_rolebinding_pgpool_operator_rolebinding]
 ---
+# [START gke_boa_kubernetes_manifests_pgpool_operator_configmap_pgpool_operator_script]
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -156,7 +181,9 @@ data:
         except ApiException as e:
             raise kopf.TemporaryError("Error when calling AppsV1Api: %s\n" % e, delay=60)
 
+# [END gke_boa_kubernetes_manifests_pgpool_operator_configmap_pgpool_operator_script]
 ---
+# [START gke_boa_kubernetes_manifests_pgpool_operator_deployment_pgpool_operator]
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -181,7 +208,7 @@ spec:
           - name: NAMESPACE
             valueFrom:
               fieldRef:
-                fieldPath: metadata.namespace          
+                fieldPath: metadata.namespace
           command: ["/bin/sh", "-c", "pip3 install kopf kubernetes && kopf run /app/pgpool.py --standalone --namespace=$(NAMESPACE) --log-format=plain --liveness=http://0.0.0.0:8080/healthz"]
           volumeMounts:
             - name: pgpool-operator-script
@@ -213,3 +240,4 @@ spec:
         - name: pgpool-operator-script
           configMap:
             name: pgpool-operator-script
+# [END gke_boa_kubernetes_manifests_pgpool_operator_deployment_pgpool_operator]

@@ -166,4 +166,4 @@ spec:
       name: frontend
       port:
         number: 8080
-# [START gke_boa_kubernetes_manifests_frontend_ingress_frontend]
+# [END gke_boa_kubernetes_manifests_frontend_ingress_frontend]
