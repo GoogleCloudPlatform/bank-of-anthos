@@ -28,6 +28,28 @@ build:
       project: src/ledger/transactionhistory
   tagPolicy:
     sha256: {}
+test:
+  - image: transactionhistory # code style
+    context: .
+    custom:
+      - command: ../../../mvnw checkstyle:check
+        timeoutSeconds: 1200
+  - image: transactionhistory # unit tests
+    context: .
+    custom:
+      - command: ../../../mvnw test
+        timeoutSeconds: 1200
+  - image: transactionhistory # code coverage
+    context: .
+    custom:
+      - command: |
+          ../../../mvnw jacoco:report
+          awk -F, \
+            '{ instructions += $4 + $5; covered += $5 } END \
+            { print covered, "/", instructions, " instructions covered"; \
+            print int(100*covered/instructions), "% covered" }' \
+            target/site/jacoco/jacoco.csv
+        timeoutSeconds: 1200
 deploy:
   kubectl: {}
 profiles:
