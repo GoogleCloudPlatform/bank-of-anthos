@@ -13,6 +13,11 @@
 # limitations under the License.
 
 steps:
+  - name: gcr.io/cloud-builders/go
+    script: |
+      go install github.com/google/addlicense@latest
+    env:
+      - "GOPATH=/workspace/go"
   - name: gcr.io/cloud-builders/git # license Check
     script: |
       set -x
@@ -22,10 +27,12 @@ steps:
       git init
       git add --all
       git -c user.name="CI Bot" -c user.email="<>" commit -m "initial state"
-      addlicense ./
+      ./go/addlicense ./
       if [[ -n $(git status -s) ]]; then
         exit 1
       fi
+    env:
+      - "GOPATH=/workspace/go"
   # - name: gcr.io/cloud-builders/mvn # java check style
   #   # will sourcing work?
   #   script: |
@@ -78,6 +85,8 @@ steps:
       - "--file-output=/workspace/artifacts.json"
       - "--default-repo=$_CONTAINER_REGISTRY"
       #- "--cache-file=/workspace/$_CACHE" # set _CACHE to anything other than "cache" e.g. "no-cache" to reset skaffold cache -- add PR cache?
+    env:
+      - "MAVEN_USER_HOME=/workspace/.m2"
   - name: gcr.io/k8s-skaffold/skaffold:v2.0.0
     args:
       - "skaffold"
