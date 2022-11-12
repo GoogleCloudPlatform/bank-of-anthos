@@ -97,7 +97,7 @@ steps:
     script: |
       #!/bin/bash
       apt-get update
-      apt-get install python3-venv
+      apt-get -y install python3-venv
       skaffold test --build-artifacts=/workspace/artifacts.json --filename=skaffold.yaml --assume-yes
     env:
       - "MAVEN_USER_HOME=/workspace/.m2"
