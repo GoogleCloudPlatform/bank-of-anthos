@@ -72,6 +72,7 @@ steps:
       - "test"
       - "--build-artifacts=/workspace/artifacts.json"
       - "--default-repo=$_CONTAINER_REGISTRY"
-      - "--profile=development"
       - "--filename=skaffold.yaml"
       - "--assume-yes"
+options:
+  logging: CLOUD_LOGGING_ONLY
