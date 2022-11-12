@@ -201,3 +201,6 @@ override.tf.json
 
 # tf lock file
 .terraform.lock.hcl
+
+# python venv
+venv-*

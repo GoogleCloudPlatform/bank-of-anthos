@@ -10,18 +10,65 @@ build:
   artifacts:
   - image: contacts
     context: .
+    docker:
+      target: production
   tagPolicy:
     sha256: {}
 deploy:
   kubectl: {}
+test:
+  - image: contacts # code style
+    context: .
+    custom:
+      - command: |
+          pylint --rcfile=../../../.pylintrc *.py
+        timeoutSeconds: 1200
+        dependencies: 
+          paths:
+            - "**/*.py"
+            - "../../.pylintrc"
+  - image: contacts # unit tests
+    context: .
+    custom:
+      - command: |
+          python3 -m venv $HOME/venv-contacts
+          source $HOME/venv-contacts/bin/activate
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          python -m pytest -v -p no:warnings
+        timeoutSeconds: 1200
+        dependencies: 
+          paths:
+            - "**/*.py"
+  - image: contacts # code coverage
+    context: .
+    custom:
+      - command: |
+          python3 -m venv $HOME/venv-contacts
+          source $HOME/venv-contacts/bin/activate
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          python -m pytest --cov=./ tests/
+        timeoutSeconds: 1200
+        dependencies: 
+          paths:
+            - "**/*.py"
 profiles:
 - name: development
   activation:
   - command: dev
+  build:
+    artifacts:
+    - image: contacts #TODO aablsk: check if this works!
+      context: .
+      docker:
+        target: development
+      sync:
+        infer: ["**/*.py"]          
   manifests:
     kustomize:
       paths:
-      - k8s/overlays/development
+      - k8s/overlays/development  
 - name: staging
   manifests:
     kustomize:

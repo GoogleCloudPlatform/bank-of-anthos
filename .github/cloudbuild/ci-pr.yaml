@@ -1,0 +1,77 @@
+# Copyright 2020 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+steps:
+  - name: gcr.io/cloud-builders/git # license Check
+    script: |
+      set -x
+      if [[ -d ".git" ]]; then
+        rm -rf .git
+      fi
+      git init
+      git add --all
+      git -c user.name="CI Bot" -c user.email="<>" commit -m "initial state"
+      addlicense ./
+      if [[ -n $(git status -s) ]]; then
+        exit 1
+      fi
+  # - name: gcr.io/cloud-builders/mvn # java check style
+  #   # will sourcing work?
+  #   script: |
+  #     source /etc/profile.d/java.sh 
+  #     mvn checkstyle:check
+  #   timeout: 1200s
+  # - name: europe-west1-docker.pkg.dev/bank-of-anthos-aablsk/bank-of-anthos/pylint-builder:latest # python check style
+  #   script: |
+  #     pylint --rcfile=./.pylintrc ./src/*/*.py
+  #   timeout: 1200s
+  # - name: gcr.io/cloud-builders/mvn # java unit tests
+  #   script: |
+  #     source /etc/profile.d/java.sh
+  #     mvn test
+  #   timeout: 1200s
+  # - name: gcr.io/cloud-builders/mvn # java code coverage
+  #   script: |
+  #     source /etc/profile.d/java.sh
+  #     for SERVICE in "balancereader" "ledgerwriter" "transactionhistory"; do
+  #       echo "checking $SERVICE..."
+  #       # save current working dir to memory and cd to src/$SERVICE
+  #       pushd src/$SERVICE
+  #         mvn jacoco:report
+  #         echo "Coverage for $SERVICE:"
+  #         awk -F, \
+  #         '{ instructions += $4 + $5; covered += $5 } END \
+  #         { print covered, "/", instructions, " instructions covered"; \
+  #         print int(100*covered/instructions), "% covered" }' \
+  #         target/site/jacoco/jacoco.csv
+  #       # return to previously saved path
+  #       popd
+  #     done
+  #   timeout: 1200s
+  - name: gcr.io/k8s-skaffold/skaffold:v2.0.0
+    args:
+      - "skaffold"
+      - "build"
+      - "--file-output=/workspace/artifacts.json"
+      - "--default-repo=$_CONTAINER_REGISTRY"
+      #- "--cache-file=/workspace/$_CACHE" # set _CACHE to anything other than "cache" e.g. "no-cache" to reset skaffold cache -- add PR cache?
+  - name: gcr.io/k8s-skaffold/skaffold:v2.0.0
+    args:
+      - "skaffold"
+      - "test"
+      - "--build-artifacts=/workspace/artifacts.json"
+      - "--default-repo=$_CONTAINER_REGISTRY"
+      - "--profile=development"
+      - "--filename=skaffold.yaml"
+      - "--assume-yes"

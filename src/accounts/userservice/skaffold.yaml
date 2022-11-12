@@ -12,6 +12,35 @@ build:
     context: .
   tagPolicy:
     sha256: {}
+test:
+  - image: contacts # unit tests
+    context: .
+    custom:
+      - command: |
+          python3 -m venv $HOME/venv-contacts
+          source $HOME/venv-contacts/bin/activate
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          python -m pytest -v -p no:warnings
+        timeoutSeconds: 1200
+        dependencies: 
+          paths:
+            - "**/*.py"
+            - "requirements.txt"
+  - image: contacts # code coverage
+    context: .
+    custom:
+      - command: |
+          python3 -m venv $HOME/venv-contacts
+          source $HOME/venv-contacts/bin/activate
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          python -m pytest --cov=./ tests/
+        timeoutSeconds: 1200
+        dependencies: 
+          paths:
+            - "**/*.py"
+            - "requirements.txt"
 deploy:
   kubectl: {}
 profiles:
