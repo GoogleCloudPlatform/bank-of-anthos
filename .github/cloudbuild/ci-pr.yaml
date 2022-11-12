@@ -15,8 +15,7 @@
 steps:
   - name: gcr.io/cloud-builders/go
     script: |
-      mkdir go && cd go
-      go mod init
+      go mod init addlicense
       go install github.com/google/addlicense@latest
     env:
       - "GOPATH=/workspace/go"
