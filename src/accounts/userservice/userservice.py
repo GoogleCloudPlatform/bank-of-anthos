@@ -28,7 +28,6 @@ import jwt
 from flask import Flask, jsonify, request
 import bleach
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
-from db import UserDb
 
 from opentelemetry import trace
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
@@ -38,6 +37,7 @@ from opentelemetry.exporter.cloud_trace import CloudTraceSpanExporter
 from opentelemetry.propagators.cloud_trace_propagator import CloudTraceFormatPropagator
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
 
+from db import UserDb
 
 def create_app():
     """Flask application factory to create instances
