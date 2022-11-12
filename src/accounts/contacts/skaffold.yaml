@@ -24,8 +24,6 @@ build:
   artifacts:
   - image: contacts
     context: .
-    docker:
-      target: production
   tagPolicy:
     sha256: {}
 deploy:
