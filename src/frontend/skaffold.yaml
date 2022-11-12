@@ -37,7 +37,7 @@ test:
         dependencies: 
           paths:
             - "**/*.py"
-            - "../../../.pylintrc"
+            - "../../.pylintrc"
   - image: frontend # unit tests
     context: .
     custom:
