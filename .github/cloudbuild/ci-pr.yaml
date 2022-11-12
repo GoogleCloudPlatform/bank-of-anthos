@@ -98,6 +98,11 @@ steps:
       #!/bin/bash
       apt-get update
       apt-get -y install python3-venv
+      python3 -m venv $HOME/venv-pylint-contacts
+      . $HOME/venv-pylint-contacts/bin/activate
+      pip install --upgrade pip
+      pip install pylint  
+      pip install -r requirements.txt
       skaffold test --build-artifacts=/workspace/artifacts.json --filename=skaffold.yaml --assume-yes
     env:
       - "MAVEN_USER_HOME=/workspace/.m2"

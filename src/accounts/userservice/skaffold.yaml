@@ -30,13 +30,7 @@ test:
   - image: userservice # code style
     context: .
     custom:
-      - command: |
-          python3 -m venv $HOME/venv-pylint-userservice
-          . $HOME/venv-pylint-userservice/bin/activate
-          pip install --upgrade pip
-          pip install pylint  
-          pylint --rcfile=../../../.pylintrc *.py
-          deactivate
+      - command: pylint --rcfile=../../../.pylintrc *.py
         timeoutSeconds: 1200
         dependencies: 
           paths:
@@ -45,13 +39,7 @@ test:
   - image: userservice # unit tests
     context: .
     custom:
-      - command: |
-          python3 -m venv $HOME/venv-pytest-userservice
-          . $HOME/venv-pytest-userservice/bin/activate
-          pip install --upgrade pip
-          pip install -r requirements.txt
-          python -m pytest -v -p no:warnings
-          deactivate
+      - command: python -m pytest -v -p no:warnings
         timeoutSeconds: 1200
         dependencies: 
           paths:
@@ -60,13 +48,7 @@ test:
   - image: userservice # code coverage
     context: .
     custom:
-      - command: |
-          python3 -m venv $HOME/venv-pytest-cov-userservice
-          . $HOME/venv-pytest-cov-userservice/bin/activate
-          pip install --upgrade pip
-          pip install -r requirements.txt
-          python -m pytest --cov=./ tests/
-          deactivate
+      - command: python -m pytest --cov=./ tests/
         timeoutSeconds: 1200
         dependencies: 
           paths:
