@@ -20,6 +20,7 @@ steps:
       - "GOPATH=/workspace/go"
   - name: gcr.io/cloud-builders/git # license Check
     script: |
+      #!/bin/bash
       set -x
       if [[ -d ".git" ]]; then
         rm -rf .git
@@ -88,6 +89,7 @@ steps:
       #- "--cache-file=/workspace/$_CACHE" # set _CACHE to anything other than "cache" e.g. "no-cache" to reset skaffold cache -- add PR cache?
     env:
       - "MAVEN_USER_HOME=/workspace/.m2"
+      - "DOCKER_BUILDKIT=1"
   - name: gcr.io/k8s-skaffold/skaffold:v2.0.0
     args:
       - "skaffold"
