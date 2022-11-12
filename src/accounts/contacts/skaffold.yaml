@@ -41,7 +41,7 @@ test:
   - image: contacts # unit tests
     context: .
     custom:
-      - command: python -m pytest -v -p no:warnings
+      - command: python3 -m pytest -v -p no:warnings
         timeoutSeconds: 1200
         dependencies: 
           paths:
@@ -49,7 +49,7 @@ test:
   - image: contacts # code coverage
     context: .
     custom:
-      - command: python -m pytest --cov=./ tests/
+      - command: python3 -m pytest --cov=./ tests/
         timeoutSeconds: 1200
         dependencies: 
           paths:
