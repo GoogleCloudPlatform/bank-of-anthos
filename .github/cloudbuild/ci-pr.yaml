@@ -15,9 +15,10 @@
 steps:
   - name: gcr.io/cloud-builders/go
     script: |
-      go get github.com/google/addlicense@latest
+      go mod init
+      go install github.com/google/addlicense@latest
     env:
-      - "GOROOT=/workspace/go"
+      - "GOPATH=/workspace/go"
   - name: gcr.io/cloud-builders/git # license Check
     script: |
       set -x
