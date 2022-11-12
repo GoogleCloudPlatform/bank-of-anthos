@@ -34,11 +34,12 @@ test:
     custom:
       - command: |
           #!/bin/bash
-          python3 -m venv $HOME/venv-contacts
-          . $HOME/venv-contacts/bin/activate
+          python3 -m venv $HOME/venv-pylint-contacts
+          . $HOME/venv-pylint-contacts/bin/activate
           pip install --upgrade pip
           pip install pylint  
           pylint --rcfile=../../../.pylintrc *.py
+          deactivate
         timeoutSeconds: 1200
         dependencies: 
           paths:
@@ -48,11 +49,12 @@ test:
     context: .
     custom:
       - command: |
-          python3 -m venv $HOME/venv-contacts
-          . $HOME/venv-contacts/bin/activate
+          python3 -m venv $HOME/venv-pytest-unit-contacts
+          . $HOME/venv-pytest-unit-contacts/bin/activate
           pip install --upgrade pip
           pip install -r requirements.txt
           python -m pytest -v -p no:warnings
+          deactivate
         timeoutSeconds: 1200
         dependencies: 
           paths:
@@ -61,11 +63,12 @@ test:
     context: .
     custom:
       - command: |
-          python3 -m venv $HOME/venv-contacts
-          . $HOME/venv-contacts/bin/activate
+          python3 -m venv $HOME/venv-pytest-cov-contacts
+          . $HOME/venv-pytest-cov-contacts/bin/activate
           pip install --upgrade pip
           pip install -r requirements.txt
           python -m pytest --cov=./ tests/
+          deactivate
         timeoutSeconds: 1200
         dependencies: 
           paths:
