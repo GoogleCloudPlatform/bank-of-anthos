@@ -95,7 +95,7 @@ steps:
     args: ['cp', '/workspace/$_CACHE',  $_CACHE_URI]
   - name: gcr.io/k8s-skaffold/skaffold:v2.0.0
     script: |
-      apt install python3.8-venv
+      apt install python3-venv
       skaffold test --build-artifacts/workspace/artifacts.json --filename=skaffold.yaml --assume-yes
     env:
       - "MAVEN_USER_HOME=/workspace/.m2"
