@@ -86,7 +86,6 @@ steps:
       - "build"
       - "--file-output=/workspace/artifacts.json"
       - "--default-repo=$_CONTAINER_REGISTRY"
-      - "--skip-tests=true"
       #- "--cache-file=/workspace/$_CACHE" # set _CACHE to anything other than "cache" e.g. "no-cache" to reset skaffold cache -- add PR cache?
     env:
       - "MAVEN_USER_HOME=/workspace/.m2"
