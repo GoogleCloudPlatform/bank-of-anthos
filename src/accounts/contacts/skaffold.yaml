@@ -33,8 +33,9 @@ test:
     context: .
     custom:
       - command: |
+          #!/bin/bash
           python3 -m venv $HOME/venv-contacts
-          source $HOME/venv-contacts/bin/activate
+          . $HOME/venv-contacts/bin/activate
           pip install --upgrade pip
           pip install pylint  
           pylint --rcfile=../../../.pylintrc *.py
@@ -48,7 +49,7 @@ test:
     custom:
       - command: |
           python3 -m venv $HOME/venv-contacts
-          source $HOME/venv-contacts/bin/activate
+          . $HOME/venv-contacts/bin/activate
           pip install --upgrade pip
           pip install -r requirements.txt
           python -m pytest -v -p no:warnings
@@ -61,7 +62,7 @@ test:
     custom:
       - command: |
           python3 -m venv $HOME/venv-contacts
-          source $HOME/venv-contacts/bin/activate
+          . $HOME/venv-contacts/bin/activate
           pip install --upgrade pip
           pip install -r requirements.txt
           python -m pytest --cov=./ tests/
