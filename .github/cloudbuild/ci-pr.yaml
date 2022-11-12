@@ -13,9 +13,8 @@
 # limitations under the License.
 
 steps:
-  - name: gcr.io/cloud-builders/go
+  - name: gcr.io/cloud-builders/go:1.16
     script: |
-      go mod init addlicense
       go install github.com/google/addlicense@latest
     env:
       - "GOPATH=/workspace/go"
