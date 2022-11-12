@@ -26,7 +26,7 @@ test:
         dependencies: 
           paths:
             - "**/*.py"
-            - "../../.pylintrc"
+            - "../../../.pylintrc"
   - image: contacts # unit tests
     context: .
     custom:

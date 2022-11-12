@@ -13,12 +13,22 @@ build:
   tagPolicy:
     sha256: {}
 test:
-  - image: contacts # unit tests
+  - image: userservice # code style
     context: .
     custom:
       - command: |
-          python3 -m venv $HOME/venv-contacts
-          source $HOME/venv-contacts/bin/activate
+          pylint --rcfile=../../../.pylintrc *.py
+        timeoutSeconds: 1200
+        dependencies: 
+          paths:
+            - "**/*.py"
+            - "../../../.pylintrc"
+  - image: userservice # unit tests
+    context: .
+    custom:
+      - command: |
+          python3 -m venv $HOME/venv-userservice
+          source $HOME/venv-userservice/bin/activate
           pip install --upgrade pip
           pip install -r requirements.txt
           python -m pytest -v -p no:warnings
@@ -27,12 +37,12 @@ test:
           paths:
             - "**/*.py"
             - "requirements.txt"
-  - image: contacts # code coverage
+  - image: userservice # code coverage
     context: .
     custom:
       - command: |
-          python3 -m venv $HOME/venv-contacts
-          source $HOME/venv-contacts/bin/activate
+          python3 -m venv $HOME/venv-userservice
+          source $HOME/venv-userservice/bin/activate
           pip install --upgrade pip
           pip install -r requirements.txt
           python -m pytest --cov=./ tests/
