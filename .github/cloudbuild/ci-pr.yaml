@@ -108,7 +108,7 @@ steps:
       . $HOME/venv-python-tests/bin/activate
       pip install --upgrade pip
       pip install pylint  
-      pip install -r requirements.txt
+      pip install -r /workspace/requirements.txt
       skaffold test --build-artifacts=/workspace/artifacts.json --filename=skaffold.yaml --assume-yes
     env:
       - "MAVEN_USER_HOME=/workspace/.m2"
