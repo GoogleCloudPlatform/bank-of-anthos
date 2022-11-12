@@ -17,7 +17,7 @@ steps:
     script: |
       go get github.com/google/addlicense@latest
     env:
-      - "GOPATH=/workspace/go"
+      - "GOROOT=/workspace/go"
   - name: gcr.io/cloud-builders/git # license Check
     script: |
       set -x
