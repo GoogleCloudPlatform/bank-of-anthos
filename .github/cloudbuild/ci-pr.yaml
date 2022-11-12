@@ -68,8 +68,6 @@ steps:
   #       popd
   #     done
   #   timeout: 1200s
-  - name: gcr.io/cloud-builders/gsutil
-    args: ['cp', $_CACHE_URI, '/workspace/cache']
   - name: gcr.io/k8s-skaffold/skaffold:v2.0.0 # workaround for skaffold bug
     args:
       - "/workspace/mvnw"
@@ -82,7 +80,9 @@ steps:
       - "--batch-mode"
     env:
       - "MAVEN_USER_HOME=/workspace/.m2"
-  - name: gcr.io/k8s-skaffold/skaffold:v2.0.0
+  - name: gcr.io/cloud-builders/gsutil # get skaffold build cache
+    args: ['cp', $_CACHE_URI, '/workspace/cache']
+  - name: gcr.io/k8s-skaffold/skaffold:v2.0.0 # build images with skaffold
     args:
       - "skaffold"
       - "build"
@@ -91,7 +91,7 @@ steps:
       - "--cache-file=/workspace/$_CACHE" # set _CACHE to anything other than "cache" e.g. "no-cache" to reset skaffold cache
     env:
       - "MAVEN_USER_HOME=/workspace/.m2"
-  - name: gcr.io/cloud-builders/gsutil
+  - name: gcr.io/cloud-builders/gsutil # upload skaffold build cache
     args: ['cp', '/workspace/$_CACHE',  $_CACHE_URI]
   - name: gcr.io/k8s-skaffold/skaffold:v2.0.0
     args:
