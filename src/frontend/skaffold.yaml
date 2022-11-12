@@ -28,6 +28,38 @@ build:
       - templates/*.html
   tagPolicy:
     sha256: {}
+test:
+  - image: frontend # code style
+    context: .
+    custom:
+      - command: pylint --rcfile=../../../.pylintrc *.py
+        timeoutSeconds: 180
+        dependencies: 
+          paths:
+            - "**/*.py"
+            - "../../../.pylintrc"
+  - image: frontend # unit tests
+    context: .
+    custom:
+      - command: |
+          pip install -r requirements.txt
+          python3 -m pytest -v -p no:warnings
+        timeoutSeconds: 180
+        dependencies: 
+          paths:
+            - "**/*.py"
+            - "requirements.txt"
+  - image: frontend # code coverage
+    context: .
+    custom:
+      - command: |
+          pip install -r requirements.txt
+          python3 -m pytest --cov=./ tests/
+        timeoutSeconds: 180
+        dependencies: 
+          paths:
+            - "**/*.py"
+            - "requirements.txt"
 deploy:
   kubectl: {}
 profiles:
