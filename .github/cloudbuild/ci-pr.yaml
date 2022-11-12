@@ -15,6 +15,7 @@
 steps:
   - name: gcr.io/cloud-builders/go
     script: |
+      cd go
       go mod init
       go install github.com/google/addlicense@latest
     env:
