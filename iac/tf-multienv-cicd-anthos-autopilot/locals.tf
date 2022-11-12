@@ -33,4 +33,5 @@ locals {
   sync_repo_url    = "https://www.github.com/${var.repo_owner}/${var.sync_repo}" # repository containing source
   cloud_build_sas  = [for team in local.teams : module.ci-cd-pipeline[team].cloud_build_sa] # cloud build service accounts used for CI
   cloud_deploy_sas = [for team in local.teams : module.ci-cd-pipeline[team].cloud_deploy_sa] # cloud build service accounts used for CD
+  cache_filename = "cache"
 }

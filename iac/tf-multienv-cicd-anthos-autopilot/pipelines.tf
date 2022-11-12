@@ -33,3 +33,52 @@ module "ci-cd-pipeline" {
     module.enabled_google_apis
   ]
 }
+
+# GCS bucket used as skaffold build cache
+resource "google_storage_bucket" "build_cache_pr" {
+  name                        = "build-cache-pr-${var.project_id}"
+  uniform_bucket_level_access = true
+  location                    = var.region
+  force_destroy               = true
+}
+
+# Initialize cache with empty file
+resource "google_storage_bucket_object" "cache" {
+  bucket = google_storage_bucket.build_cache_pr.name
+
+  name    = local.cache_filename
+  content = " "
+
+  lifecycle {
+    # do not reset cache when running terraform
+    ignore_changes = [
+      content,
+      detect_md5hash
+    ]
+  }
+}
+
+# service_account for PRs
+resource "google_service_account" "cloud_build_pr" {
+  account_id = "cloud-build-pr"
+}
+
+# give CloudBuild SA access to skaffold cache
+resource "google_storage_bucket_iam_member" "build_cache" {
+  bucket = google_storage_bucket.build_cache_pr.name
+
+  member = "serviceAccount:${google_service_account.cloud_build_pr.email}"
+  role   = "roles/storage.admin"
+}
+
+# additional roles for cloud-build service account
+resource "google_artifact_registry_repository_iam_member" "cloud_build" {
+  repository = google_artifact_registry_repository.container_registry.repository_id
+  location   = google_artifact_registry_repository.container_registry.location
+  project    = google_artifact_registry_repository.container_registry.project
+
+  role   = "roles/artifactregistry.writer"
+  member = "serviceAccount:${google_service_account.cloud_build_pr.email}"
+
+  provider = google-beta
+}

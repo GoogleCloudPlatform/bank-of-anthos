@@ -36,6 +36,7 @@ module "project-iam-bindings" {
         "serviceAccount:${google_service_account.gke_workload_development.email}",
         "serviceAccount:${google_service_account.gke_workload_staging.email}",
         "serviceAccount:${google_service_account.gke_workload_production.email}",
+        "serviceAccount:${google_service_account.cloud_build_pr.email}",
         "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
       ],
       local.cloud_build_sas,
@@ -44,7 +45,8 @@ module "project-iam-bindings" {
     "roles/cloudbuild.builds.builder" = setunion(
       [
         "serviceAccount:${data.google_project.project.number}@cloudbuild.gserviceaccount.com",
-        "user:admin@bielski.altostrat.com"
+        "user:admin@bielski.altostrat.com",
+        "serviceAccount:${google_service_account.cloud_build_pr.email}",
       ],
       local.cloud_build_sas
     ),

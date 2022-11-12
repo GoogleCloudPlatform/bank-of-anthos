@@ -68,7 +68,9 @@ steps:
   #       popd
   #     done
   #   timeout: 1200s
-  - name: gcr.io/k8s-skaffold/skaffold:v2.0.0
+  - name: gcr.io/cloud-builders/gsutil
+    args: ['cp', $_CACHE_URI, '/workspace/cache']
+  - name: gcr.io/k8s-skaffold/skaffold:v2.0.0 # workaround for skaffold bug
     args:
       - "/workspace/mvnw"
       - "jib:_skaffold-fail-if-jib-out-of-date"
@@ -86,15 +88,16 @@ steps:
       - "build"
       - "--file-output=/workspace/artifacts.json"
       - "--default-repo=$_CONTAINER_REGISTRY"
-      #- "--cache-file=/workspace/$_CACHE" # set _CACHE to anything other than "cache" e.g. "no-cache" to reset skaffold cache -- add PR cache?
+      - "--cache-file=/workspace/$_CACHE" # set _CACHE to anything other than "cache" e.g. "no-cache" to reset skaffold cache
     env:
       - "MAVEN_USER_HOME=/workspace/.m2"
+  - name: gcr.io/cloud-builders/gsutil
+    args: ['cp', '/workspace/$_CACHE',  $_CACHE_URI]
   - name: gcr.io/k8s-skaffold/skaffold:v2.0.0
     args:
       - "skaffold"
       - "test"
       - "--build-artifacts=/workspace/artifacts.json"
-      - "--default-repo=$_CONTAINER_REGISTRY"
       - "--filename=skaffold.yaml"
       - "--assume-yes"
     env:
