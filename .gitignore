@@ -204,3 +204,6 @@ override.tf.json
 
 # python venv
 venv-*
+
+# go for ci
+go/
