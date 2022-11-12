@@ -41,19 +41,25 @@ test:
   - image: contacts # unit tests
     context: .
     custom:
-      - command: python3 -m pytest -v -p no:warnings
+      - command: |
+          pip install -r requirements.txt
+          python3 -m pytest -v -p no:warnings
         timeoutSeconds: 1200
         dependencies: 
           paths:
             - "**/*.py"
+            - "requirements.txt"
   - image: contacts # code coverage
     context: .
     custom:
-      - command: python3 -m pytest --cov=./ tests/
+      - command: |
+          pip install -r requirements.txt
+          python3 -m pytest --cov=./ tests/
         timeoutSeconds: 1200
         dependencies: 
           paths:
             - "**/*.py"
+            - "requirements.txt"
 profiles:
 - name: development
   activation:
