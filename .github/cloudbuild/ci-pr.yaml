@@ -29,6 +29,7 @@ steps:
       git add --all
       git -c user.name="CI Bot" -c user.email="<>" commit -m "initial state"
       ./go/bin/addlicense ./
+      git status -s
       if [[ -n $(git status -s) ]]; then
         exit 1
       fi
@@ -98,5 +99,7 @@ steps:
       - "--default-repo=$_CONTAINER_REGISTRY"
       - "--filename=skaffold.yaml"
       - "--assume-yes"
+    env:
+      - "MAVEN_USER_HOME=/workspace/.m2"
 options:
   logging: CLOUD_LOGGING_ONLY
