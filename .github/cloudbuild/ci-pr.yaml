@@ -98,11 +98,6 @@ steps:
       #!/bin/bash
       apt-get update
       apt-get install python3-venv
-      python3 -m venv $HOME/venv-ci
-      source $HOME/venv-ci/bin/activate
-      pip install --upgrade pip
-      pip install pylint  
-      pip install -r requirements.txt
       skaffold test --build-artifacts=/workspace/artifacts.json --filename=skaffold.yaml --assume-yes
     env:
       - "MAVEN_USER_HOME=/workspace/.m2"
