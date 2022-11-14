@@ -38,7 +38,7 @@ cryptography==38.0.3
     # via -r requirements.in
 deprecated==1.2.13
     # via opentelemetry-api
-exceptiongroup==1.0.1
+exceptiongroup==1.0.2
     # via pytest
 flask==2.2.2
     # via -r requirements.in
@@ -201,7 +201,7 @@ six==1.16.0
     #   bleach
     #   google-auth
     #   grpcio
-sqlalchemy==1.4.43
+sqlalchemy==1.4.44
     # via -r requirements.in
 tomli==2.0.1
     # via
