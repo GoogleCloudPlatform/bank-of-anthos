@@ -50,7 +50,7 @@ class TestUserservice(unittest.TestCase):
                 'os.environ',
                 {
                     'VERSION': '1',
-                    'TOKEN_EXPIRY_SECONDS': '1',
+                    'TOKEN_EXPIRY_SECONDS': '3600',
                     'PRIV_KEY_PATH': '1',
                     'PUB_KEY_PATH': '1',
                     'ENABLE_TRACING': 'false',

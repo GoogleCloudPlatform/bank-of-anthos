@@ -13,7 +13,7 @@ You can use MacOS or Linux as your dev environment - all these languages and too
 
 1. [Docker Desktop](https://www.docker.com/products/docker-desktop) 
 1. [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) (can be installed separately or via [gcloud](https://cloud.google.com/sdk/install)) 
-1. [skaffold **1.27+**](https://skaffold.dev/docs/install/) (latest version recommended)
+1. [skaffold **2.0+**](https://skaffold.dev/docs/install/) (latest version recommended)
 1. [OpenJDK **17**](https://openjdk.java.net/projects/jdk/17/) (newer versions not tested)
 1. [Maven **3.8**](https://downloads.apache.org/maven/maven-3/) (newer versions not tested)
 1. [Python **3.7+**](https://www.python.org/downloads/)  
