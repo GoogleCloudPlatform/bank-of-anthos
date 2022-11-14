@@ -106,3 +106,32 @@ spec:
     port: 8080
     targetPort: 8080
 # [END gke_boa_kubernetes_manifests_contacts_service_contacts]
+---
+# [START gke_boa_kubernetes_manifests_contacts_horizontal_pod_autoscaler_contacts]
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: contacts
+spec:
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+        - type: Percent
+          value: 100
+          periodSeconds: 5
+      selectPolicy: Max
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: contacts
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+# [END gke_boa_kubernetes_manifests_contacts_horizontal_pod_autoscaler_contacts]
