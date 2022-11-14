@@ -11,7 +11,6 @@ Create GKE Autopilot. Change `REGION` or `GKE_NAME` to your values if you like.
 REGION="us-central1"
 GKE_NAME="bank-of-anthos"
 gcloud container clusters create-auto "$GKE_NAME" --region="$REGION"
-gcloud beta container clusters update "$GKE_NAME" --disable-managed-prometheus --region="$REGION"
 ```
 
 Execution of these commands take some time.
