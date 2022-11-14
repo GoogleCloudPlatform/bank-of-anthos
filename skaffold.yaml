@@ -13,44 +13,48 @@
 # limitations under the License.
 
 # [START gke_bank_of_anthos_skaffold_config_setup]
-apiVersion: skaffold/v2beta18
+apiVersion: skaffold/v3
 kind: Config
 metadata:
   name: setup # module defining setup steps
+manifests:
+  rawYaml:
+  - extras/jwt/jwt-secret.yaml
+  - dev-kubernetes-manifests/config.yaml
 deploy:
-  kubectl:
-    manifests: 
-    - extras/jwt/jwt-secret.yaml
-    - dev-kubernetes-manifests/config.yaml
+  kubectl: {}
 # [END gke_bank_of_anthos_skaffold_config_setup]
 ---
 # [START gke_bank_of_anthos_skaffold_config_db]
-apiVersion: skaffold/v2beta18
+apiVersion: skaffold/v3
 kind: Config
 metadata:
   name: db # module defining database deployments
 requires:
-  - configs: [setup]
+- configs:
+  - setup
 build:
   artifacts:
   - image: accounts-db
     context: src/accounts-db
   - image: ledger-db
     context: src/ledger-db
+manifests:
+  rawYaml:
+  - dev-kubernetes-manifests/accounts-db.yaml
+  - dev-kubernetes-manifests/ledger-db.yaml
 deploy:
-  kubectl:
-    manifests:
-    - dev-kubernetes-manifests/accounts-db.yaml
-    - dev-kubernetes-manifests/ledger-db.yaml
+  kubectl: {}
 # [END gke_bank_of_anthos_skaffold_config_db]
 ---
 # [START gke_bank_of_anthos_skaffold_config_backend]
-apiVersion: skaffold/v2beta18
+apiVersion: skaffold/v3
 kind: Config
 metadata:
   name: backend # module defining backend services
 requires:
-  - configs: [db]
+- configs:
+  - db
 build:
   artifacts:
   - image: ledgerwriter
@@ -66,18 +70,19 @@ build:
     context: src/contacts
   - image: userservice
     context: src/userservice
+manifests:
+  rawYaml:
+  - dev-kubernetes-manifests/balance-reader.yaml
+  - dev-kubernetes-manifests/contacts.yaml
+  - dev-kubernetes-manifests/ledger-writer.yaml
+  - dev-kubernetes-manifests/transaction-history.yaml
+  - dev-kubernetes-manifests/userservice.yaml
 deploy:
-  kubectl:
-    manifests:
-    - dev-kubernetes-manifests/balance-reader.yaml
-    - dev-kubernetes-manifests/contacts.yaml
-    - dev-kubernetes-manifests/ledger-writer.yaml
-    - dev-kubernetes-manifests/transaction-history.yaml
-    - dev-kubernetes-manifests/userservice.yaml
+  kubectl: {}
 # [END gke_bank_of_anthos_skaffold_config_backend]
 ---
 # [START gke_bank_of_anthos_skaffold_config_frontend]
-apiVersion: skaffold/v2beta18
+apiVersion: skaffold/v3
 kind: Config
 metadata:
   name: frontend # module defining frontend service
@@ -85,14 +90,15 @@ build:
   artifacts:
   - image: frontend
     context: src/frontend
+manifests:
+  rawYaml:
+  - dev-kubernetes-manifests/frontend.yaml
 deploy:
-  kubectl:
-    manifests:
-    - dev-kubernetes-manifests/frontend.yaml
+  kubectl: {}
 # [END gke_bank_of_anthos_skaffold_config_frontend]
 ---
 # [START gke_bank_of_anthos_skaffold_config_loadgenerator]
-apiVersion: skaffold/v2beta18
+apiVersion: skaffold/v3
 kind: Config
 metadata:
   name: loadgenerator # module defining a load generator service
@@ -100,8 +106,9 @@ build:
   artifacts:
   - image: loadgenerator
     context: src/loadgenerator
+manifests:
+  rawYaml:
+  - dev-kubernetes-manifests/loadgenerator.yaml
 deploy:
-  kubectl:
-    manifests:
-    - dev-kubernetes-manifests/loadgenerator.yaml
+  kubectl: {}
 # [END gke_bank_of_anthos_skaffold_config_loadgenerator]

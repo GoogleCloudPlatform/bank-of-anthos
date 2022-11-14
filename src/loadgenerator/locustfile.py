@@ -47,15 +47,14 @@ def signup_helper(locust, username):
                 "zip":"98103",
                 "ssn":"111-22-3333"}
     with locust.client.post("/signup", data=userdata, catch_response=True) as response:
-        found_token = False
         for r_hist in response.history:
-            found_token |= r_hist.cookies.get('token') is not None
-        if found_token:
-            response.success()
-            logging.debug("created user: %s", username)
-        else:
-            response.failure("login failed")
-        return found_token
+            if r_hist.cookies.get('token') is not None:
+                response.success()
+                logging.debug("created user = %s", username)
+                return True
+
+        response.failure("login failed")
+        return False
 
 def generate_username():
     """
@@ -63,11 +62,12 @@ def generate_username():
     alphanumeric username
     """
     return ''.join(choice(ascii_letters + digits) for _ in range(15))
+
 class AllTasks(SequentialTaskSet):
     """
     wrapper for UnauthenticatedTasks and AuthenticatedTasks sets
     """
-    @task(1)
+    @task
     class UnauthenticatedTasks(TaskSet):
         """
         set of tasks to run before obtaining an auth token
@@ -81,7 +81,7 @@ class AllTasks(SequentialTaskSet):
             with self.client.get("/login", catch_response=True) as response:
                 for r_hist in response.history:
                     if r_hist.status_code > 200 and r_hist.status_code < 400:
-                        response.failure("Got redirect")
+                        response.failure("Logged on: Got redirect to /home")
 
         @task(5)
         def view_signup(self):
@@ -92,7 +92,7 @@ class AllTasks(SequentialTaskSet):
             with self.client.get("/signup", catch_response=True) as response:
                 for r_hist in response.history:
                     if r_hist.status_code > 200 and r_hist.status_code < 400:
-                        response.failure("Got redirect")
+                        response.failure("Logged on: Got redirect to /home")
 
         @task(1)
         def signup(self):
@@ -108,7 +108,7 @@ class AllTasks(SequentialTaskSet):
                 self.user.username = new_username
                 self.interrupt()
 
-    @task(2)
+    @task
     class AuthenticatedTasks(TaskSet):
         """
         set of tasks to run after obtaining an auth token
@@ -129,7 +129,7 @@ class AllTasks(SequentialTaskSet):
             with self.client.get("/", catch_response=True) as response:
                 for r_hist in response.history:
                     if r_hist.status_code > 200 and r_hist.status_code < 400:
-                        response.failure("Got redirect")
+                        response.failure("Not logged on: Got redirect to /login")
 
         @task(10)
         def view_home(self):
@@ -140,7 +140,7 @@ class AllTasks(SequentialTaskSet):
             with self.client.get("/home", catch_response=True) as response:
                 for r_hist in response.history:
                     if r_hist.status_code > 200 and r_hist.status_code < 400:
-                        response.failure("Got redirect")
+                        response.failure("Not logged on: Got redirect to /login")
 
         @task(5)
         def payment(self, amount=None):
@@ -173,7 +173,7 @@ class AllTasks(SequentialTaskSet):
             with self.client.post("/deposit",
                                   data=transaction,
                                   catch_response=True) as response:
-                if "failed" in response.url:
+                if response.url is None or "failed" in response.url:
                     response.failure("deposit failed")
 
         @task(5)
@@ -185,13 +185,11 @@ class AllTasks(SequentialTaskSet):
             with self.client.post("/login", {"username":self.user.username,
                                              "password":MASTER_PASSWORD},
                                   catch_response=True) as response:
-                found_token = False
                 for r_hist in response.history:
-                    found_token |= r_hist.cookies.get('token') is not None
-                if found_token:
-                    response.success()
-                else:
-                    response.failure("login failed")
+                    if r_hist.cookies.get('token') is not None:
+                        response.success()
+                        return
+                response.failure("login failed")
 
         @task(1)
         def logout(self):
@@ -200,10 +198,13 @@ class AllTasks(SequentialTaskSet):
             fails if not logged in
             exits AuthenticatedTasks
             """
-            self.client.post("/logout")
-            self.user.username = None
-            # go to UnauthenticatedTasks
-            self.interrupt()
+            with self.client.post("/logout", catch_response=True) as response:
+                for r_hist in response.history:
+                    if r_hist.status_code > 200 and r_hist.status_code < 400:
+                        response.success()
+                        self.user.username = None
+                        # go to UnauthenticatedTasks
+                        self.interrupt()
 
 
 class WebsiteUser(HttpUser):
