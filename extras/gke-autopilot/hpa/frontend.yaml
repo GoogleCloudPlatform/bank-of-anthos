@@ -39,7 +39,7 @@ spec:
           name: loadbalancing.googleapis.com|https|request_count
           selector:
             matchLabels:
-              resource.labels.forwarding_rule_name: <forwarding_rule_name>
+              resource.labels.forwarding_rule_name: FORWARDING_RULE_NAME
         target:
           type: AverageValue
           averageValue: "5"

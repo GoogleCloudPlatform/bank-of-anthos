@@ -19,7 +19,7 @@ kind: ConfigMap
 metadata:
   name: loadgenerator-env
 data:
-  LOCUST_HOST: http://<frontend-ip-address>
+  LOCUST_HOST: http://FRONTEND_IP_ADDRESS
   LOCUST_USERS: "250"
   LOCUST_SPAWN_RATE: "1"
   LOCUST_LOGLEVEL: error
