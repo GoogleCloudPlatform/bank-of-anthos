@@ -92,7 +92,7 @@ helm repo add bitnami https://charts.bitnami.com/bitnami
 helm install accounts-db bitnami/postgresql-ha \
   --version 10.0.1 \
   --values extras/gke-autopilot/helm-postgres-ha/values.yaml \
-  --set="postgresql.initScriptsCM=initdb" \
+  --set="postgresql.initdbScriptsCM=initdb" \
   --set="postgresql.replicaCount=1" \
   --wait
 ```
@@ -115,10 +115,10 @@ This exercise will show you how to enable horizontal pod autoscaling in response
 Discover an exact name of frontend’s ingress LoadBalancer using the following command:
 
 ```bash
-gcloud compute forwarding-rules list --filter='name~^.*default-frontend.*$' --format='value(name)'
+FW_RULE=$(kubectl get ingress frontend -o=jsonpath='{.metadata.annotations.ingress\.kubernetes\.io/forwarding-rule}')
+echo $FW_RULE
+sed -i "s/FORWARDING_RULE_NAME/$FW_RULE/g" "extras/gke-autopilot/hpa/frontend.yaml"
 ```
-
-Edit `extras/gke-autopilot/hpa/frontend.yaml` and replace `<forwarding_rule_name>` to result of previous command
 
 ### Deploy HPA
 
@@ -131,10 +131,10 @@ kubectl apply -f extras/gke-autopilot/hpa
 Wait when application will be available on IP address of load balancer and start this process.
 
 ```bash
-kubectl get ingress frontend -o=jsonpath='{.status.loadBalancer.ingress[0].ip}'
+LB_IP=$(kubectl get ingress frontend -o=jsonpath='{ .status.loadBalancer.ingress[0].ip}')
+echo $LB_IP
+sed -i "s/FRONTEND_IP_ADDRESS/$LB_IP/g" "extras/gke-autopilot/loadgenerator.yaml"
 ```
-
-Edit `extras/gke-autopilot/loadgenerator.yaml` and replace `<frontend-ip-address>` to result of previous command
 
 Apply kubernetes deployment manifest
 
