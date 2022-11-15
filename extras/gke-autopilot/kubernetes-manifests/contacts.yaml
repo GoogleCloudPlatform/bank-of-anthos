@@ -21,6 +21,10 @@ spec:
   selector:
     matchLabels:
       app: contacts
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   template:
     metadata:
       labels:
@@ -98,7 +102,7 @@ kind: Service
 metadata:
   name: contacts
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     app: contacts
   ports:

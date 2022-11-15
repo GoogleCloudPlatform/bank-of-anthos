@@ -21,13 +21,17 @@ spec:
   selector:
     matchLabels:
       app: userservice
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   template:
     metadata:
       labels:
         app: userservice
     spec:
       serviceAccountName: default
-      terminationGracePeriodSeconds: 5
+      terminationGracePeriodSeconds: 60
       securityContext:
         fsGroup: 1000
         runAsGroup: 1000
@@ -35,6 +39,11 @@ spec:
         runAsUser: 1000
       containers:
       - name: userservice
+        lifecycle:
+          preStop:
+            exec:
+              # if SIGTERM triggers a quick exit; keep serving traffic instead
+              command: ["sleep", "60"]
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
@@ -72,13 +81,6 @@ spec:
         - secretRef:
             name: accounts-db-config
         readinessProbe:
-          httpGet:
-            path: /ready
-            port: 8080
-          initialDelaySeconds: 10
-          periodSeconds: 15
-          timeoutSeconds: 30
-        livenessProbe:
           httpGet:
             path: /ready
             port: 8080

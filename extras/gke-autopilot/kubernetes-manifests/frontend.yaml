@@ -21,13 +21,17 @@ spec:
   selector:
     matchLabels:
       app: frontend
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   template:
     metadata:
       labels:
         app: frontend
     spec:
       serviceAccountName: default
-      terminationGracePeriodSeconds: 5
+      terminationGracePeriodSeconds: 60
       securityContext:
         fsGroup: 1000
         runAsGroup: 1000
@@ -35,6 +39,11 @@ spec:
         runAsUser: 1000
       containers:
       - name: front
+        lifecycle:
+          preStop:
+            exec:
+              # if SIGTERM triggers a quick exit; keep serving traffic instead
+              command: ["sleep", "60"]
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
