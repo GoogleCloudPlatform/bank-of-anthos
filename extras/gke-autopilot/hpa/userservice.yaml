@@ -30,7 +30,7 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: userservice
-  minReplicas: 1
+  minReplicas: 5
   maxReplicas: 50
   metrics:
     - type: Resource

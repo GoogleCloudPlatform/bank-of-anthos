@@ -30,7 +30,7 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: frontend
-  minReplicas: 1
+  minReplicas: 5
   maxReplicas: 25
   metrics:
     - type: External
