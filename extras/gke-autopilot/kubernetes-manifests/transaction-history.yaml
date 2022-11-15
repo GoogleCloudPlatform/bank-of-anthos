@@ -83,7 +83,7 @@ spec:
         - configMapRef:
             name: environment-config
         # add ledger-db credentials from ConfigMap
-        - configMapRef:
+        - secretRef:
             name: ledger-db-config
         resources:
           requests:

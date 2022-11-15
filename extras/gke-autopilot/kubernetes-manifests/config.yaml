@@ -60,3 +60,19 @@ stringData:
   POSTGRES_PASSWORD: accounts-pwd
   ACCOUNTS_DB_URI: postgresql://accounts-admin:accounts-pwd@accounts-db-pgpool:5432/accounts-db
 # [END gke_boa_kubernetes_manifests_config_secret_account_db_config_config]
+---
+# [START gke_boa_kubernetes_manifests_ledger_db_configmap_ledger_db_config]
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ledger-db-config
+  labels:
+    app: ledger-db
+stringData:
+  POSTGRES_DB: accounts-db
+  POSTGRES_USER: accounts-admin
+  POSTGRES_PASSWORD: accounts-pwd
+  SPRING_DATASOURCE_URL: jdbc:postgresql://accounts-db-pgpool:5432/accounts-db
+  SPRING_DATASOURCE_USERNAME: accounts-admin # should match POSTGRES_USER
+  SPRING_DATASOURCE_PASSWORD: accounts-pwd # should match POSTGRES_PASSWORD
+# [END gke_boa_kubernetes_manifests_ledger_db_configmap_ledger_db_config]

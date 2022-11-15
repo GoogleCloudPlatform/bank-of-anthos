@@ -74,7 +74,7 @@ spec:
         - configMapRef:
             name: service-api-config
         # add ledger-db credentials from ConfigMap
-        - configMapRef:
+        - secretRef:
             name: ledger-db-config
         resources:
           requests:

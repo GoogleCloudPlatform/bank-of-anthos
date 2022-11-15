@@ -14,13 +14,18 @@
 
 fullnameOverride: accounts-db
 postgresql:
-  # pgpool[vmax_pool*num_init_children] <= postgresql[max_connections - superuser_reserved_connections]
-  # 4 * 32 <= 2 * (128 + 3). 3 is reserved number of connections by postgres
+  # pgpool[max_pool*num_init_children] <= postgresql[max_connections - superuser_reserved_connections]
+  # ex. 4 * 32 <= 2 * (128 + 3). 3 is reserved number of connections by postgres
   # (no query canceling needed)
-  postgresql.maxConnections: 259
+  maxConnections: 1027
   username: accounts-admin
   password: accounts-pwd
   database: accounts-db
+  extraEnvVars:
+    - name: USE_DEMO_DATA
+      value: "True"
+    - name: LOCAL_ROUTING_NUM
+      value: "883745000"
   replicaCount: 1
   resources:
     limits:
@@ -33,9 +38,8 @@ postgresql:
       ephemeral-storage: 1Gi
 
 pgpool:
-  reservedConnections: 0
   maxPool: 4
-  numInitChildren: 32
+  numInitChildren: 256
   sidecars:
     - name: metrics
       image: pgpool/pgpool2_exporter:latest

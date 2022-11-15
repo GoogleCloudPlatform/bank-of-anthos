@@ -81,7 +81,9 @@ cd bank-of-anthos/
 ```bash
 kubectl create configmap initdb \
   --from-file=src/accounts-db/initdb/0-accounts-schema.sql \
-  --from-file=src/accounts-db/initdb/1-load-testdata.sql
+  --from-file=src/accounts-db/initdb/1-load-testdata.sql \
+  --from-file=src/ledger-db/initdb/0_init_tables.sql \
+  --from-file=src/ledger-db/initdb/1_create_transactions.sh
 ```
 
 ## Deploy Postgresql with helm
