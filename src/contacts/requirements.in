@@ -12,7 +12,7 @@ google-api-core==2.10.2
 google-auth==2.14.1
 google-cloud-core==2.3.2
 google-cloud-trace==1.7.3
-googleapis-common-protos==1.56.4
+googleapis-common-protos==1.57.0
 grpcio==1.50.0
 gunicorn==20.1.0
 idna==3.4
