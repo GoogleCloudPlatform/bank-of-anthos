@@ -65,7 +65,7 @@ googleapis-common-protos==1.57.0
     #   grpcio-status
 greenlet==2.0.1
     # via sqlalchemy
-grpcio==1.50.0
+grpcio==1.51.0
     # via
     #   -r requirements.in
     #   google-api-core
@@ -200,7 +200,6 @@ six==1.16.0
     #   -r requirements.in
     #   bleach
     #   google-auth
-    #   grpcio
 sqlalchemy==1.4.44
     # via -r requirements.in
 tomli==2.0.1
