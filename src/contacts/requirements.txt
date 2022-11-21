@@ -38,7 +38,7 @@ cryptography==38.0.3
     # via -r requirements.in
 deprecated==1.2.13
     # via opentelemetry-api
-exceptiongroup==1.0.2
+exceptiongroup==1.0.4
     # via pytest
 flask==2.2.2
     # via -r requirements.in
@@ -58,7 +58,7 @@ google-cloud-trace==1.7.3
     # via
     #   -r requirements.in
     #   opentelemetry-exporter-gcp-trace
-googleapis-common-protos==1.56.4
+googleapis-common-protos==1.57.0
     # via
     #   -r requirements.in
     #   google-api-core

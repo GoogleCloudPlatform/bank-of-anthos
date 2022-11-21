@@ -8,11 +8,11 @@ Implemented in Java with Spring Boot and Guava.
 
 | Endpoint                    | Type  | Auth? | Description                                                                   |
 | --------------------------- | ----- | ----- | ----------------------------------------------------------------------------- |
-| `/balances/<accountid>`     | GET   | 🔒    |  Get the account balance iff owned by the currently authenticated user. |
+| `/balances/<accountid>`     | GET   | 🔒    |  Get the account balance if owned by the currently authenticated user. |
 | `/healthy`                  | GET   |       |  Liveness probe endpoint. Monitors health of background thread.               |
 | `/ready`                    | GET   |       |  Readiness probe endpoint.                                                    |
 | `/transactions`             | POST  | 🔒    |  Submits a transaction to be appended to the ledger. |
-| `/transactions/<accountid>` | GET   | 🔒    |  Return the account transaction list iff authenticated to access the account. |
+| `/transactions/<accountid>` | GET   | 🔒    |  Return the account transaction list if authenticated to access the account. |
 | `/version`                  | GET   |       |  Returns the contents of `$VERSION`                                           |
 
 ### Environment Variables
