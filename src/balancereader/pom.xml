@@ -50,14 +50,14 @@
             <dependency>
                 <groupId>com.google.cloud</groupId>
                 <artifactId>libraries-bom</artifactId>
-                <version>26.1.4</version>
+                <version>26.1.5</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>io.micrometer</groupId>
                 <artifactId>micrometer-bom</artifactId>
-                <version>1.10.0</version>
+                <version>1.10.1</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -90,7 +90,7 @@
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-stackdriver</artifactId>
-            <version>1.10.0</version>
+            <version>1.10.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>ch.qos.logback</groupId>
@@ -155,7 +155,7 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>4.8.1</version>
+            <version>4.9.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
