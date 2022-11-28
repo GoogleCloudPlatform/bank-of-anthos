@@ -222,7 +222,7 @@ wrapt==1.14.1
     #   deprecated
     #   opentelemetry-instrumentation
     #   opentelemetry-instrumentation-sqlalchemy
-zipp==3.10.0
+zipp==3.11.0
     # via
     #   -r requirements.in
     #   importlib-metadata
