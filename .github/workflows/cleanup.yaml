@@ -30,7 +30,7 @@ jobs:
           gcloud container clusters get-credentials $PR_CLUSTER \
               --zone $ZONE --project $PROJECT_ID
           NAMESPACE="pr${PR_NUMBER}"
-          kubectl delete namespace $NAMESPACE
+          kubectl delete namespace --ignore-not-found=true $NAMESPACE
         env:
           PROJECT_ID: "bank-of-anthos-ci"
           PR_CLUSTER: "bank-of-anthos-prs"
