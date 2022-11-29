@@ -26,5 +26,8 @@
   },
   "golang":{
     "addLabels": ["lang: go"]
+  },
+  "docker": {
+    "pinDigests": true
   }
 }
