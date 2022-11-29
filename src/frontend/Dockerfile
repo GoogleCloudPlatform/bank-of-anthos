@@ -13,20 +13,26 @@
 # limitations under the License.
 
 # Use the official Python docker container, slim version, running Debian
-FROM python:3.11.0-slim@sha256:b59417e37f49eaf8f60a68193f1b27ea4f4c996394e88535b45509c8322a0f8a
+FROM python:3.11.0-slim@sha256:b59417e37f49eaf8f60a68193f1b27ea4f4c996394e88535b45509c8322a0f8a as base
+
+FROM base as builder
+
+# Install dependencies.
+COPY requirements.txt .
+RUN pip install --prefix="/install" -r requirements.txt
+
+FROM base
 
 # Set our working directory
 WORKDIR /app
+
+COPY --from=builder /install /usr/local
 
 # show python logs as they occur
 ENV PYTHONUNBUFFERED=0
 
 # explicitly set a fallback log level in case no log level is defined by Kubernetes
 ENV LOG_LEVEL info
-
-# Install dependencies.
-COPY requirements.txt .
-RUN pip install -r requirements.txt
 
 # Add application code.
 COPY . .
