@@ -16,7 +16,7 @@
 
 module "asm" {
   source                    = "terraform-google-modules/kubernetes-engine/google//modules/asm"
-  version                   = "~> 23.0"
+  version                   = "~> 24.0"
   project_id                = data.google_project.project.project_id
   cluster_name              = module.gke.name
   cluster_location          = module.gke.location
