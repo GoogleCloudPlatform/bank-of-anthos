@@ -24,7 +24,7 @@ cffi==1.15.1
     # via
     #   -r requirements.in
     #   cryptography
-chardet==5.0.0
+chardet==5.1.0
     # via -r requirements.in
 charset-normalizer==2.1.1
     # via requests
