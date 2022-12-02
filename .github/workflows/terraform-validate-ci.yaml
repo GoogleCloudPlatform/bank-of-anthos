@@ -19,18 +19,30 @@ on:
       - main
     paths:
       - 'iac/tf-anthos-gke/**'
+      - 'iac/tf-multienv-cicd-anthos-autopilot/**'
       - '.github/workflows/terraform-validate-ci.yaml'
   pull_request:
     paths:
       - 'iac/tf-anthos-gke/**'
+      - 'iac/tf-multienv-cicd-anthos-autopilot/**'
       - '.github/workflows/terraform-validate-ci.yaml'
 jobs:
   job:
     runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        # list of directories in the repo that hosts Terraform samples
+        # update this list as new terraform samples are added to the repo
+        tf-sample: [
+          'iac/tf-anthos-gke',
+          'iac/tf-multienv-cicd-anthos-autopilot'
+        ]
     steps:
       - uses: actions/checkout@v3
       - name: terraform init & validate
+        env:
+          SAMPLE_DIR: ${{ matrix.tf-sample }}
         run: |
-          cd iac/tf-anthos-gke/
+          cd $SAMPLE_DIR
           terraform init -backend=false
           terraform validate
