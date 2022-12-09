@@ -644,7 +644,7 @@ def create_app():
     app.config['PUBLIC_KEY'] = open(os.environ.get('PUB_KEY_PATH'), 'r').read()
     app.config['LOCAL_ROUTING'] = os.getenv('LOCAL_ROUTING_NUM')
     # timeout in seconds for calls to the backend
-    app.config['BACKEND_TIMEOUT'] = int(os.getenv('BACKEND_TIMEOUT', '5'))
+    app.config['BACKEND_TIMEOUT'] = int(os.getenv('BACKEND_TIMEOUT', '4'))
     app.config['TOKEN_NAME'] = 'token'
     app.config['CONSENT_COOKIE'] = 'consented'
     app.config['TIMESTAMP_FORMAT'] = '%Y-%m-%dT%H:%M:%S.%f%z'
