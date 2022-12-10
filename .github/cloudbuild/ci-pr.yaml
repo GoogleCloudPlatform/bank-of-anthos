@@ -70,7 +70,7 @@ steps:
   #       popd
   #     done
   #   timeout: 1200s
-  - name: gcr.io/k8s-skaffold/skaffold:edge # workaround for skaffold bug
+  - name: gcr.io/k8s-skaffold/skaffold:v2.0.3-lts # workaround for skaffold bug
     args:
       - "/workspace/mvnw"
       - "jib:_skaffold-fail-if-jib-out-of-date"
@@ -86,7 +86,7 @@ steps:
   - name: gcr.io/cloud-builders/gsutil # get skaffold build cache
     args: ['cp', $_CACHE_URI, '/workspace/cache']
     timeout: 120s
-  - name: gcr.io/k8s-skaffold/skaffold:edge # build images with skaffold
+  - name: gcr.io/k8s-skaffold/skaffold:v2.0.3-lts # build images with skaffold
     args:
       - "skaffold"
       - "build"
@@ -99,7 +99,7 @@ steps:
   - name: gcr.io/cloud-builders/gsutil # upload skaffold build cache
     args: ['cp', '/workspace/$_CACHE',  $_CACHE_URI]
     timeout: 120s
-  - name: gcr.io/k8s-skaffold/skaffold:edge
+  - name: gcr.io/k8s-skaffold/skaffold:v2.0.3-lts
     script: |
       #!/bin/bash
       apt-get update
