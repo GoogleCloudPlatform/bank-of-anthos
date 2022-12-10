@@ -19,3 +19,4 @@ resources:
 components:
   - ../../components/init-db-job
   - ../../../../../components/staging
+  - ../../../../../components/cloud-sql

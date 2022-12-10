@@ -18,4 +18,5 @@ resources:
   - ../../base
 components:
   - ../../components/init-db-job
+  - ../../../../../components/cloud-sql
   - ../../../../../components/production

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-apiVersion: skaffold/v3
+apiVersion: skaffold/v4beta1
 kind: Config
 metadata:
   name: frontend
@@ -20,12 +20,6 @@ build:
   artifacts:
   - image: frontend
     context: .
-    sync:
-      infer:
-      - '**/*.py'
-      - logging.conf
-      - static/**
-      - templates/*.html
   tagPolicy:
     sha256: {}
 test:
@@ -40,6 +34,7 @@ test:
             - "../../.pylintrc"
 deploy:
   kubectl: {}
+  tolerateFailuresUntilDeadline: true
 profiles:
 - name: development
   activation:
@@ -53,12 +48,8 @@ profiles:
     kustomize:
       paths:
       - k8s/overlays/staging
-  deploy:
-    statusCheck: false
 - name: production
   manifests:
     kustomize:
       paths:
       - k8s/overlays/production
-  deploy:
-    statusCheck: false

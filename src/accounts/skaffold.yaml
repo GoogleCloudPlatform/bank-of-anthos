@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-apiVersion: skaffold/v3
+apiVersion: skaffold/v4beta1
 kind: Config
 metadata:
   name: accounts
@@ -23,10 +23,5 @@ requires:
 - configs:
   - userservice
   path: userservice/skaffold.yaml
-profiles:
-- name: staging
-  deploy:
-    statusCheck: false
-- name: production
-  deploy:
-    statusCheck: false
+deploy:
+  tolerateFailuresUntilDeadline: true
