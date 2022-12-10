@@ -40,7 +40,7 @@ steps:
   - name: gcr.io/cloud-builders/gsutil
     args: ['cp', '/workspace/$_CACHE',  $_CACHE_URI]
   - name: gcr.io/k8s-skaffold/skaffold:v2.0.0
-    script: skaffold test --build-artifacts=/workspace/artifacts.json --filename=skaffold.yaml --assume-yes
+    script: skaffold test --build-artifacts=/workspace/artifacts.json --module=$_TEAM --assume-yes
     env:
       - "MAVEN_USER_HOME=/workspace/.m2"
     timeout: 1200s
