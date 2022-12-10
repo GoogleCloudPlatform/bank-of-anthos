@@ -32,7 +32,7 @@ test:
   - image: frontend # code style
     context: .
     custom:
-      - command: pylint --rcfile=../../../.pylintrc *.py
+      - command: pylint --rcfile=../../.pylintrc *.py
         timeoutSeconds: 180
         dependencies: 
           paths:
