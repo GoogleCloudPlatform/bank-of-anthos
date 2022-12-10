@@ -27,4 +27,5 @@ requires:
   - transactionhistory
   path: transactionhistory/skaffold.yaml
 deploy:
-  tolerateFailuresUntilDeadline: true
+  # enable when skaffold_preview is 2.0.3+: tolerateFailuresUntilDeadline: true
+  statusCheck: false
