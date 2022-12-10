@@ -34,7 +34,7 @@ steps:
       . $HOME/venv-python-tests/bin/activate
       pip install --upgrade pip
       pip install pylint
-      cd src/$TEAM
+      cd /workspace/src/$TEAM
       skaffold test --build-artifacts=/workspace/artifacts.json --assume-yes
     env:
       - 'TEAM=$_TEAM'
