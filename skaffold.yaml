@@ -11,20 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-apiVersion: skaffold/v4beta1
-kind: Config
-metadata:
-  name: dev-config
-profiles:
-- name: development
-  activation:
-  - command: dev
-  manifests:
-    kustomize:
-      paths:
-      - iac/acm-multienv-cicd-anthos-autopilot/overlays/development
----
 apiVersion: skaffold/v4beta1
 kind: Config
 metadata:
@@ -48,3 +34,15 @@ requires:
 - configs:
   - ledger-db
   path: src/ledger/ledger-db/skaffold.yaml
+profiles:
+  - name: development
+    activation:
+      - command: dev
+    manifests:
+      kustomize:
+        paths:
+        - iac/acm-multienv-cicd-anthos-autopilot/overlays/development
+    deploy:
+      kubectl:
+        defaultNamespace: bank-of-anthos-development
+      tolerateFailuresUntilDeadline: true
