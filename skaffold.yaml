@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-apiVersion: skaffold/v3
+apiVersion: skaffold/v4beta1
 kind: Config
 metadata:
   name: dev-config
@@ -25,7 +25,7 @@ profiles:
       paths:
       - iac/acm-multienv-cicd-anthos-autopilot/overlays/development
 ---
-apiVersion: skaffold/v3
+apiVersion: skaffold/v4beta1
 kind: Config
 metadata:
   name: bank-of-anthos
