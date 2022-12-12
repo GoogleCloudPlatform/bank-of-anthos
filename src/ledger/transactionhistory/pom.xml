@@ -154,6 +154,11 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src</directory>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>com.google.cloud.tools</groupId>

@@ -1,6 +1,8 @@
+tests/*
 k8s
-skaffold.yaml
-README.md
 __pycache__
 .pytest_cache
 .coverage
+README.md
+skaffold.yaml
+.kpt-pipeline
