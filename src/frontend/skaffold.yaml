@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-apiVersion: skaffold/v3
+apiVersion: skaffold/v4beta1
 kind: Config
 metadata:
   name: frontend
@@ -26,16 +26,19 @@ test:
   - image: frontend # code style
     context: .
     custom:
-      - command: pylint --rcfile=../../.pylintrc *.py
+      - command: |
+          pip install pylint --quiet
+          pip install -r requirements.txt --quiet
+          pylint --rcfile=../../.pylintrc *.py
         timeoutSeconds: 180
         dependencies: 
           paths:
             - "**/*.py"
             - "../../.pylintrc"
+            - "requirements.txt"
 deploy:
   kubectl: {}
-  # enable when skaffold_preview is 2.0.3+: tolerateFailuresUntilDeadline: true
-  statusCheck: false
+  tolerateFailuresUntilDeadline: true
 profiles:
 - name: development
   activation:

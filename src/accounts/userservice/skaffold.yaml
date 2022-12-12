@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-apiVersion: skaffold/v3
+apiVersion: skaffold/v4beta1
 kind: Config
 metadata:
   name: userservice
@@ -30,17 +30,21 @@ test:
   - image: userservice # code style
     context: .
     custom:
-      - command: pylint --rcfile=../../../.pylintrc *.py
+      - command: |
+          pip install pylint --quiet
+          pip install -r requirements.txt --quiet
+          pylint --rcfile=../../../.pylintrc *.py
         timeoutSeconds: 1200
         dependencies: 
           paths:
             - "**/*.py"
             - "../../../.pylintrc"
+            - "requirements.txt"
   - image: userservice # unit tests
     context: .
     custom:
       - command: |
-          pip install -r requirements.txt
+          pip install -r requirements.txt --quiet
           python3 -m pytest -v -p no:warnings
         timeoutSeconds: 1200
         dependencies: 
@@ -51,7 +55,7 @@ test:
     context: .
     custom:
       - command: |
-          pip install -r requirements.txt
+          pip install -r requirements.txt --quiet
           python3 -m pytest --cov=./ tests/
         timeoutSeconds: 1200
         dependencies: 

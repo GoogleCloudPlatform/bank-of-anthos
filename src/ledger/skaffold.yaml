@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-apiVersion: skaffold/v3
+apiVersion: skaffold/v4beta1
 kind: Config
 metadata:
   name: ledger
@@ -27,5 +27,4 @@ requires:
   - transactionhistory
   path: transactionhistory/skaffold.yaml
 deploy:
-  # enable when skaffold_preview is 2.0.3+: tolerateFailuresUntilDeadline: true
-  statusCheck: false
+  tolerateFailuresUntilDeadline: true
