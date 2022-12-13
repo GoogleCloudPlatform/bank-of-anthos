@@ -53,8 +53,8 @@ steps:
       --cache-file=/workspace/$CACHE # set _CACHE to anything other than "cache" e.g. "no-cache" to reset skaffold cache
     env:
       - "MAVEN_USER_HOME=/workspace/.m2"
-      - "$CONTAINER_REGISTRY=$_CONTAINER_REGISTRY"
-      - "$CACHE=$_CACHE"
+      - "CONTAINER_REGISTRY=$_CONTAINER_REGISTRY"
+      - "CACHE=$_CACHE"
     timeout: 1200s
   - name: gcr.io/cloud-builders/gsutil # upload skaffold build cache
     args: ['cp', '/workspace/$_CACHE',  $_CACHE_URI]
