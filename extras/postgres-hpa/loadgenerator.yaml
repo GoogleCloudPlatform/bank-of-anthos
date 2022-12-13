@@ -11,8 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-# [START gke_boa_kubernetes_manifests_loadgenerator_env_configmap_loadgenerator_env]
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -24,9 +22,7 @@ data:
   LOCUST_SPAWN_RATE: "1"
   LOCUST_LOGLEVEL: error
   LOCUST_WEB_PORT: "8080"
-# [END gke_boa_kubernetes_manifests_loadgenerator_env_configmap_loadgenerator_env]
 ---
-# [START gke_boa_kubernetes_manifests_loadgenerator_service_loadgenerator]
 apiVersion: v1
 kind: Service
 metadata:
@@ -40,9 +36,7 @@ spec:
       port: 8080
       protocol: TCP
       targetPort: 8080
-# [END gke_boa_kubernetes_manifests_loadgenerator_service_loadgenerator]
 ---
-# [START gke_boa_kubernetes_manifests_loadgenerator_deployment_loadgenerator]
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -95,4 +89,3 @@ spec:
             cpu: 250m
             memory: 512Mi
             ephemeral-storage: 1Gi
-# [END gke_boa_kubernetes_manifests_loadgenerator_deployment_loadgenerator]

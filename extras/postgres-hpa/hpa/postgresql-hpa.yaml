@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START gke_boa_kubernetes_manifests_postgresql_hpa_horizontal_pod_autoscaler_accounts_db_postgresql]
+---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
@@ -40,4 +40,3 @@ spec:
       target:
           type: AverageValue
           averageValue: "15"
-# [END gke_boa_kubernetes_manifests_postgresql_hpa_horizontal_pod_autoscaler_accounts_db_postgresql]

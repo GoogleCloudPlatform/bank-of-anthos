@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START gke_boa_kubernetes_manifests_frontend_horizontal_pod_autoscaler_frontend]
+---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
@@ -43,4 +43,3 @@ spec:
         target:
           type: AverageValue
           averageValue: "5"
-# [END gke_boa_kubernetes_manifests_frontend_horizontal_pod_autoscaler_frontend]

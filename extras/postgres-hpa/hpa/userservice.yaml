@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START gke_boa_kubernetes_manifests_userservice_horizontal_pod_autoscaler_userservice]
+---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
@@ -39,4 +39,3 @@ spec:
         target:
           type: Utilization
           averageUtilization: 60
-# [END gke_boa_kubernetes_manifests_userservice_horizontal_pod_autoscaler_userservice]
