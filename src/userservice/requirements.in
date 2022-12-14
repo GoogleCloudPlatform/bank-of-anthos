@@ -26,7 +26,7 @@ opentelemetry-exporter-gcp-trace==1.4.0
 opentelemetry-propagator-gcp==1.4.0
 opentelemetry-instrumentation-flask==0.35b0
 opentelemetry-instrumentation-sqlalchemy==0.35b0
-packaging==21.3
+packaging==22.0
 pluggy==1.0.0
 protobuf==4.21.11
 psycopg2-binary==2.9.5

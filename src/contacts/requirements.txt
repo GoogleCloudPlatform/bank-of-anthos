@@ -133,7 +133,7 @@ opentelemetry-util-http==0.35b0
     # via
     #   opentelemetry-instrumentation-flask
     #   opentelemetry-instrumentation-wsgi
-packaging==21.3
+packaging==22.0
     # via
     #   -r requirements.in
     #   opentelemetry-instrumentation-sqlalchemy
@@ -174,9 +174,7 @@ pycryptodome==3.16.0
 pyjwt==2.6.0
     # via -r requirements.in
 pyparsing==3.0.9
-    # via
-    #   -r requirements.in
-    #   packaging
+    # via -r requirements.in
 pytest==7.2.0
     # via
     #   -r requirements.in
