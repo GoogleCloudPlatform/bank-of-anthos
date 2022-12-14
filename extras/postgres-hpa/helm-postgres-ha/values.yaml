@@ -1,0 +1,119 @@
+# Copyright 2022 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+fullnameOverride: accounts-db
+postgresql:
+  # pgpool[max_pool*num_init_children] <= postgresql[max_connections - superuser_reserved_connections]
+  # ex. 4 * 32 <= 2 * (128 + 3). 3 is reserved number of connections by postgres
+  # (no query canceling needed)
+  maxConnections: 1027
+  username: accounts-admin
+  password: accounts-pwd
+  database: accounts-db
+  extraEnvVars:
+    - name: USE_DEMO_DATA
+      value: "True"
+    - name: LOCAL_ROUTING_NUM
+      value: "883745000"
+  replicaCount: 1
+  resources:
+    limits:
+      cpu: 250m
+      memory: 512Mi
+      ephemeral-storage: 1Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+      ephemeral-storage: 1Gi
+
+pgpool:
+  maxPool: 4
+  numInitChildren: 256
+  sidecars:
+    - name: metrics
+      image: pgpool/pgpool2_exporter:latest
+      imagePullPolicy: IfNotPresent
+      env:
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: POSTGRES_USERNAME
+          value: accounts-admin
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: postgresql-password
+              name: accounts-db-postgresql
+        - name: POSTGRES_DATABASE
+          value: accounts-db
+        - name: PGPOOL_SERVICE
+          value: accounts-db-pgpool
+        - name: PGPOOL_SERVICE_PORT
+          value: "5432"
+        - name: SSLMODE
+          value: "disable"
+      ports:
+      - containerPort: 9719
+        name: metrics
+        protocol: TCP
+      resources:
+        limits:
+          cpu: 250m
+          ephemeral-storage: 1Gi
+          memory: 512Mi
+        requests:
+          cpu: 250m
+          ephemeral-storage: 1Gi
+          memory: 512Mi
+
+    - name: prometheus-to-sd
+      image: gcr.io/google-containers/prometheus-to-sd:v0.9.2
+      command:
+        - /monitor
+        - --source=mypgpool:http://localhost:9719
+        - --stackdriver-prefix=custom.googleapis.com
+        - --pod-id=$(POD_ID)
+        - --namespace-id=$(POD_NAMESPACE)
+      env:
+        - name: POD_ID
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.uid
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+      resources:
+        limits:
+          cpu: 250m
+          ephemeral-storage: 1Gi
+          memory: 512Mi
+        requests:
+          cpu: 250m
+          ephemeral-storage: 1Gi
+          memory: 512Mi
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+      ephemeral-storage: 1Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+      ephemeral-storage: 1Gi
+
+service:
+  type: NodePort
