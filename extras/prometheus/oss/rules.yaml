@@ -1,0 +1,58 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: uptime-rule
+spec:
+  groups:
+  - name: Micro services uptime
+    interval: 60s
+    rules:
+    - alert: BalancereaderUnavaiable
+      expr: probe_success{app="bank-of-anthos",job="balancereader"} == 0
+      for: 1m
+      annotations:
+        summary: Balance Reader service is unavailable
+        description: Check Balance Reader pods and it's logs
+      labels:
+        severity: 'critical'
+    - alert: ContactsUnavaiable
+      expr: probe_success{app="bank-of-anthos",job="contacts"} == 0
+      for: 1m
+      annotations:
+        summary: Contacs service is unavailable
+        description: Check Contacs pods and it's logs
+      labels:
+        severity: 'warning'
+    - alert: FrontendUnavaiable
+      expr: probe_success{app="bank-of-anthos",job="frontend"} == 0
+      for: 1m
+      annotations:
+        summary: Frontend service is unavailable
+        description: Check Frontend pods and it's logs
+      labels:
+        severity: 'critical'
+    - alert: LedgerwriterUnavaiable
+      expr: probe_success{app="bank-of-anthos",job="ledgerwriter"} == 0
+      for: 1m
+      annotations:
+        summary: Ledger Writer service is unavailable
+        description: Check Ledger Writer pods and it's logs
+      labels:
+        severity: 'critical'
+    - alert: TransactionhistoryUnavaiable
+      expr: probe_success{app="bank-of-anthos",job="transactionhistory"} == 0
+      for: 1m
+      annotations:
+        summary: Transaction History service is unavailable
+        description: Check Transaction History pods and it's logs
+      labels:
+        severity: 'critical'
+    - alert: UserserviceUnavaiable
+      expr: probe_success{app="bank-of-anthos",job="userservice"} == 0
+      for: 1m
+      annotations:
+        summary: User Service is unavailable
+        description: Check User Service pods and it's logs
+      labels:
+        severity: 'critical'

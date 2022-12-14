@@ -1,0 +1,114 @@
+---
+apiVersion: monitoring.googleapis.com/v1
+kind: PodMonitoring
+metadata:
+  name: frontend-probe
+  labels:
+    app.kubernetes.io/name: frontend-probe
+spec:
+  selector:
+    matchLabels:
+      app: blackbox-exporter
+  endpoints:
+  - port: metrics
+    path: /probe
+    params:
+      target: [frontend:80]
+      module: [http_2xx]
+    timeout: 30s
+    interval: 60s
+---
+apiVersion: monitoring.googleapis.com/v1
+kind: PodMonitoring
+metadata:
+  name: userservice-probe
+  labels:
+    app.kubernetes.io/name: userservice-probe
+spec:
+  selector:
+    matchLabels:
+      app: blackbox-exporter
+  endpoints:
+  - port: metrics
+    path: /probe
+    params:
+      target: [userservice:8080/ready]
+      module: [http_2xx]
+    timeout: 30s
+    interval: 60s
+---
+apiVersion: monitoring.googleapis.com/v1
+kind: PodMonitoring
+metadata:
+  name: balancereader-probe
+  labels:
+    app.kubernetes.io/name: balancereader-probe
+spec:
+  selector:
+    matchLabels:
+      app: blackbox-exporter
+  endpoints:
+  - port: metrics
+    path: /probe
+    params:
+      target: [balancereader:8080/ready]
+      module: [http_2xx]
+    timeout: 30s
+    interval: 60s
+---
+apiVersion: monitoring.googleapis.com/v1
+kind: PodMonitoring
+metadata:
+  name: contacts-probe
+  labels:
+    app.kubernetes.io/name: contacts-probe
+spec:
+  selector:
+    matchLabels:
+      app: blackbox-exporter
+  endpoints:
+  - port: metrics
+    path: /probe
+    params:
+      target: [contacts:8080/ready]
+      module: [http_2xx]
+    timeout: 30s
+    interval: 60s
+---
+apiVersion: monitoring.googleapis.com/v1
+kind: PodMonitoring
+metadata:
+  name: ledgerwriter-probe
+  labels:
+    app.kubernetes.io/name: ledgerwriter-probe
+spec:
+  selector:
+    matchLabels:
+      app: blackbox-exporter
+  endpoints:
+  - port: metrics
+    path: /probe
+    params:
+      target: [ledgerwriter:8080/ready]
+      module: [http_2xx]
+    timeout: 30s
+    interval: 60s
+---
+apiVersion: monitoring.googleapis.com/v1
+kind: PodMonitoring
+metadata:
+  name: transactionhistory-probe
+  labels:
+    app.kubernetes.io/name: transactionhistory-probe
+spec:
+  selector:
+    matchLabels:
+      app: blackbox-exporter
+  endpoints:
+  - port: metrics
+    path: /probe
+    params:
+      target: [transactionhistory:8080/ready]
+      module: [http_2xx]
+    timeout: 30s
+    interval: 60s

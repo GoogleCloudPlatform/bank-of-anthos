@@ -1,0 +1,66 @@
+operator:
+  resources:
+    limits:
+      cpu: 250m
+      ephemeral-storage: 1Gi
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      ephemeral-storage: 1Gi
+      memory: 512Mi
+  kubeletService:
+    enabled: false
+
+prometheus:
+  resources:
+    limits:
+      cpu: 250m
+      ephemeral-storage: 1Gi
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      ephemeral-storage: 1Gi
+      memory: 512Mi
+
+exporters:
+  node-exporter:
+    enabled: false
+  kube-state-metrics:
+    enabled: false
+kubelet:
+  enabled: false
+kubeApiServer:
+  enabled: false
+kubeControllerManager:
+  enabled: false
+kubeScheduler:
+  enabled: false
+coreDns:
+  enabled: false
+kubeProxy:
+  enabled: false
+
+alertmanager:
+  resources:
+    limits:
+      cpu: 250m
+      ephemeral-storage: 1Gi
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      ephemeral-storage: 1Gi
+      memory: 512Mi
+  configSelector:
+    matchLabels:
+      alertmanagerConfig: slack
+
+blackboxExporter:
+  resources:
+    limits:
+      cpu: 250m
+      ephemeral-storage: 1Gi
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      ephemeral-storage: 1Gi
+      memory: 512Mi
