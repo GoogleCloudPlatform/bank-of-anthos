@@ -36,5 +36,11 @@
       "dev-kubernetes-manifests/**",
       "kubernetes-manifests/**"
     ]
-  }
+  },
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "automerge": true
+    }
+  ]
 }
