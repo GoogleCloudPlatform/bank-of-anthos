@@ -63,7 +63,7 @@ steps:
     script: |
       #!/bin/bash
       apt-get update && apt-get -y install python3-venv && python3 -m venv $HOME/venv-python-tests && . $HOME/venv-python-tests/bin/activate
-      skaffold test --build-artifacts=/workspace/artifacts.json --filename=skaffold.yaml --assume-yes
+      MAVEN_USER_HOME=$MAVEN_USER_HOME skaffold test --build-artifacts=/workspace/artifacts.json --filename=skaffold.yaml --assume-yes
     env:
       - "MAVEN_USER_HOME=/workspace/.m2"
     timeout: 1200s
@@ -72,7 +72,7 @@ steps:
       #!/bin/bash
       gcloud container fleet memberships get-credentials development-membership
       kubectl create namespace $NAMESPACE
-      skaffold deploy --namespace=$NAMESPACE --build-artifacts=/workspace/artifacts.json --filename=skaffold.yaml --assume-yes
+      MAVEN_USER_HOME=$MAVEN_USER_HOME skaffold deploy --namespace=$NAMESPACE --build-artifacts=/workspace/artifacts.json --filename=skaffold.yaml --assume-yes
     env:
       - "MAVEN_USER_HOME=/workspace/.m2"
       - "NAMESPACE=pr$_PR_NUMBER"
@@ -83,7 +83,6 @@ steps:
       gcloud container fleet memberships get-credentials development-membership
       CYPRESS_baseUrl=http://$(kubectl get service frontend --namespace $NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}) skaffold verify --namespace=$NAMESPACE --build-artifacts=/workspace/artifacts.json --profile=development -m frontend
     env:
-      - "MAVEN_USER_HOME=/workspace/.m2"
       - "NAMESPACE=pr$_PR_NUMBER"
     timeout: 1200s
   - name: gcr.io/k8s-skaffold/skaffold:v2.0.3-lts

@@ -51,16 +51,23 @@ module "project-iam-bindings" {
       local.cloud_build_sas
     ),
     "roles/gkehub.gatewayEditor" = local.cloud_deploy_sas,
-    "roles/gkehub.viewer" = local.cloud_deploy_sas,
+    "roles/gkehub.viewer" = setunion(
+      local.cloud_deploy_sas,
+      local.cloud_build_sas,
+      ["serviceAccount:${google_service_account.cloud_build_pr.email}"],
+    ),
     "roles/clouddeploy.releaser" = local.cloud_build_sas,
-    "roles/container.developer"  = local.cloud_deploy_sas,
+    "roles/container.developer" = setunion(
+      local.cloud_deploy_sas,
+      ["serviceAccount:${google_service_account.cloud_build_pr.email}"]
+    ),
     "roles/cloudsql.client" = [
-        "serviceAccount:${google_service_account.gke_workload_staging.email}", # this implies that staging service account also has access to production CloudSQL. Could be solved by putting the CloudSQL instances in separate projects,
-        "serviceAccount:${google_service_account.gke_workload_production.email}", # this implies that production service account also has access to staging CloudSQL. Could be solved by putting the CloudSQL instances in separate projects.
+      "serviceAccount:${google_service_account.gke_workload_staging.email}",    # this implies that staging service account also has access to production CloudSQL. Could be solved by putting the CloudSQL instances in separate projects,
+      "serviceAccount:${google_service_account.gke_workload_production.email}", # this implies that production service account also has access to staging CloudSQL. Could be solved by putting the CloudSQL instances in separate projects.
     ],
     "roles/cloudsql.instanceUser" = [
-        "serviceAccount:${google_service_account.gke_workload_staging.email}", # this implies that staging service account also has access to production CloudSQL. Could be solved by putting the CloudSQL instances in separate projects,
-        "serviceAccount:${google_service_account.gke_workload_production.email}", # this implies that production service account also has access to staging CloudSQL. Could be solved by putting the CloudSQL instances in separate projects.
+      "serviceAccount:${google_service_account.gke_workload_staging.email}",    # this implies that staging service account also has access to production CloudSQL. Could be solved by putting the CloudSQL instances in separate projects,
+      "serviceAccount:${google_service_account.gke_workload_production.email}", # this implies that production service account also has access to staging CloudSQL. Could be solved by putting the CloudSQL instances in separate projects.
     ]
   }
 }
