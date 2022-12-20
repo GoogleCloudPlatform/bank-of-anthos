@@ -75,7 +75,7 @@ options:
     - "CONTAINER_REGISTRY=$_CONTAINER_REGISTRY"
     - "CACHE=$_CACHE"
     - "GOPATH=/workspace/go"
-  artifacts:
-    objects:
-      location: 'gs://$_CACHE_URI/pr$_PR_NUMBER/$SHORT_SHA/screenshots'
-      paths: ['/workspace/screenshots']
+artifacts:
+  objects:
+    location: 'gs://$_CACHE_URI/pr$_PR_NUMBER/$SHORT_SHA/screenshots'
+    paths: ['/workspace/screenshots']
