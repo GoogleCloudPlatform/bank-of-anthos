@@ -41,6 +41,11 @@
     {
       "matchUpdateTypes": ["minor", "patch", "digest"],
       "automerge": true
+    },
+    {
+      "matchDepTypes": ["devDependencies"],
+      "automerge": true
     }
-  ]
+  ],
+  "platformAutomerge":true
 }
