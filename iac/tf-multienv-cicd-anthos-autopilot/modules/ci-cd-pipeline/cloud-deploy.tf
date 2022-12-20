@@ -45,7 +45,13 @@ resource "google_clouddeploy_delivery_pipeline" "delivery-pipeline" {
       content {
         profiles  = [stages.value]
         target_id = google_clouddeploy_target.targets[stages.value].name
+        strategy {
+          standard {
+            verify = true
+          }
+        }
       }
     }
   }
+  provider = google-beta
 }
