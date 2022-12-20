@@ -39,7 +39,7 @@ steps:
     args: ['cp', $_CACHE_URI, '/workspace/cache']
     timeout: 120s
   - name: gcr.io/k8s-skaffold/skaffold:v2.0.3-lts # build images with skaffold
-    args: ['skaffold', 'build', '--file-output=/workspace/artifacts.json', '--default-repo=$_CONTAINER_REGISTRY', '--cache-file=/workspace/$_CACHE'] # set _CACHE to anything other than "cache" e.g. "no-cache" to reset skaffold cache
+    args: ['skaffold', 'build', '--file-output=/workspace/artifacts.json', '--default-repo=$_CONTAINER_REGISTRY', '--cache-file=/workspace/$_CACHE', '--profile=development'] # set _CACHE to anything other than "cache" e.g. "no-cache" to reset skaffold cache
   - name: gcr.io/cloud-builders/gsutil # upload skaffold build cache
     args: ['cp', '/workspace/$_CACHE',  $_CACHE_URI]
     timeout: 120s
@@ -47,7 +47,7 @@ steps:
     script: |
       #!/bin/bash
       apt-get update && apt-get -y install python3-venv && python3 -m venv $HOME/venv-python-tests && . $HOME/venv-python-tests/bin/activate
-      MAVEN_USER_HOME=$MAVEN_USER_HOME skaffold test --build-artifacts=/workspace/artifacts.json --filename=skaffold.yaml --assume-yes
+      MAVEN_USER_HOME=$MAVEN_USER_HOME skaffold test --build-artifacts=/workspace/artifacts.json --filename=skaffold.yaml --assume-yes --profile=development
   - name: gcr.io/k8s-skaffold/skaffold:v2.0.3-lts # deploy to pr-namespace with skaffold
     script: |
       #!/bin/bash
