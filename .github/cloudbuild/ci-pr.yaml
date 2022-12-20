@@ -71,7 +71,7 @@ options:
     - "NAMESPACE=pr$_PR_NUMBER"
     - "GOPATH=/workspace/go"
 tags:
-  - pr$_PR_NUMBER"
+  - pr$_PR_NUMBER
   - ci-pr
 artifacts:
   objects:
