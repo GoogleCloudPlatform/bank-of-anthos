@@ -66,15 +66,15 @@ steps:
   #     skaffold delete --namespace=$NAMESPACE --build-artifacts=/workspace/artifacts.json --profile=development
 options:
   logging: CLOUD_LOGGING_ONLY
-  tags:
-    - pr$_PR_NUMBER"
-    - ci-pr
   env:
     - "MAVEN_USER_HOME=/workspace/.m2"
     - "NAMESPACE=pr$_PR_NUMBER"
     - "CONTAINER_REGISTRY=$_CONTAINER_REGISTRY"
     - "CACHE=$_CACHE"
     - "GOPATH=/workspace/go"
+tags:
+  - pr$_PR_NUMBER"
+  - ci-pr
 artifacts:
   objects:
     location: 'gs://$_CACHE_URI/pr$_PR_NUMBER/$SHORT_SHA/screenshots'
