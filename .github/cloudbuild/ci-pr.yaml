@@ -58,7 +58,7 @@ steps:
     script: |
       #!/bin/bash
       BASE_URL=http://$(kubectl get service frontend --namespace $NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-      CYPRESS_baseUrl=$BASE_URL skaffold verify --namespace=$NAMESPACE --build-artifacts=/workspace/artifacts.json --profile=development -m frontend
+      CYPRESS_baseUrl=$BASE_URL skaffold verify --build-artifacts=/workspace/artifacts.json --profile=development -m frontend
       docker cp $(docker ps -q -l):/e2e/cypress/screenshots /workspace/screenshots
   # - name: gcr.io/k8s-skaffold/skaffold:v2.0.3-lts # 
   #   script: |
