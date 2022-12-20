@@ -50,7 +50,10 @@ module "project-iam-bindings" {
       ],
       local.cloud_build_sas
     ),
-    "roles/gkehub.gatewayEditor" = local.cloud_deploy_sas,
+    "roles/gkehub.gatewayEditor" = setunion(
+      local.cloud_deploy_sas,
+      ["serviceAccount:${google_service_account.cloud_build_pr.email}"]
+    ),
     "roles/gkehub.viewer" = setunion(
       local.cloud_deploy_sas,
       local.cloud_build_sas,
