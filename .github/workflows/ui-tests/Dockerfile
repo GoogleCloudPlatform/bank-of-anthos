@@ -11,9 +11,11 @@
 
 FROM cypress/included:9.7.0
 WORKDIR /e2e
-COPY . .
-ENV XDG_CONFIG_HOME=/e2e
 # install gcloud cli tools to get kubectl context and service/ingress endpoint ip to test
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg  add - && apt-get update -y && apt-get install google-cloud-cli -y
-RUN gcloud components install gke-gcloud-auth-plugin kubectl
+RUN apt-get install google-cloud-sdk-gke-gcloud-auth-plugin kubectl
+# cypress code & config
+COPY . .
+ENV XDG_CONFIG_HOME=/e2e
+# run custom bash script to set CYPRESS_baseUrl and execute tests
 ENTRYPOINT [ "/bin/bash", "-c", "./run_for_env.sh" ]
