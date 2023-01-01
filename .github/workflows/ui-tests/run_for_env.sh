@@ -15,7 +15,9 @@
 # if cypress_baseurl is not set
 if [[ -z "${CYPRESS_baseUrl}" ]]; then
     # Get credentials for current Anthos cluster (staging/production)
-    export ANTHOS_MEMBERSHIP_SHORT=$(echo $ANTHOS_MEMBERSHIP | rev | cut -d/ -f1 | rev)
+    export ANTHOS_MEMBERSHIP_SHORT=$(echo $ANTHOS_MEMBERSHIP | cut -d/ -f6)
+    export PROJECT_ID=$(echo $ANTHOS_MEMBERSHIP | cut -d/ -f2)
+    export ARTIFACTS_BUCKET_NAME=delivery-artifacts-$PIPELINE-$PROJECT_ID
     gcloud container fleet memberships get-credentials $ANTHOS_MEMBERSHIP_SHORT
     if [[ "$ANTHOS_MEMBERSHIP_SHORT" == "staging-membership" ]]; then
         export CYPRESS_baseUrl=$(kubectl get service frontend --namespace bank-of-anthos-staging -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
@@ -28,4 +30,12 @@ if [[ -z "${CYPRESS_baseUrl}" ]]; then
 fi
 
 # run tests
-cypress run
+CYPRESS_baseUrl=$CYPRESS_baseUrl cypress run
+
+# if failed, copy screenshots to bucket and exit with status code 1
+if [[ -d "/e2e/cypress/screenshots" ]]; then
+    export COPY_DESTINATION=gs://$ARTIFACTS_BUCKET_NAME/$ROLLOUT/e2e/cypress/
+    echo ERROR: Cypress E2E tests have failed. Screenshots will be uploaded to $COPY_DESTINATION.
+    gsutil cp -r /e2e/cypress/screenshots $COPY_DESTINATION
+    exit 1
+fi

@@ -58,16 +58,10 @@ steps:
     script: |
       #!/bin/bash
       BASE_URL=http://$(kubectl get service frontend --namespace $NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-      CYPRESS_baseUrl=$BASE_URL skaffold verify --build-artifacts=/workspace/artifacts.json --profile=development -m frontend
-  - name: docker
-    script: |
-      docker ps -a
-      docker cp $(docker ps -q -l):/e2e/cypress/screenshots /workspace/screenshots
-    allowFailure: true
-  # - name: gcr.io/k8s-skaffold/skaffold:v2.0.3-lts # 
-  #   script: |
-  #     #!/bin/bash
-  #     skaffold delete --namespace=$NAMESPACE --build-artifacts=/workspace/artifacts.json --profile=development
+      CYPRESS_baseUrl=$BASE_URL ROLLOUT=$ROLLOUT skaffold verify --build-artifacts=/workspace/artifacts.json --profile=development -m frontend
+    env:
+      - "ROLLOUT=pr$_PR_NUMBER/$SHORT_SHA"
+      - "ARTIFACTS_BUCKET_NAME=$_CACHE_URI"
 options:
   logging: CLOUD_LOGGING_ONLY
   env:

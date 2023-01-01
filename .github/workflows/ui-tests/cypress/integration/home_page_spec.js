@@ -17,5 +17,6 @@
 describe('The Home Page', function() {
   it('successfully loads', function() {
     cy.visit('/')
+    throw new Error('test error')
   })
 })
