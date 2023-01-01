@@ -30,7 +30,7 @@ if [[ -z "${CYPRESS_baseUrl}" ]]; then
 fi
 
 # run tests
-CYPRESS_baseUrl=$CYPRESS_baseUrl cypress run
+CYPRESS_baseUrl=$CYPRESS_baseUrl NO_COLOR=1 cypress run
 
 # if failed, copy screenshots to bucket and exit with status code 1
 if [[ "$?" -ne 0 ]]; then
