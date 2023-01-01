@@ -30,7 +30,8 @@ resource "google_clouddeploy_target" "targets" {
       service_account = google_service_account.cloud_deploy.email
       usages = [
           "RENDER",
-          "DEPLOY"
+          "DEPLOY",
+          "VERIFY"
       ]
   }
 }

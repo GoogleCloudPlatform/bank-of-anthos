@@ -37,7 +37,10 @@ module "artifact-registry-repository-iam-bindings" {
   mode         = "additive"
 
   bindings = {
-    "roles/artifactregistry.reader" = ["serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"]
+    "roles/artifactregistry.reader" = setunion(
+      ["serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"],
+      local.cloud_deploy_sas
+    )
   }
 
   depends_on = [
