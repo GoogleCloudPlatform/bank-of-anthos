@@ -38,6 +38,6 @@ CYPRESS_baseUrl=$CYPRESS_baseUrl NO_COLOR=1 cypress run --reporter json-stream
 if [[ "$?" -ne 0 ]]; then
     export COPY_DESTINATION=$ARTIFACTS_BUCKET_NAME/$ROLLOUT/e2e/cypress/
     echo ERROR: Cypress E2E tests have failed. Screenshots will be uploaded to $COPY_DESTINATION/screenshots 
-    gsutil cp -r /e2e/cypress/screenshots $COPY_DESTINATION
+    gcloud storage cp -r /e2e/cypress/screenshots $COPY_DESTINATION
     exit 1
 fi
