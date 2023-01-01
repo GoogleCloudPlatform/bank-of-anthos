@@ -54,13 +54,6 @@ profiles:
       container: 
         name: e2e-test-container
         image: e2e-tests
-        env:
-          - name: CYPRESS_baseUrl
-            value: http://35.205.77.22"
-          - name: hello
-            value: test
-        #command: ["/bin/bash", "-c", "kubectl get pods"]
-        #command: ["/bin/bash", "-c", "echo $hello"]
 - name: staging
   manifests:
     kustomize:
@@ -71,10 +64,13 @@ profiles:
       container: 
         name: e2e-test-container
         image: e2e-tests
-        command: ["/bin/bash", "-c", "env"]
 - name: production
   manifests:
     kustomize:
       paths:
       - k8s/overlays/production
-
+  verify:
+    - name: e2e-test
+      container: 
+        name: e2e-test-container
+        image: e2e-tests
