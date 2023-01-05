@@ -31,7 +31,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: contacts
-        image: danielhhowell/contacts:no-otel
+        image: ghcr.io/opsani/bank-of-anthos/contacts:0.5.3-no-otel
         imagePullPolicy: Always
         command: [ "/bin/sh" ]
         args: [ "-c", 'export OTEL_RESOURCE_ATTRIBUTES="$OTEL_RESOURCE_ATTRIBUTES","container.id="$(sed -rn "s/^1:.+:\/.+\/(.+)$/\1/p" /proc/self/cgroup) && gunicorn -b :$PORT --threads 4 --log-config /logging.conf --log-level=$LOG_LEVEL "contacts:create_app()"' ]
