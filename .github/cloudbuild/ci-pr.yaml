@@ -65,7 +65,7 @@ steps:
   - name: gcr.io/k8s-skaffold/skaffold:v2.0.3-lts # 
     script: |
       #!/bin/bash
-      skaffold delete --namespace=$NAMESPACE --build-artifacts=/workspace/artifacts.json --profile=development
+      skaffold delete --namespace=$NAMESPACE --profile=development
 options:
   logging: CLOUD_LOGGING_ONLY
   env:
