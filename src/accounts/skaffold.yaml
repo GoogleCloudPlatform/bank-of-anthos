@@ -18,10 +18,14 @@ metadata:
   name: accounts
 requires:
 - configs:
+  - e2e-accounts
+  path: ../../skaffold-e2e.yaml
+- configs:
   - contacts
   path: contacts/skaffold.yaml
 - configs:
   - userservice
   path: userservice/skaffold.yaml
 deploy:
+  kubectl: {}
   tolerateFailuresUntilDeadline: true

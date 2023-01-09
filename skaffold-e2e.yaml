@@ -11,23 +11,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 apiVersion: skaffold/v4beta1
 kind: Config
 metadata:
-  name: ledger
-requires:
-- configs:
-  - e2e-accounts
-  path: ../../skaffold-e2e.yaml
-- configs:
-  - balancereader
-  path: balancereader/skaffold.yaml
-- configs:
-  - ledgerwriter
-  path: ledgerwriter/skaffold.yaml
-- configs:
-  - transactionhistory
-  path: transactionhistory/skaffold.yaml
-deploy:
-  tolerateFailuresUntilDeadline: true
+  name: e2e-accounts
+build:
+  artifacts:
+    - image: e2e-tests
+      context: .github/workflows/ui-tests
+verify:
+  - name: e2e-test
+    container: 
+      name: e2e-test-container
+      image: e2e-tests
