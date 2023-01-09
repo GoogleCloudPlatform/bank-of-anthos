@@ -28,3 +28,12 @@ requires:
   path: transactionhistory/skaffold.yaml
 deploy:
   tolerateFailuresUntilDeadline: true
+build:
+  artifacts:
+    - image: e2e-tests
+      context: ../../.github/workflows/ui-tests
+verify:
+  - name: e2e-test
+    container: 
+      name: e2e-test-container
+      image: e2e-tests
