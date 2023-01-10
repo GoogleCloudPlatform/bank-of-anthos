@@ -196,7 +196,7 @@ six==1.16.0
     #   -r requirements.in
     #   bleach
     #   google-auth
-sqlalchemy==1.4.45
+sqlalchemy==1.4.46
     # via -r requirements.in
 typing-extensions==4.4.0
     # via opentelemetry-sdk
