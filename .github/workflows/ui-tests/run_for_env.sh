@@ -24,7 +24,7 @@ if [[ -z "${CYPRESS_baseUrl}" ]]; then
     if [[ "$ANTHOS_MEMBERSHIP_SHORT" == "staging-membership" ]]; then
         export CYPRESS_baseUrl=http://$(kubectl get service frontend --namespace bank-of-anthos-staging -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
     elif [[ "$ANTHOS_MEMBERSHIP_SHORT" == "production-membership" ]]; then
-        export CYPRESS_baseUrl=https://bank-of-anthos.bielski.demo.altostrat.com
+        export CYPRESS_baseUrl=https://$(kubectl get ingress frontend-ingress --namespace bank-of-anthos-production -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
     else
         echo ERROR: CYPRESS_baseUrl is not set and cannot be automatically determined. Exiting with status code 1.
         exit 1
@@ -32,7 +32,7 @@ if [[ -z "${CYPRESS_baseUrl}" ]]; then
 fi
 
 # run tests
-CYPRESS_baseUrl=$CYPRESS_baseUrl NO_COLOR=1 cypress run --reporter json-stream
+CYPRESS_baseUrl=$CYPRESS_baseUrl NO_COLOR=1 cypress run --reporter json-stream --browser chrome --headless
 
 # if failed, copy screenshots to bucket and exit with status code 1
 if [[ "$?" -ne 0 ]]; then

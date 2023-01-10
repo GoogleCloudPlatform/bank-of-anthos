@@ -1,9 +1,11 @@
-{
+const { defineConfig } = require('cypress')
+
+module.exports = defineConfig({
     "CI": true,
     "retries": 1,
     "video": false,
-    "pluginsFile": false,
     "fixturesFolder": false,
+    "chromeWebSecurity": false,
     "env": {
         "messages": {
             "transaction": {
@@ -54,5 +56,9 @@
             ],
             "localRoutingNum": "883745000"
         }
+    },
+    "e2e": {
+        supportFile: "cypress/support/index.js",
+        specPattern: "cypress/integration/**/*.js"
     }
-}
+})
