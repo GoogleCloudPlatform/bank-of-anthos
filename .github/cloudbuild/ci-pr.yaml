@@ -48,6 +48,8 @@ steps:
       #!/bin/bash
       apt-get update && apt-get -y install python3-venv && python3 -m venv $HOME/venv-python-tests && . $HOME/venv-python-tests/bin/activate
       MAVEN_USER_HOME=$MAVEN_USER_HOME skaffold test --build-artifacts=/workspace/artifacts.json --filename=skaffold.yaml --assume-yes --profile=development
+  - name: gcloud
+    args: ['iam', 'service-accounts', 'add-iam-policy-binding', 'gke-workload-development@$PROJECT_ID.iam.gserviceaccount.com', '--role=roles/iam.workloadIdentityUser', '--member="serviceAccount:$PROJECT_ID.svc.id.goog[pr$_PR_NUMBER/bank-of-anthos]"']
   - name: gcr.io/k8s-skaffold/skaffold:v2.0.3-lts # deploy to pr-namespace with skaffold
     script: |
       #!/bin/bash
