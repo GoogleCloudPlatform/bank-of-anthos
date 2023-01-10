@@ -142,7 +142,7 @@ pluggy==1.0.0
     # via
     #   -r requirements.in
     #   pytest
-proto-plus==1.22.1
+proto-plus==1.22.2
     # via google-cloud-trace
 protobuf==4.21.12
     # via
