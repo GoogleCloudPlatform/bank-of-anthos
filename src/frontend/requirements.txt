@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file=requirements.txt requirements.in
 #
-cachetools==5.2.0
+cachetools==5.2.1
     # via google-auth
 certifi==2022.12.7
     # via requests
@@ -40,7 +40,7 @@ gunicorn==20.1.0
     # via -r requirements.in
 idna==3.4
     # via requests
-importlib-metadata==5.2.0
+importlib-metadata==6.0.0
     # via flask
 itsdangerous==2.1.2
     # via flask
