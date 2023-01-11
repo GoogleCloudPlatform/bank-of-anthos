@@ -34,6 +34,9 @@ module "ci-cd-pipeline" {
   ]
 }
 
+
+### CI-PR pipeline
+
 # GCS bucket used as skaffold build cache
 resource "google_storage_bucket" "build_cache_pr" {
   name                        = "build-cache-pr-${var.project_id}"
@@ -71,14 +74,24 @@ resource "google_storage_bucket_iam_member" "build_cache" {
   role   = "roles/storage.admin"
 }
 
-# additional roles for cloud-build service account
-resource "google_artifact_registry_repository_iam_member" "cloud_build" {
-  repository = google_artifact_registry_repository.container_registry.repository_id
-  location   = google_artifact_registry_repository.container_registry.location
-  project    = google_artifact_registry_repository.container_registry.project
+# CI trigger configuration
+resource "google_cloudbuild_trigger" "ci-pr" {
+  name = "pull-request-ci"
 
-  role   = "roles/artifactregistry.writer"
-  member = "serviceAccount:${google_service_account.cloud_build_pr.email}"
+  github {
+      owner = var.repo_owner
+      name = var.sync_repo
 
-  provider = google-beta
+      pull_request {
+        branch = ".*"
+        comment_control = "COMMENTS_ENABLED_FOR_EXTERNAL_CONTRIBUTORS_ONLY"
+      }
+  }
+  filename = ".github/cloudbuild/ci-pr.yaml"
+  substitutions = {
+      _CACHE_URI = "gs://${google_storage_bucket.build_cache_pr.name}/${google_storage_bucket_object.cache.name}"
+      _CONTAINER_REGISTRY = "${google_artifact_registry_repository.container_registry.location}-docker.pkg.dev/${google_artifact_registry_repository.container_registry.project}/${google_artifact_registry_repository.container_registry.repository_id}"
+      _CACHE = local.cache_filename
+  }
+  service_account = google_service_account.cloud_build_pr.id
 }

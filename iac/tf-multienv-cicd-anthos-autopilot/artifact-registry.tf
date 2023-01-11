@@ -34,12 +34,19 @@ module "artifact-registry-repository-iam-bindings" {
   project      = var.project_id
   repositories = [local.application_name]
   location     = var.region
-  mode         = "additive"
+  mode         = "authoritative"
 
   bindings = {
     "roles/artifactregistry.reader" = setunion(
-      ["serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"],
+      [
+        "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
+      ],
       local.cloud_deploy_sas
+    ),
+    "roles/artifactregistry.writer" = setunion(
+      [
+        "serviceAccount:${google_service_account.cloud_build_pr.email}"
+      ]
     )
   }
 
