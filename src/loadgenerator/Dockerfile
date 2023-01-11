@@ -13,10 +13,23 @@
 # limitations under the License.
 
 # Use the official Python docker container, slim version, running Debian
-FROM python:3.10.8-slim
+FROM python:3.11.1-slim@sha256:4b6accae496e2b852b3a11a0be445600750c28bef584dd50ff3812bdec306eda as base
+
+FROM base as builder
+
+# Install dependencies.
+COPY requirements.txt .
+RUN pip install --prefix="/install" -r requirements.txt
+
+FROM base
 
 # Set our working directory
 WORKDIR /app
+
+COPY --from=builder /install /usr/local
+
+# Add application code.
+COPY locustfile.py .
 
 # show python logs as they occur
 ENV PYTHONUNBUFFERED=0
@@ -26,13 +39,6 @@ ENV GEVENT_SUPPORT=True
 
 # explicitly set a fallback log level in case no log level is defined by Kubernetes
 ENV LOG_LEVEL info
-
-# Install dependencies.
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-
-# Add application code.
-COPY locustfile.py .
 
 # start loadgenerator
 ENTRYPOINT locust --host="http://${FRONTEND_ADDR}" --loglevel $LOG_LEVEL --headless --users="${USERS:-10}" 2>&1

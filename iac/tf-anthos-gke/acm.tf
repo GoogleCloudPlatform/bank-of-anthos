@@ -16,11 +16,10 @@
 
 module "acm" {
   source                   = "terraform-google-modules/kubernetes-engine/google//modules/acm"
-  version                  = "~> 23.0"
+  version                  = "~> 24.0"
   project_id               = data.google_project.project.project_id
   location                 = module.gke.location
   cluster_name             = module.gke.name
-  configmanagement_version = "1.12.2"
 
   sync_repo     = var.sync_repo
   sync_branch   = var.sync_branch

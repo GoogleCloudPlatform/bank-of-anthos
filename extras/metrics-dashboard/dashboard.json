@@ -208,6 +208,128 @@
         }
       },
       {
+        "title": "Total latency per response code [Frontend load balancer]",
+        "xyChart": {
+          "chartOptions": {
+            "mode": "COLOR"
+          },
+          "dataSets": [
+            {
+              "minAlignmentPeriod": "60s",
+              "plotType": "LINE",
+              "targetAxis": "Y1",
+              "timeSeriesQuery": {
+                "apiSource": "DEFAULT_CLOUD",
+                "timeSeriesFilter": {
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "crossSeriesReducer": "REDUCE_NONE",
+                    "perSeriesAligner": "ALIGN_PERCENTILE_99"
+                  },
+                  "filter": "metric.type=\"loadbalancing.googleapis.com/https/total_latencies\" resource.type=\"https_lb_rule\" resource.label.\"backend_name\"=monitoring.regex.full_match(\"^.*default-frontend.*$\")",
+                  "pickTimeSeriesFilter": {
+                    "direction": "TOP",
+                    "numTimeSeries": 3,
+                    "rankingMethod": "METHOD_MEAN"
+                  },
+                  "secondaryAggregation": {
+                    "alignmentPeriod": "60s",
+                    "crossSeriesReducer": "REDUCE_STDDEV",
+                    "groupByFields": [
+                      "metric.label.\"response_code_class\""
+                    ],
+                    "perSeriesAligner": "ALIGN_MEAN"
+                  }
+                }
+              }
+            }
+          ],
+          "timeshiftDuration": "0s",
+          "yAxis": {
+            "label": "y1Axis",
+            "scale": "LINEAR"
+          }
+        }
+      },
+      {
+        "title": "Request size per response code [Frontend load balancer]",
+        "xyChart": {
+          "chartOptions": {
+            "mode": "COLOR"
+          },
+          "dataSets": [
+            {
+              "minAlignmentPeriod": "60s",
+              "plotType": "LINE",
+              "targetAxis": "Y1",
+              "timeSeriesQuery": {
+                "apiSource": "DEFAULT_CLOUD",
+                "timeSeriesFilter": {
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "crossSeriesReducer": "REDUCE_NONE",
+                    "perSeriesAligner": "ALIGN_RATE"
+                  },
+                  "filter": "metric.type=\"loadbalancing.googleapis.com/https/request_bytes_count\" resource.type=\"https_lb_rule\" resource.label.\"backend_name\"=monitoring.regex.full_match(\"^.*default-frontend.*$\")",
+                  "secondaryAggregation": {
+                    "alignmentPeriod": "60s",
+                    "crossSeriesReducer": "REDUCE_SUM",
+                    "groupByFields": [
+                      "metric.label.\"response_code_class\""
+                    ],
+                    "perSeriesAligner": "ALIGN_INTERPOLATE"
+                  }
+                }
+              }
+            }
+          ],
+          "timeshiftDuration": "0s",
+          "yAxis": {
+            "label": "y1Axis",
+            "scale": "LINEAR"
+          }
+        }
+      },
+      {
+        "title": "Request count per response code [Frontend load balancer]",
+        "xyChart": {
+          "chartOptions": {
+            "mode": "COLOR"
+          },
+          "dataSets": [
+            {
+              "minAlignmentPeriod": "60s",
+              "plotType": "LINE",
+              "targetAxis": "Y1",
+              "timeSeriesQuery": {
+                "apiSource": "DEFAULT_CLOUD",
+                "timeSeriesFilter": {
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "crossSeriesReducer": "REDUCE_NONE",
+                    "perSeriesAligner": "ALIGN_RATE"
+                  },
+                  "filter": "metric.type=\"loadbalancing.googleapis.com/https/request_count\" resource.type=\"https_lb_rule\" resource.label.\"backend_name\"=monitoring.regex.full_match(\"^.*default-frontend.*$\")",
+                  "secondaryAggregation": {
+                    "alignmentPeriod": "60s",
+                    "crossSeriesReducer": "REDUCE_SUM",
+                    "groupByFields": [
+                      "metric.label.\"response_code_class\""
+                    ],
+                    "perSeriesAligner": "ALIGN_MEAN"
+                  }
+                }
+              }
+            }
+          ],
+          "timeshiftDuration": "0s",
+          "yAxis": {
+            "label": "y1Axis",
+            "scale": "LINEAR"
+          }
+        }
+      },
+      {
         "title": "Request source to response latency",
         "xyChart": {
           "dataSets": [

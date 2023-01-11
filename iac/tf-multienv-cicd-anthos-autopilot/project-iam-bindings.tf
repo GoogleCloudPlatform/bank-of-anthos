@@ -45,7 +45,6 @@ module "project-iam-bindings" {
     "roles/cloudbuild.builds.builder" = setunion(
       [
         "serviceAccount:${data.google_project.project.number}@cloudbuild.gserviceaccount.com",
-        "user:admin@bielski.altostrat.com",
         "serviceAccount:${google_service_account.cloud_build_pr.email}",
       ],
       local.cloud_build_sas

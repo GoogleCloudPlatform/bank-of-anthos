@@ -42,7 +42,7 @@ spec:
               - all
           privileged: false
           readOnlyRootFilesystem: true
-        image: gcr.io/bank-of-anthos-ci/userservice:v0.5.9
+        image: gcr.io/bank-of-anthos-ci/userservice:v0.5.10
         volumeMounts:
         - name: keys
           mountPath: "/tmp/.ssh"
@@ -54,7 +54,7 @@ spec:
           containerPort: 8080
         env:
         - name: VERSION
-          value: "v0.5.9"
+          value: "v0.5.10"
         - name: PORT
           value: "8080"
         - name: ENABLE_TRACING
@@ -80,8 +80,8 @@ spec:
           timeoutSeconds: 10
         resources:
           requests:
-            cpu: 200m
-            memory: 64Mi
+            cpu: 300m
+            memory: 128Mi
           limits:
             cpu: 500m
             memory: 256Mi

@@ -42,7 +42,7 @@ spec:
               - all
           privileged: false
           readOnlyRootFilesystem: true
-        image: gcr.io/bank-of-anthos-ci/ledgerwriter:v0.5.9
+        image: gcr.io/bank-of-anthos-ci/ledgerwriter:v0.5.10
         volumeMounts:
         - name: publickey
           mountPath: "/tmp/.ssh"
@@ -51,7 +51,7 @@ spec:
           name: tmp
         env:
         - name: VERSION
-          value: "v0.5.9"
+          value: "v0.5.10"
         - name: PORT
           value: "8080"
         - name: ENABLE_TRACING

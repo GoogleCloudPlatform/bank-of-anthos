@@ -72,6 +72,9 @@ cover/
 *.mo
 *.pot
 
+# Java stuff:
+.mvn/wrapper/maven-wrapper.jar
+
 # Django stuff:
 *.log
 local_settings.py

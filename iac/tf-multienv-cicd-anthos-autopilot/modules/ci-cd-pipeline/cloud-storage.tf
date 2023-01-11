@@ -17,7 +17,6 @@ resource "google_storage_bucket" "build_cache" {
   name                        = "build-cache-${var.team}-${var.project_id}"
   uniform_bucket_level_access = true
   location                    = var.region
-  force_destroy               = true
 }
 
 # GCS bucket used by Cloud Build to stage sources for Cloud Deploy
@@ -25,7 +24,6 @@ resource "google_storage_bucket" "release_source_staging" {
   name                        = "release-source-staging-${var.team}-${var.project_id}"
   uniform_bucket_level_access = true
   location                    = var.region
-  force_destroy               = true
 }
 
 # GCS bucket used by Cloud Deploy for delivery artifact storage
@@ -33,7 +31,6 @@ resource "google_storage_bucket" "delivery_artifacts" {
   name                        = "delivery-artifacts-${var.team}-${var.project_id}"
   uniform_bucket_level_access = true
   location                    = var.region
-  force_destroy               = true
 }
 
 # Initialize cache with empty file

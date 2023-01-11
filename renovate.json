@@ -7,7 +7,7 @@
     "fileMatch": ["(^|/)requirements\\.in$"]
   },
   "constraints": {
-    "python": "~=3.10.0"
+    "python": "~=3.11.0"
   },
   "prConcurrentLimit":5,
   "stabilityDays":7,
@@ -26,5 +26,26 @@
   },
   "golang":{
     "addLabels": ["lang: go"]
-  }
+  },
+  "docker": {
+    "pinDigests": true
+  },
+  "kubernetes": {
+    "fileMatch": ["\\.yaml$"],
+    "ignorePaths": [
+      "dev-kubernetes-manifests/**",
+      "kubernetes-manifests/**"
+    ]
+  },
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "automerge": true
+    },
+    {
+      "matchDepTypes": ["devDependencies"],
+      "automerge": true
+    }
+  ],
+  "platformAutomerge":true
 }
