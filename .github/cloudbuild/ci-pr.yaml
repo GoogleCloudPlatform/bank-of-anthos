@@ -80,5 +80,5 @@ tags:
   - ci-pr
 artifacts:
   objects:
-    location: 'gs://$_CACHE_URI/pr$_PR_NUMBER/$SHORT_SHA/screenshots'
+    location: '$_CACHE_URI/pr$_PR_NUMBER/$SHORT_SHA/screenshots'
     paths: ['/workspace/screenshots']
