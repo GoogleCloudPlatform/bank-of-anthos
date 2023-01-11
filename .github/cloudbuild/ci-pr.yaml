@@ -78,7 +78,3 @@ options:
 tags:
   - pr$_PR_NUMBER
   - ci-pr
-artifacts:
-  objects:
-    location: '$_CACHE_URI/pr$_PR_NUMBER/$SHORT_SHA/screenshots'
-    paths: ['/workspace/screenshots']
