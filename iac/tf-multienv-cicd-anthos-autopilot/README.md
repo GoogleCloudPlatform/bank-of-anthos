@@ -82,7 +82,8 @@ Setting up the sample requires that you have a [Google Cloud Platform (GCP) proj
    
    echo '🙌  Deploying populate-db jobs for staging...'
    skaffold config set default-repo $REGION-docker.pkg.dev/$PROJECT_ID/bank-of-anthos
-   skaffold run --profile=init-db-staging
+   skaffold run --profile=init-db-staging --module=accounts-db
+   skaffold run --profile=init-db-staging --module=ledger-db
    
    echo '🕰  Wait for staging-db initialization to complete...'
    kubectl wait --for=condition=complete job/populate-accounts-db job/populate-ledger-db -n bank-of-anthos-staging --timeout=300s
@@ -92,11 +93,12 @@ Setting up the sample requires that you have a [Google Cloud Platform (GCP) proj
    echo '🔑  Getting cluster credentials...'
    gcloud container fleet memberships get-credentials production-membership
    
-   echo '🙌  Deploying populate-db jobs for staging...'
+   echo '🙌  Deploying populate-db jobs for production...'
    skaffold config set default-repo $REGION-docker.pkg.dev/$PROJECT_ID/bank-of-anthos
-   skaffold run --profile=init-db-production
+   skaffold run --profile=init-db-production --module=accounts-db
+   skaffold run --profile=init-db-production --module=ledger-db
 
-   echo '🕰  Wait for staging-db initialization to complete...'
+   echo '🕰  Wait for production-db initialization to complete...'
    kubectl wait --for=condition=complete job/populate-accounts-db job/populate-ledger-db -n bank-of-anthos-staging --timeout=300s
    ```
 
