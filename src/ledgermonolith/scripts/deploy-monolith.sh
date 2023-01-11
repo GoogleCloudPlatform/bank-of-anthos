@@ -62,7 +62,8 @@ echo "Creating GCE instance..."
 gcloud compute instances create ledgermonolith-service \
     --project $PROJECT_ID \
     --zone $ZONE \
-    --network default \
+    --network ${NETWORK=default} \
+    --subnet ${SUBNET=default} \
     --image-family=debian-10 \
     --image-project=debian-cloud \
     --machine-type=n1-standard-1 \
