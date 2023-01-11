@@ -27,5 +27,4 @@ requires:
   - userservice
   path: userservice/skaffold.yaml
 deploy:
-  kubectl: {}
   tolerateFailuresUntilDeadline: true
