@@ -77,6 +77,7 @@ resource "google_storage_bucket_iam_member" "build_cache" {
 # CI trigger configuration
 resource "google_cloudbuild_trigger" "ci-pr" {
   name = "pull-request-ci"
+  location = var.region
 
   github {
       owner = var.repo_owner
