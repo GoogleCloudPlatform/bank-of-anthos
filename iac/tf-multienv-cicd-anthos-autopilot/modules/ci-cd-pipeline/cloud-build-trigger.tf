@@ -15,6 +15,7 @@
 # CI trigger configuration
 resource "google_cloudbuild_trigger" "ci" {
   name = "${var.team}-ci"
+  location = var.region
 
   github {
       owner = var.repo_owner

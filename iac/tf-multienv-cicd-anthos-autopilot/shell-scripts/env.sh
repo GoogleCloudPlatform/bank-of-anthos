@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-export PROJECT_ID=bank-of-anthos-aablsk
-export REGION=europe-west1
-export ZONE=europe-west1-b
+export PROJECT_ID=$PROJECT_ID
+export REGION=$REGION
+export ZONE=$REGION-b
 export GITHUB_REPO_OWNER=aablsk
 export SYNC_BRANCH=private-clusters

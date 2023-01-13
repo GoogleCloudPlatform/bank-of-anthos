@@ -47,7 +47,7 @@ steps:
       - "--delivery-pipeline=$_TEAM"
       - "--build-artifacts=/workspace/artifacts.json"
       - "--skaffold-file=src/$_TEAM/skaffold.yaml"
-      - "--region=europe-west1"
+      - "--region=$LOCATION"
       - "--gcs-source-staging-dir=$_SOURCE_STAGING_BUCKET/$SHORT_SHA"
       - "--skaffold-version=skaffold_preview"
 options:
