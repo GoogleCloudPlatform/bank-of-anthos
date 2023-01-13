@@ -34,7 +34,7 @@ Setting up the sample requires that you have a [Google Cloud Platform (GCP) proj
 1. Create a GCP project and note the `PROJECT_ID`.
 1. Set up repository connection in Cloud Build
     1. Open Cloud Build in Cloud Console (enable API if needed).
-    1. Navigate to 'Triggers' and set Region to `global`.
+    1. Navigate to 'Triggers' and set Region to the region that you want to use for the bank of anthos deployment.
     1. Click `Manage Repositories`
     1. `CONNECT REPOSITORY` and follow the UI. Do NOT create a trigger.
 1. [OPTIONAL] If your GCP organization has the compute.vmExternalIpAccess constraint in place reset it on project level `gcloud org-policies reset constraints/compute.vmExternalIpAccess --project=$PROJECT_ID` 
