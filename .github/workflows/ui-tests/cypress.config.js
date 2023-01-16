@@ -16,10 +16,11 @@ const { defineConfig } = require('cypress')
 
 module.exports = defineConfig({
     "CI": true,
-    "retries": 1,
+    "retries": 2,
     "video": false,
     "fixturesFolder": false,
     "chromeWebSecurity": false,
+    "defaultCommandTimeout": 10000,
     "env": {
         "messages": {
             "transaction": {

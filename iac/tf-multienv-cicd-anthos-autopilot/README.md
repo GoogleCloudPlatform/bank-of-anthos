@@ -115,5 +115,17 @@ Setting up the sample requires that you have a [Google Cloud Platform (GCP) proj
    gcloud beta builds triggers run ledger-ci --branch $SYNC_BRANCH
    ```
 
+## Run the first deployment of the application manually as otherwise E2E tests will fail it
+1. Staging
+```bash
+   gcloud container fleet memberships get-credentials staging-membership
+   skaffold run -p staging
+```
+2. Production
+```bash
+   gcloud container fleet memberships get-credentials production-membership
+   skaffold run -p production
+```
+
 # Troubleshooting
 1. Sometimes `terraform apply` fails due to a timeout or race conditions from API-enablement. In that case simply run `terraform apply` again.
