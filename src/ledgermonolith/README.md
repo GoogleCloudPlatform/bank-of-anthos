@@ -6,14 +6,14 @@ Implemented in Java with Spring Boot and Guava.
 
 ### Endpoints
 
-| Endpoint                    | Type  | Auth? | Description                                                                   |
-| --------------------------- | ----- | ----- | ----------------------------------------------------------------------------- |
-| `/balances/<accountid>`     | GET   | 🔒    |  Get the account balance if owned by the currently authenticated user. |
-| `/healthy`                  | GET   |       |  Liveness probe endpoint. Monitors health of background thread.               |
-| `/ready`                    | GET   |       |  Readiness probe endpoint.                                                    |
-| `/transactions`             | POST  | 🔒    |  Submits a transaction to be appended to the ledger. |
-| `/transactions/<accountid>` | GET   | 🔒    |  Return the account transaction list if authenticated to access the account. |
-| `/version`                  | GET   |       |  Returns the contents of `$VERSION`                                           |
+| Endpoint                    | Type | Auth? | Description                                                                 |
+| --------------------------- | ---- | ----- | --------------------------------------------------------------------------- |
+| `/balances/<accountid>`     | GET  | 🔒    | Get the account balance if owned by the currently authenticated user.       |
+| `/healthy`                  | GET  |       | Liveness probe endpoint. Monitors health of background thread.              |
+| `/ready`                    | GET  |       | Readiness probe endpoint.                                                   |
+| `/transactions`             | POST | 🔒    | Submits a transaction to be appended to the ledger.                         |
+| `/transactions/<accountid>` | GET  | 🔒    | Return the account transaction list if authenticated to access the account. |
+| `/version`                  | GET  |       | Returns the contents of `$VERSION`                                          |
 
 ### Environment Variables
 
@@ -76,6 +76,8 @@ To deploy Bank of Anthos with a monolith service:
 # In the root directory of the project repo
 export PROJECT_ID=<your-project-id>
 export ZONE=<your-gcp-zone>
+make cluster && \
+make monolith-fw-rule && \
 make monolith
 ```
 
@@ -150,18 +152,17 @@ Cloud network that also has the `monolith` network tag.
 3. Create a VM instance on the monolith network - `default` - and add the network tag `monolith`.
 4. Click the `SSH` button on the instance after it has successfully started.
 5. Enter `curl ledgermonolith-service.c.[PROJECT_ID].internal:8080/version` in the shell prompt, replacing PROJECT_ID with your GCP project id.
-6. If you see a version string like `v0.1.0`, the ledgermonolith is correctly serving HTTP requests
-
+6. If you see a version string like `v#.#.#`, the ledgermonolith is correctly serving HTTP requests
 
 ## Running Bank of Anthos with the Monolith
 
 To run the full Bank of Anthos application you also need to configure and deploy
 the microservices that are not part of the ledgermonolith service.
-This directory (`src/ledgermonolith`) includes a custom `skaffold.yaml` file and
-associated manifests in the `kubernetes-manifests` directory.
-These will deploy the other supporting microservices (including the frontend),
-plus the accounts database. To deploy, run the following commands from this
-directory:
+This directory (`src/ledgermonolith`) includes a custom `config.yaml` file.
+The `config.yaml` along with the associated manifests in the `kubernetes-manifests`
+directory located in the repository's root folder will deploy the other supporting
+microservices (including the frontend), plus the accounts database.
+To deploy, run the following commands from this directory:
 
 1. Set environment variables
 
@@ -175,14 +176,35 @@ ZONE=<your-gcp-zone>
 
 ```
 gcloud container clusters create ${CLUSTER} \
-  --project=${PROJECT_ID} --zone=${ZONE} \
-  --machine-type=e2-standard-4 --num-nodes=4 \
-  --enable-stackdriver-kubernetes --subnetwork=default
+  --machine-type=e2-standard-4 \
+  --num-nodes=4 \
+  --project=${PROJECT_ID} \
+  --subnetwork=default \
+  --zone=${ZONE}
 ```
 
-3. Replace `[PROJECT_ID]` with your `$PROJECT_ID` in `src/ledgermonolith/config.yaml`.
+3. Create a firewall rule to allow the cluster to talk to the monolith.
 
-4. Run the following commands from the root of this repository, to deploy your custom config alongside the other Bank of Anthos services.
+```
+CLUSTER_POD_CIDR=$(gcloud container clusters describe ${CLUSTER} --format="value(clusterIpv4Cidr)" --project ${PROJECT_ID} --zone=${ZONE}) && \
+gcloud compute firewall-rules create monolith-gke-cluster \
+  --allow TCP:8080 \
+  --project=${PROJECT_ID} \
+  --source-ranges ${CLUSTER_POD_CIDR} \
+  --target-tags monolith
+```
+
+4. Replace `[PROJECT_ID]` with your `$PROJECT_ID` in `src/ledgermonolith/config.yaml`.
+
+5. Get credentials for the cluster
+
+```
+gcloud container clusters get-credentials ${CLUSTER} \
+  --project=${PROJECT_ID} \
+  --zone ${ZONE}
+```
+
+6. Run the following commands from the root of this repository, to deploy your custom config alongside the other Bank of Anthos services.
 
 ```
 kubectl apply -f src/ledgermonolith/config.yaml
@@ -193,4 +215,3 @@ kubectl apply -f kubernetes-manifests/contacts.yaml
 kubectl apply -f kubernetes-manifests/frontend.yaml
 kubectl apply -f kubernetes-manifests/loadgenerator.yaml
 ```
-
