@@ -34,12 +34,12 @@ Setting up the sample requires that you have a [Google Cloud Platform (GCP) proj
 1. Create a GCP project and note the `PROJECT_ID`.
 1. Set up repository connection in Cloud Build
     1. Open Cloud Build in Cloud Console (enable API if needed).
-    1. Navigate to 'Triggers' and set Region to the region that you want to use for the bank of anthos deployment.
+    1. Navigate to 'Triggers' and set Region to the region that you want to use for the Bank of Anthos deployment.
     1. Click `Manage Repositories`
     1. `CONNECT REPOSITORY` and follow the UI. Do NOT create a trigger.
 1. [OPTIONAL] If your GCP organization has the compute.vmExternalIpAccess constraint in place reset it on project level `gcloud org-policies reset constraints/compute.vmExternalIpAccess --project=$PROJECT_ID` 
 
-## Replace placeholder variables in Anthos Config Management configuration
+## Replace placeholder variables in Anthos Config Management configuration [ONLY NECESSARY FOR PROJECTS OTHER THAN bank-of-anthos-ci]
 1. Export `PROJECT_ID` and `REGION` as variables.
    ```bash
    export PROJECT_ID="YOUR_PROJECT_ID"
@@ -48,12 +48,12 @@ Setting up the sample requires that you have a [Google Cloud Platform (GCP) proj
 1. Replace all occurrences of `$PROJECT_ID` in `iac/acm-multienv-cicd-anthos-autopilot` with your noted `PROJECT_ID`.
    ```bash
    # run from repository root
-   find iac/acm-multienv-cicd-anthos-autopilot/* -type f -exec sed -i 's/$PROJECT_ID/'"$PROJECT_ID"'/g' {} +
+   find iac/acm-multienv-cicd-anthos-autopilot/* -type f -exec sed -i 's/bank-of-anthos-ci/'"$PROJECT_ID"'/g' {} +
    ```
 1. Replace all occurrences of `$REGION` in `iac/acm-multienv-cicd-anthos-autopilot` with your chosen `REGION`.
    ```bash
    # run from repository root
-   find iac/acm-multienv-cicd-anthos-autopilot/* -type f -exec sed -i 's/$REGION/'"$REGION"'/g' {} +
+   find iac/acm-multienv-cicd-anthos-autopilot/* -type f -exec sed -i 's/us-central1/'"$REGION"'/g' {} +
    ```
 1. Commit and push your changes to your repository.
    ```bash
@@ -64,7 +64,7 @@ Setting up the sample requires that you have a [Google Cloud Platform (GCP) proj
 ## Provision infrastructure with terraform
 1. Create a GCS bucket in your project to hold your terraform state. `gsutil mb gs://$YOUR_TF_STATE_GCS_BUCKET_NAME`
 1. Replace "YOUR_TF_STATE_GCS_BUCKET_NAME" in `iac/tf-multienv-cicd-anthos-autopilot/main.tf` with your chosen bucket name.
-1. Configure terraform variables in `iac/tf-multienv-cicd-anthos-autopilot/terraform.tfvars` - at a minimum replace `$PROJECT_ID` and `$REGION` with the same values you used for the ACM substitution.
+1. Configure terraform variables in `iac/tf-multienv-cicd-anthos-autopilot/terraform.tfvars` - at a minimum set `project_id` and `region` to the same values you used for the ACM substitution.
 1. Provision infrastructure with terraform.
    ```bash
    # run from iac/tf-multienv-cicd-anthos-autopilot
@@ -72,7 +72,7 @@ Setting up the sample requires that you have a [Google Cloud Platform (GCP) proj
    terraform apply
    ```
 1. Check terraform output and approve terraform apply.
-1. Wait for ASM to be provisioned on all clusters. Check the status with `gcloud container fleet mesh describe` and wait for all entries to be in `state: ACTIVE`. This might take between dozens of minutes.
+1. Wait for ASM to be provisioned on all clusters. Check the status with `gcloud container fleet mesh describe` and wait for all entries to be in `state: ACTIVE`. This will take dozens of minutes.
 
 ## Initialize CloudSQL databases with data (not ready in this PR due to dependencies on skaffold/kustomize configuration)
 1. Initialize `staging` CloudSQL database with data.
@@ -106,13 +106,13 @@ Setting up the sample requires that you have a [Google Cloud Platform (GCP) proj
 1. Execute CI/CD pipeline through Cloud Build triggers.
    ```bash
    echo '🌈  Triggering CI/CD for Frontend team'
-   gcloud beta builds triggers run frontend-ci --branch $SYNC_BRANCH
+   gcloud beta builds triggers run frontend-ci --branch $SYNC_BRANCH --region $REGION
 
    echo '😁  Triggering CI/CD for Accounts team'
-   gcloud beta builds triggers run accounts-ci --branch $SYNC_BRANCH
+   gcloud beta builds triggers run accounts-ci --branch $SYNC_BRANCH --region $REGION
 
    echo '📒  Triggering CI/CD for Ledger team'
-   gcloud beta builds triggers run ledger-ci --branch $SYNC_BRANCH
+   gcloud beta builds triggers run ledger-ci --branch $SYNC_BRANCH --region $REGION
    ```
 
 ## Run the first deployment of the application manually as otherwise E2E tests will fail it
