@@ -102,7 +102,7 @@ spec:
             port: 8080
           failureThreshold: 30
           periodSeconds: 10
-# [END gke_dev_kubernetes_manifests_balance_reader_deployment_balancereader]
+# [END gke_boa_kubernetes_manifests_balance_reader_deployment_balancereader]
 ---
 # [START gke_boa_kubernetes_manifests_balance_reader_service_balancereader]
 apiVersion: v1

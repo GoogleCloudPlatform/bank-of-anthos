@@ -91,7 +91,7 @@ spec:
             port: 8080
           failureThreshold: 30
           periodSeconds: 10
-# [END gke_dev_kubernetes_manifests_ledger_writer_deployment_ledgerwriter]
+# [END gke_boa_kubernetes_manifests_ledger_writer_deployment_ledgerwriter]
 ---
 # [START gke_boa_kubernetes_manifests_ledger_writer_service_ledgerwriter]
 apiVersion: v1

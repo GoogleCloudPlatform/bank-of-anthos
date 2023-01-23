@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START gke_dev_kubernetes_manifests_accounts_db_statefulset_accounts_db]
+# [START gke_boa_kubernetes_manifests_accounts_db_statefulset_accounts_db]
 kind: StatefulSet
 apiVersion: apps/v1
 metadata:
@@ -55,9 +55,9 @@ spec:
       volumes:
       - name: postgresdb
         emptyDir: {}
-# [END gke_dev_kubernetes_manifests_accounts_db_statefulset_accounts_db]
+# [END gke_boa_kubernetes_manifests_accounts_db_statefulset_accounts_db]
 ---
-# [START gke_dev_kubernetes_manifests_accounts_db_service_accounts_db]
+# [START gke_boa_kubernetes_manifests_accounts_db_service_accounts_db]
 apiVersion: v1
 kind: Service
 metadata:
@@ -71,4 +71,4 @@ spec:
       protocol: TCP
   selector:
     app: accounts-db
-# [END gke_dev_kubernetes_manifests_accounts_db_service_accounts_db]
+# [END gke_boa_kubernetes_manifests_accounts_db_service_accounts_db]

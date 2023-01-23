@@ -107,7 +107,7 @@ spec:
             port: 8080
           failureThreshold: 30
           periodSeconds: 10
-# [END gke_dev_kubernetes_manifests_transaction_history_deployment_transactionhistory]
+# [END gke_boa_kubernetes_manifests_transaction_history_deployment_transactionhistory]
 ---
 # [START gke_boa_kubernetes_manifests_transaction_history_service_transactionhistory]
 apiVersion: v1
