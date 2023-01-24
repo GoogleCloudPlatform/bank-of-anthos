@@ -9,7 +9,7 @@
   "constraints": {
     "python": "~=3.11.0"
   },
-  "prConcurrentLimit":5,
+  "prConcurrentLimit":10,
   "stabilityDays":7,
   "vulnerabilityAlerts":{
      "labels":[
