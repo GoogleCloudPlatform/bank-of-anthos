@@ -62,8 +62,8 @@ jobs:
         source /etc/profile.d/java.sh
         for SERVICE in "balancereader" "ledgerwriter" "transactionhistory"; do
           echo "checking $SERVICE..."
-          # save current working dir to memory and cd to src/$SERVICE
-          pushd src/$SERVICE
+          # save current working dir to memory and cd to src/ledger/$SERVICE
+          pushd src/ledger/$SERVICE
             mvn jacoco:report
             echo "Coverage for $SERVICE:"
             awk -F, \
@@ -80,8 +80,8 @@ jobs:
         set -x
         for SERVICE in "contacts" "userservice"; do
           echo "testing $SERVICE..."
-          # save current working dir to memory and cd to src/$SERVICE
-          pushd src/$SERVICE
+          # save current working dir to memory and cd to src/accounts/$SERVICE
+          pushd src/accounts/$SERVICE
             python3 -m venv $HOME/venv-$SERVICE
             source $HOME/venv-$SERVICE/bin/activate
             pip install --upgrade pip
@@ -96,8 +96,8 @@ jobs:
       run: |
         for SERVICE in "contacts" "userservice"; do
           echo "testing $SERVICE..."
-          # save current working dir to memory and cd to src/$SERVICE
-          pushd src/$SERVICE
+          # save current working dir to memory and cd to src/accounts/$SERVICE
+          pushd src/accounts/$SERVICE
             python3 -m venv $HOME/venv-$SERVICE
             source $HOME/venv-$SERVICE/bin/activate
             pip install --upgrade pip
@@ -135,7 +135,7 @@ jobs:
         EOF
         echo Deploying application
         skaffold config set --global local-cluster false
-        skaffold run --default-repo=gcr.io/$PROJECT_ID/refs/$PR_NUMBER --tag=$GITHUB_SHA --namespace=$NAMESPACE
+        skaffold run --default-repo=gcr.io/$PROJECT_ID/refs/$PR_NUMBER --tag=$GITHUB_SHA --namespace=$NAMESPACE --profile=development
       env:
         PR_NUMBER: ${{ github.event.pull_request.number }}
         PROJECT_ID: "bank-of-anthos-ci"
