@@ -28,12 +28,14 @@ requires:
 - configs:
   - loadgenerator
   path: src/loadgenerator/skaffold.yaml
+# [START gke_bank_of_anthos_skaffold_config_db]
 - configs:
   - accounts-db
   path: src/accounts/accounts-db/skaffold.yaml
 - configs:
   - ledger-db
   path: src/ledger/ledger-db/skaffold.yaml
+# [END gke_bank_of_anthos_skaffold_config_db]
 deploy:
   tolerateFailuresUntilDeadline: true
 profiles:
