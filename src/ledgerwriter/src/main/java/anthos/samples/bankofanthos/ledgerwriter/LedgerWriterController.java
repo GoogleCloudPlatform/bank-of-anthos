@@ -107,7 +107,7 @@ public final class LedgerWriterController {
      */
     @GetMapping("/version")
     public ResponseEntity version() {
-        return new ResponseEntity<String>(version, HttpStatus.OK);
+        return new ResponseEntity<>(version, HttpStatus.OK);
     }
 
     /**
@@ -118,7 +118,7 @@ public final class LedgerWriterController {
     @GetMapping("/ready")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<String> readiness() {
-        return new ResponseEntity<String>(READINESS_CODE, HttpStatus.OK);
+        return new ResponseEntity<>(READINESS_CODE, HttpStatus.OK);
     }
 
     /**
@@ -172,24 +172,24 @@ public final class LedgerWriterController {
             this.cache.put(transaction.getRequestUuid(),
                     transaction.getTransactionId());
             LOGGER.info("Submitted transaction successfully");
-            return new ResponseEntity<String>(READINESS_CODE,
+            return new ResponseEntity<>(READINESS_CODE,
                     HttpStatus.CREATED);
 
         } catch (JWTVerificationException e) {
             LOGGER.error("Failed to submit transaction: "
                 + "not authorized");
-            return new ResponseEntity<String>(UNAUTHORIZED_CODE,
+            return new ResponseEntity<>(UNAUTHORIZED_CODE,
                                               HttpStatus.UNAUTHORIZED);
         } catch (IllegalArgumentException | IllegalStateException e) {
             LOGGER.error("Failed to retrieve account balance: "
                 + "bad request");
-            return new ResponseEntity<String>(e.getMessage(),
+            return new ResponseEntity<>(e.getMessage(),
                                               HttpStatus.BAD_REQUEST);
         } catch (ResourceAccessException
                 | CannotCreateTransactionException
                 | HttpServerErrorException e) {
             LOGGER.error("Failed to retrieve account balance");
-            return new ResponseEntity<String>(e.getMessage(),
+            return new ResponseEntity<>(e.getMessage(),
                                               HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

@@ -186,7 +186,7 @@ public final class LedgerMonolithController {
      */
     @GetMapping("/version")
     public ResponseEntity version() {
-        return new ResponseEntity<String>(version, HttpStatus.OK);
+        return new ResponseEntity<>(version, HttpStatus.OK);
     }
 
     /**
@@ -197,7 +197,7 @@ public final class LedgerMonolithController {
     @GetMapping("/ready")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<String> readiness() {
-        return new ResponseEntity<String>(READINESS_CODE, HttpStatus.OK);
+        return new ResponseEntity<>(READINESS_CODE, HttpStatus.OK);
     }
 
       /**
@@ -210,10 +210,10 @@ public final class LedgerMonolithController {
         if (!ledgerReader.isAlive()) {
             // Background thread died.
             LOGGER.error("Ledger reader not healthy");
-            return new ResponseEntity<String>("Ledger reader not healthy",
+            return new ResponseEntity<>("Ledger reader not healthy",
                 HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<String>("ok", HttpStatus.OK);
+        return new ResponseEntity<>("ok", HttpStatus.OK);
     }
 
 
@@ -268,24 +268,24 @@ public final class LedgerMonolithController {
             this.ledgerWriterCache.put(transaction.getRequestUuid(),
                     transaction.getTransactionId());
             LOGGER.info("Submitted transaction successfully");
-            return new ResponseEntity<String>(READINESS_CODE,
+            return new ResponseEntity<>(READINESS_CODE,
                     HttpStatus.CREATED);
 
         } catch (JWTVerificationException e) {
             LOGGER.error("Failed to submit transaction: "
                 + "not authorized");
-            return new ResponseEntity<String>(UNAUTHORIZED_CODE,
+            return new ResponseEntity<>(UNAUTHORIZED_CODE,
                                               HttpStatus.UNAUTHORIZED);
         } catch (IllegalArgumentException | IllegalStateException e) {
             LOGGER.error("Failed to retrieve account balance: "
                 + "bad request");
-            return new ResponseEntity<String>(e.getMessage(),
+            return new ResponseEntity<>(e.getMessage(),
                                               HttpStatus.BAD_REQUEST);
         } catch (ResourceAccessException
                 | CannotCreateTransactionException
                 | HttpServerErrorException e) {
             LOGGER.error("Failed to retrieve account balance");
-            return new ResponseEntity<String>(e.getMessage(),
+            return new ResponseEntity<>(e.getMessage(),
                                               HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -297,7 +297,7 @@ public final class LedgerMonolithController {
      */
     protected Long getAvailableBalance(String accountId) {
         LOGGER.debug("Retrieving balance for transaction sender");
-        Long balance = new Long(-1);
+        Long balance = Long.valueOf(-1);
         try {
             AccountInfo info = ledgerReaderCache.get(accountId);
             balance = info.getBalance();
@@ -332,7 +332,7 @@ public final class LedgerMonolithController {
             if (!accountId.equals(jwt.getClaim("acct").asString())) {
                 LOGGER.error("Failed to retrieve account balance: "
                     + "not authorized");
-                return new ResponseEntity<String>("not authorized",
+                return new ResponseEntity<>("not authorized",
                     HttpStatus.UNAUTHORIZED);
             }
             // Load from cache
@@ -342,11 +342,11 @@ public final class LedgerMonolithController {
             return new ResponseEntity<Long>(balance, HttpStatus.OK);
         } catch (JWTVerificationException e) {
             LOGGER.error("Failed to retrieve account balance: not authorized");
-            return new ResponseEntity<String>("not authorized",
+            return new ResponseEntity<>("not authorized",
                 HttpStatus.UNAUTHORIZED);
         } catch (ExecutionException | UncheckedExecutionException e) {
             LOGGER.error("Cache error");
-            return new ResponseEntity<String>("Account cache error",
+            return new ResponseEntity<>("Account cache error",
                 HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -376,7 +376,7 @@ public final class LedgerMonolithController {
             if (!accountId.equals(jwt.getClaim("acct").asString())) {
                 LOGGER.error("Failed to retrieve account transactions: "
                     + "not authorized");
-                return new ResponseEntity<String>("not authorized",
+                return new ResponseEntity<>("not authorized",
                                                   HttpStatus.UNAUTHORIZED);
             }
 
@@ -399,11 +399,11 @@ public final class LedgerMonolithController {
         } catch (JWTVerificationException e) {
             LOGGER.error("Failed to retrieve account transactions: "
                 + "not authorized");
-            return new ResponseEntity<String>("not authorized",
+            return new ResponseEntity<>("not authorized",
                                               HttpStatus.UNAUTHORIZED);
         } catch (ExecutionException | UncheckedExecutionException e) {
             LOGGER.error("Cache error");
-            return new ResponseEntity<String>("cache error",
+            return new ResponseEntity<>("cache error",
                                               HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
