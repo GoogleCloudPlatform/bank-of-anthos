@@ -105,7 +105,7 @@ public final class BalanceReaderController {
      */
     @GetMapping("/version")
     public ResponseEntity version() {
-        return new ResponseEntity<String>(version, HttpStatus.OK);
+        return new ResponseEntity<>(version, HttpStatus.OK);
     }
 
     /**
@@ -129,10 +129,10 @@ public final class BalanceReaderController {
         if (!ledgerReader.isAlive()) {
             // Background thread died.
             LOGGER.error("Ledger reader not healthy");
-            return new ResponseEntity<String>("Ledger reader not healthy",
+            return new ResponseEntity<>("Ledger reader not healthy",
                 HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<String>("ok", HttpStatus.OK);
+        return new ResponseEntity<>("ok", HttpStatus.OK);
     }
 
     /**
@@ -158,7 +158,7 @@ public final class BalanceReaderController {
             if (!accountId.equals(jwt.getClaim("acct").asString())) {
                 LOGGER.error("Failed to retrieve account balance: "
                     + "not authorized");
-                return new ResponseEntity<String>("not authorized",
+                return new ResponseEntity<>("not authorized",
                     HttpStatus.UNAUTHORIZED);
             }
             // Load from cache
@@ -166,11 +166,11 @@ public final class BalanceReaderController {
             return new ResponseEntity<Long>(balance, HttpStatus.OK);
         } catch (JWTVerificationException e) {
             LOGGER.error("Failed to retrieve account balance: not authorized");
-            return new ResponseEntity<String>("not authorized",
+            return new ResponseEntity<>("not authorized",
                 HttpStatus.UNAUTHORIZED);
         } catch (ExecutionException | UncheckedExecutionException e) {
             LOGGER.error("Cache error");
-            return new ResponseEntity<String>("cache error",
+            return new ResponseEntity<>("cache error",
                 HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

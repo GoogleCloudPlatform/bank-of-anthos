@@ -125,7 +125,7 @@ public final class TransactionHistoryController {
      */
     @GetMapping("/version")
     public ResponseEntity version() {
-        return new ResponseEntity<String>(version, HttpStatus.OK);
+        return new ResponseEntity<>(version, HttpStatus.OK);
     }
 
     /**
@@ -149,10 +149,10 @@ public final class TransactionHistoryController {
         if (!ledgerReader.isAlive()) {
             // background thread died.
             LOGGER.error("Ledger reader not healthy");
-            return new ResponseEntity<String>("Ledger reader not healthy",
+            return new ResponseEntity<>("Ledger reader not healthy",
                                               HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<String>("ok", HttpStatus.OK);
+        return new ResponseEntity<>("ok", HttpStatus.OK);
     }
 
     /**
@@ -177,7 +177,7 @@ public final class TransactionHistoryController {
             if (!accountId.equals(jwt.getClaim("acct").asString())) {
                 LOGGER.error("Failed to retrieve account transactions: "
                     + "not authorized");
-                return new ResponseEntity<String>("not authorized",
+                return new ResponseEntity<>("not authorized",
                                                   HttpStatus.UNAUTHORIZED);
             }
 
@@ -199,11 +199,11 @@ public final class TransactionHistoryController {
         } catch (JWTVerificationException e) {
             LOGGER.error("Failed to retrieve account transactions: "
                 + "not authorized");
-            return new ResponseEntity<String>("not authorized",
+            return new ResponseEntity<>("not authorized",
                                               HttpStatus.UNAUTHORIZED);
         } catch (ExecutionException | UncheckedExecutionException e) {
             LOGGER.error("Cache error");
-            return new ResponseEntity<String>("cache error",
+            return new ResponseEntity<>("cache error",
                                               HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
