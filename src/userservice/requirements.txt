@@ -169,7 +169,7 @@ pycparser==2.21
     # via
     #   -r requirements.in
     #   cffi
-pycryptodome==3.16.0
+pycryptodome==3.17
     # via -r requirements.in
 pyjwt==2.6.0
     # via -r requirements.in
