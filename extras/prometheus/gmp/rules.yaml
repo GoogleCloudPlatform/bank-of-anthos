@@ -1,4 +1,4 @@
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ spec:
       expr: probe_success{job="balancereader-probe"} == 0
       for: 1m
       annotations:
-        summary: Balance Reader service is unavailable
+        summary: Balance Reader Service is unavailable
         description: Check Balance Reader pods and it's logs
       labels:
         severity: 'critical'
@@ -33,7 +33,7 @@ spec:
       expr: probe_success{job="contacts-probe"} == 0
       for: 1m
       annotations:
-        summary: Contacs service is unavailable
+        summary: Contacs Service is unavailable
         description: Check Contacs pods and it's logs
       labels:
         severity: 'warning'
@@ -41,7 +41,7 @@ spec:
       expr: probe_success{job="frontend-probe"} == 0
       for: 1m
       annotations:
-        summary: Frontend service is unavailable
+        summary: Frontend Service is unavailable
         description: Check Frontend pods and it's logs
       labels:
         severity: 'critical'
@@ -49,7 +49,7 @@ spec:
       expr: probe_success{job="ledgerwriter-probe"} == 0
       for: 1m
       annotations:
-        summary: Ledger Writer service is unavailable
+        summary: Ledger Writer Service is unavailable
         description: Check Ledger Writer pods and it's logs
       labels:
         severity: 'critical'
@@ -57,7 +57,7 @@ spec:
       expr: probe_success{job="transactionhistory-probe"} == 0
       for: 1m
       annotations:
-        summary: Transaction History service is unavailable
+        summary: Transaction History Service is unavailable
         description: Check Transaction History pods and it's logs
       labels:
         severity: 'critical'
