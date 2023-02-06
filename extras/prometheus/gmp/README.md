@@ -1,8 +1,8 @@
-# GMP on GKE cluster
+# Google Managed Prometheus (GMP) on a GKE cluster
 
-This directory contains files related to configuring probing of Bank of Anthos' microservices with GMP on GKE
+This directory contains files essential to setup liveness probes for Bank of Anthos' microservices running in GKE using GMP.
 
-* `blackbox-exporter.yaml` - Deployment manifest of [Blackbox exporter](https://github.com/prometheus/blackbox_exporter/)
-* `probes.yaml` - File contains GMP PodMonitoring custom resource which scrape metrics from Blackbox Exporter with configuration for each microservice.
-* `rules.yaml` - File contains GMP Rules custom resource
-* `alertmanager.yaml` - File contains configuration of Alertmanager to send notifications to Slack channel via Webhook URL.
+* `blackbox-exporter.yaml` - contains the Deployment definition of [Blackbox exporter](https://github.com/prometheus/blackbox_exporter/)
+* `probes.yaml` - contains the GMP PodMonitoring custom resource definitions per microservice. One monitoring configuration per microservice is defined to be run by the  Blackbox exporter.
+* `rules.yaml` - contains the GMP Rules custom resource definition.
+* `alertmanager.yaml` - contains configuration of Alertmanager to send notifications to Slack channel via Webhook URL.

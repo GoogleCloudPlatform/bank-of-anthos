@@ -1,8 +1,8 @@
-# OSS Prometheus on GKE cluster
+# OSS Prometheus on a GKE cluster
 
-This directory contains files related to configuring probing of Bank of Anthos' microservices with OSS Prometheus on GKE.
+This directory contains files essential to setup liveness probes for Bank of Anthos' microservices running in GKE using OSS Prometheus.
 
-* `values.yaml` - Configuration file to [OSS Prometheus helm chart](https://github.com/bitnami/charts/tree/main/bitnami/kube-prometheus)
-* `probes.yaml` - File contains Probe custom resource manifests for each microservice
-* `rules.yaml` - File contains PrometheusRule custom resource
+* `values.yaml` - contains the configurations for the [OSS Prometheus helm chart](https://github.com/bitnami/charts/tree/main/bitnami/kube-prometheus)
+* `probes.yaml` - contains the Probe custom resource definitions per microservice. One monitoring configuration per microservice is defined.
+* `rules.yaml` - contains the PrometheusRule custom resource definition.
 * `alertmanagerconfig.yaml` - File contain AlertmanagerConfig custom resource with configuration of Alertmanager to send notifications to Slack channel via Webhook URL.
