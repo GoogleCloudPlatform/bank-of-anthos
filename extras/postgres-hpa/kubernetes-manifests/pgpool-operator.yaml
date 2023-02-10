@@ -190,7 +190,7 @@ spec:
       serviceAccountName: pgpool-operator
       containers:
         - name: operator
-          image: python:3.11-bullseye@sha256:fdacba092f32da51119454b10f3ad303fb6eb4c6ae97ffccef42a0ee11f25daf
+          image: python:3.11-bullseye@sha256:e4248a1b459d730c6c4aa43d69624279e9e5561c35b8ce9361d87f804bb06ab5
           env:
           - name: NAMESPACE
             valueFrom:
