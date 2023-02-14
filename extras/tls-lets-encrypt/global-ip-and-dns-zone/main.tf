@@ -38,7 +38,7 @@ resource "google_compute_global_address" "default" {
 resource "google_dns_managed_zone" "default" {
   name        = var.name
   dns_name    = "${var.name}.${var.base_domin}."
-  description = "DNS Zone for Soup ot Nuts tutorial"
+  description = "DNS Zone for Soup to Nuts tutorial"
 }
 
 resource "google_dns_record_set" "a" {
