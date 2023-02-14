@@ -1,0 +1,127 @@
+# Copyright 2023 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+---
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: frontend-probe
+spec:
+  jobName: frontend
+  prober:
+    url: tutorial-kube-prometheus-blackbox-exporter:19115
+    path: /probe
+  module: http_2xx
+  interval: 60s
+  scrapeTimeout: 30s
+  targets:
+    staticConfig:
+      labels:
+        app: bank-of-anthos
+      static:
+        - frontend:80
+---
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: userservice-probe
+spec:
+  jobName: userservice
+  prober:
+    url: tutorial-kube-prometheus-blackbox-exporter:19115
+    path: /probe
+  module: http_2xx
+  interval: 60s
+  scrapeTimeout: 30s
+  targets:
+    staticConfig:
+      labels:
+        app: bank-of-anthos
+      static:
+        - userservice:8080/ready
+---
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: balancereader-probe
+spec:
+  jobName: balancereader
+  prober:
+    url: tutorial-kube-prometheus-blackbox-exporter:19115
+    path: /probe
+  module: http_2xx
+  interval: 60s
+  scrapeTimeout: 30s
+  targets:
+    staticConfig:
+      labels:
+        app: bank-of-anthos
+      static:
+        - balancereader:8080/ready
+---
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: contacts-probe
+spec:
+  jobName: contacts
+  prober:
+    url: tutorial-kube-prometheus-blackbox-exporter:19115
+    path: /probe
+  module: http_2xx
+  interval: 60s
+  scrapeTimeout: 30s
+  targets:
+    staticConfig:
+      labels:
+        app: bank-of-anthos
+      static:
+        - contacts:8080/ready
+---
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: ledgerwriter-probe
+spec:
+  jobName: ledgerwriter
+  prober:
+    url: tutorial-kube-prometheus-blackbox-exporter:19115
+    path: /probe
+  module: http_2xx
+  interval: 60s
+  scrapeTimeout: 30s
+  targets:
+    staticConfig:
+      labels:
+        app: bank-of-anthos
+      static:
+        - ledgerwriter:8080/ready
+---
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: transactionhistory-probe
+spec:
+  jobName: transactionhistory
+  prober:
+    url: tutorial-kube-prometheus-blackbox-exporter:19115
+    path: /probe
+  module: http_2xx
+  interval: 60s
+  scrapeTimeout: 30s
+  targets:
+    staticConfig:
+      labels:
+        app: bank-of-anthos
+      static:
+        - transactionhistory:8080/ready

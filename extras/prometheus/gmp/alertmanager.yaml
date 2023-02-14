@@ -1,0 +1,60 @@
+# Copyright 2023 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+global:
+  resolve_timeout: 1m
+
+route:
+  receiver: 'slack-notifications'
+  group_by: [alertname, job, app]
+
+receivers:
+- name: 'slack-notifications'
+  slack_configs:
+  - api_url: SLACK_WEBHOOK_URL
+    send_resolved: true
+    title: |
+      [{{ .Status | toUpper -}}
+      {{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{- end -}}
+      ] {{ .CommonLabels.alertname }}
+    text: |
+      {{- if eq .CommonLabels.severity "critical" -}}
+      *Severity:* `Critical` :red_circle:
+      {{- else if eq .CommonLabels.severity "warning" -}}
+      *Severity:* `Warning` :warning:
+      {{- else if eq .CommonLabels.severity "info" -}}
+      *Severity:* `Info` :information_source:
+      {{- else -}}
+      *Severity:* `Unknown` :interrobang: {{ .CommonLabels.severity }}
+      {{- end }}
+      {{- if (index .Alerts 0).Annotations.summary }}
+      {{- "\n" -}}
+      *Summary:* {{ (index .Alerts 0).Annotations.summary }}
+      {{- end }}
+      {{- if (index .Alerts 0).Labels.namespace }}
+      {{- "\n" -}}
+      *Namespace:* `{{ (index .Alerts 0).Labels.namespace }}`
+      {{- end }}
+      {{ range .Alerts }}
+          {{- if .Annotations.description }}
+          {{- "\n" -}}
+          {{ .Annotations.description }}
+          {{- "\n" -}}
+          {{- end }}
+          {{- if .Annotations.message }}
+          {{- "\n" -}}
+          {{ .Annotations.message }}
+          {{- "\n" -}}
+          {{- end }}
+      {{- end }}
+    color: '{{ if eq .Status "firing" -}}{{ if eq .CommonLabels.severity "warning" -}}warning{{- else if eq .CommonLabels.severity "critical" -}}danger{{- else -}}#439FE0{{- end -}}{{ else -}}good{{- end }}'
