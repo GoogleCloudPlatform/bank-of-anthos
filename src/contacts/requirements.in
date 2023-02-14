@@ -47,6 +47,6 @@ sqlalchemy==1.4.46
 urllib3==1.26.14
 wcwidth==0.2.6
 webencodings==0.5.1
-werkzeug==2.2.2
+werkzeug==2.2.3
 wrapt==1.14.1
 zipp==3.13.0
