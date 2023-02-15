@@ -18,7 +18,7 @@ cryptography==39.0.1
     # via -r requirements.in
 deprecated==1.2.13
     # via opentelemetry-api
-flask==2.2.2
+flask==2.2.3
     # via -r requirements.in
 google-api-core[grpc]==2.11.0
     # via google-cloud-trace
