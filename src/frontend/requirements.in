@@ -1,4 +1,4 @@
-flask==2.2.2
+flask==2.2.3
 requests==2.28.2
 urllib3==1.26.14
 pyjwt==2.6.0
