@@ -198,7 +198,7 @@ six==1.16.0
     #   google-auth
 sqlalchemy==1.4.46
     # via -r requirements.in
-typing-extensions==4.4.0
+typing-extensions==4.5.0
     # via opentelemetry-sdk
 urllib3==1.26.14
     # via
