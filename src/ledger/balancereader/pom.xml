@@ -43,7 +43,7 @@
             <dependency>
                 <groupId>com.google.cloud</groupId>
                 <artifactId>spring-cloud-gcp-dependencies</artifactId>
-                <version>4.0.0</version>
+                <version>4.1.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -57,14 +57,14 @@
             <dependency>
                 <groupId>com.google.cloud</groupId>
                 <artifactId>libraries-bom</artifactId>
-                <version>26.6.0</version>
+                <version>26.8.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>io.micrometer</groupId>
                 <artifactId>micrometer-bom</artifactId>
-                <version>1.10.3</version>
+                <version>1.10.4</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -95,7 +95,7 @@
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-stackdriver</artifactId>
-            <version>1.10.3</version>
+            <version>1.10.4</version>
             <exclusions>
                 <exclusion>
                     <groupId>ch.qos.logback</groupId>
@@ -149,7 +149,7 @@
         <dependency>
             <groupId>com.auth0</groupId>
             <artifactId>java-jwt</artifactId>
-            <version>4.2.2</version>
+            <version>4.3.0</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>

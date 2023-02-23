@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # Use the official Python docker container, slim version, running Debian
-FROM python:3.11.1-slim@sha256:1591aa8c01b5b37ab31dbe5662c5bdcf40c2f1bce4ef1c1fd24802dae3d01052 as base
+FROM python:3.11.2-slim@sha256:d36b86a6a56b7376171651de411cb7393d2f02841c149665c2ddff4c0f322855 as base
 
 FROM base as builder
 
