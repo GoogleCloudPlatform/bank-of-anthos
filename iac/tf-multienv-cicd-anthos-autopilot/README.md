@@ -57,6 +57,7 @@ Setting up the sample requires that you have a [Google Cloud Platform (GCP) proj
    ```
 1. Commit and push your changes to your repository.
    ```bash
+   git add .
    git commit -m "substitute $PROJECT_ID and $REGION references in ACM config"
    git push
    ```
