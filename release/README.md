@@ -108,6 +108,16 @@ kubectl delete -f kubernetes-manifests
 kubectl apply -f ./kubernetes-manifests
 ```
 
+## Update the ledgermonolith bucket
+
+If changes has been made to the ledgermonolith, the artifacts need to be built and pushed to the GCS bucket:
+```
+export PROJECT_ID=bank-of-anthos-ci
+export GCS_BUCKET=bank-of-anthos-ci
+export ZONE=us-central1-c
+make monolith-build
+```
+
 ## Announce the new release internally
 
 Once the new release is out, you can now announce it via [g/bank-of-anthos-announce](https://groups.google.com/a/google.com/g/bank-of-anthos-announce).
