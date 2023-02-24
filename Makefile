@@ -33,6 +33,10 @@ deploy-continuous: check-env
 	gcloud container clusters get-credentials --project ${PROJECT_ID} ${CLUSTER} --zone ${ZONE}
 	skaffold dev --default-repo=gcr.io/${PROJECT_ID}
 
+monolith-fw-rule: check-env
+	export CLUSTER_POD_CIDR="$(shell gcloud container clusters describe ${CLUSTER} --format="value(clusterIpv4Cidr)" --project ${PROJECT_ID} --zone=${ZONE})" && \
+	gcloud compute firewall-rules create monolith-gke-cluster --allow=TCP:8080 --project=${PROJECT_ID} --source-ranges=$${CLUSTER_POD_CIDR} --target-tags=monolith
+
 monolith: check-env
 ifndef GCS_BUCKET
 	# GCS_BUCKET is undefined
@@ -42,8 +46,15 @@ endif
 	mvn -f src/ledgermonolith/ package
 	src/ledgermonolith/scripts/build-artifacts.sh
 	src/ledgermonolith/scripts/deploy-monolith.sh
-	(cd src/ledgermonolith/kubernetes-manifests; sed 's/\[PROJECT_ID\]/${PROJECT_ID}/g' config.yaml.template > config.yaml)
-	(cd src/ledgermonolith; skaffold run --default-repo=gcr.io/${PROJECT_ID} -l skaffold.dev/run-id=${CLUSTER}-${PROJECT_ID}-${ZONE})
+	sed -i 's/\[PROJECT_ID\]/${PROJECT_ID}/g' src/ledgermonolith/config.yaml
+	gcloud container clusters get-credentials --project ${PROJECT_ID} ${CLUSTER} --zone ${ZONE}
+	kubectl apply -f src/ledgermonolith/config.yaml
+	kubectl apply -f extras/jwt/jwt-secret.yaml
+	kubectl apply -f kubernetes-manifests/accounts-db.yaml
+	kubectl apply -f kubernetes-manifests/userservice.yaml
+	kubectl apply -f kubernetes-manifests/contacts.yaml
+	kubectl apply -f kubernetes-manifests/frontend.yaml
+	kubectl apply -f kubernetes-manifests/loadgenerator.yaml
 
 monolith-build: check-env
 ifndef GCS_BUCKET
