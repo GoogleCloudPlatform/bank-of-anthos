@@ -68,7 +68,7 @@ spec:
               - all
           privileged: false
           readOnlyRootFilesystem: true
-        image: gcr.io/bank-of-anthos-ci/loadgenerator:v0.5.9
+        image: gcr.io/bank-of-anthos-ci/loadgenerator:v0.5.9@sha256:57ca216a8804803a098a82fd3e0e782c84f10277efd9e7f04b30e8ffac5d6afd
         command: [locust, "--autostart"]
         envFrom:
         - configMapRef:

@@ -51,7 +51,7 @@ spec:
               - all
           privileged: false
           readOnlyRootFilesystem: true
-        image: gcr.io/bank-of-anthos-ci/userservice:v0.5.9
+        image: gcr.io/bank-of-anthos-ci/userservice:v0.5.9@sha256:986711b88f812a1a78a7b722c02b2d7186a20b5ae834d145a92984f78ba57308
         volumeMounts:
         - name: keys
           mountPath: "/tmp/.ssh"
