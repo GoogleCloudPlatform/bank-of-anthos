@@ -42,7 +42,7 @@ spec:
               - all
           privileged: false
           readOnlyRootFilesystem: true
-        image: gcr.io/bank-of-anthos-ci/ledgerwriter:v0.5.9
+        image: gcr.io/bank-of-anthos-ci/ledgerwriter:v0.5.9@sha256:8ef6b8b7b8b0125da62dbf837aee4f4507831455c7fabc33b345d486bc51eece
         volumeMounts:
         - name: publickey
           mountPath: "/tmp/.ssh"
