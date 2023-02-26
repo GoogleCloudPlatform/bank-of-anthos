@@ -97,7 +97,7 @@ spec:
           limits:
             cpu: "200m"
             memory: "100Mi"
-        image: gcr.io/cloudsql-docker/gce-proxy:1.33.1@sha256:7f53fe219f6815e275301561e2f8819e59e38eca5a93de644a287452f841fab7
+        image: gcr.io/cloudsql-docker/gce-proxy:1.33.4@sha256:ccfd39864aa384aa9905910fd380e9e7cbc92fc4f3148ec5917635fbfca42ba2
         env:
         - name: CONNECTION_NAME
           valueFrom:
