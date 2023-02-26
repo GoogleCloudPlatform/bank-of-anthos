@@ -51,7 +51,7 @@ spec:
               - all
           privileged: false
           readOnlyRootFilesystem: true
-        image: gcr.io/bank-of-anthos-ci/frontend:v0.5.9@sha256:29203c7b503f0931ed95a4b9c12b1d62f7150d765e0eb2712882a7289862e868
+        image: gcr.io/bank-of-anthos-ci/frontend:v0.5.11@sha256:db94f51b613214d8999bbd2318a4ccad54f44fea319da55f17d80186424df646
         imagePullPolicy: Always
         volumeMounts:
         - name: publickey
