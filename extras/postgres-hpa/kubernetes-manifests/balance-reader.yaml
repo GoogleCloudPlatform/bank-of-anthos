@@ -42,7 +42,7 @@ spec:
               - all
           privileged: false
           readOnlyRootFilesystem: true
-        image: gcr.io/bank-of-anthos-ci/balancereader:v0.5.9@sha256:77159821ce176074bf9d2c0434f0722463cf7a3d5789381e052acb182cecce3b
+        image: gcr.io/bank-of-anthos-ci/balancereader:v0.5.11@sha256:4d48c9ab8abe3da595f5f11005045068dcb9068deb42e04c06c9f7b15c96e89b
         volumeMounts:
         - name: publickey
           mountPath: "/tmp/.ssh"
