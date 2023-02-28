@@ -18,28 +18,29 @@ resource "google_clouddeploy_target" "targets" {
   for_each = toset(var.targets)
 
   project  = var.project_id
-  name     = "${each.value}-${var.team}"
+  name     = "${each.value}-${local.service_name}"
   location = var.region
 
   anthos_cluster {
     membership = var.cluster_memberships[each.key].id
   }
 
-  execution_configs{
-      artifact_storage = "gs://${google_storage_bucket.delivery_artifacts.name}"
-      service_account = google_service_account.cloud_deploy.email
-      usages = [
-          "RENDER",
-          "DEPLOY",
-          "VERIFY"
-      ]
+  execution_configs {
+    artifact_storage = "gs://${google_storage_bucket.delivery_artifacts.name}"
+    service_account  = google_service_account.cloud_deploy.email
+    usages = [
+      "RENDER",
+      "DEPLOY",
+      "VERIFY"
+    ]
   }
 }
 
-# create delivery pipeline for team including all targets
+# create delivery pipeline for service including all targets
 resource "google_clouddeploy_delivery_pipeline" "delivery-pipeline" {
+  project  = var.project_id
   location = var.region
-  name     = var.team
+  name     = var.service
   serial_pipeline {
     dynamic "stages" {
       for_each = { for idx, target in var.targets : idx => target }

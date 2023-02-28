@@ -13,11 +13,11 @@
 # limitations under the License.
 
 locals {
-  teams = ["frontend", "accounts", "ledger"] # List of team names as string
-  targets = ["staging", "production"] # List of targets for delivery in order of deployment stages
-  application_name = "bank-of-anthos" # used for naming of resources
-  cluster_names    = toset(["development", "staging", "production"]) # used to create network configuration below
-  network_name     = "shared-gke" # VPC containing resources will be given this name
+  services         = ["frontend", "accounts/contacts", "accounts/userservice", "ledger/balancereader", "ledger/ledgerwriter", "ledger/transactionhistory"] # List of service paths as string
+  targets          = ["staging", "production"]                                                                                                             # List of targets for delivery in order of deployment stages
+  application_name = "bank-of-anthos"                                                                                                                      # used for naming of resources
+  cluster_names    = toset(["development", "staging", "production"])                                                                                       # used to create network configuration below
+  network_name     = "shared-gke"                                                                                                                          # VPC containing resources will be given this name
   network = { for name in local.cluster_names : name =>
     {
       subnetwork              = "${name}-gke-subnet"
@@ -30,8 +30,8 @@ locals {
     "staging"     = google_gke_hub_membership.staging
     "production"  = google_gke_hub_membership.production
   }
-  sync_repo_url    = "https://www.github.com/${var.repo_owner}/${var.sync_repo}" # repository containing source
-  cloud_build_sas  = [for team in local.teams : module.ci-cd-pipeline[team].cloud_build_sa] # cloud build service accounts used for CI
-  cloud_deploy_sas = [for team in local.teams : module.ci-cd-pipeline[team].cloud_deploy_sa] # cloud build service accounts used for CD
-  cache_filename = "cache"
+  sync_repo_url    = "https://www.github.com/${var.repo_owner}/${var.sync_repo}"                      # repository containing source
+  cloud_build_sas  = [for service in local.services : module.ci-cd-pipeline[service].cloud_build_sa]  # cloud build service accounts used for CI
+  cloud_deploy_sas = [for service in local.services : module.ci-cd-pipeline[service].cloud_deploy_sa] # cloud build service accounts used for CD
+  cache_filename   = "cache"
 }

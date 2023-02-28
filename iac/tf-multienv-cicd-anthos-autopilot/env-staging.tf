@@ -24,14 +24,14 @@ provider "kubernetes" {
 module "gke_staging" {
   source = "terraform-google-modules/kubernetes-engine/google//modules/beta-autopilot-private-cluster"
 
-  project_id        = var.project_id
-  name              = "staging"
-  regional          = true
-  region            = var.region
-  network           = local.network_name
-  subnetwork        = local.network.staging.subnetwork
-  ip_range_pods     = local.network.staging.ip_range_pods
-  ip_range_services = local.network.staging.ip_range_services
+  project_id              = var.project_id
+  name                    = "staging"
+  regional                = true
+  region                  = var.region
+  network                 = local.network_name
+  subnetwork              = local.network.staging.subnetwork
+  ip_range_pods           = local.network.staging.ip_range_pods
+  ip_range_services       = local.network.staging.ip_range_services
   enable_private_nodes    = true
   enable_private_endpoint = true
   master_authorized_networks = [{
@@ -120,46 +120,35 @@ resource "google_gke_hub_membership" "staging" {
 }
 
 # configure ASM for staging GKE cluster
-module "asm-staging" {
-  source = "terraform-google-modules/gcloud/google"
+resource "google_gke_hub_feature_membership" "asm_staging" {
+  project  = var.project_id
+  location = "global"
 
-  platform = "linux"
-
-  create_cmd_entrypoint  = "gcloud"
-  create_cmd_body        = "container fleet mesh update --management automatic --memberships ${google_gke_hub_membership.staging.membership_id} --project ${var.project_id}"
-  destroy_cmd_entrypoint = "gcloud"
-  destroy_cmd_body       = "container fleet mesh update --management manual --memberships ${google_gke_hub_membership.staging.membership_id} --project ${var.project_id}"
-}
-
-
-# configure kubernetes provider for private cluster through anthos connect
-provider "kubernetes" {
-  alias = "staging_anthos_connect"
-  host  = "https://connectgateway.googleapis.com/v1/projects/${data.google_project.project.number}/locations/global/gkeMemberships/${google_gke_hub_membership.staging.membership_id}"
-  token = data.google_client_config.default.access_token
-  ignore_labels = ["wait_for_${google_gke_hub_membership.staging.id}"] # workaround as provider does not support depends_on 🤷
+  feature    = google_gke_hub_feature.asm.name
+  membership = google_gke_hub_membership.staging.membership_id
+  mesh {
+    management = "MANAGEMENT_AUTOMATIC"
+  }
+  provider = google-beta
 }
 
 # configure ACM for staging GKE cluster
-module "acm-staging" {
-  source = "terraform-google-modules/kubernetes-engine/google//modules/acm"
+resource "google_gke_hub_feature_membership" "acm_staging" {
+  project  = var.project_id
+  location = "global"
 
-  project_id                = var.project_id
-  cluster_name              = module.gke_staging.name
-  cluster_membership_id     = "staging-membership"
-  location                  = module.gke_staging.location
-  sync_repo                 = local.sync_repo_url
-  sync_branch               = var.sync_branch
-  enable_fleet_feature      = false
-  enable_fleet_registration = false
-  policy_dir                = "iac/acm-multienv-cicd-anthos-autopilot/overlays/staging"
-  source_format             = "unstructured"
-
-  depends_on = [
-    module.asm-staging
-  ]
-
-  providers = {
-    kubernetes = kubernetes.staging_anthos_connect
+  feature    = google_gke_hub_feature.acm.name
+  membership = google_gke_hub_membership.staging.membership_id
+  configmanagement {
+    config_sync {
+      git {
+        sync_repo   = local.sync_repo_url
+        sync_branch = var.sync_branch
+        policy_dir  = "iac/acm-multienv-cicd-anthos-autopilot/overlays/staging"
+        secret_type = "none"
+      }
+      source_format = "unstructured"
+    }
   }
+  provider = google-beta
 }

@@ -17,14 +17,14 @@ module "ci-cd-pipeline" {
   source = "./modules/ci-cd-pipeline"
 
   # create CICD pipeline per team
-  for_each = toset(local.teams)
+  for_each = toset(local.services)
 
   project_id = var.project_id
   region = var.region
   container_registry = google_artifact_registry_repository.container_registry
   repo_owner = var.repo_owner
   repo_name = var.sync_repo
-  team = each.value
+  service = each.value
   cluster_memberships = local.cluster_memberships
   targets = local.targets
   repo_branch = var.sync_branch

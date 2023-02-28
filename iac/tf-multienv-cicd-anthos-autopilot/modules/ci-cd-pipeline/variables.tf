@@ -41,9 +41,9 @@ variable "repo_name" {
     description = "Name of the repo that contains source."
 }
 
-variable "team" {
+variable "service" {
     type = string
-    description = "Name of the team"
+    description = "Path of the service"
 }
 
 variable "targets" {

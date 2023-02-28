@@ -120,48 +120,37 @@ resource "google_gke_hub_membership" "production" {
 }
 
 # configure ASM for production GKE cluster
-module "asm-production" {
-  source = "terraform-google-modules/gcloud/google"
+resource "google_gke_hub_feature_membership" "asm_production" {
+  project  = var.project_id
+  location = "global"
 
-  platform = "linux"
-
-  create_cmd_entrypoint  = "gcloud"
-  create_cmd_body        = "container fleet mesh update --management automatic --memberships ${google_gke_hub_membership.production.membership_id} --project ${var.project_id}"
-  destroy_cmd_entrypoint = "gcloud"
-  destroy_cmd_body       = "container fleet mesh update --management manual --memberships ${google_gke_hub_membership.production.membership_id} --project ${var.project_id}"
-}
-
-
-# configure kubernetes provider for private cluster through anthos connect
-provider "kubernetes" {
-  alias         = "production_anthos_connect"
-  host          = "https://connectgateway.googleapis.com/v1/projects/${data.google_project.project.number}/locations/global/gkeMemberships/${google_gke_hub_membership.production.membership_id}"
-  token         = data.google_client_config.default.access_token
-  ignore_labels = ["wait_for_${google_gke_hub_membership.production.id}"] # workaround as provider does not support depends_on 🤷 
+  feature    = google_gke_hub_feature.asm.name
+  membership = google_gke_hub_membership.production.membership_id
+  mesh {
+    management = "MANAGEMENT_AUTOMATIC"
+  }
+  provider = google-beta
 }
 
 # configure ACM for production GKE cluster
-module "acm-production" {
-  source = "terraform-google-modules/kubernetes-engine/google//modules/acm"
+resource "google_gke_hub_feature_membership" "acm_production" {
+  project  = var.project_id
+  location = "global"
 
-  project_id                = var.project_id
-  cluster_name              = module.gke_production.name
-  cluster_membership_id     = "production-membership"
-  location                  = module.gke_production.location
-  sync_repo                 = local.sync_repo_url
-  sync_branch               = var.sync_branch
-  enable_fleet_feature      = false
-  enable_fleet_registration = false
-  policy_dir                = "iac/acm-multienv-cicd-anthos-autopilot/overlays/production"
-  source_format             = "unstructured"
-
-  depends_on = [
-    module.asm-production
-  ]
-
-  providers = {
-    kubernetes = kubernetes.production_anthos_connect
+  feature    = google_gke_hub_feature.acm.name
+  membership = google_gke_hub_membership.production.membership_id
+  configmanagement {
+    config_sync {
+      git {
+        sync_repo   = local.sync_repo_url
+        sync_branch = var.sync_branch
+        policy_dir  = "iac/acm-multienv-cicd-anthos-autopilot/overlays/production"
+        secret_type = "none"
+      }
+      source_format = "unstructured"
+    }
   }
+  provider = google-beta
 }
 
 resource "google_compute_global_address" "production_ip" {

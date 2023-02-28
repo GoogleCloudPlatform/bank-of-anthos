@@ -13,7 +13,7 @@
 # limitations under the License.
 project_id = "boa-aablsk-delivery-refactor"
 region = "europe-west1"
-zone = "europe-west1-a"
+zone = "europe-west1-b"
 
 repo_owner = "aablsk"
 sync_repo = "bank-of-anthos"
