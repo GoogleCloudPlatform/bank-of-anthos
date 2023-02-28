@@ -37,7 +37,7 @@ steps:
     args: ['cp', $_CACHE_URI, '/workspace/cache']
     timeout: 120s
   - name: gcr.io/k8s-skaffold/skaffold:v2.1.0 # build images with skaffold
-    args: ['MAVEN_USER_HOME=$MAVEN_USER_HOME', 'skaffold', 'build', '--file-output=/workspace/artifacts.json', '--default-repo=$_CONTAINER_REGISTRY', '--cache-file=/workspace/$_CACHE', '--profile=development'] # set _CACHE to anything other than "cache" e.g. "no-cache" to reset skaffold cache
+    args: ['skaffold', 'build', '--file-output=/workspace/artifacts.json', '--default-repo=$_CONTAINER_REGISTRY', '--cache-file=/workspace/$_CACHE', '--profile=development'] # set _CACHE to anything other than "cache" e.g. "no-cache" to reset skaffold cache
   - name: gcr.io/cloud-builders/gsutil # upload skaffold build cache
     args: ['cp', '/workspace/$_CACHE',  $_CACHE_URI]
     timeout: 120s
@@ -45,7 +45,7 @@ steps:
     script: |
       #!/bin/bash
       apt-get update && apt-get -y install python3-venv && python3 -m venv $HOME/venv-python-tests && . $HOME/venv-python-tests/bin/activate
-      MAVEN_USER_HOME=$MAVEN_USER_HOME skaffold test --build-artifacts=/workspace/artifacts.json --filename=skaffold.yaml --assume-yes --profile=development
+      skaffold test --build-artifacts=/workspace/artifacts.json --filename=skaffold.yaml --assume-yes --profile=development
   - name: gcr.io/cloud-builders/gcloud
     args: ['iam', 'service-accounts', 'add-iam-policy-binding', 'gke-workload-development@$PROJECT_ID.iam.gserviceaccount.com', '--role=roles/iam.workloadIdentityUser', '--member=serviceAccount:$PROJECT_ID.svc.id.goog[pr$_PR_NUMBER/bank-of-anthos]']
   - name: gcr.io/k8s-skaffold/skaffold:v2.1.0 # deploy to pr-namespace with skaffold
@@ -53,7 +53,7 @@ steps:
       #!/bin/bash
       gcloud container fleet memberships get-credentials development-membership
       kubectl create namespace $NAMESPACE
-      MAVEN_USER_HOME=$MAVEN_USER_HOME skaffold deploy --namespace=$NAMESPACE --build-artifacts=/workspace/artifacts.json --filename=skaffold.yaml --assume-yes --profile=development
+      skaffold deploy --namespace=$NAMESPACE --build-artifacts=/workspace/artifacts.json --filename=skaffold.yaml --assume-yes --profile=development
   - name: gcr.io/k8s-skaffold/skaffold:v2.1.0 # run verification/e2e tests with skaffold
     script: |
       #!/bin/bash
@@ -69,7 +69,6 @@ steps:
 options:
   logging: CLOUD_LOGGING_ONLY
   env:
-    - "MAVEN_USER_HOME=/workspace/.m2"
     - "NAMESPACE=pr$_PR_NUMBER"
     - "GOPATH=/workspace/go"
   machineType: 'E2_HIGHCPU_8'
