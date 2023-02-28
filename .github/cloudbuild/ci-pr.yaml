@@ -33,30 +33,30 @@ steps:
         exit 1
       fi
     timeout: 120s
-  - name: gcr.io/k8s-skaffold/skaffold:v2.0.3-lts # workaround for skaffold bug
+  - name: gcr.io/k8s-skaffold/skaffold:v2.1.0 # workaround for skaffold bug
     script: MAVEN_USER_HOME=$MAVEN_USER_HOME /workspace/mvnw jib:_skaffold-fail-if-jib-out-of-date -Djib.requiredVersion=1.4.0 --projects src/ledger/balancereader --also-make jib:_skaffold-files-v2 --batch-mode
   - name: gcr.io/cloud-builders/gsutil # get skaffold build cache
     args: ['cp', $_CACHE_URI, '/workspace/cache']
     timeout: 120s
-  - name: gcr.io/k8s-skaffold/skaffold:v2.0.3-lts # build images with skaffold
+  - name: gcr.io/k8s-skaffold/skaffold:v2.1.0 # build images with skaffold
     args: ['MAVEN_USER_HOME=$MAVEN_USER_HOME', 'skaffold', 'build', '--file-output=/workspace/artifacts.json', '--default-repo=$_CONTAINER_REGISTRY', '--cache-file=/workspace/$_CACHE', '--profile=development'] # set _CACHE to anything other than "cache" e.g. "no-cache" to reset skaffold cache
   - name: gcr.io/cloud-builders/gsutil # upload skaffold build cache
     args: ['cp', '/workspace/$_CACHE',  $_CACHE_URI]
     timeout: 120s
-  - name: gcr.io/k8s-skaffold/skaffold:v2.0.3-lts # run tests with skaffold
+  - name: gcr.io/k8s-skaffold/skaffold:v2.1.0 # run tests with skaffold
     script: |
       #!/bin/bash
       apt-get update && apt-get -y install python3-venv && python3 -m venv $HOME/venv-python-tests && . $HOME/venv-python-tests/bin/activate
       MAVEN_USER_HOME=$MAVEN_USER_HOME skaffold test --build-artifacts=/workspace/artifacts.json --filename=skaffold.yaml --assume-yes --profile=development
   - name: gcr.io/cloud-builders/gcloud
     args: ['iam', 'service-accounts', 'add-iam-policy-binding', 'gke-workload-development@$PROJECT_ID.iam.gserviceaccount.com', '--role=roles/iam.workloadIdentityUser', '--member=serviceAccount:$PROJECT_ID.svc.id.goog[pr$_PR_NUMBER/bank-of-anthos]']
-  - name: gcr.io/k8s-skaffold/skaffold:v2.0.3-lts # deploy to pr-namespace with skaffold
+  - name: gcr.io/k8s-skaffold/skaffold:v2.1.0 # deploy to pr-namespace with skaffold
     script: |
       #!/bin/bash
       gcloud container fleet memberships get-credentials development-membership
       kubectl create namespace $NAMESPACE
       MAVEN_USER_HOME=$MAVEN_USER_HOME skaffold deploy --namespace=$NAMESPACE --build-artifacts=/workspace/artifacts.json --filename=skaffold.yaml --assume-yes --profile=development
-  - name: gcr.io/k8s-skaffold/skaffold:v2.0.3-lts # run verification/e2e tests with skaffold
+  - name: gcr.io/k8s-skaffold/skaffold:v2.1.0 # run verification/e2e tests with skaffold
     script: |
       #!/bin/bash
       BASE_URL=http://$(kubectl get service frontend --namespace $NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
@@ -64,7 +64,7 @@ steps:
     env:
       - "ROLLOUT=pr$_PR_NUMBER/$SHORT_SHA"
       - "ARTIFACTS_BUCKET_NAME=$_CACHE_URI"
-  - name: gcr.io/k8s-skaffold/skaffold:v2.0.3-lts # 
+  - name: gcr.io/k8s-skaffold/skaffold:v2.1.0 # 
     script: |
       #!/bin/bash
       skaffold delete --namespace=$NAMESPACE --profile=development
