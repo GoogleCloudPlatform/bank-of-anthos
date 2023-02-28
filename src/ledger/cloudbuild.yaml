@@ -15,7 +15,7 @@
 steps:
   - name: gcr.io/cloud-builders/gsutil
     args: ['cp', $_CACHE_URI, '/workspace/cache'] # always write skaffold cache to filename cache in workspace
-  - name: gcr.io/k8s-skaffold/skaffold:v2.0.3-lts
+  - name: gcr.io/k8s-skaffold/skaffold:v2.1.0
     args:
       - "/workspace/mvnw"
       - "jib:_skaffold-fail-if-jib-out-of-date"
@@ -27,7 +27,7 @@ steps:
       - "--batch-mode"
     env:
       - "MAVEN_USER_HOME=/workspace/.m2"
-  - name: gcr.io/k8s-skaffold/skaffold:v2.0.3-lts
+  - name: gcr.io/k8s-skaffold/skaffold:v2.1.0
     args:
       - "skaffold"
       - "build"
@@ -39,7 +39,7 @@ steps:
       - "MAVEN_USER_HOME=/workspace/.m2"
   - name: gcr.io/cloud-builders/gsutil
     args: ['cp', '/workspace/$_CACHE',  $_CACHE_URI]
-  - name: gcr.io/k8s-skaffold/skaffold:v2.0.3-lts
+  - name: gcr.io/k8s-skaffold/skaffold:v2.1.0
     script: MAVEN_USER_HOME=$MAVEN_USER_HOME skaffold test --build-artifacts=/workspace/artifacts.json --module=$SERVICE --assume-yes
     env:
       - "TEAM=$_TEAM"
