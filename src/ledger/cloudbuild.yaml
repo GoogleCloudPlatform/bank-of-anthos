@@ -34,7 +34,7 @@ steps:
       - "--file-output=/workspace/artifacts.json"
       - "--default-repo=$_CONTAINER_REGISTRY"
       - "--cache-file=/workspace/$_CACHE" # set _CACHE to anything other than "cache" e.g. "no-cache" to reset skaffold cache
-      - "--filename=src/$_TEAM/$_SERVICE/skaffold.yaml"
+      - "--module=$_SERVICE"
     env:
       - "MAVEN_USER_HOME=/workspace/.m2"
   - name: gcr.io/cloud-builders/gsutil
