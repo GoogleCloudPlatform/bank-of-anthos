@@ -43,7 +43,7 @@ steps:
       - "deploy"
       - "releases"
       - "create"
-      - "$_SERVICE-$SHORT_SHA-$$DATE-$$TIME"
+      - "$$DATE-$$TIME-$SHORT_SHA"
       - "--delivery-pipeline=$_SERVICE"
       - "--build-artifacts=/workspace/artifacts.json"
       - "--skaffold-file=src/$_TEAM/$_SERVICE/skaffold.yaml"
