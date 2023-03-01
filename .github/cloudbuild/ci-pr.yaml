@@ -40,8 +40,8 @@ steps:
     timeout: 120s
   - name: gcr.io/k8s-skaffold/skaffold:v2.1.0 # build images with skaffold
     script: |
-      echo MAVEN_USER_HOME=$MAVEN_USER_HOME skaffold build --file-output=/workspace/artifacts.json --default-repo=$_CONTAINER_REGISTRY --cache-file=/workspace/$_CACHE --profile=development # set _CACHE to anything other than "cache" e.g. "no-cache" to reset skaffold cache
-      MAVEN_USER_HOME=$MAVEN_USER_HOME skaffold build --file-output=/workspace/artifacts.json --default-repo=$_CONTAINER_REGISTRY --cache-file=/workspace/$_CACHE --profile=development # set _CACHE to anything other than "cache" e.g. "no-cache" to reset skaffold cache
+      echo MAVEN_USER_HOME=$MAVEN_USER_HOME skaffold build --file-output=/workspace/artifacts.json --default-repo=$CONTAINER_REGISTRY --cache-file=/workspace/$CACHE --profile=development # set _CACHE to anything other than "cache" e.g. "no-cache" to reset skaffold cache
+      MAVEN_USER_HOME=$MAVEN_USER_HOME skaffold build --file-output=/workspace/artifacts.json --default-repo=$CONTAINER_REGISTRY --cache-file=/workspace/$CACHE --profile=development # set _CACHE to anything other than "cache" e.g. "no-cache" to reset skaffold cache
   - name: gcr.io/cloud-builders/gsutil # upload skaffold build cache
     args: ['cp', '/workspace/$_CACHE',  $_CACHE_URI]
     timeout: 120s
@@ -76,6 +76,8 @@ options:
     - "MAVEN_USER_HOME=/workspace/.m2"
     - "NAMESPACE=pr$_PR_NUMBER"
     - "GOPATH=/workspace/go"
+    - "CONTAINER_REGISTRY=$_CONTAINER_REGISTRY"
+    - "CACHE=$_CACHE"
   machineType: 'E2_HIGHCPU_8'
 tags:
   - pr$_PR_NUMBER
