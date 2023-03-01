@@ -39,7 +39,7 @@ steps:
     args: ['cp', $_CACHE_URI, '/workspace/cache']
     timeout: 120s
   - name: gcr.io/k8s-skaffold/skaffold:v2.1.0 # build images with skaffold
-    args: ['MAVEN_USER_HOME=$MAVEN_USER_HOME', 'skaffold', 'build', '--file-output=/workspace/artifacts.json', '--default-repo=$_CONTAINER_REGISTRY', '--cache-file=/workspace/$_CACHE', '--profile=development'] # set _CACHE to anything other than "cache" e.g. "no-cache" to reset skaffold cache
+    script: MAVEN_USER_HOME=$MAVEN_USER_HOME skaffold build --file-output=/workspace/artifacts.json --default-repo=$_CONTAINER_REGISTRY --cache-file=/workspace/$_CACHE --profile=development # set _CACHE to anything other than "cache" e.g. "no-cache" to reset skaffold cache
   - name: gcr.io/cloud-builders/gsutil # upload skaffold build cache
     args: ['cp', '/workspace/$_CACHE',  $_CACHE_URI]
     timeout: 120s
