@@ -64,7 +64,7 @@ steps:
       #!/bin/bash
       gcloud container fleet memberships get-credentials development-membership
       kubectl create namespace $NAMESPACE
-      skaffold deploy --namespace=$NAMESPACE --build-artifacts=/workspace/artifacts.json --assume-yes --profile=development
+      skaffold deploy --namespace=$NAMESPACE --build-artifacts=/workspace/artifacts.json --assume-yes --profile=development --iterative-status-check=false
   - name: gcr.io/k8s-skaffold/skaffold:v2.1.0 # run verification/e2e tests with skaffold
     id: run-e2e-tests
     script: |
