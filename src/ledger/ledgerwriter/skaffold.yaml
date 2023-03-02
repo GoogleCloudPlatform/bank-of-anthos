@@ -20,6 +20,9 @@ requires:
 - configs:
   - ledger-db
   path: ../ledger-db/skaffold.yaml
+- configs:
+  - e2e-accounts
+  path: ../../../skaffold-e2e.yaml
 build:
   artifacts:
   - image: ledgerwriter
