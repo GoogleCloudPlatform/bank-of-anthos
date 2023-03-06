@@ -70,7 +70,7 @@ function install_database() {
 
   # Init database with any included bash scripts
   for script in ${MONOLITH_DIR}/${DB_INIT_DIR}/*.sh; do
-    sudo --preserve-env=USE_DEMO_DATA,POSTGRES_DB,POSTGRES_USER,LOCAL_ROUTING_NUM -u postgres bash "${script}" -H
+    sudo --preserve-env=USE_DEMO_DATA,POSTGRES_DB,POSTGRES_PASSWORD,POSTGRES_USER,LOCAL_ROUTING_NUM -u postgres bash "${script}" -H
   done
 
   # Secure the database user with a password
