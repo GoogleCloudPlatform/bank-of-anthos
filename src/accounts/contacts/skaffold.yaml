@@ -18,11 +18,11 @@ metadata:
   name: contacts
 requires:
 - configs:
+  - e2e-tests
+  path: ../../../skaffold-e2e.yaml
+- configs:
   - accounts-db
   path: ../accounts-db/skaffold.yaml
-- configs:
-  - e2e-accounts
-  path: ../../../skaffold-e2e.yaml
 build:
   artifacts:
   - image: contacts

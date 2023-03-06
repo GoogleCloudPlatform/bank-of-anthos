@@ -14,7 +14,7 @@
 apiVersion: skaffold/v4beta1
 kind: Config
 metadata:
-  name: e2e-accounts
+  name: e2e-tests
 build:
   artifacts:
     - image: e2e-tests

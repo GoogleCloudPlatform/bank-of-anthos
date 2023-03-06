@@ -18,7 +18,7 @@ metadata:
   name: accounts
 requires:
 - configs:
-  - e2e-accounts
+  - e2e-tests
   path: ../../skaffold-e2e.yaml
 - configs:
   - contacts
