@@ -93,7 +93,7 @@ markupsafe==2.1.2
     #   -r requirements.in
     #   jinja2
     #   werkzeug
-more-itertools==9.0.0
+more-itertools==9.1.0
     # via -r requirements.in
 opentelemetry-api==1.16.0
     # via
