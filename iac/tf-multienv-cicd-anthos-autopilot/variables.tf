@@ -19,12 +19,12 @@ variable "project_id" {
 
 variable "region" {
     type = string
-    description = "Region where regional resources will be deployed (e.g. europe-west1)"
+    description = "Region where regional resources will be deployed (e.g. us-central1)"
 }
 
 variable "zone" {
     type = string
-    description = "Zone for the CloudSQL master instance (e.g. europe-west1-b)"
+    description = "Zone for the CloudSQL master instance (e.g. us-central1-b)"
 }
 
 variable "sync_repo" {

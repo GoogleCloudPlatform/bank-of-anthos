@@ -16,4 +16,4 @@ kind: ConfigMap
 metadata:
   name: cloud-sql-admin
 data:
-  connectionName: boa-aablsk-delivery-refactor:europe-west1:bank-of-anthos-db-staging
+  connectionName: bank-of-anthos-ci:us-central1:bank-of-anthos-db-staging

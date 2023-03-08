@@ -17,4 +17,4 @@ metadata:
   name: bank-of-anthos-cert
 spec:
   domains:
-    - bank-of-anthos.bielski.demo.altostrat.com
+    - bank-of-anthos.xyz
