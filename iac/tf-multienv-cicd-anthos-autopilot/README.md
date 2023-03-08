@@ -103,19 +103,6 @@ Setting up the sample requires that you have a [Google Cloud Platform (GCP) proj
    kubectl wait --for=condition=complete job/populate-accounts-db job/populate-ledger-db -n bank-of-anthos-staging --timeout=300s
    ```
 
-## Deploy the application (not ready in this PR due to dependencies on skaffold/kustomize configuration)
-1. Execute CI/CD pipeline through Cloud Build triggers.
-   ```bash
-   echo '🌈  Triggering CI/CD for Frontend team'
-   gcloud beta builds triggers run frontend-ci --branch $SYNC_BRANCH --region $REGION
-
-   echo '😁  Triggering CI/CD for Accounts team'
-   gcloud beta builds triggers run accounts-ci --branch $SYNC_BRANCH --region $REGION
-
-   echo '📒  Triggering CI/CD for Ledger team'
-   gcloud beta builds triggers run ledger-ci --branch $SYNC_BRANCH --region $REGION
-   ```
-
 ## Run the first deployment of the application manually as otherwise E2E tests will fail it
 1. Staging
 ```bash
@@ -128,5 +115,22 @@ Setting up the sample requires that you have a [Google Cloud Platform (GCP) proj
    skaffold run -p production
 ```
 
+## Deploy the application through CI/CD
+1. Execute CI/CD pipeline through Cloud Build triggers.
+   ```bash
+   echo '🌈  Triggering CI/CD for Frontend team'
+   gcloud beta builds triggers run frontend-ci --branch $SYNC_BRANCH --region $REGION
+
+   echo '😁  Triggering CI/CD for Accounts team'
+   gcloud beta builds triggers run accounts-contacts-ci --branch $SYNC_BRANCH --region $REGION
+   gcloud beta builds triggers run accounts-userservice-ci --branch $SYNC_BRANCH --region $REGION
+
+   echo '📒  Triggering CI/CD for Ledger team'
+   gcloud beta builds triggers run ledger-balancereader-ci --branch $SYNC_BRANCH --region $REGION
+   gcloud beta builds triggers run ledger-ledgerwriter-ci --branch $SYNC_BRANCH --region $REGION
+   gcloud beta builds triggers run ledger-transactionhistory-ci --branch $SYNC_BRANCH --region $REGION
+   ```
+
 # Troubleshooting
 1. Sometimes `terraform apply` fails due to a timeout or race conditions from API-enablement. In that case simply run `terraform apply` again.
+2. Sometimes the database seeding jobs' pods get stuck due to a failed sidecar container. This can be easily fixed by deleting the pods stuck with 2/3 containers.
