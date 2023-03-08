@@ -45,15 +45,32 @@ Setting up the sample requires that you have a [Google Cloud Platform (GCP) proj
    export PROJECT_ID="YOUR_PROJECT_ID"
    export REGION="YOUR_REGION"
    ```
-1. Replace all occurrences of `$PROJECT_ID` in `iac/acm-multienv-cicd-anthos-autopilot` with your noted `PROJECT_ID`.
+1. Replace all occurrences of `bank-of-anthos-ci` in `iac/acm-multienv-cicd-anthos-autopilot` with your chosen `PROJECT_ID`.
    ```bash
    # run from repository root
    find iac/acm-multienv-cicd-anthos-autopilot/* -type f -exec sed -i 's/bank-of-anthos-ci/'"$PROJECT_ID"'/g' {} +
    ```
-1. Replace all occurrences of `$REGION` in `iac/acm-multienv-cicd-anthos-autopilot` with your chosen `REGION`.
+1. Replace all occurrences of `us-central1` in `iac/acm-multienv-cicd-anthos-autopilot` with your chosen `REGION`.
    ```bash
    # run from repository root
    find iac/acm-multienv-cicd-anthos-autopilot/* -type f -exec sed -i 's/us-central1/'"$REGION"'/g' {} +
+   ```
+1. Commit and push your changes to your repository.
+   ```bash
+   git add .
+   git commit -m "substitute $PROJECT_ID and $REGION references in ACM config"
+   git push
+   ```
+
+## Replace domain in for production deployment
+1. Export `DOMAIN` as variable.
+   ```bash
+   export DOMAIN="YOUR_DOMAIN"
+   ```
+1. Replace all occurrences of `bank-of-anthos` in `iac/acm-multienv-cicd-anthos-autopilot` with your chosen `DOMAIN`.
+   ```bash
+   # run from repository root
+   find src/frontend/* -type f -exec sed -i 's/bank-of-anthos.xyz/'"$DOMAIN"'/g' {} +
    ```
 1. Commit and push your changes to your repository.
    ```bash
@@ -134,3 +151,7 @@ Setting up the sample requires that you have a [Google Cloud Platform (GCP) proj
 # Troubleshooting
 1. Sometimes `terraform apply` fails due to a timeout or race conditions from API-enablement. In that case simply run `terraform apply` again.
 2. Sometimes the database seeding jobs' pods get stuck due to a failed sidecar container. This can be easily fixed by deleting the pods stuck with 2/3 containers.
+3. For production deployment ensure that DNS for your `$DOMAIN` has been set up to point to the IP of the production ingress. 
+```
+kubectl get ingress frontend-ingress --namespace bank-of-anthos-production -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+```
