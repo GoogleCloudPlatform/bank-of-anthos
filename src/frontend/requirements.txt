@@ -22,7 +22,7 @@ flask==2.2.3
     # via -r requirements.in
 google-api-core[grpc]==2.11.0
     # via google-cloud-trace
-google-auth==2.16.1
+google-auth==2.16.2
     # via google-api-core
 google-cloud-trace==1.11.0
     # via opentelemetry-exporter-gcp-trace
