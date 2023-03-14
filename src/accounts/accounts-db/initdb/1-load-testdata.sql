@@ -23,7 +23,7 @@ INSERT INTO users VALUES
 ON CONFLICT DO NOTHING;
 
 INSERT INTO contacts VALUES
-('testuser', 'Alice', '1033623433', '883745000', 'false')
+('testuser', 'Alice', '1033623433', '883745000', 'false'),
 ('testuser', 'Bob', '1055757655', '883745000', 'false'),
 ('testuser', 'Eve', '1077441377', '883745000', 'false'),
 ('alice', 'Testuser', '1011226111', '883745000', 'false'),
