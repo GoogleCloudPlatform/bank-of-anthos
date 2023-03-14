@@ -11,10 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-project_id = "boa-aablsk-delivery-refactor"
+project_id = "boa-aablsk-repro"
 region = "europe-west1"
 zone = "europe-west1-b"
 
 repo_owner = "aablsk"
 sync_repo = "bank-of-anthos"
-sync_branch = "private-clusters"
+sync_branch = "repro-20230314"
