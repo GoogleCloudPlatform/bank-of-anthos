@@ -32,7 +32,7 @@ if [[ -z "${CYPRESS_baseUrl}" ]]; then
 fi
 
 # run tests
-CYPRESS_baseUrl=$CYPRESS_baseUrl NO_COLOR=1 cypress run --reporter json-stream --browser chrome
+CYPRESS_baseUrl=$CYPRESS_baseUrl NO_COLOR=1 cypress run --reporter json-stream --browser chrome --headed
 
 # if failed, copy screenshots to bucket and exit with status code 1
 if [[ "$?" -ne 0 ]]; then
