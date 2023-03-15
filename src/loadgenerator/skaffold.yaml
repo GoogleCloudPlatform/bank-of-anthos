@@ -17,7 +17,7 @@ kind: Config
 metadata:
   name: loadgenerator
 profiles:
-- name: staging
+- name: development
   build:
     artifacts:
     - image: loadgenerator
@@ -27,7 +27,7 @@ profiles:
   manifests:
     kustomize:
       paths:
-      - k8s/overlays/staging
+      - k8s/overlays/development
   deploy:
     statusCheck: false
     kubectl: {}

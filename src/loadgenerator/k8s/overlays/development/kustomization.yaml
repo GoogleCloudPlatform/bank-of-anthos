@@ -17,4 +17,4 @@ kind: Kustomization
 resources:
   - ../../base
 components:
-  - ../../../../components/staging
+  - ../../../../components/development
