@@ -25,15 +25,96 @@ module "ci-cd-pipeline" {
   repo_owner = var.repo_owner
   repo_name = var.sync_repo
   service = each.value
-  cluster_memberships = local.cluster_memberships
-  targets = local.targets
+  targets = [google_clouddeploy_target.staging, google_clouddeploy_target.production]
   repo_branch = var.sync_branch
+  cloud_deploy_sa = google_service_account.cloud_deploy
 
   depends_on = [
     module.enabled_google_apis
   ]
 }
 
+# cloud deploy service account
+resource "google_service_account" "cloud_deploy" {
+  project    = var.project_id
+  account_id = "cloud-deploy"
+}
+
+resource "google_clouddeploy_target" "staging" {
+  # one CloudDeploy target per target defined in vars
+
+  project  = var.project_id
+  name     = "staging"
+  location = var.region
+
+  anthos_cluster {
+    membership = google_gke_hub_membership.staging.id
+  }
+
+  execution_configs {
+    artifact_storage = "gs://${google_storage_bucket.delivery_artifacts_staging.name}"
+    service_account  = google_service_account.cloud_deploy.email
+    usages = [
+      "RENDER",
+      "DEPLOY"
+    ]
+  }
+}
+
+resource "google_clouddeploy_target" "production" {
+  # one CloudDeploy target per target defined in vars
+
+  project  = var.project_id
+  name     = "production"
+  location = var.region
+
+  anthos_cluster {
+    membership = google_gke_hub_membership.production.id
+  }
+
+  execution_configs {
+    artifact_storage = "gs://${google_storage_bucket.delivery_artifacts_production.name}"
+    service_account  = google_service_account.cloud_deploy.email
+    usages = [
+      "RENDER",
+      "DEPLOY",
+      "VERIFY"
+    ]
+  }
+}
+
+
+# GCS bucket used by Cloud Deploy for delivery artifact storage
+resource "google_storage_bucket" "delivery_artifacts_staging" {
+  project                     = var.project_id
+  name                        = "delivery-artifacts-staging-${data.google_project.project.number}"
+  uniform_bucket_level_access = true
+  location                    = var.region
+}
+
+# GCS bucket used by Cloud Deploy for delivery artifact storage
+resource "google_storage_bucket" "delivery_artifacts_production" {
+  project                     = var.project_id
+  name                        = "delivery-artifacts-production-${data.google_project.project.number}"
+  uniform_bucket_level_access = true
+  location                    = var.region
+}
+
+# give CloudDeploy SA access to administrate to delivery artifact bucket
+resource "google_storage_bucket_iam_member" "delivery_artifacts_staging" {
+  bucket  = google_storage_bucket.delivery_artifacts_staging.name
+
+  member = "serviceAccount:${google_service_account.cloud_deploy.email}"
+  role   = "roles/storage.admin"
+}
+
+# give CloudDeploy SA access to administrate to delivery artifact bucket
+resource "google_storage_bucket_iam_member" "delivery_artifacts_production" {
+  bucket  = google_storage_bucket.delivery_artifacts_production.name
+
+  member = "serviceAccount:${google_service_account.cloud_deploy.email}"
+  role   = "roles/storage.admin"
+}
 
 ### CI-PR pipeline
 

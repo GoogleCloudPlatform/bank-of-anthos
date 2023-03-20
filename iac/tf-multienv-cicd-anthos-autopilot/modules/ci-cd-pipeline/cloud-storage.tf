@@ -28,14 +28,6 @@ resource "google_storage_bucket" "release_source_staging" {
   location                    = var.region
 }
 
-# GCS bucket used by Cloud Deploy for delivery artifact storage
-resource "google_storage_bucket" "delivery_artifacts" {
-  project                     = var.project_id
-  name                        = "delivery-artifacts-${local.service_name}-${data.google_project.project.number}"
-  uniform_bucket_level_access = true
-  location                    = var.region
-}
-
 # Initialize cache with empty file
 resource "google_storage_bucket_object" "cache" {
   bucket  = google_storage_bucket.build_cache.name
@@ -72,14 +64,6 @@ resource "google_storage_bucket_iam_member" "release_source_staging_admin" {
 resource "google_storage_bucket_iam_member" "release_source_staging_objectViewer" {
   bucket  = google_storage_bucket.release_source_staging.name
 
-  member = "serviceAccount:${google_service_account.cloud_deploy.email}"
+  member = "serviceAccount:${var.cloud_deploy_sa.email}"
   role   = "roles/storage.objectViewer"
-}
-
-# give CloudDeploy SA access to administrate to delivery artifact bucket
-resource "google_storage_bucket_iam_member" "delivery_artifacts" {
-  bucket  = google_storage_bucket.delivery_artifacts.name
-
-  member = "serviceAccount:${google_service_account.cloud_deploy.email}"
-  role   = "roles/storage.admin"
 }

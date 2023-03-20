@@ -12,30 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# create CloudDeploy targets
-resource "google_clouddeploy_target" "targets" {
-  # one CloudDeploy target per target defined in vars
-  for_each = toset(var.targets)
-
-  project  = var.project_id
-  name     = "${each.value}-${local.service_name}"
-  location = var.region
-
-  anthos_cluster {
-    membership = var.cluster_memberships[each.key].id
-  }
-
-  execution_configs {
-    artifact_storage = "gs://${google_storage_bucket.delivery_artifacts.name}"
-    service_account  = google_service_account.cloud_deploy.email
-    usages = [
-      "RENDER",
-      "DEPLOY",
-      "VERIFY"
-    ]
-  }
-}
-
 # create delivery pipeline for service including all targets
 resource "google_clouddeploy_delivery_pipeline" "delivery-pipeline" {
   project  = var.project_id
@@ -45,11 +21,11 @@ resource "google_clouddeploy_delivery_pipeline" "delivery-pipeline" {
     dynamic "stages" {
       for_each = { for idx, target in var.targets : idx => target }
       content {
-        profiles  = [stages.value]
-        target_id = google_clouddeploy_target.targets[stages.value].name
+        profiles  = [stages.value.name]
+        target_id = stages.value.name
         strategy {
           standard {
-            verify = true
+            verify = stages.value.name == "production" ? true : false
           }
         }
       }
