@@ -37,10 +37,10 @@ module "project-iam-bindings" {
         "serviceAccount:${google_service_account.gke_workload_staging.email}",
         "serviceAccount:${google_service_account.gke_workload_production.email}",
         "serviceAccount:${google_service_account.cloud_build_pr.email}",
-        "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
+        "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com",
+        "serviceAccount:${google_service_account.cloud_deploy.email}"
       ],
-      local.cloud_build_sas,
-      local.cloud_deploy_sas
+      local.cloud_build_sas
     ),
     "roles/cloudbuild.builds.builder" = setunion(
       [
@@ -49,20 +49,22 @@ module "project-iam-bindings" {
       ],
       local.cloud_build_sas
     ),
-    "roles/gkehub.gatewayEditor" = setunion(
-      local.cloud_deploy_sas,
-      ["serviceAccount:${google_service_account.cloud_build_pr.email}"]
-    ),
+    "roles/gkehub.gatewayEditor" = [
+      "serviceAccount:${google_service_account.cloud_build_pr.email}",
+      "serviceAccount:${google_service_account.cloud_deploy.email}"
+    ],
     "roles/gkehub.viewer" = setunion(
-      local.cloud_deploy_sas,
       local.cloud_build_sas,
-      ["serviceAccount:${google_service_account.cloud_build_pr.email}"],
+      [
+        "serviceAccount:${google_service_account.cloud_build_pr.email}",
+        "serviceAccount:${google_service_account.cloud_deploy.email}"
+      ],
     ),
     "roles/clouddeploy.releaser" = local.cloud_build_sas,
-    "roles/container.developer" = setunion(
-      local.cloud_deploy_sas,
-      ["serviceAccount:${google_service_account.cloud_build_pr.email}"]
-    ),
+    "roles/container.developer" = [
+      "serviceAccount:${google_service_account.cloud_build_pr.email}",
+      "serviceAccount:${google_service_account.cloud_deploy.email}"
+    ],
     "roles/cloudsql.client" = [
       "serviceAccount:${google_service_account.gke_workload_staging.email}",    # this implies that staging service account also has access to production CloudSQL. Could be solved by putting the CloudSQL instances in separate projects,
       "serviceAccount:${google_service_account.gke_workload_production.email}", # this implies that production service account also has access to staging CloudSQL. Could be solved by putting the CloudSQL instances in separate projects.
