@@ -25,7 +25,7 @@ resource "google_clouddeploy_delivery_pipeline" "delivery-pipeline" {
         target_id = stages.value.name
         strategy {
           standard {
-            verify = true
+            verify = stages.value.name == "production" ? true : false
           }
         }
       }

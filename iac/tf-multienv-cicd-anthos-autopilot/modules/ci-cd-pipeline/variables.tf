@@ -50,7 +50,7 @@ variable "targets" {
   type = list(object({
     name = string
   }))
-  description = "Ids of the targets that shall be deployed to in order of deployment stages"
+  description = "Targets that shall be deployed to in order of deployment stages"
 }
 
 variable "repo_branch" {
