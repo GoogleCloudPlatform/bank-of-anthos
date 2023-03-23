@@ -43,7 +43,7 @@ pytz==2022.7.1
 requests==2.28.2
 rsa==4.9
 six==1.16.0
-sqlalchemy==1.4.46
+sqlalchemy==1.4.47
 urllib3==1.26.15
 wcwidth==0.2.6
 webencodings==0.5.1
