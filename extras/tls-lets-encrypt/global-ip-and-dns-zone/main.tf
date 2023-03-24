@@ -26,7 +26,7 @@ variable "base_domin" {
 variable "name" {
   type        = string
   description = "Name of resources"
-  default     = "soup-to-nuts"
+  default     = "bank-of-anthos"
 }
 
 data "google_client_config" "current" {}
@@ -38,7 +38,7 @@ resource "google_compute_global_address" "default" {
 resource "google_dns_managed_zone" "default" {
   name        = var.name
   dns_name    = "${var.name}.${var.base_domin}."
-  description = "DNS Zone for Soup to Nuts tutorial"
+  description = "DNS Zone for Bank of Anthos sample web application"
 }
 
 resource "google_dns_record_set" "a" {

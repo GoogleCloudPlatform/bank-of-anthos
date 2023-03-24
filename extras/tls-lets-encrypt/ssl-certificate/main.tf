@@ -27,7 +27,6 @@ provider "google" {}
 
 provider "acme" {
   server_url = "https://acme-staging-v02.api.letsencrypt.org/directory"
-  # server_url = "https://acme-v02.api.letsencrypt.org/directory"
 }
 
 variable "domin_name" {
@@ -68,7 +67,7 @@ resource "acme_certificate" "default" {
 }
 
 resource "google_compute_ssl_certificate" "default" {
-  name        = "soup-to-nuts"
+  name        = "bank-of-anthos"
   description = "SSL Certificate issued by Let's Encrypt"
   private_key = acme_certificate.default.private_key_pem
   certificate = acme_certificate.default.certificate_pem

@@ -149,16 +149,16 @@ spec:
 # apiVersion: networking.gke.io/v1
 # kind: ManagedCertificate
 # metadata:
-#   name: soup-to-nuts
+#   name: bank-of-anthos
 # spec:
 #   domains:
-#     - soup-to-nuts.networking.epam.devops.delivery
-#     - www.soup-to-nuts.networking.epam.devops.delivery
+#     - bank-of-anthos.DOMAIN_NAME
+#     - www.bank-of-anthos.DOMAIN_NAME
 ---
 apiVersion: networking.gke.io/v1beta1
 kind: FrontendConfig
 metadata:
-  name: frontend-fc
+  name: bank-of-anthos
 spec:
   redirectToHttps:
     enabled: true
@@ -169,10 +169,10 @@ kind: Ingress
 metadata:
   name: frontend
   annotations:
-    ingress.gcp.kubernetes.io/pre-shared-cert: soup-to-nuts
-    # networking.gke.io/managed-certificates: soup-to-nuts
-    networking.gke.io/v1beta1.FrontendConfig: frontend-fc
-    kubernetes.io/ingress.global-static-ip-name: soup-to-nuts
+    ingress.gcp.kubernetes.io/pre-shared-cert: bank-of-anthos
+    # networking.gke.io/managed-certificates: bank-of-anthos
+    networking.gke.io/v1beta1.FrontendConfig: bank-of-anthos
+    kubernetes.io/ingress.global-static-ip-name: bank-of-anthos
     kubernetes.io/ingress.class: gce
   labels:
     app: frontend
