@@ -145,15 +145,15 @@ spec:
   - name: http
     port: 8080
     targetPort: 8080
-# ---
-# apiVersion: networking.gke.io/v1
-# kind: ManagedCertificate
-# metadata:
-#   name: bank-of-anthos
-# spec:
-#   domains:
-#     - bank-of-anthos.DOMAIN_NAME
-#     - www.bank-of-anthos.DOMAIN_NAME
+---
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: bank-of-anthos
+spec:
+  domains:
+    - DOMAIN_NAME
+    - www.DOMAIN_NAME
 ---
 apiVersion: networking.gke.io/v1beta1
 kind: FrontendConfig
@@ -169,8 +169,7 @@ kind: Ingress
 metadata:
   name: frontend
   annotations:
-    ingress.gcp.kubernetes.io/pre-shared-cert: bank-of-anthos
-    # networking.gke.io/managed-certificates: bank-of-anthos
+    networking.gke.io/managed-certificates: bank-of-anthos
     networking.gke.io/v1beta1.FrontendConfig: bank-of-anthos
     kubernetes.io/ingress.global-static-ip-name: bank-of-anthos
     kubernetes.io/ingress.class: gce

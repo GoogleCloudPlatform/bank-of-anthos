@@ -29,8 +29,6 @@ variable "name" {
   default     = "bank-of-anthos"
 }
 
-data "google_client_config" "current" {}
-
 resource "google_compute_global_address" "default" {
   name = var.name
 }

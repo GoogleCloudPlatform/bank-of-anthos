@@ -36,6 +36,7 @@ resource "google_container_cluster" "default" {
   location         = var.region
   enable_autopilot = true
 
+  # Workaround of issue https://github.com/hashicorp/terraform-provider-google/issues/10782
   ip_allocation_policy {}
 }
 
