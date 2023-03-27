@@ -26,7 +26,7 @@ google-auth==2.16.2
     # via google-api-core
 google-cloud-trace==1.11.0
     # via opentelemetry-exporter-gcp-trace
-googleapis-common-protos==1.58.0
+googleapis-common-protos==1.59.0
     # via
     #   google-api-core
     #   grpcio-status
@@ -120,7 +120,7 @@ six==1.16.0
     # via google-auth
 typing-extensions==4.5.0
     # via opentelemetry-sdk
-urllib3==1.26.14
+urllib3==1.26.15
     # via
     #   -r requirements.in
     #   requests
