@@ -28,4 +28,6 @@ module "acm" {
   source_format = "unstructured"
 
   secret_type = "none"
+    
+  create_metrics_gcp_sa = true
 }
