@@ -90,9 +90,10 @@ Setting up the sample requires that you have a [Google Cloud Platform (GCP) proj
    terraform apply
    ```
 1. Check terraform output and approve terraform apply.
-1. Wait for ASM to be provisioned on all clusters. Check the status with `gcloud container fleet mesh describe` and wait for all entries to be in `state: ACTIVE`. This will take dozens of minutes.
+1. **Wait for ASM to be provisioned on all clusters!** Check the status with `gcloud container fleet mesh describe` and wait for all entries to be in `state: ACTIVE`. This will take dozens of minutes initially.
+1. **Wait for Anthos Config Management to have synced the clusters (otherwise namespaces, service accounts will not be available)!** Check the status [here](https://console.cloud.google.com/anthos/config_management/dashboard). This will take dozens of minutes initially.
 
-## Initialize CloudSQL databases with data (not ready in this PR due to dependencies on skaffold/kustomize configuration)
+## Initialize CloudSQL databases with data (dummy users, transactions...)
 1. Initialize `staging` CloudSQL database with data.
    ```bash
    echo '🔑  Getting cluster credentials...'
@@ -124,12 +125,12 @@ Setting up the sample requires that you have a [Google Cloud Platform (GCP) proj
 1. Staging
 ```bash
    gcloud container fleet memberships get-credentials staging-membership
-   skaffold run -p staging
+   skaffold run -p staging --skip-tests=true
 ```
 2. Production
 ```bash
    gcloud container fleet memberships get-credentials production-membership
-   skaffold run -p production
+   skaffold run -p production --skip-tests=true
 ```
 
 ## Deploy the application through CI/CD
