@@ -418,7 +418,7 @@ def create_app():
             app.logger.debug('Logging in.')
             req = requests.get(url=app.config["LOGIN_URI"],
                                params={'username': username, 'password': password},
-                               timeout=app.config['BACKEND_TIMEOUT'])
+                               timeout=app.config['BACKEND_TIMEOUT']*2)
             req.raise_for_status()  # Raise on HTTP Status code 4XX or 5XX
 
             # login success
