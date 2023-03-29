@@ -44,15 +44,3 @@ requires:
 # [END gke_bank_of_anthos_skaffold_config_db]
 deploy:
   tolerateFailuresUntilDeadline: true
-profiles:
-  - name: development
-    activation:
-      - command: dev
-    manifests:
-      kustomize:
-        paths:
-        - iac/acm-multienv-cicd-anthos-autopilot/overlays/development
-    deploy:
-      kubectl:
-        defaultNamespace: bank-of-anthos-development
-      tolerateFailuresUntilDeadline: true
