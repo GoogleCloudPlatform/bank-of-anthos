@@ -1,0 +1,99 @@
+# Copyright 2021 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# [START gke_boa_kubernetes_manifests_userservice_deployment_userservice]
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: userservice
+spec:
+  selector:
+    matchLabels:
+      app: userservice
+  template:
+    metadata:
+      labels:
+        app: userservice
+    spec:
+      serviceAccountName: default
+      terminationGracePeriodSeconds: 5
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+      - name: userservice
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - all
+          privileged: false
+          readOnlyRootFilesystem: true
+        image: userservice
+        ports:
+        - name: http-server
+          containerPort: 8080
+        env:
+        - name: VERSION
+          value: "dev"
+        - name: PORT
+          value: "8080"
+        - name: ENABLE_TRACING
+          value: "true"
+        - name: TOKEN_EXPIRY_SECONDS
+          value: "3600"
+        - name: PRIV_KEY_PATH
+          value: "/tmp/.ssh/privatekey"
+        # Valid levels are debug, info, warning, error, critical. If no valid level is set, gunicorn will default to info.
+        - name: LOG_LEVEL
+          value: "info"
+        envFrom:
+        - configMapRef:
+            name: environment-config
+        - configMapRef:
+            name: accounts-db-config
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 10
+        resources:
+          requests:
+            cpu: 300m
+            memory: 0.5Gi
+            ephemeral-storage: 0.25Gi
+          limits:
+            cpu: 300m
+            memory: 0.5Gi
+            ephemeral-storage: 0.25Gi
+# [END gke_boa_kubernetes_manifests_userservice_deployment_userservice]
+---
+# [START gke_boa_kubernetes_manifests_userservice_service_userservice]
+apiVersion: v1
+kind: Service
+metadata:
+  name: userservice
+spec:
+  type: ClusterIP
+  selector:
+    app: userservice
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+# [END gke_boa_kubernetes_manifests_userservice_service_userservice]

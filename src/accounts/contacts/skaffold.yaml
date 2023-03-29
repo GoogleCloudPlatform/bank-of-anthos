@@ -1,0 +1,87 @@
+# Copyright 2022 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: skaffold/v4beta1
+kind: Config
+metadata:
+  name: contacts
+requires:
+- configs:
+  - e2e-tests
+  path: ../../../skaffold-e2e.yaml
+- configs:
+  - accounts-db
+  path: ../accounts-db/skaffold.yaml
+build:
+  artifacts:
+  - image: contacts
+    context: .
+  tagPolicy:
+    sha256: {}
+deploy:
+  kubectl: {}
+test:
+  - image: contacts # code style
+    context: .
+    custom:
+      - command: |
+          pip install pylint --quiet
+          pip install -r requirements.txt --quiet
+          pylint --rcfile=../../../.pylintrc *.py
+        timeoutSeconds: 1200
+        dependencies: 
+          paths:
+            - "**/*.py"
+            - "../../../.pylintrc"
+            - "requirements.txt"
+  - image: contacts # unit tests
+    context: .
+    custom:
+      - command: |
+          pip install -r requirements.txt --quiet
+          python3 -m pytest -v -p no:warnings
+        timeoutSeconds: 1200
+        dependencies: 
+          paths:
+            - "**/*.py"
+            - "requirements.txt"
+  - image: contacts # code coverage
+    context: .
+    custom:
+      - command: |
+          pip install -r requirements.txt --quiet
+          python3 -m pytest --cov=./ tests/
+        timeoutSeconds: 1200
+        dependencies: 
+          paths:
+            - "**/*.py"
+            - "requirements.txt"
+profiles:
+- name: development
+  activation:
+  - command: dev       
+  manifests:
+    kustomize:
+      paths:
+      - k8s/overlays/development  
+- name: staging
+  manifests:
+    kustomize:
+      paths:
+      - k8s/overlays/staging
+- name: production
+  manifests:
+    kustomize:
+      paths:
+      - k8s/overlays/production

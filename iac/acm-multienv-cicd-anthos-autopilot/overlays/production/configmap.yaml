@@ -16,4 +16,4 @@ kind: ConfigMap
 metadata:
   name: cloud-sql-admin
 data:
-  connectionName: $PROJECT_ID:$REGION:bank-of-anthos-db-production
+  connectionName: bank-of-anthos-ci:us-central1:bank-of-anthos-db-production

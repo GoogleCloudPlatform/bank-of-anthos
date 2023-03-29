@@ -1,0 +1,59 @@
+# Copyright 2022 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+steps:
+  - name: gcr.io/cloud-builders/gsutil
+    id: download-skaffold-cache
+    args: ['cp', $_CACHE_URI, '/workspace/cache'] # always write skaffold cache to filename cache in workspace
+  - name: gcr.io/k8s-skaffold/skaffold:v2.1.0
+    id: build-and-push-images
+    args:
+      - "skaffold"
+      - "build"
+      - "--file-output=/workspace/artifacts.json"
+      - "--default-repo=$_CONTAINER_REGISTRY"
+      - "--cache-file=/workspace/$_CACHE" # set _CACHE to anything other than "cache" e.g. "no-cache" to reset skaffold cache
+      - "--module=$_SERVICE"
+  - name: gcr.io/cloud-builders/gsutil
+    id: upload-skaffold-cache
+    args: ['cp', '/workspace/$_CACHE',  $_CACHE_URI]
+  - name: gcr.io/k8s-skaffold/skaffold:v2.1.0 # python set up should be baked into a custom builder image to speed up build times
+    id: run-tests
+    script: |
+      #!/bin/bash
+      apt-get update
+      apt-get -y install python3-venv
+      python3 -m venv $HOME/venv-python-tests
+      . $HOME/venv-python-tests/bin/activate
+      pip install --upgrade pip
+      pip install pylint
+      skaffold test --build-artifacts=/workspace/artifacts.json --module=$SERVICE --assume-yes
+    env:
+      - 'TEAM=$_TEAM'
+      - 'SERVICE=$_SERVICE'
+  - name: gcr.io/cloud-builders/gcloud
+    id: trigger-release
+    args: 
+      - "deploy"
+      - "releases"
+      - "create"
+      - "$_SERVICE-$SHORT_SHA"
+      - "--delivery-pipeline=$_SERVICE"
+      - "--build-artifacts=/workspace/artifacts.json"
+      - "--skaffold-file=src/$_TEAM/$_SERVICE/skaffold.yaml"
+      - "--region=$LOCATION"
+      - "--gcs-source-staging-dir=$_SOURCE_STAGING_BUCKET/$SHORT_SHA"
+      - "--skaffold-version=skaffold_preview"
+options:
+  logging: CLOUD_LOGGING_ONLY

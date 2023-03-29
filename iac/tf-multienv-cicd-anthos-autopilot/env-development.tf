@@ -22,16 +22,23 @@ provider "kubernetes" {
 
 # development autopilot cluster
 module "gke_development" {
-  source = "terraform-google-modules/kubernetes-engine/google//modules/beta-autopilot-public-cluster"
+  source = "terraform-google-modules/kubernetes-engine/google//modules/beta-autopilot-private-cluster"
 
-  project_id        = var.project_id
-  name              = "development"
-  regional          = true
-  region            = var.region
-  network           = local.network_name
-  subnetwork        = local.network.development.subnetwork
-  ip_range_pods     = local.network.development.ip_range_pods
-  ip_range_services = local.network.development.ip_range_services
+  project_id              = var.project_id
+  name                    = "development"
+  regional                = true
+  region                  = var.region
+  network                 = local.network_name
+  subnetwork              = local.network.development.subnetwork
+  ip_range_pods           = local.network.development.ip_range_pods
+  ip_range_services       = local.network.development.ip_range_services
+  enable_private_nodes    = true
+  enable_private_endpoint = true
+  master_authorized_networks = [{
+    cidr_block   = module.network.subnets["${var.region}/${local.network.development.master_auth_subnet_name}"].ip_cidr_range
+    display_name = local.network.development.subnetwork
+  }]
+  master_ipv4_cidr_block          = "10.6.0.0/28"
   release_channel                 = "RAPID"
   enable_vertical_pod_autoscaling = true
   horizontal_pod_autoscaling      = true
@@ -66,6 +73,16 @@ resource "google_service_account_iam_member" "gke_workload_development_identity"
   ]
 }
 
+# binding development GKE workload GSA to KSA
+resource "google_service_account_iam_member" "gke_workload_development_admin" {
+  service_account_id = google_service_account.gke_workload_development.id
+  role               = "roles/iam.serviceAccountAdmin"
+  member             = "serviceAccount:${google_service_account.cloud_build_pr.email}"
+  depends_on = [
+    module.gke_development
+  ]
+}
+
 # create fleet membership for development GKE cluster
 resource "google_gke_hub_membership" "development" {
   provider      = google-beta
@@ -82,37 +99,37 @@ resource "google_gke_hub_membership" "development" {
 }
 
 # configure ASM for development GKE cluster
-module "asm-development" {
-    source = "terraform-google-modules/gcloud/google"
+resource "google_gke_hub_feature_membership" "asm_development" {
+  project  = var.project_id
+  location = "global"
 
-    platform = "linux"
-    
-    create_cmd_entrypoint = "gcloud"
-    create_cmd_body = "container fleet mesh update --management automatic --memberships ${google_gke_hub_membership.development.membership_id} --project ${var.project_id}"
-    destroy_cmd_entrypoint = "gcloud"
-    destroy_cmd_body = "container fleet mesh update --management manual --memberships ${google_gke_hub_membership.development.membership_id} --project ${var.project_id}"
+  feature    = google_gke_hub_feature.asm.name
+  membership = google_gke_hub_membership.development.membership_id
+  mesh {
+    management = "MANAGEMENT_AUTOMATIC"
+  }
+  provider = google-beta
 }
+
 
 # configure ACM for development GKE cluster
-module "acm-development" {
-  source = "terraform-google-modules/kubernetes-engine/google//modules/acm"
+resource "google_gke_hub_feature_membership" "acm_development" {
+  project  = var.project_id
+  location = "global"
 
-  project_id                = var.project_id
-  cluster_name              = module.gke_development.name
-  cluster_membership_id     = "development-membership"
-  location                  = module.gke_development.location
-  sync_repo                 = local.sync_repo_url
-  sync_branch               = var.sync_branch
-  enable_fleet_feature      = false
-  enable_fleet_registration = false
-  policy_dir                = "iac/acm-multienv-cicd-anthos-autopilot/overlays/development"
-  source_format             = "unstructured"
-
-  depends_on = [
-    module.asm-development
-  ]
-
-  providers = {
-    kubernetes = kubernetes.development
+  feature    = google_gke_hub_feature.acm.name
+  membership = google_gke_hub_membership.development.membership_id
+  configmanagement {
+    config_sync {
+      git {
+        sync_repo   = local.sync_repo_url
+        sync_branch = var.sync_branch
+        policy_dir  = "iac/acm-multienv-cicd-anthos-autopilot/overlays/development"
+        secret_type = "none"
+      }
+      source_format = "unstructured"
+    }
   }
+  provider = google-beta
 }
+

@@ -1,0 +1,29 @@
+# Copyright 2022 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+  # [START gke_boa_kubernetes_manifests_ledger_db_configmap_ledger_db_config]
+  apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: ledger-db-config
+    labels:
+      app: postgres
+  data:
+    POSTGRES_DB: postgresdb
+    POSTGRES_USER: admin
+    POSTGRES_PASSWORD: password
+    SPRING_DATASOURCE_URL: jdbc:postgresql://ledger-db:5432/postgresdb
+    SPRING_DATASOURCE_USERNAME: admin # should match POSTGRES_USER
+    SPRING_DATASOURCE_PASSWORD: password # should match POSTGRES_PASSWORD
+  # [END gke_boa_kubernetes_manifests_ledger_db_configmap_ledger_db_config]

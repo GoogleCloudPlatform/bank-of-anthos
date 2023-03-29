@@ -14,12 +14,8 @@
 
 # cloud build service account
 resource "google_service_account" "cloud_build" {
-  account_id = "cloud-build-${var.team}"
-}
-
-# cloud deploy service account
-resource "google_service_account" "cloud_deploy" {
-  account_id = "cloud-deploy-${var.team}"
+  project    = var.project_id
+  account_id = "ci-${local.service_name}"
 }
 
 # additional roles for cloud-build service account
@@ -35,8 +31,8 @@ resource "google_artifact_registry_repository_iam_member" "cloud_build" {
 }
 
 resource "google_service_account_iam_member" "cloud_build_impersonate_cloud_deploy" {
-  service_account_id = google_service_account.cloud_deploy.id
-  role = "roles/iam.serviceAccountUser"
-  member = "serviceAccount:${google_service_account.cloud_build.email}"
+  service_account_id = var.cloud_deploy_sa.id
+  role               = "roles/iam.serviceAccountUser"
+  member             = "serviceAccount:${google_service_account.cloud_build.email}"
 }
 

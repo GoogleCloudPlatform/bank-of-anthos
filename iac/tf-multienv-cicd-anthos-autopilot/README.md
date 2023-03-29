@@ -34,29 +34,47 @@ Setting up the sample requires that you have a [Google Cloud Platform (GCP) proj
 1. Create a GCP project and note the `PROJECT_ID`.
 1. Set up repository connection in Cloud Build
     1. Open Cloud Build in Cloud Console (enable API if needed).
-    1. Navigate to 'Triggers' and set Region to `global`.
+    1. Navigate to 'Triggers' and set Region to the region that you want to use for the Bank of Anthos deployment.
     1. Click `Manage Repositories`
     1. `CONNECT REPOSITORY` and follow the UI. Do NOT create a trigger.
 1. [OPTIONAL] If your GCP organization has the compute.vmExternalIpAccess constraint in place reset it on project level `gcloud org-policies reset constraints/compute.vmExternalIpAccess --project=$PROJECT_ID` 
 
-## Replace placeholder variables in Anthos Config Management configuration
+## Replace placeholder variables in Anthos Config Management configuration [ONLY NECESSARY FOR PROJECTS OTHER THAN bank-of-anthos-ci]
 1. Export `PROJECT_ID` and `REGION` as variables.
    ```bash
    export PROJECT_ID="YOUR_PROJECT_ID"
    export REGION="YOUR_REGION"
    ```
-1. Replace all occurrences of `$PROJECT_ID` in `iac/acm-multienv-cicd-anthos-autopilot` with your noted `PROJECT_ID`.
+1. Replace all occurrences of `bank-of-anthos-ci` in `iac/acm-multienv-cicd-anthos-autopilot` with your chosen `PROJECT_ID`.
    ```bash
    # run from repository root
-   find iac/acm-multienv-cicd-anthos-autopilot/* -type f -exec sed -i 's/$PROJECT_ID/'"$PROJECT_ID"'/g' {} +
+   find iac/acm-multienv-cicd-anthos-autopilot/* -type f -exec sed -i 's/bank-of-anthos-ci/'"$PROJECT_ID"'/g' {} +
    ```
-1. Replace all occurrences of `$REGION` in `iac/acm-multienv-cicd-anthos-autopilot` with your chosen `REGION`.
+1. Replace all occurrences of `us-central1` in `iac/acm-multienv-cicd-anthos-autopilot` with your chosen `REGION`.
    ```bash
    # run from repository root
-   find iac/acm-multienv-cicd-anthos-autopilot/* -type f -exec sed -i 's/$REGION/'"$REGION"'/g' {} +
+   find iac/acm-multienv-cicd-anthos-autopilot/* -type f -exec sed -i 's/us-central1/'"$REGION"'/g' {} +
    ```
 1. Commit and push your changes to your repository.
    ```bash
+   git add .
+   git commit -m "substitute $PROJECT_ID and $REGION references in ACM config"
+   git push
+   ```
+
+## Replace domain in for production deployment
+1. Export `DOMAIN` as variable.
+   ```bash
+   export DOMAIN="YOUR_DOMAIN"
+   ```
+1. Replace all occurrences of `bank-of-anthos` in `iac/acm-multienv-cicd-anthos-autopilot` with your chosen `DOMAIN`.
+   ```bash
+   # run from repository root
+   find src/frontend/* -type f -exec sed -i 's/bank-of-anthos.xyz/'"$DOMAIN"'/g' {} +
+   ```
+1. Commit and push your changes to your repository.
+   ```bash
+   git add .
    git commit -m "substitute $PROJECT_ID and $REGION references in ACM config"
    git push
    ```
@@ -64,7 +82,7 @@ Setting up the sample requires that you have a [Google Cloud Platform (GCP) proj
 ## Provision infrastructure with terraform
 1. Create a GCS bucket in your project to hold your terraform state. `gsutil mb gs://$YOUR_TF_STATE_GCS_BUCKET_NAME`
 1. Replace "YOUR_TF_STATE_GCS_BUCKET_NAME" in `iac/tf-multienv-cicd-anthos-autopilot/main.tf` with your chosen bucket name.
-1. Configure terraform variables in `iac/tf-multienv-cicd-anthos-autopilot/terraform.tfvars` - at a minimum replace `$PROJECT_ID` and `$REGION` with the same values you used for the ACM substitution.
+1. Configure terraform variables in `iac/tf-multienv-cicd-anthos-autopilot/terraform.tfvars` - at a minimum set `project_id` and `region` to the same values you used for the ACM substitution.
 1. Provision infrastructure with terraform.
    ```bash
    # run from iac/tf-multienv-cicd-anthos-autopilot
@@ -72,9 +90,10 @@ Setting up the sample requires that you have a [Google Cloud Platform (GCP) proj
    terraform apply
    ```
 1. Check terraform output and approve terraform apply.
-1. Wait for ASM to be provisioned on all clusters. Check the status with `gcloud container fleet mesh describe` and wait for all entries to be in `state: ACTIVE`. This might take between dozens of minutes.
+1. **Wait for ASM to be provisioned on all clusters!** Check the status with `gcloud container fleet mesh describe` and wait for all entries to be in `state: ACTIVE`. This will take dozens of minutes initially.
+1. **Wait for Anthos Config Management to have synced the clusters (otherwise namespaces, service accounts will not be available)!** Check the status [here](https://console.cloud.google.com/anthos/config_management/dashboard). This will take dozens of minutes initially.
 
-## Initialize CloudSQL databases with data (not ready in this PR due to dependencies on skaffold/kustomize configuration)
+## Initialize CloudSQL databases with data (dummy users, transactions...)
 1. Initialize `staging` CloudSQL database with data.
    ```bash
    echo '🔑  Getting cluster credentials...'
@@ -82,7 +101,8 @@ Setting up the sample requires that you have a [Google Cloud Platform (GCP) proj
    
    echo '🙌  Deploying populate-db jobs for staging...'
    skaffold config set default-repo $REGION-docker.pkg.dev/$PROJECT_ID/bank-of-anthos
-   skaffold run --profile=init-db-staging
+   skaffold run --profile=init-db-staging --module=accounts-db
+   skaffold run --profile=init-db-staging --module=ledger-db
    
    echo '🕰  Wait for staging-db initialization to complete...'
    kubectl wait --for=condition=complete job/populate-accounts-db job/populate-ledger-db -n bank-of-anthos-staging --timeout=300s
@@ -92,26 +112,47 @@ Setting up the sample requires that you have a [Google Cloud Platform (GCP) proj
    echo '🔑  Getting cluster credentials...'
    gcloud container fleet memberships get-credentials production-membership
    
-   echo '🙌  Deploying populate-db jobs for staging...'
+   echo '🙌  Deploying populate-db jobs for production...'
    skaffold config set default-repo $REGION-docker.pkg.dev/$PROJECT_ID/bank-of-anthos
-   skaffold run --profile=init-db-production
+   skaffold run --profile=init-db-production --module=accounts-db
+   skaffold run --profile=init-db-production --module=ledger-db
 
-   echo '🕰  Wait for staging-db initialization to complete...'
+   echo '🕰  Wait for production-db initialization to complete...'
    kubectl wait --for=condition=complete job/populate-accounts-db job/populate-ledger-db -n bank-of-anthos-staging --timeout=300s
    ```
 
-## Deploy the application (not ready in this PR due to dependencies on skaffold/kustomize configuration)
+## Run the first deployment of the application manually as otherwise E2E tests will fail it
+1. Staging
+```bash
+   gcloud container fleet memberships get-credentials staging-membership
+   skaffold run -p staging --skip-tests=true
+```
+2. Production
+```bash
+   gcloud container fleet memberships get-credentials production-membership
+   skaffold run -p production --skip-tests=true
+```
+
+## Deploy the application through CI/CD
 1. Execute CI/CD pipeline through Cloud Build triggers.
    ```bash
    echo '🌈  Triggering CI/CD for Frontend team'
-   gcloud beta builds triggers run frontend-ci --branch $SYNC_BRANCH
+   gcloud beta builds triggers run frontend-ci --branch $SYNC_BRANCH --region $REGION
 
    echo '😁  Triggering CI/CD for Accounts team'
-   gcloud beta builds triggers run accounts-ci --branch $SYNC_BRANCH
+   gcloud beta builds triggers run accounts-contacts-ci --branch $SYNC_BRANCH --region $REGION
+   gcloud beta builds triggers run accounts-userservice-ci --branch $SYNC_BRANCH --region $REGION
 
    echo '📒  Triggering CI/CD for Ledger team'
-   gcloud beta builds triggers run ledger-ci --branch $SYNC_BRANCH
+   gcloud beta builds triggers run ledger-balancereader-ci --branch $SYNC_BRANCH --region $REGION
+   gcloud beta builds triggers run ledger-ledgerwriter-ci --branch $SYNC_BRANCH --region $REGION
+   gcloud beta builds triggers run ledger-transactionhistory-ci --branch $SYNC_BRANCH --region $REGION
    ```
 
 # Troubleshooting
 1. Sometimes `terraform apply` fails due to a timeout or race conditions from API-enablement. In that case simply run `terraform apply` again.
+2. Sometimes the database seeding jobs' pods get stuck due to a failed sidecar container. This can be easily fixed by deleting the pods stuck with 2/3 containers.
+3. For production deployment ensure that DNS for your `$DOMAIN` has been set up to point to the IP of the production ingress. 
+```
+kubectl get ingress frontend-ingress --namespace bank-of-anthos-production -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+```

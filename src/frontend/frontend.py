@@ -315,10 +315,9 @@ def create_app():
             resp.raise_for_status()  # Raise on HTTP Status code 4XX or 5XX
         except requests.exceptions.HTTPError as http_request_err:
             raise UserWarning(resp.text) from http_request_err
-        else:
-            # Short delay to allow the transaction to propagate to balancereader
-            # and transaction-history
-            sleep(0.25)
+        # Short delay to allow the transaction to propagate to balancereader
+        # and transaction-history
+        sleep(0.25)
 
     def _add_contact(label, acct_num, routing_num, is_external_acct=False):
         """
@@ -418,7 +417,8 @@ def create_app():
         try:
             app.logger.debug('Logging in.')
             req = requests.get(url=app.config["LOGIN_URI"],
-                               params={'username': username, 'password': password})
+                               params={'username': username, 'password': password},
+                               timeout=app.config['BACKEND_TIMEOUT'])
             req.raise_for_status()  # Raise on HTTP Status code 4XX or 5XX
 
             # login success
@@ -659,7 +659,8 @@ def create_app():
     cluster_name = os.getenv('CLUSTER_NAME', 'unknown')
     try:
         req = requests.get(metadata_url + 'instance/attributes/cluster-name',
-                           headers=metadata_headers)
+                           headers=metadata_headers,
+                           timeout=app.config['BACKEND_TIMEOUT'])
         if req.ok:
             cluster_name = str(req.text)
     except (RequestException, HTTPError) as err:
@@ -674,7 +675,8 @@ def create_app():
     pod_zone = os.getenv('POD_ZONE', 'unknown')
     try:
         req = requests.get(metadata_url + 'instance/zone',
-                           headers=metadata_headers)
+                           headers=metadata_headers,
+                           timeout=app.config['BACKEND_TIMEOUT'])
         if req.ok:
             pod_zone = str(req.text.split("/")[3])
     except (RequestException, HTTPError) as err:

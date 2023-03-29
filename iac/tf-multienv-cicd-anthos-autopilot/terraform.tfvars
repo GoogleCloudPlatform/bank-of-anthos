@@ -11,8 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-project_id = "$PROJECT_ID"
-region = "$REGION"
+project_id = "bank-of-anthos-ci"
+region = "us-central1"
+zone = "us-central1-b"
 
 repo_owner = "GoogleCloudPlatform"
 sync_repo = "bank-of-anthos"

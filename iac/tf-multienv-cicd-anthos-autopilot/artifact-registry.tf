@@ -34,10 +34,17 @@ module "artifact-registry-repository-iam-bindings" {
   project      = var.project_id
   repositories = [local.application_name]
   location     = var.region
-  mode         = "additive"
+  mode         = "authoritative"
 
   bindings = {
-    "roles/artifactregistry.reader" = ["serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"]
+    "roles/artifactregistry.reader" = [
+      "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com",
+      "serviceAccount:${google_service_account.cloud_deploy.email}"
+    ],
+    "roles/artifactregistry.writer" = [
+      "serviceAccount:${google_service_account.cloud_build_pr.email}"
+    ]
+
   }
 
   depends_on = [

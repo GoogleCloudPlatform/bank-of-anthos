@@ -22,16 +22,23 @@ provider "kubernetes" {
 
 # staging autopilot cluster
 module "gke_staging" {
-  source = "terraform-google-modules/kubernetes-engine/google//modules/beta-autopilot-public-cluster"
+  source = "terraform-google-modules/kubernetes-engine/google//modules/beta-autopilot-private-cluster"
 
-  project_id                      = var.project_id
-  name                            = "staging"
-  regional                        = true
-  region                          = var.region
-  network                         = local.network_name
-  subnetwork                      = local.network.staging.subnetwork
-  ip_range_pods                   = local.network.staging.ip_range_pods
-  ip_range_services               = local.network.staging.ip_range_services
+  project_id              = var.project_id
+  name                    = "staging"
+  regional                = true
+  region                  = var.region
+  network                 = local.network_name
+  subnetwork              = local.network.staging.subnetwork
+  ip_range_pods           = local.network.staging.ip_range_pods
+  ip_range_services       = local.network.staging.ip_range_services
+  enable_private_nodes    = true
+  enable_private_endpoint = true
+  master_authorized_networks = [{
+    cidr_block   = module.network.subnets["${var.region}/${local.network.staging.master_auth_subnet_name}"].ip_cidr_range
+    display_name = local.network.staging.subnetwork
+  }]
+  master_ipv4_cidr_block          = "10.6.0.32/28"
   release_channel                 = "RAPID"
   enable_vertical_pod_autoscaling = true
   horizontal_pod_autoscaling      = true
@@ -113,37 +120,35 @@ resource "google_gke_hub_membership" "staging" {
 }
 
 # configure ASM for staging GKE cluster
-module "asm-staging" {
-  source = "terraform-google-modules/gcloud/google"
+resource "google_gke_hub_feature_membership" "asm_staging" {
+  project  = var.project_id
+  location = "global"
 
-  platform = "linux"
-
-  create_cmd_entrypoint  = "gcloud"
-  create_cmd_body        = "container fleet mesh update --management automatic --memberships ${google_gke_hub_membership.staging.membership_id} --project ${var.project_id}"
-  destroy_cmd_entrypoint = "gcloud"
-  destroy_cmd_body       = "container fleet mesh update --management manual --memberships ${google_gke_hub_membership.staging.membership_id} --project ${var.project_id}"
+  feature    = google_gke_hub_feature.asm.name
+  membership = google_gke_hub_membership.staging.membership_id
+  mesh {
+    management = "MANAGEMENT_AUTOMATIC"
+  }
+  provider = google-beta
 }
 
 # configure ACM for staging GKE cluster
-module "acm-staging" {
-  source = "terraform-google-modules/kubernetes-engine/google//modules/acm"
+resource "google_gke_hub_feature_membership" "acm_staging" {
+  project  = var.project_id
+  location = "global"
 
-  project_id                = var.project_id
-  cluster_name              = module.gke_staging.name
-  cluster_membership_id     = "staging-membership"
-  location                  = module.gke_staging.location
-  sync_repo                 = local.sync_repo_url
-  sync_branch               = var.sync_branch
-  enable_fleet_feature      = false
-  enable_fleet_registration = false
-  policy_dir                = "iac/acm-multienv-cicd-anthos-autopilot/overlays/staging"
-  source_format             = "unstructured"
-
-  depends_on = [
-    module.asm-staging
-  ]
-
-  providers = {
-    kubernetes = kubernetes.staging
+  feature    = google_gke_hub_feature.acm.name
+  membership = google_gke_hub_membership.staging.membership_id
+  configmanagement {
+    config_sync {
+      git {
+        sync_repo   = local.sync_repo_url
+        sync_branch = var.sync_branch
+        policy_dir  = "iac/acm-multienv-cicd-anthos-autopilot/overlays/staging"
+        secret_type = "none"
+      }
+      source_format = "unstructured"
+    }
   }
+  provider = google-beta
 }

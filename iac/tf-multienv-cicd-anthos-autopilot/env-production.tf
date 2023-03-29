@@ -22,16 +22,23 @@ provider "kubernetes" {
 
 # production autopilot cluster
 module "gke_production" {
-  source = "terraform-google-modules/kubernetes-engine/google//modules/beta-autopilot-public-cluster"
+  source = "terraform-google-modules/kubernetes-engine/google//modules/beta-autopilot-private-cluster"
 
-  project_id                      = var.project_id
-  name                            = "production"
-  regional                        = true
-  region                          = var.region
-  network                         = local.network_name
-  subnetwork                      = local.network.production.subnetwork
-  ip_range_pods                   = local.network.production.ip_range_pods
-  ip_range_services               = local.network.production.ip_range_services
+  project_id              = var.project_id
+  name                    = "production"
+  regional                = true
+  region                  = var.region
+  network                 = local.network_name
+  subnetwork              = local.network.production.subnetwork
+  ip_range_pods           = local.network.production.ip_range_pods
+  ip_range_services       = local.network.production.ip_range_services
+  enable_private_nodes    = true
+  enable_private_endpoint = true
+  master_authorized_networks = [{
+    cidr_block   = module.network.subnets["${var.region}/${local.network.production.master_auth_subnet_name}"].ip_cidr_range
+    display_name = local.network.production.subnetwork
+  }]
+  master_ipv4_cidr_block          = "10.6.0.16/28"
   release_channel                 = "RAPID"
   enable_vertical_pod_autoscaling = true
   horizontal_pod_autoscaling      = true
@@ -113,37 +120,106 @@ resource "google_gke_hub_membership" "production" {
 }
 
 # configure ASM for production GKE cluster
-module "asm-production" {
-  source = "terraform-google-modules/gcloud/google"
+resource "google_gke_hub_feature_membership" "asm_production" {
+  project  = var.project_id
+  location = "global"
 
-  platform = "linux"
-
-  create_cmd_entrypoint  = "gcloud"
-  create_cmd_body        = "container fleet mesh update --management automatic --memberships ${google_gke_hub_membership.production.membership_id} --project ${var.project_id}"
-  destroy_cmd_entrypoint = "gcloud"
-  destroy_cmd_body       = "container fleet mesh update --management manual --memberships ${google_gke_hub_membership.production.membership_id} --project ${var.project_id}"
+  feature    = google_gke_hub_feature.asm.name
+  membership = google_gke_hub_membership.production.membership_id
+  mesh {
+    management = "MANAGEMENT_AUTOMATIC"
+  }
+  provider = google-beta
 }
 
 # configure ACM for production GKE cluster
-module "acm-production" {
-  source = "terraform-google-modules/kubernetes-engine/google//modules/acm"
+resource "google_gke_hub_feature_membership" "acm_production" {
+  project  = var.project_id
+  location = "global"
 
-  project_id                = var.project_id
-  cluster_name              = module.gke_production.name
-  cluster_membership_id     = "production-membership"
-  location                  = module.gke_production.location
-  sync_repo                 = local.sync_repo_url
-  sync_branch               = var.sync_branch
-  enable_fleet_feature      = false
-  enable_fleet_registration = false
-  policy_dir                = "iac/acm-multienv-cicd-anthos-autopilot/overlays/production"
-  source_format             = "unstructured"
+  feature    = google_gke_hub_feature.acm.name
+  membership = google_gke_hub_membership.production.membership_id
+  configmanagement {
+    config_sync {
+      git {
+        sync_repo   = local.sync_repo_url
+        sync_branch = var.sync_branch
+        policy_dir  = "iac/acm-multienv-cicd-anthos-autopilot/overlays/production"
+        secret_type = "none"
+      }
+      source_format = "unstructured"
+    }
+  }
+  provider = google-beta
+}
+
+resource "google_compute_global_address" "production_ip" {
+  name = "bank-of-anthos-ip" # hardcoded in frontend ingress k8s manifest
 
   depends_on = [
-    module.asm-production
+    module.enabled_google_apis,
   ]
+}
 
-  providers = {
-    kubernetes = kubernetes.production
+resource "google_compute_security_policy" "production_security_policy" {
+  name        = "bank-of-anthos-security-policy" # hardcoded in backendconfig k8s manifest
+  description = "Block various attacks against bank of anthos production deployment"
+
+  rule {
+    description = "XSS attack filtering"
+    priority    = "1000"
+    action      = "deny(403)"
+    match {
+      expr {
+        expression = "evaluatePreconfiguredExpr('xss-stable')"
+      }
+    }
   }
+
+  rule {
+    description = "CVE-2021-44228 and CVE-2021-45046"
+    priority    = "12345"
+    action      = "deny(403)"
+    match {
+      expr {
+        expression = "evaluatePreconfiguredExpr('cve-canary')"
+      }
+    }
+  }
+
+  rule {
+    description = "default rule"
+    priority    = "2147483647"
+    action      = "allow"
+    match {
+      versioned_expr = "SRC_IPS_V1"
+      config {
+        src_ip_ranges = ["*"]
+      }
+    }
+  }
+
+  adaptive_protection_config {
+    layer_7_ddos_defense_config {
+      enable = true
+    }
+  }
+
+  advanced_options_config {
+    log_level = "VERBOSE"
+  }
+
+  depends_on = [
+    module.enabled_google_apis,
+  ]
+}
+
+resource "google_compute_ssl_policy" "production_ssl_policy" {
+  name            = "bank-of-anthos-ssl-policy" # hardcoded in frontendconfig k8s manifest
+  profile         = "COMPATIBLE"
+  min_tls_version = "TLS_1_0" # TODO: consider increasing this
+
+  depends_on = [
+    module.enabled_google_apis,
+  ]
 }
