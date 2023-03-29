@@ -2,8 +2,8 @@
 This configuration is **not meant for everyday usage** and is **not required to deploy Bank of Anthos or any of its extensions / flavours**. Instead it is meant to showcase a full-featured CI/CD environment based on Cloud Build, Cloud Deploy, skaffold & kustomize that deploys to multiple GKE Autopilot-based runtime environments with valuable Anthos features like Anthos Service Mesh and Anthos Config Management enabled.
 
 # What does this solution contain?
-- CI per team (accounts, frontend, ledger) with skaffold profile per environment
-- CD per team (accounts, frontend, ledger) with skaffold profile per environment
+- CI per service with skaffold profile per environment
+- CD per service with skaffold profile per environment
 - Development environment:
     - GKE Autopilot /w managed ASM (namespace: bank-of-anthos-development)
     - ACM for base setup
@@ -118,7 +118,7 @@ Setting up the sample requires that you have a [Google Cloud Platform (GCP) proj
    skaffold run --profile=init-db-production --module=ledger-db
 
    echo '🕰  Wait for production-db initialization to complete...'
-   kubectl wait --for=condition=complete job/populate-accounts-db job/populate-ledger-db -n bank-of-anthos-staging --timeout=300s
+   kubectl wait --for=condition=complete job/populate-accounts-db job/populate-ledger-db -n bank-of-anthos-production --timeout=300s
    ```
 
 ## Run the first deployment of the application manually as otherwise E2E tests will fail it
