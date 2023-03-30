@@ -1,0 +1,5 @@
+trustedContributors:
+  - "renovate-bot"
+annotations:
+  - type: comment
+    text: "/gcbrun"
