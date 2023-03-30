@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-FROM postgres:15.2-alpine@sha256:53a02ecbe9d18ff6476e6651c34811da39f054424c725fc15d2b480fc3fab877
+FROM postgres:15.2-alpine@sha256:07ec36ad2d5ab9250f38c8ef749239b662cf15d03c9ddb7167422edbbdf71156
 
 # Files for initializing the database.
 COPY initdb/0-accounts-schema.sql /docker-entrypoint-initdb.d/0-accounts-schema.sql
