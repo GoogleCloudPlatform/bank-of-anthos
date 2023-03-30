@@ -80,7 +80,11 @@ Setting up the sample requires that you have a [Google Cloud Platform (GCP) proj
    ```
 
 ## Provision infrastructure with terraform
-1. Create a GCS bucket in your project to hold your terraform state. `gsutil mb gs://$YOUR_TF_STATE_GCS_BUCKET_NAME`
+1. Create a GCS bucket in your project to hold your terraform state.
+   ```bash
+   gsutil mb gs://$YOUR_TF_STATE_GCS_BUCKET_NAME
+   gsutil versioning set on gs://$YOUR_TF_STATE_GCS_BUCKET_NAME
+   ```
 1. Replace "YOUR_TF_STATE_GCS_BUCKET_NAME" in `iac/tf-multienv-cicd-anthos-autopilot/main.tf` with your chosen bucket name.
 1. Configure terraform variables in `iac/tf-multienv-cicd-anthos-autopilot/terraform.tfvars` - at a minimum set `project_id` and `region` to the same values you used for the ACM substitution.
 1. Provision infrastructure with terraform.
@@ -149,10 +153,21 @@ Setting up the sample requires that you have a [Google Cloud Platform (GCP) proj
    gcloud beta builds triggers run ledger-transactionhistory-ci --branch $SYNC_BRANCH --region $REGION
    ```
 
+## Set-up the DNS and certificate
+1. In your domain registrar, add or modify an A route pointing to the production cluster.
+
+   You can find the IP address in Cloud Load Balancing. Find the production ingress LB,
+   and copy the IP that is listed. Alternatively:
+   ```bash
+   kubectl get ingress frontend-ingress --namespace bank-of-anthos-production -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+   ```
+
+2. Wait for the certificate to be provisioned. This will show up in the Classic Certificates
+   section of the Certificate Manager. Once provisioned, its state will change to "Active".
+
+3. You should now be able to access Bank of Anthos through `https://$DOMAIN`.
+
 # Troubleshooting
 1. Sometimes `terraform apply` fails due to a timeout or race conditions from API-enablement. In that case simply run `terraform apply` again.
 2. Sometimes the database seeding jobs' pods get stuck due to a failed sidecar container. This can be easily fixed by deleting the pods stuck with 2/3 containers.
 3. For production deployment ensure that DNS for your `$DOMAIN` has been set up to point to the IP of the production ingress. 
-```
-kubectl get ingress frontend-ingress --namespace bank-of-anthos-production -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
-```
