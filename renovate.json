@@ -33,7 +33,6 @@
   "kubernetes": {
     "fileMatch": ["\\.yaml$"],
     "ignorePaths": [
-      "dev-kubernetes-manifests/**",
       "kubernetes-manifests/**"
     ]
   },
