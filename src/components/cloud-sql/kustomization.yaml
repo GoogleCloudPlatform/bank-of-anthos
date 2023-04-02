@@ -26,7 +26,7 @@ patches:
             limits:
               cpu: "0.25"
               memory: "100Mi"
-          image: gcr.io/cloudsql-docker/gce-proxy:latest 
+          image: gcr.io/cloudsql-docker/gce-proxy:latest@sha256:04576bc7c5d848b0a4585e6328b3fcaf82bf6ea73bcd64387a29ee9856a57136 
           env:
           - name: CONNECTION_NAME
             valueFrom:
