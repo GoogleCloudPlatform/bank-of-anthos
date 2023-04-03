@@ -21,13 +21,10 @@ steps:
     args: ['rm', '-Rf', '/workspace/$_CACHE']
   - name: gcr.io/k8s-skaffold/skaffold:v2.3.0
     id: build-and-push-images
-    args:
-      - "skaffold"
-      - "build"
-      - "--file-output=/workspace/artifacts.json"
-      - "--default-repo=$_CONTAINER_REGISTRY"
-      - "--cache-file=/workspace/$_CACHE" # set _CACHE to anything other than "cache" e.g. "no-cache" to reset skaffold cache
-      - "--module=$_SERVICE"
+    script: skaffold build --file-output=/workspace/artifacts.json --default-repo=$_CONTAINER_REGISTRY --cache-file=/workspace/$_CACHE --module=$_SERVICE || echo "fail"
+  - name: gcr.io/k8s-skaffold/skaffold:v2.3.0
+    id: build-and-push-images
+    script: skaffold build --file-output=/workspace/artifacts.json --default-repo=$_CONTAINER_REGISTRY --cache-file=/workspace/$_CACHE --module=$_SERVICE || echo "fail"
   - name: gcr.io/cloud-builders/gsutil
     id: upload-skaffold-cache
     args: ['cp', '/workspace/$_CACHE',  $_CACHE_URI]
