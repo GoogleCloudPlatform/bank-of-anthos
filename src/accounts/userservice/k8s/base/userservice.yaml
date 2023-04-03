@@ -75,11 +75,11 @@ spec:
         resources:
           requests:
             cpu: 300m
-            memory: 0.5Gi
+            memory: 128Mi
             ephemeral-storage: 0.25Gi
           limits:
-            cpu: 300m
-            memory: 0.5Gi
+            cpu: 500m
+            memory: 256Mi
             ephemeral-storage: 0.25Gi
 # [END gke_boa_kubernetes_manifests_userservice_deployment_userservice]
 ---
