@@ -80,12 +80,12 @@ spec:
             name: ledger-db-config
         resources:
           requests:
-            cpu: 300m
-            memory: 568Mi
+            cpu: 100m
+            memory: 256Mi
             ephemeral-storage: 0.5Gi
           limits:
             cpu: 500m
-            memory: 568Mi
+            memory: 512Mi
             ephemeral-storage: 0.5Gi
         readinessProbe:
           httpGet:
