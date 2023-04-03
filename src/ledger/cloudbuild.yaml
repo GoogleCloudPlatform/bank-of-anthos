@@ -23,7 +23,7 @@ steps:
     id: build-and-push-images
     script: skaffold build --file-output=/workspace/artifacts.json --default-repo=$_CONTAINER_REGISTRY --cache-file=/workspace/$_CACHE --module=$_SERVICE || echo "fail"
   - name: gcr.io/k8s-skaffold/skaffold:v2.3.0
-    id: build-and-push-images
+    id: build-and-push-images-again
     script: skaffold build --file-output=/workspace/artifacts.json --default-repo=$_CONTAINER_REGISTRY --cache-file=/workspace/$_CACHE --module=$_SERVICE || echo "fail"
   - name: gcr.io/cloud-builders/gsutil
     id: upload-skaffold-cache
