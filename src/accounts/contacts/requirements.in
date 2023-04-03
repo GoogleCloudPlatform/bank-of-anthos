@@ -29,7 +29,7 @@ opentelemetry-instrumentation-sqlalchemy==0.37b0
 packaging==23.0
 pluggy==1.0.0
 protobuf==4.22.1
-psycopg2-binary==2.9.5
+psycopg2-binary==2.9.6
 py==1.11.0
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
