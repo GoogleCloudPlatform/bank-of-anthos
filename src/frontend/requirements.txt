@@ -30,11 +30,11 @@ googleapis-common-protos==1.59.0
     # via
     #   google-api-core
     #   grpcio-status
-grpcio==1.51.3
+grpcio==1.53.0
     # via
     #   google-api-core
     #   grpcio-status
-grpcio-status==1.51.3
+grpcio-status==1.53.0
     # via google-api-core
 gunicorn==20.1.0
     # via -r requirements.in
