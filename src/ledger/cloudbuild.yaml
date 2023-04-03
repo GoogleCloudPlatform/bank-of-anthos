@@ -13,9 +13,9 @@
 # limitations under the License.
 
 steps:
-  - name: gcr.io/cloud-builders/gsutil
-    id: download-skaffold-cache
-    args: ['cp', $_CACHE_URI, '/workspace/cache'] # always write skaffold cache to filename cache in workspace
+  # - name: gcr.io/cloud-builders/gsutil
+  #   id: download-skaffold-cache
+  #   args: ['cp', $_CACHE_URI, '/workspace/cache'] # always write skaffold cache to filename cache in workspace
   - name: gcr.io/k8s-skaffold/skaffold:v2.3.0
     id: build-and-push-images
     args:
