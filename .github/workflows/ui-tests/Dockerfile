@@ -9,7 +9,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM cypress/included:12.3.0@sha256:92c9fabf4cebd9564fa63f401446b63c10e2a26c7806bae4af83cda81d918610
+FROM cypress/included:12.9.0@sha256:ae2a4b05f4f84ff8ba20c301d8c1f52004862e59b52c8386b457e7e213adcf60
 WORKDIR /e2e
 # install gcloud cli tools to get kubectl context and service/ingress endpoint ip to test
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg  add - && apt-get update -y && apt-get install google-cloud-cli -y
