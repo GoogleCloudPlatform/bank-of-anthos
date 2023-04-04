@@ -16,11 +16,30 @@ steps:
   - name: gcr.io/cloud-builders/gsutil
     id: download-skaffold-cache
     args: ['cp', $_CACHE_URI, '/workspace/cache'] # always write skaffold cache to filename cache in workspace
+  - name: ubuntu
+    id: testing
+    script: echo 'skaffold build --file-output=/workspace/artifacts.json --default-repo=$_CONTAINER_REGISTRY --cache-file=/workspace/$_CACHE --module=$_SERVICE'
+    env:
+      - "CONTAINER_REGISTRY=$_CONTAINER_REGISTRY"
+      - "CACHE=$_CACHE"
+      - "SERVICE=$_SERVICE"
   - name: gcr.io/k8s-skaffold/skaffold:v2.3.0
     id: build-and-push-images
     script: skaffold build --file-output=/workspace/artifacts.json --default-repo=$_CONTAINER_REGISTRY --cache-file=/workspace/$_CACHE --module=$_SERVICE || echo "fail"
+    env:
+      - "CONTAINER_REGISTRY=$_CONTAINER_REGISTRY"
+      - "CACHE=$_CACHE"
+      - "SERVICE=$_SERVICE"
   - name: gcr.io/k8s-skaffold/skaffold:v2.3.0
     id: build-and-push-images-again
+    script: MAVEN_USER_HOME=$MAVEN_USER_HOME skaffold build --file-output=/workspace/artifacts.json --default-repo=$_CONTAINER_REGISTRY --cache-file=/workspace/$_CACHE --module=$_SERVICE || echo "fail"
+    env:
+      - "CONTAINER_REGISTRY=$_CONTAINER_REGISTRY"
+      - "CACHE=$_CACHE"
+      - "SERVICE=$_SERVICE"
+      - "MAVEN_USER_HOME=/workspace/.m2"
+  - name: gcr.io/k8s-skaffold/skaffold:v2.3.0
+    id: build-and-push-images-yet-again
     args:
       - "skaffold"
       - "build"
