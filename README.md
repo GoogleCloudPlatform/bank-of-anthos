@@ -16,12 +16,12 @@ If you are using Bank of Anthos, please ★Star this repository to show your int
 
 | Sign in                                                                                                        | Home                                                                                                    |
 | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| [![Login](./docs/login.png)](./docs/login.png) | [![User Transactions](./docs/transactions.png)](./docs/transactions.png) |
+| [![Login](./docs/img/login.png)](./docs/img/login.png) | [![User Transactions](./docs/img/transactions.png)](./docs/img/transactions.png) |
 
 
 ## Service architecture
 
-![Architecture Diagram](./docs/architecture.png)
+![Architecture Diagram](./docs/img/architecture.png)
 
 | Service                                          | Language      | Description                                                                                                                                  |
 | ------------------------------------------------ | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
