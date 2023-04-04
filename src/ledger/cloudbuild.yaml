@@ -13,18 +13,21 @@
 # limitations under the License.
 
 steps:
-  # - name: gcr.io/cloud-builders/gsutil
-  #   id: download-skaffold-cache
-  #   args: ['cp', $_CACHE_URI, '/workspace/cache'] # always write skaffold cache to filename cache in workspace
-  - name: ubuntu
-    id: delete-cache
-    args: ['rm', '-Rf', '/workspace/$_CACHE']
+  - name: gcr.io/cloud-builders/gsutil
+    id: download-skaffold-cache
+    args: ['cp', $_CACHE_URI, '/workspace/cache'] # always write skaffold cache to filename cache in workspace
   - name: gcr.io/k8s-skaffold/skaffold:v2.3.0
     id: build-and-push-images
     script: skaffold build --file-output=/workspace/artifacts.json --default-repo=$_CONTAINER_REGISTRY --cache-file=/workspace/$_CACHE --module=$_SERVICE || echo "fail"
   - name: gcr.io/k8s-skaffold/skaffold:v2.3.0
     id: build-and-push-images-again
-    script: skaffold build --file-output=/workspace/artifacts.json --default-repo=$_CONTAINER_REGISTRY --cache-file=/workspace/$_CACHE --module=$_SERVICE || echo "fail"
+    args:
+      - "skaffold"
+      - "build"
+      - "--file-output=/workspace/artifacts.json"
+      - "--default-repo=$_CONTAINER_REGISTRY"
+      - "--cache-file=/workspace/$_CACHE" # set _CACHE to anything other than "cache" e.g. "no-cache" to reset skaffold cache
+      - "--module=$_SERVICE"
   - name: gcr.io/cloud-builders/gsutil
     id: upload-skaffold-cache
     args: ['cp', '/workspace/$_CACHE',  $_CACHE_URI]
