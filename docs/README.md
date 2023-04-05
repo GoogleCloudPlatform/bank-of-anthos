@@ -1,6 +1,5 @@
 ![GitHub branch checks state](https://img.shields.io/github/checks-status/GoogleCloudPlatform/bank-of-anthos/main)
-![Website](https://img.shields.io/website?label=live%20demo&url=https%3A%2F%2Fbank-of-anthos.xyz%2F)
-![GitHub commit activity](https://img.shields.io/github/commit-activity/m/GoogleCloudPlatform/bank-of-anthos)
+[![Website](https://img.shields.io/website?label=live%20demo&url=https%3A%2F%2Fbank-of-anthos.xyz%2F)](https://bank-of-anthos.xyz)
 
 # Bank of Anthos
 
