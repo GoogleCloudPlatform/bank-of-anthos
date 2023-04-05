@@ -32,22 +32,22 @@ Make sure that the following commands are in your `PATH`:
 - `skaffold`
 - `gcloud`
 
-Run the `make-release.sh` script found inside the `release` directory:
+Run the `make-release.sh` script found inside the `docs/releasing` directory:
 
 ```sh
 # assuming you are inside the root path of the bank-of-anthos repository
 export NEW_VERSION=vX.Y.Z
-export REPO_PREFIX=gcr.io/bank-of-anthos-ci
-./release/make-release.sh
+export REPO_PREFIX=us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos
+./docs/releasing/make-release.sh
 ```
 
 This script does the following:
-1. Replaces the existing `kubernetes-manifests` with the content of `dev-kubernetes-manifests`.
-2. Updates the image tags for all the Deployments in `kubernetes-manifests` with the new release tag.
-3. Uses `git tag` to create a new local tag.
-4. Creates a new release branch.
-5. Uses `skaffold` to build and push new stable release images to `gcr.io/bank-of-anthos-ci`.
-6. Pushes the git tag and the release branch.
+1. Clears out the previous release in `kubernetes-manifests/`.
+2. Build, tag, and pushes release images in Artifact Registry using `skaffold build`.
+3. Renders new k8s manifests using `skaffold render`.
+4. Update version environment variables in k8s and TF manifests.
+5. Creates a new git release branch and tag.
+6. Pushes the git release branch and tag upstream.
 
 ### Troubleshooting script failures
 
@@ -57,9 +57,6 @@ In the event of any of the steps above failing you might have to revert the repo
 git checkout main
 git branch -D release/$NEW_VERSION
 git tag -d $NEW_VERSION
-
-# delete temporary files created
-rm kubernetes-manifests/*-e
 ```
 
 ## Create the PR
@@ -82,31 +79,15 @@ The release notes should contain a brief description of the changes since the pr
 
 Once the release notes are published, you should then replace the version of the production environment to the newly published version.
 
-First, make sure you are connected to the production cluster (**note:** this requires authorization access to the Bank of Anthos cluster):
-```
-gcloud container clusters get-credentials bank-of-anthos-release --zone us-central1-c --project bank-of-anthos-ci
-```
+1. Open up the [Cloud Deploy dashboard](https://pantheon.corp.google.com/deploy/delivery-pipelines?project=bank-of-anthos-ci).
 
-1. ***[Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity) enabled production cluster***
+2. For each service, click on it, verify that its staging version is green, and then click **Promote**.
 
-Currently the `bank-of-anthos-release` cluster has [Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity) enabled. Thus, when deploying to this cluster the pod service account (`boa-ksa-release`) used by _Workload Identity_ must be used as the serviceAccount in the manifests.
+   [![Cloud Deploy](./img/cloud-deploy.png)](./img/cloud-deploy.png)
 
-Follow steps 3 and 4 of the [workload identity setup](https://github.com/GoogleCloudPlatform/bank-of-anthos/blob/main/docs/workload-identity.md) with the following config values to deploy into production:
-- `boa-ksa-release` as the `KSA_NAME`
-- `default` as the `NAMESPACE`
+3. Wait for all promotion builds to be green.
 
-2. ***Non Workload Identity cluster***
-
-You can simply apply the new manifest versions on top of the current environment:
-```
-kubectl apply -f ./kubernetes-manifests
-```
-
-Alternatively, you can also choose to start from scratch by deleting the previously applied manifests first:
-```
-kubectl delete -f kubernetes-manifests
-kubectl apply -f ./kubernetes-manifests
-```
+4. Verify that the production environment is still up and running: https://bank-of-anthos.xyz
 
 ## Update the ledgermonolith bucket
 
