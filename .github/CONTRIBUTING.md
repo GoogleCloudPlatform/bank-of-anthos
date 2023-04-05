@@ -30,4 +30,4 @@ Guidelines](https://opensource.google/conduct/).
 
 ## Development Guide 
 
-Please see the [development guide](docs/development.md) for how to set up your local environment.
+Please see the [development guide](../docs/development.md) for how to set up your local environment.
