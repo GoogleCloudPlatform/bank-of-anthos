@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START gke_boa_kubernetes_manifests_ledger_db_statefulset_ledger_db]
 kind: StatefulSet
 apiVersion: apps/v1
 metadata:
@@ -55,9 +54,7 @@ spec:
       volumes:
         - name: postgresdb
           emptyDir: {}
-# [END gke_boa_kubernetes_manifests_ledger_db_statefulset_ledger_db]
 ---
-  # [START gke_boa_kubernetes_manifests_ledger_db_service_ledger_db]
   apiVersion: v1
   kind: Service
   metadata:
@@ -70,4 +67,3 @@ spec:
     - name: tcp
       port: 5432
       targetPort: 5432
-  # [END gke_boa_kubernetes_manifests_ledger_db_service_ledger_db]

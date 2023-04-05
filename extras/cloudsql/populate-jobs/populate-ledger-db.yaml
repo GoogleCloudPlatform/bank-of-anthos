@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START gke_populate_jobs_populate_ledger_db_configmap_ledger_schema_config]
 # kubectl create configmap ledger-schema-config --from-file=src/ledger-db/initdb/0-ledger-schema.sql --dry-run -o yaml (copy and add below)
 # kubectl create configmap ledger-schema-config --from-file=src/ledger-db/initdb/1-load-testdata.sh --dry-run -o yaml (copy and add below)
 apiVersion: v1
@@ -244,9 +243,7 @@ data:
 
     main
 
-# [END gke_populate_jobs_populate_ledger_db_configmap_ledger_schema_config]
 ---
-# [START gke_populate_jobs_populate_ledger_db_job_populate_ledger_db]
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -335,4 +332,3 @@ spec:
           name: ledger-schema-config
       restartPolicy: Never
   backoffLimit: 4
-# [END gke_populate_jobs_populate_ledger_db_job_populate_ledger_db]

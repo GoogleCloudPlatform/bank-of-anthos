@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START gke_boa_kubernetes_manifests_userservice_deployment_userservice]
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -81,9 +80,7 @@ spec:
             cpu: 500m
             memory: 256Mi
             ephemeral-storage: 0.25Gi
-# [END gke_boa_kubernetes_manifests_userservice_deployment_userservice]
 ---
-# [START gke_boa_kubernetes_manifests_userservice_service_userservice]
 apiVersion: v1
 kind: Service
 metadata:
@@ -96,4 +93,3 @@ spec:
   - name: http
     port: 8080
     targetPort: 8080
-# [END gke_boa_kubernetes_manifests_userservice_service_userservice]

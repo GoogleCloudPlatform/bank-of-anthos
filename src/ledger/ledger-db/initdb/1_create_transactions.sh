@@ -13,8 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START gke_initdb_1_create_transactions]
-
 # Create demo transactions in the ledger for the demo user accounts.
 #
 # Gerenated transactions follow a pattern of biweekly large deposits with
@@ -115,5 +113,3 @@ main() {
 
 
 main
-
-# [END gke_initdb_1_create_transactions]

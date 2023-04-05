@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START gke_tls_domain_managedcerts_managed_certificates_managedcertificate_bank_ssl_certificate]
 apiVersion: networking.gke.io/v1beta1
 kind: ManagedCertificate
 metadata:
@@ -20,9 +19,7 @@ metadata:
 spec:
   domains:
     - bank-of-anthos.xyz  # repace me with DNS name mapped to bank-address
-# [END gke_tls_domain_managedcerts_managed_certificates_managedcertificate_bank_ssl_certificate]
 ---
-# [START gke_tls_domain_managedcerts_managed_certificates_service_frontend_nodeport]
 apiVersion: v1
 kind: Service
 metadata:
@@ -35,9 +32,7 @@ spec:
     - protocol: TCP
       port: 8080
       targetPort: 8080
-# [END gke_tls_domain_managedcerts_managed_certificates_service_frontend_nodeport]
 ---
-# [START gke_tls_domain_managedcerts_managed_certificates_ingress_frontend_ingress]
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
@@ -50,4 +45,3 @@ spec:
   backend:
     serviceName: frontend-nodeport
     servicePort: 8080
-# [END gke_tls_domain_managedcerts_managed_certificates_ingress_frontend_ingress]

@@ -16,31 +16,23 @@ kind: Config
 metadata:
   name: bank-of-anthos
 requires:
-# [START gke_bank_of_anthos_skaffold_config_backend]
 - configs:
   - accounts
   path: src/accounts/skaffold.yaml
 - configs:
   - ledger
   path: src/ledger/skaffold.yaml
-# [END gke_bank_of_anthos_skaffold_config_backend]
-# [START gke_bank_of_anthos_skaffold_config_backend]
 - configs:
   - frontend
   path: src/frontend/skaffold.yaml
-# [END gke_bank_of_anthos_skaffold_config_backend]
-# [START gke_bank_of_anthos_skaffold_config_loadgenerator]
 - configs:
   - loadgenerator
   path: src/loadgenerator/skaffold.yaml
-# [END gke_bank_of_anthos_skaffold_config_loadgenerator]
-# [START gke_bank_of_anthos_skaffold_config_db]
 - configs:
   - accounts-db
   path: src/accounts/accounts-db/skaffold.yaml
 - configs:
   - ledger-db
   path: src/ledger/ledger-db/skaffold.yaml
-# [END gke_bank_of_anthos_skaffold_config_db]
 deploy:
   tolerateFailuresUntilDeadline: true

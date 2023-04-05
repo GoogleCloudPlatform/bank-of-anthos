@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START gke_cloudsql_multicluster_multicluster_ingress_multiclusterservice_frontend_mcs]
 apiVersion: networking.gke.io/v1
 kind: MultiClusterService
 metadata:
@@ -27,9 +26,7 @@ spec:
         protocol: TCP
         port: 8080
         targetPort: 8080
-# [END gke_cloudsql_multicluster_multicluster_ingress_multiclusterservice_frontend_mcs]
 ---
-# [START gke_cloudsql_multicluster_multicluster_ingress_multiclusteringress_frontend_global_ingress]
 apiVersion: networking.gke.io/v1
 kind: MultiClusterIngress
 metadata:
@@ -40,4 +37,3 @@ spec:
       backend:
         serviceName: frontend-mcs
         servicePort: 8080
-# [END gke_cloudsql_multicluster_multicluster_ingress_multiclusteringress_frontend_global_ingress]

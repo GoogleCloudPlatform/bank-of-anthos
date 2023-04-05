@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START gke_cloudsql_create_cloudsql_instance]
 INSTANCE_NAME='bank-of-anthos-db'
 
 echo "☁️ Enabling the Cloud SQL API..."
@@ -50,5 +49,3 @@ if [ $LEDGER_DB_EXISTS = "0" ]; then
 fi
 
 echo "⭐️ Done."
-
-# [END gke_cloudsql_create_cloudsql_instance]
