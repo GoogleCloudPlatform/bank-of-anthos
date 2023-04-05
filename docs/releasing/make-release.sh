@@ -15,12 +15,15 @@
 
 set -euxo pipefail
 
-# set default repo
+# set env
+# FIXME: ar instead of gcr?
 REPO_PREFIX="${REPO_PREFIX:-gcr.io/bank-of-anthos-ci}"
+PROFILE="development"
+RELEASE_DIR="kubernetes-manifests/"
 
 # move to repo root
 SCRIPT_DIR=$(dirname $(realpath -s $0))
-REPO_ROOT=$SCRIPT_DIR/..
+REPO_ROOT=$SCRIPT_DIR/../..
 cd $REPO_ROOT
 
 # validate version number (format: v0.0.0)
@@ -43,35 +46,40 @@ then
     exit 1
 fi
 
-# replace kubernetes-manifests/ contents 
-rm -rf "${REPO_ROOT}/kubernetes-manifests"
-mkdir "${REPO_ROOT}/kubernetes-manifests"
-cp -a "${REPO_ROOT}/dev-kubernetes-manifests/." "${REPO_ROOT}/kubernetes-manifests/"
+# clear out previous release content
+rm -rf "${REPO_ROOT}/${RELEASE_DIR}"
+mkdir "${REPO_ROOT}/${RELEASE_DIR}"
+
+# build and push release images
+skaffold config set local-cluster false
+skaffold build --file-output="artifacts.json" --profile "${PROFILE}" \
+               --default-repo="${REPO_PREFIX}" --tag="${NEW_VERSION}"
+skaffold config unset local-cluster
+
+# render manifests
+# FIXME: or do we want in one file? pros / cons
+for service in "frontend contacts userservice balancereader ledgerwriter transactionhistory loadgenerator"; do
+  skaffold render --build-artifacts="artifacts.json" --profile "${PROFILE}" \
+                  --module="${service}" > "${REPO_PREFIX}/${RELEASE_DIR}/${service}.yaml"
+done
 
 # update version in manifests
-find "${REPO_ROOT}/kubernetes-manifests" -name '*.yaml' -exec sed -i -e "s'image: \(.*\)'image: ${REPO_PREFIX}\/\1:${NEW_VERSION}'g" {} \;
-find "${REPO_ROOT}/kubernetes-manifests" -name '*.yaml' -exec sed -i -e "s'value: \"dev\"'value: \"${NEW_VERSION}\"'g" {} \;
+find "${REPO_ROOT}/${RELEASE_DIR}" -name '*.yaml' -exec sed -i -e "s'value: \"dev\"'value: \"${NEW_VERSION}\"'g" {} \;
 
 # update version in terraform scripts
 sed -i -e "s@sync_branch  = .*@sync_branch  = \"${NEW_VERSION}\"@g" ${REPO_ROOT}/iac/tf-anthos-gke/terraform.tfvars
 
-# remove the region tags so that there are no duplicates 
-find "${REPO_ROOT}/kubernetes-manifests" -name '*.yaml' -exec sed -i -e  "s/dev_kubernetes_manifests/boa_kubernetes_manifests/g" {} \;
-
-# push release PR
+# create release branch and tag
 git checkout -b "release/${NEW_VERSION}"
-git add "${REPO_ROOT}/kubernetes-manifests/*.yaml"
+# FIXME: "git add" ... what if file gone? git rm?
+git add "${REPO_ROOT}/${RELEASE_DIR}/*.yaml"
 git add "${REPO_ROOT}/iac/tf-anthos-gke/terraform.tfvars"
 git commit -m "release/${NEW_VERSION}"
-
-# add tag
 git tag "${NEW_VERSION}"
 
-# build and push release images
-skaffold config set local-cluster false
-skaffold build --default-repo="${REPO_PREFIX}" --tag="${NEW_VERSION}"
-skaffold config unset local-cluster
-
-# push to repo
+# push branch and tag upstream
 git push --set-upstream origin "release/${NEW_VERSION}"
 git push --tags
+
+# clean up
+rm "${REPO_ROOT}/artifacts.json"
