@@ -15,12 +15,14 @@
 
 set -euxo pipefail
 
-# set default repo
-REPO_PREFIX="${REPO_PREFIX:-gcr.io/bank-of-anthos-ci}"
+# set env
+REPO_PREFIX="${REPO_PREFIX:-us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos}"
+PROFILE="development"
+RELEASE_DIR="kubernetes-manifests/"
 
 # move to repo root
 SCRIPT_DIR=$(dirname $(realpath -s $0))
-REPO_ROOT=$SCRIPT_DIR/..
+REPO_ROOT=$SCRIPT_DIR/../..
 cd $REPO_ROOT
 
 # validate version number (format: v0.0.0)
@@ -43,35 +45,40 @@ then
     exit 1
 fi
 
-# replace kubernetes-manifests/ contents 
-rm -rf "${REPO_ROOT}/kubernetes-manifests"
-mkdir "${REPO_ROOT}/kubernetes-manifests"
-cp -a "${REPO_ROOT}/dev-kubernetes-manifests/." "${REPO_ROOT}/kubernetes-manifests/"
-
-# update version in manifests
-find "${REPO_ROOT}/kubernetes-manifests" -name '*.yaml' -exec sed -i -e "s'image: \(.*\)'image: ${REPO_PREFIX}\/\1:${NEW_VERSION}'g" {} \;
-find "${REPO_ROOT}/kubernetes-manifests" -name '*.yaml' -exec sed -i -e "s'value: \"dev\"'value: \"${NEW_VERSION}\"'g" {} \;
-
-# update version in terraform scripts
-sed -i -e "s@sync_branch  = .*@sync_branch  = \"${NEW_VERSION}\"@g" ${REPO_ROOT}/iac/tf-anthos-gke/terraform.tfvars
-
-# remove the region tags so that there are no duplicates 
-find "${REPO_ROOT}/kubernetes-manifests" -name '*.yaml' -exec sed -i -e  "s/dev_kubernetes_manifests/boa_kubernetes_manifests/g" {} \;
-
-# push release PR
-git checkout -b "release/${NEW_VERSION}"
-git add "${REPO_ROOT}/kubernetes-manifests/*.yaml"
-git add "${REPO_ROOT}/iac/tf-anthos-gke/terraform.tfvars"
-git commit -m "release/${NEW_VERSION}"
-
-# add tag
-git tag "${NEW_VERSION}"
+# clear out previous release content
+rm -rf "${REPO_ROOT}/${RELEASE_DIR}"
+mkdir "${REPO_ROOT}/${RELEASE_DIR}"
 
 # build and push release images
 skaffold config set local-cluster false
-skaffold build --default-repo="${REPO_PREFIX}" --tag="${NEW_VERSION}"
+skaffold build --file-output="artifacts.json" --profile "${PROFILE}" \
+               --default-repo="${REPO_PREFIX}" --tag="${NEW_VERSION}"
 skaffold config unset local-cluster
 
-# push to repo
+# render manifests
+for service in "frontend contacts userservice balancereader ledgerwriter transactionhistory loadgenerator"; do
+  skaffold render --build-artifacts="artifacts.json" --profile "${PROFILE}" \
+                  --module="${service}" > "${REPO_PREFIX}/${RELEASE_DIR}/${service}.yaml"
+done
+
+# update version in manifests
+find "${REPO_ROOT}/${RELEASE_DIR}" -name '*.yaml' -exec sed -i -e "s'value: \"dev\"'value: \"${NEW_VERSION}\"'g" {} \;
+rm "${REPO_ROOT}/${RELEASE_DIR}/*-e"
+
+# update version in terraform scripts
+sed -i -e "s@sync_branch  = .*@sync_branch  = \"${NEW_VERSION}\"@g" ${REPO_ROOT}/iac/tf-anthos-gke/terraform.tfvars
+rm "${REPO_ROOT}/iac/tf-anthos-gke/terraform.tfvars-e"
+
+# create release branch and tag
+git checkout -b "release/${NEW_VERSION}"
+git add "${REPO_ROOT}/${RELEASE_DIR}/*.yaml"
+git add "${REPO_ROOT}/iac/tf-anthos-gke/terraform.tfvars"
+git commit -m "release/${NEW_VERSION}"
+git tag "${NEW_VERSION}"
+
+# push branch and tag upstream
 git push --set-upstream origin "release/${NEW_VERSION}"
 git push --tags
+
+# clean up
+rm "${REPO_ROOT}/artifacts.json"
