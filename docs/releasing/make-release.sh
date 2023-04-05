@@ -16,8 +16,7 @@
 set -euxo pipefail
 
 # set env
-# FIXME: ar instead of gcr?
-REPO_PREFIX="${REPO_PREFIX:-gcr.io/bank-of-anthos-ci}"
+REPO_PREFIX="${REPO_PREFIX:-us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos}"
 PROFILE="development"
 RELEASE_DIR="kubernetes-manifests/"
 
@@ -57,7 +56,6 @@ skaffold build --file-output="artifacts.json" --profile "${PROFILE}" \
 skaffold config unset local-cluster
 
 # render manifests
-# FIXME: or do we want in one file? pros / cons
 for service in "frontend contacts userservice balancereader ledgerwriter transactionhistory loadgenerator"; do
   skaffold render --build-artifacts="artifacts.json" --profile "${PROFILE}" \
                   --module="${service}" > "${REPO_PREFIX}/${RELEASE_DIR}/${service}.yaml"
@@ -65,13 +63,14 @@ done
 
 # update version in manifests
 find "${REPO_ROOT}/${RELEASE_DIR}" -name '*.yaml' -exec sed -i -e "s'value: \"dev\"'value: \"${NEW_VERSION}\"'g" {} \;
+rm "${REPO_ROOT}/${RELEASE_DIR}/*-e"
 
 # update version in terraform scripts
 sed -i -e "s@sync_branch  = .*@sync_branch  = \"${NEW_VERSION}\"@g" ${REPO_ROOT}/iac/tf-anthos-gke/terraform.tfvars
+rm "${REPO_ROOT}/iac/tf-anthos-gke/terraform.tfvars-e"
 
 # create release branch and tag
 git checkout -b "release/${NEW_VERSION}"
-# FIXME: "git add" ... what if file gone? git rm?
 git add "${REPO_ROOT}/${RELEASE_DIR}/*.yaml"
 git add "${REPO_ROOT}/iac/tf-anthos-gke/terraform.tfvars"
 git commit -m "release/${NEW_VERSION}"
