@@ -90,7 +90,7 @@ Once the release notes are published, you should then replace the version of the
 
 2. For each service, click on it, verify that its staging version is green, and then click **Promote**.
 
-   [![Cloud Deploy](./img/cloud-deploy.png)](./img/cloud-deploy.png)
+   ![Cloud Deploy](/docs/img/cloud-deploy.png)
 
 3. Wait for all promotion builds to be green.
 
