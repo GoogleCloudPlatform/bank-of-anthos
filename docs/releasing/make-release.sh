@@ -57,8 +57,8 @@ skaffold config unset local-cluster
 
 # render manifests
 for moduleDashed in frontend contacts userservice balance-reader ledger-writer transaction-history loadgenerator; do
-  module=`echo ${service} | tr -d '-'`
-  skaffold render --build-artifacts="artifacts.json" --profile "${PROFILE}" \
+  module=`echo ${moduleDashed} | tr -d '-'`
+  skaffold render --build-artifacts="artifacts.json" --profile "${PROFILE}" --namespace "default" \
                   --module="${module}" > "${REPO_ROOT}/${RELEASE_DIR}/${moduleDashed}.yaml"
 done
 
