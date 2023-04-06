@@ -56,9 +56,10 @@ skaffold build --file-output="artifacts.json" --profile "${PROFILE}" \
 skaffold config unset local-cluster
 
 # render manifests
-for service in frontend contacts userservice balancereader ledgerwriter transactionhistory loadgenerator; do
+for moduleDashed in frontend contacts userservice balance-reader ledger-writer transaction-history loadgenerator; do
+  module=`echo ${service} | tr -d '-'`
   skaffold render --build-artifacts="artifacts.json" --profile "${PROFILE}" \
-                  --module="${service}" > "${REPO_ROOT}/${RELEASE_DIR}/${service}.yaml"
+                  --module="${module}" > "${REPO_ROOT}/${RELEASE_DIR}/${moduleDashed}.yaml"
 done
 
 # update version in manifests
