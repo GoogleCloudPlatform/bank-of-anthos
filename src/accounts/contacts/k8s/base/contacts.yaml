@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START gke_boa_kubernetes_manifests_contacts_deployment_contacts]
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -75,9 +74,7 @@ spec:
           initialDelaySeconds: 10
           periodSeconds: 5
           timeoutSeconds: 10
-# [END gke_boa_kubernetes_manifests_contacts_deployment_contacts]
 ---
-# [START gke_boa_kubernetes_manifests_contacts_service_contacts]
 apiVersion: v1
 kind: Service
 metadata:
@@ -90,4 +87,3 @@ spec:
   - name: http
     port: 8080
     targetPort: 8080
-# [END gke_boa_kubernetes_manifests_contacts_service_contacts]

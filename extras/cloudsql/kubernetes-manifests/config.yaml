@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START gke_kubernetes_manifests_config_configmap_environment_config]
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -20,9 +19,7 @@ metadata:
 data:
   LOCAL_ROUTING_NUM: "883745000"
   PUB_KEY_PATH: "/root/.ssh/publickey"
-# [END gke_kubernetes_manifests_config_configmap_environment_config]
 ---
-# [START gke_kubernetes_manifests_config_configmap_service_api_config]
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -33,9 +30,7 @@ data:
   HISTORY_API_ADDR: "transactionhistory:8080"
   CONTACTS_API_ADDR: "contacts:8080"
   USERSERVICE_API_ADDR: "userservice:8080"
-# [END gke_kubernetes_manifests_config_configmap_service_api_config]
 ---
-# [START gke_kubernetes_manifests_config_configmap_demo_data_config]
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -45,9 +40,7 @@ data:
   DEMO_LOGIN_USERNAME: "testuser"
   # All demo user accounts are hardcoded to use the login password 'bankofanthos'
   DEMO_LOGIN_PASSWORD: "bankofanthos"
-# [END gke_kubernetes_manifests_config_configmap_demo_data_config]
 ---
-# [START gke_kubernetes_manifests_config_configmap_accounts_db_config]
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -57,9 +50,7 @@ metadata:
 data:
   # Updated to use CloudSQL Proxy
   ACCOUNTS_DB_URI: postgresql://admin:admin@127.0.0.1:5432/accounts-db
-# [END gke_kubernetes_manifests_config_configmap_accounts_db_config]
 ---
-# [START gke_kubernetes_manifests_config_configmap_ledger_db_config]
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -74,4 +65,3 @@ data:
   SPRING_DATASOURCE_URL: jdbc:postgresql://127.0.0.1:5432/ledger-db
   SPRING_DATASOURCE_USERNAME: admin # should match POSTGRES_USER
   SPRING_DATASOURCE_PASSWORD: admin # should match POSTGRES_PASSWORD
-# [END gke_kubernetes_manifests_config_configmap_ledger_db_config]

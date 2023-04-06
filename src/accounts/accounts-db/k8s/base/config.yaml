@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START gke_boa_kubernetes_manifests_accounts_db_configmap_accounts_db_config]
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -24,4 +23,3 @@ data:
   POSTGRES_USER: accounts-admin
   POSTGRES_PASSWORD: accounts-pwd
   ACCOUNTS_DB_URI: postgresql://accounts-admin:accounts-pwd@accounts-db:5432/accounts-db
-# [END gke_boa_kubernetes_manifests_accounts_db_configmap_accounts_db_config]

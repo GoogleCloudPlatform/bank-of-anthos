@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START servicemesh_istio_manifests_frontend_ingress_gateway_frontend_gateway]
 apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
 metadata:
@@ -43,4 +42,3 @@ spec:
         host: frontend
         port:
           number: 80
-# [END servicemesh_istio_manifests_frontend_ingress_gateway_frontend_gateway]

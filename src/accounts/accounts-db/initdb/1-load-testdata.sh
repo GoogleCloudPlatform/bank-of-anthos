@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START gke_initdb_1_load_testdata]
 # Immediately exit if any error occurs during script execution.
 set -o errexit
 
@@ -107,5 +106,3 @@ main() {
 
 
 main
-
-# [END gke_initdb_1_load_testdata]

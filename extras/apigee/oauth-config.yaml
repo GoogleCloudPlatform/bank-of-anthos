@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START gke_boa_kubernetes_manifests_config_configmap_oauth_config]
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -20,4 +19,3 @@ metadata:
 data:
   DEMO_OAUTH_CLIENT_ID: "{APIGEE_CLIENT_ID}"
   DEMO_OAUTH_REDIRECT_URI: "https://{APIGEE_DOMAIN}/oauth/callback"
-# [END gke_boa_kubernetes_manifests_config_configmap_oauth_config]

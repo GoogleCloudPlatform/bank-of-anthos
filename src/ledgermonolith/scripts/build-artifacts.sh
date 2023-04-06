@@ -13,14 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START gke_scripts_build_artifacts]
-
 # Script to push build artifacts for the ledgermonolith service to GCS
-
 
 # Define names of particular build artifacts
 APP_JAR=ledgermonolith.jar
-
 
 if [[ -z ${PROJECT_ID} ]]; then
   echo "PROJECT_ID must be set"
@@ -35,7 +31,6 @@ else
 fi
 CWD="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 GCS_PATH=${GCS_BUCKET}/monolith
-
 
 # If the GCS bucket doesn't exist, then create it
 echo "Creating GCS bucket..."
@@ -56,6 +51,3 @@ gsutil -m cp -r $CWD/../../ledger-db/initdb gs://${GCS_PATH}
 # Push JWT authentication keys
 echo "Pushing sample JWT key..." 
 gsutil cp $CWD/../../../extras/jwt/jwt-secret.yaml gs://${GCS_PATH}/jwt-secret.yaml
-
-
-# [END gke_scripts_build_artifacts]

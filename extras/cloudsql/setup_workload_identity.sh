@@ -13,8 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START gke_cloudsql_setup_workload_identity]
-
 export KSA_NAME="boa-ksa"
 export GSA_NAME="boa-gsa"
 
@@ -58,5 +56,3 @@ gcloud projects add-iam-policy-binding ${PROJECT_ID} \
   --role roles/cloudsql.client
 
 echo "⭐️ Done."
-
-# [END gke_cloudsql_setup_workload_identity]

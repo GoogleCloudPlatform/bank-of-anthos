@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START gke_boa_kubernetes_manifests_frontend_deployment_frontend]
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -133,9 +132,7 @@ spec:
             path: publickey
       - emptyDir: {}
         name: tmp
-# [END gke_boa_kubernetes_manifests_frontend_deployment_frontend]
 ---
-# [START gke_boa_kubernetes_manifests_frontend_service_frontend]
 apiVersion: v1
 kind: Service
 metadata:
@@ -148,4 +145,3 @@ spec:
   - name: http
     port: 80
     targetPort: 8080
-# [END gke_boa_kubernetes_manifests_frontend_service_frontend]

@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START gke_tls_ip_selfsigned_frontend_service_service_frontend]
 ######################################################################
 # Modify the default Service LoadBalancer to be 'Internal' to ensure
 # only traffic via the Ingress is allowed
@@ -31,4 +30,3 @@ spec:
   - name: http
     port: 80
     targetPort: 8080
-# [END gke_tls_ip_selfsigned_frontend_service_service_frontend]

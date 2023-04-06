@@ -13,8 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START gke_scripts_teardown_monolith]
-
 # Script to teardown the ledgermonolith service VM
 
 if [[ -z ${PROJECT_ID} ]]; then
@@ -54,5 +52,3 @@ if [ $? -eq 0 ]; then
       --project $PROJECT_ID \
       --quiet
 fi
-
-# [END gke_scripts_teardown_monolith]

@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START gke_cloudsql_multicluster_register_clusters]
 gcloud config set project ${PROJECT_ID}
 
 export MEMBERSHIP_NAME="boa-membership"
@@ -73,5 +72,3 @@ gcloud alpha container hub ingress enable \
 gcloud alpha container hub ingress describe
 
 echo "⭐️ Done."
-
-# [END gke_cloudsql_multicluster_register_clusters]
