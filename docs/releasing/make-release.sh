@@ -18,67 +18,67 @@ set -euxo pipefail
 # set env
 REPO_PREFIX="${REPO_PREFIX:-us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos}"
 PROFILE="development"
-RELEASE_DIR="kubernetes-manifests/"
+RELEASE_DIR="kubernetes-manifests"
 
 # move to repo root
 SCRIPT_DIR=$(dirname $(realpath -s $0))
 REPO_ROOT=$SCRIPT_DIR/../..
 cd $REPO_ROOT
 
-# validate version number (format: v0.0.0)
-if [[ ! "${NEW_VERSION}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-    echo "${NEW_VERSION} argument must conform to regex string:  ^v[0-9]+\.[0-9]+\.[0-9]+$ "
-    echo "ex. v1.0.1"
-    exit 1
-fi
+# # validate version number (format: v0.0.0)
+# if [[ ! "${NEW_VERSION}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+#     echo "${NEW_VERSION} argument must conform to regex string:  ^v[0-9]+\.[0-9]+\.[0-9]+$ "
+#     echo "ex. v1.0.1"
+#     exit 1
+# fi
 
-# ensure there are no uncommitted changes
-if [[ $(git status -s | wc -l) -gt 0 ]]; then
-    echo "error: can't have uncommitted changes"
-    exit 1
-fi
+# # ensure there are no uncommitted changes
+# if [[ $(git status -s | wc -l) -gt 0 ]]; then
+#     echo "error: can't have uncommitted changes"
+#     exit 1
+# fi
 
-# ensure that gcloud is in the PATH
-if ! command -v gcloud &> /dev/null
-then
-    echo "gcloud could not be found"
-    exit 1
-fi
+# # ensure that gcloud is in the PATH
+# if ! command -v gcloud &> /dev/null
+# then
+#     echo "gcloud could not be found"
+#     exit 1
+# fi
 
-# clear out previous release content
-rm -rf "${REPO_ROOT}/${RELEASE_DIR}"
-mkdir "${REPO_ROOT}/${RELEASE_DIR}"
+# # clear out previous release content
+# rm -rf "${REPO_ROOT}/${RELEASE_DIR}"
+# mkdir "${REPO_ROOT}/${RELEASE_DIR}"
 
-# build and push release images
-skaffold config set local-cluster false
-skaffold build --file-output="artifacts.json" --profile "${PROFILE}" \
-               --default-repo="${REPO_PREFIX}" --tag="${NEW_VERSION}"
-skaffold config unset local-cluster
+# # build and push release images
+# skaffold config set local-cluster false
+# skaffold build --file-output="artifacts.json" --profile "${PROFILE}" \
+#                --default-repo="${REPO_PREFIX}" --tag="${NEW_VERSION}"
+# skaffold config unset local-cluster
 
-# render manifests
-for service in "frontend contacts userservice balancereader ledgerwriter transactionhistory loadgenerator"; do
-  skaffold render --build-artifacts="artifacts.json" --profile "${PROFILE}" \
-                  --module="${service}" > "${REPO_PREFIX}/${RELEASE_DIR}/${service}.yaml"
-done
+# # render manifests
+# for service in frontend contacts userservice balancereader ledgerwriter transactionhistory loadgenerator; do
+#   skaffold render --build-artifacts="artifacts.json" --profile "${PROFILE}" \
+#                   --module="${service}" > "${REPO_ROOT}/${RELEASE_DIR}/${service}.yaml"
+# done
 
-# update version in manifests
-find "${REPO_ROOT}/${RELEASE_DIR}" -name '*.yaml' -exec sed -i -e "s'value: \"dev\"'value: \"${NEW_VERSION}\"'g" {} \;
-rm "${REPO_ROOT}/${RELEASE_DIR}/*-e"
+# # update version in manifests
+# find "${REPO_ROOT}/${RELEASE_DIR}" -name '*.yaml' -exec sed -i -e "s'value: \"dev\"'value: \"${NEW_VERSION}\"'g" {} \;
+# rm ${REPO_ROOT}/${RELEASE_DIR}/*-e
 
-# update version in terraform scripts
-sed -i -e "s@sync_branch  = .*@sync_branch  = \"${NEW_VERSION}\"@g" ${REPO_ROOT}/iac/tf-anthos-gke/terraform.tfvars
-rm "${REPO_ROOT}/iac/tf-anthos-gke/terraform.tfvars-e"
+# # update version in terraform scripts
+# sed -i -e "s@sync_branch  = .*@sync_branch  = \"${NEW_VERSION}\"@g" ${REPO_ROOT}/iac/tf-anthos-gke/terraform.tfvars
+# rm ${REPO_ROOT}/iac/tf-anthos-gke/terraform.tfvars-e
 
 # create release branch and tag
 git checkout -b "release/${NEW_VERSION}"
 git add "${REPO_ROOT}/${RELEASE_DIR}/*.yaml"
 git add "${REPO_ROOT}/iac/tf-anthos-gke/terraform.tfvars"
-git commit -m "release/${NEW_VERSION}"
-git tag "${NEW_VERSION}"
+# git commit -m "release/${NEW_VERSION}"
+# git tag "${NEW_VERSION}"
 
-# push branch and tag upstream
-git push --set-upstream origin "release/${NEW_VERSION}"
-git push --tags
+# # push branch and tag upstream
+# git push --set-upstream origin "release/${NEW_VERSION}"
+# git push --tags
 
-# clean up
-rm "${REPO_ROOT}/artifacts.json"
+# # clean up
+# rm "${REPO_ROOT}/artifacts.json"

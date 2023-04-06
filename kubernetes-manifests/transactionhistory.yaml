@@ -1,33 +1,34 @@
 apiVersion: v1
 data:
-  ACCOUNTS_DB_URI: postgresql://accounts-admin:accounts-pwd@accounts-db:5432/accounts-db
-  POSTGRES_DB: accounts-db
-  POSTGRES_PASSWORD: accounts-pwd
-  POSTGRES_USER: accounts-admin
+  POSTGRES_DB: postgresdb
+  POSTGRES_PASSWORD: password
+  POSTGRES_USER: admin
+  SPRING_DATASOURCE_PASSWORD: password
+  SPRING_DATASOURCE_URL: jdbc:postgresql://ledger-db:5432/postgresdb
+  SPRING_DATASOURCE_USERNAME: admin
 kind: ConfigMap
 metadata:
   labels:
-    app: accounts-db
+    app: postgres
     application: bank-of-anthos
     environment: development
-    team: accounts
+    team: ledger
     tier: db
-  name: accounts-db-config
+  name: ledger-db-config
 ---
 apiVersion: v1
 kind: Service
 metadata:
   labels:
     environment: development
-  name: accounts-db
+  name: ledger-db
 spec:
   ports:
     - name: tcp
       port: 5432
-      protocol: TCP
       targetPort: 5432
   selector:
-    app: accounts-db
+    app: ledger-db
     environment: development
   type: ClusterIP
 ---
@@ -36,18 +37,18 @@ kind: StatefulSet
 metadata:
   labels:
     environment: development
-  name: accounts-db
+  name: ledger-db
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: accounts-db
+      app: ledger-db
       environment: development
-  serviceName: accounts-db
+  serviceName: ledger-db
   template:
     metadata:
       labels:
-        app: accounts-db
+        app: ledger-db
         environment: development
     spec:
       containers:
@@ -55,20 +56,20 @@ spec:
             - configMapRef:
                 name: environment-config
             - configMapRef:
-                name: accounts-db-config
+                name: ledger-db-config
             - configMapRef:
                 name: demo-data-config
-          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/accounts-db:v0.6.0@sha256:4464fdf0c82bb2ad1919d25b4adfd0fb01251c117d5bf6f8041895776768cac9
-          name: accounts-db
+          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/ledger-db:v0.6.0@sha256:2d954418067e61edadac57bc9a9e40a9444754dce7efcd356007053a6cdb2545
+          name: postgres
           ports:
             - containerPort: 5432
           resources:
             limits:
               cpu: 250m
-              memory: 512Mi
+              memory: 1Gi
             requests:
               cpu: 100m
-              memory: 128Mi
+              memory: 512Mi
           volumeMounts:
             - mountPath: /var/lib/postgresql/data
               name: postgresdb
@@ -135,19 +136,19 @@ metadata:
   labels:
     application: bank-of-anthos
     environment: development
-    team: accounts
+    team: ledger
     tier: backend
-  name: userservice
+  name: transactionhistory
 spec:
   ports:
     - name: http
       port: 8080
       targetPort: 8080
   selector:
-    app: userservice
+    app: transactionhistory
     application: bank-of-anthos
     environment: development
-    team: accounts
+    team: ledger
     tier: backend
   type: ClusterIP
 ---
@@ -157,68 +158,84 @@ metadata:
   labels:
     application: bank-of-anthos
     environment: development
-    team: accounts
+    team: ledger
     tier: backend
-  name: userservice
+  name: transactionhistory
 spec:
   selector:
     matchLabels:
-      app: userservice
+      app: transactionhistory
       application: bank-of-anthos
       environment: development
-      team: accounts
+      team: ledger
       tier: backend
   template:
     metadata:
       annotations:
         proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
       labels:
-        app: userservice
+        app: transactionhistory
         application: bank-of-anthos
         environment: development
-        team: accounts
+        team: ledger
         tier: backend
     spec:
       containers:
         - env:
             - name: VERSION
-              value: dev
+              value: v0.5.4
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
               value: "true"
-            - name: TOKEN_EXPIRY_SECONDS
-              value: "3600"
-            - name: PRIV_KEY_PATH
-              value: /tmp/.ssh/privatekey
+            - name: ENABLE_METRICS
+              value: "true"
+            - name: POLL_MS
+              value: "100"
+            - name: CACHE_SIZE
+              value: "1000"
+            - name: CACHE_MINUTES
+              value: "60"
+            - name: HISTORY_LIMIT
+              value: "100"
+            - name: JVM_OPTS
+              value: -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Xms256m -Xmx512m
             - name: LOG_LEVEL
               value: info
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
           envFrom:
             - configMapRef:
                 name: environment-config
             - configMapRef:
-                name: accounts-db-config
-          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/userservice:v0.6.0@sha256:f96d964b97cd1a9b892e18d5414365f11857cf7e878f3a653d0eb9793406e7c0
-          name: userservice
-          ports:
-            - containerPort: 8080
-              name: http-server
+                name: ledger-db-config
+          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/transactionhistory:v0.6.0@sha256:c090ad19d0b7294f523c1d38097ab17168eb08c796b0b5097a4656bb4cb8371e
+          livenessProbe:
+            httpGet:
+              path: /healthy
+              port: 8080
+            initialDelaySeconds: 120
+            periodSeconds: 5
+            timeoutSeconds: 10
+          name: transactionhistory
           readinessProbe:
             httpGet:
               path: /ready
               port: 8080
-            initialDelaySeconds: 10
+            initialDelaySeconds: 60
             periodSeconds: 5
             timeoutSeconds: 10
           resources:
             limits:
               cpu: 500m
-              ephemeral-storage: 0.25Gi
-              memory: 256Mi
+              ephemeral-storage: 0.5Gi
+              memory: 512Mi
             requests:
-              cpu: 260m
-              ephemeral-storage: 0.25Gi
-              memory: 128Mi
+              cpu: 100m
+              ephemeral-storage: 0.5Gi
+              memory: 256Mi
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
@@ -226,11 +243,17 @@ spec:
                 - all
             privileged: false
             readOnlyRootFilesystem: true
+          startupProbe:
+            failureThreshold: 30
+            httpGet:
+              path: /healthy
+              port: 8080
+            periodSeconds: 10
           volumeMounts:
             - mountPath: /tmp
               name: tmp
             - mountPath: /tmp/.ssh
-              name: keys
+              name: publickey
               readOnly: true
       securityContext:
         fsGroup: 1000
@@ -242,11 +265,9 @@ spec:
       volumes:
         - emptyDir: {}
           name: tmp
-        - name: keys
+        - name: publickey
           secret:
             items:
-              - key: jwtRS256.key
-                path: privatekey
               - key: jwtRS256.key.pub
                 path: publickey
             secretName: jwt-key

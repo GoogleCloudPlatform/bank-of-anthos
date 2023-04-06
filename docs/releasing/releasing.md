@@ -25,12 +25,19 @@ This document describes how maintainers can tag and push a new release of Bank o
 
 2. **Choose the logical [next release tag](https://github.com/GoogleCloudPlatform/bank-of-anthos/releases)**, using [semantic versioning](https://semver.org/): `vX.Y.Z`. If this release includes significant feature changes, update the minor version (`Y`). Otherwise, for bug-fix releases or standard quarterly release, update the patch version `Z`).
 
-## Tag the new release
+3. Ensure that the following commands are in your `PATH`:
+   - `realpath` (found in the `coreutils` package)
+   - `skaffold`
+   - `gcloud`
 
-Make sure that the following commands are in your `PATH`:
-- `realpath` (found in the `coreutils` package)
-- `skaffold`
-- `gcloud`
+4. Make sure that your `gcloud` is authenticated:
+
+   ```sh
+   gcloud auth login
+   gcloud auth configure-docker us-central1-docker.pkg.dev
+   ```
+
+## Create and tag the new release
 
 Run the `make-release.sh` script found inside the `docs/releasing` directory:
 
