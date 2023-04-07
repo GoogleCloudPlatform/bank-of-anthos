@@ -127,7 +127,7 @@ Visit `https://EXTERNAL_IP` to access your instance of Bank of Anthos.
 - **Workload Identity**: [See these instructions.](/docs/workload-identity.md)
 - **Cloud SQL**: [See these instructions](/extras/cloudsql) to replace the in-cluster databases with hosted Google Cloud SQL.
 - **Multi Cluster with Cloud SQL**: [See these instructions](/extras/cloudsql-multicluster) to replicate the app across two regions using GKE, Multi Cluster Ingress, and Google Cloud SQL.
-- **Istio**: Apply `istio-manifests/` to your cluster to access the frontend through the IngressGateway.
+- **Istio**: [See these instructions](/extras/istio) to configure an IngressGateway.
 - **Anthos Service Mesh**: ASM requires Workload Identity to be enabled in your GKE cluster. [See the workload identity instructions](/docs/workload-identity.md) to configure and deploy the app. Then, apply `istio-manifests/` to your cluster to configure frontend ingress.
 - **Java Monolith (VM)**: We provide a version of this app where the three Java microservices are coupled together into one monolithic service, which you can deploy inside a VM (eg. Google Compute Engine). See the [ledgermonolith](/src/ledgermonolith) directory.
 
