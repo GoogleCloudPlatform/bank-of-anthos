@@ -64,7 +64,7 @@ for moduleDashed in frontend contacts userservice balance-reader ledger-writer t
 done
 
 # update version in manifests
-find "${REPO_ROOT}/${RELEASE_DIR}" -name '*.yaml' -exec sed -i -e "s'value: \"dev\"'value: \"${NEW_VERSION}\"'g" {} \;
+find "${REPO_ROOT}/${RELEASE_DIR}" -name '*.yaml' -exec sed -i -e "s'value: dev'value: ${NEW_VERSION}'g" {} \;
 rm ${REPO_ROOT}/${RELEASE_DIR}/*-e
 
 # update version in terraform scripts
