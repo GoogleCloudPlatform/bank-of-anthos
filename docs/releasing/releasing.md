@@ -4,26 +4,25 @@ This document describes how maintainers can tag and push a new release of Bank o
 
 ## Prerequisites for tagging a release
 
-1. **Manually test** the latest main commit by verifying the user journeys below. If you encounter any bugs or documentation in need of fixing, make those changes before proceeding with the release.
+1. Manually test the latest main commit by verifying the user journeys below:
 
-- User can deploy Bank of Anthos on a new GCP project/GKE cluster following README instructions, replacing `kubernetes-manifests/` with `dev-kubernetes-manifests/`
-- User can deploy Bank of Anthos on a GKE cluster with the latest Anthos Service Mesh enabled, by deploying `istio-manifests/` on top of the kubernetes manifests
-- User can deploy Bank of Anthos on a GKE cluster with Workload Identity enabled, using the WI instructions in the README.
-- User can see Java app-level metrics by creating the Cloud Monitoring dashboard in the `extras/` directory
-- User can see traces in Cloud Trace
-- User can toggle `ENABLE_METRICS=false` and `ENABLE_TRACING=false` to turn off metrics and trace export to Cloud Operations
-- User can create an account and see expected home page
-- User is blocked from signing in with bad credentials
-- User can create account and see zero balance
-- User can deposit funds, see balance update, see transaction history, see new contact show up
-- can transfer funds, see balance update, see transaction in history, see new contact show up
-- User is blocked from sending invalid data
-- User is redirected from `/home` to `/login` when not authenticated
-- User is redirected from `/login` and `/signup` to `/home` when already authenticated
-- Makefile commands work as intended
-- Makefile commands reflect what is in docs
+   - User can deploy Bank of Anthos on a new GCP project/GKE cluster following README instructions.
+   - User can deploy Bank of Anthos on a GKE cluster with the latest Anthos Service Mesh enabled, by deploying `extras/istio-manifests/` on top of the kubernetes manifests.
+   - User can see Java app-level metrics by creating the Cloud Monitoring dashboard in the `extras/metrics-dashboard/` directory.
+   - User can see traces in Cloud Trace.
+   - User can toggle `ENABLE_METRICS=false` and `ENABLE_TRACING=false` to turn off metrics and trace export to Cloud Operations.
+   - User can create an account and see expected home page.
+   - User is blocked from signing in with bad credentials.
+   - User can create account and see zero balance.
+   - User can deposit funds, see balance update, see transaction history, see new contact show up.
+   - User can transfer funds, see balance update, see transaction in history, see new contact show up.
+   - User is blocked from sending invalid data.
+   - User is redirected from `/home` to `/login` when not authenticated.
+   - User is redirected from `/login` and `/signup` to `/home` when already authenticated.
 
-2. **Choose the logical [next release tag](https://github.com/GoogleCloudPlatform/bank-of-anthos/releases)**, using [semantic versioning](https://semver.org/): `vX.Y.Z`. If this release includes significant feature changes, update the minor version (`Y`). Otherwise, for bug-fix releases or standard quarterly release, update the patch version `Z`).
+2. Choose the logical [next release tag](https://github.com/GoogleCloudPlatform/bank-of-anthos/releases), using [semantic versioning](https://semver.org/): `vX.Y.Z`.
+
+   If this release includes significant feature changes, update the minor version (`Y`). Otherwise, for bug-fix releases or standard quarterly release, update the patch version `Z`).
 
 3. Ensure that the following commands are in your `PATH`:
    - `realpath` (found in the `coreutils` package)
