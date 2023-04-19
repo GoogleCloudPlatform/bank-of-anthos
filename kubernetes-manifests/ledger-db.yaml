@@ -13,146 +13,85 @@
 # limitations under the License.
 
 apiVersion: v1
+data:
+  POSTGRES_DB: postgresdb
+  POSTGRES_PASSWORD: password
+  POSTGRES_USER: admin
+  SPRING_DATASOURCE_PASSWORD: password
+  SPRING_DATASOURCE_URL: jdbc:postgresql://ledger-db:5432/postgresdb
+  SPRING_DATASOURCE_USERNAME: admin
+kind: ConfigMap
+metadata:
+  labels:
+    app: postgres
+    application: bank-of-anthos
+    environment: development
+    team: ledger
+    tier: db
+  name: ledger-db-config
+---
+apiVersion: v1
 kind: Service
 metadata:
   labels:
-    application: bank-of-anthos
     environment: development
-    team: frontend
-    tier: web
-  name: frontend
+  name: ledger-db
 spec:
   ports:
-    - name: http
-      port: 80
-      targetPort: 8080
+    - name: tcp
+      port: 5432
+      targetPort: 5432
   selector:
-    app: frontend
-    application: bank-of-anthos
+    app: ledger-db
     environment: development
-    team: frontend
-    tier: web
-  type: LoadBalancer
+  type: ClusterIP
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   labels:
-    application: bank-of-anthos
     environment: development
-    team: frontend
-    tier: web
-  name: frontend
+  name: ledger-db
 spec:
+  replicas: 1
   selector:
     matchLabels:
-      app: frontend
-      application: bank-of-anthos
+      app: ledger-db
       environment: development
-      team: frontend
-      tier: web
+  serviceName: ledger-db
   template:
     metadata:
-      annotations:
-        proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
       labels:
-        app: frontend
-        application: bank-of-anthos
+        app: ledger-db
         environment: development
-        team: frontend
-        tier: web
     spec:
       containers:
-        - env:
-            - name: VERSION
-              value: v0.6.0
-            - name: PORT
-              value: "8080"
-            - name: ENABLE_TRACING
-              value: "true"
-            - name: SCHEME
-              value: http
-            - name: LOG_LEVEL
-              value: info
-            - name: DEFAULT_USERNAME
-              valueFrom:
-                configMapKeyRef:
-                  key: DEMO_LOGIN_USERNAME
-                  name: demo-data-config
-            - name: DEFAULT_PASSWORD
-              valueFrom:
-                configMapKeyRef:
-                  key: DEMO_LOGIN_PASSWORD
-                  name: demo-data-config
-            - name: REGISTERED_OAUTH_CLIENT_ID
-              valueFrom:
-                configMapKeyRef:
-                  key: DEMO_OAUTH_CLIENT_ID
-                  name: oauth-config
-                  optional: true
-            - name: ALLOWED_OAUTH_REDIRECT_URI
-              valueFrom:
-                configMapKeyRef:
-                  key: DEMO_OAUTH_REDIRECT_URI
-                  name: oauth-config
-                  optional: true
-          envFrom:
+        - envFrom:
             - configMapRef:
                 name: environment-config
             - configMapRef:
-                name: service-api-config
-          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/frontend:v0.6.0@sha256:eaa077984dd8f741fc55cf75d4d3bb3f251ddb19d2b9c15cb3aea287826679d2
-          livenessProbe:
-            httpGet:
-              path: /ready
-              port: 8080
-            initialDelaySeconds: 60
-            periodSeconds: 15
-            timeoutSeconds: 30
-          name: front
-          readinessProbe:
-            httpGet:
-              path: /ready
-              port: 8080
-            initialDelaySeconds: 10
-            periodSeconds: 5
-            timeoutSeconds: 10
+                name: ledger-db-config
+            - configMapRef:
+                name: demo-data-config
+          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/ledger-db:v0.6.0@sha256:2d954418067e61edadac57bc9a9e40a9444754dce7efcd356007053a6cdb2545
+          name: postgres
+          ports:
+            - containerPort: 5432
           resources:
             limits:
               cpu: 250m
-              memory: 128Mi
+              memory: 1Gi
             requests:
               cpu: 100m
-              memory: 64Mi
-          securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-                - all
-            privileged: false
-            readOnlyRootFilesystem: true
+              memory: 512Mi
           volumeMounts:
-            - mountPath: /tmp
-              name: tmp
-            - mountPath: /tmp/.ssh
-              name: publickey
-              readOnly: true
-      securityContext:
-        fsGroup: 1000
-        runAsGroup: 1000
-        runAsNonRoot: true
-        runAsUser: 1000
-      serviceAccountName: bank-of-anthos
-      terminationGracePeriodSeconds: 5
+            - mountPath: /var/lib/postgresql/data
+              name: postgresdb
+              subPath: postgres
+      serviceAccountName: default
       volumes:
         - emptyDir: {}
-          name: tmp
-        - name: publickey
-          secret:
-            items:
-              - key: jwtRS256.key.pub
-                path: publickey
-            secretName: jwt-key
+          name: postgresdb
 ---
 apiVersion: v1
 kind: ServiceAccount

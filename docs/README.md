@@ -62,6 +62,8 @@ The following button opens up an interactive tutorial showing how to deploy Bank
    gcloud services enable container.googleapis.com
    ```
 
+   Substitute `<PROJECT_ID>` with the ID of your Google Cloud project.
+
 4. Create a GKE cluster and get the credentials for it.
 
    ```sh

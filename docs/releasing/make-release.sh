@@ -60,8 +60,13 @@ for moduleDashed in frontend contacts userservice balance-reader ledger-writer t
   module=`echo ${moduleDashed} | tr -d '-'`
   cp "${SCRIPT_DIR}/header.txt" "${REPO_ROOT}/${RELEASE_DIR}/${moduleDashed}.yaml"
   skaffold render --build-artifacts="artifacts.json" --profile "${PROFILE}" --namespace "default" \
-                  --module="${module}" >> "${REPO_ROOT}/${RELEASE_DIR}/${moduleDashed}.yaml"
+                  --module="${module}" > "${REPO_ROOT}/${RELEASE_DIR}/${moduleDashed}.yaml"
 done
+skaffold render --build-artifacts="artifacts.json" --profile "${PROFILE}" --namespace "default" \
+                  --module="ledger-db" > "${REPO_ROOT}/${RELEASE_DIR}/ledger-db.yaml"
+skaffold render --build-artifacts="artifacts.json" --profile "${PROFILE}" --namespace "default" \
+                  --module="accounts-db" > "${REPO_ROOT}/${RELEASE_DIR}/accounts-db.yaml"
+cp "${REPO_ROOT}/iac/acm-multienv-cicd-anthos-autopilot/base/config.yaml" "${REPO_ROOT}/${RELEASE_DIR}/config.yaml"
 
 # update version in manifests
 find "${REPO_ROOT}/${RELEASE_DIR}" -name '*.yaml' -exec sed -i -e "s'value: dev'value: ${NEW_VERSION}'g" {} \;
