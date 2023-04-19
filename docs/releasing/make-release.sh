@@ -18,7 +18,7 @@ set -euxo pipefail
 # set env
 REPO_PREFIX="${REPO_PREFIX:-us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos}"
 PROFILE="development"
-RELEASE_DIR="kubernetes-manifests"
+RELEASE_DIR="release"
 
 # move to repo root
 SCRIPT_DIR=$(dirname $(realpath -s $0))
@@ -56,17 +56,25 @@ skaffold build --file-output="artifacts.json" --profile "${PROFILE}" \
 skaffold config unset local-cluster
 
 # render manifests
+# FIXME: tidy this up
 for moduleDashed in frontend contacts userservice balance-reader ledger-writer transaction-history loadgenerator; do
   module=`echo ${moduleDashed} | tr -d '-'`
   cp "${SCRIPT_DIR}/header.txt" "${REPO_ROOT}/${RELEASE_DIR}/${moduleDashed}.yaml"
   skaffold render --build-artifacts="artifacts.json" --profile "${PROFILE}" --namespace "default" \
-                  --module="${module}" > "${REPO_ROOT}/${RELEASE_DIR}/${moduleDashed}.yaml"
+                  --module="${module}" >> "${REPO_ROOT}/${RELEASE_DIR}/${moduleDashed}.yaml"
 done
+cp "${SCRIPT_DIR}/header.txt" "${REPO_ROOT}/${RELEASE_DIR}/ledger-db.yaml"
 skaffold render --build-artifacts="artifacts.json" --profile "${PROFILE}" --namespace "default" \
                   --module="ledger-db" > "${REPO_ROOT}/${RELEASE_DIR}/ledger-db.yaml"
+cp "${SCRIPT_DIR}/header.txt" "${REPO_ROOT}/${RELEASE_DIR}/accounts-db.yaml"
 skaffold render --build-artifacts="artifacts.json" --profile "${PROFILE}" --namespace "default" \
                   --module="accounts-db" > "${REPO_ROOT}/${RELEASE_DIR}/accounts-db.yaml"
 cp "${REPO_ROOT}/iac/acm-multienv-cicd-anthos-autopilot/base/config.yaml" "${REPO_ROOT}/${RELEASE_DIR}/config.yaml"
+
+# FIXME: temporarily duplicate the manifests in kubernetes-manifests/
+rm -rf "${REPO_ROOT}/kubernetes-manifests"
+mkdir "${REPO_ROOT}/kubernetes-manifests"
+cp "${REPO_ROOT}/${RELEASE_DIR}/*" "${REPO_ROOT}/kubernetes-manifests/"
 
 # update version in manifests
 find "${REPO_ROOT}/${RELEASE_DIR}" -name '*.yaml' -exec sed -i -e "s'value: dev'value: ${NEW_VERSION}'g" {} \;
@@ -79,6 +87,7 @@ rm ${REPO_ROOT}/iac/tf-anthos-gke/terraform.tfvars-e
 # create release branch and tag
 git checkout -b "release/${NEW_VERSION}"
 git add "${REPO_ROOT}/${RELEASE_DIR}/*.yaml"
+git add "${REPO_ROOT}/kubernetes-manifests/*.yaml" # FIXME: temporarily add duplicate manifests
 git add "${REPO_ROOT}/iac/tf-anthos-gke/terraform.tfvars"
 git commit -m "release/${NEW_VERSION}"
 git tag "${NEW_VERSION}"
