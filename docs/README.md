@@ -57,9 +57,10 @@ The following button opens up an interactive tutorial showing how to deploy Bank
 3. Set the Google Cloud project and region and ensure the Google Kubernetes Engine API is enabled.
 
    ```sh
-   gcloud config set project <PROJECT_ID>
-   gcloud config set compute/region us-central1
-   gcloud services enable container.googleapis.com
+   export PROJECT_ID=<PROJECT_ID>
+   export REGION=us-central1
+   gcloud services enable container.googleapis.com \
+     --project=${PROJECT_ID} --region=${REGION}
    ```
 
    Substitute `<PROJECT_ID>` with the ID of your Google Cloud project.
@@ -67,13 +68,16 @@ The following button opens up an interactive tutorial showing how to deploy Bank
 4. Create a GKE cluster and get the credentials for it.
 
    ```sh
-   gcloud container clusters create-auto bank-of-anthos
-   gcloud container clusters get-credentials bank-of-anthos
+   gcloud container clusters create-auto bank-of-anthos \
+     --project=${PROJECT_ID} --region=${REGION}
    ```
+
+   Creating the cluster may take a few minutes.
 
 5. Deploy Bank of Anthos to the cluster.
 
    ```sh
+   kubectl apply -f ./extras/jwt/jwt-secret.yaml
    kubectl apply -f ./kubernetes-manifests
    ```
 
@@ -100,11 +104,20 @@ The following button opens up an interactive tutorial showing how to deploy Bank
 
 7. Access the web frontend in a browser using the frontend's external IP.
 
-   ```
+   ```sh
    kubectl get service frontend | awk '{print $4}'
    ```
 
-   Visit `https://EXTERNAL_IP` to access your instance of Bank of Anthos.
+   Visit `http://EXTERNAL_IP` in a web browser to access your instance of Bank of Anthos.
+
+8. Once you are done with it, delete the GKE cluster.
+
+   ```sh
+   gcloud container clusters delete bank-of-anthos \
+     --project=${PROJECT_ID} --region=${REGION}
+   ```
+
+   Deleting the cluster may take a few minutes.
 
 ## Additional deployment options
 
