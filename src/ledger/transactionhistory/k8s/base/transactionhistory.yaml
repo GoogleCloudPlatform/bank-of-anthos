@@ -44,7 +44,7 @@ spec:
         image: transactionhistory
         env:
         - name: VERSION
-          value: "v0.5.4"
+          value: "dev"
         - name: PORT
           value: "8080"
         - name: ENABLE_TRACING

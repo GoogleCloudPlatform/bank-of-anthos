@@ -1,10 +1,10 @@
-# Copyright 2019 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#      http://www.apache.org/licenses/LICENSE-2.0
+#     https://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,72 +12,83 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-kind: StatefulSet
-apiVersion: apps/v1
+apiVersion: v1
+data:
+  POSTGRES_DB: postgresdb
+  POSTGRES_PASSWORD: password
+  POSTGRES_USER: admin
+  SPRING_DATASOURCE_PASSWORD: password
+  SPRING_DATASOURCE_URL: jdbc:postgresql://ledger-db:5432/postgresdb
+  SPRING_DATASOURCE_USERNAME: admin
+kind: ConfigMap
 metadata:
+  labels:
+    app: postgres
+    application: bank-of-anthos
+    environment: development
+    team: ledger
+    tier: db
+  name: ledger-db-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    environment: development
   name: ledger-db
 spec:
-  serviceName: "ledger-db"
+  ports:
+    - name: tcp
+      port: 5432
+      targetPort: 5432
+  selector:
+    app: ledger-db
+    environment: development
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    environment: development
+  name: ledger-db
+spec:
   replicas: 1
   selector:
     matchLabels:
       app: ledger-db
+      environment: development
+  serviceName: ledger-db
   template:
     metadata:
       labels:
         app: ledger-db
+        environment: development
     spec:
-      serviceAccountName: default
       containers:
-        - name: postgres
-          image: gcr.io/bank-of-anthos-ci/ledger-db:v0.5.11
-          ports:
-            - containerPort: 5432
-          envFrom:
+        - envFrom:
             - configMapRef:
                 name: environment-config
             - configMapRef:
                 name: ledger-db-config
             - configMapRef:
                 name: demo-data-config
+          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/ledger-db:v0.6.0@sha256:2d954418067e61edadac57bc9a9e40a9444754dce7efcd356007053a6cdb2545
+          name: postgres
+          ports:
+            - containerPort: 5432
           resources:
-            requests:
-              cpu: 100m
-              memory: 512Mi
             limits:
               cpu: 250m
               memory: 1Gi
+            requests:
+              cpu: 100m
+              memory: 512Mi
           volumeMounts:
-            - name: postgresdb
-              mountPath: /var/lib/postgresql/data
+            - mountPath: /var/lib/postgresql/data
+              name: postgresdb
               subPath: postgres
+      serviceAccountName: default
       volumes:
-        - name: postgresdb
-          emptyDir: {}
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: ledger-db-config
-  labels:
-    app: postgres
-data:
-  POSTGRES_DB: postgresdb
-  POSTGRES_USER: admin
-  POSTGRES_PASSWORD: password
-  SPRING_DATASOURCE_URL: jdbc:postgresql://ledger-db:5432/postgresdb
-  SPRING_DATASOURCE_USERNAME: admin # should match POSTGRES_USER
-  SPRING_DATASOURCE_PASSWORD: password # should match POSTGRES_PASSWORD
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: ledger-db
-spec:
-  type: ClusterIP
-  selector:
-    app: ledger-db
-  ports:
-  - name: tcp
-    port: 5432
-    targetPort: 5432
+        - emptyDir: {}
+          name: postgresdb

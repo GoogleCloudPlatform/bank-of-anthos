@@ -1,10 +1,10 @@
-# Copyright 2019 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#      http://www.apache.org/licenses/LICENSE-2.0
+#     https://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,119 +12,140 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    application: bank-of-anthos
+    environment: development
+    team: ledger
+    tier: backend
+  name: balancereader
+spec:
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+  selector:
+    app: balancereader
+    application: bank-of-anthos
+    environment: development
+    team: ledger
+    tier: backend
+  type: ClusterIP
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  labels:
+    application: bank-of-anthos
+    environment: development
+    team: ledger
+    tier: backend
   name: balancereader
 spec:
   selector:
     matchLabels:
       app: balancereader
+      application: bank-of-anthos
+      environment: development
+      team: ledger
+      tier: backend
   template:
     metadata:
+      annotations:
+        proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
       labels:
         app: balancereader
+        application: bank-of-anthos
+        environment: development
+        team: ledger
+        tier: backend
     spec:
-      serviceAccountName: default
-      terminationGracePeriodSeconds: 5
+      containers:
+        - env:
+            - name: VERSION
+              value: v0.6.0
+            - name: PORT
+              value: "8080"
+            - name: ENABLE_TRACING
+              value: "true"
+            - name: ENABLE_METRICS
+              value: "true"
+            - name: POLL_MS
+              value: "100"
+            - name: CACHE_SIZE
+              value: "1000000"
+            - name: JVM_OPTS
+              value: -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Xms256m -Xmx512m
+            - name: LOG_LEVEL
+              value: info
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          envFrom:
+            - configMapRef:
+                name: environment-config
+            - configMapRef:
+                name: ledger-db-config
+          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/balancereader:v0.6.0@sha256:92b423f1c6e9b669b5e8a2256abdec832581e7fb04f862a84b4d8321b5609fcc
+          livenessProbe:
+            httpGet:
+              path: /healthy
+              port: 8080
+            initialDelaySeconds: 120
+            periodSeconds: 5
+            timeoutSeconds: 10
+          name: balancereader
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 5
+            timeoutSeconds: 10
+          resources:
+            limits:
+              cpu: 500m
+              ephemeral-storage: 0.5Gi
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              ephemeral-storage: 0.5Gi
+              memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - all
+            privileged: false
+            readOnlyRootFilesystem: true
+          startupProbe:
+            failureThreshold: 30
+            httpGet:
+              path: /healthy
+              port: 8080
+            periodSeconds: 10
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /tmp/.ssh
+              name: publickey
+              readOnly: true
       securityContext:
         fsGroup: 1000
         runAsGroup: 1000
         runAsNonRoot: true
         runAsUser: 1000
-      containers:
-      - name: balancereader
-        securityContext:
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop:
-              - all
-          privileged: false
-          readOnlyRootFilesystem: true
-        image: gcr.io/bank-of-anthos-ci/balancereader:v0.5.11
-        volumeMounts:
-        - name: publickey
-          mountPath: "/tmp/.ssh"
-          readOnly: true
-        - mountPath: /tmp
-          name: tmp
-        env:
-        - name: VERSION
-          value: "v0.5.11"
-        - name: PORT
-          value: "8080"
-        # toggle Cloud Trace export
-        - name: ENABLE_TRACING
-          value: "true"
-        - name: ENABLE_METRICS
-          value: "true"
-        - name: POLL_MS
-          value: "100"
-        - name: CACHE_SIZE
-          value: "1000000"
-        # tell Java to obey container memory limits
-        - name: JVM_OPTS
-          value: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Xms256m -Xmx512m"
-        # Valid levels are debug, info, warn, error, fatal.
-        # If no valid level is set, will default to info.
-        - name: LOG_LEVEL
-          value: "info"
-        - name: NAMESPACE
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.namespace
-        envFrom:
-        - configMapRef:
-            name: environment-config
-        # add ledger-db credentials from ConfigMap
-        - configMapRef:
-            name: ledger-db-config
-        resources:
-          requests:
-            cpu: 100m
-            memory: 256Mi
-          limits:
-            cpu: 500m
-            memory: 512Mi
-        readinessProbe:
-          httpGet:
-            path: /ready
-            port: 8080
-          initialDelaySeconds: 60
-          periodSeconds: 5
-          timeoutSeconds: 10
-        livenessProbe:
-          httpGet:
-            path: /healthy
-            port: 8080
-          initialDelaySeconds: 120
-          periodSeconds: 5
-          timeoutSeconds: 10
-        startupProbe:
-          httpGet:
-            path: /healthy
-            port: 8080
-          failureThreshold: 30
-          periodSeconds: 10
+      serviceAccountName: bank-of-anthos
+      terminationGracePeriodSeconds: 5
       volumes:
-      - name: publickey
-        secret:
-          secretName: jwt-key
-          items:
-          - key: jwtRS256.key.pub
-            path: publickey
-      - emptyDir: {}
-        name: tmp
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: balancereader
-spec:
-  type: ClusterIP
-  selector:
-    app: balancereader
-  ports:
-  - name: http
-    port: 8080
-    targetPort: 8080
+        - emptyDir: {}
+          name: tmp
+        - name: publickey
+          secret:
+            items:
+              - key: jwtRS256.key.pub
+                path: publickey
+            secretName: jwt-key

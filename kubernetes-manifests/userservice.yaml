@@ -1,10 +1,10 @@
-# Copyright 2021 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#      http://www.apache.org/licenses/LICENSE-2.0
+#     https://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,99 +12,124 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    application: bank-of-anthos
+    environment: development
+    team: accounts
+    tier: backend
+  name: userservice
+spec:
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+  selector:
+    app: userservice
+    application: bank-of-anthos
+    environment: development
+    team: accounts
+    tier: backend
+  type: ClusterIP
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  labels:
+    application: bank-of-anthos
+    environment: development
+    team: accounts
+    tier: backend
   name: userservice
 spec:
   selector:
     matchLabels:
       app: userservice
+      application: bank-of-anthos
+      environment: development
+      team: accounts
+      tier: backend
   template:
     metadata:
+      annotations:
+        proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
       labels:
         app: userservice
+        application: bank-of-anthos
+        environment: development
+        team: accounts
+        tier: backend
     spec:
-      serviceAccountName: default
-      terminationGracePeriodSeconds: 5
+      containers:
+        - env:
+            - name: VERSION
+              value: v0.6.0
+            - name: PORT
+              value: "8080"
+            - name: ENABLE_TRACING
+              value: "true"
+            - name: TOKEN_EXPIRY_SECONDS
+              value: "3600"
+            - name: PRIV_KEY_PATH
+              value: /tmp/.ssh/privatekey
+            - name: LOG_LEVEL
+              value: info
+          envFrom:
+            - configMapRef:
+                name: environment-config
+            - configMapRef:
+                name: accounts-db-config
+          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/userservice:v0.6.0@sha256:f96d964b97cd1a9b892e18d5414365f11857cf7e878f3a653d0eb9793406e7c0
+          name: userservice
+          ports:
+            - containerPort: 8080
+              name: http-server
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 10
+          resources:
+            limits:
+              cpu: 500m
+              ephemeral-storage: 0.25Gi
+              memory: 256Mi
+            requests:
+              cpu: 260m
+              ephemeral-storage: 0.25Gi
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - all
+            privileged: false
+            readOnlyRootFilesystem: true
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /tmp/.ssh
+              name: keys
+              readOnly: true
       securityContext:
         fsGroup: 1000
         runAsGroup: 1000
         runAsNonRoot: true
         runAsUser: 1000
-      containers:
-      - name: userservice
-        securityContext:
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop:
-              - all
-          privileged: false
-          readOnlyRootFilesystem: true
-        image: gcr.io/bank-of-anthos-ci/userservice:v0.5.11
-        volumeMounts:
-        - name: keys
-          mountPath: "/tmp/.ssh"
-          readOnly: true
-        - mountPath: /tmp
-          name: tmp
-        ports:
-        - name: http-server
-          containerPort: 8080
-        env:
-        - name: VERSION
-          value: "v0.5.11"
-        - name: PORT
-          value: "8080"
-        - name: ENABLE_TRACING
-          value: "true"
-        - name: TOKEN_EXPIRY_SECONDS
-          value: "3600"
-        - name: PRIV_KEY_PATH
-          value: "/tmp/.ssh/privatekey"
-        # Valid levels are debug, info, warning, error, critical. If no valid level is set, gunicorn will default to info.
-        - name: LOG_LEVEL
-          value: "info"
-        envFrom:
-        - configMapRef:
-            name: environment-config
-        - configMapRef:
-            name: accounts-db-config
-        readinessProbe:
-          httpGet:
-            path: /ready
-            port: 8080
-          initialDelaySeconds: 10
-          periodSeconds: 5
-          timeoutSeconds: 10
-        resources:
-          requests:
-            cpu: 300m
-            memory: 128Mi
-          limits:
-            cpu: 500m
-            memory: 256Mi
+      serviceAccountName: bank-of-anthos
+      terminationGracePeriodSeconds: 5
       volumes:
-      - name: keys
-        secret:
-          secretName: jwt-key
-          items:
-          - key: jwtRS256.key
-            path: privatekey
-          - key: jwtRS256.key.pub
-            path: publickey
-      - emptyDir: {}
-        name: tmp
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: userservice
-spec:
-  type: ClusterIP
-  selector:
-    app: userservice
-  ports:
-  - name: http
-    port: 8080
-    targetPort: 8080
+        - emptyDir: {}
+          name: tmp
+        - name: keys
+          secret:
+            items:
+              - key: jwtRS256.key
+                path: privatekey
+              - key: jwtRS256.key.pub
+                path: publickey
+            secretName: jwt-key

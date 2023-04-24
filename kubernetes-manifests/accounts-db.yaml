@@ -1,10 +1,10 @@
-# Copyright 2019 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#      http://www.apache.org/licenses/LICENSE-2.0
+#     https://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,80 +12,82 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-kind: StatefulSet
-apiVersion: apps/v1
+apiVersion: v1
+data:
+  ACCOUNTS_DB_URI: postgresql://accounts-admin:accounts-pwd@accounts-db:5432/accounts-db
+  POSTGRES_DB: accounts-db
+  POSTGRES_PASSWORD: accounts-pwd
+  POSTGRES_USER: accounts-admin
+kind: ConfigMap
 metadata:
-  name: accounts-db
   labels:
     app: accounts-db
+    application: bank-of-anthos
+    environment: development
+    team: accounts
     tier: db
-spec:
-  serviceName: "accounts-db"
-  replicas: 1
-  selector:
-    matchLabels:
-      app: accounts-db
-      tier: db
-  template:
-    metadata:
-      labels:
-        app: accounts-db
-        tier: db
-    spec:
-      serviceAccountName: default
-      containers:
-      - name: accounts-db
-        image: gcr.io/bank-of-anthos-ci/accounts-db:v0.5.11
-        envFrom:
-          - configMapRef:
-              name: environment-config
-          - configMapRef:
-              name: accounts-db-config
-          - configMapRef:
-              name: demo-data-config
-        ports:
-          - containerPort: 5432
-            name: postgredb
-        resources:
-          requests:
-            cpu: 100m
-            memory: 128Mi
-          limits:
-            cpu: 250m
-            memory: 512Mi
-        volumeMounts:
-        - name: postgresdb
-          mountPath: /var/lib/postgresql/data
-          subPath: postgres
-      volumes:
-      - name: postgresdb
-        emptyDir: {}
+  name: accounts-db-config
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: accounts-db
   labels:
-    app: accounts-db
-    tier: db
+    environment: development
+  name: accounts-db
 spec:
   ports:
-    - port: 5432
-      name: tcp
-      targetPort: 5432
+    - name: tcp
+      port: 5432
       protocol: TCP
+      targetPort: 5432
   selector:
     app: accounts-db
-    tier: db
+    environment: development
+  type: ClusterIP
 ---
-apiVersion: v1
-kind: ConfigMap
+apiVersion: apps/v1
+kind: StatefulSet
 metadata:
-  name: accounts-db-config
   labels:
-    app: accounts-db
-data:
-  POSTGRES_DB: accounts-db
-  POSTGRES_USER: accounts-admin
-  POSTGRES_PASSWORD: accounts-pwd
-  ACCOUNTS_DB_URI: postgresql://accounts-admin:accounts-pwd@accounts-db:5432/accounts-db
+    environment: development
+  name: accounts-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: accounts-db
+      environment: development
+  serviceName: accounts-db
+  template:
+    metadata:
+      labels:
+        app: accounts-db
+        environment: development
+    spec:
+      containers:
+        - envFrom:
+            - configMapRef:
+                name: environment-config
+            - configMapRef:
+                name: accounts-db-config
+            - configMapRef:
+                name: demo-data-config
+          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/accounts-db:v0.6.0@sha256:4464fdf0c82bb2ad1919d25b4adfd0fb01251c117d5bf6f8041895776768cac9
+          name: accounts-db
+          ports:
+            - containerPort: 5432
+          resources:
+            limits:
+              cpu: 250m
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgresdb
+              subPath: postgres
+      serviceAccountName: default
+      volumes:
+        - emptyDir: {}
+          name: postgresdb
