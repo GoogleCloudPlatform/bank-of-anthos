@@ -131,7 +131,7 @@ opentelemetry-util-http==0.37b0
     # via
     #   opentelemetry-instrumentation-flask
     #   opentelemetry-instrumentation-wsgi
-packaging==23.0
+packaging==23.1
     # via
     #   -r requirements.in
     #   opentelemetry-instrumentation-sqlalchemy
