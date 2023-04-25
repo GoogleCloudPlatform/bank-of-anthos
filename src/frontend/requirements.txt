@@ -100,7 +100,7 @@ protobuf==4.22.3
     #   googleapis-common-protos
     #   grpcio-status
     #   proto-plus
-pyasn1==0.4.8
+pyasn1==0.5.0
     # via
     #   pyasn1-modules
     #   rsa
