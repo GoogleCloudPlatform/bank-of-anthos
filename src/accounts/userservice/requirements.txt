@@ -5,9 +5,7 @@
 #    pip-compile --output-file=requirements.txt requirements.in
 #
 attrs==22.2.0
-    # via
-    #   -r requirements.in
-    #   pytest
+    # via -r requirements.in
 bcrypt==4.0.1
     # via -r requirements.in
 bleach==6.0.0
@@ -175,7 +173,7 @@ pyjwt==2.6.0
     # via -r requirements.in
 pyparsing==3.0.9
     # via -r requirements.in
-pytest==7.2.2
+pytest==7.3.1
     # via
     #   -r requirements.in
     #   pytest-cov
