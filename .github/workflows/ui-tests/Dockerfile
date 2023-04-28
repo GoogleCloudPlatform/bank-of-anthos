@@ -9,15 +9,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM cypress/included:12.3.0@sha256:92c9fabf4cebd9564fa63f401446b63c10e2a26c7806bae4af83cda81d918610
+FROM cypress/included:12.11.0@sha256:29dfeed99db7a9678a4402f9175c98074c23bbb5ad109058702bc401fc3cdd02
+
 WORKDIR /e2e
+COPY . .
+
+# install curl and gpg which are needed for fetching the Google Cloud GPG key
+RUN apt-get update
+RUN apt-get install -y curl gpg
+
 # install gcloud cli tools to get kubectl context and service/ingress endpoint ip to test
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg  add - && apt-get update -y && apt-get install google-cloud-cli -y
-RUN apt-get update
-RUN apt-get install google-cloud-sdk-gke-gcloud-auth-plugin kubectl
+
+# RUN apt-get update
+RUN apt-get install -y google-cloud-sdk-gke-gcloud-auth-plugin kubectl curl
+
 ENV USE_GKE_GCLOUD_AUTH_PLUGIN=True
-# cypress code & config
-COPY . .
 ENV XDG_CONFIG_HOME=/e2e
+
 # run custom bash script to set CYPRESS_baseUrl and execute tests
 ENTRYPOINT [ "/bin/bash", "-c", "./run_for_env.sh" ]
