@@ -130,7 +130,7 @@ The following button opens up an interactive tutorial showing how to deploy Bank
 
 ## Documentation
 
-<!-- This section is duplicated in the docs/ README -->
+<!-- This section is duplicated in the docs/ README: https://github.com/GoogleCloudPlatform/bank-of-anthos/blob/main/docs/README.md -->
 
 - [Development](/docs/development.md) to learn how to run and develop this app locally.
 - [Environments](/docs/environments.md) to learn how to deploy on non-GKE clusters.

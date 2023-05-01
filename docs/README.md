@@ -1,6 +1,6 @@
 # Documentation
 
-<!-- This section is duplicated in the root README -->
+<!-- This section is duplicated in the root README: https://github.com/GoogleCloudPlatform/bank-of-anthos#documentation -->
 
 - [Development](/docs/development.md) to learn how to run and develop this app locally.
 - [Environments](/docs/environments.md) to learn how to deploy on non-GKE clusters.
