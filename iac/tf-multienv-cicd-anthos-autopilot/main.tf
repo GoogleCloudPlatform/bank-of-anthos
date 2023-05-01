@@ -13,10 +13,10 @@
 # limitations under the License.
 
 terraform {
-  # backend "gcs" {
-  #     bucket = "YOUR_TF_STATE_GCS_BUCKET_NAME"
-  #     prefix = "bank-of-anthos"
-  # }
+  backend "gcs" {
+      bucket = "bank-of-anthos-tf-state"
+      prefix = "bank-of-anthos"
+  }
   required_providers {
     google = {
       source = "hashicorp/google"
