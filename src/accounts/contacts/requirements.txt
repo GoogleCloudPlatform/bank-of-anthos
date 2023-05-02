@@ -10,6 +10,8 @@ bcrypt==4.0.1
     # via -r requirements.in
 bleach==6.0.0
     # via -r requirements.in
+blinker==1.6.2
+    # via flask
 cachetools==5.3.0
     # via
     #   -r requirements.in
@@ -36,7 +38,7 @@ cryptography==40.0.2
     # via -r requirements.in
 deprecated==1.2.13
     # via opentelemetry-api
-flask==2.2.3
+flask==2.3.2
     # via -r requirements.in
 google-api-core[grpc]==2.11.0
     # via
@@ -208,10 +210,8 @@ webencodings==0.5.1
     # via
     #   -r requirements.in
     #   bleach
-werkzeug==2.2.3
-    # via
-    #   -r requirements.in
-    #   flask
+werkzeug==2.3.3
+    # via flask
 wrapt==1.15.0
     # via
     #   -r requirements.in
