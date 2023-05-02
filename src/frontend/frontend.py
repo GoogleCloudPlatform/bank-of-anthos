@@ -496,7 +496,7 @@ def create_app():
         redirect_uri = request.args['redirect_uri']
         token = request.cookies.get(app.config['TOKEN_NAME'])
 
-        app.logger.debug('Checking consent. consent:' + consent)
+        app.logger.debug('Checking consent. consent: %s', consent)
 
         if consent == "true":
             app.logger.info('User consent granted.')
@@ -665,7 +665,7 @@ def create_app():
             cluster_name = str(req.text)
     except (RequestException, HTTPError) as err:
         app.logger.warning(
-            f"Unable to retrieve cluster name from metadata server {metadata_server}.")
+            "Unable to retrieve cluster name from metadata server %s.", metadata_server)
 
     # get GKE pod name
     pod_name = "unknown"
@@ -680,7 +680,7 @@ def create_app():
         if req.ok:
             pod_zone = str(req.text.split("/")[3])
     except (RequestException, HTTPError) as err:
-        app.logger.warning(f"Unable to retrieve zone from metadata server {metadata_server}.")
+        app.logger.warning("Unable to retrieve zone from metadata server %s.", metadata_server)
 
     # register formater functions
     app.jinja_env.globals.update(format_currency=format_currency)
