@@ -36,7 +36,7 @@ cryptography==40.0.2
     # via -r requirements.in
 deprecated==1.2.13
     # via opentelemetry-api
-flask==2.2.3
+flask==2.3.2
     # via -r requirements.in
 google-api-core[grpc]==2.11.0
     # via
@@ -208,9 +208,8 @@ webencodings==0.5.1
     # via
     #   -r requirements.in
     #   bleach
-werkzeug==2.2.3
+werkzeug==2.3.3
     # via
-    #   -r requirements.in
     #   flask
 wrapt==1.15.0
     # via
