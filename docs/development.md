@@ -35,7 +35,7 @@ sudo mv jdk-17*/ /opt/jdk17
 Find the [latest release of Maven 3.8](https://maven.apache.org/download.cgi) and
 extract it to the `/opt` directory:
 ```
-wget https://dlcdn.apache.org/maven/maven-3/3.8.5/binaries/apache-maven-3.8.5-bin.tar.gz
+wget https://dlcdn.apache.org/maven/maven-3/3.8.8/binaries/apache-maven-3.8.8-bin.tar.gz
 sudo tar xf apache-maven-*.tar.gz -C /opt
 ```
 
@@ -43,8 +43,8 @@ Create a profile containing the paths of the newly extracted JDK and Maven direc
 ```
 sudo tee /etc/profile.d/java.sh <<EOF
 export JAVA_HOME=/opt/jdk17
-export M2_HOME=/opt/apache-maven-3.8.5
-export MAVEN_HOME=/opt/apache-maven-3.8.5
+export M2_HOME=/opt/apache-maven-3.8.8
+export MAVEN_HOME=/opt/apache-maven-3.8.8
 export PATH=\$JAVA_HOME/bin:\$M2_HOME/bin:\$PATH
 EOF
 sudo chmod +x /etc/profile.d/java.sh
