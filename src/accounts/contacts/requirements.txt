@@ -183,7 +183,7 @@ pytest-cov==4.0.0
     # via -r requirements.in
 pytz==2023.3
     # via -r requirements.in
-requests==2.29.0
+requests==2.30.0
     # via
     #   -r requirements.in
     #   google-api-core
