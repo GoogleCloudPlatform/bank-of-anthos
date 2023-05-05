@@ -79,8 +79,6 @@ class ApiCall:
         return response
 
 # pylint: disable-msg=too-many-locals
-
-
 def create_app():
     """Flask application factory to create instances
     of the Frontend Flask App
@@ -130,8 +128,7 @@ def create_app():
         token = request.cookies.get(app.config['TOKEN_NAME'])
         if not verify_token(token):
             # user isn't authenticated
-            app.logger.debug(
-                'User isn\'t authenticated. Redirecting to login page.')
+            app.logger.debug('User isn\'t authenticated. Redirecting to login page.')
             return redirect(url_for('login_page',
                                     _external=True,
                                     _scheme=app.config['SCHEME']))
@@ -410,7 +407,7 @@ def create_app():
         state = request.args.get('state')
         if ('REGISTERED_OAUTH_CLIENT_ID' in os.environ and
             'ALLOWED_OAUTH_REDIRECT_URI' in os.environ and
-                response_type == 'code'):
+            response_type == 'code'):
             app.logger.debug('Login with response_type=code')
             if client_id != os.environ['REGISTERED_OAUTH_CLIENT_ID']:
                 return redirect(url_for('login',
@@ -479,7 +476,7 @@ def create_app():
             if ('response_type' in request_args and
                 'state' in request_args and
                 'redirect_uri' in request_args and
-                    request_args['response_type'] == 'code'):
+                request_args['response_type'] == 'code'):
                 resp = make_response(redirect(url_for('consent',
                                                       state=request_args['state'],
                                                       redirect_uri=request_args['redirect_uri'],
@@ -561,7 +558,7 @@ def create_app():
         try:
             app.logger.debug('Retrieving authorization code.')
             callback_response = requests.post(url=redirect_uri,
-                                             data={'state': state, 'id_token': token},
+                                              data={'state': state, 'id_token': token},
                                               timeout=app.config['BACKEND_TIMEOUT'],
                                               allow_redirects=False)
             if callback_response.status_code == requests.codes.found:
