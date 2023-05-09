@@ -15,6 +15,8 @@
 """Web service for frontend
 """
 
+# Module imports
+import concurrent.futures
 import datetime
 import json
 import logging
@@ -39,6 +41,14 @@ from opentelemetry.instrumentation.flask import FlaskInstrumentor
 from opentelemetry.instrumentation.requests import RequestsInstrumentor
 from opentelemetry.instrumentation.jinja2 import Jinja2Instrumentor
 
+# Local imports
+from api_call import ApiCall, ApiRequest
+from traced_thread_pool_executor import TracedThreadPoolExecutor
+
+# Local constants
+BALANCE_NAME = "balance"
+CONTACTS_NAME = "contacts"
+TRANSACTION_LIST_NAME = "transaction_list"
 
 # pylint: disable-msg=too-many-locals
 def create_app():
@@ -100,49 +110,60 @@ def create_app():
         account_id = token_data['acct']
 
         hed = {'Authorization': 'Bearer ' + token}
-        # get balance
-        balance = None
-        try:
-            url = '{}/{}'.format(app.config["BALANCES_URI"], account_id)
-            app.logger.debug('Getting account balance.')
-            response = requests.get(url=url, headers=hed, timeout=app.config['BACKEND_TIMEOUT'])
-            if response:
-                balance = response.json()
-        except (requests.exceptions.RequestException, ValueError) as err:
-            app.logger.error('Error getting account balance: %s', str(err))
-        # get history
-        transaction_list = None
-        try:
-            url = '{}/{}'.format(app.config["HISTORY_URI"], account_id)
-            app.logger.debug('Getting transaction history.')
-            response = requests.get(url=url, headers=hed, timeout=app.config['BACKEND_TIMEOUT'])
-            if response:
-                transaction_list = response.json()
-        except (requests.exceptions.RequestException, ValueError) as err:
-            app.logger.error('Error getting transaction history: %s', str(err))
-        # get contacts
-        contacts = []
-        try:
-            url = '{}/{}'.format(app.config["CONTACTS_URI"], username)
-            app.logger.debug('Getting contacts.')
-            response = requests.get(url=url, headers=hed, timeout=app.config['BACKEND_TIMEOUT'])
-            if response:
-                contacts = response.json()
-        except (requests.exceptions.RequestException, ValueError) as err:
-            app.logger.error('Error getting contacts: %s', str(err))
 
-        _populate_contact_labels(account_id, transaction_list, contacts)
+        api_calls = [
+            # get balance
+            ApiCall(display_name=BALANCE_NAME,
+                    api_request=ApiRequest(url=f'{app.config["BALANCES_URI"]}/{account_id}',
+                                           headers=hed,
+                                           timeout=app.config['BACKEND_TIMEOUT']),
+                    logger=app.logger),
+            # get history
+            ApiCall(display_name=TRANSACTION_LIST_NAME,
+                    api_request=ApiRequest(url=f'{app.config["HISTORY_URI"]}/{account_id}',
+                                           headers=hed,
+                                           timeout=app.config['BACKEND_TIMEOUT']),
+                    logger=app.logger),
+            # get contacts
+            ApiCall(display_name=CONTACTS_NAME,
+                    api_request=ApiRequest(url=f'{app.config["CONTACTS_URI"]}/{username}',
+                                           headers=hed,
+                                           timeout=app.config['BACKEND_TIMEOUT']),
+                    logger=app.logger)
+        ]
+
+        api_response = {BALANCE_NAME: None,
+                        TRANSACTION_LIST_NAME: None,
+                        CONTACTS_NAME: []}
+
+        tracer = trace.get_tracer(__name__)
+        with TracedThreadPoolExecutor(tracer, max_workers=3) as executor:
+            futures = []
+
+            future_to_api_call = {
+                executor.submit(api_call.make_call):
+                    api_call for api_call in api_calls
+            }
+
+            for future in concurrent.futures.as_completed(future_to_api_call):
+                if future.result():
+                    api_call = future_to_api_call[future]
+                    api_response[api_call.display_name] = future.result().json()
+
+        _populate_contact_labels(account_id,
+                                 api_response[TRANSACTION_LIST_NAME],
+                                 api_response[CONTACTS_NAME])
 
         return render_template('index.html',
                                cluster_name=cluster_name,
                                pod_name=pod_name,
                                pod_zone=pod_zone,
                                cymbal_logo=os.getenv('CYMBAL_LOGO', 'false'),
-                               history=transaction_list,
-                               balance=balance,
+                               history=api_response[TRANSACTION_LIST_NAME],
+                               balance=api_response[BALANCE_NAME],
                                name=display_name,
                                account_id=account_id,
-                               contacts=contacts,
+                               contacts=api_response[CONTACTS_NAME],
                                message=request.args.get('msg', None),
                                bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'))
 
@@ -375,11 +396,11 @@ def create_app():
             if verify_token(token):
                 app.logger.debug('User already authenticated. Redirecting to /consent')
                 return make_response(redirect(url_for('consent',
-                                                state=state,
-                                                redirect_uri=redirect_uri,
-                                                app_name=app_name,
-                                                _external=True,
-                                                _scheme=app.config['SCHEME'])))
+                                                      state=state,
+                                                      redirect_uri=redirect_uri,
+                                                      app_name=app_name,
+                                                      _external=True,
+                                                      _scheme=app.config['SCHEME'])))
         else:
             if verify_token(token):
                 # already authenticated
@@ -410,8 +431,8 @@ def create_app():
         Fails if userservice does not accept input username and password
         """
         return _login_helper(request.form['username'],
-                            request.form['password'],
-                            request.args)
+                             request.form['password'],
+                             request.args)
 
     def _login_helper(username, password, request_args):
         try:
@@ -431,15 +452,15 @@ def create_app():
                 'redirect_uri' in request_args and
                 request_args['response_type'] == 'code'):
                 resp = make_response(redirect(url_for('consent',
-                                                    state=request_args['state'],
-                                                    redirect_uri=request_args['redirect_uri'],
-                                                    app_name=request_args['app_name'],
-                                                    _external=True,
-                                                    _scheme=app.config['SCHEME'])))
+                                                      state=request_args['state'],
+                                                      redirect_uri=request_args['redirect_uri'],
+                                                      app_name=request_args['app_name'],
+                                                      _external=True,
+                                                      _scheme=app.config['SCHEME'])))
             else:
                 resp = make_response(redirect(url_for('home',
-                                                    _external=True,
-                                                    _scheme=app.config['SCHEME'])))
+                                                      _external=True,
+                                                      _scheme=app.config['SCHEME'])))
             resp.set_cookie(app.config['TOKEN_NAME'], token, max_age=max_age)
             app.logger.info('Successfully logged in.')
             return resp
@@ -469,22 +490,22 @@ def create_app():
                 return resp
 
             return render_template('consent.html',
-                                cymbal_logo=os.getenv('CYMBAL_LOGO', 'false'),
-                                cluster_name=cluster_name,
-                                pod_name=pod_name,
-                                pod_zone=pod_zone,
-                                bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'),
-                                state=state,
-                                redirect_uri=redirect_uri,
-                                app_name=app_name)
+                                   cymbal_logo=os.getenv('CYMBAL_LOGO', 'false'),
+                                   cluster_name=cluster_name,
+                                   pod_name=pod_name,
+                                   pod_zone=pod_zone,
+                                   bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'),
+                                   state=state,
+                                   redirect_uri=redirect_uri,
+                                   app_name=app_name)
 
         return make_response(redirect(url_for('login',
-                                        response_type="code",
-                                        state=state,
-                                        redirect_uri=redirect_uri,
-                                        app_name=app_name,
-                                        _external=True,
-                                        _scheme=app.config['SCHEME'])))
+                                              response_type="code",
+                                              state=state,
+                                              redirect_uri=redirect_uri,
+                                              app_name=app_name,
+                                              _external=True,
+                                              _scheme=app.config['SCHEME'])))
 
     @app.route('/consent', methods=['POST'])
     def consent():
@@ -511,9 +532,9 @@ def create_app():
         try:
             app.logger.debug('Retrieving authorization code.')
             callback_response = requests.post(url=redirect_uri,
-                                             data={'state': state, 'id_token': token},
-                                             timeout=app.config['BACKEND_TIMEOUT'],
-                                             allow_redirects=False)
+                                              data={'state': state, 'id_token': token},
+                                              timeout=app.config['BACKEND_TIMEOUT'],
+                                              allow_redirects=False)
             if callback_response.status_code == requests.codes.found:
                 app.logger.info('Successfully retrieved auth code.')
                 location = callback_response.headers['Location']
