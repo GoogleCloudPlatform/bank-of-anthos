@@ -15,6 +15,7 @@
 """Web service for frontend
 """
 
+# Module imports
 import concurrent.futures
 import datetime
 import json
@@ -40,43 +41,14 @@ from opentelemetry.instrumentation.flask import FlaskInstrumentor
 from opentelemetry.instrumentation.requests import RequestsInstrumentor
 from opentelemetry.instrumentation.jinja2 import Jinja2Instrumentor
 
+# Local imports
+from api_call import ApiCall, ApiRequest
+from traced_thread_pool_executor import TracedThreadPoolExecutor
+
+# Local constants
 BALANCE_NAME = "balance"
 CONTACTS_NAME = "contacts"
 TRANSACTION_LIST_NAME = "transaction_list"
-
-
-class ApiRequest:
-    """Class for defining an API request"""
-
-    def __init__(self, url, headers, timeout):
-        """Initialize an API request"""
-        self.url = url
-        self.headers = headers
-        self.timeout = timeout
-
-
-class ApiCall:
-    """Class for initializing and making an API call"""
-
-    def __init__(self, display_name, api_request, logger):
-        """Initialize an API call"""
-        self.display_name = display_name
-        self.api_request = api_request
-        self.logger = logger
-
-    def make_call(self):
-        """Making an API call"""
-        response = None
-
-        try:
-            response = requests.get(url=self.api_request.url,
-                                    headers=self.api_request.headers,
-                                    timeout=self.api_request.timeout)
-        except (requests.exceptions.RequestException, ValueError) as err:
-            self.logger.error('Error getting %s: %s',
-                              self.display_name, str(err))
-
-        return response
 
 # pylint: disable-msg=too-many-locals
 def create_app():
@@ -163,7 +135,9 @@ def create_app():
         api_response = {BALANCE_NAME: None,
                         TRANSACTION_LIST_NAME: None,
                         CONTACTS_NAME: []}
-        with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+
+        tracer = trace.get_tracer(__name__)
+        with TracedThreadPoolExecutor(tracer, max_workers=3) as executor:
             futures = []
 
             future_to_api_call = {
