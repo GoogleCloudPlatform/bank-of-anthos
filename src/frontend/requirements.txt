@@ -122,7 +122,7 @@ six==1.16.0
     # via google-auth
 typing-extensions==4.5.0
     # via opentelemetry-sdk
-urllib3==1.26.15
+urllib3==2.0.2
     # via
     #   -r requirements.in
     #   requests
