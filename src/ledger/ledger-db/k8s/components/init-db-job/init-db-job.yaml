@@ -269,7 +269,7 @@ spec:
             cpu: "200m"
             memory: "100Mi"
       - name: populate-ledger-db
-        image: postgres:14-alpine@sha256:07985c5c5e01ee550b30c67a2cf806f8b08b32f74e3f24c4cbef31305ef5776d
+        image: postgres:14-alpine@sha256:c2580c2adb45281c5f3272bad4920e79f2c6fc4eb3cfe02b0223fbcbfa814fe3
         command: ['bash', '-c','. /scripts/initialize-database.sh 127.0.0.1 5432 ledger-db']
         volumeMounts:
         - name: scripts
