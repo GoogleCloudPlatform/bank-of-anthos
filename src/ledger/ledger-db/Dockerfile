@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-FROM postgres:15.2-alpine@sha256:07ec36ad2d5ab9250f38c8ef749239b662cf15d03c9ddb7167422edbbdf71156
+FROM postgres:15.3-alpine@sha256:5b9805a36dfe65c019fbdf3f33fd57f7082a554cc9af79a135e3ec632344bd07
 
 # Need to get coreutils to get the date bash function working properly:
 RUN apk add --update coreutils && rm -rf /var/cache/apk/*
