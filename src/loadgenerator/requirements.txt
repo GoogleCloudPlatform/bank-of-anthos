@@ -8,7 +8,7 @@ blinker==1.6.2
     # via flask
 brotli==1.0.9
     # via geventhttpclient
-certifi==2022.12.7
+certifi==2023.5.7
     # via
     #   geventhttpclient
     #   requests
@@ -65,7 +65,7 @@ typing-extensions==4.5.0
     # via locust
 urllib3==2.0.2
     # via requests
-werkzeug==2.3.3
+werkzeug==2.3.4
     # via
     #   flask
     #   locust
