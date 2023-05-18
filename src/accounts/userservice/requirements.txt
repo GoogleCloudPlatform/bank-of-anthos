@@ -117,7 +117,7 @@ opentelemetry-instrumentation-sqlalchemy==0.37b0
     # via -r requirements.in
 opentelemetry-instrumentation-wsgi==0.37b0
     # via opentelemetry-instrumentation-flask
-opentelemetry-propagator-gcp==1.4.0
+opentelemetry-propagator-gcp==1.5.0
     # via -r requirements.in
 opentelemetry-sdk==1.16.0
     # via
