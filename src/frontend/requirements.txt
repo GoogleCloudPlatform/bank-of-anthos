@@ -59,8 +59,9 @@ opentelemetry-api==1.16.0
     #   opentelemetry-instrumentation-requests
     #   opentelemetry-instrumentation-wsgi
     #   opentelemetry-propagator-gcp
+    #   opentelemetry-resourcedetector-gcp
     #   opentelemetry-sdk
-opentelemetry-exporter-gcp-trace==1.4.0
+opentelemetry-exporter-gcp-trace==1.5.0
     # via -r requirements.in
 opentelemetry-instrumentation==0.37b0
     # via
@@ -78,10 +79,13 @@ opentelemetry-instrumentation-wsgi==0.37b0
     # via opentelemetry-instrumentation-flask
 opentelemetry-propagator-gcp==1.5.0
     # via -r requirements.in
+opentelemetry-resourcedetector-gcp==1.5.0a0
+    # via opentelemetry-exporter-gcp-trace
 opentelemetry-sdk==1.16.0
     # via
     #   -r requirements.in
     #   opentelemetry-exporter-gcp-trace
+    #   opentelemetry-resourcedetector-gcp
 opentelemetry-semantic-conventions==0.37b0
     # via
     #   opentelemetry-instrumentation-flask
@@ -116,12 +120,15 @@ requests==2.30.0
     # via
     #   -r requirements.in
     #   google-api-core
+    #   opentelemetry-resourcedetector-gcp
 rsa==4.9
     # via google-auth
 six==1.16.0
     # via google-auth
 typing-extensions==4.5.0
-    # via opentelemetry-sdk
+    # via
+    #   opentelemetry-resourcedetector-gcp
+    #   opentelemetry-sdk
 urllib3==2.0.2
     # via
     #   -r requirements.in
