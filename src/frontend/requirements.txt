@@ -116,7 +116,7 @@ pycparser==2.21
     # via cffi
 pyjwt==2.7.0
     # via -r requirements.in
-requests==2.30.0
+requests==2.31.0
     # via
     #   -r requirements.in
     #   google-api-core
