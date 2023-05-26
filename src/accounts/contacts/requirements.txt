@@ -122,7 +122,7 @@ opentelemetry-propagator-gcp==1.5.0
     # via -r requirements.in
 opentelemetry-resourcedetector-gcp==1.5.0a0
     # via opentelemetry-exporter-gcp-trace
-opentelemetry-sdk==1.16.0
+opentelemetry-sdk==1.18.0
     # via
     #   -r requirements.in
     #   opentelemetry-exporter-gcp-trace
