@@ -44,7 +44,6 @@ module "gke_production" {
   horizontal_pod_autoscaling      = true
   create_service_account          = false # currently not supported by terraform for autopilot clusters
   cluster_resource_labels         = { "mesh_id" : "proj-${data.google_project.project.number}" }
-  datapath_provider               = "ADVANCED_DATAPATH"
 
   providers = {
     kubernetes = kubernetes.production
