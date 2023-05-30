@@ -258,7 +258,7 @@ spec:
       serviceAccountName: boa-ksa
       containers:
       - name: sidecar-controller
-        image: bash@sha256:e3bb715adc9ed7f74852b45ec7dbef40b3a4a48fcd24bb277e653c3ef9c8c2f9
+        image: bash@sha256:d6f71002f8b3cb7660d5bec2436a850564e79673c43be75f31908c250f808458
         command: ['bash', '-c', '. /scripts/wait-to-complete-sidecar.sh "initialize-database.sh" "cloud_sql_proxy"']
         volumeMounts:
         - name: scripts
@@ -269,7 +269,7 @@ spec:
             cpu: "200m"
             memory: "100Mi"
       - name: populate-accounts-db
-        image: postgres:15-alpine@sha256:d9c304353c031b21e9a7e33dc4781e272a9fa802a2ab9703fe4199d72ba1422c
+        image: postgres:15-alpine@sha256:bb2769783686897b370c061b4ad1aac5a819bccec7945d03c3b45a9b077bcea0
         command: ['bash', '-c','. /scripts/initialize-database.sh 127.0.0.1 5432 accounts-db']
         volumeMounts:
         - name: scripts
@@ -318,7 +318,7 @@ spec:
           limits:
             cpu: "200m"
             memory: "100Mi"
-        image: gcr.io/cloudsql-docker/gce-proxy:1.33.6@sha256:cbd474b0424a86df61834e60e8be5bbf19d771a387a0e5bb5c4686507b23ef7f
+        image: gcr.io/cloudsql-docker/gce-proxy:1.33.7@sha256:c378a623353ee9c592795c0ad9e448bdc7e26c7635ba982968a60d0e3bb4d575
         env:
         - name: CONNECTION_NAME
           valueFrom:

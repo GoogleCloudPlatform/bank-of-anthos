@@ -258,7 +258,7 @@ spec:
       serviceAccountName: bank-of-anthos
       containers:
       - name: sidecar-controller
-        image: bash@sha256:e3bb715adc9ed7f74852b45ec7dbef40b3a4a48fcd24bb277e653c3ef9c8c2f9
+        image: bash@sha256:d6f71002f8b3cb7660d5bec2436a850564e79673c43be75f31908c250f808458
         command: ['bash', '-c', '. /scripts/wait-to-complete-sidecar.sh "initialize-database.sh" "cloud_sql_proxy"']
         volumeMounts:
         - name: scripts
@@ -269,7 +269,7 @@ spec:
             cpu: "200m"
             memory: "100Mi"
       - name: populate-ledger-db
-        image: postgres:14-alpine@sha256:07985c5c5e01ee550b30c67a2cf806f8b08b32f74e3f24c4cbef31305ef5776d
+        image: postgres:15-alpine@sha256:bb2769783686897b370c061b4ad1aac5a819bccec7945d03c3b45a9b077bcea0
         command: ['bash', '-c','. /scripts/initialize-database.sh 127.0.0.1 5432 ledger-db']
         volumeMounts:
         - name: scripts
@@ -306,7 +306,7 @@ spec:
           limits:
             cpu: "200m"
             memory: "100Mi"
-        image: gcr.io/cloudsql-docker/gce-proxy:1.33.6-buster@sha256:a71b97e85278ac4069d8559ccb695db4b47edd4e5656761e375dcb8e117997bc
+        image: gcr.io/cloudsql-docker/gce-proxy:1.33.7-buster@sha256:b212d06a45e41691164f9ad4e6f30ae5bd33260537e32b64f913c18a520bc8b0
         env:
         - name: CONNECTION_NAME
           valueFrom:

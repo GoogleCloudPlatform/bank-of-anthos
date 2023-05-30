@@ -33,6 +33,6 @@ module "boa-istio" {
   cluster_location  = module.gke.location
   module_depends_on = [module.asm.wait]
 
-  kubectl_create_command  = "kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/bank-of-anthos/${var.sync_branch}/extras/istio-manifests/frontend-ingress.yaml"
-  kubectl_destroy_command = "kubectl delete -f https://raw.githubusercontent.com/GoogleCloudPlatform/bank-of-anthos/${var.sync_branch}/extras/istio-manifests/frontend-ingress.yaml"
+  kubectl_create_command  = "kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/bank-of-anthos/${var.sync_branch}/extras/istio/frontend-ingress.yaml"
+  kubectl_destroy_command = "kubectl delete -f https://raw.githubusercontent.com/GoogleCloudPlatform/bank-of-anthos/${var.sync_branch}/extras/istio/frontend-ingress.yaml"
 }

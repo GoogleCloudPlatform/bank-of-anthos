@@ -10,6 +10,7 @@ target/
 .factorypath
 *.iml
 .idea/
+.vscode
 settings.json
 pyvenv.cfg
 
