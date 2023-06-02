@@ -164,6 +164,7 @@ def create_app():
                                history=api_response[TRANSACTION_LIST_NAME],
                                message=request.args.get('msg', None),
                                name=display_name,
+                               platform_name=platform,
                                pod_name=pod_name,
                                pod_zone=pod_zone)
 
@@ -417,6 +418,7 @@ def create_app():
                                default_password=os.getenv('DEFAULT_PASSWORD', ''),
                                default_user=os.getenv('DEFAULT_USERNAME', ''),
                                message=request.args.get('msg', None),
+                               platform_name=platform,
                                pod_name=pod_name,
                                pod_zone=pod_zone,
                                redirect_uri=redirect_uri,
@@ -494,6 +496,7 @@ def create_app():
                                    bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'),
                                    cluster_name=cluster_name,
                                    cymbal_logo=os.getenv('CYMBAL_LOGO', 'false'),
+                                   platform_name=platform,
                                    pod_name=pod_name,
                                    pod_zone=pod_zone,
                                    redirect_uri=redirect_uri,
@@ -562,6 +565,7 @@ def create_app():
                                bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'),
                                cluster_name=cluster_name,
                                cymbal_logo=os.getenv('CYMBAL_LOGO', 'false'),
+                               platform_name=platform,
                                pod_name=pod_name,
                                pod_zone=pod_zone)
 
@@ -728,6 +732,18 @@ def create_app():
         Jinja2Instrumentor().instrument()
     else:
         app.logger.info("🚫 Tracing disabled.")
+
+    platform = os.getenv('ENV_PLATFORM', None)
+    if platform is not None:
+        platform = platform.lower()
+        if platform not in ['alibaba', 'aws', 'azure', 'gcp', 'local', 'onprem']:
+            app.logger.error(
+                "Platform '%s' not supported, defaulting to None", platform)
+            platform = None
+        else:
+            app.logger.info("Platform is set to '%s'", platform)
+    else:
+        app.logger.info("ENV_PLATFORM environment variable is not set")
 
     return app
 
