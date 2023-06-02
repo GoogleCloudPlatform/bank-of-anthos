@@ -155,17 +155,17 @@ def create_app():
                                  api_response[CONTACTS_NAME])
 
         return render_template('index.html',
+                               account_id=account_id,
+                               balance=api_response[BALANCE_NAME],
+                               bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'),
                                cluster_name=cluster_name,
-                               pod_name=pod_name,
-                               pod_zone=pod_zone,
+                               contacts=api_response[CONTACTS_NAME],
                                cymbal_logo=os.getenv('CYMBAL_LOGO', 'false'),
                                history=api_response[TRANSACTION_LIST_NAME],
-                               balance=api_response[BALANCE_NAME],
-                               name=display_name,
-                               account_id=account_id,
-                               contacts=api_response[CONTACTS_NAME],
                                message=request.args.get('msg', None),
-                               bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'))
+                               name=display_name,
+                               pod_name=pod_name,
+                               pod_zone=pod_zone)
 
     def _populate_contact_labels(account_id, transactions, contacts):
         """
@@ -381,7 +381,7 @@ def create_app():
         state = request.args.get('state')
         if ('REGISTERED_OAUTH_CLIENT_ID' in os.environ and
             'ALLOWED_OAUTH_REDIRECT_URI' in os.environ and
-            response_type == 'code'):
+                response_type == 'code'):
             app.logger.debug('Login with response_type=code')
             if client_id != os.environ['REGISTERED_OAUTH_CLIENT_ID']:
                 return redirect(url_for('login',
@@ -410,18 +410,18 @@ def create_app():
                                         _scheme=app.config['SCHEME']))
 
         return render_template('login.html',
-                               cymbal_logo=os.getenv('CYMBAL_LOGO', 'false'),
+                               app_name=app_name,
+                               bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'),
                                cluster_name=cluster_name,
+                               cymbal_logo=os.getenv('CYMBAL_LOGO', 'false'),
+                               default_password=os.getenv('DEFAULT_PASSWORD', ''),
+                               default_user=os.getenv('DEFAULT_USERNAME', ''),
+                               message=request.args.get('msg', None),
                                pod_name=pod_name,
                                pod_zone=pod_zone,
-                               message=request.args.get('msg', None),
-                               default_user=os.getenv('DEFAULT_USERNAME', ''),
-                               default_password=os.getenv('DEFAULT_PASSWORD', ''),
-                               bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'),
-                               response_type=response_type,
-                               state=state,
                                redirect_uri=redirect_uri,
-                               app_name=app_name)
+                               response_type=response_type,
+                               state=state)
 
     @app.route('/login', methods=['POST'])
     def login():
@@ -450,7 +450,7 @@ def create_app():
             if ('response_type' in request_args and
                 'state' in request_args and
                 'redirect_uri' in request_args and
-                request_args['response_type'] == 'code'):
+                    request_args['response_type'] == 'code'):
                 resp = make_response(redirect(url_for('consent',
                                                       state=request_args['state'],
                                                       redirect_uri=request_args['redirect_uri'],
@@ -490,14 +490,14 @@ def create_app():
                 return resp
 
             return render_template('consent.html',
-                                   cymbal_logo=os.getenv('CYMBAL_LOGO', 'false'),
+                                   app_name=app_name,
+                                   bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'),
                                    cluster_name=cluster_name,
+                                   cymbal_logo=os.getenv('CYMBAL_LOGO', 'false'),
                                    pod_name=pod_name,
                                    pod_zone=pod_zone,
-                                   bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'),
-                                   state=state,
                                    redirect_uri=redirect_uri,
-                                   app_name=app_name)
+                                   state=state)
 
         return make_response(redirect(url_for('login',
                                               response_type="code",
@@ -559,11 +559,11 @@ def create_app():
                                     _external=True,
                                     _scheme=app.config['SCHEME']))
         return render_template('signup.html',
-                               cymbal_logo=os.getenv('CYMBAL_LOGO', 'false'),
+                               bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'),
                                cluster_name=cluster_name,
+                               cymbal_logo=os.getenv('CYMBAL_LOGO', 'false'),
                                pod_name=pod_name,
-                               pod_zone=pod_zone,
-                               bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'))
+                               pod_zone=pod_zone)
 
     @app.route("/signup", methods=['POST'])
     def signup():
