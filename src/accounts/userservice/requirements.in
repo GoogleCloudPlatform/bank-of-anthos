@@ -1,7 +1,7 @@
 attrs==23.1.0
 bcrypt==4.0.1
 bleach==6.0.0
-cachetools==5.3.0
+cachetools==5.3.1
 certifi==2023.5.7
 cffi==1.15.1
 chardet==5.1.0
