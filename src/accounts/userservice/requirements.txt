@@ -12,7 +12,7 @@ bleach==6.0.0
     # via -r requirements.in
 blinker==1.6.2
     # via flask
-cachetools==5.3.0
+cachetools==5.3.1
     # via
     #   -r requirements.in
     #   google-auth
