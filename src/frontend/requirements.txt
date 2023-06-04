@@ -129,7 +129,7 @@ rsa==4.9
     # via google-auth
 six==1.16.0
     # via google-auth
-typing-extensions==4.6.2
+typing-extensions==4.6.3
     # via
     #   opentelemetry-resourcedetector-gcp
     #   opentelemetry-sdk

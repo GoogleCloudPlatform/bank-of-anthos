@@ -205,7 +205,7 @@ six==1.16.0
     #   google-auth
 sqlalchemy==1.4.48
     # via -r requirements.in
-typing-extensions==4.6.2
+typing-extensions==4.6.3
     # via
     #   opentelemetry-resourcedetector-gcp
     #   opentelemetry-sdk
