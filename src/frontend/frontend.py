@@ -51,6 +51,7 @@ CONTACTS_NAME = "contacts"
 TRANSACTION_LIST_NAME = "transaction_list"
 
 # pylint: disable-msg=too-many-locals
+# pylint: disable-msg=too-many-branches
 def create_app():
     """Flask application factory to create instances
     of the Frontend Flask App
@@ -164,7 +165,8 @@ def create_app():
                                history=api_response[TRANSACTION_LIST_NAME],
                                message=request.args.get('msg', None),
                                name=display_name,
-                               platform_name=platform,
+                               platform=platform,
+                               platform_display_name=platform_display_name,
                                pod_name=pod_name,
                                pod_zone=pod_zone)
 
@@ -418,7 +420,8 @@ def create_app():
                                default_password=os.getenv('DEFAULT_PASSWORD', ''),
                                default_user=os.getenv('DEFAULT_USERNAME', ''),
                                message=request.args.get('msg', None),
-                               platform_name=platform,
+                               platform=platform,
+                               platform_display_name=platform_display_name,
                                pod_name=pod_name,
                                pod_zone=pod_zone,
                                redirect_uri=redirect_uri,
@@ -496,7 +499,8 @@ def create_app():
                                    bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'),
                                    cluster_name=cluster_name,
                                    cymbal_logo=os.getenv('CYMBAL_LOGO', 'false'),
-                                   platform_name=platform,
+                                   platform=platform,
+                                   platform_display_name=platform_display_name,
                                    pod_name=pod_name,
                                    pod_zone=pod_zone,
                                    redirect_uri=redirect_uri,
@@ -565,7 +569,8 @@ def create_app():
                                bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'),
                                cluster_name=cluster_name,
                                cymbal_logo=os.getenv('CYMBAL_LOGO', 'false'),
-                               platform_name=platform,
+                               platform=platform,
+                               platform_display_name=platform_display_name,
                                pod_name=pod_name,
                                pod_zone=pod_zone)
 
@@ -734,14 +739,26 @@ def create_app():
         app.logger.info("🚫 Tracing disabled.")
 
     platform = os.getenv('ENV_PLATFORM', None)
+    platform_display_name = None
     if platform is not None:
         platform = platform.lower()
         if platform not in ['alibaba', 'aws', 'azure', 'gcp', 'local', 'onprem']:
-            app.logger.error(
-                "Platform '%s' not supported, defaulting to None", platform)
+            app.logger.error("Platform '%s' not supported, defaulting to None", platform)
             platform = None
         else:
             app.logger.info("Platform is set to '%s'", platform)
+            if platform == 'alibaba':
+                platform_display_name = "Alibaba Cloud"
+            elif platform == 'aws':
+                platform_display_name = "AWS"
+            elif platform == 'azure':
+                platform_display_name = "Azure"
+            elif platform == 'gcp':
+                platform_display_name = "Google Cloud"
+            elif platform == 'local':
+                platform_display_name = "Local"
+            elif platform == 'onprem':
+                platform_display_name = "On-Premises"
     else:
         app.logger.info("ENV_PLATFORM environment variable is not set")
 
