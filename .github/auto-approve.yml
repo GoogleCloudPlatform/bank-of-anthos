@@ -15,4 +15,6 @@
 # https://github.com/googleapis/repo-automation-bots/tree/main/packages/auto-approve
 processes:
   - "PythonDependency"
+  - "PythonSampleAppDependency"
   - "JavaDependency"
+  - "DockerDependency"
