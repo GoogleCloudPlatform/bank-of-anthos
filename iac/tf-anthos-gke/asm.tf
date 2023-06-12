@@ -47,3 +47,9 @@ module "istio-injection-label" {
   kubectl_create_command  = "kubectl label namespace default istio-injection=enabled istio.io/rev- --overwrite"
   kubectl_destroy_command = "kubectl label namespace default istio-injection-"
 }
+    
+resource "time_sleep" "wait-for-istio-labels" {
+  depends_on        = [module.istio-annotation, module.istio-injection-label]
+
+  create_duration   = "30s"
+}

@@ -29,5 +29,7 @@ module "acm" {
 
   secret_type = "none"
     
-  create_metrics_gcp_sa = true
+  create_metrics_gcp_sa = false
+
+  depends_on = [time_sleep.wait-for-istio-labels]
 }
