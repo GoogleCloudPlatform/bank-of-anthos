@@ -43,7 +43,7 @@ jinja2==3.1.2
     # via flask
 locust==2.15.1
     # via -r requirements.in
-markupsafe==2.1.2
+markupsafe==2.1.3
     # via
     #   jinja2
     #   werkzeug
@@ -51,9 +51,9 @@ msgpack==1.0.5
     # via locust
 psutil==5.9.5
     # via locust
-pyzmq==25.0.2
+pyzmq==25.1.0
     # via locust
-requests==2.30.0
+requests==2.31.0
     # via locust
 roundrobin==0.0.4
     # via locust
@@ -61,7 +61,7 @@ six==1.16.0
     # via
     #   flask-cors
     #   geventhttpclient
-typing-extensions==4.5.0
+typing-extensions==4.6.3
     # via locust
 urllib3==2.0.2
     # via requests

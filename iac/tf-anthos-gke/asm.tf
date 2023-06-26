@@ -16,7 +16,7 @@
 
 module "asm" {
   source                    = "terraform-google-modules/kubernetes-engine/google//modules/asm"
-  version                   = "~> 25.0"
+  version                   = "~> 26.0"
   project_id                = data.google_project.project.project_id
   cluster_name              = module.gke.name
   cluster_location          = module.gke.location
@@ -46,4 +46,10 @@ module "istio-injection-label" {
   module_depends_on       = [module.gke]
   kubectl_create_command  = "kubectl label namespace default istio-injection=enabled istio.io/rev- --overwrite"
   kubectl_destroy_command = "kubectl label namespace default istio-injection-"
+}
+    
+resource "time_sleep" "wait-for-istio-labels" {
+  depends_on        = [module.istio-annotation, module.istio-injection-label]
+
+  create_duration   = "30s"
 }

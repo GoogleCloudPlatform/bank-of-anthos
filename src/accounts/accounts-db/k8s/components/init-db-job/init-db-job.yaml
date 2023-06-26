@@ -272,7 +272,7 @@ spec:
             cpu: "200m"
             memory: "100Mi"
       - name: populate-accounts-db
-        image: postgres:15-alpine@sha256:f632b07cad142a12360e5c4c084a3cf62fc95f3ee0be285647b4d3744840cade
+        image: postgres:15-alpine@sha256:bb2769783686897b370c061b4ad1aac5a819bccec7945d03c3b45a9b077bcea0
         command: ['bash', '-c','. /scripts/initialize-database.sh 127.0.0.1 5432 accounts-db']
         volumeMounts:
         - name: scripts
@@ -309,7 +309,7 @@ spec:
           limits:
             cpu: "200m"
             memory: "100Mi"
-        image: gcr.io/cloudsql-docker/gce-proxy:1.33.6-buster@sha256:a71b97e85278ac4069d8559ccb695db4b47edd4e5656761e375dcb8e117997bc
+        image: gcr.io/cloudsql-docker/gce-proxy:1.33.7-buster@sha256:b212d06a45e41691164f9ad4e6f30ae5bd33260537e32b64f913c18a520bc8b0
         env:
         - name: CONNECTION_NAME
           valueFrom:
