@@ -13,10 +13,9 @@ else
   echo ""
 fi
 
-NAMESPACE=${NAMESPACE:-`kubectl config get-contexts | awk '/^\*/ {print $5}'`}
-if [ ! "`kubectl get ns ${NAMESPACE:-bank-of-anthos-opsani} >& /dev/null; echo $?`" ]; then
-  NAMESPACE=bank-of-anthos-opsani
-  echo "Namespace 'bank-of-anthos-opsani' exists"
+NAMESPACE=${NAMESPACE:-bank-of-anthos-opsani}
+if [ ! "`kubectl get ns $NAMESPACE >& /dev/null; echo $?`" ]; then
+  echo "Namespace $NAMESPACE exists"
   echo ""
   echo "You will need to ensure that your opsani services use"
   echo "this same namespace parameter"
@@ -25,14 +24,13 @@ if [ ! "`kubectl get ns ${NAMESPACE:-bank-of-anthos-opsani} >& /dev/null; echo $
   echo "kubectl config set-context `kubectl config get-contexts | awk '/^\*/ {print $2}'` --namespace ${NAMESPACE}"
   echo ""
 else
-  echo "Creating bank-of-anthos-opsani namespace"
-  if [ ! "`kubectl create ns bank-of-anthos-opsani >& /dev/null; echo $?`" ]; then
-    echo "Couldn't create kubernetes namespace 'bank-of-anthos-opsani'"
+  echo "Creating $NAMESPACE namespace"
+  if [ ! "`kubectl create ns $NAMESPACE >& /dev/null; echo $?`" ]; then
+    echo "Couldn't create kubernetes namespace '$NAMESPACE'"
     echo "You must set the NAMESPACE enviornment variable for the target "
     echo "e.g. `export NAMESPACE=bank-of-anthos-opsani`"
     exit 1
   else
-    NAMESPACE=bank-of-anthos-opsani
     echo "created namespace $NAMESPACE"
     echo "deploying into ${NAMESPACE}"
     echo ""
