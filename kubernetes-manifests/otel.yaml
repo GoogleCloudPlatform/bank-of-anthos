@@ -1,0 +1,34 @@
+apiVersion: opentelemetry.io/v1alpha1
+kind: Instrumentation
+metadata:
+  name: auto-instrumentation
+spec:
+  exporter:
+    endpoint: http://appdynamics-otel-collector-service.appdynamics.svc.cluster.local:4317
+  propagators:
+    - tracecontext
+    - baggage
+    - b3
+  env:
+    - name: OTEL_EXPORTER_OTLP_INSECURE
+      value: "true"
+    - name: OTEL_LOG_LEVEL
+      value: "debug"
+    - name: OTEL_TRACES_EXPORTER
+      value: "otlp,logging"
+  python:
+    image: ghcr.io/open-telemetry/opentelemetry-operator/autoinstrumentation-python:0.28b1
+    env:
+      - name: OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
+        value: "http://appdynamics-otel-collector-service.appdynamics.svc.cluster.local:4318/v1/traces"
+      - name: OTEL_TRACES_EXPORTER
+        value: otlp_proto_http
+      - name: OTEL_PYTHON_LOG_LEVEL
+        value: "debug"
+  java:
+    image: ghcr.io/open-telemetry/opentelemetry-operator/autoinstrumentation-java:latest
+    env:
+      - name: OTEL_EXPORTER_OTLP_ENDPOINT
+        value: "http://appdynamics-otel-collector-service.appdynamics.svc.cluster.local:4317"
+      - name: OTEL_JAVAAGENT_DEBUG
+        value: "true"
