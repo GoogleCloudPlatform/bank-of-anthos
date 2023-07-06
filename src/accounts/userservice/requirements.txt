@@ -50,7 +50,7 @@ google-auth==2.17.3
     #   -r requirements.in
     #   google-api-core
     #   google-cloud-core
-google-cloud-core==2.3.2
+google-cloud-core==2.3.3
     # via -r requirements.in
 google-cloud-trace==1.11.2
     # via
