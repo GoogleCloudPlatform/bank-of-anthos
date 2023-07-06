@@ -203,7 +203,7 @@ six==1.16.0
     #   -r requirements.in
     #   bleach
     #   google-auth
-sqlalchemy==1.4.48
+sqlalchemy==1.4.49
     # via -r requirements.in
 typing-extensions==4.6.3
     # via
