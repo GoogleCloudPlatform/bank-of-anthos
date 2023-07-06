@@ -181,7 +181,7 @@ pyjwt==2.7.0
     # via -r requirements.in
 pyparsing==3.0.9
     # via -r requirements.in
-pytest==7.3.1
+pytest==7.4.0
     # via
     #   -r requirements.in
     #   pytest-cov
