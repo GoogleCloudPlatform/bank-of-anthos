@@ -52,7 +52,7 @@ google-auth==2.17.3
     #   google-cloud-core
 google-cloud-core==2.3.2
     # via -r requirements.in
-google-cloud-trace==1.11.1
+google-cloud-trace==1.11.2
     # via
     #   -r requirements.in
     #   opentelemetry-exporter-gcp-trace

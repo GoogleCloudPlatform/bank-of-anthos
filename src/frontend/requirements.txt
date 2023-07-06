@@ -28,7 +28,7 @@ google-auth==2.17.3
     # via
     #   -r requirements.in
     #   google-api-core
-google-cloud-trace==1.11.1
+google-cloud-trace==1.11.2
     # via opentelemetry-exporter-gcp-trace
 googleapis-common-protos==1.59.1
     # via
