@@ -144,7 +144,7 @@ packaging==23.1
     #   -r requirements.in
     #   opentelemetry-instrumentation-sqlalchemy
     #   pytest
-pluggy==1.0.0
+pluggy==1.2.0
     # via
     #   -r requirements.in
     #   pytest
