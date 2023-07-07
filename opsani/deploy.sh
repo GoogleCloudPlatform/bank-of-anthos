@@ -69,7 +69,13 @@ echo ""
 echo ""
 echo "Launch Bank-of-Anthos into ${NAMESPACE}"
 
-kubectl apply -n ${NAMESPACE} -k ../kubernetes-manifests/
+MANIFEST_DIR=../kubernetes-manifests
+if [ -n "$ENVOY_SIDECAR" ]; then
+  echo "Using envoy sidecar"
+  MANIFEST_DIR=../envoy
+fi
+
+kubectl kustomize  $MANIFEST_DIR --reorder none | kubectl apply -n ${NAMESPACE} -f -
 if [ ! "echo $?" ]; then
   echo ""
   echo "a component may have failed to install.  Please look at the above output for errors"

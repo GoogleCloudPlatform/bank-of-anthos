@@ -20,6 +20,18 @@ Run the `deploy.sh` script which will attempt to validate the pre-requisites, in
 cd opsani && ./deploy.sh
 ```
 
+To specify a namespace other than the default, set the NAMESPACE environment variable:
+
+```sh
+NAMESPACE=my-ns ./deploy.sh
+```
+
+To use envoy sidecars (useful for Prometheus scraping) set the ENVOY_SIDECAR environment variable:
+
+```sh
+ENVOY_SIDECAR=true ./deploy.sh
+```
+
 ## Install Bank of Anthos (Manually)
 
 The following commands will deploy the basic Bank-of-Anthos app, updated to use more realistic resources (requests/limits), and a loadgenerator deployment that should drive 3-5 frontend pods to run and scale up to ~10 pods over time (Currently ~ 1 hour).
@@ -52,7 +64,7 @@ kubectl config set-context `kubectl config get-contexts | awk '/^\*/ {print $2}'
 
 ### Ensure that the metrics service is installed and running
 
-Metrics are needed to run the HPA pod autoscaler, and are simple point in time cpu and memory data captured from 
+Metrics are needed to run the HPA pod autoscaler, and are simple point in time cpu and memory data captured from
 the kubelet service on each node. You need access to the kube-system namespace and the ability to create Cluster Roles and Cluster Role Bindings in order to apply this manifest from the Kubernetes metrics-sig:
 
 ```sh
