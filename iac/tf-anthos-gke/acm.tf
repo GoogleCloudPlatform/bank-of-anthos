@@ -16,7 +16,7 @@
 
 module "acm" {
   source                   = "terraform-google-modules/kubernetes-engine/google//modules/acm"
-  version                  = "~> 25.0"
+  version                  = "~> 27.0"
   project_id               = data.google_project.project.project_id
   location                 = module.gke.location
   cluster_name             = module.gke.name
@@ -29,5 +29,7 @@ module "acm" {
 
   secret_type = "none"
     
-  create_metrics_gcp_sa = true
+  create_metrics_gcp_sa = false
+
+  depends_on = [time_sleep.wait-for-istio-labels]
 }

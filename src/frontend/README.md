@@ -36,6 +36,8 @@ Implemented in Python with Flask.
   - a string that will be shown in the navbar to indicate the name of the bank. Optional, defaults to `Bank of Anthos`
 - `CYMBAL_LOGO`
   - boolean, set to `true` to toggle the CymbalBank logo and name. Defaults to `false`.
+- `ENV_PLATFORM`
+  - a string to customize the platform banner depending on where application is running. Available options [alibaba, aws, azure, gcp, local, onprem]
 
 - ConfigMap `environment-config`:
   - `LOCAL_ROUTING_NUM`

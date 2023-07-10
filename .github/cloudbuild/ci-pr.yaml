@@ -29,7 +29,7 @@ steps:
       git init
       git add --all
       git -c user.name="CI Bot" -c user.email="<>" commit -m "initial state"
-      ./go/bin/addlicense ./
+      ./go/bin/addlicense -ignore 'src/frontend/templates/shared/**' ./
       git status -s
       if [[ -n $(git status -s) ]]; then
         exit 1
