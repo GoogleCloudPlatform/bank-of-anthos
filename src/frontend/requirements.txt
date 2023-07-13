@@ -14,7 +14,7 @@ cffi==1.15.1
     # via cryptography
 charset-normalizer==3.1.0
     # via requests
-click==8.1.4
+click==8.1.5
     # via flask
 cryptography==41.0.1
     # via -r requirements.in
