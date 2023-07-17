@@ -76,7 +76,7 @@ idna==3.4
     # via
     #   -r requirements.in
     #   requests
-importlib-metadata==6.0.0
+importlib-metadata==6.8.0
     # via
     #   -r requirements.in
     #   opentelemetry-api
