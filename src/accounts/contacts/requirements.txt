@@ -34,7 +34,7 @@ click==8.1.5
     #   flask
 coverage[toml]==7.2.7
     # via pytest-cov
-cryptography==41.0.2
+cryptography==41.0.1
     # via -r requirements.in
 deprecated==1.2.14
     # via opentelemetry-api
@@ -97,7 +97,7 @@ markupsafe==2.1.3
     #   werkzeug
 more-itertools==9.1.0
     # via -r requirements.in
-opentelemetry-api==1.18.0
+opentelemetry-api==1.19.0
     # via
     #   opentelemetry-exporter-gcp-trace
     #   opentelemetry-instrumentation
@@ -109,39 +109,40 @@ opentelemetry-api==1.18.0
     #   opentelemetry-sdk
 opentelemetry-exporter-gcp-trace==1.5.0
     # via -r requirements.in
-opentelemetry-instrumentation==0.39b0
+opentelemetry-instrumentation==0.40b0
     # via
     #   opentelemetry-instrumentation-flask
     #   opentelemetry-instrumentation-sqlalchemy
     #   opentelemetry-instrumentation-wsgi
-opentelemetry-instrumentation-flask==0.39b0
+opentelemetry-instrumentation-flask==0.40b0
     # via -r requirements.in
-opentelemetry-instrumentation-sqlalchemy==0.39b0
+opentelemetry-instrumentation-sqlalchemy==0.40b0
     # via -r requirements.in
-opentelemetry-instrumentation-wsgi==0.39b0
+opentelemetry-instrumentation-wsgi==0.40b0
     # via opentelemetry-instrumentation-flask
 opentelemetry-propagator-gcp==1.5.0
     # via -r requirements.in
 opentelemetry-resourcedetector-gcp==1.5.0a0
     # via opentelemetry-exporter-gcp-trace
-opentelemetry-sdk==1.18.0
+opentelemetry-sdk==1.19.0
     # via
     #   -r requirements.in
     #   opentelemetry-exporter-gcp-trace
     #   opentelemetry-resourcedetector-gcp
-opentelemetry-semantic-conventions==0.39b0
+opentelemetry-semantic-conventions==0.40b0
     # via
     #   opentelemetry-instrumentation-flask
     #   opentelemetry-instrumentation-sqlalchemy
     #   opentelemetry-instrumentation-wsgi
     #   opentelemetry-sdk
-opentelemetry-util-http==0.39b0
+opentelemetry-util-http==0.40b0
     # via
     #   opentelemetry-instrumentation-flask
     #   opentelemetry-instrumentation-wsgi
 packaging==23.1
     # via
     #   -r requirements.in
+    #   opentelemetry-instrumentation-flask
     #   opentelemetry-instrumentation-sqlalchemy
     #   pytest
 pluggy==1.2.0
