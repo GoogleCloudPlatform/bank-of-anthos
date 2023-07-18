@@ -76,7 +76,7 @@ find "${REPO_ROOT}/${RELEASE_DIR}" -name '*.yaml' -exec sed -i -e "s'value: dev'
 rm ${REPO_ROOT}/${RELEASE_DIR}/*-e
 
 # update version in terraform scripts
-sed -i -e "s@sync_branch  = .*@sync_branch  = \"${NEW_VERSION}\"@g" ${REPO_ROOT}/iac/tf-anthos-gke/terraform.tfvars
+sed -i -e "s@sync_branch  = .*@sync_branch  = \"release/${NEW_VERSION}\"@g" ${REPO_ROOT}/iac/tf-anthos-gke/terraform.tfvars
 rm ${REPO_ROOT}/iac/tf-anthos-gke/terraform.tfvars-e
 
 # create release branch and tag
