@@ -45,7 +45,7 @@ google-api-core[grpc]==2.11.1
     #   -r requirements.in
     #   google-cloud-core
     #   google-cloud-trace
-google-auth==2.17.3
+google-auth==2.22.0
     # via
     #   -r requirements.in
     #   google-api-core
