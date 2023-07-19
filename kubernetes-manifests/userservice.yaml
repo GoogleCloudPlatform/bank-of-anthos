@@ -21,11 +21,12 @@ metadata:
     team: accounts
     tier: backend
   name: userservice
+  namespace: default
 spec:
   ports:
-    - name: http
-      port: 8080
-      targetPort: 8080
+  - name: http
+    port: 8080
+    targetPort: 8080
   selector:
     app: userservice
     application: bank-of-anthos
@@ -43,6 +44,7 @@ metadata:
     team: accounts
     tier: backend
   name: userservice
+  namespace: default
 spec:
   selector:
     matchLabels:
@@ -63,58 +65,58 @@ spec:
         tier: backend
     spec:
       containers:
-        - env:
-            - name: VERSION
-              value: v0.6.0
-            - name: PORT
-              value: "8080"
-            - name: ENABLE_TRACING
-              value: "true"
-            - name: TOKEN_EXPIRY_SECONDS
-              value: "3600"
-            - name: PRIV_KEY_PATH
-              value: /tmp/.ssh/privatekey
-            - name: LOG_LEVEL
-              value: info
-          envFrom:
-            - configMapRef:
-                name: environment-config
-            - configMapRef:
-                name: accounts-db-config
-          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/userservice:v0.6.0@sha256:f96d964b97cd1a9b892e18d5414365f11857cf7e878f3a653d0eb9793406e7c0
-          name: userservice
-          ports:
-            - containerPort: 8080
-              name: http-server
-          readinessProbe:
-            httpGet:
-              path: /ready
-              port: 8080
-            initialDelaySeconds: 10
-            periodSeconds: 5
-            timeoutSeconds: 10
-          resources:
-            limits:
-              cpu: 500m
-              ephemeral-storage: 0.25Gi
-              memory: 256Mi
-            requests:
-              cpu: 260m
-              ephemeral-storage: 0.25Gi
-              memory: 128Mi
-          securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-                - all
-            privileged: false
-            readOnlyRootFilesystem: true
-          volumeMounts:
-            - mountPath: /tmp
-              name: tmp
-            - mountPath: /tmp/.ssh
-              name: keys
-              readOnly: true
+      - env:
+        - name: VERSION
+          value: v0.6.1
+        - name: PORT
+          value: "8080"
+        - name: ENABLE_TRACING
+          value: "true"
+        - name: TOKEN_EXPIRY_SECONDS
+          value: "3600"
+        - name: PRIV_KEY_PATH
+          value: /tmp/.ssh/privatekey
+        - name: LOG_LEVEL
+          value: info
+        envFrom:
+        - configMapRef:
+            name: environment-config
+        - configMapRef:
+            name: accounts-db-config
+        image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/userservice:v0.6.1@sha256:b73e5b03c077ff1e7214885b986f6e9ecb444f78d206c4d3864265449c71b19b
+        name: userservice
+        ports:
+        - containerPort: 8080
+          name: http-server
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 10
+        resources:
+          limits:
+            cpu: 500m
+            ephemeral-storage: 0.25Gi
+            memory: 256Mi
+          requests:
+            cpu: 260m
+            ephemeral-storage: 0.25Gi
+            memory: 128Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - all
+          privileged: false
+          readOnlyRootFilesystem: true
+        volumeMounts:
+        - mountPath: /tmp
+          name: tmp
+        - mountPath: /tmp/.ssh
+          name: keys
+          readOnly: true
       securityContext:
         fsGroup: 1000
         runAsGroup: 1000
@@ -123,13 +125,13 @@ spec:
       serviceAccountName: bank-of-anthos
       terminationGracePeriodSeconds: 5
       volumes:
-        - emptyDir: {}
-          name: tmp
-        - name: keys
-          secret:
-            items:
-              - key: jwtRS256.key
-                path: privatekey
-              - key: jwtRS256.key.pub
-                path: publickey
-            secretName: jwt-key
+      - emptyDir: {}
+        name: tmp
+      - name: keys
+        secret:
+          items:
+          - key: jwtRS256.key
+            path: privatekey
+          - key: jwtRS256.key.pub
+            path: publickey
+          secretName: jwt-key

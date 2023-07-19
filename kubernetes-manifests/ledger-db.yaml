@@ -36,11 +36,12 @@ metadata:
   labels:
     environment: development
   name: ledger-db
+  namespace: default
 spec:
   ports:
-    - name: tcp
-      port: 5432
-      targetPort: 5432
+  - name: tcp
+    port: 5432
+    targetPort: 5432
   selector:
     app: ledger-db
     environment: development
@@ -52,6 +53,7 @@ metadata:
   labels:
     environment: development
   name: ledger-db
+  namespace: default
 spec:
   replicas: 1
   selector:
@@ -66,29 +68,29 @@ spec:
         environment: development
     spec:
       containers:
-        - envFrom:
-            - configMapRef:
-                name: environment-config
-            - configMapRef:
-                name: ledger-db-config
-            - configMapRef:
-                name: demo-data-config
-          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/ledger-db:v0.6.0@sha256:2d954418067e61edadac57bc9a9e40a9444754dce7efcd356007053a6cdb2545
-          name: postgres
-          ports:
-            - containerPort: 5432
-          resources:
-            limits:
-              cpu: 250m
-              memory: 1Gi
-            requests:
-              cpu: 100m
-              memory: 512Mi
-          volumeMounts:
-            - mountPath: /var/lib/postgresql/data
-              name: postgresdb
-              subPath: postgres
+      - envFrom:
+        - configMapRef:
+            name: environment-config
+        - configMapRef:
+            name: ledger-db-config
+        - configMapRef:
+            name: demo-data-config
+        image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/ledger-db:v0.6.1@sha256:2fe07029725a4ae2cf7beaec17dbdd6f8fc11caa8a9725708b42a603532e7b84
+        name: postgres
+        ports:
+        - containerPort: 5432
+        resources:
+          limits:
+            cpu: 250m
+            memory: 1Gi
+          requests:
+            cpu: 100m
+            memory: 512Mi
+        volumeMounts:
+        - mountPath: /var/lib/postgresql/data
+          name: postgresdb
+          subPath: postgres
       serviceAccountName: default
       volumes:
-        - emptyDir: {}
-          name: postgresdb
+      - emptyDir: {}
+        name: postgresdb
