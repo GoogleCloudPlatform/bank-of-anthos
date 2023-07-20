@@ -17,4 +17,5 @@ processes:
   - "PythonDependency"
   - "PythonSampleAppDependency"
   - "JavaDependency"
+  - "JavaSampleAppDependency"
   - "DockerDependency"
