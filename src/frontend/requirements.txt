@@ -120,7 +120,7 @@ pyasn1-modules==0.3.0
     # via google-auth
 pycparser==2.21
     # via cffi
-pyjwt==2.7.0
+pyjwt==2.8.0
     # via -r requirements.in
 requests==2.31.0
     # via
