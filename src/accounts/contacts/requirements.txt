@@ -16,7 +16,7 @@ cachetools==5.3.1
     # via
     #   -r requirements.in
     #   google-auth
-certifi==2023.7.22
+certifi==2023.5.7
     # via
     #   -r requirements.in
     #   requests
@@ -63,7 +63,7 @@ googleapis-common-protos==1.59.1
     #   grpcio-status
 greenlet==2.0.2
     # via sqlalchemy
-grpcio==1.56.0
+grpcio==1.56.2
     # via
     #   -r requirements.in
     #   google-api-core
