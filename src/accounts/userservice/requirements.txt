@@ -70,7 +70,7 @@ grpcio==1.56.0
     #   grpcio-status
 grpcio-status==1.56.0
     # via google-api-core
-gunicorn==20.1.0
+gunicorn==21.2.0
     # via -r requirements.in
 idna==3.4
     # via
@@ -142,6 +142,7 @@ opentelemetry-util-http==0.40b0
 packaging==23.1
     # via
     #   -r requirements.in
+    #   gunicorn
     #   opentelemetry-instrumentation-flask
     #   opentelemetry-instrumentation-sqlalchemy
     #   pytest
