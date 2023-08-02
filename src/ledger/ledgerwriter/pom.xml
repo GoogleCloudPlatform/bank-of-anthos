@@ -35,7 +35,7 @@
         <java.version>17</java.version>
         <bootstrap.version>4.2.1</bootstrap.version>
         <checkstyle.config.location>./checkstyle.xml</checkstyle.config.location>
-        <spring-cloud.version>2022.0.3</spring-cloud.version>
+        <spring-cloud.version>2022.0.4</spring-cloud.version>
     </properties>
 
      <dependencyManagement>
