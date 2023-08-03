@@ -4,7 +4,7 @@ bleach==6.0.0
 cachetools==5.3.1
 certifi==2023.7.22
 cffi==1.15.1
-chardet==5.1.0
+chardet==5.2.0
 click==8.1.6
 cryptography==41.0.3
 flask==2.3.2
