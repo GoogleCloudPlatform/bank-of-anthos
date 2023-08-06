@@ -34,7 +34,6 @@ metadata:
   labels:
     environment: development
   name: accounts-db
-  namespace: default
 spec:
   ports:
   - name: tcp
@@ -52,7 +51,6 @@ metadata:
   labels:
     environment: development
   name: accounts-db
-  namespace: default
 spec:
   replicas: 1
   selector:

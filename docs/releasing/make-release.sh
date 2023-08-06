@@ -60,14 +60,14 @@ skaffold config unset local-cluster
 for moduleDashed in frontend contacts userservice balance-reader ledger-writer transaction-history loadgenerator; do
   module=`echo ${moduleDashed} | tr -d '-'`
   cp "${SCRIPT_DIR}/header.txt" "${REPO_ROOT}/${RELEASE_DIR}/${moduleDashed}.yaml"
-  skaffold render --build-artifacts="artifacts.json" --profile "${PROFILE}" --namespace "default" \
+  skaffold render --build-artifacts="artifacts.json" --profile "${PROFILE}" \
                   --module="${module}" >> "${REPO_ROOT}/${RELEASE_DIR}/${moduleDashed}.yaml"
 done
 cp "${SCRIPT_DIR}/header.txt" "${REPO_ROOT}/${RELEASE_DIR}/ledger-db.yaml"
-skaffold render --build-artifacts="artifacts.json" --profile "${PROFILE}" --namespace "default" \
+skaffold render --build-artifacts="artifacts.json" --profile "${PROFILE}" \
                   --module="ledger-db" > "${REPO_ROOT}/${RELEASE_DIR}/ledger-db.yaml"
 cp "${SCRIPT_DIR}/header.txt" "${REPO_ROOT}/${RELEASE_DIR}/accounts-db.yaml"
-skaffold render --build-artifacts="artifacts.json" --profile "${PROFILE}" --namespace "default" \
+skaffold render --build-artifacts="artifacts.json" --profile "${PROFILE}" \
                   --module="accounts-db" > "${REPO_ROOT}/${RELEASE_DIR}/accounts-db.yaml"
 cp "${REPO_ROOT}/iac/acm-multienv-cicd-anthos-autopilot/base/config.yaml" "${REPO_ROOT}/${RELEASE_DIR}/config.yaml"
 

@@ -21,7 +21,6 @@ metadata:
     team: ledger
     tier: backend
   name: balancereader
-  namespace: default
 spec:
   ports:
   - name: http
@@ -44,7 +43,6 @@ metadata:
     team: ledger
     tier: backend
   name: balancereader
-  namespace: default
 spec:
   selector:
     matchLabels:

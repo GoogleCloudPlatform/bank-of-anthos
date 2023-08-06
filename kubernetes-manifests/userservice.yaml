@@ -21,7 +21,6 @@ metadata:
     team: accounts
     tier: backend
   name: userservice
-  namespace: default
 spec:
   ports:
   - name: http
@@ -44,7 +43,6 @@ metadata:
     team: accounts
     tier: backend
   name: userservice
-  namespace: default
 spec:
   selector:
     matchLabels:
