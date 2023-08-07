@@ -7,6 +7,7 @@ This document introduces the CI/CD pipeline that powers Bank of Anthos' producti
 ## What does this solution contain?
 
 The CI/CD pipeline set-up includes:
+
 - Terraform scripts for all Google Cloud resources
 - 3 GKE Autopilot clusters in a fleet
 - 1 Cloud Build trigger for GitHub PRs
@@ -21,25 +22,26 @@ The CI/CD pipeline set-up includes:
 - IAM bindings and service accounts
 
 This results in:
+
 - CI per service with Skaffold profile per environment
 - CD per service with Skaffold profile per environment
 - Development environment:
-    - GKE Autopilot (one namespace per deployment)
-    - ACM for base setup
-    - In-cluster databases
-    - Deployed from Cloud Build
+  - GKE Autopilot (one namespace per deployment)
+  - ACM for base setup
+  - In-cluster databases
+  - Deployed from Cloud Build
 - Staging environment:
-    - GKE Autopilot
-    - Anthos Config Management for base setup
-    - Anthos Service Mesh (namespace: `bank-of-anthos-staging`)
-    - Cloud SQL database
-    - Deployed from Cloud Deploy
+  - GKE Autopilot
+  - Anthos Config Management for base setup
+  - Anthos Service Mesh (namespace: `bank-of-anthos-staging`)
+  - Cloud SQL database
+  - Deployed from Cloud Deploy
 - Production environment:
-    - GKE Autopilot
-    - ACM for base setup
-    - Anthos Service Mesh (namespace: `bank-of-anthos-production`)
-    - Cloud SQL database
-    - Deployed from Cloud Deploy
+  - GKE Autopilot
+  - ACM for base setup
+  - Anthos Service Mesh (namespace: `bank-of-anthos-production`)
+  - Cloud SQL database
+  - Deployed from Cloud Deploy
 - Use of kustomize components & skaffold profiles to keep it DRY
 - Minimal service account permissions
 - Cloud Foundation Toolkit for GKE
@@ -49,11 +51,13 @@ This results in:
 ### Prerequisites
 
 To deploy the CI/CD pipeline, you need:
+
 - [Google Cloud project](https://cloud.google.com/resource-manager/docs/creating-managing-projects#console), connected to an active billing account
 - A domain name for the production deployment.
 - The `gcloud`, `kubectl`, `skaffold`, `terraform` command line tools
 
 1. Clone the GitHub repository.
+
    ```sh
    git clone https://github.com/GoogleCloudPlatform/bank-of-anthos
    ```
@@ -70,10 +74,10 @@ To deploy the CI/CD pipeline, you need:
 ### Setting-up GitHub repository connection
 
 1. Set up a repository connection in Cloud Build:
-    1. Open Cloud Build in Cloud Console (enable its API if needed).
-    1. Navigate to _Triggers_ and set _Region_ to your preferred region.
-    1. Click on _Manage repositories_.
-    1. Click on _Connect repository_ and follow the UI. Do _not_ create a trigger.
+   1. Open Cloud Build in Cloud Console (enable its API if needed).
+   1. Navigate to _Triggers_ and set _Region_ to your preferred region.
+   1. Click on _Manage repositories_.
+   1. Click on _Connect repository_ and follow the UI. Do _not_ create a trigger.
 1. [Optional] If your Google Cloud organization has the `compute.vmExternalIpAccess` constraint in place, you can reset it on a project level:
    ```sh
    gcloud org-policies reset constraints/compute.vmExternalIpAccess --project=$PROJECT_ID`
@@ -87,11 +91,18 @@ These steps are necessary for all Google Cloud projects that are _not_ `bank-of-
    ```sh
    # run from repository root
    find iac/acm-multienv-cicd-anthos-autopilot/* -type f -exec sed -i 's/bank-of-anthos-ci/'"$PROJECT_ID"'/g' {} +
+   find iac/tf-multienv-cicd-anthos-autopilot/* -type f -exec sed -i 's/bank-of-anthos-ci/'"$PROJECT_ID"'/g' {} +
    ```
 1. Replace all occurrences of `us-central1` in the Terraform scripts with your preferred region.
    ```sh
    # run from repository root
    find iac/acm-multienv-cicd-anthos-autopilot/* -type f -exec sed -i 's/us-central1/'"$REGION"'/g' {} +
+   find iac/tf-multienv-cicd-anthos-autopilot/* -type f -exec sed -i 's/us-central1/'"$REGION"'/g' {} +
+   ```
+1. Replace all occurrences of `bank-of-anthos-tf-state` in the Terraform scripts with your bucket.
+   ```sh
+   # run from repository root
+   find iac/tf-multienv-cicd-anthos-autopilot/* -type f -exec sed -i 's/bank-of-anthos-tf-state/'"$PROJECT_ID-boa-tf-state"'/g' {} +
    ```
 1. Replace all occurrences of `bank-of-anthos.xyz` in the Terraform scripts with your domain name.
    ```sh
@@ -109,14 +120,14 @@ These steps are necessary for all Google Cloud projects that are _not_ `bank-of-
 
 1. Create a Cloud Storage bucket in your project to hold your Terraform state.
    ```sh
-   gsutil mb gs://bank-of-anthos-tf-state
-   gsutil versioning set on gs://bank-of-anthos-tf-state
+   gsutil mb gs://${PROJECT_ID}-boa-tf-state
+   gsutil versioning set on gs://${PROJECT_ID}-boa-tf-state
    ```
-1. Configure Terraform variables in `iac/tf-multienv-cicd-anthos-autopilot/terraform.tfvars`. In particular, set `project_id` and `region` to the same values you used earlier.
+1. Verify the Terraform variables in `iac/tf-multienv-cicd-anthos-autopilot/terraform.tfvars`. In particular, `project_id` and `region` are set to the same values you used earlier.
 1. Provision the infrastructure with Terraform.
    ```sh
    # run from iac/tf-multienv-cicd-anthos-autopilot
-   terraform init
+   terraform init && \
    terraform apply
    ```
 1. Verify the Terraform output and approve it.
@@ -126,6 +137,7 @@ These steps are necessary for all Google Cloud projects that are _not_ `bank-of-
 ### Initializing CloudSQL databases with sample data
 
 1. Initialize the staging CloudSQL database with data.
+
    ```sh
    gcloud container fleet memberships get-credentials staging-membership
 
@@ -137,6 +149,7 @@ These steps are necessary for all Google Cloud projects that are _not_ `bank-of-
    ```
 
 1. Initialize the production CloudSQL database with data.
+
    ```sh
    gcloud container fleet memberships get-credentials production-membership
 
@@ -152,15 +165,18 @@ These steps are necessary for all Google Cloud projects that are _not_ `bank-of-
 Before we run the CI/CD pipelines, we should manually deploy the application once on the staging, and on the production clusters. This step is not necessary, but it will prevent end-to-end test failures when the CI triggers run for the first time.
 
 1. Deploy Bank of Anthos on the staging environment.
-```sh
+
+   ```sh
    gcloud container fleet memberships get-credentials staging-membership
    skaffold run -p staging --skip-tests=true
-```
+   ```
+
 2. Deploy Bank of Anthos on the production environment.
-```sh
+
+   ```sh
    gcloud container fleet memberships get-credentials production-membership
    skaffold run -p production --skip-tests=true
-```
+   ```
 
 ### Staging the application (through Cloud Build)
 
@@ -180,6 +196,7 @@ Before we run the CI/CD pipelines, we should manually deploy the application onc
 
    You can find the IP address in Cloud Load Balancing. Find the production ingress LB,
    and copy the IP that is listed. Alternatively:
+
    ```sh
    kubectl get ingress frontend-ingress --namespace bank-of-anthos-production -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
    ```
@@ -193,4 +210,4 @@ Before we run the CI/CD pipelines, we should manually deploy the application onc
 
 - If `terraform apply` fails due to a timeout or race conditions from API-enablement, you can try simply running `terraform apply` again.
 - Sometimes the database seeding jobs' pods get stuck due to a failed sidecar container. This can be easily fixed by deleting the pods stuck with 2/3 containers.
-- For production deployment, ensure that the DNS for your `$DOMAIN` has been set up to point to the IP of the production ingress. 
+- For production deployment, ensure that the DNS for your `$DOMAIN` has been set up to point to the IP of the production ingress.
