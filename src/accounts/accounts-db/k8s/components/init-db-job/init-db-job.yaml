@@ -261,7 +261,7 @@ spec:
       serviceAccountName: bank-of-anthos
       containers:
       - name: sidecar-controller
-        image: bash@sha256:3c55aa8448e01921ce47fbc58ff8f9037e886afb791f736f47bb83caccb54e9f
+        image: bash@sha256:d91f283473ba66c94dbd3b2aaab45cef4d67e65eec107481c2357f15f51a48b8
         command: ['bash', '-c', '. /scripts/wait-to-complete-sidecar.sh "initialize-database.sh" "cloud_sql_proxy"']
         volumeMounts:
         - name: scripts
