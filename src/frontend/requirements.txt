@@ -141,7 +141,7 @@ urllib3==2.0.4
     # via
     #   -r requirements.in
     #   requests
-werkzeug==2.3.6
+werkzeug==2.3.7
     # via flask
 wrapt==1.15.0
     # via
