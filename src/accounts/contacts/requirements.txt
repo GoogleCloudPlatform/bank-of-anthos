@@ -221,7 +221,7 @@ webencodings==0.5.1
     # via
     #   -r requirements.in
     #   bleach
-werkzeug==2.3.6
+werkzeug==2.3.7
     # via flask
 wrapt==1.15.0
     # via
