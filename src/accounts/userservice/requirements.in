@@ -28,7 +28,7 @@ opentelemetry-instrumentation-flask==0.40b0
 opentelemetry-instrumentation-sqlalchemy==0.40b0
 packaging==23.1
 pluggy==1.2.0
-protobuf==4.23.4
+protobuf==4.24.0
 psycopg2-binary==2.9.7
 py==1.11.0
 pyasn1==0.5.0
