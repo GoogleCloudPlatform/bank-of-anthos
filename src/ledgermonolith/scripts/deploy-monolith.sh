@@ -64,7 +64,7 @@ gcloud compute instances create ledgermonolith-service \
     --subnet ${SUBNET=default} \
     --image-family=debian-10 \
     --image-project=debian-cloud \
-    --machine-type=n1-standard-1 \
+    --machine-type=e2-medium \
     --scopes cloud-platform,storage-ro \
     --metadata gcs-bucket=${GCS_BUCKET},VmDnsSetting=ZonalPreferred \
     --metadata-from-file startup-script=${CWD}/../init/install-script.sh \
