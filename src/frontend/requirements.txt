@@ -107,7 +107,7 @@ packaging==23.1
     #   opentelemetry-instrumentation-flask
 proto-plus==1.22.3
     # via google-cloud-trace
-protobuf==4.24.0
+protobuf==4.24.1
     # via
     #   google-api-core
     #   google-cloud-trace
