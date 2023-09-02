@@ -146,7 +146,7 @@ packaging==23.1
     #   opentelemetry-instrumentation-flask
     #   opentelemetry-instrumentation-sqlalchemy
     #   pytest
-pluggy==1.2.0
+pluggy==1.3.0
     # via
     #   -r requirements.in
     #   pytest
