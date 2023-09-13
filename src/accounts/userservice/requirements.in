@@ -39,7 +39,7 @@ pyjwt==2.8.0
 pyparsing==3.1.1
 pytest==7.4.1
 pytest-cov==4.1.0
-pytz==2023.3
+pytz==2023.3.post1
 requests==2.31.0
 rsa==4.9
 six==1.16.0
