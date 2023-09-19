@@ -40,7 +40,7 @@ public class BalanceReaderApplication {
 
     // Nim: Temporarily testing application.properties file.
     @Value("${handlers}")
-    private String valueFromApplicationProperties;
+    private static String valueFromApplicationProperties;
 
     private static final Logger LOGGER =
         LogManager.getLogger(BalanceReaderApplication.class);
