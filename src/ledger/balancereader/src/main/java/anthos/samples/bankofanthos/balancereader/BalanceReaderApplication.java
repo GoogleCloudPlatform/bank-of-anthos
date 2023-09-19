@@ -38,6 +38,10 @@ import org.springframework.context.annotation.Bean;
 @SpringBootApplication(exclude = ZipkinAutoConfiguration.class)
 public class BalanceReaderApplication {
 
+    // Nim: Temporarily testing application.properties file.
+    @Value("${handlers}")
+    private String valueFromApplicationProperties;
+
     private static final Logger LOGGER =
         LogManager.getLogger(BalanceReaderApplication.class);
 
@@ -52,6 +56,9 @@ public class BalanceReaderApplication {
     };
 
     public static void main(String[] args) {
+        LOGGER.log(String.format(
+            "Nim: Value from the application.properties file: %s", 
+            valueFromApplicationProperties));
         // Check that all required environment variables are set.
         for (String v : EXPECTED_ENV_VARS) {
             String value = System.getenv(v);
