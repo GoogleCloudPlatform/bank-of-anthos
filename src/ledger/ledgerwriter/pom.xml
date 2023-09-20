@@ -158,7 +158,7 @@
     <build>
         <resources>
             <resource>
-                <directory>src</directory>
+                <directory>src/main/resources</directory>
             </resource>
         </resources>
         <plugins>
