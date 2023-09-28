@@ -20,5 +20,5 @@ resources:
   - ../../base
   - ledger-db.yaml
 components:
-  - ../../../components/ledger
+  - ../../../../components/ledger
   - ../../../../../components/development
