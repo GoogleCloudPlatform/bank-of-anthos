@@ -53,6 +53,7 @@ steps:
     id: run-tests
     script: |
       #!/bin/bash
+      set -x
       apt-get update && apt-get -y install python3-venv && python3 -m venv $HOME/venv-python-tests && . $HOME/venv-python-tests/bin/activate
       skaffold test --build-artifacts=/workspace/artifacts.json --assume-yes --profile=development
   - name: gcr.io/cloud-builders/gcloud
@@ -62,6 +63,7 @@ steps:
     id: deploy-to-pr-namespace
     script: |
       #!/bin/bash
+      set -x
       gcloud container fleet memberships get-credentials development-membership
       kubectl create namespace $NAMESPACE
       skaffold deploy --namespace=$NAMESPACE --build-artifacts=/workspace/artifacts.json --assume-yes --profile=development --iterative-status-check=false
@@ -69,6 +71,7 @@ steps:
     id: run-e2e-tests
     script: |
       #!/bin/bash
+      set -x
       BASE_URL=http://$(kubectl get service frontend --namespace $NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
       CYPRESS_baseUrl=$BASE_URL ROLLOUT=$ROLLOUT skaffold verify --build-artifacts=/workspace/artifacts.json --profile=development -m frontend
     env:
@@ -78,6 +81,7 @@ steps:
     id: delete-environment
     script: |
       #!/bin/bash
+      set -x
       skaffold delete --namespace=$NAMESPACE --profile=development
 options:
   logging: CLOUD_LOGGING_ONLY

@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+set -x
+
 gcloud auth list
 
 # if cypress_baseurl is not set
