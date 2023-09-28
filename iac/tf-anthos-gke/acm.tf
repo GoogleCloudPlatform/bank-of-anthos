@@ -16,7 +16,7 @@
 
 module "acm" {
   source                   = "terraform-google-modules/kubernetes-engine/google//modules/acm"
-  version                  = "~> 27.0"
+  version                  = "~> 28.0"
   project_id               = data.google_project.project.project_id
   location                 = module.gke.location
   cluster_name             = module.gke.name
