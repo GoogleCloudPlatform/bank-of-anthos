@@ -39,7 +39,7 @@ steps:
     id: download-skaffold-cache
     args: ['cp', $_CACHE_URI, '/workspace/cache']
     timeout: 120s
-  - name: gcr.io/k8s-skaffold/skaffold:v2.1.0 # build images with skaffold
+  - name: gcr.io/k8s-skaffold/skaffold:v2.7.1 # build images with skaffold
     id: build-and-push-images
     script: | 
       MAVEN_USER_HOME=$MAVEN_USER_HOME ./mvnw jib:_skaffold-fail-if-jib-out-of-date -Djib.requiredVersion=1.4.0 --projects src/ledger/balancereader --also-make jib:_skaffold-files-v2 --quiet --batch-mode
@@ -49,35 +49,42 @@ steps:
     id: upload-skaffold-cache
     args: ['cp', '/workspace/$_CACHE',  $_CACHE_URI]
     timeout: 120s
-  - name: gcr.io/k8s-skaffold/skaffold:v2.1.0 # run tests with skaffold
+  - name: gcr.io/k8s-skaffold/skaffold:v2.7.1 # run tests with skaffold
     id: run-tests
     script: |
       #!/bin/bash
+      set -x
       apt-get update && apt-get -y install python3-venv && python3 -m venv $HOME/venv-python-tests && . $HOME/venv-python-tests/bin/activate
       skaffold test --build-artifacts=/workspace/artifacts.json --assume-yes --profile=development
   - name: gcr.io/cloud-builders/gcloud
     id: set-policy-binding-for-ksa
     args: ['iam', 'service-accounts', 'add-iam-policy-binding', 'gke-workload-development@$PROJECT_ID.iam.gserviceaccount.com', '--role=roles/iam.workloadIdentityUser', '--member=serviceAccount:$PROJECT_ID.svc.id.goog[pr$_PR_NUMBER/bank-of-anthos]']
-  - name: gcr.io/k8s-skaffold/skaffold:v2.1.0 # deploy to pr-namespace with skaffold
+  - name: gcr.io/k8s-skaffold/skaffold:v2.7.1 # deploy to pr-namespace with skaffold
     id: deploy-to-pr-namespace
     script: |
       #!/bin/bash
+      set -x
       gcloud container fleet memberships get-credentials development-membership
       kubectl create namespace $NAMESPACE
       skaffold deploy --namespace=$NAMESPACE --build-artifacts=/workspace/artifacts.json --assume-yes --profile=development --iterative-status-check=false
-  - name: gcr.io/k8s-skaffold/skaffold:v2.1.0 # run verification/e2e tests with skaffold
+  - name: gcr.io/k8s-skaffold/skaffold:v2.7.1 # run verification/e2e tests with skaffold
     id: run-e2e-tests
     script: |
       #!/bin/bash
-      BASE_URL=http://$(kubectl get service frontend --namespace $NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-      CYPRESS_baseUrl=$BASE_URL ROLLOUT=$ROLLOUT skaffold verify --build-artifacts=/workspace/artifacts.json --profile=development -m frontend
+      set -x
+      cat <<EOT >> .env
+      CYPRESS_baseUrl=http://$(kubectl get service frontend --namespace $NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+      ROLLOUT=$ROLLOUT
+      EOT
+      skaffold verify --build-artifacts=/workspace/artifacts.json --profile=development -m frontend --env-file=.env
     env:
       - "ROLLOUT=pr$_PR_NUMBER/$SHORT_SHA"
       - "ARTIFACTS_BUCKET_NAME=$_CACHE_URI"
-  - name: gcr.io/k8s-skaffold/skaffold:v2.1.0 # 
+  - name: gcr.io/k8s-skaffold/skaffold:v2.7.1 # 
     id: delete-environment
     script: |
       #!/bin/bash
+      set -x
       skaffold delete --namespace=$NAMESPACE --profile=development
 options:
   logging: CLOUD_LOGGING_ONLY
