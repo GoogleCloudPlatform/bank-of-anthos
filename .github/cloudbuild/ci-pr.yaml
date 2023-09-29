@@ -72,8 +72,11 @@ steps:
     script: |
       #!/bin/bash
       set -x
-      BASE_URL=http://$(kubectl get service frontend --namespace $NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-      CYPRESS_baseUrl=$BASE_URL ROLLOUT=$ROLLOUT skaffold verify --build-artifacts=/workspace/artifacts.json --profile=development -m frontend
+      cat <<EOT >> .env
+      CYPRESS_baseUrl=http://$(kubectl get service frontend --namespace $NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+      ROLLOUT=$ROLLOUT
+      EOT
+      skaffold verify --build-artifacts=/workspace/artifacts.json --profile=development -m frontend --env-file=.env
     env:
       - "ROLLOUT=pr$_PR_NUMBER/$SHORT_SHA"
       - "ARTIFACTS_BUCKET_NAME=$_CACHE_URI"
