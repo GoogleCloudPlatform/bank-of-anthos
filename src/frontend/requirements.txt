@@ -24,7 +24,7 @@ flask==2.3.3
     # via -r requirements.in
 google-api-core[grpc]==2.12.0
     # via google-cloud-trace
-google-auth==2.17.3
+google-auth==2.23.1
     # via
     #   -r requirements.in
     #   google-api-core
@@ -131,8 +131,6 @@ requests==2.31.0
     #   opentelemetry-resourcedetector-gcp
 rsa==4.9
     # via google-auth
-six==1.16.0
-    # via google-auth
 typing-extensions==4.8.0
     # via
     #   opentelemetry-resourcedetector-gcp
@@ -140,6 +138,7 @@ typing-extensions==4.8.0
 urllib3==2.0.6
     # via
     #   -r requirements.in
+    #   google-auth
     #   requests
 werkzeug==2.3.7
     # via flask
