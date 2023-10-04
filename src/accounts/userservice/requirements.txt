@@ -45,7 +45,7 @@ google-api-core[grpc]==2.12.0
     #   -r requirements.in
     #   google-cloud-core
     #   google-cloud-trace
-google-auth==2.17.3
+google-auth==2.23.1
     # via
     #   -r requirements.in
     #   google-api-core
@@ -204,7 +204,6 @@ six==1.16.0
     # via
     #   -r requirements.in
     #   bleach
-    #   google-auth
 sqlalchemy==1.4.49
     # via -r requirements.in
 typing-extensions==4.8.0
@@ -214,6 +213,7 @@ typing-extensions==4.8.0
 urllib3==2.0.5
     # via
     #   -r requirements.in
+    #   google-auth
     #   requests
 wcwidth==0.2.6
     # via -r requirements.in
