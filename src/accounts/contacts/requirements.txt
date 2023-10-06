@@ -214,7 +214,7 @@ urllib3==2.0.6
     # via
     #   -r requirements.in
     #   requests
-wcwidth==0.2.6
+wcwidth==0.2.7
     # via -r requirements.in
 webencodings==0.5.1
     # via
