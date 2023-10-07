@@ -18,7 +18,7 @@ click==8.1.7
     # via flask
 configargparse==1.7
     # via locust
-flask==2.3.3
+flask==3.0.0
     # via
     #   flask-basicauth
     #   flask-cors
