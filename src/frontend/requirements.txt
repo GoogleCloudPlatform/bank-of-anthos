@@ -139,7 +139,7 @@ urllib3==2.0.6
     # via
     #   -r requirements.in
     #   requests
-werkzeug==2.3.7
+werkzeug==3.0.0
     # via flask
 wrapt==1.15.0
     # via
