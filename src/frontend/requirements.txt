@@ -101,7 +101,7 @@ opentelemetry-util-http==0.41b0
     #   opentelemetry-instrumentation-flask
     #   opentelemetry-instrumentation-requests
     #   opentelemetry-instrumentation-wsgi
-packaging==23.1
+packaging==23.2
     # via
     #   gunicorn
     #   opentelemetry-instrumentation-flask
