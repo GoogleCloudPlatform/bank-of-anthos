@@ -30,18 +30,17 @@ allowedLicenses:
 # ignoreLicenseYear: true # Useful when migrating in code licensed at previous years.
 
 sourceFileExtensions:
-  - 'cs'
+  - 'css'
   - 'Dockerfile'
   - 'gitignore'
   - 'go'
+  - 'html'
   - 'java'
   - 'js'
-  - 'php'
+  - 'properties'
   - 'py'
-  - 'rb'
   - 'sh'
   - 'sql'
   - 'tf'
   - 'yaml'
   - 'yml'
-  
