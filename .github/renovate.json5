@@ -13,7 +13,7 @@
   "stabilityDays":7,
   "vulnerabilityAlerts":{
      "labels":[
-       "type:security" 
+       "type:security"
      ],
      "stabilityDays":0
   },
@@ -44,6 +44,11 @@
     {
       "matchDepTypes": ["devDependencies"],
       "automerge": true
+    },
+    {
+      "description": "group all OTel deps, as they have tight version coupling",
+      "groupName": "opentelemetry",
+      "matchPackagePrefixes": ["opentelemetry-"]
     }
   ],
   "platformAutomerge":true
