@@ -12,11 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-substitutionRules:
-- targetNamespaces:
-  - default
-  targetGroupKinds:
-  - resourceGroup: apps
-    resourceKind: StatefulSet
-  targetJsonPath: "{$.spec.replicas}"
-  newValue: '1'
+transformationRules:
+- description: Recover one replica to StatefulSets
+  resourceFilter:
+    groupKinds:
+    - resourceGroup: apps
+      resourceKind: StatefulSet
+    namespaces:
+    - default
+  fieldActions:
+  - op: REPLACE
+    path: "/spec/replicas"
+    value: '1'

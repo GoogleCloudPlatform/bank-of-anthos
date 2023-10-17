@@ -40,6 +40,7 @@ For example to migrate from GKE Standart to GKE Autopilot cluster in other regio
   ```bash
   kubectl --context="gke_${PROJECT_ID}_us-central1_source-cluster" apply -f extras/jwt
   kubectl --context="gke_${PROJECT_ID}_us-central1_source-cluster" apply -f kubernetes-manifests/
+  kubectl --context="gke_${PROJECT_ID}_us-central1_source-cluster" delete statefulset accounts-db ledger-db
   kubectl --context="gke_${PROJECT_ID}_us-central1_source-cluster" apply -f extras/backup/kubernetes-manifests/
   ```
 
@@ -87,7 +88,7 @@ For example to migrate from GKE Standart to GKE Autopilot cluster in other regio
     --cluster="projects/${PROJECT_ID}/locations/us-east1/clusters/destination-cluster" \
     --namespaced-resource-restore-mode="delete-and-restore" \
     --selected-namespaces="default" \
-    --substitution-rules-file="extras/backup/substitution-rules.yaml" \
+    --transformation-rules-file="extras/backup/transformation-rules.yaml" \
     --volume-data-restore-policy="restore-volume-data-from-backup"
   ```
 
