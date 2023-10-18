@@ -28,7 +28,7 @@
   "kubernetes": {
     "fileMatch": ["\\.yaml$"],
     "ignorePaths": [
-      "release/**",
+      "kubernetes-manifests/**",
       "kustomize/base/**"
     ]
   },
