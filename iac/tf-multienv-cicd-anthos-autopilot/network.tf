@@ -15,7 +15,7 @@
 # explicit setup of VPC & subnets for GKE resources
 module "network" {
   source  = "terraform-google-modules/network/google"
-  version = "< 8.0.0"
+  version = "~> 8.0.0"
 
   project_id   = var.project_id
   network_name = local.network_name
