@@ -23,6 +23,7 @@ provider "kubernetes" {
 # production autopilot cluster
 module "gke_production" {
   source = "terraform-google-modules/kubernetes-engine/google//modules/beta-autopilot-private-cluster"
+  version = "29.0.0"
 
   project_id              = var.project_id
   name                    = "production"
