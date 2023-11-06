@@ -16,7 +16,7 @@
 
 module "gke" {
   source                   = "terraform-google-modules/kubernetes-engine/google"
-  version                  = "~> 28.0"
+  version                  = "~> 29.0"
   project_id               = data.google_project.project.project_id
   name                     = var.cluster_name
   region                   = var.region
@@ -31,6 +31,7 @@ module "gke" {
     "mesh_id" : "proj-${data.google_project.project.number}",
   }
   identity_namespace = "${data.google_project.project.project_id}.svc.id.goog"
+  deletion_protection = false
 
   node_pools = [
     {
