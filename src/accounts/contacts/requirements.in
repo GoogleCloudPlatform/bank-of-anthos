@@ -7,7 +7,7 @@ cffi==1.16.0
 chardet==5.2.0
 click==8.1.7
 cryptography==41.0.5
-flask==2.3.3
+flask==3.0.0
 google-api-core==2.14.0
 google-auth==2.23.4
 google-cloud-core==2.3.3
