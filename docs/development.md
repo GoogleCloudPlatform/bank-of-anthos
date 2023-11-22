@@ -21,7 +21,7 @@ required tools built-in.
 1. [Python **3.12+**](https://www.python.org/downloads/)
 1. [piptools](https://pypi.org/project/pip-tools/)
 
-### Installing JDK 17 and Maven 3.8
+### Installing JDK 21 and Maven 3.9
 
 If your package manager doesn't allow you to install JDK 17 or Maven 3.8 (for example, if you're on an older version of Ubuntu), you can follow the following instructions.
 
