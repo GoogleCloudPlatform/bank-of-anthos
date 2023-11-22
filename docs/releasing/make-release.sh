@@ -73,11 +73,11 @@ cp "${REPO_ROOT}/iac/acm-multienv-cicd-anthos-autopilot/base/config.yaml" "${REP
 
 # update version in manifests
 find "${REPO_ROOT}/${RELEASE_DIR}" -name '*.yaml' -exec sed -i -e "s'value: dev'value: ${NEW_VERSION}'g" {} \;
-rm ${REPO_ROOT}/${RELEASE_DIR}/*-e
+rm ${REPO_ROOT}/${RELEASE_DIR}/*-e || true
 
 # update version in terraform scripts
 sed -i -e "s@sync_branch  = .*@sync_branch  = \"release/${NEW_VERSION}\"@g" ${REPO_ROOT}/iac/tf-anthos-gke/terraform.tfvars
-rm ${REPO_ROOT}/iac/tf-anthos-gke/terraform.tfvars-e
+rm ${REPO_ROOT}/iac/tf-anthos-gke/terraform.tfvars-e || true
 
 # create release branch and tag
 git checkout -b "release/${NEW_VERSION}"
