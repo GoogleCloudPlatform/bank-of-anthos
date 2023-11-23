@@ -23,9 +23,9 @@ metadata:
   name: balancereader
 spec:
   ports:
-  - name: http
-    port: 8080
-    targetPort: 8080
+    - name: http
+      port: 8080
+      targetPort: 8080
   selector:
     app: balancereader
     application: bank-of-anthos
@@ -63,77 +63,76 @@ spec:
         tier: backend
     spec:
       containers:
-      - env:
-        - name: VERSION
-          value: v0.6.1
-        - name: PORT
-          value: "8080"
-        - name: ENABLE_TRACING
-          value: "true"
-        - name: ENABLE_METRICS
-          value: "true"
-        - name: POLL_MS
-          value: "100"
-        - name: CACHE_SIZE
-          value: "1000000"
-        - name: JVM_OPTS
-          value: -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap
-            -Xms256m -Xmx512m
-        - name: LOG_LEVEL
-          value: info
-        - name: NAMESPACE
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.namespace
-        envFrom:
-        - configMapRef:
-            name: environment-config
-        - configMapRef:
-            name: ledger-db-config
-        image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/balancereader:v0.6.1@sha256:100dabaeec6e8975a3a459b709a316178c3125301d164e1a1c861bd4a217bc8e
-        livenessProbe:
-          httpGet:
-            path: /healthy
-            port: 8080
-          initialDelaySeconds: 120
-          periodSeconds: 5
-          timeoutSeconds: 10
-        name: balancereader
-        readinessProbe:
-          httpGet:
-            path: /ready
-            port: 8080
-          initialDelaySeconds: 60
-          periodSeconds: 5
-          timeoutSeconds: 10
-        resources:
-          limits:
-            cpu: 500m
-            ephemeral-storage: 0.5Gi
-            memory: 512Mi
-          requests:
-            cpu: 100m
-            ephemeral-storage: 0.5Gi
-            memory: 256Mi
-        securityContext:
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop:
-            - all
-          privileged: false
-          readOnlyRootFilesystem: true
-        startupProbe:
-          failureThreshold: 30
-          httpGet:
-            path: /healthy
-            port: 8080
-          periodSeconds: 10
-        volumeMounts:
-        - mountPath: /tmp
-          name: tmp
-        - mountPath: /tmp/.ssh
-          name: publickey
-          readOnly: true
+        - env:
+            - name: VERSION
+              value: v0.6.2
+            - name: PORT
+              value: "8080"
+            - name: ENABLE_TRACING
+              value: "true"
+            - name: ENABLE_METRICS
+              value: "true"
+            - name: POLL_MS
+              value: "100"
+            - name: CACHE_SIZE
+              value: "1000000"
+            - name: JVM_OPTS
+              value: -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Xms256m -Xmx512m
+            - name: LOG_LEVEL
+              value: info
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          envFrom:
+            - configMapRef:
+                name: environment-config
+            - configMapRef:
+                name: ledger-db-config
+          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/balancereader:v0.6.2@sha256:1035844c88684b205e55c0038466fb9c015977f606acacb136ecfa2029085fe0
+          livenessProbe:
+            httpGet:
+              path: /healthy
+              port: 8080
+            initialDelaySeconds: 120
+            periodSeconds: 5
+            timeoutSeconds: 10
+          name: balancereader
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 5
+            timeoutSeconds: 10
+          resources:
+            limits:
+              cpu: 500m
+              ephemeral-storage: 0.5Gi
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              ephemeral-storage: 0.5Gi
+              memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - all
+            privileged: false
+            readOnlyRootFilesystem: true
+          startupProbe:
+            failureThreshold: 30
+            httpGet:
+              path: /healthy
+              port: 8080
+            periodSeconds: 10
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /tmp/.ssh
+              name: publickey
+              readOnly: true
       securityContext:
         fsGroup: 1000
         runAsGroup: 1000
@@ -142,11 +141,11 @@ spec:
       serviceAccountName: bank-of-anthos
       terminationGracePeriodSeconds: 5
       volumes:
-      - emptyDir: {}
-        name: tmp
-      - name: publickey
-        secret:
-          items:
-          - key: jwtRS256.key.pub
-            path: publickey
-          secretName: jwt-key
+        - emptyDir: {}
+          name: tmp
+        - name: publickey
+          secret:
+            items:
+              - key: jwtRS256.key.pub
+                path: publickey
+            secretName: jwt-key

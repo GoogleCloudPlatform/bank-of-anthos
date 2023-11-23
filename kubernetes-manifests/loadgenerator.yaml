@@ -39,29 +39,29 @@ spec:
         tier: test
     spec:
       containers:
-      - env:
-        - name: FRONTEND_ADDR
-          value: frontend:80
-        - name: USERS
-          value: "5"
-        - name: LOG_LEVEL
-          value: error
-        image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/loadgenerator:v0.6.1@sha256:3bb01473ed1b71b97e0a9c77f1e16db2f8e281344add5fb53d2bb2d889158f46
-        name: loadgenerator
-        resources:
-          limits:
-            cpu: 250m
-            memory: 1Gi
-          requests:
-            cpu: 100m
-            memory: 512Mi
-        securityContext:
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop:
-            - all
-          privileged: false
-          readOnlyRootFilesystem: true
+        - env:
+            - name: FRONTEND_ADDR
+              value: frontend:80
+            - name: USERS
+              value: "5"
+            - name: LOG_LEVEL
+              value: error
+          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/loadgenerator:v0.6.2@sha256:8982f3569bc7d1de97aee3be388b4d7eee076c5c9640c2be6bc3d4a58a9898d4
+          name: loadgenerator
+          resources:
+            limits:
+              cpu: 250m
+              memory: 1Gi
+            requests:
+              cpu: 100m
+              memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - all
+            privileged: false
+            readOnlyRootFilesystem: true
       restartPolicy: Always
       securityContext:
         fsGroup: 1000
