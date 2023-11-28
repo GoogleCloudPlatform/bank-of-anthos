@@ -23,9 +23,9 @@ metadata:
   name: ledgerwriter
 spec:
   ports:
-  - name: http
-    port: 8080
-    targetPort: 8080
+    - name: http
+      port: 8080
+      targetPort: 8080
   selector:
     app: ledgerwriter
     application: bank-of-anthos
@@ -63,68 +63,67 @@ spec:
         tier: backend
     spec:
       containers:
-      - env:
-        - name: VERSION
-          value: v0.6.1
-        - name: PORT
-          value: "8080"
-        - name: ENABLE_TRACING
-          value: "true"
-        - name: ENABLE_METRICS
-          value: "true"
-        - name: JVM_OPTS
-          value: -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap
-            -Xms256m -Xmx512m
-        - name: LOG_LEVEL
-          value: info
-        - name: NAMESPACE
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.namespace
-        envFrom:
-        - configMapRef:
-            name: environment-config
-        - configMapRef:
-            name: service-api-config
-        - configMapRef:
-            name: ledger-db-config
-        image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/ledgerwriter:v0.6.1@sha256:5087bc9f032dee70fda80063d659c3e1e34c7058c8b650d2128a8bdbbd4e5f4d
-        name: ledgerwriter
-        readinessProbe:
-          httpGet:
-            path: /ready
-            port: 8080
-          initialDelaySeconds: 60
-          periodSeconds: 5
-          timeoutSeconds: 10
-        resources:
-          limits:
-            cpu: 500m
-            ephemeral-storage: 0.5Gi
-            memory: 512Mi
-          requests:
-            cpu: 100m
-            ephemeral-storage: 0.5Gi
-            memory: 256Mi
-        securityContext:
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop:
-            - all
-          privileged: false
-          readOnlyRootFilesystem: true
-        startupProbe:
-          failureThreshold: 30
-          httpGet:
-            path: /ready
-            port: 8080
-          periodSeconds: 10
-        volumeMounts:
-        - mountPath: /tmp
-          name: tmp
-        - mountPath: /tmp/.ssh
-          name: publickey
-          readOnly: true
+        - env:
+            - name: VERSION
+              value: v0.6.2
+            - name: PORT
+              value: "8080"
+            - name: ENABLE_TRACING
+              value: "true"
+            - name: ENABLE_METRICS
+              value: "true"
+            - name: JVM_OPTS
+              value: -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Xms256m -Xmx512m
+            - name: LOG_LEVEL
+              value: info
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          envFrom:
+            - configMapRef:
+                name: environment-config
+            - configMapRef:
+                name: service-api-config
+            - configMapRef:
+                name: ledger-db-config
+          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/ledgerwriter:v0.6.2@sha256:d973448da63ba87b0d826ebb91ceba3f8ff1bd26f46a055f3fa7d7818c342f88
+          name: ledgerwriter
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 5
+            timeoutSeconds: 10
+          resources:
+            limits:
+              cpu: 500m
+              ephemeral-storage: 0.5Gi
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              ephemeral-storage: 0.5Gi
+              memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - all
+            privileged: false
+            readOnlyRootFilesystem: true
+          startupProbe:
+            failureThreshold: 30
+            httpGet:
+              path: /ready
+              port: 8080
+            periodSeconds: 10
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /tmp/.ssh
+              name: publickey
+              readOnly: true
       securityContext:
         fsGroup: 1000
         runAsGroup: 1000
@@ -133,11 +132,11 @@ spec:
       serviceAccountName: bank-of-anthos
       terminationGracePeriodSeconds: 5
       volumes:
-      - emptyDir: {}
-        name: tmp
-      - name: publickey
-        secret:
-          items:
-          - key: jwtRS256.key.pub
-            path: publickey
-          secretName: jwt-key
+        - emptyDir: {}
+          name: tmp
+        - name: publickey
+          secret:
+            items:
+              - key: jwtRS256.key.pub
+                path: publickey
+            secretName: jwt-key

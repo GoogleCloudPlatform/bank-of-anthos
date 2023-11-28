@@ -23,9 +23,9 @@ metadata:
   name: frontend
 spec:
   ports:
-  - name: http
-    port: 80
-    targetPort: 8080
+    - name: http
+      port: 80
+      targetPort: 8080
   selector:
     app: frontend
     application: bank-of-anthos
@@ -63,80 +63,80 @@ spec:
         tier: web
     spec:
       containers:
-      - env:
-        - name: VERSION
-          value: v0.6.1
-        - name: PORT
-          value: "8080"
-        - name: ENABLE_TRACING
-          value: "true"
-        - name: SCHEME
-          value: http
-        - name: LOG_LEVEL
-          value: info
-        - name: DEFAULT_USERNAME
-          valueFrom:
-            configMapKeyRef:
-              key: DEMO_LOGIN_USERNAME
-              name: demo-data-config
-        - name: DEFAULT_PASSWORD
-          valueFrom:
-            configMapKeyRef:
-              key: DEMO_LOGIN_PASSWORD
-              name: demo-data-config
-        - name: REGISTERED_OAUTH_CLIENT_ID
-          valueFrom:
-            configMapKeyRef:
-              key: DEMO_OAUTH_CLIENT_ID
-              name: oauth-config
-              optional: true
-        - name: ALLOWED_OAUTH_REDIRECT_URI
-          valueFrom:
-            configMapKeyRef:
-              key: DEMO_OAUTH_REDIRECT_URI
-              name: oauth-config
-              optional: true
-        envFrom:
-        - configMapRef:
-            name: environment-config
-        - configMapRef:
-            name: service-api-config
-        image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/frontend:v0.6.1@sha256:07cb2c7f9a08cf820a81d59670a59b53d183717ce998a035625f0441b24e7544
-        livenessProbe:
-          httpGet:
-            path: /ready
-            port: 8080
-          initialDelaySeconds: 60
-          periodSeconds: 15
-          timeoutSeconds: 30
-        name: front
-        readinessProbe:
-          httpGet:
-            path: /ready
-            port: 8080
-          initialDelaySeconds: 10
-          periodSeconds: 5
-          timeoutSeconds: 10
-        resources:
-          limits:
-            cpu: 250m
-            memory: 128Mi
-          requests:
-            cpu: 100m
-            memory: 64Mi
-        securityContext:
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop:
-            - all
-          privileged: false
-          readOnlyRootFilesystem: true
-        volumeMounts:
-        - mountPath: /tmp
-          name: tmp
-        - mountPath: /tmp/.ssh
-          name: publickey
-          readOnly: true
+        - env:
+            - name: VERSION
+              value: v0.6.2
+            - name: PORT
+              value: "8080"
+            - name: ENABLE_TRACING
+              value: "true"
+            - name: SCHEME
+              value: http
+            - name: LOG_LEVEL
+              value: info
+            - name: DEFAULT_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  key: DEMO_LOGIN_USERNAME
+                  name: demo-data-config
+            - name: DEFAULT_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  key: DEMO_LOGIN_PASSWORD
+                  name: demo-data-config
+            - name: REGISTERED_OAUTH_CLIENT_ID
+              valueFrom:
+                configMapKeyRef:
+                  key: DEMO_OAUTH_CLIENT_ID
+                  name: oauth-config
+                  optional: true
+            - name: ALLOWED_OAUTH_REDIRECT_URI
+              valueFrom:
+                configMapKeyRef:
+                  key: DEMO_OAUTH_REDIRECT_URI
+                  name: oauth-config
+                  optional: true
+          envFrom:
+            - configMapRef:
+                name: environment-config
+            - configMapRef:
+                name: service-api-config
+          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/frontend:v0.6.2@sha256:d7f4599ebb7ce3d8ac2573dcf6df5fb5e939e4e5d81d5288729dd4b0c242c64d
+          livenessProbe:
+            httpGet:
+              path: /ready
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 15
+            timeoutSeconds: 30
+          name: front
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 10
+          resources:
+            limits:
+              cpu: 250m
+              memory: 128Mi
+            requests:
+              cpu: 100m
+              memory: 64Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - all
+            privileged: false
+            readOnlyRootFilesystem: true
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /tmp/.ssh
+              name: publickey
+              readOnly: true
       securityContext:
         fsGroup: 1000
         runAsGroup: 1000
@@ -145,11 +145,11 @@ spec:
       serviceAccountName: bank-of-anthos
       terminationGracePeriodSeconds: 5
       volumes:
-      - emptyDir: {}
-        name: tmp
-      - name: publickey
-        secret:
-          items:
-          - key: jwtRS256.key.pub
-            path: publickey
-          secretName: jwt-key
+        - emptyDir: {}
+          name: tmp
+        - name: publickey
+          secret:
+            items:
+              - key: jwtRS256.key.pub
+                path: publickey
+            secretName: jwt-key

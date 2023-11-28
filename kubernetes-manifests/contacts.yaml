@@ -23,9 +23,9 @@ metadata:
   name: contacts
 spec:
   ports:
-  - name: http
-    port: 8080
-    targetPort: 8080
+    - name: http
+      port: 8080
+      targetPort: 8080
   selector:
     app: contacts
     application: bank-of-anthos
@@ -63,51 +63,51 @@ spec:
         tier: backend
     spec:
       containers:
-      - env:
-        - name: VERSION
-          value: v0.6.1
-        - name: PORT
-          value: "8080"
-        - name: ENABLE_TRACING
-          value: "true"
-        - name: LOG_LEVEL
-          value: info
-        envFrom:
-        - configMapRef:
-            name: environment-config
-        - configMapRef:
-            name: accounts-db-config
-        image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/contacts:v0.6.1@sha256:b355abdaf59d23f5ab4ee08226fd1296dce8f764892ae3916a420d9d6bb20db4
-        name: contacts
-        readinessProbe:
-          httpGet:
-            path: /ready
-            port: 8080
-          initialDelaySeconds: 10
-          periodSeconds: 5
-          timeoutSeconds: 10
-        resources:
-          limits:
-            cpu: 250m
-            ephemeral-storage: 0.25Gi
-            memory: 128Mi
-          requests:
-            cpu: 100m
-            ephemeral-storage: 0.25Gi
-            memory: 64Mi
-        securityContext:
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop:
-            - all
-          privileged: false
-          readOnlyRootFilesystem: true
-        volumeMounts:
-        - mountPath: /tmp
-          name: tmp
-        - mountPath: /tmp/.ssh
-          name: publickey
-          readOnly: true
+        - env:
+            - name: VERSION
+              value: v0.6.2
+            - name: PORT
+              value: "8080"
+            - name: ENABLE_TRACING
+              value: "true"
+            - name: LOG_LEVEL
+              value: info
+          envFrom:
+            - configMapRef:
+                name: environment-config
+            - configMapRef:
+                name: accounts-db-config
+          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/contacts:v0.6.2@sha256:47285118e19bd2b3230ee5da433c9706d97031d4a164a6317af1ed53738cad83
+          name: contacts
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 10
+          resources:
+            limits:
+              cpu: 250m
+              ephemeral-storage: 0.25Gi
+              memory: 128Mi
+            requests:
+              cpu: 100m
+              ephemeral-storage: 0.25Gi
+              memory: 64Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - all
+            privileged: false
+            readOnlyRootFilesystem: true
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /tmp/.ssh
+              name: publickey
+              readOnly: true
       securityContext:
         fsGroup: 1000
         runAsGroup: 1000
@@ -116,11 +116,11 @@ spec:
       serviceAccountName: bank-of-anthos
       terminationGracePeriodSeconds: 5
       volumes:
-      - emptyDir: {}
-        name: tmp
-      - name: publickey
-        secret:
-          items:
-          - key: jwtRS256.key.pub
-            path: publickey
-          secretName: jwt-key
+        - emptyDir: {}
+          name: tmp
+        - name: publickey
+          secret:
+            items:
+              - key: jwtRS256.key.pub
+                path: publickey
+            secretName: jwt-key
