@@ -2,7 +2,7 @@ flask==2.3.3
 requests==2.31.0
 urllib3==2.0.6
 pyjwt==2.8.0
-cryptography==41.0.4
+cryptography==41.0.6
 gunicorn==21.2.0
 google-auth==2.23.3
 opentelemetry-sdk==1.20.0
