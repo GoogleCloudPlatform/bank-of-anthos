@@ -20,10 +20,12 @@ cryptography==41.0.4
     # via -r requirements.in
 deprecated==1.2.14
     # via opentelemetry-api
-flask==2.3.3
+flask==3.0.0
     # via -r requirements.in
 google-api-core[grpc]==2.12.0
-    # via google-cloud-trace
+    # via
+    #   google-api-core
+    #   google-cloud-trace
 google-auth==2.23.3
     # via
     #   -r requirements.in
@@ -135,11 +137,11 @@ typing-extensions==4.8.0
     # via
     #   opentelemetry-resourcedetector-gcp
     #   opentelemetry-sdk
-urllib3==2.0.7
+urllib3==2.0.6
     # via
     #   -r requirements.in
     #   requests
-werkzeug==2.3.7
+werkzeug==3.0.1
     # via flask
 wrapt==1.15.0
     # via
