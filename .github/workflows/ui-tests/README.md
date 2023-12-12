@@ -1,6 +1,6 @@
 # E2E tests
 
-End-to-end tests use the [Cypress](cypress.io) test runner.
+End-to-end tests use the [Cypress](https://cypress.io) test runner.
 
 ## Prerequisites
 
