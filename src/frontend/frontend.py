@@ -448,7 +448,7 @@ def create_app():
             req.raise_for_status()  # Raise on HTTP Status code 4XX or 5XX
 
             # login success
-            token = req.json()['token'].encode('utf-8')
+            token = req.json()['token']
             claims = decode_token(token)
             max_age = claims['exp'] - claims['iat']
 
