@@ -70,7 +70,7 @@ class UserDb:
         accountid = None
         with self.engine.connect() as conn:
             while accountid is None:
-                accountid = str(random.randint(1e9, (1e10 - 1)))
+                accountid = str(random.randint(1_000_000_000, (10_000_000_000 - 1)))
 
                 statement = self.users_table.select().where(
                     self.users_table.c.accountid == accountid
