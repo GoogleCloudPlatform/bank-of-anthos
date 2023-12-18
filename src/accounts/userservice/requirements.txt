@@ -32,7 +32,7 @@ click==8.1.7
     # via
     #   -r requirements.in
     #   flask
-coverage[toml]==7.3.2
+coverage[toml]==7.3.3
     # via
     #   coverage
     #   pytest-cov
@@ -42,35 +42,35 @@ deprecated==1.2.14
     # via opentelemetry-api
 flask==3.0.0
     # via -r requirements.in
-google-api-core[grpc]==2.14.0
+google-api-core[grpc]==2.15.0
     # via
     #   -r requirements.in
     #   google-cloud-core
     #   google-cloud-trace
-google-auth==2.25.0
+google-auth==2.25.2
     # via
     #   -r requirements.in
     #   google-api-core
     #   google-cloud-core
-google-cloud-core==2.3.3
+google-cloud-core==2.4.1
     # via -r requirements.in
-google-cloud-trace==1.11.3
+google-cloud-trace==1.12.0
     # via
     #   -r requirements.in
     #   opentelemetry-exporter-gcp-trace
-googleapis-common-protos==1.61.0
+googleapis-common-protos==1.62.0
     # via
     #   -r requirements.in
     #   google-api-core
     #   grpcio-status
 greenlet==3.0.2
     # via sqlalchemy
-grpcio==1.59.3
+grpcio==1.60.0
     # via
     #   -r requirements.in
     #   google-api-core
     #   grpcio-status
-grpcio-status==1.59.3
+grpcio-status==1.60.0
     # via google-api-core
 gunicorn==21.2.0
     # via -r requirements.in
