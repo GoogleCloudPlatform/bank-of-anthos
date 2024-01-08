@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file=requirements.txt requirements.in
 #
-attrs==23.1.0
+attrs==23.2.0
     # via -r requirements.in
 bcrypt==4.1.2
     # via -r requirements.in
@@ -179,13 +179,13 @@ pycparser==2.21
     # via
     #   -r requirements.in
     #   cffi
-pycryptodome==3.19.0
+pycryptodome==3.19.1
     # via -r requirements.in
 pyjwt==2.8.0
     # via -r requirements.in
 pyparsing==3.1.1
     # via -r requirements.in
-pytest==7.4.3
+pytest==7.4.4
     # via
     #   -r requirements.in
     #   pytest-cov
