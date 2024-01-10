@@ -1,6 +1,6 @@
 # CI/CD pipeline
 
-This document introduces the CI/CD pipeline that powers Bank of Anthos' production instance (hosted here: https://bank-of-anthos.xyz/) as well as how you can get started deploying it in your own Google Cloud project (with your own domain name).
+This document introduces the CI/CD pipeline that powers Bank of Anthos' production instance (hosted here: https://cymbal-bank.fsi.cymbal.dev/) as well as how you can get started deploying it in your own Google Cloud project (with your own domain name).
 
 **Note**: This is a more advanced view of Bank of Anthos and is _not_ required to deploy Bank of Anthos or any of its deployment options. Instead, this is meant to showcase how one can deploy a full end-to-end CI/CD environment with [Cloud Build](https://cloud.google.com/build) and [Cloud Deploy](https://cloud.google.com/deploy), with the help of [Terraform](https://www.terraform.io/), [Skaffold](https://skaffold.dev/), and [Kustomize](https://kustomize.io/). The end result is multiple environments in a multi-stage pipeline (development, staging, production) which features [Google Kubernetes Engine (GKE)](https://cloud.google.com/kubernetes-engine), [Anthos Config Management (ACM)](https://cloud.google.com/anthos/config-management), [Anthos Service Mesh (ASM)](https://cloud.google.com/anthos/service-mesh), and [Cloud SQL](https://cloud.google.com/sql/docs).
 
@@ -104,10 +104,10 @@ These steps are necessary for all Google Cloud projects that are _not_ `bank-of-
    # run from repository root
    find iac/tf-multienv-cicd-anthos-autopilot/* -type f -exec sed -i 's/bank-of-anthos-tf-state/'"$PROJECT_ID-boa-tf-state"'/g' {} +
    ```
-1. Replace all occurrences of `bank-of-anthos.xyz` in the Terraform scripts with your domain name.
+1. Replace all occurrences of `cymbal-bank.fsi.cymbal.dev` in the Terraform scripts with your domain name.
    ```sh
    # run from repository root
-   find src/frontend/* -type f -exec sed -i 's/bank-of-anthos.xyz/'"$DOMAIN"'/g' {} +
+   find src/frontend/* -type f -exec sed -i 's/cymbal-bank.fsi.cymbal.dev/'"$DOMAIN"'/g' {} +
    ```
 1. Commit and push your changes to your repository.
    ```sh

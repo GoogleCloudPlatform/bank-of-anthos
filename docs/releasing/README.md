@@ -93,7 +93,7 @@ Once the release notes are published, you should then replace the version of the
 
 3. Wait for all promotion builds to be green.
 
-4. Verify that the production environment is still up and running: https://bank-of-anthos.xyz
+4. Verify that the production environment is still up and running: https://cymbal-bank.fsi.cymbal.dev
 
 ## Update the ledgermonolith bucket
 
