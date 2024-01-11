@@ -18,7 +18,7 @@ metadata:
   name: bank-ssl-certificate
 spec:
   domains:
-    - bank-of-anthos.xyz  # repace me with DNS name mapped to bank-address
+    - cymbal-bank.fsi.cymbal.dev  # repace me with DNS name mapped to bank-address
 ---
 apiVersion: v1
 kind: Service

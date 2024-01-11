@@ -1,6 +1,7 @@
 <!-- @todo: https://github.com/badges/shields/pull/7759 -->
 ![GitHub branch checks state](https://img.shields.io/github/checks-status/GoogleCloudPlatform/bank-of-anthos/main)
-[![Website](https://img.shields.io/website?label=live%20demo&url=https%3A%2F%2Fbank-of-anthos.xyz%2F)](https://bank-of-anthos.xyz)
+[![Website](https://img.shields.io/website?url=https%3A%2F%2Fcymbal-bank.fsi.cymbal.dev%2F&label=live%20demo
+)](https://cymbal-bank.fsi.cymbal.dev)
 
 # Bank of Anthos
 
