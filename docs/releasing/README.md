@@ -7,7 +7,7 @@ This document describes how maintainers can tag and push a new release of Bank o
 1. Manually test the latest main commit by verifying the user journeys below:
 
    - User can deploy Bank of Anthos on a new GCP project/GKE cluster following README instructions.
-   - User can deploy Bank of Anthos on a GKE cluster with the latest Anthos Service Mesh enabled, by deploying `extras/istio-manifests/` on top of the kubernetes manifests.
+   - User can deploy Bank of Anthos on a GKE cluster with the latest Anthos Service Mesh enabled, by deploying `extras/istio/` on top of the kubernetes manifests.
    - User can see Java app-level metrics by creating the Cloud Monitoring dashboard in the `extras/metrics-dashboard/` directory.
    - User can see traces in Cloud Trace.
    - User can toggle `ENABLE_METRICS=false` and `ENABLE_TRACING=false` to turn off metrics and trace export to Cloud Operations.
