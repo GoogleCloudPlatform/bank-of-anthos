@@ -1,4 +1,4 @@
-# Copyright 2022 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,11 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-kind: ConfigMap
+kind: Job
 metadata:
-  name: accounts-db-config
-data:
-  POSTGRES_DB: accounts-db
-  POSTGRES_USER: admin
-  POSTGRES_PASSWORD: admin
-  ACCOUNTS_DB_URI: postgresql://admin:admin@127.0.0.1:5432/accounts-db
+  name: ignored-by-kustomize
+spec:
+  template:
+    spec:
+      containers:
+      - args:
+        - "--port=5432"
+        - "--quitquitquit"
+        name: cloud-sql-proxy

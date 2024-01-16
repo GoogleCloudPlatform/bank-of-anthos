@@ -19,42 +19,13 @@ kind: ConfigMap
 metadata:
   name: ledger-schema-config
 data:
-  wait-to-complete-sidecar.sh: |
-    #!/bin/bash
-    COUNTER=0
-    TARGET=$1
-    PROCESS=$2
-
-    echo "Looking for $TARGET"
-
-    sleep 10s # Give 10s to allow processes to start
-
-    # 20 minutes (60 x 10s increments)
-    while [ $COUNTER -lt 120 ]; do
-        let COUNTER=$COUNTER+1
-
-        IS_RUNNING=$(ps -A | grep "scripts/$TARGET" | grep -v grep)
-
-        if [ "$IS_RUNNING" != "" ]; then
-          echo "Attempt # ${COUNTER}: Process not completed, trying again in 10 seconds -- ${IS_RUNNING}"
-          sleep 10s
-        else
-          echo "'${TARGET}' Process Finished, Stopping '${PROCESS}'"
-          killall ${PROCESS}
-          exit 0
-        fi
-    done
-
-    echo "Could not determine if the import finished, killing the proxy"
-    killall ${PROCESS}
-    exit 0
-
   initialize-database.sh: |
     #!/bin/bash
 
     COUNTER=0
-    SLEEP_TIME=60 # 1 minute
-    DB_READY=0 # false
+    ERROR=0
+    SLEEP_TIME=60
+    DB_READY=0
     INIT_SQL_SCRIPT="/scripts/0-ledger-schema.sql"
     TEST_SQL_SCRIPT="/scripts/1-load-testdata.sh"
 
@@ -62,16 +33,17 @@ data:
     PORT=${2:-'5432'}
     DB_NAME=${3:-'default'}
 
-    # Initial wait for sql-proxy to catch up
+    # Initial wait for cloud-sql-proxy
     sleep 20
 
     while [ $COUNTER -lt 10 ]; do
         let COUNTER=$COUNTER+1
 
+        echo "Attempt # ${COUNTER}: Checking connectivity to ${HOST}:${PORT}/${DB_NAME}..."
         pg_isready --host=${HOST} --port=${PORT} --dbname=${DB_NAME}
 
         if [ $? -gt 0 ]; then
-            echo "Attempt # ${COUNTER}: Database is not ready, trying again in 1 minute"
+            echo "Attempt # ${COUNTER}: Database is not ready, trying again in ${SLEEP_TIME} seconds"
             sleep $SLEEP_TIME
         else
             echo "Database is ready to connect"
@@ -85,11 +57,23 @@ data:
         psql --host=${HOST} --port=${PORT} --dbname=${DB_NAME} -f ${INIT_SQL_SCRIPT}
         if [ $? -gt 0 ]; then
             echo "Problems running the initialization script"
+            ERROR=$((ERROR+1))
         else
             echo "Run Test Data"
             . ${TEST_SQL_SCRIPT}
+            if [ $? -gt 0 ]; then
+              echo "Problems running the test data script"
+              ERROR=$((ERROR+1))
+            fi
         fi
+    else
+        echo "Failed to connect to the database"
+        ERROR=$((ERROR+1))
     fi
+
+    wget --post-data '' http://127.0.0.1:9091/quitquitquit 2>&1
+
+    return ${ERROR}
   0-ledger-schema.sql: |
     /*
      * Copyright 2020, Google LLC.
@@ -249,85 +233,52 @@ kind: Job
 metadata:
   name: populate-ledger-db
 spec:
+  activeDeadlineSeconds: 300
   template:
     metadata:
       annotations:
         sidecar.istio.io/inject: "false"
     spec:
-      shareProcessNamespace: true # Important to stop all processes
-      serviceAccountName: bank-of-anthos
       containers:
-      - name: sidecar-controller
-        image: bash@sha256:a422913be6a4b0ea5403d2af72eb73779b6d9ed84d0dcf85d6b4309e891a379e
-        command: ['bash', '-c', '. /scripts/wait-to-complete-sidecar.sh "initialize-database.sh" "cloud_sql_proxy"']
-        volumeMounts:
-        - name: scripts
-          mountPath: "/scripts"
-          readOnly: true
-        resources:
-          limits:
-            cpu: "200m"
-            memory: "100Mi"
-      - name: populate-ledger-db
-        image: postgres:16.1-alpine@sha256:884718395ee967fc70374563f3b4d72f0c61f48f81868decb9fa452915fe070e
-        command: ['bash', '-c','. /scripts/initialize-database.sh 127.0.0.1 5432 ledger-db']
-        volumeMounts:
-        - name: scripts
-          mountPath: "/scripts"
-          readOnly: true
+      - command: ['bash', '-c','. /scripts/initialize-database.sh 127.0.0.1 5432 ledger-db']
         env:
-        # /start: Required for testing data
-        - name: PGUSER
-          value: admin
-        - name: PGPASSWORD
-          value: admin
-        - name: LOCAL_ROUTING_NUM
-          valueFrom:
-            configMapKeyRef:
-              name: environment-config
-              key: LOCAL_ROUTING_NUM
-        - name: USE_DEMO_DATA
-          valueFrom:
-            configMapKeyRef:
-              name: demo-data-config
-              key: USE_DEMO_DATA
-        - name: POSTGRES_DB
-          value: "ledger-db"
         - name: PGHOSTADDR
           value: "127.0.0.1"
-        - name: POSTGRES_USER
-          value: admin
-        - name: POSTGRES_PASSWORD
-          value: admin
-      # /end: Required for testing data
-      # CloudSQL Proxy
-      - name: cloudsql-proxy
-        resources:
-          limits:
-            cpu: "200m"
-            memory: "100Mi"
-        image: gcr.io/cloudsql-docker/gce-proxy:1.33.15-buster@sha256:80338341b402e8695f1c531229f627d5b89f7c1ab5e25097e4250f8903419bc4
-        env:
-        - name: CONNECTION_NAME
+        - name: PGPASSWORD
           valueFrom:
             configMapKeyRef:
-              name: cloud-sql-admin
-              key: connectionName
-        command: [
-          "timeout",
-          "--preserve-status",
-          "-s",
-          "SIGTERM",
-          "30s",
-          "/cloud_sql_proxy",
-          "-instances=$(CONNECTION_NAME)=tcp:5432",
-          "-term_timeout=300s"
-        ]
-        securityContext:
-          runAsNonRoot: true
+              key: POSTGRES_PASSWORD
+              name: ledger-db-config
+        - name: PGUSER
+          valueFrom:
+            configMapKeyRef:
+              key: POSTGRES_USER
+              name: ledger-db-config
+        envFrom:
+        - configMapRef:
+            name: demo-data-config
+        - configMapRef:
+            name: environment-config
+        - configMapRef:
+            name: ledger-db-config
+        image: postgres:16.1-alpine@sha256:884718395ee967fc70374563f3b4d72f0c61f48f81868decb9fa452915fe070e
+        name: populate-ledger-db
+        resources:
+          limits:
+            cpu: 100m
+            ephemeral-storage: 1Gi
+            memory: 256Mi
+          requests:
+            cpu: 100m
+            ephemeral-storage: 1Gi
+            memory: 256Mi
+        volumeMounts:
+        - name: scripts
+          mountPath: "/scripts"
+          readOnly: true
+      restartPolicy: Never
+      serviceAccountName: bank-of-anthos
       volumes:
       - name: scripts
         configMap:
           name: ledger-schema-config
-      restartPolicy: Never
-  backoffLimit: 4
