@@ -15,26 +15,15 @@
 apiVersion: kustomize.config.k8s.io/v1alpha1
 kind: Component
 patches:
-  - target:
+  - path: cloud-sql-proxy/add-container.yaml 
+    target:
       kind: Deployment
-    patch: |-
-      - op: add
-        path: /spec/template/spec/containers/-
-        value:
-          name: cloudsql-proxy
-          resources:
-            limits:
-              cpu: "0.25"
-              memory: "100Mi"
-          image: gcr.io/cloudsql-docker/gce-proxy:latest@sha256:b92be5e6d16d0fafca5abd6e809ccc7ccdc76237e573f1bb82cae94036b1d89c 
-          env:
-          - name: CONNECTION_NAME
-            valueFrom:
-              configMapKeyRef:
-                name: cloud-sql-admin
-                key: connectionName
-          command: ["/cloud_sql_proxy",
-                    "-instances=$(CONNECTION_NAME)=tcp:5432"]
+  - path: cloud-sql-proxy/add-container.yaml
+    target:
+      kind: Job
+  - path: cloud-sql-proxy/replace-args-job.yaml
+    target:
+      kind: Job
   - path: ledger-db.yaml
     target:
       kind: ConfigMap

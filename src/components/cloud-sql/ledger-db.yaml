@@ -16,7 +16,9 @@ kind: ConfigMap
 metadata:
   name: ledger-db-config
 data:
-  POSTGRES_DB: postgresdb
+  POSTGRES_DB: ledger-db
+  POSTGRES_USER: admin
   POSTGRES_PASSWORD: admin
   SPRING_DATASOURCE_URL: jdbc:postgresql://127.0.0.1:5432/ledger-db
+  SPRING_DATASOURCE_USERNAME: admin # should match POSTGRES_USER
   SPRING_DATASOURCE_PASSWORD: admin # should match POSTGRES_PASSWORD
