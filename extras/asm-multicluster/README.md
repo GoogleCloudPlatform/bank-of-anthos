@@ -78,7 +78,7 @@ kubectl apply -f ../../kubernetes-manifests/contacts.yaml
 kubectl apply -f ../../kubernetes-manifests/frontend.yaml
 kubectl apply -f ../../kubernetes-manifests/userservice.yaml
 kubectl apply -f ../../kubernetes-manifests/loadgenerator.yaml
-kubectl apply -f ../../extras/istio-manifests/frontend-ingress.yaml
+kubectl apply -f ../../extras/istio/frontend-ingress.yaml
 
 kubectx cluster-2
 kubectl apply -f services-all.yaml

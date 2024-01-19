@@ -91,7 +91,7 @@ This means that your cluster's [Node Pools](https://cloud.google.com/kubernetes-
 
 You may see a `503: Service Unavailble` error if you have added Istio or Anthos Service Mesh to the cluster namespace where Bank of Anthos is deployed. A 503 error typically comes from an Envoy proxy - either the IngressGateway proxy, or the sidecar proxy for a service pod. For the frontend specifically, the 503 is likely coming from the IngressGateway. 
 
-Make sure you've deployed the `VirtualService` and `Gateway` resources provided in [`istio-manifests/`](/extras/istio-manifests), and that they're deployed into the namespace where the app is running. If you've modified the frontend's Service or Deployment port, make sure the `VirtualService` port is updated, too.  
+Make sure you've deployed the `VirtualService` and `Gateway` resources provided in [`istio/`](/extras/istio), and that they're deployed into the namespace where the app is running. If you've modified the frontend's Service or Deployment port, make sure the `VirtualService` port is updated, too.  
 
 See the [Istio troubleshooting docs](https://istio.io/latest/docs/ops/common-problems/network-issues/) for more support.
 
