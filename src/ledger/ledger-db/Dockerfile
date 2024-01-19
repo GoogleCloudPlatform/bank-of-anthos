@@ -14,10 +14,8 @@
 FROM postgres:16.1-alpine@sha256:884718395ee967fc70374563f3b4d72f0c61f48f81868decb9fa452915fe070e
 
 # Need to get coreutils to get the date bash function working properly:
-RUN apk add --update coreutils && rm -rf /var/cache/apk/*
+RUN apk add --no-cache coreutils && rm -rf /var/cache/apk/*
 
-COPY initdb/0_init_tables.sql /docker-entrypoint-initdb.d/0_init_tables.sql
-RUN chmod 755  /docker-entrypoint-initdb.d/0_init_tables.sql
-
-COPY initdb/1_create_transactions.sh /docker-entrypoint-initdb.d/1_create_transactions.sh
-RUN chmod 755  /docker-entrypoint-initdb.d/1_create_transactions.sh
+# Files for initializing the database.
+COPY initdb/0_init_tables.sql initdb/1_create_transactions.sh /docker-entrypoint-initdb.d/
+RUN chmod 755  /docker-entrypoint-initdb.d/0_init_tables.sql /docker-entrypoint-initdb.d/1_create_transactions.sh
