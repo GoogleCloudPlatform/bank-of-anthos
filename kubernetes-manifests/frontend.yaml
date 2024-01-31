@@ -1,4 +1,4 @@
-# Copyright 2023 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@ spec:
       containers:
         - env:
             - name: VERSION
-              value: v0.6.2
+              value: v0.6.3
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
@@ -101,7 +101,7 @@ spec:
                 name: environment-config
             - configMapRef:
                 name: service-api-config
-          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/frontend:v0.6.2@sha256:d7f4599ebb7ce3d8ac2573dcf6df5fb5e939e4e5d81d5288729dd4b0c242c64d
+          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/frontend:v0.6.3@sha256:3e1ca78c9b501152ec0b84f8fe6a3a1cb078c8adbf9fa1fbfc3b108ba6875157
           livenessProbe:
             httpGet:
               path: /ready
