@@ -47,7 +47,7 @@ google-api-core[grpc]==2.15.0
     #   -r requirements.in
     #   google-cloud-core
     #   google-cloud-trace
-google-auth==2.26.2
+google-auth==2.27.0
     # via
     #   -r requirements.in
     #   google-api-core
@@ -148,7 +148,7 @@ packaging==23.2
     #   opentelemetry-instrumentation-flask
     #   opentelemetry-instrumentation-sqlalchemy
     #   pytest
-pluggy==1.3.0
+pluggy==1.4.0
     # via
     #   -r requirements.in
     #   pytest
@@ -191,7 +191,7 @@ pytest==7.4.4
     #   pytest-cov
 pytest-cov==4.1.0
     # via -r requirements.in
-pytz==2023.3.post1
+pytz==2023.4
     # via -r requirements.in
 requests==2.31.0
     # via
