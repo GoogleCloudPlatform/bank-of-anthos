@@ -6,7 +6,7 @@ certifi==2023.11.17
 cffi==1.16.0
 chardet==5.2.0
 click==8.1.7
-cryptography==42.0.0
+cryptography==42.0.2
 flask==3.0.2
 google-api-core==2.16.2
 google-auth==2.27.0
