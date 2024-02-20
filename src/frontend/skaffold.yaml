@@ -62,3 +62,13 @@ profiles:
     kustomize:
       paths:
       - k8s/overlays/production
+- name: production-fwi
+  manifests:
+    kustomize:
+      paths:
+      - k8s/overlays/production-fwi
+- name: production-fwi-ingress
+  manifests:
+    kustomize:
+      paths:
+      - k8s/overlays/production-fwi-ingress

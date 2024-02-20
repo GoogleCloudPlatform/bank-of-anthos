@@ -75,3 +75,8 @@ profiles:
     kustomize:
       paths:
       - k8s/overlays/production
+- name: production-fwi
+  manifests:
+    kustomize:
+      paths:
+      - k8s/overlays/production-fwi
