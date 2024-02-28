@@ -34,7 +34,7 @@ spec:
         image: ghcr.io/opsani/bank-of-anthos/contacts:0.5.3-no-otel
         imagePullPolicy: Always
         command: [ "/bin/sh" ]
-        args: [ "-c", 'export OTEL_RESOURCE_ATTRIBUTES="$OTEL_RESOURCE_ATTRIBUTES","container.id="$(sed -rn "/\/sys\/fs\/cgroup\/devices/ s#.*/(cri-containerd-)?([0-9a-f]{64})(\.scope)? .*#\2#p" /proc/self/mountinfo) && gunicorn -b :$PORT --threads 4 --log-config /logging.conf --log-level=$LOG_LEVEL "contacts:create_app()"' ]
+        args: [ "-c", 'OTEL_CONTAINER_ID=$(sed -rn "/\/sys\/fs\/cgroup\/devices/ s#.*/(cri-containerd-)?([0-9a-f]{64})(\.scope)? .*#\2#p" /proc/self/mountinfo); export OTEL_RESOURCE_ATTRIBUTES="$OTEL_RESOURCE_ATTRIBUTES","container.id="$OTEL_CONTAINER_ID,"service.instance.id="$OTEL_CONTAINER_ID && gunicorn -b :$PORT --threads 4 --log-config /logging.conf --log-level=$LOG_LEVEL "contacts:create_app()"' ]
         volumeMounts:
         - name: publickey
           mountPath: "/root/.ssh"
