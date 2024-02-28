@@ -1,4 +1,4 @@
-# Copyright 2020 Google LLC
+# Copyright 2021 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,16 +27,6 @@ from requests.exceptions import HTTPError, RequestException
 import jwt
 from flask import Flask, abort, jsonify, make_response, redirect, \
     render_template, request, url_for
-
-from opentelemetry import trace
-from opentelemetry.sdk.trace.export import BatchExportSpanProcessor
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.propagators import set_global_textmap
-from opentelemetry.exporter.cloud_trace import CloudTraceSpanExporter
-from opentelemetry.tools.cloud_trace_propagator import CloudTraceFormatPropagator
-from opentelemetry.instrumentation.flask import FlaskInstrumentor
-from opentelemetry.instrumentation.requests import RequestsInstrumentor
-from opentelemetry.instrumentation.jinja2 import Jinja2Instrumentor
 
 
 
@@ -308,8 +298,8 @@ def create_app():
                              timeout=app.config['BACKEND_TIMEOUT'])
         try:
             resp.raise_for_status() # Raise on HTTP Status code 4XX or 5XX
-        except requests.exceptions.HTTPError:
-            raise UserWarning(resp.text)
+        except requests.exceptions.HTTPError as http_request_err:
+            raise UserWarning(resp.text) from http_request_err
 
 
     def _add_contact(label, acct_num, routing_num, is_external_acct=False):
@@ -336,8 +326,8 @@ def create_app():
                              timeout=app.config['BACKEND_TIMEOUT'])
         try:
             resp.raise_for_status() # Raise on HTTP Status code 4XX or 5XX
-        except requests.exceptions.HTTPError:
-            raise UserWarning(resp.text)
+        except requests.exceptions.HTTPError as http_request_err:
+            raise UserWarning(resp.text) from http_request_err
 
 
     @app.route("/login", methods=['GET'])
@@ -551,22 +541,6 @@ def create_app():
     app.logger.handlers = logging.getLogger('gunicorn.error').handlers
     app.logger.setLevel(logging.getLogger('gunicorn.error').level)
     app.logger.info('Starting frontend service.')
-
-    # Set up tracing and export spans to Cloud Trace.
-    if os.environ['ENABLE_TRACING'] == "true":
-        app.logger.info("✅ Tracing enabled.")
-        trace.set_tracer_provider(TracerProvider())
-        cloud_trace_exporter = CloudTraceSpanExporter()
-        trace.get_tracer_provider().add_span_processor(
-            BatchExportSpanProcessor(cloud_trace_exporter)
-        )
-        set_global_textmap(CloudTraceFormatPropagator())
-        # Add tracing auto-instrumentation for Flask, jinja and requests
-        FlaskInstrumentor().instrument_app(app)
-        RequestsInstrumentor().instrument()
-        Jinja2Instrumentor().instrument()
-    else:
-        app.logger.info("🚫 Tracing disabled.")
 
     return app
 

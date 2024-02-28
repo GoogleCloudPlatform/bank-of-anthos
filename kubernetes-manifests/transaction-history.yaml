@@ -22,7 +22,8 @@ spec:
       app: transactionhistory
   template:
     metadata:
-      annotations: {}
+      annotations:
+        instrumentation.opentelemetry.io/inject-java: "true"
       labels:
         app: transactionhistory
     spec:

@@ -44,7 +44,7 @@ spec:
         - name: STEP_SEC
           value: "15"
         - name: USER_SCALE
-          value: "100"
+          value: "150"
         - name: SPAWN_RATE
           value: "1"
         - name: MIN_USERS

@@ -414,15 +414,16 @@
 
 /* Deposit / payment accepted alert */
     .snackbar-body {
-
+      padding-bottom: 1em;
+      padding-top: 1em;
       vertical-align: middle !important;
     }
 
     .snackbar-card {
-        margin-top: 30px;
+        margin-top: 25px;
         background-color: #202020 !important;
         color: white !important;
-        margin-bottom: 1.5rem;
+        margin-bottom: 0px;
         border-radius: 10px;
 
         font-weight: 500;
@@ -460,4 +461,15 @@
     .top-row {
       margin-top: 30px;
       margin-bottom: 30px;
+    }
+
+    .alert-message-container {
+      margin-bottom: 0px;
+      display: flex;
+    }
+
+    .check-mark-container {
+      display: flex;
+      align-items: center;
+      margin-right: 5px;
     }

@@ -16,7 +16,7 @@
 set -euxo pipefail
 
 # set default repo
-REPO_PREFIX="${REPO_PREFIX:-gcr.io/bank-of-anthos}"
+REPO_PREFIX="${REPO_PREFIX:-gcr.io/bank-of-anthos-ci}"
 
 # move to repo root
 SCRIPT_DIR=$(dirname $(realpath -s $0))
@@ -33,6 +33,13 @@ fi
 # ensure there are no uncommitted changes
 if [[ $(git status -s | wc -l) -gt 0 ]]; then
     echo "error: can't have uncommitted changes"
+    exit 1
+fi
+
+# ensure that gcloud is in the PATH
+if ! command -v gcloud &> /dev/null
+then
+    echo "gcloud could not be found"
     exit 1
 fi
 

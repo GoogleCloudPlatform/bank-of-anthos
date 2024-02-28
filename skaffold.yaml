@@ -12,42 +12,94 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-apiVersion: skaffold/v2alpha4
+apiVersion: skaffold/v2beta18
 kind: Config
+metadata:
+  name: setup # module defining setup steps
+deploy:
+  kubectl:
+    manifests: 
+    - extras/jwt/jwt-secret.yaml
+    - dev-kubernetes-manifests/config.yaml
+
+---
+
+apiVersion: skaffold/v2beta18
+kind: Config
+metadata:
+  name: db # module defining database deployments
+requires:
+  - configs: [setup]
 build:
   artifacts:
-  - image: gcr.io/bank-of-anthos/frontend
-    context: src/frontend
-  - image: gcr.io/bank-of-anthos/ledgerwriter
-    jib:
-      project: src/ledgerwriter
-  - image: gcr.io/bank-of-anthos/balancereader
-    jib:
-      project: src/balancereader
-  - image: gcr.io/bank-of-anthos/transactionhistory
-    jib:
-      project: src/transactionhistory
-  - image: gcr.io/bank-of-anthos/contacts
-    context: src/contacts
-  - image: gcr.io/bank-of-anthos/userservice
-    context: src/userservice
-  - image: gcr.io/bank-of-anthos/loadgenerator
-    context: src/loadgenerator
-  - image: gcr.io/bank-of-anthos/accounts-db
+  - image: gcr.io/bank-of-anthos-ci/accounts-db
     context: src/accounts-db
-  - image: gcr.io/bank-of-anthos/ledger-db
+  - image: gcr.io/bank-of-anthos-ci/ledger-db
     context: src/ledger-db
-  tagPolicy:
-    gitCommit: {}
-  local:
-    concurrency: 0
 deploy:
-  statusCheckDeadlineSeconds: 300
   kubectl:
     manifests:
-    - ./dev-kubernetes-manifests/**.yaml
-    # deploy a pre-build secret
-    # in practice, this should not be checked in to source control
-    - ./extras/jwt/jwt-secret.yaml
-profiles:
-  - name: local-code
+    - dev-kubernetes-manifests/accounts-db.yaml
+    - dev-kubernetes-manifests/ledger-db.yaml
+
+---
+
+apiVersion: skaffold/v2beta18
+kind: Config
+metadata:
+  name: backend # module defining backend services
+requires:
+  - configs: [db]
+build:
+  artifacts:
+  - image: gcr.io/bank-of-anthos-ci/ledgerwriter
+    jib:
+      project: src/ledgerwriter
+  - image: gcr.io/bank-of-anthos-ci/balancereader
+    jib:
+      project: src/balancereader
+  - image: gcr.io/bank-of-anthos-ci/transactionhistory
+    jib:
+      project: src/transactionhistory
+  - image: gcr.io/bank-of-anthos-ci/contacts
+    context: src/contacts
+  - image: gcr.io/bank-of-anthos-ci/userservice
+    context: src/userservice
+deploy:
+  kubectl:
+    manifests:
+    - dev-kubernetes-manifests/balance-reader.yaml
+    - dev-kubernetes-manifests/contacts.yaml
+    - dev-kubernetes-manifests/ledger-writer.yaml
+    - dev-kubernetes-manifests/transaction-history.yaml
+    - dev-kubernetes-manifests/userservice.yaml
+
+---
+
+apiVersion: skaffold/v2beta18
+kind: Config
+metadata:
+  name: frontend # module defining frontend service
+build:
+  artifacts:
+  - image: gcr.io/bank-of-anthos-ci/frontend
+    context: src/frontend
+deploy:
+  kubectl:
+    manifests:
+    - dev-kubernetes-manifests/frontend.yaml
+
+---
+
+apiVersion: skaffold/v2beta18
+kind: Config
+metadata:
+  name: loadgenerator # module defining a load generator service
+build:
+  artifacts:
+  - image: gcr.io/bank-of-anthos-ci/loadgenerator
+    context: src/loadgenerator
+deploy:
+  kubectl:
+    manifests:
+    - dev-kubernetes-manifests/loadgenerator.yaml

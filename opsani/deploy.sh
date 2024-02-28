@@ -13,24 +13,9 @@ else
   echo ""
 fi
 
-if [ "`kubectl get nodes | grep Ready | wc -l`" -lt "8" ] ; then 
-  echo "it appears that you do not have enough worker nodes to run this test"
-  echo "currently there are `kubectl get nodes | grep internal | wc -l` nodes available"
-  echo "the minimum is 8 nodes (and it is recommended that they be AWS m5.xl or larger)"
-  echo ""
-  echo ""
-  exit 1
-else
-  echo "It appears that you have at least 8 nodes available"
-  echo ""
-  echo ""
-fi
-
-
-NAMESPACE=${NAMESPACE:-`kubectl config get-contexts | awk '/^\*/ {print $5}'`}
-if [ ! "`kubectl get ns ${NAMESPACE:-bank-of-anthos-opsani} >& /dev/null; echo $?`" ]; then
-  NAMESPACE=bank-of-anthos-opsani
-  echo "Namespace 'bank-of-anthos-opsani' exists"
+NAMESPACE=${NAMESPACE:-bank-of-anthos-opsani}
+if [ ! "`kubectl get ns $NAMESPACE >& /dev/null; echo $?`" ]; then
+  echo "Namespace $NAMESPACE exists"
   echo ""
   echo "You will need to ensure that your opsani services use"
   echo "this same namespace parameter"
@@ -39,14 +24,13 @@ if [ ! "`kubectl get ns ${NAMESPACE:-bank-of-anthos-opsani} >& /dev/null; echo $
   echo "kubectl config set-context `kubectl config get-contexts | awk '/^\*/ {print $2}'` --namespace ${NAMESPACE}"
   echo ""
 else
-  echo "Creating bank-of-anthos-opsani namespace"
-  if [ ! "`kubectl create ns bank-of-anthos-opsani >& /dev/null; echo $?`" ]; then
-    echo "Couldn't create kubernetes namespace 'bank-of-anthos-opsani'"
+  echo "Creating $NAMESPACE namespace"
+  if [ ! "`kubectl create ns $NAMESPACE >& /dev/null; echo $?`" ]; then
+    echo "Couldn't create kubernetes namespace '$NAMESPACE'"
     echo "You must set the NAMESPACE enviornment variable for the target "
     echo "e.g. `export NAMESPACE=bank-of-anthos-opsani`"
     exit 1
   else
-    NAMESPACE=bank-of-anthos-opsani
     echo "created namespace $NAMESPACE"
     echo "deploying into ${NAMESPACE}"
     echo ""
@@ -85,7 +69,13 @@ echo ""
 echo ""
 echo "Launch Bank-of-Anthos into ${NAMESPACE}"
 
-kubectl apply -n ${NAMESPACE} -k ../kubernetes-manifests/
+MANIFEST_DIR=../kubernetes-manifests
+if [ -n "$ENVOY_SIDECAR" ]; then
+  echo "Using envoy sidecar"
+  MANIFEST_DIR=../envoy
+fi
+
+kubectl kustomize  $MANIFEST_DIR --reorder none | kubectl apply -n ${NAMESPACE} -f -
 if [ ! "echo $?" ]; then
   echo ""
   echo "a component may have failed to install.  Please look at the above output for errors"

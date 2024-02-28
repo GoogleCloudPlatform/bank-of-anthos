@@ -1,4 +1,4 @@
-# Copyright 2019 Google LLC
+# Copyright 2021 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,7 +22,8 @@ spec:
       app: frontend
   template:
     metadata:
-      annotations: {}
+      annotations:
+        instrumentation.opentelemetry.io/inject-python: "true"
       labels:
         app: frontend
     spec:
@@ -30,7 +31,10 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: frontend
-        image: gcr.io/bank-of-anthos-ci/frontend:v0.5.3
+        image: ghcr.io/opsani/bank-of-anthos/frontend:0.5.3-no-otel
+        imagePullPolicy: Always
+        command: ["/bin/sh"]
+        args: [ "-c", 'OTEL_CONTAINER_ID=$(sed -rn "/\/sys\/fs\/cgroup\/devices/ s#.*/(cri-containerd-)?([0-9a-f]{64})(\.scope)? .*#\2#p" /proc/self/mountinfo); export OTEL_RESOURCE_ATTRIBUTES="$OTEL_RESOURCE_ATTRIBUTES","container.id="$OTEL_CONTAINER_ID,"service.instance.id="$OTEL_CONTAINER_ID && gunicorn -b :$PORT --threads 4 --log-config /logging.conf --log-level=$LOG_LEVEL "frontend:create_app()"' ]
         volumeMounts:
         - name: publickey
           mountPath: "/root/.ssh"
@@ -75,6 +79,13 @@ spec:
           initialDelaySeconds: 10
           periodSeconds: 5
           timeoutSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 15
+          timeoutSeconds: 30
         resources:
           requests:
             cpu: 1000m

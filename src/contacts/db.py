@@ -18,7 +18,6 @@ db manages interactions with the underlying database
 
 import logging
 from sqlalchemy import create_engine, MetaData, Table, Column, String, Boolean
-from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
 
 
 class ContactsDb:
@@ -38,12 +37,6 @@ class ContactsDb:
             Column("account_num", String, nullable=False),
             Column("routing_num", String, nullable=False),
             Column("is_external", Boolean, nullable=False),
-        )
-
-        # Set up tracing autoinstrumentation for sqlalchemy
-        SQLAlchemyInstrumentor().instrument(
-            engine=self.engine,
-            service="contacts",
         )
 
     def add_contact(self, contact):

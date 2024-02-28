@@ -1,5 +1,5 @@
 <!--
-Copyright 2020 Google LLC
+Copyright 2021 Google LLC
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ limitations under the License.
           {% if message != None and message != 'Login Failed' %}
           <div class="col-md-8 offset-md-2">
             <div class="alert alert-info alert-dismissible fade show" role="alert">
-              <span class="alert-icon mr-2 material-icons">error</span>{{ message }}
+              <span class="error-icon mr-2 material-icons">error</span>{{ message }}
               <button type="button" class="close btn-primary" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">×</span>
               </button>
@@ -81,7 +81,7 @@ limitations under the License.
                   <div class="row align-items-center mt-2">
                     <div class="col-10 offset-1 mb-4">
                       <div id="alertBanner" class="alert alert-danger mb-4" role="alert">
-                        <span class="alert-icon mr-2 material-icons">error</span>Login failed.
+                        <span class="error-icon mr-2 material-icons">error</span>Login failed.
                       </div>
                       <form id="login-form" class="needs-validation" novalidate="" method="POST" action="/login">
                         <label class="text-uppercase text-muted secondary-text" for="username">Username</label>
@@ -121,7 +121,7 @@ limitations under the License.
       <!-- Page Footer -->
       <footer class="footer">
         <div class="container">
-            <div class="row mb-2" class="footer-google-inc">© 2020 Google Inc</div>
+            <div class="row mb-2" class="footer-google-inc">© 2021 Google Inc</div>
             <div class="row mb-3">
               <small class="footer-disclaimer">
                 <b>Cluster: </b>{{ cluster_name }}, <b>Pod: </b>{{ pod_name }}<b>, Zone: </b>{{ pod_zone }}

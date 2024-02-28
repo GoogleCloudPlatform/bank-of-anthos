@@ -88,7 +88,7 @@ on a Google Compute Engine VM and all other microservices running on Kubernetes.
 
 Deploy the canonical version of the monolith to a Google Compute Engine VM.
 Use canonical build artifacts hosted on Google Cloud Storage at
-`gs://bank-of-anthos/monolith`.
+`gs://bank-of-anthos-ci/monolith`.
 
 ```
 # In the root directory of the project repo

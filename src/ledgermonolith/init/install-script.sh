@@ -130,7 +130,7 @@ chmod +x ${MONOLITH_DIR}/ledgermonolith-service.sh
 
 cat <<EOF >/etc/systemd/system/${MONOLITH_SERVICE}
 [Service]
-Type=oneshot
+Type=simple
 RemainAfterExit=yes
 ExecStart=${MONOLITH_DIR}/ledgermonolith-service.sh
 
@@ -143,4 +143,3 @@ systemctl start ${MONOLITH_SERVICE}
 
 echo "Install Complete"
 exit
-
