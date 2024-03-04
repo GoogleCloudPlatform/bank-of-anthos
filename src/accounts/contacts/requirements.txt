@@ -34,7 +34,7 @@ click==8.1.7
     #   flask
 coverage[toml]==7.4.3
     # via pytest-cov
-cryptography==42.0.4
+cryptography==42.0.5
     # via -r requirements.in
 deprecated==1.2.14
     # via opentelemetry-api
@@ -45,7 +45,7 @@ google-api-core[grpc]==2.17.1
     #   -r requirements.in
     #   google-cloud-core
     #   google-cloud-trace
-google-auth==2.28.0
+google-auth==2.28.1
     # via
     #   -r requirements.in
     #   google-api-core
@@ -53,7 +53,7 @@ google-auth==2.28.0
     #   google-cloud-trace
 google-cloud-core==2.4.1
     # via -r requirements.in
-google-cloud-trace==1.13.1
+google-cloud-trace==1.13.2
     # via
     #   -r requirements.in
     #   opentelemetry-exporter-gcp-trace
@@ -64,12 +64,12 @@ googleapis-common-protos==1.62.0
     #   grpcio-status
 greenlet==3.0.3
     # via sqlalchemy
-grpcio==1.60.1
+grpcio==1.62.0
     # via
     #   -r requirements.in
     #   google-api-core
     #   grpcio-status
-grpcio-status==1.60.1
+grpcio-status==1.62.0
     # via google-api-core
 gunicorn==21.2.0
     # via -r requirements.in
@@ -98,7 +98,7 @@ markupsafe==2.1.5
     #   werkzeug
 more-itertools==10.2.0
     # via -r requirements.in
-opentelemetry-api==1.22.0
+opentelemetry-api==1.23.0
     # via
     #   opentelemetry-exporter-gcp-trace
     #   opentelemetry-instrumentation
@@ -110,33 +110,33 @@ opentelemetry-api==1.22.0
     #   opentelemetry-sdk
 opentelemetry-exporter-gcp-trace==1.6.0
     # via -r requirements.in
-opentelemetry-instrumentation==0.43b0
+opentelemetry-instrumentation==0.44b0
     # via
     #   opentelemetry-instrumentation-flask
     #   opentelemetry-instrumentation-sqlalchemy
     #   opentelemetry-instrumentation-wsgi
-opentelemetry-instrumentation-flask==0.43b0
+opentelemetry-instrumentation-flask==0.44b0
     # via -r requirements.in
-opentelemetry-instrumentation-sqlalchemy==0.43b0
+opentelemetry-instrumentation-sqlalchemy==0.44b0
     # via -r requirements.in
-opentelemetry-instrumentation-wsgi==0.43b0
+opentelemetry-instrumentation-wsgi==0.44b0
     # via opentelemetry-instrumentation-flask
 opentelemetry-propagator-gcp==1.6.0
     # via -r requirements.in
 opentelemetry-resourcedetector-gcp==1.6.0a0
     # via opentelemetry-exporter-gcp-trace
-opentelemetry-sdk==1.22.0
+opentelemetry-sdk==1.23.0
     # via
     #   -r requirements.in
     #   opentelemetry-exporter-gcp-trace
     #   opentelemetry-resourcedetector-gcp
-opentelemetry-semantic-conventions==0.43b0
+opentelemetry-semantic-conventions==0.44b0
     # via
     #   opentelemetry-instrumentation-flask
     #   opentelemetry-instrumentation-sqlalchemy
     #   opentelemetry-instrumentation-wsgi
     #   opentelemetry-sdk
-opentelemetry-util-http==0.43b0
+opentelemetry-util-http==0.44b0
     # via
     #   opentelemetry-instrumentation-flask
     #   opentelemetry-instrumentation-wsgi
