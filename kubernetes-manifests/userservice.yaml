@@ -81,7 +81,7 @@ spec:
                 name: environment-config
             - configMapRef:
                 name: accounts-db-config
-          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/userservice:v0.6.4@sha256:86db57443352ee91497d8e25e1584f09922fd668b60cbf0f64ce2d86c95b4bdc
+          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/userservice:v0.6.4@sha256:b4e6a9aef67f66aa38ee3d8193586dc2ab7bed9c2f95da5bee9e27dd8ec7cc13
           name: userservice
           ports:
             - containerPort: 8080
