@@ -65,7 +65,7 @@ spec:
       containers:
         - env:
             - name: VERSION
-              value: v0.6.3
+              value: v0.6.4
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
@@ -87,7 +87,7 @@ spec:
                 name: service-api-config
             - configMapRef:
                 name: ledger-db-config
-          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/ledgerwriter:v0.6.3@sha256:dcb35a4174bb8ddbf9fabcfd087250ec5ebdd7ddb57ae9980fd10cadae509372
+          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/ledgerwriter:v0.6.4@sha256:b163fe9c1e2d8afe2de7d736bf878ed88100941515a581e7a2b5688a44a9da81
           name: ledgerwriter
           readinessProbe:
             httpGet:
