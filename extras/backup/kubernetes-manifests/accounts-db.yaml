@@ -66,7 +66,7 @@ spec:
             name: accounts-db-config
         - configMapRef:
             name: demo-data-config
-        image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/accounts-db:v0.6.3@sha256:6ff20e452b529ae4999677b14accb35dbe76b44addbd982e232901627e8e08ea
+        image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/accounts-db:v0.6.4@sha256:efb7d4519d4195ace5c66c6983bb36119904b5219f77eda37dbaa83e75b7057d
         name: accounts-db
         ports:
         - containerPort: 5432
