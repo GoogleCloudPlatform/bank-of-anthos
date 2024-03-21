@@ -1,4 +1,4 @@
-# Bank of Splunk - A Cisco Company
+# Bank of Splunk - a CISCO company
 
 <!-- @todo: https://github.com/badges/shields/pull/7759 -->
 <!-- ![GitHub branch checks state](https://img.shields.io/github/checks-status/GoogleCloudPlatform/bank-of-anthos/main)-->
@@ -132,8 +132,8 @@ The following button opens up an interactive tutorial showing how to deploy Bank
 
 - [Development](/docs/development.md) to learn how to run and develop this app locally.
 - [Environments](/docs/environments.md) to learn how to deploy on non-GKE clusters.
-- [Workload Identity](/docs/workload-identity.md) to learn how to set-up Workload Identity.
-- [CI/CD pipeline](/docs/ci-cd-pipeline.md) to learn details about and how to set-up the CI/CD pipeline.
+- [Workload Identity](/docs/workload-identity.md) to learn how to set up Workload Identity.
+- [CI/CD pipeline](/docs/ci-cd-pipeline.md) to learn details about and how to set up the CI/CD pipeline.
 - [Troubleshooting](/docs/troubleshooting.md) to learn how to resolve common problems.
 
 ## Demos featuring Bank of Anthos
