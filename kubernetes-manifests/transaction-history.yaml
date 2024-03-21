@@ -16,7 +16,7 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    application: bank-of-anthos
+    application: bank-of-splunk
     environment: development
     team: ledger
     tier: backend
@@ -28,7 +28,7 @@ spec:
       targetPort: 8080
   selector:
     app: transactionhistory
-    application: bank-of-anthos
+    application: bank-of-splunk
     environment: development
     team: ledger
     tier: backend
@@ -38,7 +38,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    application: bank-of-anthos
+    application: bank-of-splunk
     environment: development
     team: ledger
     tier: backend
@@ -47,7 +47,7 @@ spec:
   selector:
     matchLabels:
       app: transactionhistory
-      application: bank-of-anthos
+      application: bank-of-splunk
       environment: development
       team: ledger
       tier: backend
@@ -57,7 +57,7 @@ spec:
         proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
       labels:
         app: transactionhistory
-        application: bank-of-anthos
+        application: bank-of-splunk
         environment: development
         team: ledger
         tier: backend
@@ -142,7 +142,7 @@ spec:
         runAsGroup: 1000
         runAsNonRoot: true
         runAsUser: 1000
-      serviceAccountName: bank-of-anthos
+      serviceAccountName: bank-of-splunk
       terminationGracePeriodSeconds: 5
       volumes:
         - emptyDir: {}

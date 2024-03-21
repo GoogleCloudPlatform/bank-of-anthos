@@ -17,7 +17,7 @@ kind: PersistentVolumeClaim
 metadata:
   labels:
     app: accounts-db
-    application: bank-of-anthos
+    application: bank-of-splunk
     environment: development
     team: accounts
     tier: db
@@ -34,7 +34,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   labels:
-    application: bank-of-anthos
+    application: bank-of-splunk
     environment: development
     team: accounts
     tier: db
@@ -44,7 +44,7 @@ spec:
   selector:
     matchLabels:
       app: accounts-db
-      application: bank-of-anthos
+      application: bank-of-splunk
       environment: development
       team: accounts
       tier: db
@@ -53,7 +53,7 @@ spec:
     metadata:
       labels:
         app: accounts-db
-        application: bank-of-anthos
+        application: bank-of-splunk
         environment: development
         team: accounts
         tier: db

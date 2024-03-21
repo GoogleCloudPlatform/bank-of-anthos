@@ -280,7 +280,7 @@ spec:
           mountPath: "/scripts"
           readOnly: true
       restartPolicy: Never
-      serviceAccountName: bank-of-anthos
+      serviceAccountName: bank-of-splunk
       volumes:
       - name: scripts
         configMap:

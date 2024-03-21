@@ -16,7 +16,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   labels:
-    application: bank-of-anthos
+    application: bank-of-splunk
     environment: development
     team: frontend
     tier: web
