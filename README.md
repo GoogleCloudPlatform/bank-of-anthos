@@ -1,11 +1,11 @@
-# Bank of Anthos
+# Bank of Splunk 'a Cisco company'
 
 <!-- @todo: https://github.com/badges/shields/pull/7759 -->
 <!-- ![GitHub branch checks state](https://img.shields.io/github/checks-status/GoogleCloudPlatform/bank-of-anthos/main)-->
 [![Website](https://img.shields.io/website?url=https%3A%2F%2Fcymbal-bank.fsi.cymbal.dev%2F&label=live%20demo
 )](https://cymbal-bank.fsi.cymbal.dev)
 
-**Bank of Splunk 'a Cisco company'** is a sample HTTP-based web app that simulates a bank's payment processing network, allowing users to create artificial bank accounts and complete transactions.
+**Bank of Splunk** is a sample HTTP-based web app that simulates a bank's payment processing network, allowing users to create artificial bank accounts and complete transactions.
 
 Splunk uses this application to demonstrate how developers can modernize enterprise applications usingSplunk Observability products. This application works on any Kubernetes cluster.
 
