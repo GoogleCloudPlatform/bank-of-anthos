@@ -1,4 +1,4 @@
-# Bank of Splunk 'a Cisco company'
+# Bank of Splunk - A Cisco Company
 
 <!-- @todo: https://github.com/badges/shields/pull/7759 -->
 <!-- ![GitHub branch checks state](https://img.shields.io/github/checks-status/GoogleCloudPlatform/bank-of-anthos/main)-->
@@ -7,10 +7,9 @@
 
 **Bank of Splunk** is a sample HTTP-based web app that simulates a bank's payment processing network, allowing users to create artificial bank accounts and complete transactions.
 
-Splunk uses this application to demonstrate how developers can modernize enterprise applications usingSplunk Observability products. This application works on any Kubernetes cluster.
+Splunk uses this application to demonstrate how developers can modernize enterprise applications using Splunk Observability products. This application works on any Kubernetes cluster.
 
 If you are using Bank of Splunk, please ★Star this repository to show your interest!
-
 
 ## Screenshots
 
@@ -18,8 +17,7 @@ If you are using Bank of Splunk, please ★Star this repository to show your int
 | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | [![Login](/docs/img/login.png)](/docs/img/login.png) | [![User Transactions](/docs/img/transactions.png)](/docs/img/transactions.png) |
 
-
-## Service architecture
+## Service Architecture
 
 ![Architecture Diagram](/docs/img/architecture.png)
 
@@ -89,7 +87,7 @@ The following button opens up an interactive tutorial showing how to deploy Bank
 
    After a few minutes, you should see the Pods in a `Running` state:
 
-   ```
+   ``` text
    NAME                                  READY   STATUS    RESTARTS   AGE
    accounts-db-6f589464bc-6r7b7          1/1     Running   0          99s
    balancereader-797bf6d7c5-8xvp6        1/1     Running   0          99s
@@ -123,7 +121,7 @@ The following button opens up an interactive tutorial showing how to deploy Bank
 
 - **Workload Identity**: [See these instructions.](/docs/workload-identity.md)
 - **Cloud SQL**: [See these instructions](/extras/cloudsql) to replace the in-cluster databases with hosted Google Cloud SQL.
-- **Multi Cluster with Cloud SQL**: [See these instructions](/extras/cloudsql-multicluster) to replicate the app across two regions using GKE, Multi Cluster Ingress, and Google Cloud SQL.
+- **Multi-Cluster with Cloud SQL**: [See these instructions](/extras/cloudsql-multicluster) to replicate the app across two regions using GKE, Multi-Cluster Ingress, and Google Cloud SQL.
 - **Istio**: [See these instructions](/extras/istio) to configure an IngressGateway.
 - **Anthos Service Mesh**: ASM requires Workload Identity to be enabled in your GKE cluster. [See the workload identity instructions](/docs/workload-identity.md) to configure and deploy the app. Then, apply `extras/istio/` to your cluster to configure frontend ingress.
 - **Java Monolith (VM)**: We provide a version of this app where the three Java microservices are coupled together into one monolithic service, which you can deploy inside a VM (eg. Google Compute Engine). See the [ledgermonolith](/src/ledgermonolith) directory.
@@ -139,6 +137,7 @@ The following button opens up an interactive tutorial showing how to deploy Bank
 - [Troubleshooting](/docs/troubleshooting.md) to learn how to resolve common problems.
 
 ## Demos featuring Bank of Anthos
+
 - [Tutorial: Explore Anthos (Google Cloud docs)](https://cloud.google.com/anthos/docs/tutorials/explore-anthos)
 - [Tutorial: Migrating a monolith VM to GKE](https://cloud.google.com/migrate/containers/docs/migrating-monolith-vm-overview-setup)
 - [Tutorial: Running distributed services on GKE private clusters using ASM](https://cloud.google.com/service-mesh/docs/distributed-services-private-clusters)
