@@ -42,7 +42,7 @@ spec:
       containers:
         - env:
             - name: FRONTEND_ADDR
-              value: frontend:80
+              value: frontend:8083
             - name: USERS
               value: "5"
             - name: LOG_LEVEL
