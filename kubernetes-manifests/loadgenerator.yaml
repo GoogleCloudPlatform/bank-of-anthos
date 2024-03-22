@@ -31,6 +31,7 @@ spec:
   template:
     metadata:
       annotations:
+        instrumentation.opentelemetry.io/inject-python: "default/splunk-otel-collector"
         sidecar.istio.io/rewriteAppHTTPProbers: "true"
       labels:
         app: loadgenerator

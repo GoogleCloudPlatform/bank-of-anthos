@@ -54,6 +54,7 @@ spec:
   template:
     metadata:
       annotations:
+        instrumentation.opentelemetry.io/inject-java: "default/splunk-otel-collector"
         proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
       labels:
         app: ledgerwriter
