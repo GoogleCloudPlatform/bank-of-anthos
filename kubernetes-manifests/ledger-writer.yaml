@@ -69,9 +69,9 @@ spec:
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
-              value: "true"
+              value: "false"
             - name: ENABLE_METRICS
-              value: "true"
+              value: "false"
             - name: JVM_OPTS
               value: -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Xms256m -Xmx512m
             - name: LOG_LEVEL

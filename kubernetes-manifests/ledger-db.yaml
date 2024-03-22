@@ -103,7 +103,7 @@ spec:
             - mountPath: /var/lib/postgresql/data
               name: postgresdb
               subPath: postgres
-      serviceAccount: bank-of-anthos
+      serviceAccount: bank-of-splunk
       serviceAccountName: default
       volumes:
         - emptyDir: {}

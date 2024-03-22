@@ -24,7 +24,7 @@ metadata:
 spec:
   ports:
     - name: http
-      port: 81
+      port: 8083
       targetPort: 8080
   selector:
     app: frontend
@@ -64,12 +64,14 @@ spec:
     spec:
       containers:
         - env:
+            - name: BANK_NAME
+              value: "Bank of Splunk"
             - name: VERSION
               value: v0.6.4
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
-              value: "true"
+              value: "false"
             - name: SCHEME
               value: http
             - name: LOG_LEVEL

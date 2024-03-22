@@ -21,4 +21,4 @@ patches:
       - op: add
         path: /spec/template/metadata/annotations
         value:
-          proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
+          # proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
