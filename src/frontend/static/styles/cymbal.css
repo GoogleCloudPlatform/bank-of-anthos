@@ -38,26 +38,26 @@
 
 /* MATERIAL ICONS */
   .material-icons {
-    color: #008A20;
+    color: #ce0070;
     vertical-align:middle !important;
   }
   .button-icon {
     font-size: 24px;
-    color: #008A20;
+    color: #ce0070;
   }
   .money-icon {
     font-size: 24px;
-    color: #008A20;
+    color: #ce0070;
   }
   .modal-icon {
     font-size: 18px !important;
     margin-right: 8px;
     width: 18px;
-    color: #008A20;
+    color: #ce0070;
   }
   .arrow-back {
     font-size: 15px;
-    color: #008A20;
+    color: #ce0070;
   }
   #deposit-icon {
     color: white !important;
@@ -172,7 +172,7 @@ bottom: 10px;
 }
 .card-icon {
   font-size: 36px !important;
-  color: #A3FD8C;
+  color: #FF712B;
 }
 
  /* ACCOUNT HOME */
@@ -240,13 +240,13 @@ bottom: 10px;
   color: #FF0000;
 }
 .text-debit {
-  color: #008A20;
+  color: #ce0070;
 }
 .transaction-amount {
   text-align: right !important;
 }
 .transaction-amount-credit{
-  color: #008A20;
+  color: #ce0070;
 }
 .transaction-amount-debit {
   color: #FF0000;
@@ -286,7 +286,7 @@ bottom: 10px;
 .custom-select:focus {
   /* border-color: black;  */
   outline: 0;
-  box-shadow: 0px 1px 3px #A3FD8C;
+  box-shadow: 0px 1px 3px #FF0F7B;
 }
 
 .invalid-feedback {
@@ -297,7 +297,7 @@ bottom: 10px;
 
 /* SIGN IN PAGE  */
 .sign-in i {
-  color: #008A20;
+  color: #ce0070;
   font-size: 1.125rem;
 }
 .sign-in input {
@@ -314,7 +314,7 @@ bottom: 10px;
 /* BUTTONS */
 .btn, .btn-primary, .card-button, .btn-block, form button  {
   align-items: center;
-  background: #008A20 !important;
+  background: #ce0070 !important;
   color: white !important;
   border-radius: 50px;
   font-weight: 500 !important;
@@ -325,40 +325,40 @@ bottom: 10px;
 }
 .btn-secondary {
   background-color: white !important;
-  color: #008A20 !important;
-  border: 1px solid #008A20 !important;
+  color: #ce0070 !important;
+  border: 1px solid #ce0070 !important;
 }
 .btn:hover, .card-button:hover, .btn-primary:hover, .btn-secondary:hover, .btn:focus, .btn-primary:focus, .btn-secondary:focus {
   cursor: pointer !important;
   transition: all 0.3s ease-in-out !important;
 }
 .btn:hover, .card-button:hover, .btn-primary:hover, .btn:focus, .btn-primary:focus {
-  background-color: #006200  !important;
+  background-color: #FF0F7B  !important;
 }
 .btn:active, .card-button:active, .btn-primary:active, .btn-secondary:active {
-  background-color: #A3FD8C !important;
-  border: 1px solid #A3FD8C !important;
+  background-color: #FF712B !important;
+  border: 1px solid #FF712B !important;
 }
 
 .btn-primary.custom-file-control:before, .btn.btn-primary {
-  background-color: #008A20 !important;
+  background-color: #ce0070 !important;
   color: white !important;
   border-radius: 50px;
 }
 
 .btn-secondary.custom-file-control:before, .btn.btn-secondary {
   background-color: white !important;
-  color: #008A20 !important;
-  border: 1px solid #008A20;
+  color: #ce0070 !important;
+  border: 1px solid #ce0070;
 }
 
 .btn-primary.custom-file-control:focus, .btn-primary.custom-file-control:hover {
-  background-color: #006200 !important;
+  background-color: #9a1e5a !important;
 }
 
 .btn-primary.custom-file-control:active, .btn-primary.custom-file-control:active, .btn-secondary.custom-file-control:active, .btn.btn-secondary:active {
-  background-color: #A3FD8C !important;
-  border: 1px solid #A3FD8C !important;
+  background-color: #FF0F7B !important;
+  border: 1px solid #FF0F7B !important;
 }
 
 /* inside modal */
@@ -378,7 +378,7 @@ bottom: 10px;
 /*FORMS */
 .form-control:focus {
   background-color: white !important;
-  border-color: #A3FD8C !important;
+  border-color: #FF0F7B !important;
 }
 input .form-control {
   background-color: #F8F8F8 !important;
@@ -389,11 +389,11 @@ input {
 }
 
 .custom-file-control, .form-control, .is-focused .custom-file-control, .is-focused .form-control {
-  background-image: linear-gradient(0deg,#008A20 2px,rgba(0,150,136,0) 0),linear-gradient(0deg,rgba(0,0,0,.26) 1px,transparent 0);
+  background-image: linear-gradient(0deg,#ce0070 2px,rgba(0,150,136,0) 0),linear-gradient(0deg,rgba(0,0,0,.26) 1px,transparent 0);
 }
 
 .custom-file-control:invalid, .form-control:invalid{
-  background-image: linear-gradient(0deg,#008A20 2px,rgba(213,0,0,0) 0),linear-gradient(0deg,rgba(0,0,0,.26) 1px,transparent 0);
+  background-image: linear-gradient(0deg,#ce0070 2px,rgba(213,0,0,0) 0),linear-gradient(0deg,rgba(0,0,0,.26) 1px,transparent 0);
 }
 
 /* "x" icons in pop-ups, deposit accepted alert */
@@ -433,7 +433,7 @@ input {
     overflow: hidden !important;
     outline:none !important;
     border: none !important;
-    color: #A3FD8C !important;
+    color: #FF0F7B !important;
     vertical-align: middle !important;
   }
 
