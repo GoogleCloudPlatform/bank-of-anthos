@@ -54,6 +54,7 @@ spec:
   template:
     metadata:
       annotations:
+        topology.kubernetes.io/zone: "k3s-1"
         proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
       labels:
         app: frontend
@@ -63,7 +64,13 @@ spec:
         tier: web
     spec:
       containers:
-        - env:
+        - env: 
+            - name: INSTANCE
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: CLUSTER_NAME
+              value: '$(INSTANCE)-k3s-cluster'
             - name: BANK_NAME
               value: "Bank of Splunk"
             - name: VERSION
