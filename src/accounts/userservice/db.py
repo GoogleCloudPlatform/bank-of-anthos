@@ -19,7 +19,7 @@ db manages interactions with the underlying database
 import logging
 import random
 from sqlalchemy import create_engine, MetaData, Table, Column, String, Date, LargeBinary
-from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
+
 
 class UserDb:
     """

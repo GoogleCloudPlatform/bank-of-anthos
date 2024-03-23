@@ -18,7 +18,6 @@ db manages interactions with the underlying database
 
 import logging
 from sqlalchemy import create_engine, MetaData, Table, Column, String, Boolean
-from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
 
 
 class ContactsDb:

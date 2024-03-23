@@ -16,7 +16,6 @@
 """
 
 # Module imports
-import concurrent.futures
 import datetime
 import json
 import logging
@@ -31,19 +30,8 @@ import jwt
 from flask import Flask, abort, jsonify, make_response, redirect, \
     render_template, request, url_for
 
-from opentelemetry import trace
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.propagate import set_global_textmap
-from opentelemetry.exporter.cloud_trace import CloudTraceSpanExporter
-from opentelemetry.propagators.cloud_trace_propagator import CloudTraceFormatPropagator
-from opentelemetry.instrumentation.flask import FlaskInstrumentor
-from opentelemetry.instrumentation.requests import RequestsInstrumentor
-from opentelemetry.instrumentation.jinja2 import Jinja2Instrumentor
-
 # Local imports
 from api_call import ApiCall, ApiRequest
-from traced_thread_pool_executor import TracedThreadPoolExecutor
 
 # Local constants
 BALANCE_NAME = "balance"
@@ -136,20 +124,6 @@ def create_app():
         api_response = {BALANCE_NAME: None,
                         TRANSACTION_LIST_NAME: None,
                         CONTACTS_NAME: []}
-
-        tracer = trace.get_tracer(__name__)
-        with TracedThreadPoolExecutor(tracer, max_workers=3) as executor:
-            futures = []
-
-            future_to_api_call = {
-                executor.submit(api_call.make_call):
-                    api_call for api_call in api_calls
-            }
-
-            for future in concurrent.futures.as_completed(future_to_api_call):
-                if future.result():
-                    api_call = future_to_api_call[future]
-                    api_response[api_call.display_name] = future.result().json()
 
         _populate_contact_labels(account_id,
                                  api_response[TRANSACTION_LIST_NAME],
@@ -725,16 +699,6 @@ def create_app():
     # Set up tracing and export spans to Cloud Trace.
     if os.environ['ENABLE_TRACING'] == "true":
         app.logger.info("✅ Tracing enabled.")
-        trace.set_tracer_provider(TracerProvider())
-        cloud_trace_exporter = CloudTraceSpanExporter()
-        trace.get_tracer_provider().add_span_processor(
-            BatchSpanProcessor(cloud_trace_exporter)
-        )
-        set_global_textmap(CloudTraceFormatPropagator())
-        # Add tracing auto-instrumentation for Flask, jinja and requests
-        FlaskInstrumentor().instrument_app(app)
-        RequestsInstrumentor().instrument()
-        Jinja2Instrumentor().instrument()
     else:
         app.logger.info("🚫 Tracing disabled.")
 
