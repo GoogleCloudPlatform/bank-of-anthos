@@ -48,9 +48,9 @@ spec:
         - name: PORT
           value: "8080"
         - name: ENABLE_TRACING
-          value: "true"
+          value: "false"
         - name: ENABLE_METRICS
-          value: "true"
+          value: "false"
          # tell Java to obey container memory limits
         - name: JVM_OPTS
           value: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Xms256m -Xmx512m"

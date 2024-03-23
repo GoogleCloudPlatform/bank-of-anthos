@@ -48,9 +48,9 @@ spec:
         - name: PORT
           value: "8080"
         - name: ENABLE_TRACING
-          value: "true"
+          value: "false"
         - name: ENABLE_METRICS
-          value: "true"
+          value: "false"
         - name: POLL_MS
           value: "100"
         - name: CACHE_SIZE
