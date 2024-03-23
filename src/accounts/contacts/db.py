@@ -39,11 +39,6 @@ class ContactsDb:
             Column("is_external", Boolean, nullable=False),
         )
 
-        # Set up tracing autoinstrumentation for sqlalchemy
-        SQLAlchemyInstrumentor().instrument(
-            engine=self.engine,
-            service="contacts",
-        )
 
     def add_contact(self, contact):
         """Add a contact under the specified username.

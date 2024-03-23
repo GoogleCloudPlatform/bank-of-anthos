@@ -46,11 +46,6 @@ class UserDb:
             Column('ssn', String, nullable=False),
         )
 
-        # Set up tracing autoinstrumentation for sqlalchemy
-        SQLAlchemyInstrumentor().instrument(
-            engine=self.engine,
-            service='users',
-        )
 
     def add_user(self, user):
         """Add a user to the database.
