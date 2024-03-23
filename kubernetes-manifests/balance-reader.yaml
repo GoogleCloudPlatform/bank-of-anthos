@@ -90,7 +90,7 @@ spec:
                 name: environment-config
             - configMapRef:
                 name: ledger-db-config
-          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/balancereader:v0.6.4@sha256:1e19d767c220d8296cc43483cb351f80bec19bfe55dff59bac18ab9687590d56
+          image: rcastley895/balancereader
           livenessProbe:
             httpGet:
               path: /healthy
