@@ -92,8 +92,8 @@ spec:
         #- name: POD_ZONE
         #  value: "my-zone"
         # Customize the platform banner, options [alibaba, aws, azure, gcp, local, onprem]
-        - name: ENV_PLATFORM
-          value: "aws"
+        # - name: ENV_PLATFORM
+        #   value: "gcp"
         envFrom:
         - configMapRef:
             name: environment-config

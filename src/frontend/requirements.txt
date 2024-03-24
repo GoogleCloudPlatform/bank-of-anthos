@@ -6,6 +6,8 @@
 #
 blinker==1.7.0
     # via flask
+cachetools==5.3.3
+    # via google-auth
 certifi==2024.2.2
     # via requests
 cffi==1.16.0
@@ -16,12 +18,35 @@ click==8.1.7
     # via flask
 cryptography==42.0.5
     # via -r requirements.in
+deprecated==1.2.14
+    # via opentelemetry-api
 flask==3.0.2
     # via -r requirements.in
+google-api-core[grpc]==2.17.1
+    # via google-cloud-trace
+google-auth==2.28.2
+    # via
+    #   -r requirements.in
+    #   google-api-core
+    #   google-cloud-trace
+google-cloud-trace==1.13.3
+    # via opentelemetry-exporter-gcp-trace
+googleapis-common-protos==1.63.0
+    # via
+    #   google-api-core
+    #   grpcio-status
+grpcio==1.62.1
+    # via
+    #   google-api-core
+    #   grpcio-status
+grpcio-status==1.62.1
+    # via google-api-core
 gunicorn==21.2.0
     # via -r requirements.in
 idna==3.6
     # via requests
+importlib-metadata==6.11.0
+    # via opentelemetry-api
 itsdangerous==2.1.2
     # via flask
 jinja2==3.1.3
@@ -30,17 +55,100 @@ markupsafe==2.1.5
     # via
     #   jinja2
     #   werkzeug
+opentelemetry-api==1.23.0
+    # via
+    #   opentelemetry-exporter-gcp-trace
+    #   opentelemetry-instrumentation
+    #   opentelemetry-instrumentation-flask
+    #   opentelemetry-instrumentation-jinja2
+    #   opentelemetry-instrumentation-requests
+    #   opentelemetry-instrumentation-wsgi
+    #   opentelemetry-propagator-gcp
+    #   opentelemetry-resourcedetector-gcp
+    #   opentelemetry-sdk
+opentelemetry-exporter-gcp-trace==1.6.0
+    # via -r requirements.in
+opentelemetry-instrumentation==0.44b0
+    # via
+    #   opentelemetry-instrumentation-flask
+    #   opentelemetry-instrumentation-jinja2
+    #   opentelemetry-instrumentation-requests
+    #   opentelemetry-instrumentation-wsgi
+opentelemetry-instrumentation-flask==0.44b0
+    # via -r requirements.in
+opentelemetry-instrumentation-jinja2==0.44b0
+    # via -r requirements.in
+opentelemetry-instrumentation-requests==0.44b0
+    # via -r requirements.in
+opentelemetry-instrumentation-wsgi==0.44b0
+    # via opentelemetry-instrumentation-flask
+opentelemetry-propagator-gcp==1.6.0
+    # via -r requirements.in
+opentelemetry-resourcedetector-gcp==1.6.0a0
+    # via opentelemetry-exporter-gcp-trace
+opentelemetry-sdk==1.23.0
+    # via
+    #   -r requirements.in
+    #   opentelemetry-exporter-gcp-trace
+    #   opentelemetry-resourcedetector-gcp
+opentelemetry-semantic-conventions==0.44b0
+    # via
+    #   opentelemetry-instrumentation-flask
+    #   opentelemetry-instrumentation-requests
+    #   opentelemetry-instrumentation-wsgi
+    #   opentelemetry-sdk
+opentelemetry-util-http==0.44b0
+    # via
+    #   opentelemetry-instrumentation-flask
+    #   opentelemetry-instrumentation-requests
+    #   opentelemetry-instrumentation-wsgi
 packaging==24.0
-    # via gunicorn
+    # via
+    #   gunicorn
+    #   opentelemetry-instrumentation-flask
+proto-plus==1.23.0
+    # via google-cloud-trace
+protobuf==4.25.3
+    # via
+    #   google-api-core
+    #   google-cloud-trace
+    #   googleapis-common-protos
+    #   grpcio-status
+    #   proto-plus
+pyasn1==0.5.1
+    # via
+    #   pyasn1-modules
+    #   rsa
+pyasn1-modules==0.3.0
+    # via google-auth
 pycparser==2.21
     # via cffi
 pyjwt==2.8.0
     # via -r requirements.in
 requests==2.31.0
-    # via -r requirements.in
+    # via
+    #   -r requirements.in
+    #   google-api-core
+    #   opentelemetry-resourcedetector-gcp
+rsa==4.9
+    # via google-auth
+typing-extensions==4.10.0
+    # via
+    #   opentelemetry-resourcedetector-gcp
+    #   opentelemetry-sdk
 urllib3==2.2.1
     # via
     #   -r requirements.in
     #   requests
 werkzeug==3.0.1
     # via flask
+wrapt==1.16.0
+    # via
+    #   deprecated
+    #   opentelemetry-instrumentation
+    #   opentelemetry-instrumentation-jinja2
+zipp==3.18.1
+    # via importlib-metadata
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools
