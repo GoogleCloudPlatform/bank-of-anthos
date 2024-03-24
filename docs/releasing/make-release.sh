@@ -19,6 +19,7 @@ set -euxo pipefail
 REPO_PREFIX="${REPO_PREFIX:-ghcr.io/splunk/bank-of-splunk}"
 PROFILE="development"
 RELEASE_DIR="kubernetes-manifests"
+PLATFORM="linux/amd64"
 
 # move to repo root
 SCRIPT_DIR=$(dirname $(realpath -s $0))
@@ -52,7 +53,7 @@ mkdir "${REPO_ROOT}/${RELEASE_DIR}"
 # build and push release images
 skaffold config set local-cluster false
 skaffold build --file-output="artifacts.json" --profile "${PROFILE}" \
-               --default-repo="${REPO_PREFIX}" --tag="${NEW_VERSION}"
+               --default-repo="${REPO_PREFIX}" --tag="${NEW_VERSION}" --platform="${PLATFORM}"
 skaffold config unset local-cluster
 
 # render manifests
