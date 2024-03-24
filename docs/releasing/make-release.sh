@@ -39,11 +39,11 @@ if [[ $(git status -s | wc -l) -gt 0 ]]; then
 fi
 
 # ensure that gcloud is in the PATH
-if ! command -v gcloud &> /dev/null
-then
-    echo "gcloud could not be found"
-    exit 1
-fi
+#if ! command -v gcloud &> /dev/null
+#then
+#    echo "gcloud could not be found"
+#    exit 1
+#fi
 
 # clear out previous release content
 rm -rf "${REPO_ROOT}/${RELEASE_DIR}"
