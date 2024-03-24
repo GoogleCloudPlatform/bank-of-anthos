@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -46,8 +45,7 @@ spec:
               value: "5"
             - name: LOG_LEVEL
               value: error
-          #image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/loadgenerator:v0.6.4@sha256:ace9a24d816c61756d82f7d67f9cfd0ebcff54e25052fb5a2185f4c05637baa0
-          image: rcastley895/loadgenerator
+          image: ghcr.io/splunk/bank-of-splunk/loadgenerator:v1.0.1@sha256:c1742fe2c6a14a20ae636d09d840605aeaf3e3edd0c4ab172fb53027b556d035
           name: loadgenerator
           resources:
             limits:
