@@ -163,7 +163,7 @@ limitations under the License.
                     </td>
                     {% if t.toAccountNum == account_id %}
                       <td class="transaction-type">
-                        <span class="text-debit">●</span> Credit
+                        <span class="text-credit">●</span> Credit
                       </td>
                       <td class="transaction-account">
                         {{ t.fromAccountNum }}
@@ -180,7 +180,7 @@ limitations under the License.
                       </td>
                     {% elif t.fromAccountNum == account_id %}
                       <td class="transaction-type">
-                        <span class="text-credit">●</span> Debit
+                        <span class="text-debit">●</span> Debit
                       </td>
                       <td class="transaction-account">
                         {{ t.toAccountNum }}
