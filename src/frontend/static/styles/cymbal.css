@@ -237,16 +237,17 @@ bottom: 10px;
   transition: all 0.3s ease-in;
 }
 .text-credit {
-  color: #FF0000;
+  color: #64c466;
+  font-weight: 700;
 }
 .text-debit {
-  color: #ce0070;
+  color: #343434;
 }
 .transaction-amount {
   text-align: right !important;
 }
 .transaction-amount-credit{
-  color: #00ce4f;
+  color: #64c466;
 }
 .transaction-amount-debit {
   color: #343434;
