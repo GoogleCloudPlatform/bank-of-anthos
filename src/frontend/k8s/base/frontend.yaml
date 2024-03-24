@@ -61,8 +61,8 @@ spec:
         - name: BANK_NAME
           value: "Bank of Splunk"
         # Customize the cluster name if it cannot be retrieved from the metadata server
-        #- name: CLUSTER_NAME
-        #  value: "my-cluster"
+        - name: CLUSTER_NAME
+          value: "$(INSTANCE)-k3s-cluster"
         - name: DEFAULT_USERNAME
           valueFrom:
             configMapKeyRef:
