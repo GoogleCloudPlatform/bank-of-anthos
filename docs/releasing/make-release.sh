@@ -16,7 +16,7 @@
 set -euxo pipefail
 
 # set env
-REPO_PREFIX="${REPO_PREFIX:-us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos}"
+REPO_PREFIX="${REPO_PREFIX:-ghcr.io/splunk/bank-of-splunk}"
 PROFILE="development"
 RELEASE_DIR="kubernetes-manifests"
 
