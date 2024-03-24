@@ -16,7 +16,7 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    application: bank-of-splunk
+    application: bank-of-anthos
     environment: development
     team: ledger
     tier: backend
@@ -28,7 +28,7 @@ spec:
       targetPort: 8080
   selector:
     app: ledgerwriter
-    application: bank-of-splunk
+    application: bank-of-anthos
     environment: development
     team: ledger
     tier: backend
@@ -38,7 +38,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    application: bank-of-splunk
+    application: bank-of-anthos
     environment: development
     team: ledger
     tier: backend
@@ -47,18 +47,17 @@ spec:
   selector:
     matchLabels:
       app: ledgerwriter
-      application: bank-of-splunk
+      application: bank-of-anthos
       environment: development
       team: ledger
       tier: backend
   template:
     metadata:
       annotations:
-        instrumentation.opentelemetry.io/inject-java: "default/splunk-otel-collector"
         proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
       labels:
         app: ledgerwriter
-        application: bank-of-splunk
+        application: bank-of-anthos
         environment: development
         team: ledger
         tier: backend
@@ -88,7 +87,7 @@ spec:
                 name: service-api-config
             - configMapRef:
                 name: ledger-db-config
-          image: rcastley895/ledgerwriter
+          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/ledgerwriter:v0.6.4@sha256:b163fe9c1e2d8afe2de7d736bf878ed88100941515a581e7a2b5688a44a9da81
           name: ledgerwriter
           readinessProbe:
             httpGet:
@@ -130,7 +129,7 @@ spec:
         runAsGroup: 1000
         runAsNonRoot: true
         runAsUser: 1000
-      serviceAccountName: bank-of-splunk
+      serviceAccountName: bank-of-anthos
       terminationGracePeriodSeconds: 5
       volumes:
         - emptyDir: {}

@@ -16,7 +16,7 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    application: bank-of-splunk
+    application: bank-of-anthos
     environment: development
     team: frontend
     tier: web
@@ -28,7 +28,7 @@ spec:
       targetPort: 8080
   selector:
     app: frontend
-    application: bank-of-splunk
+    application: bank-of-anthos
     environment: development
     team: frontend
     tier: web
@@ -38,7 +38,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    application: bank-of-splunk
+    application: bank-of-anthos
     environment: development
     team: frontend
     tier: web
@@ -47,33 +47,23 @@ spec:
   selector:
     matchLabels:
       app: frontend
-      application: bank-of-splunk
+      application: bank-of-anthos
       environment: development
       team: frontend
       tier: web
   template:
     metadata:
       annotations:
-        instrumentation.opentelemetry.io/inject-python: "default/splunk-otel-collector"
-        topology.kubernetes.io/zone: "k3s-1"
         proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
       labels:
         app: frontend
-        application: bank-of-splunk
+        application: bank-of-anthos
         environment: development
         team: frontend
         tier: web
     spec:
       containers:
-        - env: 
-            - name: INSTANCE
-              valueFrom:
-                fieldRef:
-                  fieldPath: spec.nodeName
-            - name: CLUSTER_NAME
-              value: '$(INSTANCE)-k3s-cluster'
-            - name: BANK_NAME
-              value: "Bank of Splunk"
+        - env:
             - name: VERSION
               value: v0.6.4
             - name: PORT
@@ -111,7 +101,7 @@ spec:
                 name: environment-config
             - configMapRef:
                 name: service-api-config
-          #image: rcastley895/frontend:v0.6.4@sha256:f25db63509515fb6caf98c8c76e906f3c2868e345767d12565ab3750e52963f0
+          #image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/frontend:v0.6.4@sha256:f25db63509515fb6caf98c8c76e906f3c2868e345767d12565ab3750e52963f0
           image: rcastley895/frontend:latest
           livenessProbe:
             httpGet:
@@ -153,7 +143,7 @@ spec:
         runAsGroup: 1000
         runAsNonRoot: true
         runAsUser: 1000
-      serviceAccountName: bank-of-splunk
+      serviceAccountName: bank-of-anthos
       terminationGracePeriodSeconds: 5
       volumes:
         - emptyDir: {}

@@ -16,7 +16,7 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    application: bank-of-splunk
+    application: bank-of-anthos
     environment: development
     team: ledger
     tier: backend
@@ -28,7 +28,7 @@ spec:
       targetPort: 8080
   selector:
     app: balancereader
-    application: bank-of-splunk
+    application: bank-of-anthos
     environment: development
     team: ledger
     tier: backend
@@ -38,7 +38,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    application: bank-of-splunk
+    application: bank-of-anthos
     environment: development
     team: ledger
     tier: backend
@@ -47,18 +47,17 @@ spec:
   selector:
     matchLabels:
       app: balancereader
-      application: bank-of-splunk
+      application: bank-of-anthos
       environment: development
       team: ledger
       tier: backend
   template:
     metadata:
       annotations:
-        instrumentation.opentelemetry.io/inject-java: "default/splunk-otel-collector"
         proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
       labels:
         app: balancereader
-        application: bank-of-splunk
+        application: bank-of-anthos
         environment: development
         team: ledger
         tier: backend
@@ -90,7 +89,7 @@ spec:
                 name: environment-config
             - configMapRef:
                 name: ledger-db-config
-          image: rcastley895/balancereader
+          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/balancereader:v0.6.4@sha256:1e19d767c220d8296cc43483cb351f80bec19bfe55dff59bac18ab9687590d56
           livenessProbe:
             httpGet:
               path: /healthy
@@ -139,7 +138,7 @@ spec:
         runAsGroup: 1000
         runAsNonRoot: true
         runAsUser: 1000
-      serviceAccountName: bank-of-splunk
+      serviceAccountName: bank-of-anthos
       terminationGracePeriodSeconds: 5
       volumes:
         - emptyDir: {}

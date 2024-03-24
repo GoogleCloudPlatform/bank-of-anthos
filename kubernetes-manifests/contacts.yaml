@@ -16,7 +16,7 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    application: bank-of-splunk
+    application: bank-of-anthos
     environment: development
     team: accounts
     tier: backend
@@ -28,7 +28,7 @@ spec:
       targetPort: 8080
   selector:
     app: contacts
-    application: bank-of-splunk
+    application: bank-of-anthos
     environment: development
     team: accounts
     tier: backend
@@ -38,7 +38,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    application: bank-of-splunk
+    application: bank-of-anthos
     environment: development
     team: accounts
     tier: backend
@@ -47,18 +47,17 @@ spec:
   selector:
     matchLabels:
       app: contacts
-      application: bank-of-splunk
+      application: bank-of-anthos
       environment: development
       team: accounts
       tier: backend
   template:
     metadata:
       annotations:
-        instrumentation.opentelemetry.io/inject-python: "default/splunk-otel-collector"
         proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
       labels:
         app: contacts
-        application: bank-of-splunk
+        application: bank-of-anthos
         environment: development
         team: accounts
         tier: backend
@@ -78,7 +77,7 @@ spec:
                 name: environment-config
             - configMapRef:
                 name: accounts-db-config
-          image: rcastley895/contacts
+          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/contacts:v0.6.4@sha256:246f141aa3947412d8067ef796a4e2223cb03075fc958aa3fedc2066f03a6921
           name: contacts
           readinessProbe:
             httpGet:
@@ -114,7 +113,7 @@ spec:
         runAsGroup: 1000
         runAsNonRoot: true
         runAsUser: 1000
-      serviceAccountName: bank-of-splunk
+      serviceAccountName: bank-of-anthos
       terminationGracePeriodSeconds: 5
       volumes:
         - emptyDir: {}
