@@ -74,6 +74,8 @@ spec:
               value: http
             - name: LOG_LEVEL
               value: info
+            - name: BANK_NAME
+              value: "Bank of Splunk"
             - name: DEFAULT_USERNAME
               valueFrom:
                 configMapKeyRef:
