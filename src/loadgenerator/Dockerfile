@@ -14,6 +14,9 @@
 
 # Use the official Python docker container, slim version, running Debian
 FROM python:3.12.2-slim@sha256:36d57d7f9948fefe7b6092cfe8567da368033e71ba281b11bb9eeffce3d45bc6 as base
+
+FROM base as builder
+
 # Install all OS dependencies for fully functional requirements.txt install
 RUN apt-get update --yes && \
     apt-get upgrade --yes && \
@@ -24,7 +27,6 @@ RUN apt-get update --yes && \
     python3-dev \
     gcc && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
-FROM base as builder
 
 # Install dependencies.
 COPY requirements.txt .
