@@ -238,7 +238,6 @@ bottom: 10px;
 }
 .text-credit {
   color: #64c466;
-  font-weight: 700;
 }
 .text-debit {
   color: #343434;
@@ -248,6 +247,7 @@ bottom: 10px;
 }
 .transaction-amount-credit{
   color: #64c466;
+  font-weight: 700;
 }
 .transaction-amount-debit {
   color: #343434;
