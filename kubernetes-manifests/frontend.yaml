@@ -98,12 +98,34 @@ spec:
                   key: DEMO_OAUTH_REDIRECT_URI
                   name: oauth-config
                   optional: true
+            - name: RUM_REALM
+              valueFrom:
+                secretKeyRef:
+                  name: workshop-secret
+                  key: realm
+            - name: RUM_AUTH
+              valueFrom:
+                secretKeyRef:
+                  name: workshop-secret
+                  key: rum_token
+            - name: RUM_APP_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: workshop-secret
+                  key: app
+            - name: RUM_ENVIRONMENT
+              valueFrom:
+                secretKeyRef:
+                  name: workshop-secret
+                  key: env      
           envFrom:
             - configMapRef:
                 name: environment-config
             - configMapRef:
                 name: service-api-config
-          image: ghcr.io/splunk/bank-of-splunk/frontend:v1.0.1@sha256:6beefbec8b51422fd292af48f810e3d17e88eb90d75339b5adc3dd4f12beda36
+          #image: ghcr.io/splunk/bank-of-splunk/frontend:v1.0.1@sha256:6beefbec8b51422fd292af48f810e3d17e88eb90d75339b5adc3dd4f12beda36
+          image: localhost:9999/bof/fe-test:v1
+          imagePullPolicy: Always
           livenessProbe:
             httpGet:
               path: /ready

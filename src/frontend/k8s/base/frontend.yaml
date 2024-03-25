@@ -63,8 +63,32 @@ spec:
         - name: BANK_NAME
           value: "Bank of Splunk"
         # Customize the cluster name if it cannot be retrieved from the metadata server
+        - name: INSTANCE
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
         - name: CLUSTER_NAME
           value: "$(INSTANCE)-k3s-cluster"
+        - name: RUM_REALM
+          valueFrom:
+            secretKeyRef:
+              name: workshop-secret
+              key: realm
+        - name: RUM_AUTH
+          valueFrom:
+            secretKeyRef:
+              name: workshop-secret
+              key: rum_token
+        - name: RUM_APP_NAME
+          valueFrom:
+            secretKeyRef:
+              name: workshop-secret
+              key: app
+        - name: RUM_ENVIRONMENT
+          valueFrom:
+            secretKeyRef:
+              name: workshop-secret
+              key: env                
         - name: DEFAULT_USERNAME
           valueFrom:
             configMapKeyRef:

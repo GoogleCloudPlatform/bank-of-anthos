@@ -16,3 +16,24 @@
     <link rel="stylesheet" href="static/styles/platform.css">
     <link rel="stylesheet" href="static/styles/platform/{{ platform }}.css">
   {% endif %}
+  {% if rum_realm is not none and rum_auth is not none %}
+    <script src="https://cdn.signalfx.com/o11y-gdi-rum/latest/splunk-otel-web.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.signalfx.com/o11y-gdi-rum/latest/splunk-otel-web-session-recorder.js" crossorigin="anonymous"></script>
+    <script>
+        var rum_realm = "{{ rum_realm }}";
+        var rum_auth = "{{ rum_auth }}";
+        var rum_app_name =  "{{ rum_app_name}}";
+        var rum_environment = "{{ rum_environment }}";
+        window.SplunkRum && window.SplunkRum.init({ 
+            beaconUrl: "https://rum-ingest." +   rum_realm   + ".signalfx.com/v1/rum",
+            rumAuth:  rum_auth ,
+            app: rum_app_name ,
+            version: '1',
+            environment: rum_environment 
+        });
+        SplunkSessionRecorder.init({
+            beaconUrl: 'https://rum-ingest.' +  rum_realm + '.signalfx.com/v1/rumreplay',
+            rumAuth:  rum_auth 
+        });
+    </script>
+    {% endif %}
