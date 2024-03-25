@@ -20,12 +20,10 @@ Bank of Anthos was designed to work on any Kubernetes cluster and has no GCP-spe
 
 4. Create a Kubernetes secret in your non-GKE cluster, using the key you downloaded:
 
-```
-kubectl create secret generic pubsub-key --from-file=key.json=PATH-TO-KEY-FILE.json
-```
+    ``` bash
+    kubectl create secret generic pubsub-key --from-file=key.json=PATH-TO-KEY-FILE.json
+    ```
 
 5. Update your Deployment YAMLs to mount in that secret as your `GOOGLE_APPLICATION_CREDENTIALS` env variable. [See this example](https://cloud.google.com/kubernetes-engine/docs/tutorials/authenticating-to-cloud-platform#importing_credentials_as_a_secret) for how to mount a secret as an env variable in a Pod.
 
 6. Deploy the app, where the `ENABLE_METRICS` and `ENABLE_TRACING` variables are both set to `true`.
-
-
