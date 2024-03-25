@@ -57,7 +57,7 @@ google-cloud-trace==1.13.3
     # via
     #   -r requirements.in
     #   opentelemetry-exporter-gcp-trace
-googleapis-common-protos==1.62.0
+googleapis-common-protos==1.63.0
     # via
     #   -r requirements.in
     #   google-api-core
@@ -229,7 +229,7 @@ wrapt==1.16.0
     #   deprecated
     #   opentelemetry-instrumentation
     #   opentelemetry-instrumentation-sqlalchemy
-zipp==3.17.0
+zipp==3.18.1
     # via
     #   -r requirements.in
     #   importlib-metadata
