@@ -21,8 +21,6 @@ spec:
     matchLabels:
       app: contacts
   template:
-    annotations:
-      instrumentation.opentelemetry.io/inject-python: "true"
     metadata:
       labels:
         app: contacts
