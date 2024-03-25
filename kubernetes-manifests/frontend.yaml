@@ -63,7 +63,7 @@ spec:
       containers:
         - env:
             - name: VERSION
-              value: v1.0.1
+              value: v1.0.2
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
@@ -74,8 +74,40 @@ spec:
               value: info
             - name: BANK_NAME
               value: Bank of Splunk
+            - name: INSTANCE
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
             - name: CLUSTER_NAME
               value: $(INSTANCE)-k3s-cluster
+            - name: RUM_REALM
+              valueFrom:
+                secretKeyRef:
+                  key: realm
+                  name: workshop-secret
+            - name: RUM_AUTH
+              valueFrom:
+                secretKeyRef:
+                  key: rum_token
+                  name: workshop-secret
+            - name: RUM_APP_NAME
+              valueFrom:
+                secretKeyRef:
+                  key: app
+                  name: workshop-secret
+            - name: RUM_ENVIRONMENT
+              valueFrom:
+                secretKeyRef:
+                  key: env
+                  name: workshop-secret
+            - name: SPLUNK_OTEL_AGENT
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: http://$(SPLUNK_OTEL_AGENT):4317
+            - name: OTEL_SERVICE_NAME
+              value: frontend
             - name: DEFAULT_USERNAME
               valueFrom:
                 configMapKeyRef:
@@ -98,34 +130,12 @@ spec:
                   key: DEMO_OAUTH_REDIRECT_URI
                   name: oauth-config
                   optional: true
-            - name: RUM_REALM
-              valueFrom:
-                secretKeyRef:
-                  name: workshop-secret
-                  key: realm
-            - name: RUM_AUTH
-              valueFrom:
-                secretKeyRef:
-                  name: workshop-secret
-                  key: rum_token
-            - name: RUM_APP_NAME
-              valueFrom:
-                secretKeyRef:
-                  name: workshop-secret
-                  key: app
-            - name: RUM_ENVIRONMENT
-              valueFrom:
-                secretKeyRef:
-                  name: workshop-secret
-                  key: env      
           envFrom:
             - configMapRef:
                 name: environment-config
             - configMapRef:
                 name: service-api-config
-          #image: ghcr.io/splunk/bank-of-splunk/frontend:v1.0.1@sha256:6beefbec8b51422fd292af48f810e3d17e88eb90d75339b5adc3dd4f12beda36
-          image: localhost:9999/bof/fe-test:v1
-          imagePullPolicy: Always
+          image: ghcr.io/splunk/bank-of-splunk/frontend:v1.0.2@sha256:a74ac3444f49f57a794371b43097447fdf2bdd59884d3385f895318a4dca7f7b
           livenessProbe:
             httpGet:
               path: /ready

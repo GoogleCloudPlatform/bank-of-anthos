@@ -45,7 +45,7 @@ spec:
               value: "5"
             - name: LOG_LEVEL
               value: error
-          image: ghcr.io/splunk/bank-of-splunk/loadgenerator:v1.0.1@sha256:c1742fe2c6a14a20ae636d09d840605aeaf3e3edd0c4ab172fb53027b556d035
+          image: ghcr.io/splunk/bank-of-splunk/loadgenerator:v1.0.2@sha256:a413755d178fbefb6537dee65a0ae922f32b2683b168be57ec7cd269756e770a
           name: loadgenerator
           resources:
             limits:

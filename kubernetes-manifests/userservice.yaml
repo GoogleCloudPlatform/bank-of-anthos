@@ -86,7 +86,7 @@ spec:
                 name: accounts-db-config
             - configMapRef:
                 name: demo-data-config
-          image: ghcr.io/splunk/bank-of-splunk/accounts-db:v1.0.1@sha256:6c99392ef0085fdedfe9dbbe1f92076ea1390e6bc5bd845fa534591bfae9ff3f
+          image: ghcr.io/splunk/bank-of-splunk/accounts-db:v1.0.2@sha256:b188aeca2a295cba3754640aeab5ed2978fed34c38cb6bd224077e09fef18265
           name: accounts-db
           ports:
             - containerPort: 5432
@@ -203,7 +203,7 @@ spec:
       containers:
         - env:
             - name: VERSION
-              value: v1.0.1
+              value: v1.0.2
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
@@ -214,12 +214,20 @@ spec:
               value: /tmp/.ssh/privatekey
             - name: LOG_LEVEL
               value: info
+            - name: SPLUNK_OTEL_AGENT
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: http://$(SPLUNK_OTEL_AGENT):4317
+            - name: OTEL_SERVICE_NAME
+              value: userservice
           envFrom:
             - configMapRef:
                 name: environment-config
             - configMapRef:
                 name: accounts-db-config
-          image: ghcr.io/splunk/bank-of-splunk/userservice:v1.0.1@sha256:c480cab188cb0af7a2f0658df46a67a525e87f92aed48de793d1cbc97ae111a5
+          image: ghcr.io/splunk/bank-of-splunk/userservice:v1.0.2@sha256:ec77426bbd9a54a25e9100660e36b25f9b71afab0218f4bdc87ea970d2ff299c
           name: userservice
           ports:
             - containerPort: 8080

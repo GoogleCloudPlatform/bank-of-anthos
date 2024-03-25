@@ -74,7 +74,7 @@ spec:
                 name: ledger-db-config
             - configMapRef:
                 name: demo-data-config
-          image: ghcr.io/splunk/bank-of-splunk/ledger-db:v1.0.1@sha256:c2a280a258343179c237e487b53ad317f68e59a16ec7f2a6bf49c7e9bdc8e24f
+          image: ghcr.io/splunk/bank-of-splunk/ledger-db:v1.0.2@sha256:fd67e773a523a88128a02c1109175905e62f1eb66730dde712f72c3fc0b695fb
           name: postgres
           ports:
             - containerPort: 5432
