@@ -86,7 +86,7 @@ spec:
                 name: accounts-db-config
             - configMapRef:
                 name: demo-data-config
-          image: ghcr.io/splunk/bank-of-splunk/accounts-db:v1.0.1@sha256:6c99392ef0085fdedfe9dbbe1f92076ea1390e6bc5bd845fa534591bfae9ff3f
+          image: ghcr.io/splunk/bank-of-splunk/accounts-db:v1.0.2@sha256:b188aeca2a295cba3754640aeab5ed2978fed34c38cb6bd224077e09fef18265
           name: accounts-db
           ports:
             - containerPort: 5432
@@ -203,19 +203,27 @@ spec:
       containers:
         - env:
             - name: VERSION
-              value: v1.0.1
+              value: v1.0.2
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
               value: "false"
             - name: LOG_LEVEL
               value: info
+            - name: SPLUNK_OTEL_AGENT
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: http://$(SPLUNK_OTEL_AGENT):4317
+            - name: OTEL_SERVICE_NAME
+              value: contacts
           envFrom:
             - configMapRef:
                 name: environment-config
             - configMapRef:
                 name: accounts-db-config
-          image: ghcr.io/splunk/bank-of-splunk/contacts:v1.0.1@sha256:54207e2c935f25d0fa5094677785ad345bc868264cbfa2b9b60a688668298242
+          image: ghcr.io/splunk/bank-of-splunk/contacts:v1.0.2@sha256:5487b8ddadb2f8f49f439ec941083bb63bc8caef7039e9f4f3ae8222c815f95b
           name: contacts
           readinessProbe:
             httpGet:
