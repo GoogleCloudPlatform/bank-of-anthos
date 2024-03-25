@@ -86,7 +86,15 @@ spec:
           valueFrom:
             secretKeyRef:
               name: workshop-secret
-              key: env                
+              key: env
+        - name: SPLUNK_OTEL_AGENT
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://$(SPLUNK_OTEL_AGENT):4317"
+        - name: OTEL_SERVICE_NAME
+          value: "frontend"
         - name: DEFAULT_USERNAME
           valueFrom:
             configMapKeyRef:

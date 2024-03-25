@@ -11,3 +11,4 @@ opentelemetry-propagator-gcp==1.6.0
 opentelemetry-instrumentation-flask==0.44b0
 opentelemetry-instrumentation-jinja2==0.44b0
 opentelemetry-instrumentation-requests==0.44b0
+splunk-opentelemetry[all]
