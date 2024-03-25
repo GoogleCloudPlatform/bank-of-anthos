@@ -21,6 +21,8 @@ spec:
     matchLabels:
       app: userservice
   template:
+    annotations:
+      instrumentation.opentelemetry.io/inject-python: "true"
     metadata:
       labels:
         app: userservice

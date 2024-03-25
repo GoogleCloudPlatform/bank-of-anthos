@@ -21,6 +21,8 @@ spec:
     matchLabels:
       app: frontend
   template:
+    annotations:
+      instrumentation.opentelemetry.io/inject-python: "true"
     metadata:
       labels:
         app: frontend
