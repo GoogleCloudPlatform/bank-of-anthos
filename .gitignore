@@ -211,3 +211,4 @@ venv-*
 
 # go for ci
 go/
+kubernetes-manifests/zero-config.sh
