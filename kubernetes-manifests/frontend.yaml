@@ -130,6 +130,13 @@ spec:
                   key: DEMO_OAUTH_REDIRECT_URI
                   name: oauth-config
                   optional: true
+            - name: POD_ZONE
+              valueFrom:
+                secretKeyRef:
+                  name: workshop-secret
+                  key: realm
+            - name: ENV_PLATFORM
+              value: "k3s"                  
           envFrom:
             - configMapRef:
                 name: environment-config

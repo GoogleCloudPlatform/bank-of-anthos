@@ -121,11 +121,14 @@ spec:
         #- name: METADATA_SERVER
         #  value: "my-metadata-server"
         # Customize the pod zone if it cannot be retrieved from the metadata server
-        #- name: POD_ZONE
-        #  value: "my-zone"
+        - name: POD_ZONE
+          valueFrom:
+            secretKeyRef:
+              name: workshop-secret
+              key: realm
         # Customize the platform banner, options [alibaba, aws, azure, gcp, local, onprem]
-        # - name: ENV_PLATFORM
-        #   value: "gcp"
+         - name: ENV_PLATFORM
+           value: "k3s"
         envFrom:
         - configMapRef:
             name: environment-config
