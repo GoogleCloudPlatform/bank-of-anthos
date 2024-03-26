@@ -228,7 +228,9 @@ spec:
                 name: environment-config
             - configMapRef:
                 name: ledger-db-config
-          image: ghcr.io/splunk/bank-of-splunk/balancereader:v1.0.3@sha256:3405c38a669c804c2f6499fb7488da4005c4ba71394d5b10ac3f9cba4314750f
+          #image: ghcr.io/splunk/bank-of-splunk/balancereader:v1.0.3@sha256:3405c38a669c804c2f6499fb7488da4005c4ba71394d5b10ac3f9cba4314750f
+          image: pcjmhagen/balancereader
+          imagePullPolicy: Always
           livenessProbe:
             httpGet:
               path: /healthy

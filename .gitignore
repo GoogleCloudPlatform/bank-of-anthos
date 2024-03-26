@@ -212,3 +212,5 @@ venv-*
 # go for ci
 go/
 kubernetes-manifests/zero-config.sh
+BOS/lib64
+BOS/include/site/python3.10/greenlet/greenlet.h

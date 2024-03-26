@@ -19,7 +19,7 @@
     <Appenders>
         <Console name="console" target="SYSTEM_OUT">
             <PatternLayout
-              pattern='{"timestamp": "%d{yyyy-MM-dd HH:mm:ss}", "message": "%M | %msg", "severity": "%level"}%n' />
+                pattern='{"timestamp": "%d{yyyy-MM-dd HH:mm:ss}", "trace_id": %X{trace_id}, "span_id": "%X{span_id}", "trace_flags": "%X{trace_flags}", "service.name": "${sys:otel.resource.service.name}", "message": "%M | %msg", "severity": "%level"}%n' />
         </Console>
     </Appenders>
     <Loggers>
