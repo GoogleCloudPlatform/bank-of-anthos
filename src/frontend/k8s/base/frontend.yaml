@@ -33,7 +33,7 @@ spec:
         runAsNonRoot: true
         runAsUser: 1000
       containers:
-      - name: front
+      - name: frontend
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
@@ -61,6 +61,8 @@ spec:
         - name: BANK_NAME
           value: "Bank of Splunk"
         # Customize the cluster name if it cannot be retrieved from the metadata server
+        #- name: CLUSTER_NAME
+        #  value: "my-cluster"
         - name: INSTANCE
           valueFrom:
             fieldRef:
@@ -121,14 +123,11 @@ spec:
         #- name: METADATA_SERVER
         #  value: "my-metadata-server"
         # Customize the pod zone if it cannot be retrieved from the metadata server
-        - name: POD_ZONE
-          valueFrom:
-            secretKeyRef:
-              name: workshop-secret
-              key: realm
+        #- name: POD_ZONE
+        #  value: "my-zone"
         # Customize the platform banner, options [alibaba, aws, azure, gcp, local, onprem]
-         - name: ENV_PLATFORM
-           value: "k3s"
+        # - name: ENV_PLATFORM
+        #   value: "gcp"
         envFrom:
         - configMapRef:
             name: environment-config
