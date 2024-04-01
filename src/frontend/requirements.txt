@@ -24,7 +24,7 @@ flask==3.0.2
     # via -r requirements.in
 google-api-core[grpc]==2.18.0
     # via google-cloud-trace
-google-auth==2.28.2
+google-auth==2.29.0
     # via
     #   -r requirements.in
     #   google-api-core
@@ -117,13 +117,13 @@ protobuf==4.25.3
     #   googleapis-common-protos
     #   grpcio-status
     #   proto-plus
-pyasn1==0.5.1
+pyasn1==0.6.0
     # via
     #   pyasn1-modules
     #   rsa
-pyasn1-modules==0.3.0
+pyasn1-modules==0.4.0
     # via google-auth
-pycparser==2.21
+pycparser==2.22
     # via cffi
 pyjwt==2.8.0
     # via -r requirements.in
