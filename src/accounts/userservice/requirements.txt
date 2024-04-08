@@ -81,6 +81,7 @@ importlib-metadata==6.11.0
     # via
     #   -r requirements.in
     #   opentelemetry-api
+    #   opentelemetry-instrumentation-flask
 iniconfig==2.0.0
     # via pytest
 itsdangerous==2.1.2
@@ -98,7 +99,7 @@ markupsafe==2.1.5
     #   werkzeug
 more-itertools==10.2.0
     # via -r requirements.in
-opentelemetry-api==1.23.0
+opentelemetry-api==1.24.0
     # via
     #   opentelemetry-exporter-gcp-trace
     #   opentelemetry-instrumentation
@@ -110,33 +111,33 @@ opentelemetry-api==1.23.0
     #   opentelemetry-sdk
 opentelemetry-exporter-gcp-trace==1.6.0
     # via -r requirements.in
-opentelemetry-instrumentation==0.44b0
+opentelemetry-instrumentation==0.45b0
     # via
     #   opentelemetry-instrumentation-flask
     #   opentelemetry-instrumentation-sqlalchemy
     #   opentelemetry-instrumentation-wsgi
-opentelemetry-instrumentation-flask==0.44b0
+opentelemetry-instrumentation-flask==0.45b0
     # via -r requirements.in
-opentelemetry-instrumentation-sqlalchemy==0.44b0
+opentelemetry-instrumentation-sqlalchemy==0.45b0
     # via -r requirements.in
-opentelemetry-instrumentation-wsgi==0.44b0
+opentelemetry-instrumentation-wsgi==0.45b0
     # via opentelemetry-instrumentation-flask
 opentelemetry-propagator-gcp==1.6.0
     # via -r requirements.in
 opentelemetry-resourcedetector-gcp==1.6.0a0
     # via opentelemetry-exporter-gcp-trace
-opentelemetry-sdk==1.23.0
+opentelemetry-sdk==1.24.0
     # via
     #   -r requirements.in
     #   opentelemetry-exporter-gcp-trace
     #   opentelemetry-resourcedetector-gcp
-opentelemetry-semantic-conventions==0.44b0
+opentelemetry-semantic-conventions==0.45b0
     # via
     #   opentelemetry-instrumentation-flask
     #   opentelemetry-instrumentation-sqlalchemy
     #   opentelemetry-instrumentation-wsgi
     #   opentelemetry-sdk
-opentelemetry-util-http==0.44b0
+opentelemetry-util-http==0.45b0
     # via
     #   opentelemetry-instrumentation-flask
     #   opentelemetry-instrumentation-wsgi
@@ -167,16 +168,16 @@ psycopg2-binary==2.9.9
     # via -r requirements.in
 py==1.11.0
     # via -r requirements.in
-pyasn1==0.5.1
+pyasn1==0.6.0
     # via
     #   -r requirements.in
     #   pyasn1-modules
     #   rsa
-pyasn1-modules==0.3.0
+pyasn1-modules==0.4.0
     # via
     #   -r requirements.in
     #   google-auth
-pycparser==2.21
+pycparser==2.22
     # via
     #   -r requirements.in
     #   cffi
@@ -209,7 +210,7 @@ six==1.16.0
     #   bleach
 sqlalchemy==1.4.52
     # via -r requirements.in
-typing-extensions==4.10.0
+typing-extensions==4.11.0
     # via
     #   opentelemetry-resourcedetector-gcp
     #   opentelemetry-sdk
@@ -223,7 +224,7 @@ webencodings==0.5.1
     # via
     #   -r requirements.in
     #   bleach
-werkzeug==3.0.1
+werkzeug==3.0.2
     # via flask
 wrapt==1.16.0
     # via

@@ -5,9 +5,9 @@ pyjwt==2.8.0
 cryptography==42.0.5
 gunicorn==21.2.0
 google-auth==2.29.0
-opentelemetry-sdk==1.23.0
+opentelemetry-sdk==1.24.0
 opentelemetry-exporter-gcp-trace==1.6.0
 opentelemetry-propagator-gcp==1.6.0
-opentelemetry-instrumentation-flask==0.44b0
-opentelemetry-instrumentation-jinja2==0.44b0
-opentelemetry-instrumentation-requests==0.44b0
+opentelemetry-instrumentation-flask==0.45b0
+opentelemetry-instrumentation-jinja2==0.45b0
+opentelemetry-instrumentation-requests==0.45b0
