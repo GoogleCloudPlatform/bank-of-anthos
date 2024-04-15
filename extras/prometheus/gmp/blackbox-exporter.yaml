@@ -45,7 +45,7 @@ spec:
               - all
           privileged: false
           readOnlyRootFilesystem: true
-        image: quay.io/prometheus/blackbox-exporter:v0.24.0@sha256:3af31f8bd1ad2907b4b0f7c485fde3de0a8ee0b498d42fc971f0698885c03acb
+        image: quay.io/prometheus/blackbox-exporter:v0.25.0@sha256:b04a9fef4fa086a02fc7fcd8dcdbc4b7b35cc30cdee860fdc6a19dd8b208d63e
         resources:
           requests:
             cpu: 250m
