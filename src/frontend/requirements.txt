@@ -35,11 +35,11 @@ googleapis-common-protos==1.63.0
     # via
     #   google-api-core
     #   grpcio-status
-grpcio==1.62.1
+grpcio==1.62.2
     # via
     #   google-api-core
     #   grpcio-status
-grpcio-status==1.62.1
+grpcio-status==1.62.2
     # via google-api-core
 gunicorn==22.0.0
     # via -r requirements.in
@@ -49,7 +49,7 @@ importlib-metadata==7.0.0
     # via
     #   opentelemetry-api
     #   opentelemetry-instrumentation-flask
-itsdangerous==2.1.2
+itsdangerous==2.2.0
     # via flask
 jinja2==3.1.3
     # via flask
