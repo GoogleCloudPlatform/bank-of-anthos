@@ -10,7 +10,7 @@ bcrypt==4.1.2
     # via -r requirements.in
 bleach==6.1.0
     # via -r requirements.in
-blinker==1.7.0
+blinker==1.8.1
     # via flask
 cachetools==5.3.3
     # via
@@ -32,7 +32,7 @@ click==8.1.7
     # via
     #   -r requirements.in
     #   flask
-coverage[toml]==7.4.4
+coverage[toml]==7.5.0
     # via pytest-cov
 cryptography==42.0.5
     # via -r requirements.in
@@ -64,12 +64,12 @@ googleapis-common-protos==1.63.0
     #   grpcio-status
 greenlet==3.0.3
     # via sqlalchemy
-grpcio==1.62.1
+grpcio==1.62.2
     # via
     #   -r requirements.in
     #   google-api-core
     #   grpcio-status
-grpcio-status==1.62.1
+grpcio-status==1.62.2
     # via google-api-core
 gunicorn==22.0.0
     # via -r requirements.in
@@ -84,7 +84,7 @@ importlib-metadata==6.11.0
     #   opentelemetry-instrumentation-flask
 iniconfig==2.0.0
     # via pytest
-itsdangerous==2.1.2
+itsdangerous==2.2.0
     # via
     #   -r requirements.in
     #   flask
@@ -148,7 +148,7 @@ packaging==23.2
     #   opentelemetry-instrumentation-flask
     #   opentelemetry-instrumentation-sqlalchemy
     #   pytest
-pluggy==1.4.0
+pluggy==1.5.0
     # via
     #   -r requirements.in
     #   pytest
