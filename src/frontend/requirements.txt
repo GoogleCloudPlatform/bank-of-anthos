@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file=requirements.txt requirements.in
 #
-blinker==1.8.1
+blinker==1.8.2
     # via flask
 cachetools==5.3.3
     # via google-auth
@@ -16,7 +16,7 @@ charset-normalizer==3.3.2
     # via requests
 click==8.1.7
     # via flask
-cryptography==42.0.5
+cryptography==42.0.6
     # via -r requirements.in
 deprecated==1.2.14
     # via opentelemetry-api
