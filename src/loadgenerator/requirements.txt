@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file=requirements.txt requirements.in
 #
-blinker==1.8.1
+blinker==1.8.2
     # via flask
 brotli==1.1.0
     # via geventhttpclient
