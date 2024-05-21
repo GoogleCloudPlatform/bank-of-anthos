@@ -129,7 +129,7 @@ pycparser==2.22
     # via cffi
 pyjwt==2.8.0
     # via -r requirements.in
-requests==2.31.0
+requests==2.32.0
     # via
     #   -r requirements.in
     #   google-api-core
