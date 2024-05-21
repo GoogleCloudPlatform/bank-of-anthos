@@ -1,5 +1,5 @@
 flask==3.0.3
-requests==2.31.0
+requests==2.32.0
 urllib3==2.2.1
 pyjwt==2.8.0
 cryptography==42.0.6
