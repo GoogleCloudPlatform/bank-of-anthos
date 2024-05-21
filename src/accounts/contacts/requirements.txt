@@ -34,7 +34,7 @@ click==8.1.7
     #   flask
 coverage[toml]==7.5.1
     # via pytest-cov
-cryptography==42.0.6
+cryptography==42.0.7
     # via -r requirements.in
 deprecated==1.2.14
     # via opentelemetry-api
