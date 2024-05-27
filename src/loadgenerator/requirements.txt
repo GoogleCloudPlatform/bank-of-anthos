@@ -53,7 +53,7 @@ psutil==5.9.8
     # via locust
 pyzmq==26.0.3
     # via locust
-requests==2.32.1
+requests==2.32.2
     # via locust
 urllib3==2.2.1
     # via
@@ -66,7 +66,7 @@ werkzeug==3.0.3
     #   locust
 zope-event==5.0
     # via gevent
-zope-interface==6.4
+zope-interface==6.4.post2
     # via gevent
 
 # The following packages are considered to be unsafe in a requirements file:
