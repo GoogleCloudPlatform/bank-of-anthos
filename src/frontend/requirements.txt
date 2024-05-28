@@ -129,14 +129,14 @@ pycparser==2.22
     # via cffi
 pyjwt==2.8.0
     # via -r requirements.in
-requests==2.32.0
+requests==2.32.1
     # via
     #   -r requirements.in
     #   google-api-core
     #   opentelemetry-resourcedetector-gcp
 rsa==4.9
     # via google-auth
-typing-extensions==4.11.0
+typing-extensions==4.12.0
     # via
     #   opentelemetry-resourcedetector-gcp
     #   opentelemetry-sdk
@@ -151,7 +151,7 @@ wrapt==1.16.0
     #   deprecated
     #   opentelemetry-instrumentation
     #   opentelemetry-instrumentation-jinja2
-zipp==3.18.2
+zipp==3.19.0
     # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:

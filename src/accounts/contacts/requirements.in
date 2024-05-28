@@ -13,7 +13,7 @@ google-auth==2.29.0
 google-cloud-core==2.4.1
 google-cloud-trace==1.13.3
 googleapis-common-protos==1.63.0
-grpcio==1.63.0
+grpcio==1.64.0
 gunicorn==22.0.0
 idna==3.7
 importlib-metadata==6.11.0
@@ -40,7 +40,7 @@ pyparsing==3.1.2
 pytest==7.4.4
 pytest-cov==4.1.0
 pytz==2023.4
-requests==2.32.0
+requests==2.32.1
 rsa==4.9
 six==1.16.0
 sqlalchemy==1.4.52
@@ -48,4 +48,4 @@ urllib3==2.2.1
 wcwidth==0.2.13
 webencodings==0.5.1
 wrapt==1.16.0
-zipp==3.18.1
+zipp==3.18.2
