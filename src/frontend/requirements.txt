@@ -8,7 +8,7 @@ blinker==1.8.2
     # via flask
 cachetools==5.3.3
     # via google-auth
-certifi==2024.2.2
+certifi==2024.6.2
     # via requests
 cffi==1.16.0
     # via cryptography
@@ -31,11 +31,11 @@ google-auth==2.29.0
     #   google-cloud-trace
 google-cloud-trace==1.13.3
     # via opentelemetry-exporter-gcp-trace
-googleapis-common-protos==1.63.0
+googleapis-common-protos==1.63.1
     # via
     #   google-api-core
     #   grpcio-status
-grpcio==1.64.0
+grpcio==1.64.1
     # via
     #   google-api-core
     #   grpcio-status
@@ -129,14 +129,14 @@ pycparser==2.22
     # via cffi
 pyjwt==2.8.0
     # via -r requirements.in
-requests==2.32.1
+requests==2.32.2
     # via
     #   -r requirements.in
     #   google-api-core
     #   opentelemetry-resourcedetector-gcp
 rsa==4.9
     # via google-auth
-typing-extensions==4.12.0
+typing-extensions==4.12.1
     # via
     #   opentelemetry-resourcedetector-gcp
     #   opentelemetry-sdk
@@ -151,7 +151,7 @@ wrapt==1.16.0
     #   deprecated
     #   opentelemetry-instrumentation
     #   opentelemetry-instrumentation-jinja2
-zipp==3.19.0
+zipp==3.19.1
     # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:

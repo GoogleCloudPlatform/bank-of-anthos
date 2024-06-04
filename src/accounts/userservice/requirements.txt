@@ -32,7 +32,7 @@ click==8.1.7
     # via
     #   -r requirements.in
     #   flask
-coverage[toml]==7.5.2
+coverage[toml]==7.5.3
     # via pytest-cov
 cryptography==42.0.7
     # via -r requirements.in
@@ -195,7 +195,7 @@ pytest-cov==4.1.0
     # via -r requirements.in
 pytz==2023.4
     # via -r requirements.in
-requests==2.32.1
+requests==2.32.2
     # via
     #   -r requirements.in
     #   google-api-core
@@ -210,7 +210,7 @@ six==1.16.0
     #   bleach
 sqlalchemy==1.4.52
     # via -r requirements.in
-typing-extensions==4.12.0
+typing-extensions==4.12.1
     # via
     #   opentelemetry-resourcedetector-gcp
     #   opentelemetry-sdk
@@ -232,7 +232,7 @@ wrapt==1.16.0
     #   deprecated
     #   opentelemetry-instrumentation
     #   opentelemetry-instrumentation-sqlalchemy
-zipp==3.18.2
+zipp==3.19.0
     # via
     #   -r requirements.in
     #   importlib-metadata
