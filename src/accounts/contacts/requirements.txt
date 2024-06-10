@@ -99,7 +99,7 @@ markupsafe==2.1.5
     #   werkzeug
 more-itertools==10.2.0
     # via -r requirements.in
-opentelemetry-api==1.24.0
+opentelemetry-api==1.25.0
     # via
     #   opentelemetry-exporter-gcp-trace
     #   opentelemetry-instrumentation
@@ -109,35 +109,36 @@ opentelemetry-api==1.24.0
     #   opentelemetry-propagator-gcp
     #   opentelemetry-resourcedetector-gcp
     #   opentelemetry-sdk
+    #   opentelemetry-semantic-conventions
 opentelemetry-exporter-gcp-trace==1.6.0
     # via -r requirements.in
-opentelemetry-instrumentation==0.45b0
+opentelemetry-instrumentation==0.46b0
     # via
     #   opentelemetry-instrumentation-flask
     #   opentelemetry-instrumentation-sqlalchemy
     #   opentelemetry-instrumentation-wsgi
-opentelemetry-instrumentation-flask==0.45b0
+opentelemetry-instrumentation-flask==0.46b0
     # via -r requirements.in
-opentelemetry-instrumentation-sqlalchemy==0.45b0
+opentelemetry-instrumentation-sqlalchemy==0.46b0
     # via -r requirements.in
-opentelemetry-instrumentation-wsgi==0.45b0
+opentelemetry-instrumentation-wsgi==0.46b0
     # via opentelemetry-instrumentation-flask
 opentelemetry-propagator-gcp==1.6.0
     # via -r requirements.in
 opentelemetry-resourcedetector-gcp==1.6.0a0
     # via opentelemetry-exporter-gcp-trace
-opentelemetry-sdk==1.24.0
+opentelemetry-sdk==1.25.0
     # via
     #   -r requirements.in
     #   opentelemetry-exporter-gcp-trace
     #   opentelemetry-resourcedetector-gcp
-opentelemetry-semantic-conventions==0.45b0
+opentelemetry-semantic-conventions==0.46b0
     # via
     #   opentelemetry-instrumentation-flask
     #   opentelemetry-instrumentation-sqlalchemy
     #   opentelemetry-instrumentation-wsgi
     #   opentelemetry-sdk
-opentelemetry-util-http==0.45b0
+opentelemetry-util-http==0.46b0
     # via
     #   opentelemetry-instrumentation-flask
     #   opentelemetry-instrumentation-wsgi
@@ -195,7 +196,7 @@ pytest-cov==4.1.0
     # via -r requirements.in
 pytz==2023.4
     # via -r requirements.in
-requests==2.32.2
+requests==2.32.3
     # via
     #   -r requirements.in
     #   google-api-core
@@ -210,7 +211,7 @@ six==1.16.0
     #   bleach
 sqlalchemy==1.4.52
     # via -r requirements.in
-typing-extensions==4.12.1
+typing-extensions==4.12.2
     # via
     #   opentelemetry-resourcedetector-gcp
     #   opentelemetry-sdk
@@ -232,7 +233,7 @@ wrapt==1.16.0
     #   deprecated
     #   opentelemetry-instrumentation
     #   opentelemetry-instrumentation-sqlalchemy
-zipp==3.19.0
+zipp==3.19.1
     # via
     #   -r requirements.in
     #   importlib-metadata

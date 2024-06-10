@@ -45,7 +45,7 @@ gunicorn==22.0.0
     # via -r requirements.in
 idna==3.7
     # via requests
-importlib-metadata==7.0.0
+importlib-metadata==7.1.0
     # via
     #   opentelemetry-api
     #   opentelemetry-instrumentation-flask
@@ -57,7 +57,7 @@ markupsafe==2.1.5
     # via
     #   jinja2
     #   werkzeug
-opentelemetry-api==1.24.0
+opentelemetry-api==1.25.0
     # via
     #   opentelemetry-exporter-gcp-trace
     #   opentelemetry-instrumentation
@@ -68,43 +68,44 @@ opentelemetry-api==1.24.0
     #   opentelemetry-propagator-gcp
     #   opentelemetry-resourcedetector-gcp
     #   opentelemetry-sdk
+    #   opentelemetry-semantic-conventions
 opentelemetry-exporter-gcp-trace==1.6.0
     # via -r requirements.in
-opentelemetry-instrumentation==0.45b0
+opentelemetry-instrumentation==0.46b0
     # via
     #   opentelemetry-instrumentation-flask
     #   opentelemetry-instrumentation-jinja2
     #   opentelemetry-instrumentation-requests
     #   opentelemetry-instrumentation-wsgi
-opentelemetry-instrumentation-flask==0.45b0
+opentelemetry-instrumentation-flask==0.46b0
     # via -r requirements.in
-opentelemetry-instrumentation-jinja2==0.45b0
+opentelemetry-instrumentation-jinja2==0.46b0
     # via -r requirements.in
-opentelemetry-instrumentation-requests==0.45b0
+opentelemetry-instrumentation-requests==0.46b0
     # via -r requirements.in
-opentelemetry-instrumentation-wsgi==0.45b0
+opentelemetry-instrumentation-wsgi==0.46b0
     # via opentelemetry-instrumentation-flask
 opentelemetry-propagator-gcp==1.6.0
     # via -r requirements.in
 opentelemetry-resourcedetector-gcp==1.6.0a0
     # via opentelemetry-exporter-gcp-trace
-opentelemetry-sdk==1.24.0
+opentelemetry-sdk==1.25.0
     # via
     #   -r requirements.in
     #   opentelemetry-exporter-gcp-trace
     #   opentelemetry-resourcedetector-gcp
-opentelemetry-semantic-conventions==0.45b0
+opentelemetry-semantic-conventions==0.46b0
     # via
     #   opentelemetry-instrumentation-flask
     #   opentelemetry-instrumentation-requests
     #   opentelemetry-instrumentation-wsgi
     #   opentelemetry-sdk
-opentelemetry-util-http==0.45b0
+opentelemetry-util-http==0.46b0
     # via
     #   opentelemetry-instrumentation-flask
     #   opentelemetry-instrumentation-requests
     #   opentelemetry-instrumentation-wsgi
-packaging==24.0
+packaging==24.1
     # via
     #   gunicorn
     #   opentelemetry-instrumentation-flask
@@ -129,14 +130,14 @@ pycparser==2.22
     # via cffi
 pyjwt==2.8.0
     # via -r requirements.in
-requests==2.32.2
+requests==2.32.3
     # via
     #   -r requirements.in
     #   google-api-core
     #   opentelemetry-resourcedetector-gcp
 rsa==4.9
     # via google-auth
-typing-extensions==4.12.1
+typing-extensions==4.12.2
     # via
     #   opentelemetry-resourcedetector-gcp
     #   opentelemetry-sdk
@@ -151,7 +152,7 @@ wrapt==1.16.0
     #   deprecated
     #   opentelemetry-instrumentation
     #   opentelemetry-instrumentation-jinja2
-zipp==3.19.1
+zipp==3.19.2
     # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
