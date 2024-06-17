@@ -41,7 +41,7 @@ itsdangerous==2.2.0
     # via flask
 jinja2==3.1.4
     # via flask
-locust==2.28.0
+locust==2.29.0
     # via -r requirements.in
 markupsafe==2.1.5
     # via
@@ -55,7 +55,7 @@ pyzmq==26.0.3
     # via locust
 requests==2.32.3
     # via locust
-urllib3==2.2.1
+urllib3==2.2.2
     # via
     #   geventhttpclient
     #   requests
