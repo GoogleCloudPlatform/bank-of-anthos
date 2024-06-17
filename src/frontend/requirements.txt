@@ -16,7 +16,7 @@ charset-normalizer==3.3.2
     # via requests
 click==8.1.7
     # via flask
-cryptography==42.0.7
+cryptography==42.0.8
     # via -r requirements.in
 deprecated==1.2.14
     # via opentelemetry-api
@@ -24,7 +24,7 @@ flask==3.0.3
     # via -r requirements.in
 google-api-core[grpc]==2.19.0
     # via google-cloud-trace
-google-auth==2.29.0
+google-auth==2.30.0
     # via
     #   -r requirements.in
     #   google-api-core
