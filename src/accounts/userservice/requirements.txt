@@ -40,7 +40,7 @@ deprecated==1.2.14
     # via opentelemetry-api
 flask==3.0.3
     # via -r requirements.in
-google-api-core[grpc]==2.19.0
+google-api-core[grpc]==2.19.1
     # via
     #   -r requirements.in
     #   google-cloud-core
@@ -57,7 +57,7 @@ google-cloud-trace==1.13.3
     # via
     #   -r requirements.in
     #   opentelemetry-exporter-gcp-trace
-googleapis-common-protos==1.63.1
+googleapis-common-protos==1.63.2
     # via
     #   -r requirements.in
     #   google-api-core
