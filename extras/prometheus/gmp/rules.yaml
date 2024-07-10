@@ -21,51 +21,51 @@ spec:
   - name: Micro services uptime
     interval: 60s
     rules:
-    - alert: BalancereaderUnavaiable
+    - alert: BalancereaderUnavailable
       expr: probe_success{job="balancereader-probe"} == 0
       for: 1m
       annotations:
         summary: Balance Reader Service is unavailable
-        description: Check Balance Reader pods and it's logs
+        description: Check Balance Reader pods and its logs
       labels:
         severity: 'critical'
-    - alert: ContactsUnavaiable
+    - alert: ContactsUnavailable
       expr: probe_success{job="contacts-probe"} == 0
       for: 1m
       annotations:
-        summary: Contacs Service is unavailable
-        description: Check Contacs pods and it's logs
+        summary: Contacts Service is unavailable
+        description: Check Contacts pods and its logs
       labels:
         severity: 'warning'
-    - alert: FrontendUnavaiable
+    - alert: FrontendUnavailable
       expr: probe_success{job="frontend-probe"} == 0
       for: 1m
       annotations:
         summary: Frontend Service is unavailable
-        description: Check Frontend pods and it's logs
+        description: Check Frontend pods and its logs
       labels:
         severity: 'critical'
-    - alert: LedgerwriterUnavaiable
+    - alert: LedgerwriterUnavailable
       expr: probe_success{job="ledgerwriter-probe"} == 0
       for: 1m
       annotations:
         summary: Ledger Writer Service is unavailable
-        description: Check Ledger Writer pods and it's logs
+        description: Check Ledger Writer pods and its logs
       labels:
         severity: 'critical'
-    - alert: TransactionhistoryUnavaiable
+    - alert: TransactionhistoryUnavailable
       expr: probe_success{job="transactionhistory-probe"} == 0
       for: 1m
       annotations:
         summary: Transaction History Service is unavailable
-        description: Check Transaction History pods and it's logs
+        description: Check Transaction History pods and its logs
       labels:
         severity: 'critical'
-    - alert: UserserviceUnavaiable
+    - alert: UserserviceUnavailable
       expr: probe_success{job="userservice-probe"} == 0
       for: 1m
       annotations:
         summary: User Service is unavailable
-        description: Check User Service pods and it's logs
+        description: Check User Service pods and its logs
       labels:
         severity: 'critical'
