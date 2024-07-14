@@ -8,7 +8,7 @@ blinker==1.8.2
     # via flask
 cachetools==5.3.3
     # via google-auth
-certifi==2024.6.2
+certifi==2024.7.4
     # via requests
 cffi==1.16.0
     # via cryptography
@@ -24,12 +24,12 @@ flask==3.0.3
     # via -r requirements.in
 google-api-core[grpc]==2.19.1
     # via google-cloud-trace
-google-auth==2.30.0
+google-auth==2.31.0
     # via
     #   -r requirements.in
     #   google-api-core
     #   google-cloud-trace
-google-cloud-trace==1.13.3
+google-cloud-trace==1.13.4
     # via opentelemetry-exporter-gcp-trace
 googleapis-common-protos==1.63.2
     # via
@@ -39,7 +39,7 @@ grpcio==1.64.1
     # via
     #   google-api-core
     #   grpcio-status
-grpcio-status==1.62.2
+grpcio-status==1.64.1
     # via google-api-core
 gunicorn==22.0.0
     # via -r requirements.in
@@ -113,7 +113,7 @@ proto-plus==1.24.0
     # via
     #   google-api-core
     #   google-cloud-trace
-protobuf==4.25.3
+protobuf==5.27.2
     # via
     #   google-api-core
     #   google-cloud-trace
