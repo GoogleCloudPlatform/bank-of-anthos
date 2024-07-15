@@ -9,7 +9,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM cypress/included:13.12.0@sha256:02b68dfe04df8e243d6e2e647436e4605d03a72c000a6bbe645ce3592b70d216
+FROM cypress/included:13.13.0@sha256:f9733a2cadc3aa270e40f8ce1158a23cb99703476a9db7154b4ecc51ba02bd5c
 
 WORKDIR /e2e
 COPY . .
