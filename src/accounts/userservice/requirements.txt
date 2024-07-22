@@ -45,7 +45,7 @@ google-api-core[grpc]==2.19.1
     #   -r requirements.in
     #   google-cloud-core
     #   google-cloud-trace
-google-auth==2.31.0
+google-auth==2.32.0
     # via
     #   -r requirements.in
     #   google-api-core
@@ -53,7 +53,7 @@ google-auth==2.31.0
     #   google-cloud-trace
 google-cloud-core==2.4.1
     # via -r requirements.in
-google-cloud-trace==1.13.3
+google-cloud-trace==1.13.4
     # via
     #   -r requirements.in
     #   opentelemetry-exporter-gcp-trace
