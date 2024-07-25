@@ -17,7 +17,8 @@ FROM postgres:16.3-alpine@sha256:de3d7b6e4b5b3fe899e997579d6dfe95a99539d154abe03
 RUN apk add --no-cache coreutils && rm -rf /var/cache/apk/*
 
 # Create a user and group with the same UID and GID as the postgress
-RUN addgroup -S postgres && adduser -S postgres -G postgres
+RUN if ! getent group postgres > /dev/null; then addgroup -S postgres; fi && \
+    if ! getent passwd postgres > /dev/null; then adduser -S postgres -G postgres; fi
 
 # Change ownership of the necessary directories
 RUN chown -R postgres:postgres /var/lib/postgresql /var/run/postgresql
