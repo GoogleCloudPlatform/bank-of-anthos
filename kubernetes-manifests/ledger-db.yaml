@@ -108,6 +108,12 @@ spec:
             runAsGroup: 1000
             runAsNonRoot: true
             runAsUser: 1000
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - all
+            privileged: false
+            readOnlyRootFilesystem: true
       serviceAccount: bank-of-anthos
       serviceAccountName: default
       volumes:
