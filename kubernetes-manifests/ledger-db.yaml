@@ -103,6 +103,11 @@ spec:
             - mountPath: /var/lib/postgresql/data
               name: postgresdb
               subPath: postgres
+          securityContext:
+            fsGroup: 1000
+            runAsGroup: 1000
+            runAsNonRoot: true
+            runAsUser: 1000
       serviceAccount: bank-of-anthos
       serviceAccountName: default
       volumes:
