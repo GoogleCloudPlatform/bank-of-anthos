@@ -12,7 +12,7 @@ bleach==6.1.0
     # via -r requirements.in
 blinker==1.8.2
     # via flask
-cachetools==5.3.3
+cachetools==5.4.0
     # via
     #   -r requirements.in
     #   google-auth
@@ -64,7 +64,7 @@ googleapis-common-protos==1.63.2
     #   grpcio-status
 greenlet==3.0.3
     # via sqlalchemy
-grpcio==1.64.1
+grpcio==1.65.1
     # via
     #   -r requirements.in
     #   google-api-core
