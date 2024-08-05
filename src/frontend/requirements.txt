@@ -19,7 +19,9 @@ click==8.1.7
 cryptography==42.0.8
     # via -r requirements.in
 deprecated==1.2.14
-    # via opentelemetry-api
+    # via
+    #   opentelemetry-api
+    #   opentelemetry-semantic-conventions
 flask==3.0.3
     # via -r requirements.in
 google-api-core[grpc]==2.19.1
@@ -29,23 +31,23 @@ google-auth==2.32.0
     #   -r requirements.in
     #   google-api-core
     #   google-cloud-trace
-google-cloud-trace==1.13.4
+google-cloud-trace==1.13.5
     # via opentelemetry-exporter-gcp-trace
 googleapis-common-protos==1.63.2
     # via
     #   google-api-core
     #   grpcio-status
-grpcio==1.65.1
+grpcio==1.65.4
     # via
     #   google-api-core
     #   grpcio-status
-grpcio-status==1.65.1
+grpcio-status==1.65.4
     # via google-api-core
 gunicorn==22.0.0
     # via -r requirements.in
 idna==3.7
     # via requests
-importlib-metadata==7.1.0
+importlib-metadata==8.0.0
     # via
     #   opentelemetry-api
     #   opentelemetry-instrumentation-flask
@@ -57,7 +59,7 @@ markupsafe==2.1.5
     # via
     #   jinja2
     #   werkzeug
-opentelemetry-api==1.25.0
+opentelemetry-api==1.26.0
     # via
     #   opentelemetry-exporter-gcp-trace
     #   opentelemetry-instrumentation
@@ -71,36 +73,36 @@ opentelemetry-api==1.25.0
     #   opentelemetry-semantic-conventions
 opentelemetry-exporter-gcp-trace==1.6.0
     # via -r requirements.in
-opentelemetry-instrumentation==0.46b0
+opentelemetry-instrumentation==0.47b0
     # via
     #   opentelemetry-instrumentation-flask
     #   opentelemetry-instrumentation-jinja2
     #   opentelemetry-instrumentation-requests
     #   opentelemetry-instrumentation-wsgi
-opentelemetry-instrumentation-flask==0.46b0
+opentelemetry-instrumentation-flask==0.47b0
     # via -r requirements.in
-opentelemetry-instrumentation-jinja2==0.46b0
+opentelemetry-instrumentation-jinja2==0.47b0
     # via -r requirements.in
-opentelemetry-instrumentation-requests==0.46b0
+opentelemetry-instrumentation-requests==0.47b0
     # via -r requirements.in
-opentelemetry-instrumentation-wsgi==0.46b0
+opentelemetry-instrumentation-wsgi==0.47b0
     # via opentelemetry-instrumentation-flask
 opentelemetry-propagator-gcp==1.6.0
     # via -r requirements.in
 opentelemetry-resourcedetector-gcp==1.6.0a0
     # via opentelemetry-exporter-gcp-trace
-opentelemetry-sdk==1.25.0
+opentelemetry-sdk==1.26.0
     # via
     #   -r requirements.in
     #   opentelemetry-exporter-gcp-trace
     #   opentelemetry-resourcedetector-gcp
-opentelemetry-semantic-conventions==0.46b0
+opentelemetry-semantic-conventions==0.47b0
     # via
     #   opentelemetry-instrumentation-flask
     #   opentelemetry-instrumentation-requests
     #   opentelemetry-instrumentation-wsgi
     #   opentelemetry-sdk
-opentelemetry-util-http==0.46b0
+opentelemetry-util-http==0.47b0
     # via
     #   opentelemetry-instrumentation-flask
     #   opentelemetry-instrumentation-requests
@@ -113,7 +115,7 @@ proto-plus==1.24.0
     # via
     #   google-api-core
     #   google-cloud-trace
-protobuf==5.27.2
+protobuf==5.27.3
     # via
     #   google-api-core
     #   google-cloud-trace
