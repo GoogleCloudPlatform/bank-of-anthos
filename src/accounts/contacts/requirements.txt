@@ -20,7 +20,7 @@ certifi==2024.7.4
     # via
     #   -r requirements.in
     #   requests
-cffi==1.16.0
+cffi==1.17.0
     # via
     #   -r requirements.in
     #   cryptography
@@ -47,7 +47,7 @@ google-api-core[grpc]==2.19.1
     #   -r requirements.in
     #   google-cloud-core
     #   google-cloud-trace
-google-auth==2.32.0
+google-auth==2.33.0
     # via
     #   -r requirements.in
     #   google-api-core
@@ -55,7 +55,7 @@ google-auth==2.32.0
     #   google-cloud-trace
 google-cloud-core==2.4.1
     # via -r requirements.in
-google-cloud-trace==1.13.4
+google-cloud-trace==1.13.5
     # via
     #   -r requirements.in
     #   opentelemetry-exporter-gcp-trace
@@ -66,12 +66,12 @@ googleapis-common-protos==1.63.2
     #   grpcio-status
 greenlet==3.0.3
     # via sqlalchemy
-grpcio==1.65.1
+grpcio==1.65.4
     # via
     #   -r requirements.in
     #   google-api-core
     #   grpcio-status
-grpcio-status==1.62.2
+grpcio-status==1.62.3
     # via google-api-core
 gunicorn==22.0.0
     # via -r requirements.in
@@ -99,7 +99,7 @@ markupsafe==2.1.5
     #   -r requirements.in
     #   jinja2
     #   werkzeug
-more-itertools==10.3.0
+more-itertools==10.4.0
     # via -r requirements.in
 opentelemetry-api==1.26.0
     # via
@@ -186,7 +186,7 @@ pycparser==2.22
     #   cffi
 pycryptodome==3.20.0
     # via -r requirements.in
-pyjwt==2.8.0
+pyjwt==2.9.0
     # via -r requirements.in
 pyparsing==3.1.2
     # via -r requirements.in
@@ -211,7 +211,7 @@ six==1.16.0
     # via
     #   -r requirements.in
     #   bleach
-sqlalchemy==1.4.52
+sqlalchemy==1.4.53
     # via -r requirements.in
 typing-extensions==4.12.2
     # via
@@ -235,7 +235,7 @@ wrapt==1.16.0
     #   deprecated
     #   opentelemetry-instrumentation
     #   opentelemetry-instrumentation-sqlalchemy
-zipp==3.19.2
+zipp==3.20.0
     # via
     #   -r requirements.in
     #   importlib-metadata
