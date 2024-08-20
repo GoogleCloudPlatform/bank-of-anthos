@@ -57,14 +57,14 @@
             <dependency>
                 <groupId>com.google.cloud</groupId>
                 <artifactId>libraries-bom</artifactId>
-                <version>26.43.0</version>
+                <version>26.44.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>io.micrometer</groupId>
                 <artifactId>micrometer-bom</artifactId>
-                <version>1.13.2</version>
+                <version>1.13.3</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -95,7 +95,7 @@
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-stackdriver</artifactId>
-            <version>1.13.2</version>
+            <version>1.13.3</version>
             <exclusions>
                 <exclusion>
                     <groupId>ch.qos.logback</groupId>
@@ -144,7 +144,7 @@
         <dependency>
             <groupId>io.lettuce</groupId>
             <artifactId>lettuce-core</artifactId>
-            <version>6.3.2.RELEASE</version>
+            <version>6.4.0.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>com.auth0</groupId>
