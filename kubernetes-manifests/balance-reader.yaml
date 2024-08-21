@@ -193,7 +193,8 @@ spec:
       tier: backend
   template:
     metadata:
-      annotations: null
+      annotations:
+        instrumentation.opentelemetry.io/inject-java: "true"
       labels:
         app: balancereader
         application: bank-of-splunk
@@ -223,13 +224,20 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
+            - name: SPLUNK_OTEL_AGENT
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: http://$(SPLUNK_OTEL_AGENT):4318
+            - name: OTEL_SERVICE_NAME
+              value: balance-reader
           envFrom:
             - configMapRef:
                 name: environment-config
             - configMapRef:
                 name: ledger-db-config
-          #image: ghcr.io/splunk/bank-of-splunk/balancereader:v1.0.3@sha256:3405c38a669c804c2f6499fb7488da4005c4ba71394d5b10ac3f9cba4314750f
-          image: pcjmhagen/balancereader
+          image: ghcr.io/splunk/bank-of-splunk/balancereader:v1.0.3@sha256:3405c38a669c804c2f6499fb7488da4005c4ba71394d5b10ac3f9cba4314750f
           imagePullPolicy: Always
           livenessProbe:
             httpGet:
