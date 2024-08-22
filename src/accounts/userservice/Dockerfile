@@ -37,5 +37,8 @@ ENV LOG_LEVEL info
 # Add application code.
 COPY . .
 
+# Ensure files are readable for non-root users
+RUN chmod a+r *
+
 # Start server using gunicorn
 CMD gunicorn -b :$PORT --threads 2 --log-config logging.conf --log-level=$LOG_LEVEL "userservice:create_app()"
