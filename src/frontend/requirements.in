@@ -4,7 +4,7 @@ urllib3==2.2.2
 pyjwt==2.9.0
 cryptography==42.0.8
 gunicorn==22.0.0
-google-auth==2.33.0
+google-auth==2.34.0
 opentelemetry-sdk==1.26.0
 opentelemetry-exporter-gcp-trace==1.6.0
 opentelemetry-propagator-gcp==1.6.0
