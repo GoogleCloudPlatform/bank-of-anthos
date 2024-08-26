@@ -76,7 +76,7 @@ resource "google_service_account_iam_member" "gke_workload_staging_identity" {
 # CloudSQL Postgres staging instance
 module "cloudsql_staging" {
   source  = "GoogleCloudPlatform/sql-db/google//modules/postgresql"
-  version = "~> 20.0.0"
+  version = "~> 20.2.0"
 
   project_id = var.project_id
   region     = var.region
