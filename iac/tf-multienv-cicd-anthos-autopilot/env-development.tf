@@ -44,6 +44,7 @@ module "gke_development" {
   enable_vertical_pod_autoscaling = true
   horizontal_pod_autoscaling      = true
   create_service_account          = false # currently not supported by terraform for autopilot clusters
+  deletion_protection             = false
   cluster_resource_labels         = { "mesh_id" : "proj-${data.google_project.project.number}" }
 
   providers = {
@@ -85,7 +86,6 @@ resource "google_service_account_iam_member" "gke_workload_development_admin" {
 
 # create fleet membership for development GKE cluster
 resource "google_gke_hub_membership" "development" {
-  provider      = google-beta
   project       = var.project_id
   membership_id = "development-membership"
   endpoint {
@@ -108,7 +108,6 @@ resource "google_gke_hub_feature_membership" "asm_development" {
   mesh {
     management = "MANAGEMENT_AUTOMATIC"
   }
-  provider = google-beta
 }
 
 
@@ -121,6 +120,7 @@ resource "google_gke_hub_feature_membership" "acm_development" {
   membership = google_gke_hub_membership.development.membership_id
   configmanagement {
     config_sync {
+      enabled = true
       git {
         sync_repo   = local.sync_repo_url
         sync_branch = var.sync_branch
@@ -130,6 +130,4 @@ resource "google_gke_hub_feature_membership" "acm_development" {
       source_format = "unstructured"
     }
   }
-  provider = google-beta
 }
-
