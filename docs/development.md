@@ -120,7 +120,7 @@ export PROJECT_ID="your project id"
 The [`skaffold dev`](https://skaffold.dev/docs/references/cli/#skaffold-dev) command watches your local code, and continuously builds and deploys container images to your GKE cluster anytime you save a file. Skaffold uses Docker Desktop to build the Python images, then [Jib](https://github.com/GoogleContainerTools/jib#jib) (installed via Maven) to build the Java images. 
 
 ```
-skaffold dev --profile development --default-repo=gcr.io/${PROJECT_ID}/bank-of-anthos
+skaffold dev --profile development --default-repo=us-central1-docker.pkg.dev/${PROJECT_ID}/bank-of-anthos
 ```
 
 Note that you can skip tests by running `skaffold` with `--skip-tests=true`, if needed.
@@ -130,7 +130,7 @@ Note that you can skip tests by running `skaffold` with `--skip-tests=true`, if 
 The [`skaffold run`](https://skaffold.dev/docs/references/cli/#skaffold-run) command build and deploys the services to your GKE cluster one time, then exits. 
 
 ```
-skaffold run --profile development --default-repo=gcr.io/${PROJECT_ID}/bank-of-anthos
+skaffold run --profile development --default-repo=us-central1-docker.pkg.dev/${PROJECT_ID}/bank-of-anthos
 ```
 
 ### Running services selectively
@@ -143,7 +143,7 @@ Skaffold reads the [skaffold.yaml](../skaffold.yaml) file to understand the proj
 
 For example, to work with only the `frontend` module, run:
 ```
-skaffold dev --profile development --default-repo=gcr.io/${PROJECT_ID}/bank-of-anthos --module frontend
+skaffold dev --profile development --default-repo=us-central1-docker.pkg.dev/${PROJECT_ID}/bank-of-anthos --module frontend
 ```
 
 ## Cleaning up your deployment
