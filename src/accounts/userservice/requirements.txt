@@ -20,7 +20,7 @@ certifi==2024.8.30
     # via
     #   -r requirements.in
     #   requests
-cffi==1.17.0
+cffi==1.17.1
     # via
     #   -r requirements.in
     #   cryptography
@@ -64,7 +64,7 @@ googleapis-common-protos==1.65.0
     #   -r requirements.in
     #   google-api-core
     #   grpcio-status
-greenlet==3.0.3
+greenlet==3.1.0
     # via sqlalchemy
 grpcio==1.66.1
     # via
@@ -99,7 +99,7 @@ markupsafe==2.1.5
     #   -r requirements.in
     #   jinja2
     #   werkzeug
-more-itertools==10.4.0
+more-itertools==10.5.0
     # via -r requirements.in
 opentelemetry-api==1.27.0
     # via
@@ -211,7 +211,7 @@ six==1.16.0
     # via
     #   -r requirements.in
     #   bleach
-sqlalchemy==1.4.53
+sqlalchemy==1.4.54
     # via -r requirements.in
 typing-extensions==4.12.2
     # via

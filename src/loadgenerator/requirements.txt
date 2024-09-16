@@ -33,9 +33,9 @@ gevent==24.2.1
     #   locust
 geventhttpclient==2.3.1
     # via locust
-greenlet==3.0.3
+greenlet==3.1.0
     # via gevent
-idna==3.8
+idna==3.10
     # via requests
 itsdangerous==2.2.0
     # via flask
@@ -47,7 +47,7 @@ markupsafe==2.1.5
     # via
     #   jinja2
     #   werkzeug
-msgpack==1.0.8
+msgpack==1.1.0
     # via locust
 psutil==6.0.0
     # via locust
@@ -55,7 +55,7 @@ pyzmq==26.2.0
     # via locust
 requests==2.32.3
     # via locust
-urllib3==2.2.2
+urllib3==2.2.3
     # via
     #   geventhttpclient
     #   requests

@@ -3,7 +3,7 @@ bcrypt==4.2.0
 bleach==6.1.0
 cachetools==5.5.0
 certifi==2024.8.30
-cffi==1.17.0
+cffi==1.17.1
 chardet==5.2.0
 click==8.1.7
 cryptography==43.0.1
@@ -20,7 +20,7 @@ importlib-metadata==6.11.0
 itsdangerous==2.2.0
 jinja2==3.1.4
 markupsafe==2.1.5
-more-itertools==10.4.0
+more-itertools==10.5.0
 opentelemetry-sdk==1.27.0
 opentelemetry-exporter-gcp-trace==1.7.0
 opentelemetry-propagator-gcp==1.7.0
@@ -43,7 +43,7 @@ pytz==2023.4
 requests==2.32.3
 rsa==4.9
 six==1.16.0
-sqlalchemy==1.4.53
+sqlalchemy==1.4.54
 urllib3==2.2.2
 wcwidth==0.2.13
 webencodings==0.5.1
