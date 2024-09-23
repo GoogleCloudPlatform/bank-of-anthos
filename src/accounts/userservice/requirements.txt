@@ -64,7 +64,7 @@ googleapis-common-protos==1.65.0
     #   -r requirements.in
     #   google-api-core
     #   grpcio-status
-greenlet==3.1.0
+greenlet==3.1.1
     # via sqlalchemy
 grpcio==1.66.1
     # via
@@ -75,7 +75,7 @@ grpcio-status==1.62.3
     # via google-api-core
 gunicorn==22.0.0
     # via -r requirements.in
-idna==3.8
+idna==3.10
     # via
     #   -r requirements.in
     #   requests
@@ -171,12 +171,12 @@ psycopg2-binary==2.9.9
     # via -r requirements.in
 py==1.11.0
     # via -r requirements.in
-pyasn1==0.6.0
+pyasn1==0.6.1
     # via
     #   -r requirements.in
     #   pyasn1-modules
     #   rsa
-pyasn1-modules==0.4.0
+pyasn1-modules==0.4.1
     # via
     #   -r requirements.in
     #   google-auth
@@ -217,7 +217,7 @@ typing-extensions==4.12.2
     # via
     #   opentelemetry-resourcedetector-gcp
     #   opentelemetry-sdk
-urllib3==2.2.2
+urllib3==2.2.3
     # via
     #   -r requirements.in
     #   requests
@@ -235,7 +235,7 @@ wrapt==1.16.0
     #   deprecated
     #   opentelemetry-instrumentation
     #   opentelemetry-instrumentation-sqlalchemy
-zipp==3.20.1
+zipp==3.20.2
     # via
     #   -r requirements.in
     #   importlib-metadata

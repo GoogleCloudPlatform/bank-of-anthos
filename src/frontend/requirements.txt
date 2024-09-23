@@ -24,7 +24,7 @@ deprecated==1.2.14
     #   opentelemetry-semantic-conventions
 flask==3.0.3
     # via -r requirements.in
-google-api-core[grpc]==2.19.2
+google-api-core[grpc]==2.20.0
     # via google-cloud-trace
 google-auth==2.34.0
     # via
@@ -115,7 +115,7 @@ proto-plus==1.24.0
     # via
     #   google-api-core
     #   google-cloud-trace
-protobuf==5.28.1
+protobuf==5.28.2
     # via
     #   google-api-core
     #   google-cloud-trace
@@ -143,7 +143,7 @@ typing-extensions==4.12.2
     # via
     #   opentelemetry-resourcedetector-gcp
     #   opentelemetry-sdk
-urllib3==2.2.2
+urllib3==2.2.3
     # via
     #   -r requirements.in
     #   requests
