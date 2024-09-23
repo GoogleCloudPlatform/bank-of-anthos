@@ -15,7 +15,7 @@ google-cloud-trace==1.13.5
 googleapis-common-protos==1.65.0
 grpcio==1.66.1
 gunicorn==22.0.0
-idna==3.8
+idna==3.10
 importlib-metadata==6.11.0
 itsdangerous==2.2.0
 jinja2==3.1.4
@@ -31,8 +31,8 @@ pluggy==1.5.0
 protobuf==4.25.4
 psycopg2-binary==2.9.9
 py==1.11.0
-pyasn1==0.6.0
-pyasn1-modules==0.4.0
+pyasn1==0.6.1
+pyasn1-modules==0.4.1
 pycparser==2.22
 pycryptodome==3.20.0
 pyjwt==2.9.0
@@ -44,8 +44,8 @@ requests==2.32.3
 rsa==4.9
 six==1.16.0
 sqlalchemy==1.4.54
-urllib3==2.2.2
+urllib3==2.2.3
 wcwidth==0.2.13
 webencodings==0.5.1
 wrapt==1.16.0
-zipp==3.20.1
+zipp==3.20.2
