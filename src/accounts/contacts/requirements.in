@@ -8,8 +8,8 @@ chardet==5.2.0
 click==8.1.7
 cryptography==43.0.1
 flask==3.0.3
-google-api-core==2.19.2
-google-auth==2.34.0
+google-api-core==2.20.0
+google-auth==2.35.0
 google-cloud-core==2.4.1
 google-cloud-trace==1.13.5
 googleapis-common-protos==1.65.0
@@ -28,7 +28,7 @@ opentelemetry-instrumentation-flask==0.48b0
 opentelemetry-instrumentation-sqlalchemy==0.48b0
 packaging==23.2
 pluggy==1.5.0
-protobuf==4.25.4
+protobuf==4.25.5
 psycopg2-binary==2.9.9
 py==1.11.0
 pyasn1==0.6.1
