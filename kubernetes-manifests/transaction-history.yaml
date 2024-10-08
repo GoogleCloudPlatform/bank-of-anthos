@@ -87,7 +87,7 @@ spec:
                 name: ledger-db-config
             - configMapRef:
                 name: demo-data-config
-          image: ghcr.io/splunk/bank-of-splunk/ledger-db:v1.0.3@sha256:fd67e773a523a88128a02c1109175905e62f1eb66730dde712f72c3fc0b695fb
+          image: ghcr.io/splunk/bank-of-splunk/ledger-db:v1.0.5@sha256:7789394ae42ddb186da9a0f9edf59fdf391b2767bb979836d4d61b0f9673705b
           name: postgres
           ports:
             - containerPort: 5432
@@ -193,8 +193,7 @@ spec:
       tier: backend
   template:
     metadata:
-      annotations:
-        instrumentation.opentelemetry.io/inject-java: "true"
+      annotations: null
       labels:
         app: transactionhistory
         application: bank-of-splunk
@@ -205,7 +204,7 @@ spec:
       containers:
         - env:
             - name: VERSION
-              value: v1.0.3
+              value: v1.0.5
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
@@ -228,20 +227,12 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
-            - name: SPLUNK_OTEL_AGENT
-              valueFrom:
-                fieldRef:
-                  fieldPath: status.hostIP
-            - name: OTEL_EXPORTER_OTLP_ENDPOINT
-              value: http://$(SPLUNK_OTEL_AGENT):4318
-            - name: OTEL_SERVICE_NAME
-              value: transaction-history
           envFrom:
             - configMapRef:
                 name: environment-config
             - configMapRef:
                 name: ledger-db-config
-          image: ghcr.io/splunk/bank-of-splunk/transactionhistory:v1.0.3@sha256:46e3e2bdc036a5b409d2e5b94246fd59fa34830282b86e985a2d64d35ef54006
+          image: ghcr.io/splunk/bank-of-splunk/transactionhistory:v1.0.5@sha256:d0fbbb9fe6f3589c0372301ad159975af5cb309891f135444cca49092e66aaa6
           livenessProbe:
             httpGet:
               path: /healthy

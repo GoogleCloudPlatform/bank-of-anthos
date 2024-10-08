@@ -63,7 +63,7 @@ spec:
       containers:
         - env:
             - name: VERSION
-              value: v1.0.3
+              value: v1.0.5
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
@@ -74,12 +74,6 @@ spec:
               value: info
             - name: BANK_NAME
               value: Bank of Splunk
-            - name: SPLUNK_TEST
-              value: “A”
-            - name: SPLUNK_VERSION
-              value: “1.90"
-            - name: OTEL_RESOURCE_ATTRIBUTES
-              value: “version=1.90”
             - name: INSTANCE
               valueFrom:
                 fieldRef:
@@ -136,19 +130,12 @@ spec:
                   key: DEMO_OAUTH_REDIRECT_URI
                   name: oauth-config
                   optional: true
-            - name: POD_ZONE
-              valueFrom:
-                secretKeyRef:
-                  name: workshop-secret
-                  key: realm
-            - name: ENV_PLATFORM
-              value: "k3s"                  
           envFrom:
             - configMapRef:
                 name: environment-config
             - configMapRef:
                 name: service-api-config
-          image: ghcr.io/splunk/bank-of-splunk/frontend:v1.0.3@sha256:d331e232a4adcd79f192cb3471c72134b205482df2cce0bb5e32b8341a57f9e8
+          image: ghcr.io/splunk/bank-of-splunk/frontend:v1.0.5@sha256:51729864802ce752800597073d54cf0ffdaeca86807eb03a4596a5b39e0ddb9b
           livenessProbe:
             httpGet:
               path: /ready
@@ -156,7 +143,7 @@ spec:
             initialDelaySeconds: 60
             periodSeconds: 15
             timeoutSeconds: 30
-          name: front
+          name: frontend
           readinessProbe:
             httpGet:
               path: /ready
