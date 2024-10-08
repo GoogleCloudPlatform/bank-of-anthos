@@ -52,7 +52,6 @@ google-auth==2.35.0
     #   opentelemetry-api
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-propagator-b3
-flask==3.0.2
     # via -r requirements.in
 google-cloud-trace==1.13.5
     # via
