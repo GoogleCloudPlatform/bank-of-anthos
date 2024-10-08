@@ -1,43 +1,37 @@
-<!-- Bank of Anthos Navigation Bar -->
-<header>
-  <nav class="navbar navbar-expand-lg navbar-top">
-    <div class="container">
-      {% if cymbal_logo == "true" %} <!-- Only if it is set to true -->
-        <div class="logo-container">
-          <a href="/"><img id="cymbal-logo" src="static/img/cymbal.svg"></a>
-        </div>
-      {% else %}
-        <!-- Handle the case when cymbal_logo is not set to "true" -->
-        {% if splunk_test != "B" %}   <!-- Any version of Splunk Test except B -->
-          <a class="navbar-brand">
-            {{ bank_name }} <small style="color:#343434"></small>
-          </a>
+    <!-- Bank of Anthos Navigation Bar -->
+    <header>
+      <nav class="navbar navbar-expand-lg navbar-top">
+        <div class="container">
+        {% if cymbal_logo == "true" %}
+          <div class="logo-container">
+            <a href="/"><img id="cymbal-logo" src="static/img/cymbal.svg"></a>
+          </div>
         {% else %}
-        <a class="navbar-brand">
-          {{ bank_name }} <small style="color:#343434">a <b>CISCO</b> company - v{{ splunk_version }}</small>
-        </a>
+          <a class="navbar-brand">
+            {{ bank_name }} <small style="color:#343434">a <b>CISCO</b> company</small>
+          </a>
         {% endif %}
-      {% endif %}
-
-      {% if name %}
-        <button type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler navbar-toggler-right">
-          <span class="material-icons">menu</span>
-        </button>
-        <div class="justify-content-end collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav">
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="accountDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <span id="account-user-name">{{ name }}</span>
-              </a>
-              <div class="dropdown-menu" aria-labelledby="accountDropdown">
-                <form id="logout-form" method="POST" action="/logout">
-                  <a class="dropdown-item" onclick="document.querySelector('#logout-form').submit();">Sign out<i class="fa-icon-spacer fas fa-sign-out-alt"></i></a>
-                </form>
-              </div>
-            </li>
-          </ul>
+        {% if name %}
+          <button type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler navbar-toggler-right">
+            <span class="material-icons">menu</span>
+          </button>
+          <div class="justify-content-end collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="accountDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <span>
+                      <span id="account-user-name">{{ name }}</span>
+                  </span>
+                </a>
+                <div class="dropdown-menu" aria-labelledby="accountDropdown">
+                  <form id="logout-form" method="POST" action="/logout">
+                    <a class="dropdown-item" onclick="document.querySelector('#logout-form').submit();">Sign out<i class="fa-icon-spacer fas fa-sign-out-alt"></i></a>
+                  </form>
+                </div>
+              </li>
+            </ul>
+          </div>
+        {% endif %}
         </div>
-      {% endif %}
-    </div>
-  </nav>
-</header>
+      </nav>
+    </header>
