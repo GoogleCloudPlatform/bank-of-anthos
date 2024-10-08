@@ -46,6 +46,7 @@ spec:
             - name: LOG_LEVEL
               value: error
           image: ghcr.io/splunk/bank-of-splunk/loadgenerator:v1.0.9@sha256:c95d9e97b46ca44bafc305586b0634fcb5c195fe3e9c349f46c3e7b5129961c4
+          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/loadgenerator:v0.6.5@sha256:24369e6b21c773d6afc016997d805b08b1a3ec1c5a6e1d281298180f2f45e0b5
           name: loadgenerator
           resources:
             limits:

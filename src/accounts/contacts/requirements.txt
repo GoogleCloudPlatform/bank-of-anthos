@@ -6,19 +6,21 @@
 #
 attrs==23.2.0
     # via -r requirements.in
-bcrypt==4.1.2
+bcrypt==4.2.0
     # via -r requirements.in
 bleach==6.1.0
     # via -r requirements.in
-blinker==1.7.0
+blinker==1.8.2
     # via flask
-cachetools==5.3.3
-    # via -r requirements.in
-certifi==2023.11.17
+cachetools==5.5.0
+    # via
+    #   -r requirements.in
+    #   google-auth
+certifi==2024.8.30
     # via
     #   -r requirements.in
     #   requests
-cffi==1.16.0
+cffi==1.17.1
     # via
     #   -r requirements.in
     #   cryptography
@@ -30,28 +32,49 @@ click==8.1.7
     # via
     #   -r requirements.in
     #   flask
-coverage[toml]==7.4.4
+coverage[toml]==7.6.1
     # via pytest-cov
-cryptography==42.0.5
+cryptography==43.0.1
+    # via -r requirements.in
+deprecated==1.2.14
+    # via
+    #   opentelemetry-api
+    #   opentelemetry-semantic-conventions
+flask==3.0.3
+    # via -r requirements.in
+google-api-core[grpc]==2.20.0
     # via
     #   -r requirements.in
-    #   splunk-opentelemetry
-deprecated==1.2.14
+    #   google-cloud-core
+    #   google-cloud-trace
+google-auth==2.35.0
     # via
     #   opentelemetry-api
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-propagator-b3
 flask==3.0.2
     # via -r requirements.in
-googleapis-common-protos==1.63.0
-    # via opentelemetry-exporter-otlp-proto-grpc
-grpcio==1.62.1
+google-cloud-trace==1.13.5
     # via
     #   -r requirements.in
-    #   opentelemetry-exporter-otlp-proto-grpc
-gunicorn==21.2.0
+    #   opentelemetry-exporter-gcp-trace
+googleapis-common-protos==1.65.0
+    # via
+    #   -r requirements.in
+    #   google-api-core
+    #   grpcio-status
+greenlet==3.1.1
+    # via sqlalchemy
+grpcio==1.66.1
+    # via
+    #   -r requirements.in
+    #   google-api-core
+    #   grpcio-status
+grpcio-status==1.62.3
+    # via google-api-core
+gunicorn==22.0.0
     # via -r requirements.in
-idna==3.6
+idna==3.10
     # via
     #   -r requirements.in
     #   requests
@@ -59,13 +82,14 @@ importlib-metadata==6.11.0
     # via
     #   -r requirements.in
     #   opentelemetry-api
+    #   opentelemetry-instrumentation-flask
 iniconfig==2.0.0
     # via pytest
-itsdangerous==2.1.2
+itsdangerous==2.2.0
     # via
     #   -r requirements.in
     #   flask
-jinja2==3.1.3
+jinja2==3.1.4
     # via
     #   -r requirements.in
     #   flask
@@ -74,49 +98,59 @@ markupsafe==2.1.5
     #   -r requirements.in
     #   jinja2
     #   werkzeug
-more-itertools==10.2.0
+more-itertools==10.5.0
     # via -r requirements.in
-opentelemetry-api==1.23.0
+opentelemetry-api==1.27.0
     # via
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-instrumentation
     #   opentelemetry-instrumentation-system-metrics
     #   opentelemetry-propagator-b3
     #   opentelemetry-sdk
-    #   splunk-opentelemetry
-opentelemetry-exporter-otlp-proto-common==1.23.0
-    # via opentelemetry-exporter-otlp-proto-grpc
-opentelemetry-exporter-otlp-proto-grpc==1.23.0
-    # via splunk-opentelemetry
-opentelemetry-instrumentation==0.44b0
-    # via splunk-opentelemetry
-opentelemetry-instrumentation-system-metrics==0.44b0
-    # via splunk-opentelemetry
-opentelemetry-propagator-b3==1.23.0
-    # via splunk-opentelemetry
-opentelemetry-proto==1.23.0
+    #   opentelemetry-semantic-conventions
+opentelemetry-exporter-gcp-trace==1.7.0
+    # via -r requirements.in
+opentelemetry-instrumentation==0.48b0
     # via
-    #   opentelemetry-exporter-otlp-proto-common
-    #   opentelemetry-exporter-otlp-proto-grpc
-opentelemetry-sdk==1.23.0
+    #   opentelemetry-instrumentation-flask
+    #   opentelemetry-instrumentation-sqlalchemy
+    #   opentelemetry-instrumentation-wsgi
+opentelemetry-instrumentation-flask==0.48b0
+    # via -r requirements.in
+opentelemetry-instrumentation-sqlalchemy==0.48b0
+    # via -r requirements.in
+opentelemetry-instrumentation-wsgi==0.48b0
+    # via opentelemetry-instrumentation-flask
+opentelemetry-propagator-gcp==1.7.0
+    # via -r requirements.in
+opentelemetry-resourcedetector-gcp==1.7.0a0
+    # via opentelemetry-exporter-gcp-trace
+opentelemetry-sdk==1.27.0
     # via
-    #   opentelemetry-exporter-otlp-proto-grpc
-    #   opentelemetry-instrumentation-system-metrics
-    #   splunk-opentelemetry
-opentelemetry-semantic-conventions==0.44b0
+    #   -r requirements.in
+    #   opentelemetry-exporter-gcp-trace
+    #   opentelemetry-resourcedetector-gcp
+opentelemetry-semantic-conventions==0.48b0
     # via
     #   opentelemetry-sdk
-    #   splunk-opentelemetry
+opentelemetry-util-http==0.48b0
+    # via
+    #   opentelemetry-instrumentation-flask
+    #   opentelemetry-instrumentation-wsgi
 packaging==23.2
     # via
     #   -r requirements.in
     #   gunicorn
     #   pytest
-pluggy==1.4.0
+pluggy==1.5.0
     # via
     #   -r requirements.in
     #   pytest
-protobuf==4.25.3
+proto-plus==1.24.0
+    # via
+    #   google-api-core
+    #   google-cloud-trace
+protobuf==4.25.5
     # via
     #   -r requirements.in
     #   googleapis-common-protos
@@ -128,22 +162,24 @@ psycopg2-binary==2.9.9
     # via -r requirements.in
 py==1.11.0
     # via -r requirements.in
-pyasn1==0.5.1
+pyasn1==0.6.1
     # via
     #   -r requirements.in
     #   pyasn1-modules
     #   rsa
-pyasn1-modules==0.3.0
-    # via -r requirements.in
-pycparser==2.21
+pyasn1-modules==0.4.1
+    # via
+    #   -r requirements.in
+    #   google-auth
+pycparser==2.22
     # via
     #   -r requirements.in
     #   cffi
 pycryptodome==3.20.0
     # via -r requirements.in
-pyjwt==2.8.0
+pyjwt==2.9.0
     # via -r requirements.in
-pyparsing==3.1.2
+pyparsing==3.1.4
     # via -r requirements.in
 pytest==7.4.4
     # via
@@ -153,21 +189,24 @@ pytest-cov==4.1.0
     # via -r requirements.in
 pytz==2023.4
     # via -r requirements.in
-requests==2.31.0
-    # via -r requirements.in
+requests==2.32.3
+    # via
+    #   -r requirements.in
+    #   google-api-core
+    #   opentelemetry-resourcedetector-gcp
 rsa==4.9
     # via -r requirements.in
 six==1.16.0
     # via
     #   -r requirements.in
     #   bleach
-splunk-opentelemetry[all]==1.18.0
+sqlalchemy==1.4.54
     # via -r requirements.in
-sqlalchemy==1.4.52
-    # via -r requirements.in
-typing-extensions==4.10.0
-    # via opentelemetry-sdk
-urllib3==2.2.1
+typing-extensions==4.12.2
+    # via
+    #   opentelemetry-resourcedetector-gcp
+    #   opentelemetry-sdk
+urllib3==2.2.3
     # via
     #   -r requirements.in
     #   requests
@@ -177,14 +216,15 @@ webencodings==0.5.1
     # via
     #   -r requirements.in
     #   bleach
-werkzeug==3.0.1
+werkzeug==3.0.4
     # via flask
 wrapt==1.16.0
     # via
     #   -r requirements.in
     #   deprecated
     #   opentelemetry-instrumentation
-zipp==3.17.0
+    #   opentelemetry-instrumentation-sqlalchemy
+zipp==3.20.2
     # via
     #   -r requirements.in
     #   importlib-metadata

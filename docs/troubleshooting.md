@@ -66,8 +66,8 @@ Events:
   ----     ------       ----               ----                                             -------
   Normal   Scheduled    73s                default-scheduler                                Successfully assigned default/balancereader-fb6784fc-9fw2k to gke-toggles-default-pool-28882412-xljt
   Warning  FailedMount  72s (x2 over 72s)  kubelet, gke-toggles-default-pool-28882412-xljt  MountVolume.SetUp failed for volume "publickey" : secret "jwt-key" not found
-  Normal   Pulling      70s                kubelet, gke-toggles-default-pool-28882412-xljt  Pulling image "gcr.io/my-cool-project/bank-of-anthos/gcr.io/bank-of-anthos-ci/balancereader:ver.0-171-gd459ddb-dirty@sha256:5b178bd029d04e25bf68df57096b961a28dfb243717d380524a89de994d81ff6"
-  Normal   Pulled       69s                kubelet, gke-toggles-default-pool-28882412-xljt  Successfully pulled image "gcr.io/my-cool-projectt/bank-of-anthos/gcr.io/bank-of-anthos-ci/balancereader:ver.0-171-gd459ddb-dirty@sha256:5b178bd029d04e25bf68df57096b961a28dfb243717d380524a89de994d81ff6"
+  Normal   Pulling      70s                kubelet, gke-toggles-default-pool-28882412-xljt  Pulling image "us-central1-docker.pkg.dev/my-cool-project/bank-of-anthos/balancereader:ver.0-171-gd459ddb-dirty@sha256:5b178bd029d04e25bf68df57096b961a28dfb243717d380524a89de994d81ff6"
+  Normal   Pulled       69s                kubelet, gke-toggles-default-pool-28882412-xljt  Successfully pulled image "us-central1-docker.pkg.dev/my-cool-project/bank-of-anthos/balancereader:ver.0-171-gd459ddb-dirty@sha256:5b178bd029d04e25bf68df57096b961a28dfb243717d380524a89de994d81ff6"
   Normal   Created      69s                kubelet, gke-toggles-default-pool-28882412-xljt  Created container balancereader
   Normal   Started      69s                kubelet, gke-toggles-default-pool-28882412-xljt  Started container balancereader
   Warning  Unhealthy    4s (x2 over 9s)    kubelet, gke-toggles-default-pool-28882412-xljt  Readiness probe failed: Get http://10.0.1.141:8080/ready: dial tcp 10.0.1.141:8080: connect: connection refused

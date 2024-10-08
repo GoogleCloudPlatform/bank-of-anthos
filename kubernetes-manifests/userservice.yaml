@@ -203,7 +203,7 @@ spec:
       containers:
         - env:
             - name: VERSION
-              value: v1.0.9
+              value: v0.6.5
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
@@ -227,7 +227,7 @@ spec:
                 name: environment-config
             - configMapRef:
                 name: accounts-db-config
-          image: ghcr.io/splunk/bank-of-splunk/userservice:v1.0.9@sha256:f860735a4cb21a535fc0c048ee1815ca04d7288675d88d2e0c238fdb5f5625c0
+          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/userservice:v0.6.5@sha256:f91e0e5bd6cdb16f6b867b2e3e874b23dd01f11592de006776f1dfb136702941
           name: userservice
           ports:
             - containerPort: 8080

@@ -206,6 +206,7 @@ spec:
         - env:
             - name: VERSION
               value: v1.0.9
+              value: v0.6.5
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING

@@ -205,7 +205,7 @@ spec:
       containers:
         - env:
             - name: VERSION
-              value: v1.0.9
+              value: v0.6.5
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
@@ -229,7 +229,7 @@ spec:
                 name: environment-config
             - configMapRef:
                 name: ledger-db-config
-          image: ghcr.io/splunk/bank-of-splunk/balancereader:v1.0.9@sha256:928b892a9bbe3db70e68542a7e8b72796a35870c07f4e87b287c29576ddbba30
+          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/balancereader:v0.6.5@sha256:de01f16554ae2d0b49ac85116e6307da8c0f8a35f50a0cf25e1e4a4fe18dca83
           livenessProbe:
             httpGet:
               path: /healthy

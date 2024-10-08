@@ -64,6 +64,7 @@ spec:
         - env:
             - name: VERSION
               value: v1.0.9
+              value: v0.6.5
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
@@ -142,6 +143,7 @@ spec:
             - configMapRef:
                 name: service-api-config
           image: ghcr.io/splunk/bank-of-splunk/frontend:v1.0.9@sha256:6ceb3db845b3176f447914db4a518787ed5c7f10cc70c6e299c0d757f6e935af
+          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/frontend:v0.6.5@sha256:d72050f70d12383e4434ad04d189b681dc625f696087ddf0b5df641645c9dafa
           livenessProbe:
             httpGet:
               path: /ready

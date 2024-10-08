@@ -4,65 +4,62 @@
 #
 #    pip-compile --output-file=requirements.txt requirements.in
 #
-blinker==1.7.0
+blinker==1.8.2
     # via flask
-cachetools==5.3.3
+cachetools==5.5.0
     # via google-auth
-certifi==2024.2.2
+certifi==2024.8.30
     # via requests
-cffi==1.16.0
+cffi==1.17.1
     # via cryptography
 charset-normalizer==3.3.2
     # via requests
 click==8.1.7
     # via flask
-cryptography==42.0.5
-    # via
-    #   -r requirements.in
-    #   splunk-opentelemetry
+cryptography==43.0.1
+    # via -r requirements.in
 deprecated==1.2.14
     # via
     #   opentelemetry-api
-    #   opentelemetry-exporter-otlp-proto-grpc
-    #   opentelemetry-propagator-b3
-flask==3.0.2
+    #   opentelemetry-semantic-conventions
+flask==3.0.3
     # via -r requirements.in
-google-api-core[grpc]==2.17.1
+google-api-core[grpc]==2.20.0
     # via google-cloud-trace
-google-auth==2.28.2
+google-auth==2.35.0
     # via
     #   -r requirements.in
     #   google-api-core
     #   google-cloud-trace
-google-cloud-trace==1.13.3
+google-cloud-trace==1.13.5
     # via opentelemetry-exporter-gcp-trace
-googleapis-common-protos==1.63.0
+googleapis-common-protos==1.65.0
     # via
     #   google-api-core
     #   grpcio-status
-    #   opentelemetry-exporter-otlp-proto-grpc
-grpcio==1.62.1
+grpcio==1.66.2
     # via
     #   google-api-core
     #   grpcio-status
-    #   opentelemetry-exporter-otlp-proto-grpc
-grpcio-status==1.62.1
+grpcio-status==1.66.2
     # via google-api-core
-gunicorn==21.2.0
+gunicorn==22.0.0
     # via -r requirements.in
-idna==3.6
+idna==3.10
     # via requests
-importlib-metadata==6.11.0
-    # via opentelemetry-api
-itsdangerous==2.1.2
+importlib-metadata==8.4.0
+    # via
+    #   opentelemetry-api
+    #   opentelemetry-instrumentation-flask
+itsdangerous==2.2.0
     # via flask
-jinja2==3.1.3
+jinja2==3.1.4
     # via flask
 markupsafe==2.1.5
     # via
     #   jinja2
     #   werkzeug
-opentelemetry-api==1.23.0
+opentelemetry-api==1.27.0
     # via
     #   opentelemetry-exporter-gcp-trace
     #   opentelemetry-exporter-otlp-proto-grpc
@@ -76,67 +73,54 @@ opentelemetry-api==1.23.0
     #   opentelemetry-propagator-gcp
     #   opentelemetry-resourcedetector-gcp
     #   opentelemetry-sdk
-    #   splunk-opentelemetry
-opentelemetry-exporter-gcp-trace==1.6.0
+    #   opentelemetry-semantic-conventions
+opentelemetry-exporter-gcp-trace==1.7.0
     # via -r requirements.in
-opentelemetry-exporter-otlp-proto-common==1.23.0
-    # via opentelemetry-exporter-otlp-proto-grpc
-opentelemetry-exporter-otlp-proto-grpc==1.23.0
-    # via splunk-opentelemetry
-opentelemetry-instrumentation==0.44b0
+opentelemetry-instrumentation==0.48b0
     # via
     #   opentelemetry-instrumentation-flask
     #   opentelemetry-instrumentation-jinja2
     #   opentelemetry-instrumentation-requests
     #   opentelemetry-instrumentation-wsgi
-    #   splunk-opentelemetry
-opentelemetry-instrumentation-flask==0.44b0
+opentelemetry-instrumentation-flask==0.48b0
     # via -r requirements.in
-opentelemetry-instrumentation-jinja2==0.44b0
+opentelemetry-instrumentation-jinja2==0.48b0
     # via -r requirements.in
-opentelemetry-instrumentation-requests==0.44b0
+opentelemetry-instrumentation-requests==0.48b0
     # via -r requirements.in
-opentelemetry-instrumentation-system-metrics==0.44b0
-    # via splunk-opentelemetry
-opentelemetry-instrumentation-wsgi==0.44b0
+opentelemetry-instrumentation-wsgi==0.48b0
     # via opentelemetry-instrumentation-flask
-opentelemetry-propagator-b3==1.23.0
-    # via splunk-opentelemetry
-opentelemetry-propagator-gcp==1.6.0
+opentelemetry-propagator-gcp==1.7.0
     # via -r requirements.in
-opentelemetry-proto==1.23.0
-    # via
-    #   opentelemetry-exporter-otlp-proto-common
-    #   opentelemetry-exporter-otlp-proto-grpc
-opentelemetry-resourcedetector-gcp==1.6.0a0
+opentelemetry-resourcedetector-gcp==1.7.0a0
     # via opentelemetry-exporter-gcp-trace
-opentelemetry-sdk==1.23.0
+opentelemetry-sdk==1.27.0
     # via
     #   -r requirements.in
     #   opentelemetry-exporter-gcp-trace
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-instrumentation-system-metrics
     #   opentelemetry-resourcedetector-gcp
-    #   splunk-opentelemetry
-opentelemetry-semantic-conventions==0.44b0
+opentelemetry-semantic-conventions==0.48b0
     # via
     #   opentelemetry-instrumentation-flask
     #   opentelemetry-instrumentation-requests
     #   opentelemetry-instrumentation-wsgi
     #   opentelemetry-sdk
-    #   splunk-opentelemetry
-opentelemetry-util-http==0.44b0
+opentelemetry-util-http==0.48b0
     # via
     #   opentelemetry-instrumentation-flask
     #   opentelemetry-instrumentation-requests
     #   opentelemetry-instrumentation-wsgi
-packaging==24.0
+packaging==24.1
     # via
     #   gunicorn
     #   opentelemetry-instrumentation-flask
-proto-plus==1.23.0
-    # via google-cloud-trace
-protobuf==4.25.3
+proto-plus==1.24.0
+    # via
+    #   google-api-core
+    #   google-cloud-trace
+protobuf==5.28.2
     # via
     #   google-api-core
     #   google-cloud-trace
@@ -144,44 +128,39 @@ protobuf==4.25.3
     #   grpcio-status
     #   opentelemetry-proto
     #   proto-plus
-    #   splunk-opentelemetry
-psutil==5.9.8
-    # via opentelemetry-instrumentation-system-metrics
-pyasn1==0.5.1
+pyasn1==0.6.1
     # via
     #   pyasn1-modules
     #   rsa
-pyasn1-modules==0.3.0
+pyasn1-modules==0.4.1
     # via google-auth
-pycparser==2.21
+pycparser==2.22
     # via cffi
-pyjwt==2.8.0
+pyjwt==2.9.0
     # via -r requirements.in
-requests==2.31.0
+requests==2.32.3
     # via
     #   -r requirements.in
     #   google-api-core
     #   opentelemetry-resourcedetector-gcp
 rsa==4.9
     # via google-auth
-splunk-opentelemetry[all]==1.18.0
-    # via -r requirements.in
-typing-extensions==4.10.0
+typing-extensions==4.12.2
     # via
     #   opentelemetry-resourcedetector-gcp
     #   opentelemetry-sdk
-urllib3==2.2.1
+urllib3==2.2.3
     # via
     #   -r requirements.in
     #   requests
-werkzeug==3.0.1
+werkzeug==3.0.4
     # via flask
 wrapt==1.16.0
     # via
     #   deprecated
     #   opentelemetry-instrumentation
     #   opentelemetry-instrumentation-jinja2
-zipp==3.18.1
+zipp==3.20.2
     # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
