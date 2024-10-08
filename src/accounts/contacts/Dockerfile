@@ -47,11 +47,10 @@ ENV LOG_LEVEL info
 
 # Add application code.
 COPY . .
-
-
-RUN splunk-py-trace-bootstrap
-
 # Ensure files are readable for non-root users
 RUN chmod a+r *
 
+RUN splunk-py-trace-bootstrap
+
+# Start server using gunicorn
 CMD splunk-py-trace gunicorn -b :$PORT --threads 4 --log-config logging.conf --log-level=$LOG_LEVEL "contacts:create_app()"
