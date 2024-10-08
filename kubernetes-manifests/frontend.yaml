@@ -63,7 +63,7 @@ spec:
       containers:
         - env:
             - name: VERSION
-              value: v1.0.5
+              value: v1.0.6
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
@@ -74,6 +74,12 @@ spec:
               value: info
             - name: BANK_NAME
               value: Bank of Splunk
+            - name: SPLUNK_TEST
+              value: A
+            - name: SPLUNK_VERSION
+              value: “1.90"
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: “version=1.90”
             - name: INSTANCE
               valueFrom:
                 fieldRef:
@@ -135,7 +141,7 @@ spec:
                 name: environment-config
             - configMapRef:
                 name: service-api-config
-          image: ghcr.io/splunk/bank-of-splunk/frontend:v1.0.5@sha256:51729864802ce752800597073d54cf0ffdaeca86807eb03a4596a5b39e0ddb9b
+          image: ghcr.io/splunk/bank-of-splunk/frontend:v1.0.6@sha256:51729864802ce752800597073d54cf0ffdaeca86807eb03a4596a5b39e0ddb9b
           livenessProbe:
             httpGet:
               path: /ready
