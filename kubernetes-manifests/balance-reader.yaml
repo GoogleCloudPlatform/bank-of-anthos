@@ -87,7 +87,7 @@ spec:
                 name: ledger-db-config
             - configMapRef:
                 name: demo-data-config
-          image: ghcr.io/splunk/bank-of-splunk/ledger-db:v1.0.9@sha256:7789394ae42ddb186da9a0f9edf59fdf391b2767bb979836d4d61b0f9673705b
+          image: ghcr.io/splunk/bank-of-splunk/ledger-db:v1.1.1@sha256:de1ae1694d03c6c368245ec88ca016476dffa1f73a5d6cd67ab949a96c93d668
           name: postgres
           ports:
             - containerPort: 5432
@@ -193,8 +193,7 @@ spec:
       tier: backend
   template:
     metadata:
-      annotations:
-        instrumentation.opentelemetry.io/inject-java: "true"
+      annotations: null
       labels:
         app: balancereader
         application: bank-of-splunk
@@ -205,7 +204,7 @@ spec:
       containers:
         - env:
             - name: VERSION
-              value: v0.6.5
+              value: v1.1.1
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
@@ -229,7 +228,7 @@ spec:
                 name: environment-config
             - configMapRef:
                 name: ledger-db-config
-          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/balancereader:v0.6.5@sha256:de01f16554ae2d0b49ac85116e6307da8c0f8a35f50a0cf25e1e4a4fe18dca83
+          image: ghcr.io/splunk/bank-of-splunk/balancereader:v1.1.1@sha256:928b892a9bbe3db70e68542a7e8b72796a35870c07f4e87b287c29576ddbba30
           livenessProbe:
             httpGet:
               path: /healthy
