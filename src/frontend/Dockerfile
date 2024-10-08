@@ -48,4 +48,5 @@ COPY . .
 RUN splunk-py-trace-bootstrap
 
 # Start server using gunicorn
-CMD ["splunk-py-trace", "gunicorn", "-b", ":$PORT", "--threads", "4", "--log-config", "logging.conf", "--log-level", "$LOG_LEVEL", "frontend:create_app()"]
+
+CMD splunk-py-trace gunicorn -b :$PORT --threads 4 --log-config logging.conf --log-level=$LOG_LEVEL "frontend:create_app()"
