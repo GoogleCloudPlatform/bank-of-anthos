@@ -63,6 +63,12 @@ spec:
         # Customize the cluster name if it cannot be retrieved from the metadata server
         #- name: CLUSTER_NAME
         #  value: "my-cluster"
+        - name: SPLUNK_TEST
+          value: "A"
+        - name: SPLUNK_VERSION
+          value: “1.90"
+        - name: OTEL_RESOURCE_ATTRIBUTES
+          value: “version=1.90”
         - name: INSTANCE
           valueFrom:
             fieldRef:
