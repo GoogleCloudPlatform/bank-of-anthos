@@ -24,13 +24,16 @@
         var rum_auth = "{{ rum_auth }}";
         var rum_app_name =  "{{ rum_app_name}}";
         var rum_environment = "{{ rum_environment }}";
+        var splunk_version = "{{ splunk_version }}";
+
         SplunkRum.init({
             realm: rum_realm,
             rumAccessToken: rum_auth,
             applicationName: rum_app_name,
-            version: rum_app_version,
+            version: splunk_version,
             deploymentEnvironment: rum_environment
         });
+
         SplunkSessionRecorder.init({
             realm: rum_realm,
             rumAccessToken: rum_auth
