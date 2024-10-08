@@ -22,6 +22,8 @@ spec:
       app: balancereader
   template:
     metadata:
+      annotations:
+        instrumentation.opentelemetry.io/inject-java: "true"
       labels:
         app: balancereader
     spec:
