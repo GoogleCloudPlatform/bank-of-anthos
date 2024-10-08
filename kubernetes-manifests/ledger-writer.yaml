@@ -87,7 +87,7 @@ spec:
                 name: ledger-db-config
             - configMapRef:
                 name: demo-data-config
-          image: ghcr.io/splunk/bank-of-splunk/ledger-db:v1.0.8@sha256:7789394ae42ddb186da9a0f9edf59fdf391b2767bb979836d4d61b0f9673705b
+          image: ghcr.io/splunk/bank-of-splunk/ledger-db:v1.0.9@sha256:7789394ae42ddb186da9a0f9edf59fdf391b2767bb979836d4d61b0f9673705b
           name: postgres
           ports:
             - containerPort: 5432
@@ -204,7 +204,7 @@ spec:
       containers:
         - env:
             - name: VERSION
-              value: v1.0.8
+              value: v1.0.9
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
@@ -226,7 +226,7 @@ spec:
                 name: service-api-config
             - configMapRef:
                 name: ledger-db-config
-          image: ghcr.io/splunk/bank-of-splunk/ledgerwriter:v1.0.8@sha256:a257d61f349d13e26d1f2e556d5ff83792d388f97f7402854ce426eceac18e4c
+          image: ghcr.io/splunk/bank-of-splunk/ledgerwriter:v1.0.9@sha256:a257d61f349d13e26d1f2e556d5ff83792d388f97f7402854ce426eceac18e4c
           name: ledgerwriter
           readinessProbe:
             httpGet:
