@@ -24,16 +24,16 @@
         var rum_auth = "{{ rum_auth }}";
         var rum_app_name =  "{{ rum_app_name}}";
         var rum_environment = "{{ rum_environment }}";
-        window.SplunkRum && window.SplunkRum.init({ 
-            beaconUrl: "https://rum-ingest." +   rum_realm   + ".signalfx.com/v1/rum",
-            rumAuth:  rum_auth ,
-            app: rum_app_name ,
-            version: '1',
-            environment: rum_environment 
+        SplunkRum.init({
+            realm: rum_realm,
+            rumAccessToken: rum_auth,
+            applicationName: rum_app_name,
+            version: rum_app_version,
+            deploymentEnvironment: rum_environment
         });
         SplunkSessionRecorder.init({
-            beaconUrl: 'https://rum-ingest.' +  rum_realm + '.signalfx.com/v1/rumreplay',
-            rumAuth:  rum_auth 
+            realm: rum_realm,
+            rumAccessToken: rum_auth
         });
     </script>
     {% endif %}
