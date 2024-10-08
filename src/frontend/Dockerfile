@@ -43,9 +43,10 @@ ENV LOG_LEVEL=info
 
 # Add application code.
 COPY . .
-
 # Ensure files are readable for non-root users
-RUN find . -type f -name '*' -exec chmod a+r '{}' ';'
+RUN chmod a+r *
+
+RUN splunk-py-trace-bootstrap
 
 # Start server using gunicorn
 
