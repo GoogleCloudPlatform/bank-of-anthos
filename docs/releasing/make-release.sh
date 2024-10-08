@@ -19,7 +19,7 @@ set -euxo pipefail
 REPO_PREFIX="${REPO_PREFIX:-ghcr.io/splunk/bank-of-splunk}"
 PROFILE="development"
 RELEASE_DIR="kubernetes-manifests"
-PLATFORM="linux/amd64"
+PLATFORM="linux/amd64,linux/arm64"
 
 # move to repo root
 SCRIPT_DIR=$(dirname $(realpath -s $0))
