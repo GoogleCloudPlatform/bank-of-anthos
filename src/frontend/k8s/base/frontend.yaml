@@ -66,9 +66,9 @@ spec:
         - name: SPLUNK_TEST
           value: "A"
         - name: SPLUNK_VERSION
-          value: “1.90"
+          value: "1.90"
         - name: OTEL_RESOURCE_ATTRIBUTES
-          value: “version=1.90”
+          value: "version=1.90"
         - name: INSTANCE
           valueFrom:
             fieldRef:
