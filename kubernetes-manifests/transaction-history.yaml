@@ -87,7 +87,7 @@ spec:
                 name: ledger-db-config
             - configMapRef:
                 name: demo-data-config
-          image: ghcr.io/splunk/bank-of-splunk/ledger-db:v1.1.5@sha256:de1ae1694d03c6c368245ec88ca016476dffa1f73a5d6cd67ab949a96c93d668
+          image: ghcr.io/splunk/bank-of-splunk/ledger-db:v1.1.6@sha256:de1ae1694d03c6c368245ec88ca016476dffa1f73a5d6cd67ab949a96c93d668
           name: postgres
           ports:
             - containerPort: 5432
@@ -204,7 +204,7 @@ spec:
       containers:
         - env:
             - name: VERSION
-              value: v1.1.5
+              value: v1.1.6
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
@@ -232,7 +232,7 @@ spec:
                 name: environment-config
             - configMapRef:
                 name: ledger-db-config
-          image: ghcr.io/splunk/bank-of-splunk/transactionhistory:v1.1.5@sha256:d0fbbb9fe6f3589c0372301ad159975af5cb309891f135444cca49092e66aaa6
+          image: ghcr.io/splunk/bank-of-splunk/transactionhistory:v1.1.6@sha256:d0fbbb9fe6f3589c0372301ad159975af5cb309891f135444cca49092e66aaa6
           livenessProbe:
             httpGet:
               path: /healthy
