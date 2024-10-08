@@ -74,6 +74,12 @@ spec:
               value: info
             - name: BANK_NAME
               value: Bank of Splunk
+            - name: SPLUNK_TEST
+              value: “A”
+            - name: SPLUNK_VERSION
+              value: “1.90"
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: “version=1.90”
             - name: INSTANCE
               valueFrom:
                 fieldRef:
