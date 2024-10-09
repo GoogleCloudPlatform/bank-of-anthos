@@ -22,7 +22,13 @@ RELEASE_DIR="kubernetes-manifests"
 PLATFORM="linux/amd64"
 
 # move to repo root
-SCRIPT_DIR=$(dirname $(realpath -s $0))
+#SCRIPT_DIR=$(dirname $(realpath -s $0))
+
+
+SCRIPT_PATH=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/$(basename "${BASH_SOURCE[0]}")
+SCRIPT_DIR="$(dirname $SCRIPT_PATH)"
+
+
 REPO_ROOT=$SCRIPT_DIR/../..
 cd $REPO_ROOT
 
