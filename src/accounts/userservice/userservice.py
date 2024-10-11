@@ -28,18 +28,19 @@ import jwt
 from flask import Flask, jsonify, request
 import bleach
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
-
+from datetime import datetime, timedelta, timezone
 from db import UserDb
 
 # Import OpenTelemetry components
 from opentelemetry import trace
-from opentelemetry.instrumentation.flask import FlaskInstrumentor
+#from opentelemetry.instrumentation.flask import FlaskInstrumentor
 from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
 from opentelemetry.trace import SpanKind
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 from opentelemetry.sdk.trace import TracerProvider
+
 
 # Initialize tracer provider and exporter
 provider = TracerProvider(resource=Resource.create({SERVICE_NAME: "userservice"}))
@@ -54,7 +55,7 @@ def create_app():
     app = Flask(__name__)
 
     # Instrument Flask with OpenTelemetry
-    FlaskInstrumentor().instrument_app(app)
+ #   FlaskInstrumentor().instrument_app(app)
 
     # Cache the private key and public key at startup
     try:
@@ -198,6 +199,7 @@ def create_app():
                 # Step 3: Validate the password
                 with tracer.start_as_current_span("validate_password") as password_span:
                     app.logger.debug('Validating the password.')
+                    
                     if not bcrypt.checkpw(password.encode('utf-8'), user['passhash']):
                         password_span.set_attribute("password_valid", False)
                         raise PermissionError('invalid login')
@@ -211,12 +213,14 @@ def create_app():
                         # Sub-step: Create JWT payload
                         with tracer.start_as_current_span("create_jwt_payload") as payload_span:
                             full_name = '{} {}'.format(user['firstname'], user['lastname'])
-                            exp_time = datetime.utcnow() + timedelta(seconds=app.config['EXPIRY_SECONDS'])
+                            #exp_time = datetime.utcnow() + timedelta(seconds=app.config['EXPIRY_SECONDS'])
+                            exp_time = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(seconds=app.config['EXPIRY_SECONDS'])
+                          
                             payload = {
                                 'user': username,
                                 'acct': user['accountid'],
                                 'name': full_name,
-                                'iat': datetime.utcnow(),
+                                'iat':datetime.now(timezone.utc).replace(tzinfo=None) ,
                                 'exp': exp_time,
                             }
                             payload_span.set_attribute("payload.user", username)
@@ -267,7 +271,7 @@ def create_app():
     app.logger.info('Starting userservice.')
 
     # Set up tracing and export spans to Cloud Trace.
-    if os.environ['ENABLE_TRACING'] == "true":
+    if os.environ['ENABLE_TRACING'] == "true" or trace.get_tracer_provider() is not None:
         app.logger.info("✅ Tracing enabled.")
     else:
         app.logger.info("🚫 Tracing disabled.")
