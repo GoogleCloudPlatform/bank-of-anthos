@@ -284,7 +284,7 @@ def create_app():
     try:
         with tracer.start_as_current_span("db_connect"):
             users_db = UserDb(os.environ.get("ACCOUNTS_DB_URI"), app.logger)
-            SQLAlchemyInstrumentor().instrument(engine=users_db.engine)
+            # SQLAlchemyInstrumentor().instrument(engine=users_db.engine)
     except OperationalError as err:
         with tracer.start_as_current_span("db_connection_error"):
             app.logger.critical("users_db database connection failed: %s", str(err))
