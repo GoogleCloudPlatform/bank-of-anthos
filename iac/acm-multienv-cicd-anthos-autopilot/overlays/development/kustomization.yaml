@@ -13,12 +13,15 @@
 # limitations under the License.
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
+namespace: bank-of-anthos-development
+resources:
+  - namespace.yaml
 components:
   - ../../base
-patches:
-- target: # configure workload identity
-    kind: ServiceAccount
-  patch: |-
-    - op: add
-      path: /metadata/annotations/iam.gke.io~1gcp-service-account
-      value: gke-workload-development@bank-of-anthos-ci.iam.gserviceaccount.com
+# patches:
+# - target: # configure workload identity
+#     kind: ServiceAccount
+#   patch: |-
+#     - op: add
+#       path: /metadata/annotations/iam.gke.io~1gcp-service-account
+#       value: gke-workload-development@bank-of-anthos-ci.iam.gserviceaccount.com

@@ -11,9 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-apiVersion: kustomize.config.k8s.io/v1alpha1
-kind: Component
-resources:
-  - sa.yaml
-  - config.yaml
-  - jwt-secret.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: bank-of-anthos-development
+  labels:
+    istio-injection: enabled # enable ASM sidecar injection on namespace
