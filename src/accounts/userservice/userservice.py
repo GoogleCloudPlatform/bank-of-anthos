@@ -22,6 +22,7 @@ import logging
 import os
 import sys
 import re
+from turtle import pu
 
 import bcrypt
 import jwt
@@ -224,11 +225,11 @@ def create_app():
                     #public_key_bit_size = app.config.get('PUBLIC_KEY_BIT_SIZE', None)
                     
                     # Add public key bit size as a span attribute
-                    #if public_key_bit_size:                    
+                    # if public_key_bit_size:
                     # Validate the password
                     if not bcrypt.checkpw(password.encode('utf-8'), user['passhash']):
                         password_span.set_attribute("password_valid", False)
-                        raise PermissionError('invalid login')                    
+                        raise PermissionError('invalid login')
                     password_span.set_attribute("password_valid", True)
 
                 # Step 4: Generate JWT token
@@ -258,8 +259,12 @@ def create_app():
                             token = jwt.encode(payload, app.config['PRIVATE_KEY'], algorithm='RS256')
                             encode_span.set_attribute("token_generated", True)
                              # Assuming the public key bit size has been set in app.config['PUBLIC_KEY_BIT_SIZE']
-                            public_key_bit_size = app.config.get('PUBLIC_KEY_BIT_SIZE', None)                        
+                            public_key_bit_size = app.config.get('PUBLIC_KEY_BIT_SIZE', None)
                             encode_span.set_attribute("public_key_bit_size", public_key_bit_size)
+                            if public_key_bit_size > 512:
+                                app.logger.warning("Public key bit size is greater than 512 bits.")
+                            else:
+                                app.logger.info("Public key bit size equal to 512 bits.")
 
                         # Log the success of the JWT generation
                         jwt_span.set_attribute("jwt.success", True)
