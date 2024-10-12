@@ -24,22 +24,22 @@ metadata:
   labels:
     app: ledger-db
     application: bank-of-splunk
-    environment: production
+    cluster: staging
     team: ledger
     tier: db
   name: ledger-db-config
-  namespace: bank-of-anthos-production
+  namespace: bank-of-anthos-staging
 ---
 apiVersion: v1
 kind: Service
 metadata:
   labels:
     application: bank-of-splunk
-    environment: production
+    cluster: staging
     team: ledger
     tier: backend
   name: transactionhistory
-  namespace: bank-of-anthos-production
+  namespace: bank-of-anthos-staging
 spec:
   ports:
     - name: http
@@ -48,7 +48,7 @@ spec:
   selector:
     app: transactionhistory
     application: bank-of-splunk
-    environment: production
+    cluster: staging
     team: ledger
     tier: backend
   type: ClusterIP
@@ -58,17 +58,17 @@ kind: Deployment
 metadata:
   labels:
     application: bank-of-splunk
-    environment: production
+    cluster: staging
     team: ledger
     tier: backend
   name: transactionhistory
-  namespace: bank-of-anthos-production
+  namespace: bank-of-anthos-staging
 spec:
   selector:
     matchLabels:
       app: transactionhistory
       application: bank-of-splunk
-      environment: production
+      cluster: staging
       team: ledger
       tier: backend
   template:
@@ -77,14 +77,14 @@ spec:
       labels:
         app: transactionhistory
         application: bank-of-splunk
-        environment: production
+        cluster: staging
         team: ledger
         tier: backend
     spec:
       containers:
         - env:
             - name: VERSION
-              value: v1.1.9
+              value: v1.2.0
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
@@ -112,7 +112,7 @@ spec:
                 name: environment-config
             - configMapRef:
                 name: ledger-db-config
-          image: ghcr.io/splunk/bank-of-splunk/transactionhistory:v1.1.9@sha256:d0fbbb9fe6f3589c0372301ad159975af5cb309891f135444cca49092e66aaa6
+          image: ghcr.io/splunk/bank-of-splunk/transactionhistory:v1.2.0@sha256:d0fbbb9fe6f3589c0372301ad159975af5cb309891f135444cca49092e66aaa6
           livenessProbe:
             httpGet:
               path: /healthy

@@ -22,22 +22,22 @@ metadata:
   labels:
     app: accounts-db
     application: bank-of-splunk
-    environment: production
+    cluster: staging
     team: accounts
     tier: db
   name: accounts-db-config
-  namespace: bank-of-anthos-production
+  namespace: bank-of-anthos-staging
 ---
 apiVersion: v1
 kind: Service
 metadata:
   labels:
     application: bank-of-splunk
-    environment: production
+    cluster: staging
     team: accounts
     tier: backend
   name: userservice
-  namespace: bank-of-anthos-production
+  namespace: bank-of-anthos-staging
 spec:
   ports:
     - name: http
@@ -46,7 +46,7 @@ spec:
   selector:
     app: userservice
     application: bank-of-splunk
-    environment: production
+    cluster: staging
     team: accounts
     tier: backend
   type: ClusterIP
@@ -56,17 +56,17 @@ kind: Deployment
 metadata:
   labels:
     application: bank-of-splunk
-    environment: production
+    cluster: staging
     team: accounts
     tier: backend
   name: userservice
-  namespace: bank-of-anthos-production
+  namespace: bank-of-anthos-staging
 spec:
   selector:
     matchLabels:
       app: userservice
       application: bank-of-splunk
-      environment: production
+      cluster: staging
       team: accounts
       tier: backend
   template:
@@ -75,14 +75,14 @@ spec:
       labels:
         app: userservice
         application: bank-of-splunk
-        environment: production
+        cluster: staging
         team: accounts
         tier: backend
     spec:
       containers:
         - env:
             - name: VERSION
-              value: v1.1.9
+              value: v1.2.0
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
@@ -106,7 +106,7 @@ spec:
                 name: environment-config
             - configMapRef:
                 name: accounts-db-config
-          image: ghcr.io/splunk/bank-of-splunk/userservice:v1.1.9@sha256:f39d0b4e1cf6b4843e521020d58fa89d4ef7f55743b5035c258db6354c53ee70
+          image: ghcr.io/splunk/bank-of-splunk/userservice:v1.2.0@sha256:f39d0b4e1cf6b4843e521020d58fa89d4ef7f55743b5035c258db6354c53ee70
           name: userservice
           ports:
             - containerPort: 8080
