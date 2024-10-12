@@ -11,9 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-apiVersion: kustomize.config.k8s.io/v1alpha1
+# apiVersion: kustomize.config.k8s.io/v1alpha1
+# kind: Component
+# resources:
+#   - sa.yaml
+#   - config.yaml
+#   - jwt-secret.yaml
+
+apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Component
-resources:
-  - sa.yaml
-  - config.yaml
-  - jwt-secret.yaml
+components:
+  - ../../base
