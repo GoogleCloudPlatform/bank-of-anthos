@@ -63,7 +63,7 @@ spec:
       containers:
         - env:
             - name: VERSION
-              value: v1.2.4
+              value: v1.2.5
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
@@ -141,7 +141,7 @@ spec:
                 name: environment-config
             - configMapRef:
                 name: service-api-config
-          image: ghcr.io/splunk/bank-of-splunk/frontend:v1.2.4@sha256:b3cd2828e76ba3197e51d198cfceb09c61f387ffdb9ebace33a5410898cc2bbe
+          image: ghcr.io/splunk/bank-of-splunk/frontend:v1.2.5@sha256:b3cd2828e76ba3197e51d198cfceb09c61f387ffdb9ebace33a5410898cc2bbe
           livenessProbe:
             httpGet:
               path: /ready
@@ -195,17 +195,9 @@ spec:
             secretName: jwt-key
 ---
 apiVersion: v1
-kind: Namespace
-metadata:
-  labels:
-    istio-injection: enabled
-  name: bank-of-anthos-development
----
-apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: bank-of-anthos
-  namespace: bank-of-anthos-development
 ---
 apiVersion: v1
 data:
@@ -215,7 +207,6 @@ data:
 kind: ConfigMap
 metadata:
   name: demo-data-config
-  namespace: bank-of-anthos-development
 ---
 apiVersion: v1
 data:
@@ -224,7 +215,6 @@ data:
 kind: ConfigMap
 metadata:
   name: environment-config
-  namespace: bank-of-anthos-development
 ---
 apiVersion: v1
 data:
@@ -236,7 +226,6 @@ data:
 kind: ConfigMap
 metadata:
   name: service-api-config
-  namespace: bank-of-anthos-development
 ---
 apiVersion: v1
 data:
@@ -245,5 +234,4 @@ data:
 kind: Secret
 metadata:
   name: jwt-key
-  namespace: bank-of-anthos-development
 type: Opaque
