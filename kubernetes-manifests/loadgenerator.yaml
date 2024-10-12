@@ -11,4 +11,61 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    environment: development
+    team: loadgenerator
+    tier: test
+  name: loadgenerator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: loadgenerator
+      environment: development
+      team: loadgenerator
+      tier: test
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/rewriteAppHTTPProbers: "true"
+      labels:
+        app: loadgenerator
+        environment: development
+        team: loadgenerator
+        tier: test
+    spec:
+      containers:
+        - env:
+            - name: FRONTEND_ADDR
+              value: frontend:8083
+            - name: USERS
+              value: "5"
+            - name: LOG_LEVEL
+              value: error
+          image: ghcr.io/splunk/bank-of-splunk/loadgenerator:v1.2.3@sha256:d184a7ddd273161327695ed8e69dbefdd3a50eece3123203bc0bf0ef17db6fe4
+          name: loadgenerator
+          resources:
+            limits:
+              cpu: 250m
+              memory: 1Gi
+            requests:
+              cpu: 100m
+              memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - all
+            privileged: false
+            readOnlyRootFilesystem: true
+      restartPolicy: Always
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+      serviceAccountName: default
+      terminationGracePeriodSeconds: 5
