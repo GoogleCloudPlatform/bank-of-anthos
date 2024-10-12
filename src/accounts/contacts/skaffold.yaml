@@ -75,7 +75,7 @@ profiles:
     kustomize:
       paths:
       - k8s/overlays/development
-      - ../../../iac/acm-multienv-cicd-anthos-autopilot/overlays/development
+      #- ../../../iac/acm-multienv-cicd-anthos-autopilot/overlays/development
 - name: staging
   manifests:
     kustomize:
