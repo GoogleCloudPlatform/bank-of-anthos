@@ -69,8 +69,8 @@ deploy:
   kubectl: {}
 profiles:
 - name: development
-  activation:
-  - command: dev
+  # activation:
+  # - command: dev
   manifests:
     kustomize:
       paths:

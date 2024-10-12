@@ -20,14 +20,14 @@ deploy:
   kubectl: {}
 profiles:
 - name: development
-  activation:
-  - command: dev
-  build:
-    artifacts:
-    - image: ledger-db
-      context: .
-    tagPolicy:
-      sha256: {}
+  # activation:
+  # - command: dev
+  # build:
+  #   artifacts:
+  #   - image: ledger-db
+  #     context: .
+  #   tagPolicy:
+  #     sha256: {}
   manifests:
     kustomize:
       paths:

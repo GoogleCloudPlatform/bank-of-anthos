@@ -74,7 +74,7 @@ spec:
                 name: ledger-db-config
             - configMapRef:
                 name: demo-data-config
-          image: ghcr.io/splunk/bank-of-splunk/ledger-db:v1.2.3@sha256:de1ae1694d03c6c368245ec88ca016476dffa1f73a5d6cd67ab949a96c93d668
+          image: ghcr.io/splunk/bank-of-splunk/ledger-db:v1.2.4@sha256:de1ae1694d03c6c368245ec88ca016476dffa1f73a5d6cd67ab949a96c93d668
           name: postgres
           ports:
             - containerPort: 5432
@@ -94,57 +94,3 @@ spec:
       volumes:
         - emptyDir: {}
           name: postgresdb
----
-apiVersion: v1
-kind: Namespace
-metadata:
-  labels:
-    istio-injection: enabled
-  name: bank-of-anthos-development
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: bank-of-anthos
-  namespace: bank-of-anthos-development
----
-apiVersion: v1
-data:
-  DEMO_LOGIN_PASSWORD: bankofanthos
-  DEMO_LOGIN_USERNAME: testuser
-  USE_DEMO_DATA: "True"
-kind: ConfigMap
-metadata:
-  name: demo-data-config
-  namespace: bank-of-anthos-development
----
-apiVersion: v1
-data:
-  LOCAL_ROUTING_NUM: "883745000"
-  PUB_KEY_PATH: /tmp/.ssh/publickey
-kind: ConfigMap
-metadata:
-  name: environment-config
-  namespace: bank-of-anthos-development
----
-apiVersion: v1
-data:
-  BALANCES_API_ADDR: balancereader:8080
-  CONTACTS_API_ADDR: contacts:8080
-  HISTORY_API_ADDR: transactionhistory:8080
-  TRANSACTIONS_API_ADDR: ledgerwriter:8080
-  USERSERVICE_API_ADDR: userservice:8080
-kind: ConfigMap
-metadata:
-  name: service-api-config
-  namespace: bank-of-anthos-development
----
-apiVersion: v1
-data:
-  jwtRS256.key: LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1JSUJWUUlCQURBTkJna3Foa2lHOXcwQkFRRUZBQVNDQVQ4d2dnRTdBZ0VBQWtFQXZVY2FzVjhxbzVHdmlFRTQKNExtQVJVWkxON0tUZDJtSzh5RExieHlWdWxwVDluaXE4UU9ETkxvQ09IdVJWT3E3RUpWYVRTSGYxSk9MOTRkcAp2NU45Y1FJREFRQUJBa0F5Y0JnMDI5OUk1ekdYWlluNm1IUU9BY1ZaZWtUQnRXWkprNXVpYUVPZC9LNjNzSk9CCklveFF6OWxkZGJIWUxaeVhHV2hHd0tMeUIyOE5BOXJLYVJGaEFpRUE0ZXJua2pYVDNlRHhscm5HUzNLTWJXSDgKdlVVYWhxa29mK0Z3eEkzU3gvTUNJUURXZXpmT3RYZnIzOXY0MkRMaEVEcVZZZEJUWWpJZ2ZUelR1MGR1c0hjQwpDd0lnSUpOb3ROS0NMRnBGTzhDcDhUTWhRSnlDZnlBNXhQVWJXK1U4QjN1VHl6VUNJUUN3WkFIUHBIcU5xRHQyCmVnZk9CTlRKU2ZwVXVTdFVnT3JuanR2K2NtNU5aUUloQUp4ckprNU1od0h2VzZMcVNCemVqZzZwUkt3SnFiVXcKYWlobDVKbUZLR1dxCi0tLS0tRU5EIFBSSVZBVEUgS0VZLS0tLS0K
-  jwtRS256.key.pub: LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUZ3d0RRWUpLb1pJaHZjTkFRRUJCUUFEU3dBd1NBSkJBTDFIR3JGZktxT1JyNGhCT09DNWdFVkdTemV5azNkcAppdk1neTI4Y2xicGFVL1o0cXZFRGd6UzZBamg3a1ZUcXV4Q1ZXazBoMzlTVGkvZUhhYitUZlhFQ0F3RUFBUT09Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQo=
-kind: Secret
-metadata:
-  name: jwt-key
-  namespace: bank-of-anthos-development
-type: Opaque
