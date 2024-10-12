@@ -20,8 +20,8 @@ deploy:
   kubectl: {}
 profiles:
 - name: development
-  activation:
-  - command: dev
+  #activation:
+  #- command: dev
   build:
     artifacts:
     - image: accounts-db
