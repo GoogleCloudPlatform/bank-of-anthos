@@ -86,7 +86,7 @@ spec:
                 name: accounts-db-config
             - configMapRef:
                 name: demo-data-config
-          image: ghcr.io/splunk/bank-of-splunk/accounts-db:v1.2.6@sha256:fea9e1a74f9e919158a3ed7049f3da2b9016ef96a5e62ad606559bc494be2ee1
+          image: ghcr.io/splunk/bank-of-splunk/accounts-db:v1.2.7@sha256:fea9e1a74f9e919158a3ed7049f3da2b9016ef96a5e62ad606559bc494be2ee1
           name: accounts-db
           ports:
             - containerPort: 5432
@@ -159,7 +159,7 @@ spec:
       containers:
         - env:
             - name: VERSION
-              value: v1.2.6
+              value: v1.2.7
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
@@ -183,7 +183,7 @@ spec:
                 name: environment-config
             - configMapRef:
                 name: accounts-db-config
-          image: ghcr.io/splunk/bank-of-splunk/userservice:v1.2.6@sha256:f39d0b4e1cf6b4843e521020d58fa89d4ef7f55743b5035c258db6354c53ee70
+          image: ghcr.io/splunk/bank-of-splunk/userservice:v1.2.7@sha256:587bcc0a5eef3e99d76069b4fdf9e81c82c675f950edd8264484dc87b8bd9882
           name: userservice
           ports:
             - containerPort: 8080
