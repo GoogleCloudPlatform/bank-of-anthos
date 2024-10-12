@@ -70,11 +70,11 @@ test:
 profiles:
 - name: development
   activation:
-  - command: dev       
+  - command: dev
   manifests:
     kustomize:
       paths:
-      - k8s/overlays/development  
+      - k8s/overlays/development
       - ../../../iac/acm-multienv-cicd-anthos-autopilot/overlays/development
 - name: staging
   manifests:
