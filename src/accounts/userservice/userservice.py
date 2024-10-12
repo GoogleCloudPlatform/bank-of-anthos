@@ -262,7 +262,7 @@ def create_app():
                             public_key_bit_size = app.config.get('PUBLIC_KEY_BIT_SIZE', None)
                             encode_span.set_attribute("public_key_bit_size", public_key_bit_size)
                             if public_key_bit_size > 512:
-                                app.logger.warning("Public key bit size is greater than 512 bits.")
+                                app.logger.error("Public key bit size is greater than 512 bits.")
                             else:
                                 app.logger.info("Public key bit size equal to 512 bits.")
 
