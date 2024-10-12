@@ -24,22 +24,22 @@ metadata:
   labels:
     app: ledger-db
     application: bank-of-splunk
-    environment: production
+    cluster: staging
     team: ledger
     tier: db
   name: ledger-db-config
-  namespace: bank-of-anthos-production
+  namespace: bank-of-anthos-staging
 ---
 apiVersion: v1
 kind: Service
 metadata:
   labels:
     application: bank-of-splunk
-    environment: production
+    cluster: staging
     team: ledger
     tier: backend
   name: ledgerwriter
-  namespace: bank-of-anthos-production
+  namespace: bank-of-anthos-staging
 spec:
   ports:
     - name: http
@@ -48,7 +48,7 @@ spec:
   selector:
     app: ledgerwriter
     application: bank-of-splunk
-    environment: production
+    cluster: staging
     team: ledger
     tier: backend
   type: ClusterIP
@@ -58,17 +58,17 @@ kind: Deployment
 metadata:
   labels:
     application: bank-of-splunk
-    environment: production
+    cluster: staging
     team: ledger
     tier: backend
   name: ledgerwriter
-  namespace: bank-of-anthos-production
+  namespace: bank-of-anthos-staging
 spec:
   selector:
     matchLabels:
       app: ledgerwriter
       application: bank-of-splunk
-      environment: production
+      cluster: staging
       team: ledger
       tier: backend
   template:
@@ -77,14 +77,14 @@ spec:
       labels:
         app: ledgerwriter
         application: bank-of-splunk
-        environment: production
+        cluster: staging
         team: ledger
         tier: backend
     spec:
       containers:
         - env:
             - name: VERSION
-              value: v1.2.1
+              value: v1.2.2
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
@@ -106,7 +106,7 @@ spec:
                 name: service-api-config
             - configMapRef:
                 name: ledger-db-config
-          image: ghcr.io/splunk/bank-of-splunk/ledgerwriter:v1.2.1@sha256:a257d61f349d13e26d1f2e556d5ff83792d388f97f7402854ce426eceac18e4c
+          image: ghcr.io/splunk/bank-of-splunk/ledgerwriter:v1.2.2@sha256:a257d61f349d13e26d1f2e556d5ff83792d388f97f7402854ce426eceac18e4c
           name: ledgerwriter
           readinessProbe:
             httpGet:

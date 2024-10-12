@@ -22,22 +22,22 @@ metadata:
   labels:
     app: accounts-db
     application: bank-of-splunk
-    environment: production
+    cluster: staging
     team: accounts
     tier: db
   name: accounts-db-config
-  namespace: bank-of-anthos-production
+  namespace: bank-of-anthos-staging
 ---
 apiVersion: v1
 kind: Service
 metadata:
   labels:
     application: bank-of-splunk
-    environment: production
+    cluster: staging
     team: accounts
     tier: backend
   name: contacts
-  namespace: bank-of-anthos-production
+  namespace: bank-of-anthos-staging
 spec:
   ports:
     - name: http
@@ -46,7 +46,7 @@ spec:
   selector:
     app: contacts
     application: bank-of-splunk
-    environment: production
+    cluster: staging
     team: accounts
     tier: backend
   type: ClusterIP
@@ -56,17 +56,17 @@ kind: Deployment
 metadata:
   labels:
     application: bank-of-splunk
-    environment: production
+    cluster: staging
     team: accounts
     tier: backend
   name: contacts
-  namespace: bank-of-anthos-production
+  namespace: bank-of-anthos-staging
 spec:
   selector:
     matchLabels:
       app: contacts
       application: bank-of-splunk
-      environment: production
+      cluster: staging
       team: accounts
       tier: backend
   template:
@@ -75,14 +75,14 @@ spec:
       labels:
         app: contacts
         application: bank-of-splunk
-        environment: production
+        cluster: staging
         team: accounts
         tier: backend
     spec:
       containers:
         - env:
             - name: VERSION
-              value: v1.2.1
+              value: v1.2.2
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
@@ -102,7 +102,7 @@ spec:
                 name: environment-config
             - configMapRef:
                 name: accounts-db-config
-          image: ghcr.io/splunk/bank-of-splunk/contacts:v1.2.1@sha256:bfe6d8970e967130c972779b47bef1999afc3d698cc80c56cade5a52dcc0aa64
+          image: ghcr.io/splunk/bank-of-splunk/contacts:v1.2.2@sha256:bfe6d8970e967130c972779b47bef1999afc3d698cc80c56cade5a52dcc0aa64
           name: contacts
           readinessProbe:
             httpGet:
