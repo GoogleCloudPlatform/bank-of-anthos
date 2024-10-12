@@ -14,16 +14,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
-    cloud.google.com/backend-config: '{"default": "frontend-backend-config"}'
-    cloud.google.com/neg: '{"ingress": true}'
   labels:
     application: bank-of-splunk
-    environment: production
+    cluster: staging
     team: frontend
     tier: web
   name: frontend
-  namespace: bank-of-anthos-production
+  namespace: bank-of-anthos-staging
 spec:
   ports:
     - name: http
@@ -32,27 +29,27 @@ spec:
   selector:
     app: frontend
     application: bank-of-splunk
-    environment: production
+    cluster: staging
     team: frontend
     tier: web
-  type: ClusterIP
+  type: LoadBalancer
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
     application: bank-of-splunk
-    environment: production
+    cluster: staging
     team: frontend
     tier: web
   name: frontend
-  namespace: bank-of-anthos-production
+  namespace: bank-of-anthos-staging
 spec:
   selector:
     matchLabels:
       app: frontend
       application: bank-of-splunk
-      environment: production
+      cluster: staging
       team: frontend
       tier: web
   template:
@@ -61,14 +58,14 @@ spec:
       labels:
         app: frontend
         application: bank-of-splunk
-        environment: production
+        cluster: staging
         team: frontend
         tier: web
     spec:
       containers:
         - env:
             - name: VERSION
-              value: v1.2.1
+              value: v1.2.2
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
@@ -146,7 +143,7 @@ spec:
                 name: environment-config
             - configMapRef:
                 name: service-api-config
-          image: ghcr.io/splunk/bank-of-splunk/frontend:v1.2.1@sha256:b3cd2828e76ba3197e51d198cfceb09c61f387ffdb9ebace33a5410898cc2bbe
+          image: ghcr.io/splunk/bank-of-splunk/frontend:v1.2.2@sha256:b3cd2828e76ba3197e51d198cfceb09c61f387ffdb9ebace33a5410898cc2bbe
           livenessProbe:
             httpGet:
               path: /ready
@@ -198,66 +195,3 @@ spec:
               - key: jwtRS256.key.pub
                 path: publickey
             secretName: jwt-key
----
-apiVersion: cloud.google.com/v1
-kind: BackendConfig
-metadata:
-  labels:
-    environment: production
-  name: frontend-backend-config
-  namespace: bank-of-anthos-production
-spec:
-  securityPolicy:
-    name: bank-of-anthos-security-policy
----
-apiVersion: networking.gke.io/v1
-kind: ManagedCertificate
-metadata:
-  labels:
-    environment: production
-  name: bank-of-anthos-cert
-  namespace: bank-of-anthos-production
-spec:
-  domains:
-    - cymbal-bank.fsi.cymbal.dev
----
-apiVersion: networking.gke.io/v1beta1
-kind: FrontendConfig
-metadata:
-  labels:
-    environment: production
-  name: frontend-frontend-config
-  namespace: bank-of-anthos-production
-spec:
-  redirectToHttps:
-    enabled: true
-    responseCodeName: MOVED_PERMANENTLY_DEFAULT
-  sslPolicy: bank-of-anthos-ssl-policy
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  annotations:
-    kubernetes.io/ingress.global-static-ip-name: bank-of-anthos-ip
-    networking.gke.io/managed-certificates: bank-of-anthos-cert
-    networking.gke.io/v1beta1.FrontendConfig: frontend-frontend-config
-  labels:
-    environment: production
-  name: frontend-ingress
-  namespace: bank-of-anthos-production
-spec:
-  defaultBackend:
-    service:
-      name: frontend
-      port:
-        number: 80
-  rules:
-    - http:
-        paths:
-          - backend:
-              service:
-                name: frontend
-                port:
-                  number: 80
-            path: /*
-            pathType: ImplementationSpecific

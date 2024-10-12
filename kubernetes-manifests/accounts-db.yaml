@@ -9,8 +9,8 @@ metadata:
   labels:
     app: accounts-db
     application: bank-of-splunk
-    environment: production
+    cluster: staging
     team: accounts
     tier: db
   name: accounts-db-config
-  namespace: bank-of-anthos-production
+  namespace: bank-of-anthos-staging

@@ -11,8 +11,8 @@ metadata:
   labels:
     app: ledger-db
     application: bank-of-splunk
-    environment: production
+    cluster: staging
     team: ledger
     tier: db
   name: ledger-db-config
-  namespace: bank-of-anthos-production
+  namespace: bank-of-anthos-staging
