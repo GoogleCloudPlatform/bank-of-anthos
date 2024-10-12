@@ -17,7 +17,7 @@ set -euxo pipefail
 
 # set env
 REPO_PREFIX="${REPO_PREFIX:-ghcr.io/splunk/bank-of-splunk}"
-PROFILE="production"
+PROFILE="staging"
 RELEASE_DIR="kubernetes-manifests"
 PLATFORM="linux/amd64"
 
