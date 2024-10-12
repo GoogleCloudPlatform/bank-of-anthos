@@ -163,7 +163,7 @@ def create_app():
                                rum_auth=os.getenv('RUM_AUTH','not-found'),
                                rum_app_name=os.getenv('RUM_APP_NAME','not-found'),
                                rum_environment=os.getenv('RUM_ENVIRONMENT','not-found'),
-                               splunk_test=os.getenv('SPLUNK_TEST','A'),
+                               splunk_env=os.getenv('ENV_PLATFORM','a-variant'),
                                splunk_version=os.getenv('SPLUNK_VERSION',"0.0.1"),
                                cluster_name=cluster_name,
                                contacts=api_response[CONTACTS_NAME],
@@ -425,7 +425,7 @@ def create_app():
                                rum_auth=os.getenv('RUM_AUTH','not-found'),
                                rum_app_name=os.getenv('RUM_APP_NAME','not-found'),
                                rum_environment=os.getenv('RUM_ENVIRONMENT','not-found'),
-                               splunk_test=os.getenv('SPLUNK_TEST','A'),
+                               splunk_env=os.getenv('ENV_PLATFORM','a-variant'),
                                splunk_version=os.getenv('SPLUNK_VERSION',"0.0.1"),
                                cluster_name=cluster_name,
                                cymbal_logo=os.getenv('CYMBAL_LOGO', 'false'),
@@ -513,7 +513,7 @@ def create_app():
                                     rum_auth=os.getenv('RUM_AUTH','not-found'),
                                     rum_app_name=os.getenv('RUM_APP_NAME','not-found'),
                                     rum_environment=os.getenv('RUM_ENVIRONMENT','not-found'),
-                                    splunk_test=os.getenv('SPLUNK_TEST','A'),
+                               splunk_env=os.getenv('ENV_PLATFORM','a-variant'),
                                     splunk_version=os.getenv('SPLUNK_VERSION',"0.0.1"),
                                     cluster_name=cluster_name,
                                     cymbal_logo=os.getenv('CYMBAL_LOGO', 'false'),
@@ -589,7 +589,7 @@ def create_app():
                                rum_auth=os.getenv('RUM_AUTH','not-found'),
                                rum_app_name=os.getenv('RUM_APP_NAME','not-found'),
                                rum_environment=os.getenv('RUM_ENVIRONMENT','not-found'),
-                               splunk_test=os.getenv('SPLUNK_TEST','A'),
+                               splunk_env=os.getenv('ENV_PLATFORM','a-variant'),
                                splunk_version=os.getenv('SPLUNK_VERSION',"0.0.1"),
                                cluster_name=cluster_name,
                                cymbal_logo=os.getenv('CYMBAL_LOGO', 'false'),
@@ -745,20 +745,21 @@ def create_app():
     app.logger.handlers = logging.getLogger('gunicorn.error').handlers
     app.logger.setLevel(logging.getLogger('gunicorn.error').level)
     app.logger.info('Starting frontend service.')
-
+    if trace.get_tracer_provider() is not None: # detecting  the 
+           app.logger.info("✅ Tracing enabled.")
     # Set up tracing and export spans to Cloud Trace.
-    if os.environ['ENABLE_TRACING'] == "true":
-        app.logger.info("✅ Tracing enabled.")
-        trace.set_tracer_provider(TracerProvider())
-        cloud_trace_exporter = CloudTraceSpanExporter()
-        trace.get_tracer_provider().add_span_processor(
-            BatchSpanProcessor(cloud_trace_exporter)
-        )
-        set_global_textmap(CloudTraceFormatPropagator())
-        # Add tracing auto-instrumentation for Flask, jinja and requests
-        FlaskInstrumentor().instrument_app(app)
-        RequestsInstrumentor().instrument()
-        Jinja2Instrumentor().instrument()
+    # if os.environ['ENABLE_TRACING'] == "true":
+    #     app.logger.info("✅ Tracing enabled.")
+    #     trace.set_tracer_provider(TracerProvider())
+    #     cloud_trace_exporter = CloudTraceSpanExporter()
+    #     trace.get_tracer_provider().add_span_processor(
+    #         BatchSpanProcessor(cloud_trace_exporter)
+    #     )
+    #     set_global_textmap(CloudTraceFormatPropagator())
+    #     # Add tracing auto-instrumentation for Flask, jinja and requests
+    #     FlaskInstrumentor().instrument_app(app)
+    #     RequestsInstrumentor().instrument()
+    #     Jinja2Instrumentor().instrument()
     else:
         app.logger.info("🚫 Tracing disabled.")
 
@@ -766,7 +767,7 @@ def create_app():
     platform_display_name = None
     if platform is not None:
         platform = platform.lower()
-        if platform not in ['alibaba', 'aws', 'azure', 'gcp', 'local', 'onprem']:
+        if platform not in ['alibaba', 'aws', 'azure', 'gcp', 'local', 'onprem', 'a-variant', 'b-variant']:
             app.logger.error("Platform '%s' not supported, defaulting to None", platform)
             platform = None
         else:
@@ -783,6 +784,10 @@ def create_app():
                 platform_display_name = "Local"
             elif platform == 'onprem':
                 platform_display_name = "On-Premises"
+            elif platform == 'a-variant':
+                 platform_display_name = "A Variant"
+            elif platform == 'b-variant':
+                 platform_display_name = "B Variant"     
     else:
         app.logger.info("ENV_PLATFORM environment variable is not set")
 

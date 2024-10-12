@@ -2,13 +2,16 @@
     <header>
       <nav class="navbar navbar-expand-lg navbar-top">
         <div class="container">
-        {% if cymbal_logo == "true" %}
+          {% if cymbal_logo == "true" %}
           <div class="logo-container">
             <a href="/"><img id="cymbal-logo" src="static/img/cymbal.svg"></a>
           </div>
         {% else %}
           <a class="navbar-brand">
-            {{ bank_name }} <small style="color:#343434">a <b>CISCO</b> company</small>
+            {{ bank_name }}
+            {% if splunk_env == "b-variant" %}
+              <small style="color:#343434">a <b>CISCO</b> company</small>
+            {% endif %}
           </a>
         {% endif %}
         {% if name %}

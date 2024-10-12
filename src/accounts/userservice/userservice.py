@@ -27,6 +27,9 @@ import bcrypt
 import jwt
 from flask import Flask, jsonify, request
 import bleach
+
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.backends import default_backend
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
 from datetime import datetime, timedelta, timezone
 from db import UserDb
@@ -60,10 +63,27 @@ def create_app():
     # Cache the private key and public key at startup
     try:
         with tracer.start_as_current_span("cache_keys") as span:
+            # Load private key as a string
             app.config['PRIVATE_KEY'] = open(os.environ.get('PRIV_KEY_PATH'), 'r').read()
-            app.config['PUBLIC_KEY'] = open(os.environ.get('PUB_KEY_PATH'), 'r').read()
+            
+            # Load public key as a string
+            public_key_pem = open(os.environ.get('PUB_KEY_PATH'), 'r').read()
+            app.config['PUBLIC_KEY'] = public_key_pem
+
+            # Load the public key into a cryptography object and get the bit size
+            public_key = serialization.load_pem_public_key(
+                public_key_pem.encode(),
+                backend=default_backend()
+            )
+            
+            # Store the bit size of the public key in app.config
+            app.config['PUBLIC_KEY_BIT_SIZE'] = public_key.key_size
+            app.logger.info(f"Public key bit size set to {public_key.key_size}")
             span.set_attribute("keys.cached", True)
-            app.logger.info("Private and public keys loaded and cached successfully.")
+            span.set_attribute("public_key_bit_size", public_key.key_size)
+            
+            app.logger.info(f"Private and public keys loaded successfully.")
+            
     except Exception as e:
         app.logger.critical(f"Failed to load keys: {e}")
         sys.exit(1)
@@ -199,10 +219,16 @@ def create_app():
                 # Step 3: Validate the password
                 with tracer.start_as_current_span("validate_password") as password_span:
                     app.logger.debug('Validating the password.')
+                    #@@@password_span.set_attribute("public_key_bit_size", public_key_bit_size)  
+                    # Assuming the public key bit size has been set in app.config['PUBLIC_KEY_BIT_SIZE']
+                    #public_key_bit_size = app.config.get('PUBLIC_KEY_BIT_SIZE', None)
                     
+                    # Add public key bit size as a span attribute
+                    #if public_key_bit_size:                    
+                    # Validate the password
                     if not bcrypt.checkpw(password.encode('utf-8'), user['passhash']):
                         password_span.set_attribute("password_valid", False)
-                        raise PermissionError('invalid login')
+                        raise PermissionError('invalid login')                    
                     password_span.set_attribute("password_valid", True)
 
                 # Step 4: Generate JWT token
@@ -225,11 +251,15 @@ def create_app():
                             }
                             payload_span.set_attribute("payload.user", username)
                             payload_span.set_attribute("payload.exp_time", exp_time.isoformat())
-
+                            #payload_span.set_attribute("public_key_bit_size", public_key_bit_size)
+                           
                         # Sub-step: Encode JWT token using the cached private key
                         with tracer.start_as_current_span("encode_jwt_token") as encode_span:
                             token = jwt.encode(payload, app.config['PRIVATE_KEY'], algorithm='RS256')
                             encode_span.set_attribute("token_generated", True)
+                             # Assuming the public key bit size has been set in app.config['PUBLIC_KEY_BIT_SIZE']
+                            public_key_bit_size = app.config.get('PUBLIC_KEY_BIT_SIZE', None)                        
+                            encode_span.set_attribute("public_key_bit_size", public_key_bit_size)
 
                         # Log the success of the JWT generation
                         jwt_span.set_attribute("jwt.success", True)
