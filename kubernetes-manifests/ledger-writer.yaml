@@ -13,33 +13,164 @@
 # limitations under the License.
 apiVersion: v1
 data:
-  POSTGRES_DB: ledger-db
-  POSTGRES_PASSWORD: admin
+  POSTGRES_DB: postgresdb
+  POSTGRES_PASSWORD: password
   POSTGRES_USER: admin
-  SPRING_DATASOURCE_PASSWORD: admin
-  SPRING_DATASOURCE_URL: jdbc:postgresql://127.0.0.1:5432/ledger-db
+  SPRING_DATASOURCE_PASSWORD: password
+  SPRING_DATASOURCE_URL: jdbc:postgresql://ledger-db:5432/postgresdb
   SPRING_DATASOURCE_USERNAME: admin
 kind: ConfigMap
 metadata:
   labels:
     app: ledger-db
     application: bank-of-splunk
-    cluster: staging
+    environment: development
     team: ledger
     tier: db
   name: ledger-db-config
-  namespace: bank-of-anthos-staging
 ---
 apiVersion: v1
 kind: Service
 metadata:
   labels:
     application: bank-of-splunk
-    cluster: staging
+    environment: development
+    team: ledger
+    tier: db
+  name: ledger-db
+spec:
+  ports:
+    - name: tcp
+      port: 5432
+      targetPort: 5432
+  selector:
+    app: ledger-db
+    application: bank-of-splunk
+    environment: development
+    team: ledger
+    tier: db
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    application: bank-of-splunk
+    environment: development
+    team: ledger
+    tier: db
+  name: ledger-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ledger-db
+      application: bank-of-splunk
+      environment: development
+      team: ledger
+      tier: db
+  serviceName: ledger-db
+  template:
+    metadata:
+      labels:
+        app: ledger-db
+        application: bank-of-splunk
+        environment: development
+        team: ledger
+        tier: db
+    spec:
+      containers:
+        - envFrom:
+            - configMapRef:
+                name: environment-config
+            - configMapRef:
+                name: ledger-db-config
+            - configMapRef:
+                name: demo-data-config
+          image: ghcr.io/splunk/bank-of-splunk/ledger-db:v1.2.3@sha256:de1ae1694d03c6c368245ec88ca016476dffa1f73a5d6cd67ab949a96c93d668
+          name: postgres
+          ports:
+            - containerPort: 5432
+          resources:
+            limits:
+              cpu: 250m
+              memory: 1Gi
+            requests:
+              cpu: 100m
+              memory: 512Mi
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgresdb
+              subPath: postgres
+      serviceAccount: bank-of-anthos
+      serviceAccountName: default
+      volumes:
+        - emptyDir: {}
+          name: postgresdb
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    istio-injection: enabled
+  name: bank-of-anthos-development
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: bank-of-anthos
+  namespace: bank-of-anthos-development
+---
+apiVersion: v1
+data:
+  DEMO_LOGIN_PASSWORD: bankofanthos
+  DEMO_LOGIN_USERNAME: testuser
+  USE_DEMO_DATA: "True"
+kind: ConfigMap
+metadata:
+  name: demo-data-config
+  namespace: bank-of-anthos-development
+---
+apiVersion: v1
+data:
+  LOCAL_ROUTING_NUM: "883745000"
+  PUB_KEY_PATH: /tmp/.ssh/publickey
+kind: ConfigMap
+metadata:
+  name: environment-config
+  namespace: bank-of-anthos-development
+---
+apiVersion: v1
+data:
+  BALANCES_API_ADDR: balancereader:8080
+  CONTACTS_API_ADDR: contacts:8080
+  HISTORY_API_ADDR: transactionhistory:8080
+  TRANSACTIONS_API_ADDR: ledgerwriter:8080
+  USERSERVICE_API_ADDR: userservice:8080
+kind: ConfigMap
+metadata:
+  name: service-api-config
+  namespace: bank-of-anthos-development
+---
+apiVersion: v1
+data:
+  jwtRS256.key: LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1JSUJWUUlCQURBTkJna3Foa2lHOXcwQkFRRUZBQVNDQVQ4d2dnRTdBZ0VBQWtFQXZVY2FzVjhxbzVHdmlFRTQKNExtQVJVWkxON0tUZDJtSzh5RExieHlWdWxwVDluaXE4UU9ETkxvQ09IdVJWT3E3RUpWYVRTSGYxSk9MOTRkcAp2NU45Y1FJREFRQUJBa0F5Y0JnMDI5OUk1ekdYWlluNm1IUU9BY1ZaZWtUQnRXWkprNXVpYUVPZC9LNjNzSk9CCklveFF6OWxkZGJIWUxaeVhHV2hHd0tMeUIyOE5BOXJLYVJGaEFpRUE0ZXJua2pYVDNlRHhscm5HUzNLTWJXSDgKdlVVYWhxa29mK0Z3eEkzU3gvTUNJUURXZXpmT3RYZnIzOXY0MkRMaEVEcVZZZEJUWWpJZ2ZUelR1MGR1c0hjQwpDd0lnSUpOb3ROS0NMRnBGTzhDcDhUTWhRSnlDZnlBNXhQVWJXK1U4QjN1VHl6VUNJUUN3WkFIUHBIcU5xRHQyCmVnZk9CTlRKU2ZwVXVTdFVnT3JuanR2K2NtNU5aUUloQUp4ckprNU1od0h2VzZMcVNCemVqZzZwUkt3SnFiVXcKYWlobDVKbUZLR1dxCi0tLS0tRU5EIFBSSVZBVEUgS0VZLS0tLS0K
+  jwtRS256.key.pub: LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUZ3d0RRWUpLb1pJaHZjTkFRRUJCUUFEU3dBd1NBSkJBTDFIR3JGZktxT1JyNGhCT09DNWdFVkdTemV5azNkcAppdk1neTI4Y2xicGFVL1o0cXZFRGd6UzZBamg3a1ZUcXV4Q1ZXazBoMzlTVGkvZUhhYitUZlhFQ0F3RUFBUT09Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQo=
+kind: Secret
+metadata:
+  name: jwt-key
+  namespace: bank-of-anthos-development
+type: Opaque
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    application: bank-of-splunk
+    environment: development
     team: ledger
     tier: backend
   name: ledgerwriter
-  namespace: bank-of-anthos-staging
 spec:
   ports:
     - name: http
@@ -48,7 +179,7 @@ spec:
   selector:
     app: ledgerwriter
     application: bank-of-splunk
-    cluster: staging
+    environment: development
     team: ledger
     tier: backend
   type: ClusterIP
@@ -58,17 +189,16 @@ kind: Deployment
 metadata:
   labels:
     application: bank-of-splunk
-    cluster: staging
+    environment: development
     team: ledger
     tier: backend
   name: ledgerwriter
-  namespace: bank-of-anthos-staging
 spec:
   selector:
     matchLabels:
       app: ledgerwriter
       application: bank-of-splunk
-      cluster: staging
+      environment: development
       team: ledger
       tier: backend
   template:
@@ -77,14 +207,14 @@ spec:
       labels:
         app: ledgerwriter
         application: bank-of-splunk
-        cluster: staging
+        environment: development
         team: ledger
         tier: backend
     spec:
       containers:
         - env:
             - name: VERSION
-              value: v1.2.2
+              value: v1.2.3
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
@@ -106,7 +236,7 @@ spec:
                 name: service-api-config
             - configMapRef:
                 name: ledger-db-config
-          image: ghcr.io/splunk/bank-of-splunk/ledgerwriter:v1.2.2@sha256:a257d61f349d13e26d1f2e556d5ff83792d388f97f7402854ce426eceac18e4c
+          image: ghcr.io/splunk/bank-of-splunk/ledgerwriter:v1.2.3@sha256:a257d61f349d13e26d1f2e556d5ff83792d388f97f7402854ce426eceac18e4c
           name: ledgerwriter
           readinessProbe:
             httpGet:
@@ -143,25 +273,6 @@ spec:
             - mountPath: /tmp/.ssh
               name: publickey
               readOnly: true
-        - args:
-            - --port=5432
-          env:
-            - name: CSQL_PROXY_INSTANCE_CONNECTION_NAME
-              valueFrom:
-                configMapKeyRef:
-                  key: connectionName
-                  name: cloud-sql-admin
-          image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.8.0-alpine@sha256:bd14f09aa889b490a361522293cc4aa539937b6d64bc740794843ac814e58f6f
-          name: cloud-sql-proxy
-          resources:
-            limits:
-              cpu: 250m
-              ephemeral-storage: 1Gi
-              memory: 100Mi
-            requests:
-              cpu: 250m
-              ephemeral-storage: 1Gi
-              memory: 100Mi
       securityContext:
         fsGroup: 1000
         runAsGroup: 1000
@@ -178,3 +289,57 @@ spec:
               - key: jwtRS256.key.pub
                 path: publickey
             secretName: jwt-key
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    istio-injection: enabled
+  name: bank-of-anthos-development
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: bank-of-anthos
+  namespace: bank-of-anthos-development
+---
+apiVersion: v1
+data:
+  DEMO_LOGIN_PASSWORD: bankofanthos
+  DEMO_LOGIN_USERNAME: testuser
+  USE_DEMO_DATA: "True"
+kind: ConfigMap
+metadata:
+  name: demo-data-config
+  namespace: bank-of-anthos-development
+---
+apiVersion: v1
+data:
+  LOCAL_ROUTING_NUM: "883745000"
+  PUB_KEY_PATH: /tmp/.ssh/publickey
+kind: ConfigMap
+metadata:
+  name: environment-config
+  namespace: bank-of-anthos-development
+---
+apiVersion: v1
+data:
+  BALANCES_API_ADDR: balancereader:8080
+  CONTACTS_API_ADDR: contacts:8080
+  HISTORY_API_ADDR: transactionhistory:8080
+  TRANSACTIONS_API_ADDR: ledgerwriter:8080
+  USERSERVICE_API_ADDR: userservice:8080
+kind: ConfigMap
+metadata:
+  name: service-api-config
+  namespace: bank-of-anthos-development
+---
+apiVersion: v1
+data:
+  jwtRS256.key: LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1JSUJWUUlCQURBTkJna3Foa2lHOXcwQkFRRUZBQVNDQVQ4d2dnRTdBZ0VBQWtFQXZVY2FzVjhxbzVHdmlFRTQKNExtQVJVWkxON0tUZDJtSzh5RExieHlWdWxwVDluaXE4UU9ETkxvQ09IdVJWT3E3RUpWYVRTSGYxSk9MOTRkcAp2NU45Y1FJREFRQUJBa0F5Y0JnMDI5OUk1ekdYWlluNm1IUU9BY1ZaZWtUQnRXWkprNXVpYUVPZC9LNjNzSk9CCklveFF6OWxkZGJIWUxaeVhHV2hHd0tMeUIyOE5BOXJLYVJGaEFpRUE0ZXJua2pYVDNlRHhscm5HUzNLTWJXSDgKdlVVYWhxa29mK0Z3eEkzU3gvTUNJUURXZXpmT3RYZnIzOXY0MkRMaEVEcVZZZEJUWWpJZ2ZUelR1MGR1c0hjQwpDd0lnSUpOb3ROS0NMRnBGTzhDcDhUTWhRSnlDZnlBNXhQVWJXK1U4QjN1VHl6VUNJUUN3WkFIUHBIcU5xRHQyCmVnZk9CTlRKU2ZwVXVTdFVnT3JuanR2K2NtNU5aUUloQUp4ckprNU1od0h2VzZMcVNCemVqZzZwUkt3SnFiVXcKYWlobDVKbUZLR1dxCi0tLS0tRU5EIFBSSVZBVEUgS0VZLS0tLS0K
+  jwtRS256.key.pub: LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUZ3d0RRWUpLb1pJaHZjTkFRRUJCUUFEU3dBd1NBSkJBTDFIR3JGZktxT1JyNGhCT09DNWdFVkdTemV5azNkcAppdk1neTI4Y2xicGFVL1o0cXZFRGd6UzZBamg3a1ZUcXV4Q1ZXazBoMzlTVGkvZUhhYitUZlhFQ0F3RUFBUT09Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQo=
+kind: Secret
+metadata:
+  name: jwt-key
+  namespace: bank-of-anthos-development
+type: Opaque
