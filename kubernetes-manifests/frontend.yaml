@@ -68,7 +68,7 @@ spec:
       containers:
         - env:
             - name: VERSION
-              value: v1.1.9
+              value: v1.2.1
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
@@ -146,7 +146,7 @@ spec:
                 name: environment-config
             - configMapRef:
                 name: service-api-config
-          image: ghcr.io/splunk/bank-of-splunk/frontend:v1.1.9@sha256:b3cd2828e76ba3197e51d198cfceb09c61f387ffdb9ebace33a5410898cc2bbe
+          image: ghcr.io/splunk/bank-of-splunk/frontend:v1.2.1@sha256:b3cd2828e76ba3197e51d198cfceb09c61f387ffdb9ebace33a5410898cc2bbe
           livenessProbe:
             httpGet:
               path: /ready

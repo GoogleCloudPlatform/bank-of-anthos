@@ -82,7 +82,7 @@ spec:
       containers:
         - env:
             - name: VERSION
-              value: v1.1.9
+              value: v1.2.1
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
@@ -106,7 +106,7 @@ spec:
                 name: environment-config
             - configMapRef:
                 name: accounts-db-config
-          image: ghcr.io/splunk/bank-of-splunk/userservice:v1.1.9@sha256:f39d0b4e1cf6b4843e521020d58fa89d4ef7f55743b5035c258db6354c53ee70
+          image: ghcr.io/splunk/bank-of-splunk/userservice:v1.2.1@sha256:f39d0b4e1cf6b4843e521020d58fa89d4ef7f55743b5035c258db6354c53ee70
           name: userservice
           ports:
             - containerPort: 8080

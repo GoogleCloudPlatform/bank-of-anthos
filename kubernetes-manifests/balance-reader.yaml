@@ -84,7 +84,7 @@ spec:
       containers:
         - env:
             - name: VERSION
-              value: v1.1.9
+              value: v1.2.1
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
@@ -108,7 +108,7 @@ spec:
                 name: environment-config
             - configMapRef:
                 name: ledger-db-config
-          image: ghcr.io/splunk/bank-of-splunk/balancereader:v1.1.9@sha256:928b892a9bbe3db70e68542a7e8b72796a35870c07f4e87b287c29576ddbba30
+          image: ghcr.io/splunk/bank-of-splunk/balancereader:v1.2.1@sha256:928b892a9bbe3db70e68542a7e8b72796a35870c07f4e87b287c29576ddbba30
           livenessProbe:
             httpGet:
               path: /healthy
