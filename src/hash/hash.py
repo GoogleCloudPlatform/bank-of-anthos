@@ -10,7 +10,7 @@ def hash_password_pbkdf2(password: str) -> str:
     # Hash the password using PBKDF2 with SHA-256
     hashed = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 10000)
     # Return the salt and hashed password as a combined string
-    return salt.hex() + ":" + hashed.hex()
+    return salt.hex() + "|" + hashed.hex()
 
 # Main function for the command-line interface
 def main():

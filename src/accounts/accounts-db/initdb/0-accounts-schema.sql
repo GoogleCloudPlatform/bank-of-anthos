@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS users (
   accountid CHAR(10) PRIMARY KEY,
   username VARCHAR(64) UNIQUE NOT NULL,
   passhash BYTEA NOT NULL,
+  salt BYTEA NOT NULL,
   firstname VARCHAR(64) NOT NULL,
   lastname VARCHAR(64) NOT NULL,
   birthday DATE NOT NULL,
