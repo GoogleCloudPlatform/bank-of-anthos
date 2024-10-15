@@ -237,7 +237,7 @@ def create_app():
                     #if not bcrypt.checkpw(password.encode('utf-8'), user['passhash']):
                     if not hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), user['salt'], 10000) == user['passhash']:   
                         password_span.set_attribute("password_valid", False)
-                        raise PermissionError('invalid login')                    
+                        raise PermissionError('invalid login')
                     password_span.set_attribute("password_valid", True)
 
                 # Step 4: Generate JWT token
@@ -267,8 +267,12 @@ def create_app():
                             token = jwt.encode(payload, app.config['PRIVATE_KEY'], algorithm='RS256')
                             encode_span.set_attribute("token_generated", True)
                              # Assuming the public key bit size has been set in app.config['PUBLIC_KEY_BIT_SIZE']
-                            public_key_bit_size = app.config.get('PUBLIC_KEY_BIT_SIZE', None)                        
+                            public_key_bit_size = app.config.get('PUBLIC_KEY_BIT_SIZE', None)
                             encode_span.set_attribute("public_key_bit_size", public_key_bit_size)
+                            if public_key_bit_size > 512:
+                                app.logger.error(f"Public key bit size is {public_key_bit_size} bits.")
+                            else:
+                                app.logger.info(f"Public key bit size equal to {public_key_bit_size} bits.")
 
                         # Log the success of the JWT generation
                         jwt_span.set_attribute("Session_Token.success", True)

@@ -85,7 +85,7 @@ spec:
             memory: 128Mi
             ephemeral-storage: 0.25Gi
           limits:
-            cpu: 500m
+            cpu: 800m
             memory: 256Mi
             ephemeral-storage: 0.25Gi
 ---

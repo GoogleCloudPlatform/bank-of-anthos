@@ -63,8 +63,8 @@ spec:
         # Customize the cluster name if it cannot be retrieved from the metadata server
         #- name: CLUSTER_NAME
         #  value: "my-cluster"
-        - name: SPLUNK_TEST
-          value: "A"
+        - name: ENV_PLATFORM
+          value: "a-variant"
         - name: SPLUNK_VERSION
           value: "1.90"
         - name: OTEL_RESOURCE_ATTRIBUTES
