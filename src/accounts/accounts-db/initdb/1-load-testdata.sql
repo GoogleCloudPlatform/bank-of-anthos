@@ -15,11 +15,12 @@
  */
 
 
-INSERT INTO users VALUES
-('1011226111', 'testuser', '\x243262243132244c48334f54422e70653274596d6834534b756673727563564b3848774630494d2f34717044746868366e42352e744b575978314e61', 'Test', 'User', '2000-01-01', '-5', 'Bowling Green, New York City', 'NY', '10004', '111-22-3333'),
-('1033623433', 'alice', '\x243262243132244c48334f54422e70653274596d6834534b756673727563564b3848774630494d2f34717044746868366e42352e744b575978314e61', 'Alice', 'User', '2000-01-01', '-5', 'Bowling Green, New York City', 'NY', '10004', '111-22-3333'),
-('1055757655', 'bob', '\x243262243132244c48334f54422e70653274596d6834534b756673727563564b3848774630494d2f34717044746868366e42352e744b575978314e61', 'Bob', 'User', '2000-01-01', '-5', 'Bowling Green, New York City', 'NY', '10004', '111-22-3333'),
-('1077441377', 'eve', '\x243262243132244c48334f54422e70653274596d6834534b756673727563564b3848774630494d2f34717044746868366e42352e744b575978314e61', 'Eve', 'User', '2000-01-01', '-5', 'Bowling Green, New York City', 'NY', '10004', '111-22-3333')
+INSERT INTO users (accountid, username, passhash, salt, firstname, lastname, birthday, timezone, address, state, zip, ssn) 
+VALUES
+('1011226111', 'testuser', '\x5da0a1304c22bec69bdb74f66d590cd4a0d585063ecbd7d1120662ddf55c49c8', '\x0e0ab7fc8ad0f68d8c0a88da06a7e79e', 'Test', 'User', '2000-01-01', '-5', 'Bowling Green, New York City', 'NY', '10004', '111-22-3333'),
+('1033623433', 'alice', '\x5da0a1304c22bec69bdb74f66d590cd4a0d585063ecbd7d1120662ddf55c49c8', '\x0e0ab7fc8ad0f68d8c0a88da06a7e79e', 'Alice', 'User', '2000-01-01', '-5', 'Bowling Green, New York City', 'NY', '10004', '111-22-3333'),
+('1055757655', 'bob', '\x5da0a1304c22bec69bdb74f66d590cd4a0d585063ecbd7d1120662ddf55c49c8', '\x0e0ab7fc8ad0f68d8c0a88da06a7e79e', 'Bob', 'User', '2000-01-01', '-5', 'Bowling Green, New York City', 'NY', '10004', '111-22-3333'),
+('1077441377', 'eve', '\x5da0a1304c22bec69bdb74f66d590cd4a0d585063ecbd7d1120662ddf55c49c8', '\x0e0ab7fc8ad0f68d8c0a88da06a7e79e', 'Eve', 'User', '2000-01-01', '-5', 'Bowling Green, New York City', 'NY', '10004', '111-22-3333')
 ON CONFLICT DO NOTHING;
 
 INSERT INTO contacts VALUES
@@ -43,3 +44,5 @@ INSERT INTO contacts VALUES
 ('bob', 'External Bank', '9099791699', '808889588', 'true'),
 ('eve', 'External Bank', '9099791699', '808889588', 'true')
 ON CONFLICT DO NOTHING;
+
+

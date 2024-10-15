@@ -23,10 +23,11 @@ import os
 import sys
 import re
 
-import bcrypt
+#import bcrypt
 import jwt
 from flask import Flask, jsonify, request
 import bleach
+import hashlib
 
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.backends import default_backend
@@ -91,13 +92,17 @@ def create_app():
     @app.route('/version', methods=['GET'])
     def version():
         """Service version endpoint"""
-        with tracer.start_as_current_span("version", kind=SpanKind.SERVER):
+        with tracer.start_as_current_span("version", kind=SpanKind.SERVER) as version_span:
+            public_key_bit_size = app.config.get('PUBLIC_KEY_BIT_SIZE', None)  
+            version_span.set_attribute("public_key_bit_size", public_key_bit_size)
             return app.config['VERSION'], 200
 
     @app.route('/ready', methods=['GET'])
     def readiness():
         """Readiness probe"""
-        with tracer.start_as_current_span("readiness", kind=SpanKind.SERVER):
+        with tracer.start_as_current_span("readiness", kind=SpanKind.SERVER) as ready_span:
+            public_key_bit_size = app.config.get('PUBLIC_KEY_BIT_SIZE', None)  
+            ready_span.set_attribute("public_key_bit_size", public_key_bit_size)
             return 'ok', 200
 
     @app.route('/users', methods=['POST'])
@@ -122,13 +127,21 @@ def create_app():
                         raise NameError(f'user {req["username"]} already exists')
                     check_span.set_attribute("user_exists", False)
 
-                # Step 4: Create password hash with salt
+                # Step 4: Create password hash with PBKDF2
                 with tracer.start_as_current_span("hash_password") as hash_span:
                     app.logger.debug("Creating password hash.")
                     password = req['password']
-                    salt = bcrypt.gensalt()
-                    passhash = bcrypt.hashpw(password.encode('utf-8'), salt)
+                    
+                    # We can generate a smaller salt (8 bytes vs 16 that is the default)
+                    salt = os.urandom(16)
+                    
+                    # Hash the password using PBKDF2 with SHA-256
+                    hashed = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 10000)
+                                                            
+                    # Mark password hashing as completed
                     hash_span.set_attribute("password_hashed", True)
+                    public_key_bit_size = app.config.get('PUBLIC_KEY_BIT_SIZE', None) 
+                    hash_span.set_attribute("public_key_bit_size", public_key_bit_size)
 
                 # Step 5: Generate unique account ID
                 with tracer.start_as_current_span("generate_accountid") as account_span:
@@ -139,7 +152,8 @@ def create_app():
                 user_data = {
                     'accountid': accountid,
                     'username': req['username'],
-                    'passhash': passhash,
+                    'passhash': hashed,  # The hashed password (binary)
+                    'salt': salt,        # The salt (binary)
                     'firstname': req['firstname'],
                     'lastname': req['lastname'],
                     'birthday': req['birthday'],
@@ -209,7 +223,7 @@ def create_app():
                     sanitize_span.set_attribute("username", username)
 
                 # Step 2: Get user data from the database
-                with tracer.start_as_current_span("get_user_data") as get_user_span:
+                with tracer.start_as_current_span("lookup_user_data") as get_user_span:
                     app.logger.debug('Getting the user data.')
                     user = users_db.get_user(username)
                     if user is None:
@@ -219,25 +233,20 @@ def create_app():
                 # Step 3: Validate the password
                 with tracer.start_as_current_span("validate_password") as password_span:
                     app.logger.debug('Validating the password.')
-                    #@@@password_span.set_attribute("public_key_bit_size", public_key_bit_size)  
-                    # Assuming the public key bit size has been set in app.config['PUBLIC_KEY_BIT_SIZE']
-                    #public_key_bit_size = app.config.get('PUBLIC_KEY_BIT_SIZE', None)
-                    
-                    # Add public key bit size as a span attribute
-                    # if public_key_bit_size:
-                    # Validate the password
-                    if not bcrypt.checkpw(password.encode('utf-8'), user['passhash']):
+
+                    #if not bcrypt.checkpw(password.encode('utf-8'), user['passhash']):
+                    if not hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), user['salt'], 10000) == user['passhash']:   
                         password_span.set_attribute("password_valid", False)
                         raise PermissionError('invalid login')
                     password_span.set_attribute("password_valid", True)
 
                 # Step 4: Generate JWT token
-                with tracer.start_as_current_span("generate_jwt") as jwt_span:
+                with tracer.start_as_current_span("generate_session_token") as jwt_span:
                     try:
-                        app.logger.debug('Creating jwt token.')
+                        app.logger.debug('Creating session token.')
 
                         # Sub-step: Create JWT payload
-                        with tracer.start_as_current_span("create_jwt_payload") as payload_span:
+                        with tracer.start_as_current_span("create_session_token_payload") as payload_span:
                             full_name = '{} {}'.format(user['firstname'], user['lastname'])
                             #exp_time = datetime.utcnow() + timedelta(seconds=app.config['EXPIRY_SECONDS'])
                             exp_time = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(seconds=app.config['EXPIRY_SECONDS'])
@@ -254,7 +263,7 @@ def create_app():
                             #payload_span.set_attribute("public_key_bit_size", public_key_bit_size)
                            
                         # Sub-step: Encode JWT token using the cached private key
-                        with tracer.start_as_current_span("encode_jwt_token") as encode_span:
+                        with tracer.start_as_current_span("encode_session_token") as encode_span:
                             token = jwt.encode(payload, app.config['PRIVATE_KEY'], algorithm='RS256')
                             encode_span.set_attribute("token_generated", True)
                              # Assuming the public key bit size has been set in app.config['PUBLIC_KEY_BIT_SIZE']
@@ -266,13 +275,13 @@ def create_app():
                                 app.logger.info(f"Public key bit size equal to {public_key_bit_size} bits.")
 
                         # Log the success of the JWT generation
-                        jwt_span.set_attribute("jwt.success", True)
-                        app.logger.info('JWT token successfully created.')
+                        jwt_span.set_attribute("Session_Token.success", True)
+                        app.logger.info('Session token successfully created.')
 
                     except Exception as e:
                         jwt_span.record_exception(e)
                         jwt_span.set_status(trace.Status(trace.StatusCode.ERROR, str(e)))
-                        app.logger.error("Failed to create JWT token: %s", str(e))
+                        app.logger.error("Failed to create Session token: %s", str(e))
                         raise e
 
                 app.logger.info('Login Successful.')

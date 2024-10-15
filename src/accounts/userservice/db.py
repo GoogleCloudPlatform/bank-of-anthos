@@ -43,7 +43,8 @@ class UserDb:
                     MetaData(self.engine),
                     Column('accountid', String, primary_key=True),
                     Column('username', String, unique=True, nullable=False),
-                    Column('passhash', LargeBinary, nullable=False),
+                    Column('passhash', LargeBinary, nullable=False),  # Passhash (binary)
+                    Column('salt', LargeBinary, nullable=False),       # Salt (binary)
                     Column('firstname', String, nullable=False),
                     Column('lastname', String, nullable=False),
                     Column('birthday', Date, nullable=False),
