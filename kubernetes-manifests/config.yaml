@@ -39,4 +39,4 @@ data:
   USE_DEMO_DATA: "True"
   DEMO_LOGIN_USERNAME: "testuser"
   # All demo user accounts are hardcoded to use the login password 'bankofanthos'
-  DEMO_LOGIN_PASSWORD: "bankofanthos"
+  DEMO_LOGIN_PASSWORD: "bankofsplunk"

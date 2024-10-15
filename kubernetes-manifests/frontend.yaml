@@ -63,7 +63,7 @@ spec:
       containers:
         - env:
             - name: VERSION
-              value: v1.3.2
+              value: v1.3.3
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
@@ -141,7 +141,7 @@ spec:
                 name: environment-config
             - configMapRef:
                 name: service-api-config
-          image: ghcr.io/splunk/bank-of-splunk/frontend:v1.3.2@sha256:b3cd2828e76ba3197e51d198cfceb09c61f387ffdb9ebace33a5410898cc2bbe
+          image: ghcr.io/splunk/bank-of-splunk/frontend:v1.3.3@sha256:b3cd2828e76ba3197e51d198cfceb09c61f387ffdb9ebace33a5410898cc2bbe
           livenessProbe:
             httpGet:
               path: /ready
@@ -201,7 +201,7 @@ metadata:
 ---
 apiVersion: v1
 data:
-  DEMO_LOGIN_PASSWORD: bankofanthos
+  DEMO_LOGIN_PASSWORD: bankofsplunk
   DEMO_LOGIN_USERNAME: testuser
   USE_DEMO_DATA: "True"
 kind: ConfigMap
