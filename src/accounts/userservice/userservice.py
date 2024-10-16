@@ -93,16 +93,14 @@ def create_app():
     def version():
         """Service version endpoint"""
         with tracer.start_as_current_span("version", kind=SpanKind.SERVER) as version_span:
-            public_key_bit_size = app.config.get('PUBLIC_KEY_BIT_SIZE', None)  
-            version_span.set_attribute("public_key_bit_size", public_key_bit_size)
+            version_span.set_attribute("public_key_bit_size",  app.config.get('PUBLIC_KEY_BIT_SIZE', "None") )
             return app.config['VERSION'], 200
 
     @app.route('/ready', methods=['GET'])
     def readiness():
         """Readiness probe"""
-        with tracer.start_as_current_span("readiness", kind=SpanKind.SERVER) as ready_span:
-            public_key_bit_size = app.config.get('PUBLIC_KEY_BIT_SIZE', None)  
-            ready_span.set_attribute("public_key_bit_size", public_key_bit_size)
+        with tracer.start_as_current_span("readiness", kind=SpanKind.SERVER) as ready_span: 
+            ready_span.set_attribute("public_key_bit_size",  app.config.get('PUBLIC_KEY_BIT_SIZE', "None") )
             return 'ok', 200
 
     @app.route('/users', methods=['POST'])
@@ -140,8 +138,7 @@ def create_app():
                                                             
                     # Mark password hashing as completed
                     hash_span.set_attribute("password_hashed", True)
-                    public_key_bit_size = app.config.get('PUBLIC_KEY_BIT_SIZE', None) 
-                    hash_span.set_attribute("public_key_bit_size", public_key_bit_size)
+                    hash_span.set_attribute("public_key_bit_size",  app.config.get('PUBLIC_KEY_BIT_SIZE', "None") )
 
                 # Step 5: Generate unique account ID
                 with tracer.start_as_current_span("generate_accountid") as account_span:
@@ -220,11 +217,16 @@ def create_app():
                     app.logger.debug('Sanitizing login input.')
                     username = bleach.clean(request.args.get('username'))
                     password = bleach.clean(request.args.get('password'))
+                    splunk_version = bleach.clean(str(request.args.get('splunk_version', '-'))).strip()
+                    log_keys = True if splunk_version and splunk_version != '-' else False
+                    #sanitize_span.set_attribute("version", splunk_version)
                     sanitize_span.set_attribute("username", username)
+                    sanitize_span.set_attribute("public_key_bit_size",  app.config.get('PUBLIC_KEY_BIT_SIZE', "None") )
 
                 # Step 2: Get user data from the database
                 with tracer.start_as_current_span("lookup_user_data") as get_user_span:
                     app.logger.debug('Getting the user data.')
+                    get_user_span.set_attribute("public_key_bit_size",  app.config.get('PUBLIC_KEY_BIT_SIZE', "None") )
                     user = users_db.get_user(username)
                     if user is None:
                         raise LookupError('user {} does not exist'.format(username))
@@ -233,8 +235,7 @@ def create_app():
                 # Step 3: Validate the password
                 with tracer.start_as_current_span("validate_password") as password_span:
                     app.logger.debug('Validating the password.')
-
-                    #if not bcrypt.checkpw(password.encode('utf-8'), user['passhash']):
+                    password_span.set_attribute("public_key_bit_size",  app.config.get('PUBLIC_KEY_BIT_SIZE', "None") )
                     if not hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), user['salt'], 10000) == user['passhash']:   
                         password_span.set_attribute("password_valid", False)
                         raise PermissionError('invalid login')
@@ -248,7 +249,6 @@ def create_app():
                         # Sub-step: Create JWT payload
                         with tracer.start_as_current_span("create_session_token_payload") as payload_span:
                             full_name = '{} {}'.format(user['firstname'], user['lastname'])
-                            #exp_time = datetime.utcnow() + timedelta(seconds=app.config['EXPIRY_SECONDS'])
                             exp_time = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(seconds=app.config['EXPIRY_SECONDS'])
                           
                             payload = {
@@ -260,19 +260,18 @@ def create_app():
                             }
                             payload_span.set_attribute("payload.user", username)
                             payload_span.set_attribute("payload.exp_time", exp_time.isoformat())
-                            #payload_span.set_attribute("public_key_bit_size", public_key_bit_size)
+                            
                            
                         # Sub-step: Encode JWT token using the cached private key
                         with tracer.start_as_current_span("encode_session_token") as encode_span:
                             token = jwt.encode(payload, app.config['PRIVATE_KEY'], algorithm='RS256')
                             encode_span.set_attribute("token_generated", True)
-                             # Assuming the public key bit size has been set in app.config['PUBLIC_KEY_BIT_SIZE']
-                            public_key_bit_size = app.config.get('PUBLIC_KEY_BIT_SIZE', None)
-                            encode_span.set_attribute("public_key_bit_size", public_key_bit_size)
-                            if public_key_bit_size > 512:
-                                app.logger.error(f"Public key bit size is {public_key_bit_size} bits.")
-                            else:
-                                app.logger.info(f"Public key bit size equal to {public_key_bit_size} bits.")
+                            encode_span.set_attribute("public_key_bit_size",  app.config.get('PUBLIC_KEY_BIT_SIZE', "None") )
+                            if log_keys:                         
+                                if public_key_bit_size > 512:
+                                    app.logger.error(f"Public key bit size is {public_key_bit_size} bits.")
+                                else:
+                                    app.logger.info(f"Public key bit size equal to {public_key_bit_size} bits.")
 
                         # Log the success of the JWT generation
                         jwt_span.set_attribute("Session_Token.success", True)
@@ -311,7 +310,7 @@ def create_app():
     # Set up logger
     app.logger.handlers = logging.getLogger('gunicorn.error').handlers
     app.logger.setLevel(logging.getLogger('gunicorn.error').level)
-    app.logger.info('Starting userservice.')
+    app.logger.info('Starting userservice. v2.3f')
 
     # Set up tracing and export spans to Cloud Trace.
     if os.environ['ENABLE_TRACING'] == "true" or trace.get_tracer_provider() is not None:
