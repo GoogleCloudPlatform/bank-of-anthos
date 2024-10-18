@@ -1,0 +1,228 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bankofsplunk-loadgen-deployment
+  labels:
+    app: bankofsplunk-loadgen
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bankofsplunk-loadgen
+  template:
+    metadata:
+      labels:
+        app: bankofsplunk-loadgen
+    spec:
+      # If you are NOT running this from AWS, but from multipass for example set the below env variable
+      # set RUM_FRONTEND_IP to the IP address where you can reach your local Online Boutique
+      #env:
+      #  - name: RUM_FRONTEND_IP
+      #    value: "192.168.1.99"
+      containers:
+        - name: bankofsplunk
+          image: rcastley895/rumloadgen:5.5
+          imagePullPolicy: Always
+          env:
+            - name: NODE_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            - name: RUM_PROTOCOL
+              value: "http"
+            - name: RUM_PORT
+              value: "8083"
+          resources:
+            limits:
+              cpu: 250m
+              memory: 1Gi
+            requests:
+              cpu: 100m
+              memory: 512Mi    
+          volumeMounts:
+            - name: puppeteer
+              subPath: local-file
+              mountPath: /puppeteer/touchwebsite.js
+      volumes:
+        - name: puppeteer
+          configMap:
+            name: scriptfile
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: scriptfile
+data:
+  local-file: |
+    const puppeteer = require('puppeteer');
+
+    function run() {
+        return new Promise(async (resolve, reject) => {
+            const browser = await puppeteer.launch({
+                headless: 'new',
+                defaultViewport: null,
+                args: ['--no-sandbox', '--disable-setuid-sandbox']
+            });
+            const url = process.env.RUM_PROTOCOL + "://" + process.env.NODE_IP + ":" + process.env.RUM_PORT + "/";
+            try {
+                const wait_time = 4000;
+                const timeout = 5000; // Timeout for waiting on actions
+                for (let loop = 0; loop < 1; loop++) {
+                    const page = await browser.newPage();
+
+                    await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64; Splunk RUMLoadGen) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36');
+
+                    // Interaction 1: Set Viewport
+                    console.log("Set Viewport");
+                    await page.setViewport({
+                        width: 1218,
+                        height: 1178
+                    });
+                    await delay(wait_time);
+
+                    // Interaction 2: Go to the page and wait for navigation
+                    console.log("Go to the page and wait for navigation");
+                    const promises = [];
+                    promises.push(page.waitForNavigation());
+                    await page.goto(`${url}`);
+                    await Promise.all(promises);
+                    await delay(wait_time);
+
+                    // Interaction 3: Wait for Sign In button
+                    console.log("Waiting for 'Sign In' button");
+                    await page.waitForSelector('button', { timeout });
+
+                    // Interaction 4: Click Sign In and wait for navigation
+                    console.log("Click Sign In and wait for navigation");
+
+                    const signInPromises = [];
+                    const startSignInWaitingForEvents = () => {
+                        signInPromises.push(page.waitForNavigation({ waitUntil: 'networkidle0' }));  // Wait for navigation after clicking
+                    };
+
+                    // Wait for the "Sign In" button and click it
+                    await page.locator('button').click({
+                        offset: {
+                            x: 201.171875,
+                            y: 24.671875,
+                        },
+                    });
+
+                    // Start waiting for navigation
+                    startSignInWaitingForEvents();
+                    await Promise.all(signInPromises);  // Wait for navigation to complete
+
+                    await delay(wait_time);  // Adding delay after interaction
+
+                    // Interaction 5: Wait for Checking Account
+                    console.log("Wait for Checking Account");
+
+                    await page.waitForSelector('h2', { timeout });
+                    await delay(wait_time);  // Adding delay after waiting for the element
+
+                    // Interaction 6: Click Deposit Funds
+                    console.log("Click Deposit Funds");
+
+                    await page.locator('#depositSpan').click({
+                        offset: {
+                            x: 98.75,
+                            y: 14.65625,
+                        },
+                    });
+                    await delay(wait_time);  // Adding delay after interaction
+
+                    // Interaction 7: Wait for Make a Deposit form
+                    console.log("Wait for Make a Deposit form");
+
+                    await page.waitForSelector('#depositFunds h3', { timeout });  // Waiting for the "Make a Deposit" form
+                    await delay(wait_time);  // Adding delay after waiting for the form
+
+                    // Interaction 8: Fill Deposit Amount
+                    console.log("Fill Deposit Amount");
+
+                    await page.locator('#deposit-amount').click({
+                        offset: {
+                            x: 79.046875,
+                            y: 24.078125,
+                        },
+                    });
+                    await page.locator('#deposit-amount').fill('25');  // Filling the deposit amount with '25'
+                    await delay(wait_time);  // Adding delay after filling the deposit amount
+
+                    // Interaction 9: Confirm Deposit and wait for navigation
+                    console.log("Confirm Deposit and wait for navigation");
+
+                    const depositPromises = [];
+                    const startDepositWaitingForEvents = () => {
+                        depositPromises.push(page.waitForNavigation({ waitUntil: 'networkidle0' }));  // Ensuring the page waits for full navigation
+                    };
+
+                    await page.locator('#depositFunds button.btn-primary').click({
+                        offset: {
+                            x: 47.140625,
+                            y: 20.109375,
+                        }, // <-- FIXED: Added the missing closing bracket here
+                    });
+
+                    // Start waiting for navigation after clicking
+                    startDepositWaitingForEvents();
+                    await Promise.all(depositPromises);  // Wait for navigation to complete
+                    await delay(wait_time);  // Adding delay after confirming the deposit
+
+                    // Interaction: Wait for Checking Account (Post Deposit)
+                    console.log("Wait for Checking Account (Post Deposit)");
+
+                    await page.waitForSelector('h2', { timeout });  // Wait for the Checking Account heading after deposit
+                    await delay(wait_time);  // Adding delay after waiting for the element
+
+                    console.log("Click on Account Username");
+                    // Interaction: Click on Account Username
+                    await page.locator('#account-user-name').click({
+                        offset: {
+                            x: 79,
+                            y: 6.53125,
+                        },
+                    });
+                    await delay(wait_time); // Adding delay between actions
+
+                    console.log("Wait for Sign Out link");
+                    // Interaction: Wait for Sign Out link
+                    await page.waitForSelector('li > div a', { timeout });
+                    await delay(wait_time);
+
+                    console.log("Click Sign Out and wait for navigation");
+                    // Interaction: Click Sign Out and wait for navigation
+                    const signOutPromises = [];
+                    signOutPromises.push(page.waitForNavigation({ waitUntil: 'networkidle0' }));
+
+                    await page.locator('li > div a').click({
+                        offset: {
+                            x: 71.796875,
+                            y: 22.15625,
+                        },
+                    });
+
+                    await Promise.all(signOutPromises); // Wait for navigation after clicking
+                    console.log("Sign out completed");
+
+                    // Adding a final delay before closing
+                    await delay(wait_time);
+                    await browser.close();
+                }
+            } catch (e) {
+                console.log('{"severity":"error","msg": "' + e + '"}');
+            } finally {
+                await browser.close();
+            }
+            resolve('RUM Loop completed successfully'); // Return a message when resolving
+        });
+    }
+
+    run().then(console.log).catch(console.error);
+
+    function delay(time) {
+        return new Promise(function (resolve) {
+            setTimeout(resolve, time);
+        });
+    }
