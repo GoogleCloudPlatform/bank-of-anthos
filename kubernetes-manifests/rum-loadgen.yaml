@@ -35,11 +35,11 @@ spec:
               value: "8083"
           resources:
             limits:
-              cpu: 250m
+              cpu: 450m
               memory: 1Gi
             requests:
-              cpu: 100m
-              memory: 512Mi    
+              cpu: 250m
+              memory: 612Mi    
           volumeMounts:
             - name: puppeteer
               subPath: local-file
@@ -60,14 +60,14 @@ data:
     function run() {
         return new Promise(async (resolve, reject) => {
             const browser = await puppeteer.launch({
-                headless: 'new',
+                headless: true,
                 defaultViewport: null,
                 args: ['--no-sandbox', '--disable-setuid-sandbox']
             });
             const url = process.env.RUM_PROTOCOL + "://" + process.env.NODE_IP + ":" + process.env.RUM_PORT + "/";
             try {
-                const wait_time = 4000;
-                const timeout = 5000; // Timeout for waiting on actions
+                const wait_time = 1000;
+                const timeout = 10000; // Timeout for waiting on actions
                 for (let loop = 0; loop < 1; loop++) {
                     const page = await browser.newPage();
 
@@ -115,63 +115,63 @@ data:
 
                     await delay(wait_time);  // Adding delay after interaction
 
-                    // Interaction 5: Wait for Checking Account
-                    console.log("Wait for Checking Account");
+                    // // Interaction 5: Wait for Checking Account
+                    // console.log("Wait for Checking Account");
 
-                    await page.waitForSelector('h2', { timeout });
-                    await delay(wait_time);  // Adding delay after waiting for the element
+                    // await page.waitForSelector('h2', { timeout });
+                    // await delay(wait_time);  // Adding delay after waiting for the element
 
-                    // Interaction 6: Click Deposit Funds
-                    console.log("Click Deposit Funds");
+                    // // Interaction 6: Click Deposit Funds
+                    // console.log("Click Deposit Funds");
 
-                    await page.locator('#depositSpan').click({
-                        offset: {
-                            x: 98.75,
-                            y: 14.65625,
-                        },
-                    });
-                    await delay(wait_time);  // Adding delay after interaction
+                    // await page.locator('#depositSpan').click({
+                    //     offset: {
+                    //         x: 98.75,
+                    //         y: 14.65625,
+                    //     },
+                    // });
+                    // await delay(wait_time);  // Adding delay after interaction
 
-                    // Interaction 7: Wait for Make a Deposit form
-                    console.log("Wait for Make a Deposit form");
+                    // // Interaction 7: Wait for Make a Deposit form
+                    // console.log("Wait for Make a Deposit form");
 
-                    await page.waitForSelector('#depositFunds h3', { timeout });  // Waiting for the "Make a Deposit" form
-                    await delay(wait_time);  // Adding delay after waiting for the form
+                    // await page.waitForSelector('#depositFunds h3', { timeout });  // Waiting for the "Make a Deposit" form
+                    // await delay(wait_time);  // Adding delay after waiting for the form
 
-                    // Interaction 8: Fill Deposit Amount
-                    console.log("Fill Deposit Amount");
+                    // // Interaction 8: Fill Deposit Amount
+                    // console.log("Fill Deposit Amount");
 
-                    await page.locator('#deposit-amount').click({
-                        offset: {
-                            x: 79.046875,
-                            y: 24.078125,
-                        },
-                    });
-                    await page.locator('#deposit-amount').fill('25');  // Filling the deposit amount with '25'
-                    await delay(wait_time);  // Adding delay after filling the deposit amount
+                    // await page.locator('#deposit-amount').click({
+                    //     offset: {
+                    //         x: 79.046875,
+                    //         y: 24.078125,
+                    //     },
+                    // });
+                    // await page.locator('#deposit-amount').fill('25');  // Filling the deposit amount with '25'
+                    // await delay(wait_time);  // Adding delay after filling the deposit amount
 
-                    // Interaction 9: Confirm Deposit and wait for navigation
-                    console.log("Confirm Deposit and wait for navigation");
+                    // // Interaction 9: Confirm Deposit and wait for navigation
+                    // console.log("Confirm Deposit and wait for navigation");
 
-                    const depositPromises = [];
-                    const startDepositWaitingForEvents = () => {
-                        depositPromises.push(page.waitForNavigation({ waitUntil: 'networkidle0' }));  // Ensuring the page waits for full navigation
-                    };
+                    // const depositPromises = [];
+                    // const startDepositWaitingForEvents = () => {
+                    //     depositPromises.push(page.waitForNavigation({ waitUntil: 'networkidle0' }));  // Ensuring the page waits for full navigation
+                    // };
 
-                    await page.locator('#depositFunds button.btn-primary').click({
-                        offset: {
-                            x: 47.140625,
-                            y: 20.109375,
-                        }, // <-- FIXED: Added the missing closing bracket here
-                    });
+                    // await page.locator('#depositFunds button.btn-primary').click({
+                    //     offset: {
+                    //         x: 47.140625,
+                    //         y: 20.109375,
+                    //     }, // <-- FIXED: Added the missing closing bracket here
+                    // });
 
-                    // Start waiting for navigation after clicking
-                    startDepositWaitingForEvents();
-                    await Promise.all(depositPromises);  // Wait for navigation to complete
-                    await delay(wait_time);  // Adding delay after confirming the deposit
+                    // // Start waiting for navigation after clicking
+                    // startDepositWaitingForEvents();
+                    // await Promise.all(depositPromises);  // Wait for navigation to complete
+                    // await delay(wait_time);  // Adding delay after confirming the deposit
 
-                    // Interaction: Wait for Checking Account (Post Deposit)
-                    console.log("Wait for Checking Account (Post Deposit)");
+                    // // Interaction: Wait for Checking Account (Post Deposit)
+                    // console.log("Wait for Checking Account (Post Deposit)");
 
                     await page.waitForSelector('h2', { timeout });  // Wait for the Checking Account heading after deposit
                     await delay(wait_time);  // Adding delay after waiting for the element
@@ -179,10 +179,10 @@ data:
                     console.log("Click on Account Username");
                     // Interaction: Click on Account Username
                     await page.locator('#account-user-name').click({
-                        offset: {
-                            x: 79,
-                            y: 6.53125,
-                        },
+                         offset: {
+                             x: 79,
+                             y: 6.53125,
+                         },
                     });
                     await delay(wait_time); // Adding delay between actions
 
