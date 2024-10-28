@@ -33,13 +33,13 @@ spec:
               value: "http"
             - name: RUM_PORT
               value: "8083"
-          resources:
-            limits:
-              cpu: 450m
-              memory: 1Gi
-            requests:
-              cpu: 250m
-              memory: 612Mi    
+          # resources:
+          #   limits:
+          #     cpu: 450m
+          #     memory: 1Gi
+          #   requests:
+          #     cpu: 250m
+          #     memory: 612Mi    
           volumeMounts:
             - name: puppeteer
               subPath: local-file
@@ -66,7 +66,7 @@ data:
             });
             const url = process.env.RUM_PROTOCOL + "://" + process.env.NODE_IP + ":" + process.env.RUM_PORT + "/";
             try {
-                const wait_time = 1000;
+                const wait_time = 500;
                 const timeout = 10000; // Timeout for waiting on actions
                 for (let loop = 0; loop < 1; loop++) {
                     const page = await browser.newPage();
