@@ -79,7 +79,6 @@ data:
                         width: 1218,
                         height: 1178
                     });
-                    await delay(wait_time);
 
                     // Interaction 2: Go to the page and wait for navigation
                     console.log("Go to the page and wait for navigation");
@@ -113,13 +112,12 @@ data:
                     startSignInWaitingForEvents();
                     await Promise.all(signInPromises);  // Wait for navigation to complete
 
-                    await delay(wait_time);  // Adding delay after interaction
+                    //await delay(wait_time);  // Adding delay after interaction
 
                     // // Interaction 5: Wait for Checking Account
                     // console.log("Wait for Checking Account");
 
                     // await page.waitForSelector('h2', { timeout });
-                    // await delay(wait_time);  // Adding delay after waiting for the element
 
                     // // Interaction 6: Click Deposit Funds
                     // console.log("Click Deposit Funds");
@@ -189,7 +187,6 @@ data:
                     console.log("Wait for Sign Out link");
                     // Interaction: Wait for Sign Out link
                     await page.waitForSelector('li > div a', { timeout });
-                    await delay(wait_time);
 
                     console.log("Click Sign Out and wait for navigation");
                     // Interaction: Click Sign Out and wait for navigation
