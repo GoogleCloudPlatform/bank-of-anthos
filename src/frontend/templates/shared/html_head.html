@@ -18,7 +18,7 @@
   {% endif %}
   {% if rum_realm is not none and rum_auth is not none %}
     <script src="https://cdn.signalfx.com/o11y-gdi-rum/latest/splunk-otel-web.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.signalfx.com/o11y-gdi-rum/latest/splunk-otel-web-session-recorder.js" crossorigin="anonymous"></script>
+    <!--script src="https://cdn.signalfx.com/o11y-gdi-rum/latest/splunk-otel-web-session-recorder.js" crossorigin="anonymous"></script-->
     <script>
         var rum_realm = "{{ rum_realm }}";
         var rum_auth = "{{ rum_auth }}";
@@ -33,10 +33,9 @@
             version: splunk_version,
             deploymentEnvironment: rum_environment
         });
-
-        SplunkSessionRecorder.init({
-            realm: rum_realm,
-            rumAccessToken: rum_auth
-        });
+        // SplunkSessionRecorder.init({
+        //     realm: rum_realm,
+        //     rumAccessToken: rum_auth
+        // }); 
     </script>
     {% endif %}
