@@ -22,6 +22,7 @@ import logging
 import os
 import sys
 import re
+import time
 
 #import bcrypt
 import jwt
@@ -264,14 +265,24 @@ def create_app():
                            
                         # Sub-step: Encode JWT token using the cached private key
                         with tracer.start_as_current_span("encode_session_token") as encode_span:
+                            # Start timing before the jwt.encode call
+                            start_time = time.monotonic()
+                            
+                            # Perform the encoding
                             token = jwt.encode(payload, app.config['PRIVATE_KEY'], algorithm='RS256')
+                            
+                            # Calculate the duration
+                            duration = time.monotonic() - start_time
+
+                            # Log the encoding duration
+                            app.logger.info(f"Session key encoding duration: {duration:.6f} seconds")
+                            app.logger.info(f"Session key bit size equal to {app.config.get('PUBLIC_KEY_BIT_SIZE', 'None')} bits.")
+
+
+                            # Add attributes to the span
                             encode_span.set_attribute("token_generated", True)
-                            encode_span.set_attribute("public_key_bit_size",  app.config.get('PUBLIC_KEY_BIT_SIZE', "None") )
-                            if log_keys:                         
-                                if public_key_bit_size > 512:
-                                    app.logger.error(f"Public key bit size is {public_key_bit_size} bits.")
-                                else:
-                                    app.logger.info(f"Public key bit size equal to {public_key_bit_size} bits.")
+                            encode_span.set_attribute("encoding_duration_seconds", duration)
+                            encode_span.set_attribute("public_key_bit_size", app.config.get('PUBLIC_KEY_BIT_SIZE', "None"))
 
                         # Log the success of the JWT generation
                         jwt_span.set_attribute("Session_Token.success", True)
@@ -310,7 +321,7 @@ def create_app():
     # Set up logger
     app.logger.handlers = logging.getLogger('gunicorn.error').handlers
     app.logger.setLevel(logging.getLogger('gunicorn.error').level)
-    app.logger.info('Starting userservice. v2.3f')
+    app.logger.info('Starting userservice. v2.5')
 
     # Set up tracing and export spans to Cloud Trace.
     if os.environ['ENABLE_TRACING'] == "true" or trace.get_tracer_provider() is not None:
