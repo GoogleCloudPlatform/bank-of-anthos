@@ -12,11 +12,11 @@ certifi==2024.8.30
     # via requests
 cffi==1.17.1
     # via cryptography
-charset-normalizer==3.3.2
+charset-normalizer==3.4.0
     # via requests
 click==8.1.7
     # via flask
-cryptography==43.0.1
+cryptography==43.0.3
     # via -r requirements.in
 deprecated==1.2.14
     # via
@@ -24,24 +24,24 @@ deprecated==1.2.14
     #   opentelemetry-semantic-conventions
 flask==3.0.3
     # via -r requirements.in
-google-api-core[grpc]==2.20.0
+google-api-core[grpc]==2.22.0
     # via google-cloud-trace
 google-auth==2.35.0
     # via
     #   -r requirements.in
     #   google-api-core
     #   google-cloud-trace
-google-cloud-trace==1.13.5
+google-cloud-trace==1.14.0
     # via opentelemetry-exporter-gcp-trace
 googleapis-common-protos==1.65.0
     # via
     #   google-api-core
     #   grpcio-status
-grpcio==1.66.2
+grpcio==1.67.1
     # via
     #   google-api-core
     #   grpcio-status
-grpcio-status==1.66.2
+grpcio-status==1.67.1
     # via google-api-core
 gunicorn==22.0.0
     # via -r requirements.in
@@ -55,7 +55,7 @@ itsdangerous==2.2.0
     # via flask
 jinja2==3.1.4
     # via flask
-markupsafe==2.1.5
+markupsafe==3.0.2
     # via
     #   jinja2
     #   werkzeug
@@ -111,11 +111,11 @@ packaging==24.1
     # via
     #   gunicorn
     #   opentelemetry-instrumentation-flask
-proto-plus==1.24.0
+proto-plus==1.25.0
     # via
     #   google-api-core
     #   google-cloud-trace
-protobuf==5.28.2
+protobuf==5.28.3
     # via
     #   google-api-core
     #   google-cloud-trace
@@ -147,7 +147,7 @@ urllib3==2.2.3
     # via
     #   -r requirements.in
     #   requests
-werkzeug==3.0.4
+werkzeug==3.1.0
     # via flask
 wrapt==1.16.0
     # via
