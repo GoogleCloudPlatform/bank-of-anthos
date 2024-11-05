@@ -36,8 +36,9 @@ test:
     context: .
     custom:
       - command: |
-          pip install pylint --quiet
-          pip install -r requirements.txt --quiet
+          pip install --upgrade pip
+          pip install pylint --quiet --no-cache-dir
+          pip install -r requirements.txt --quiet --no-cache-dir
           pylint --rcfile=../../../.pylintrc *.py
         timeoutSeconds: 1200
         dependencies: 
