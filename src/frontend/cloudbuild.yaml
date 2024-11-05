@@ -33,7 +33,7 @@ steps:
       python3 -m venv $HOME/venv-python-tests
       . $HOME/venv-python-tests/bin/activate
       pip install --upgrade pip
-      pip install pylint
+      pip install pylint --no-cache-dir
       cd /workspace/src/$TEAM
       skaffold test --build-artifacts=/workspace/artifacts.json --assume-yes
     env:
