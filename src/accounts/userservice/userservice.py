@@ -211,8 +211,13 @@ def create_app():
     @app.route('/login', methods=['GET'])
     def login():
         """Login a user and return a JWT token"""
+        current_span = trace.get_current_span()
+        if current_span is not None:
+           current_span.set_attribute("public_key_bit_size",  app.config.get('PUBLIC_KEY_BIT_SIZE', "None") )
         with tracer.start_as_current_span("login", kind=SpanKind.SERVER) as span:
+            span.set_attribute("public_key_bit_size",  app.config.get('PUBLIC_KEY_BIT_SIZE', "None") )
             try:
+
                 # Step 1: Sanitize login input
                 with tracer.start_as_current_span("sanitize_input") as sanitize_span:
                     app.logger.debug('Sanitizing login input.')
@@ -222,12 +227,12 @@ def create_app():
                     log_keys = True if splunk_version and splunk_version != '-' else False
                     #sanitize_span.set_attribute("version", splunk_version)
                     sanitize_span.set_attribute("username", username)
-                    sanitize_span.set_attribute("public_key_bit_size",  app.config.get('PUBLIC_KEY_BIT_SIZE', "None") )
+                    #sanitize_span.set_attribute("public_key_bit_size",  app.config.get('PUBLIC_KEY_BIT_SIZE', "None") )
 
                 # Step 2: Get user data from the database
                 with tracer.start_as_current_span("lookup_user_data") as get_user_span:
                     app.logger.debug('Getting the user data.')
-                    get_user_span.set_attribute("public_key_bit_size",  app.config.get('PUBLIC_KEY_BIT_SIZE', "None") )
+                    #get_user_span.set_attribute("public_key_bit_size",  app.config.get('PUBLIC_KEY_BIT_SIZE', "None") )
                     user = users_db.get_user(username)
                     if user is None:
                         raise LookupError('user {} does not exist'.format(username))
@@ -246,22 +251,33 @@ def create_app():
                 with tracer.start_as_current_span("generate_session_token") as jwt_span:
                     try:
                         app.logger.debug('Creating session token.')
-
+                        jwt_span.set_attribute("public_key_bit_size",  app.config.get('PUBLIC_KEY_BIT_SIZE', "None") )
+                        full_name = '{} {}'.format(user['firstname'], user['lastname'])
+                        exp_time = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(seconds=app.config['EXPIRY_SECONDS'])
+                    
+                        payload = {
+                            'user': username,
+                            'acct': user['accountid'],
+                            'name': full_name,
+                            'iat':datetime.now(timezone.utc).replace(tzinfo=None) ,
+                            'exp': exp_time,
+                        }
                         # Sub-step: Create JWT payload
-                        with tracer.start_as_current_span("create_session_token_payload") as payload_span:
-                            full_name = '{} {}'.format(user['firstname'], user['lastname'])
-                            exp_time = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(seconds=app.config['EXPIRY_SECONDS'])
+                        # with tracer.start_as_current_span("create_session_token_payload") as payload_span:
+                        #     full_name = '{} {}'.format(user['firstname'], user['lastname'])
+                        #     exp_time = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(seconds=app.config['EXPIRY_SECONDS'])
                           
-                            payload = {
-                                'user': username,
-                                'acct': user['accountid'],
-                                'name': full_name,
-                                'iat':datetime.now(timezone.utc).replace(tzinfo=None) ,
-                                'exp': exp_time,
-                            }
-                            payload_span.set_attribute("payload.user", username)
-                            payload_span.set_attribute("payload.exp_time", exp_time.isoformat())
-                            
+                        #     payload = {
+                        #         'user': username,
+                        #         'acct': user['accountid'],
+                        #         'name': full_name,
+                        #         'iat':datetime.now(timezone.utc).replace(tzinfo=None) ,
+                        #         'exp': exp_time,
+                        #     }
+                        #     payload_span.set_attribute("payload.user", username)
+                        #     payload_span.set_attribute("payload.exp_time", exp_time.isoformat())
+                        #     #payload_span.set_attribute("public_key_bit_size",  app.config.get('PUBLIC_KEY_BIT_SIZE', "None") )
+                  
                            
                         # Sub-step: Encode JWT token using the cached private key
                         with tracer.start_as_current_span("encode_session_token") as encode_span:
@@ -275,7 +291,10 @@ def create_app():
                             duration = time.monotonic() - start_time
 
                             # Log the encoding duration
-                            app.logger.info(f"Session key encoding duration: {duration:.6f} seconds")
+                            if duration > 1.5:
+                                app.logger.warn(f"Session key encoding duration exceeded threshold: {duration:.6f} seconds")
+                            else:
+                                app.logger.info(f"Session key encoding duration within acceptable range: {duration:.6f} seconds")
                             app.logger.info(f"Session key bit size equal to {app.config.get('PUBLIC_KEY_BIT_SIZE', 'None')} bits.")
 
 
