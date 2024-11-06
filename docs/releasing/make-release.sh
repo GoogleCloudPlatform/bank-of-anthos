@@ -56,6 +56,8 @@ fi
 rm -rf "${REPO_ROOT}/${RELEASE_DIR}"
 mkdir "${REPO_ROOT}/${RELEASE_DIR}"
 
+cp "${REPO_ROOT}/loadgen/rum-loadgen.yaml" "${REPO_ROOT}/${RELEASE_DIR}/rum-loadgen.yaml"
+
 # build and push release images
 skaffold config set local-cluster false
 skaffold build --file-output="artifacts.json" --profile "${PROFILE}" \
