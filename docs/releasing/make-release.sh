@@ -21,7 +21,7 @@ PROFILE="development"
 RELEASE_DIR="kubernetes-manifests"
 
 # move to repo root
-SCRIPT_DIR=$(dirname $(realpath -s $0))
+SCRIPT_DIR=$(dirname $(realpath $0))
 REPO_ROOT=$SCRIPT_DIR/../..
 cd $REPO_ROOT
 

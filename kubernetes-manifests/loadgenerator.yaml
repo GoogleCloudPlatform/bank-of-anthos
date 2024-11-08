@@ -46,7 +46,7 @@ spec:
               value: "5"
             - name: LOG_LEVEL
               value: error
-          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/loadgenerator:v0.6.5@sha256:24369e6b21c773d6afc016997d805b08b1a3ec1c5a6e1d281298180f2f45e0b5
+          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/loadgenerator:v0.6.6@sha256:1bf8aea11595ba54ac87b96d6a72af41caf60bebbafbb8cd633f9a8a0c9eace7
           name: loadgenerator
           resources:
             limits:
