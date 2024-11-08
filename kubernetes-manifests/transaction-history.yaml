@@ -93,7 +93,7 @@ spec:
                 name: environment-config
             - configMapRef:
                 name: ledger-db-config
-          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/transactionhistory:v0.6.6@sha256:0a7f8d46a09de0eec40ac40de6e09a53ba253f0598c0da752f203edc194beea1
+          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/transactionhistory:v0.6.6@sha256:62d8f7bfab10bb2130b9fe150ba3cae43b0d006e5d59fbd054d1378d22aa464a
           livenessProbe:
             httpGet:
               path: /healthy
