@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -46,7 +45,7 @@ spec:
               value: "5"
             - name: LOG_LEVEL
               value: error
-          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/loadgenerator:v0.6.5@sha256:24369e6b21c773d6afc016997d805b08b1a3ec1c5a6e1d281298180f2f45e0b5
+          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/loadgenerator:v0.6.6@sha256:8ea916b68243332efd42fcf4615cf8af27bf803f10b8d9554ea2ade5f56aa703
           name: loadgenerator
           resources:
             limits:
