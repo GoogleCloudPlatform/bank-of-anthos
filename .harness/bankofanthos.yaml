@@ -24,7 +24,7 @@ pipeline:
                     timeout: 10m
                     spec:
                       provisionerIdentifier: boaplan
-                      configuration:
+                      cloudCliConfiguration:
                         command: Apply
                         configFiles:
                           store:
@@ -34,8 +34,6 @@ pipeline:
                               branch: main
                               folderPath: https://github.com/bmcinnis-cs/bank-of-anthos/tree/main/iac/tmm-gcp
                             type: Github
-                        secretManagerRef: account.harnessSecretManager
-                        skipRefreshCommand: false
                 - step:
                     type: TerraformApply
                     name: apply
