@@ -6,33 +6,109 @@ pipeline:
   tags: {}
   stages:
     - stage:
-        name: Terraform Init
-        identifier: Terraform_Plan
+        name: Deploy BoA
+        identifier: Deploy_BoA
         description: ""
-        type: Custom
+        type: Deployment
         spec:
-          execution:
-            steps:
-              - step:
-                  type: TerraformPlan
-                  name: TerraformApply
-                  identifier: TerraformApply
-                  spec:
-                    provisionerIdentifier: boa
-                    configuration:
-                      command: Apply
-                      configFiles:
-                        store:
-                          spec:
-                            connectorRef: tmmfcs
-                            gitFetchType: Commit
-                            commitId: 5b979f3
-                            folderPath: https://github.com/bmcinnis-cs/bank-of-anthos/tree/main/iac/tmm-gcp
-                          type: Github
-                      secretManagerRef: account.harnessSecretManager
-                      skipRefreshCommand: false
-                  timeout: 10m
+          deploymentType: Kubernetes
           environment:
             environmentRef: harnessdevenv
             deployToAll: false
+            provisioner:
+              steps:
+                - step:
+                    type: TerraformPlan
+                    name: Plan
+                    identifier: Plan
+                    timeout: 10m
+                    spec:
+                      provisionerIdentifier: boaplan
+                      configuration:
+                        command: Apply
+                        configFiles:
+                          store:
+                            spec:
+                              connectorRef: tmmfcs
+                              gitFetchType: Branch
+                              branch: main
+                              folderPath: https://github.com/bmcinnis-cs/bank-of-anthos/tree/main/iac/tmm-gcp
+                            type: Github
+                        secretManagerRef: account.harnessSecretManager
+                        skipRefreshCommand: false
+                - step:
+                    type: TerraformApply
+                    name: apply
+                    identifier: apply
+                    timeout: 10m
+                    spec:
+                      provisionerIdentifier: boaapply
+                      configuration:
+                        type: InheritFromPlan
+              rollbackSteps:
+                - step:
+                    type: TerraformRollback
+                    name: rollback
+                    identifier: rollback
+                    timeout: 10m
+                    spec:
+                      provisionerIdentifier: rollbackboa
+                      skipRefreshCommand: false
+            infrastructureDefinitions:
+              - identifier: harnessk8sinfra
+          service:
+            serviceRef: boa
+          execution:
+            steps:
+              - stepGroup:
+                  name: Canary Deployment
+                  identifier: canaryDeployment
+                  steps:
+                    - step:
+                        name: Canary Deployment
+                        identifier: canaryDeployment
+                        type: K8sCanaryDeploy
+                        timeout: 10m
+                        spec:
+                          instanceSelection:
+                            type: Count
+                            spec:
+                              count: 1
+                          skipDryRun: false
+                    - step:
+                        name: Canary Delete
+                        identifier: canaryDelete
+                        type: K8sCanaryDelete
+                        timeout: 10m
+                        spec: {}
+              - stepGroup:
+                  name: Primary Deployment
+                  identifier: primaryDeployment
+                  steps:
+                    - step:
+                        name: Rolling Deployment
+                        identifier: rollingDeployment
+                        type: K8sRollingDeploy
+                        timeout: 10m
+                        spec:
+                          skipDryRun: false
+            rollbackSteps:
+              - step:
+                  name: Canary Delete
+                  identifier: rollbackCanaryDelete
+                  type: K8sCanaryDelete
+                  timeout: 10m
+                  spec: {}
+              - step:
+                  name: Rolling Rollback
+                  identifier: rollingRollback
+                  type: K8sRollingRollback
+                  timeout: 10m
+                  spec: {}
         tags: {}
+        failureStrategies:
+          - onFailure:
+              errors:
+                - AllErrors
+              action:
+                type: StageRollback
