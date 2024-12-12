@@ -1,0 +1,38 @@
+pipeline:
+  name: bank-of-anthos
+  identifier: bankofanthos
+  projectIdentifier: default_project
+  orgIdentifier: default
+  tags: {}
+  stages:
+    - stage:
+        name: Terraform Init
+        identifier: Terraform_Plan
+        description: ""
+        type: Custom
+        spec:
+          execution:
+            steps:
+              - step:
+                  type: TerraformPlan
+                  name: TerraformApply
+                  identifier: TerraformApply
+                  spec:
+                    provisionerIdentifier: boa
+                    configuration:
+                      command: Apply
+                      configFiles:
+                        store:
+                          spec:
+                            connectorRef: tmmfcs
+                            gitFetchType: Commit
+                            commitId: 5b979f3
+                            folderPath: https://github.com/bmcinnis-cs/bank-of-anthos/tree/main/iac/tmm-gcp
+                          type: Github
+                      secretManagerRef: account.harnessSecretManager
+                      skipRefreshCommand: false
+                  timeout: 10m
+          environment:
+            environmentRef: harnessdevenv
+            deployToAll: false
+        tags: {}
