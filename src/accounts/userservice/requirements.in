@@ -18,7 +18,7 @@ gunicorn==22.0.0
 idna==3.10
 importlib-metadata==6.11.0
 itsdangerous==2.2.0
-jinja2==3.1.4
+jinja2==3.1.5
 markupsafe==2.1.5
 more-itertools==10.5.0
 opentelemetry-sdk==1.27.0
