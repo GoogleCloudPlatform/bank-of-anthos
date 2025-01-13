@@ -261,7 +261,7 @@ spec:
             name: environment-config
         - configMapRef:
             name: ledger-db-config
-        image: postgres:16.6-alpine@sha256:91e75546b4f229fa92cec21a2bf831ba03a1c101fc197daafff657f153e93a39
+        image: postgres:16.6-alpine@sha256:aba1fab94626cf8b0f4549055214239a37e0a690f03f142b7bca05b9ed36c6db
         name: populate-ledger-db
         resources:
           limits:
