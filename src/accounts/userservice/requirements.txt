@@ -34,7 +34,7 @@ click==8.1.7
     #   flask
 coverage[toml]==7.6.1
     # via pytest-cov
-cryptography==43.0.1
+cryptography==44.0.1
     # via -r requirements.in
 deprecated==1.2.14
     # via
