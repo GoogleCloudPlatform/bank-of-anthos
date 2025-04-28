@@ -15,7 +15,7 @@
 steps:
   - name: gcr.io/cloud-builders/gsutil
     args: ['cp', $_CACHE_URI, '/workspace/cache'] # always write skaffold cache to filename cache in workspace
-  - name: gcr.io/k8s-skaffold/skaffold:v2.14.1
+  - name: gcr.io/k8s-skaffold/skaffold:v2.15.0
     args:
       - "skaffold"
       - "build"
@@ -25,7 +25,7 @@ steps:
       - "--module=$_TEAM"
   - name: gcr.io/cloud-builders/gsutil
     args: ['cp', '/workspace/$_CACHE',  $_CACHE_URI]
-  - name: gcr.io/k8s-skaffold/skaffold:v2.14.1 # python set up should be baked into a custom builder image to speed up build times
+  - name: gcr.io/k8s-skaffold/skaffold:v2.15.0 # python set up should be baked into a custom builder image to speed up build times
     script: |
       #!/bin/bash
       apt-get update
