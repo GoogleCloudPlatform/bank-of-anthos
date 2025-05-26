@@ -18,4 +18,9 @@ describe('The Home Page', function() {
   it('successfully loads', function() {
     cy.visit('/')
   })
+
+  it('displays the correct bank name', function() {
+    cy.visit('/')
+    cy.contains('Bank of Anthos Demo - GDG Cloud Berlin - Gathering at Upvest')
+  })
 })

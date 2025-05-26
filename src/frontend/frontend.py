@@ -158,7 +158,7 @@ def create_app():
         return render_template('index.html',
                                account_id=account_id,
                                balance=api_response[BALANCE_NAME],
-                               bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'),
+                               bank_name=os.getenv('BANK_NAME', 'Bank of Anthos Demo - GDG Cloud Berlin - Gathering at Upvest'),
                                cluster_name=cluster_name,
                                contacts=api_response[CONTACTS_NAME],
                                cymbal_logo=os.getenv('CYMBAL_LOGO', 'false'),
@@ -414,7 +414,7 @@ def create_app():
 
         return render_template('login.html',
                                app_name=app_name,
-                               bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'),
+                               bank_name=os.getenv('BANK_NAME', 'Bank of Anthos Demo - GDG Cloud Berlin - Gathering at Upvest'),
                                cluster_name=cluster_name,
                                cymbal_logo=os.getenv('CYMBAL_LOGO', 'false'),
                                default_password=os.getenv('DEFAULT_PASSWORD', ''),
@@ -496,7 +496,7 @@ def create_app():
 
             return render_template('consent.html',
                                    app_name=app_name,
-                                   bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'),
+                                   bank_name=os.getenv('BANK_NAME', 'Bank of Anthos Demo - GDG Cloud Berlin - Gathering at Upvest'),
                                    cluster_name=cluster_name,
                                    cymbal_logo=os.getenv('CYMBAL_LOGO', 'false'),
                                    platform=platform,
@@ -566,7 +566,7 @@ def create_app():
                                     _external=True,
                                     _scheme=app.config['SCHEME']))
         return render_template('signup.html',
-                               bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'),
+                               bank_name=os.getenv('BANK_NAME', 'Bank of Anthos Demo - GDG Cloud Berlin - Gathering at Upvest'),
                                cluster_name=cluster_name,
                                cymbal_logo=os.getenv('CYMBAL_LOGO', 'false'),
                                platform=platform,
