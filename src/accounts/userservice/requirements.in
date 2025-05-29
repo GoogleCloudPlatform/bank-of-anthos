@@ -14,7 +14,7 @@ google-cloud-core==2.4.1
 google-cloud-trace==1.13.5
 googleapis-common-protos==1.65.0
 grpcio==1.66.1
-gunicorn==22.0.0
+gunicorn==23.0.0
 idna==3.10
 importlib-metadata==6.11.0
 itsdangerous==2.2.0
