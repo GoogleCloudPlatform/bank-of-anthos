@@ -4,69 +4,94 @@
 #
 #    pip-compile --output-file=requirements.txt requirements.in
 #
-blinker==1.8.2
+bidict==0.23.1
+    # via python-socketio
+blinker==1.9.0
     # via flask
 brotli==1.1.0
     # via geventhttpclient
-certifi==2024.8.30
+certifi==2025.4.26
     # via
     #   geventhttpclient
     #   requests
-charset-normalizer==3.3.2
+charset-normalizer==3.4.2
     # via requests
-click==8.1.7
+click==8.2.1
     # via flask
-configargparse==1.7
-    # via locust
-flask==3.0.3
+configargparse==1.7.1
+    # via
+    #   locust
+    #   locust-cloud
+flask==3.1.1
     # via
     #   flask-cors
     #   flask-login
     #   locust
-flask-cors==5.0.0
+flask-cors==6.0.0
     # via locust
 flask-login==0.6.3
     # via locust
-gevent==24.2.1
+gevent==24.11.1
     # via
     #   geventhttpclient
     #   locust
-geventhttpclient==2.3.1
+    #   locust-cloud
+geventhttpclient==2.3.3
     # via locust
-greenlet==3.1.1
+greenlet==3.2.2
     # via gevent
+h11==0.16.0
+    # via wsproto
 idna==3.10
     # via requests
 itsdangerous==2.2.0
     # via flask
 jinja2==3.1.6
     # via flask
-locust==2.31.7
+locust==2.37.5
     # via -r requirements.in
-markupsafe==2.1.5
+locust-cloud==1.21.9
+    # via locust
+markupsafe==3.0.2
     # via
+    #   flask
     #   jinja2
     #   werkzeug
 msgpack==1.1.0
     # via locust
-psutil==6.0.0
+platformdirs==4.3.8
+    # via locust-cloud
+psutil==7.0.0
     # via locust
-pyzmq==26.2.0
+python-engineio==4.12.1
+    # via python-socketio
+python-socketio[client]==5.13.0
+    # via locust-cloud
+pyzmq==26.4.0
     # via locust
 requests==2.32.3
-    # via locust
-urllib3==2.2.3
+    # via
+    #   locust
+    #   python-socketio
+simple-websocket==1.1.0
+    # via python-engineio
+urllib3==2.4.0
     # via
     #   geventhttpclient
     #   requests
-werkzeug==3.0.4
+websocket-client==1.8.0
+    # via python-socketio
+werkzeug==3.1.3
     # via
     #   flask
+    #   flask-cors
     #   flask-login
     #   locust
+wsproto==1.2.0
+    # via simple-websocket
 zope-event==5.0
     # via gevent
-zope-interface==7.0.3
+zope-interface==7.2
     # via gevent
 
 # The following packages are considered to be unsafe in a requirements file:
