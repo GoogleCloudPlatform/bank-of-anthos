@@ -65,7 +65,7 @@ spec:
       containers:
         - env:
             - name: VERSION
-              value: v0.6.6
+              value: v0.6.7
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
@@ -81,7 +81,7 @@ spec:
                 name: environment-config
             - configMapRef:
                 name: accounts-db-config
-          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/userservice:v0.6.6@sha256:70e7332af06ecae6496ef87b0b0512dae60eefb8c74f5335df527aa150c86605
+          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/userservice:v0.6.7@sha256:1d3e2092d7aab04411d311d4eaba1dd0d26237e530ce249f5ac41d76a46ae95a
           name: userservice
           ports:
             - containerPort: 8080
@@ -122,6 +122,11 @@ spec:
         runAsUser: 1000
       serviceAccountName: bank-of-anthos
       terminationGracePeriodSeconds: 5
+      tolerations:
+        - effect: NoSchedule
+          key: kubernetes.io/arch
+          operator: Equal
+          value: arm64
       volumes:
         - emptyDir: {}
           name: tmp
