@@ -13,97 +13,115 @@
 # limitations under the License.
 
 apiVersion: v1
-data:
-  ACCOUNTS_DB_URI: postgresql://accounts-admin:accounts-pwd@accounts-db:5432/accounts-db
-  POSTGRES_DB: accounts-db
-  POSTGRES_PASSWORD: accounts-pwd
-  POSTGRES_USER: accounts-admin
-kind: ConfigMap
-metadata:
-  labels:
-    app: accounts-db
-    application: bank-of-anthos
-    environment: development
-    team: accounts
-    tier: db
-  name: accounts-db-config
----
-apiVersion: v1
 kind: Service
 metadata:
   labels:
     application: bank-of-anthos
     environment: development
     team: accounts
-    tier: db
-  name: accounts-db
+    tier: backend
+  name: userservice
 spec:
   ports:
-    - name: tcp
-      port: 5432
-      protocol: TCP
-      targetPort: 5432
+    - name: http
+      port: 8080
+      targetPort: 8080
   selector:
-    app: accounts-db
+    app: userservice
     application: bank-of-anthos
     environment: development
     team: accounts
-    tier: db
+    tier: backend
   type: ClusterIP
 ---
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
   labels:
     application: bank-of-anthos
     environment: development
     team: accounts
-    tier: db
-  name: accounts-db
+    tier: backend
+  name: userservice
 spec:
-  replicas: 1
   selector:
     matchLabels:
-      app: accounts-db
+      app: userservice
       application: bank-of-anthos
       environment: development
       team: accounts
-      tier: db
-  serviceName: accounts-db
+      tier: backend
   template:
     metadata:
+      annotations:
+        proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
       labels:
-        app: accounts-db
+        app: userservice
         application: bank-of-anthos
         environment: development
         team: accounts
-        tier: db
+        tier: backend
     spec:
       containers:
-        - envFrom:
+        - env:
+            - name: VERSION
+              value: v0.6.7
+            - name: PORT
+              value: "8080"
+            - name: ENABLE_TRACING
+              value: "true"
+            - name: TOKEN_EXPIRY_SECONDS
+              value: "3600"
+            - name: PRIV_KEY_PATH
+              value: /tmp/.ssh/privatekey
+            - name: LOG_LEVEL
+              value: info
+          envFrom:
             - configMapRef:
                 name: environment-config
             - configMapRef:
                 name: accounts-db-config
-            - configMapRef:
-                name: demo-data-config
-          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/accounts-db:v0.6.7@sha256:b6f9c4ba9ac13cf691856345887211a0b196bfee84a76632e92f5406ead5beb3
-          name: accounts-db
+          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/userservice:v0.6.7@sha256:1d3e2092d7aab04411d311d4eaba1dd0d26237e530ce249f5ac41d76a46ae95a
+          name: userservice
           ports:
-            - containerPort: 5432
+            - containerPort: 8080
+              name: http-server
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 10
           resources:
             limits:
-              cpu: 250m
-              memory: 512Mi
+              cpu: 500m
+              ephemeral-storage: 0.25Gi
+              memory: 256Mi
             requests:
-              cpu: 100m
+              cpu: 260m
+              ephemeral-storage: 0.25Gi
               memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - all
+            privileged: false
+            readOnlyRootFilesystem: true
           volumeMounts:
-            - mountPath: /var/lib/postgresql/data
-              name: postgresdb
-              subPath: postgres
-      serviceAccount: bank-of-anthos
-      serviceAccountName: default
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /tmp/.ssh
+              name: keys
+              readOnly: true
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+      serviceAccountName: bank-of-anthos
+      terminationGracePeriodSeconds: 5
       tolerations:
         - effect: NoSchedule
           key: kubernetes.io/arch
@@ -111,4 +129,12 @@ spec:
           value: arm64
       volumes:
         - emptyDir: {}
-          name: postgresdb
+          name: tmp
+        - name: keys
+          secret:
+            items:
+              - key: jwtRS256.key
+                path: privatekey
+              - key: jwtRS256.key.pub
+                path: publickey
+            secretName: jwt-key
