@@ -46,7 +46,7 @@ spec:
               value: "5"
             - name: LOG_LEVEL
               value: error
-          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/loadgenerator:v0.6.6@sha256:1bf8aea11595ba54ac87b96d6a72af41caf60bebbafbb8cd633f9a8a0c9eace7
+          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/loadgenerator:v0.6.7@sha256:3d93b6d7b53f4d121f409c5b5dbd5b17fc90486bfece07443bdb676b85509526
           name: loadgenerator
           resources:
             limits:
@@ -70,3 +70,8 @@ spec:
         runAsUser: 1000
       serviceAccountName: default
       terminationGracePeriodSeconds: 5
+      tolerations:
+        - effect: NoSchedule
+          key: kubernetes.io/arch
+          operator: Equal
+          value: arm64
