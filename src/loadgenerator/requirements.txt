@@ -23,7 +23,7 @@ flask==3.0.3
     #   flask-cors
     #   flask-login
     #   locust
-flask-cors==5.0.0
+flask-cors==6.0.0
     # via locust
 flask-login==0.6.3
     # via locust
@@ -62,6 +62,7 @@ urllib3==2.2.3
 werkzeug==3.0.4
     # via
     #   flask
+    #   flask-cors
     #   flask-login
     #   locust
 zope-event==5.0
