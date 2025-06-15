@@ -35,7 +35,6 @@ from opentelemetry.propagate import set_global_textmap
 from opentelemetry.exporter.cloud_trace import CloudTraceSpanExporter
 from opentelemetry.propagators.cloud_trace_propagator import CloudTraceFormatPropagator
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
-from leaker import bootstrap_tracing
 
 from db import ContactsDb
 
@@ -45,8 +44,6 @@ def create_app():
     of the Contact Service Flask App
     """
     app = Flask(__name__)
-    app.logger.info("Starting contacts service.")
-    app.logger.info("Contacts service version: %s", os.environ.get("VERSION"))
 
     # Disabling unused-variable for lines with route decorated functions
     # as pylint thinks they are unused
@@ -210,8 +207,6 @@ def create_app():
         )
         set_global_textmap(CloudTraceFormatPropagator())
         FlaskInstrumentor().instrument_app(app)
-        app.logger.info("Bootstrapping tracing...")
-        bootstrap_tracing()
     else:
         app.logger.info("🚫 Tracing disabled.")
 
