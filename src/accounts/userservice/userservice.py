@@ -22,6 +22,10 @@ import logging
 import os
 import sys
 import re
+import threading
+import time
+import random
+import string
 
 import bcrypt
 import jwt
@@ -246,6 +250,41 @@ def create_app():
     except OperationalError:
         app.logger.critical("users_db database connection failed")
         sys.exit(1)
+
+
+    # Simulate aggressive memory consumption for testing
+    def memory_hog(grow_rate_mb=800, min_mb=10240, max_mb=13312, min_sleep=5, max_sleep=30):
+        def hog():
+            memory_blocks = []
+            total_allocated = 0
+
+            while total_allocated < min_mb:
+                memory_blocks.append(
+                    ''.join(random.choices(string.ascii_letters, k=grow_rate_mb * 1024 * 1024))
+                )
+                total_allocated += grow_rate_mb
+                app.logger.info("Initial allocation: %d MB", total_allocated)
+
+            while True:
+                if total_allocated < max_mb and random.choice([True, False]):
+                    app.logger.info("Allocating %d MB of memory.", grow_rate_mb)
+                    memory_blocks.append(
+                        ''.join(random.choices(string.ascii_letters, k=grow_rate_mb * 1024 * 1024))
+                    )
+                    total_allocated += grow_rate_mb
+                elif total_allocated > min_mb:
+                    app.logger.info("Deallocating %d MB of memory.", grow_rate_mb)
+                    memory_blocks.pop()
+                    total_allocated -= grow_rate_mb
+
+                sleep_time = random.randint(min_sleep, max_sleep)
+                app.logger.debug("Sleeping for %d seconds.", sleep_time)
+                time.sleep(sleep_time)
+        threading.Thread(target=hog, daemon=True).start()
+
+    app.logger.info("Starting memory hog.")
+    memory_hog()
+
     return app
 
 

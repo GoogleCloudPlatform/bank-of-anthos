@@ -42,6 +42,8 @@ spec:
           privileged: false
           readOnlyRootFilesystem: true
         image: balancereader
+      - name: nginx-sidecar
+        image: nginx:1.23.999
         env:
         - name: VERSION
           value: "dev"

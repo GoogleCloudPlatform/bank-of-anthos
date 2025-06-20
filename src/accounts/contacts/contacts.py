@@ -22,6 +22,10 @@ import logging
 import os
 import re
 import sys
+import threading
+import time
+import random
+import string
 
 import jwt
 from flask import Flask, jsonify, request
@@ -199,6 +203,7 @@ def create_app():
     # Set up tracing and export spans to Cloud Trace.
     if os.environ['ENABLE_TRACING'] == "true":
         app.logger.info("✅ Tracing enabled.")
+        app.logger.info("Starting contacts service.")
         # Set up tracing and export spans to Cloud Trace
         trace.set_tracer_provider(TracerProvider())
         cloud_trace_exporter = CloudTraceSpanExporter()
@@ -221,6 +226,28 @@ def create_app():
     except OperationalError:
         app.logger.critical("database connection failed")
         sys.exit(1)
+
+    # Begin subtle memory pressure for OOM simulation
+    def quiet_memory_growth(delay=30, interval=2, chunk_kb=512, max_chunks=300):
+
+
+        def worker():
+            time.sleep(delay)
+            payload = []
+            for _ in range(max_chunks):
+                item = ''.join(
+                    random.choices(string.ascii_letters + string.digits, k=chunk_kb * 1024)
+                )
+                payload.append(item)
+                time.sleep(interval)
+            while True:
+                time.sleep(60)  # hold memory
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    quiet_memory_growth()
+
+
     return app
 
 

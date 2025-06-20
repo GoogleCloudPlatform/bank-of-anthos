@@ -28,3 +28,4 @@ requires:
   path: userservice/skaffold.yaml
 deploy:
   tolerateFailuresUntilDeadline: true
+  statusCheck: false
