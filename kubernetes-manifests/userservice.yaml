@@ -122,6 +122,11 @@ spec:
         runAsUser: 1000
       serviceAccountName: bank-of-anthos
       terminationGracePeriodSeconds: 5
+      tolerations:
+        - effect: NoSchedule
+          key: kubernetes.io/arch
+          operator: Equal
+          value: arm64
       volumes:
         - emptyDir: {}
           name: tmp

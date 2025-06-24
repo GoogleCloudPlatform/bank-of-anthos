@@ -70,4 +70,3 @@ spec:
         runAsUser: 1000
       serviceAccountName: default
       terminationGracePeriodSeconds: 5
-

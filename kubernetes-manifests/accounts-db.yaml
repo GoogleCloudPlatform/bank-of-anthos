@@ -104,6 +104,11 @@ spec:
               subPath: postgres
       serviceAccount: bank-of-anthos
       serviceAccountName: default
+      tolerations:
+        - effect: NoSchedule
+          key: kubernetes.io/arch
+          operator: Equal
+          value: arm64
       volumes:
         - emptyDir: {}
           name: postgresdb
