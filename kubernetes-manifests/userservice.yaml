@@ -81,7 +81,7 @@ spec:
                 name: environment-config
             - configMapRef:
                 name: accounts-db-config
-          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/userservice:v0.6.7@sha256:1d3e2092d7aab04411d311d4eaba1dd0d26237e530ce249f5ac41d76a46ae95a
+          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/userservice:v0.6.7@sha256:932045a3bdba7b32fffe4087b544f4aa8e2952f3440ecaa92142c13407249732
           name: userservice
           ports:
             - containerPort: 8080
@@ -122,11 +122,6 @@ spec:
         runAsUser: 1000
       serviceAccountName: bank-of-anthos
       terminationGracePeriodSeconds: 5
-      tolerations:
-        - effect: NoSchedule
-          key: kubernetes.io/arch
-          operator: Equal
-          value: arm64
       volumes:
         - emptyDir: {}
           name: tmp

@@ -87,7 +87,7 @@ spec:
                 name: accounts-db-config
             - configMapRef:
                 name: demo-data-config
-          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/accounts-db:v0.6.7@sha256:b6f9c4ba9ac13cf691856345887211a0b196bfee84a76632e92f5406ead5beb3
+          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/accounts-db:v0.6.7@sha256:d1f7b4b42fbbad5b3f8c85c67a15f4e27cc9a054ae8bc2379e3f0319e313ce9d
           name: accounts-db
           ports:
             - containerPort: 5432
@@ -104,11 +104,6 @@ spec:
               subPath: postgres
       serviceAccount: bank-of-anthos
       serviceAccountName: default
-      tolerations:
-        - effect: NoSchedule
-          key: kubernetes.io/arch
-          operator: Equal
-          value: arm64
       volumes:
         - emptyDir: {}
           name: postgresdb
