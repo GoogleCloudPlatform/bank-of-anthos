@@ -101,7 +101,7 @@ spec:
                 name: environment-config
             - configMapRef:
                 name: service-api-config
-          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/frontend:v0.6.7@sha256:385d48da7c3186a46272249c8033447882dacdf22fabdb859479766a2df7ddfd
+          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/frontend:v0.6.7@sha256:6d92f3ce81a389738baf236477c6795831a0802c7a007697d7121f10eab9a2cc
           livenessProbe:
             httpGet:
               path: /ready
@@ -144,11 +144,6 @@ spec:
         runAsUser: 1000
       serviceAccountName: bank-of-anthos
       terminationGracePeriodSeconds: 5
-      tolerations:
-        - effect: NoSchedule
-          key: kubernetes.io/arch
-          operator: Equal
-          value: arm64
       volumes:
         - emptyDir: {}
           name: tmp
