@@ -115,7 +115,7 @@ proto-plus==1.24.0
     # via
     #   google-api-core
     #   google-cloud-trace
-protobuf==5.28.2
+protobuf==5.29.5
     # via
     #   google-api-core
     #   google-cloud-trace
