@@ -53,7 +53,7 @@ psutil==6.0.0
     # via locust
 pyzmq==26.2.0
     # via locust
-requests==2.32.3
+requests==2.32.4
     # via locust
 urllib3==2.2.3
     # via
