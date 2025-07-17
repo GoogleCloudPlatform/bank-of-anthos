@@ -1,0 +1,24 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: accounts-db
+  description: Database Service for Bank of Anthos Accounts
+  tags:
+    - java
+    - backend
+  links:
+    - url: https://github.com/googlecloudplatform/bank-of-anthos
+      title: Bank of Anthos - Upstream repo
+      icon: help
+  annotations:
+    'backstage.io/kubernetes-id': accounts-db
+    'backstage.io/techdocs-ref': dir:../src/accounts/accounts-db
+spec:
+  type: service
+  lifecycle: experimental
+  owner: group:default/cpet-core
+  system: bank-of-anthos
+  subcomponentof:
+    - system:bank-of-anthos
+  # dependsOn: ['component:artists-db']
+  # apiConsumedBy: ['component:frontend']

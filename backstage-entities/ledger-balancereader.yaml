@@ -1,0 +1,25 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ledger-balancereader
+  description: Balance Reader for Bank of Anthos Ledger
+  tags:
+    - java
+    - backend
+  links:
+    - url: https://github.com/googlecloudplatform/bank-of-anthos
+      title: Bank of Anthos - Upstream repo
+      icon: help
+  annotations:
+    'backstage.io/kubernetes-id': ledger-balancereader
+    'google.com/cloudbuild-project-slug': cpet-backstage
+    'backstage.io/techdocs-ref': dir:../src/ledger/balancereader
+spec:
+  type: service
+  lifecycle: experimental
+  owner: group:default/cpet-core
+  system: bank-of-anthos
+  subcomponentof:
+    - system:bank-of-anthos
+  # dependsOn: ['component:artists-db']
+  # apiConsumedBy: ['component:frontend']
