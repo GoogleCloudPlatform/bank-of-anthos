@@ -146,6 +146,12 @@ For example, to work with only the `frontend` module, run:
 skaffold dev --profile development --default-repo=us-central1-docker.pkg.dev/${PROJECT_ID}/bank-of-anthos --module frontend
 ```
 
+## Adding a new microservice
+
+In general, the set of core microservices for Online Boutique is fairly complete and unlikely to change in the future, but it can be useful to add an additional optional microservice that can be deployed to complement the core services.
+
+See the [Adding a new microservice](adding-new-microservice.md) guide for instructions on how to add a new microservice.
+
 ## Cleaning up your deployment
 
 To clean up your deployment, you can run `skaffold delete`:
