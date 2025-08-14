@@ -17,4 +17,4 @@ metadata:
   name: bank-of-anthos-cert
 spec:
   domains:
-    - cymbal-bank.fsi.cymbal.dev
+    - bank.smig.dev

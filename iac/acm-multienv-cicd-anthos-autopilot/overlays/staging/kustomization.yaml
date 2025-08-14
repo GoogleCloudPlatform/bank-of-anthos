@@ -25,4 +25,4 @@ patches:
   patch: |-
     - op: add
       path: /metadata/annotations/iam.gke.io~1gcp-service-account
-      value: gke-workload-staging@bank-of-anthos-ci.iam.gserviceaccount.com
+      value: gke-workload-staging@smig-dotslash.iam.gserviceaccount.com
