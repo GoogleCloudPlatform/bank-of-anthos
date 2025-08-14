@@ -16,6 +16,6 @@ project_id = "smig-dotslash"
 region     = "us-west1"
 zone       = "us-west1-b"
 
-repo_owner  = "GoogleCloudPlatform"
-sync_repo   = "bank-of-anthos"
+repo_owner  = "cloud-platform-insights"
+sync_repo   = "bank-of-anthos-gibraltar"
 sync_branch = "main"
