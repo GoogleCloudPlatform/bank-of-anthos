@@ -44,6 +44,7 @@ module "gke_production" {
   enable_vertical_pod_autoscaling = true
   horizontal_pod_autoscaling      = true
   create_service_account          = false # currently not supported by terraform for autopilot clusters
+  deletion_protection             = false
   cluster_resource_labels         = { "mesh_id" : "proj-${data.google_project.project.number}" }
 
   providers = {
@@ -107,7 +108,6 @@ module "cloudsql_production" {
 
 # create fleet membership for production GKE cluster
 resource "google_gke_hub_membership" "production" {
-  provider      = google-beta
   project       = var.project_id
   membership_id = "production-membership"
   endpoint {
@@ -130,7 +130,6 @@ resource "google_gke_hub_feature_membership" "asm_production" {
   mesh {
     management = "MANAGEMENT_AUTOMATIC"
   }
-  provider = google-beta
 }
 
 # configure ACM for production GKE cluster
@@ -142,6 +141,7 @@ resource "google_gke_hub_feature_membership" "acm_production" {
   membership = google_gke_hub_membership.production.membership_id
   configmanagement {
     config_sync {
+      enabled = true
       git {
         sync_repo   = local.sync_repo_url
         sync_branch = var.sync_branch
@@ -151,7 +151,6 @@ resource "google_gke_hub_feature_membership" "acm_production" {
       source_format = "unstructured"
     }
   }
-  provider = google-beta
 }
 
 resource "google_compute_global_address" "production_ip" {
