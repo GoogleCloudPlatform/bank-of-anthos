@@ -18,6 +18,7 @@ resource "google_storage_bucket" "build_cache" {
   name                        = "build-cache-${local.service_name}-${data.google_project.project.number}"
   uniform_bucket_level_access = true
   location                    = var.region
+  force_destroy               = true # Explicitly set to true
 }
 
 # GCS bucket used by Cloud Build to stage sources for Cloud Deploy
@@ -26,6 +27,7 @@ resource "google_storage_bucket" "release_source_staging" {
   name                        = "release-source-staging-${local.service_name}-${data.google_project.project.number}"
   uniform_bucket_level_access = true
   location                    = var.region
+  force_destroy               = true # Explicitly set to true
 }
 
 # Initialize cache with empty file

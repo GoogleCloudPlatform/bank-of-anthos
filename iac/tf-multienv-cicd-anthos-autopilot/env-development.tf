@@ -24,6 +24,7 @@ provider "kubernetes" {
 module "gke_development" {
   source = "terraform-google-modules/kubernetes-engine/google//modules/beta-autopilot-private-cluster"
   version = "29.0.0"
+  deletion_protection = false # Explicitly set to false
 
   project_id              = var.project_id
   name                    = "development"

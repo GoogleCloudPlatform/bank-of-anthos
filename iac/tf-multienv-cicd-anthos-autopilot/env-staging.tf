@@ -24,6 +24,7 @@ provider "kubernetes" {
 module "gke_staging" {
   source = "terraform-google-modules/kubernetes-engine/google//modules/beta-autopilot-private-cluster"
   version = "29.0.0"
+  deletion_protection = false # Explicitly set to false
 
   project_id              = var.project_id
   name                    = "staging"
@@ -77,6 +78,8 @@ resource "google_service_account_iam_member" "gke_workload_staging_identity" {
 module "cloudsql_staging" {
   source  = "GoogleCloudPlatform/sql-db/google//modules/postgresql"
   version = "~> 20.2.0"
+  database_deletion_policy = "ABANDON"
+  user_deletion_policy     = "ABANDON"
 
   project_id = var.project_id
   region     = var.region
@@ -85,7 +88,7 @@ module "cloudsql_staging" {
   database_version    = "POSTGRES_14"
   enable_default_db   = false
   tier                = "db-custom-1-3840"
-  deletion_protection = false
+  deletion_protection = false # Explicitly set to false
   availability_type   = "REGIONAL"
   zone                = var.zone
 

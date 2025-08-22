@@ -90,6 +90,7 @@ resource "google_storage_bucket" "delivery_artifacts_staging" {
   name                        = "delivery-artifacts-staging-${data.google_project.project.number}"
   uniform_bucket_level_access = true
   location                    = var.region
+  force_destroy               = true # Explicitly set to true
 }
 
 # GCS bucket used by Cloud Deploy for delivery artifact storage
@@ -98,6 +99,7 @@ resource "google_storage_bucket" "delivery_artifacts_production" {
   name                        = "delivery-artifacts-production-${data.google_project.project.number}"
   uniform_bucket_level_access = true
   location                    = var.region
+  force_destroy               = true # Explicitly set to true
 }
 
 # give CloudDeploy SA access to administrate to delivery artifact bucket
@@ -123,7 +125,7 @@ resource "google_storage_bucket" "build_cache_pr" {
   name                        = "build-cache-pr-${var.project_id}"
   uniform_bucket_level_access = true
   location                    = var.region
-  force_destroy               = true
+  force_destroy               = true # Explicitly set to true
 }
 
 # Initialize cache with empty file
