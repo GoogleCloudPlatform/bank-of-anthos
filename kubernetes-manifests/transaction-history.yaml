@@ -89,7 +89,7 @@ spec:
             - name: HISTORY_LIMIT
               value: "100"
             - name: JVM_OPTS
-              value: -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Xms256m -Xmx512m
+              value: -XX:+UseContainerSupport -XX:+UseCGroupMemoryLimitForHeap -Xms256m -Xmx512m -XX:+DisableAttachMechanism -XX:-UseContainerCpuShares -Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager
             - name: LOG_LEVEL
               value: info
             - name: NAMESPACE

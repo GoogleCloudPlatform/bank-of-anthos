@@ -81,7 +81,7 @@ spec:
             - name: SPRING_AUTOCONFIGURE_EXCLUDE
               value: org.springframework.cloud.gcp.autoconfigure.trace.StackdriverTraceAutoConfiguration,org.springframework.cloud.gcp.autoconfigure.core.GcpContextAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.SystemMetricsAutoConfiguration
             - name: JVM_OPTS
-              value: -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Xms256m -Xmx512m
+              value: -XX:+UseContainerSupport -XX:+UseCGroupMemoryLimitForHeap -Xms256m -Xmx512m -XX:+DisableAttachMechanism -XX:-UseContainerCpuShares -Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager
             - name: LOG_LEVEL
               value: info
             - name: NAMESPACE
