@@ -242,6 +242,9 @@ bottom: 10px;
 .text-debit {
   color: #008A20;
 }
+.text-deposit {
+  color: #0066CC;
+}
 .transaction-amount {
   text-align: right !important;
 }
@@ -466,4 +469,9 @@ input {
       display: flex;
       align-items: center;
       margin-right: 15px;
-    }
+    }.transaction-description-none {\n  color: #6c757d;\n  font-style: italic;\n}
+
+.transaction-description-none {
+  color: #6c757d;
+  font-style: italic;
+}

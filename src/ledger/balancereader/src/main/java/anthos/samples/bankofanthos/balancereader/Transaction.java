@@ -60,6 +60,9 @@ public final class Transaction {
     @CreationTimestamp
     @JsonProperty("timestamp")
     private Date timestamp;
+    @Column(name = "DESCRIPTION")
+    @JsonProperty("description")
+    private String description;
 
     private static final double CENTS_PER_DOLLAR = 100.0;
 
@@ -86,6 +89,11 @@ public final class Transaction {
     public Integer getAmount() {
         return amount;
     }
+    
+    public String getDescription() {
+        return description;
+    }
+
     /**
      * String representation.
      *

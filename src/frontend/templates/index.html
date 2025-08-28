@@ -150,6 +150,9 @@ limitations under the License.
                     <th>
                       <a class="text-transaction-header">Label</a>
                     </th>
+                    <th>
+                      <a class="text-transaction-header">Description</a>
+                    </th>
                     <th class="text-right">
                       <a class="text-transaction-header">Amount</a>
                     </th>
@@ -163,7 +166,11 @@ limitations under the License.
                     </td>
                     {% if t.toAccountNum == account_id %}
                       <td class="transaction-type">
+                        {% if t.fromRoutingNum != local_routing %}
+                        <span class="text-deposit">●</span> Deposit
+                        {% else %}
                         <span class="text-debit">●</span> Credit
+                        {% endif %}
                       </td>
                       <td class="transaction-account">
                         {{ t.fromAccountNum }}
@@ -173,6 +180,13 @@ limitations under the License.
                           {{ t.accountLabel }}
                         {% else %}
                           <span class="transaction-label-none">None</span>
+                        {% endif %}
+                      </td>
+                      <td class="transaction-description">
+                        {% if t.description != None %}
+                          {{ t.description }}
+                        {% else %}
+                          <span class="transaction-description-none">-</span>
                         {% endif %}
                       </td>
                       <td class="transaction-amount transaction-amount-credit">
@@ -190,6 +204,13 @@ limitations under the License.
                           {{ t.accountLabel }}
                         {% else %}
                           <span class="transaction-label-none">None</span>
+                        {% endif %}
+                      </td>
+                      <td class="transaction-description">
+                        {% if t.description != None %}
+                          {{ t.description }}
+                        {% else %}
+                          <span class="transaction-description-none">-</span>
                         {% endif %}
                       </td>
                       <td class="transaction-amount transaction-amount-debit">
@@ -220,53 +241,54 @@ limitations under the License.
               <div class="modal-body">
                   <div class="row">
                     <div class="col-md-10 offset-md-1 mb-4">
-                      <label class="text-uppercase text-muted secondary-text mb-3" for="accounts">External Account</label>
-                      <select class="custom-select d-block w-100" id="accounts" name="account">
-                        {% for account in contacts %}
-                          {% if account.is_external %}
-                              <option value='{"account_num": "{{ account.account_num }}", "routing_num": "{{ account.routing_num }}" }'>
-                                {{ account.label }} - {{ account.account_num }} - {{ account.routing_num }}
-                              </option>
-                          {% endif %}
-                        {% endfor %}
-                        <option disabled>──────────</option>
-                        <option value="add">New External Account</option>
-                      </select>
-                      <div id="otherDepositInputs" class="hidden">
-                        <div id="alertBanner" class="alert alert-danger mt-3 mb-3" role="alert">
-                          <span class="error-icon mr-2 material-icons">error</span><strong>Warning</strong>: This website is a simulation. Please don't include real personal information.
+                      <label class="text-uppercase text-muted secondary-text mb-1" for="deposit-date">Date</label>
+                      <div class="input-group mb-3">
+                        <div class="input-group-prepend mr-2">
+                          <span class="input-group-text"><span class="material-icons">calendar_today</span></span>
                         </div>
-                        <div class="input-group mb-3">
-                          <div class="input-group-prepend">
-                            <span class="input-group-text"><strong class="modal-icon">#</strong></span>
-                          </div>
-                          <input class="form-control" type="number" step='1' id="external_account_num" name="external_account_num" min=1000000000 max=9999999999  placeholder="Account Number"/>
-                          <div class="invalid-feedback">
-                            Please enter a valid 10 digit account number.
-                          </div>
+                        <input class="form-control" type="date" id="deposit-date" name="date" required>
+                      </div>
+                    </div>
+                    <div class="col-md-10 offset-md-1 mb-4">
+                      <label class="text-uppercase text-muted secondary-text mb-1" for="deposit-type">Type</label>
+                      <div class="input-group mb-3">
+                        <div class="input-group-prepend mr-2">
+                          <span class="input-group-text"><span class="material-icons">swap_horiz</span></span>
                         </div>
-                        <div class="input-group mb-3">
-                          <div class="input-group-prepend">
-                            <span class="input-group-text"><span class="modal-icon material-icons">account_balance</span></span>
-                          </div>
-                          <input class="form-control" type="number" step='1' id="external_routing_num" name="external_routing_num" min=100000000 max=999999999  placeholder="Routing Number"/>
-                          <div class="invalid-feedback">
-                            Please enter a valid 9 digit routing number.
-                          </div>
+                        <select class="custom-select d-block w-100" id="deposit-type" name="type" required>
+                          <option value="Deposit">Deposit</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-10 offset-md-1 mb-4">
+                      <label class="text-uppercase text-muted secondary-text mb-1" for="deposit-account">Account</label>
+                      <div class="input-group mb-3">
+                        <div class="input-group-prepend mr-2">
+                          <span class="input-group-text"><strong class="modal-icon">#</strong></span>
                         </div>
-                        <div class="input-group mb-3">
-                          <div class="input-group-prepend">
-                            <span class="input-group-text"><span class="modal-icon material-icons">label</span></span>
-                          </div>
-                          <input class="form-control"  type="text" id="external_label" maxLength="30" pattern="^[0-9a-zA-Z][0-9a-zA-Z ]{0,29}$" name="external_label" placeholder="Account Label (Optional)"/>
-                          <div class="invalid-feedback">
-                            Invalid label.
-                          </div>
+                        <input class="form-control" type="number" step='1' id="deposit-account" name="account" min=1000000000 max=9999999999 placeholder="Account Number" required>
+                      </div>
+                    </div>
+                    <div class="col-md-10 offset-md-1 mb-4">
+                      <label class="text-uppercase text-muted secondary-text mb-1" for="deposit-label">Label</label>
+                      <div class="input-group mb-3">
+                        <div class="input-group-prepend mr-2">
+                          <span class="input-group-text"><span class="modal-icon material-icons">label</span></span>
                         </div>
+                        <input class="form-control" type="text" id="deposit-label" name="label" maxLength="30" pattern="^[0-9a-zA-Z][0-9a-zA-Z ]{0,29}$" placeholder="Account Label" required>
+                      </div>
+                    </div>
+                    <div class="col-md-10 offset-md-1 mb-4">
+                      <label class="text-uppercase text-muted secondary-text mb-1" for="deposit-description">Description</label>
+                      <div class="input-group mb-3">
+                        <div class="input-group-prepend mr-2">
+                          <span class="input-group-text"><span class="material-icons">description</span></span>
+                        </div>
+                        <input class="form-control" type="text" id="deposit-description" name="description" maxLength="100" placeholder="Transaction Description" required>
                       </div>
                     </div>
                     <div class="col-md-10 offset-md-1">
-                      <label class="text-uppercase text-muted secondary-text mb-1" for="deposit-amount">Deposit Amount</label>
+                      <label class="text-uppercase text-muted secondary-text mb-1" for="deposit-amount">Amount</label>
                       <div class="input-group mb-3">
                         <div class="input-group-prepend mr-2">
                           <span class="input-group-text"><span class="amount-font material-icons money-icon">attach_money</span></span>
@@ -351,6 +373,15 @@ limitations under the License.
                       <div class="invalid-feedback">
                         Please enter a valid amount.
                       </div>
+                    </div>
+                  </div>
+                  <div class="col-md-10 offset-md-1">
+                    <label class="text-uppercase text-muted secondary-text mb-3" for="payment-description">Description (Optional)</label>
+                    <div class="input-group mb-3">
+                      <div class="input-group-prepend mr-2">
+                        <span class="input-group-text"><span class="material-icons">description</span></span>
+                      </div>
+                      <input class="form-control" type="text" id="payment-description" name="description" maxLength="100" placeholder="Enter payment description">
                     </div>
                   </div>
                 </div>

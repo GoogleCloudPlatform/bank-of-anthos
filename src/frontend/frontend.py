@@ -163,6 +163,7 @@ def create_app():
                                contacts=api_response[CONTACTS_NAME],
                                cymbal_logo=os.getenv('CYMBAL_LOGO', 'false'),
                                history=api_response[TRANSACTION_LIST_NAME],
+                               local_routing=app.config['LOCAL_ROUTING'],
                                message=request.args.get('msg', None),
                                name=display_name,
                                platform=platform,
@@ -236,6 +237,10 @@ def create_app():
                                 "toRoutingNum": app.config['LOCAL_ROUTING'],
                                 "amount": payment_amount,
                                 "uuid": request.form['uuid']}
+            # Add description if provided
+            description = request.form.get('description', '').strip()
+            if description:
+                transaction_data["description"] = description
             _submit_transaction(transaction_data)
             app.logger.info('Payment initiated successfully.')
             return redirect(code=303,
@@ -280,22 +285,19 @@ def create_app():
         try:
             # get account id from token
             account_id = decode_token(token)['acct']
-            if request.form['account'] == 'add':
-                external_account_num = request.form['external_account_num']
-                external_routing_num = request.form['external_routing_num']
-                if external_routing_num == app.config['LOCAL_ROUTING']:
-                    raise UserWarning("invalid routing number")
-                external_label = request.form.get('external_label', None)
-                if external_label:
-                    # new contact. Add to contacts list
-                    _add_contact(external_label,
-                                 external_account_num,
-                                 external_routing_num,
-                                 True)
-            else:
-                account_details = json.loads(request.form['account'])
-                external_account_num = account_details['account_num']
-                external_routing_num = account_details['routing_num']
+            
+            # Get form data - now matches transaction history fields exactly
+            external_account_num = request.form['account']
+            external_routing_num = app.config['LOCAL_ROUTING']  # Default for deposits
+            external_label = request.form.get('label', None)
+            
+            # Add to contacts
+            if external_label:
+                # new contact. Add to contacts list
+                _add_contact(external_label,
+                             external_account_num,
+                             external_routing_num,
+                             True)
 
             transaction_data = {"fromAccountNum": external_account_num,
                                 "fromRoutingNum": external_routing_num,
@@ -303,6 +305,10 @@ def create_app():
                                 "toRoutingNum": app.config['LOCAL_ROUTING'],
                                 "amount": int(Decimal(request.form['amount']) * 100),
                                 "uuid": request.form['uuid']}
+            # Add description if provided
+            description = request.form.get('description', '').strip()
+            if description:
+                transaction_data["description"] = description
             _submit_transaction(transaction_data)
             app.logger.info('Deposit submitted successfully.')
             return redirect(code=303,

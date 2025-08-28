@@ -13,15 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 document.addEventListener("DOMContentLoaded", function(event) {
   // Deposit modal client-side validation
   var depositForm = document.querySelector("#deposit-form");
   depositForm.addEventListener("submit", function(e) {
-    var isNewAcct = (document.querySelector("#accounts").value == "add");
-    document.querySelector("#external_account_num").required = isNewAcct;
-    document.querySelector("#external_routing_num").required = isNewAcct;
-
     if(!depositForm.checkValidity() || document.querySelector("#deposit-amount").value <= 0.00){
       e.preventDefault();
       e.stopPropagation();
@@ -65,11 +61,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
     RefreshModals();
   });
 
-  // Handle new account option in Deposit modal
-  document.querySelector("#accounts").addEventListener("change", function(e) {
-    RefreshModals();
-  });
-
 
   function uuidv4() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -86,12 +77,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
         document.querySelector("#otherAccountInputs").classList.remove("hidden");
       } else {
         document.querySelector("#otherAccountInputs").classList.add("hidden");
-      }
-      depositSelection = document.querySelector("#accounts").value;
-      if (depositSelection == "add") {
-        document.querySelector("#otherDepositInputs").classList.remove("hidden");
-      } else {
-        document.querySelector("#otherDepositInputs").classList.add("hidden");
       }
       // generate new uuids
       document.querySelector("#payment-uuid").value = uuidv4();

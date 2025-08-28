@@ -61,6 +61,9 @@ public final class Transaction {
     @CreationTimestamp
     @JsonProperty("timestamp")
     private Date timestamp;
+    @Column(name = "DESCRIPTION")
+    @JsonProperty("description")
+    private String description;
     // UUID is used for preventing duplicate requests from client
     // Do not persist to database
     @Transient
@@ -91,6 +94,14 @@ public final class Transaction {
 
     public Integer getAmount() {
         return amount;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getRequestUuid() {
