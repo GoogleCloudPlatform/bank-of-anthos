@@ -69,9 +69,17 @@ spec:
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
-              value: "true"
+              value: "false"
             - name: ENABLE_METRICS
+              value: "false"
+            - name: DISABLE_CLOUD_TRACING
               value: "true"
+            - name: DISABLE_CLOUD_PROFILER
+              value: "true"
+            - name: DISABLE_CLOUD_MONITORING
+              value: "true"
+            - name: SPRING_AUTOCONFIGURE_EXCLUDE
+              value: org.springframework.cloud.gcp.autoconfigure.trace.StackdriverTraceAutoConfiguration,org.springframework.cloud.gcp.autoconfigure.core.GcpContextAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.SystemMetricsAutoConfiguration
             - name: JVM_OPTS
               value: -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Xms256m -Xmx512m
             - name: LOG_LEVEL
@@ -87,7 +95,7 @@ spec:
                 name: service-api-config
             - configMapRef:
                 name: ledger-db-config
-          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/ledgerwriter:v0.6.7@sha256:28eebe04f9cdcf89e4a75693485f0150f44a1383a9e85eb01e82ee5415c4828e
+          image: ledgerwriter:local
           name: ledgerwriter
           readinessProbe:
             httpGet:

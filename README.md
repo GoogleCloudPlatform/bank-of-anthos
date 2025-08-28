@@ -1,4 +1,4 @@
-# Bank of Anthos
+# Bank of Anthos - Local Development Version
 
 ![GitHub branch check runs](https://img.shields.io/github/check-runs/GoogleCloudPlatform/bank-of-anthos/main)
 [![Website](https://img.shields.io/website?url=https%3A%2F%2Fcymbal-bank.fsi.cymbal.dev%2F&label=live%20demo
@@ -6,11 +6,7 @@
 
 **Bank of Anthos** is a sample HTTP-based web app that simulates a bank's payment processing network, allowing users to create artificial bank accounts and complete transactions.
 
-Google uses this application to demonstrate how developers can modernize enterprise applications using Google Cloud products, including: [Google Kubernetes Engine (GKE)](https://cloud.google.com/kubernetes-engine), [Anthos Service Mesh (ASM)](https://cloud.google.com/anthos/service-mesh), [Anthos Config Management (ACM)](https://cloud.google.com/anthos/config-management), [Migrate to Containers](https://cloud.google.com/migrate/containers), [Spring Cloud GCP](https://spring.io/projects/spring-cloud-gcp), [Cloud Operations](https://cloud.google.com/products/operations), [Cloud SQL](https://cloud.google.com/sql/docs), [Cloud Build](https://cloud.google.com/build), and [Cloud Deploy](https://cloud.google.com/deploy). This application works on any Kubernetes cluster.
-
-If you are using Bank of Anthos, please ★Star this repository to show your interest!
-
-**Note to Googlers:** Please fill out the form at [go/bank-of-anthos-form](https://goto2.corp.google.com/bank-of-anthos-form).
+This is a modified version of the original Bank of Anthos application, adapted for local development and deployment without Google Cloud dependencies.
 
 ## Screenshots
 
@@ -35,89 +31,67 @@ If you are using Bank of Anthos, please ★Star this repository to show your int
 | [accounts-db](/src/accounts/accounts-db)               | PostgreSQL    | Database for user accounts and associated data. Option to pre-populate with demo users.                                                      |
 | [loadgenerator](/src/loadgenerator)                    | Python/Locust | Continuously sends requests imitating users to the frontend. Periodically creates new accounts and simulates transactions between them.      |
 
-## Interactive quickstart (GKE)
+## Local Development Setup
 
-The following button opens up an interactive tutorial showing how to deploy Bank of Anthos in GKE:
+This version of Bank of Anthos has been modified to run locally without Google Cloud dependencies. The main changes include:
 
-[![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.svg)](https://ssh.cloud.google.com/cloudshell/editor?show=ide&cloudshell_git_repo=https://github.com/GoogleCloudPlatform/bank-of-anthos&cloudshell_workspace=.&cloudshell_tutorial=extras/cloudshell/tutorial.md)
+1. Disabling Google Cloud tracing and metrics
+2. Using locally built Docker images instead of Google Container Registry images
+3. Modifying Kubernetes manifests to use local images
 
-## Quickstart (GKE)
+### Prerequisites
 
-1. Ensure you have the following requirements:
-   - [Google Cloud project](https://cloud.google.com/resource-manager/docs/creating-managing-projects#creating_a_project).
-   - Shell environment with `gcloud`, `git`, and `kubectl`.
+- Docker
+- Kubernetes cluster (e.g., Minikube, Kind, or Docker Desktop Kubernetes)
+- kubectl
+- Maven (for Java services)
+- Python 3.12+ (for Python services)
 
-2. Clone the repository.
+### Building and Deploying Locally
 
+1. Clone this repository:
    ```sh
-   git clone https://github.com/GoogleCloudPlatform/bank-of-anthos
-   cd bank-of-anthos/
+   git clone https://github.com/DonnyRZ/bank-of-anthos-local
+   cd bank-of-anthos-local
    ```
 
-3. Set the Google Cloud project and region and ensure the Google Kubernetes Engine API is enabled.
-
+2. Build the Docker images for all services:
    ```sh
-   export PROJECT_ID=<PROJECT_ID>
-   export REGION=us-central1
-   gcloud services enable container.googleapis.com \
-     --project=${PROJECT_ID}
+   # Build Python services
+   cd src/frontend && docker build -t frontend:local . && cd ../..
+   cd src/accounts/userservice && docker build -t userservice:local . && cd ../../..
+   cd src/accounts/contacts && docker build -t contacts:local . && cd ../..
+   cd src/accounts/accounts-db && docker build -t accounts-db:local . && cd ../..
+   cd src/ledger/ledger-db && docker build -t ledger-db:local . && cd ../..
+   cd src/loadgenerator && docker build -t loadgenerator:local . && cd ../..
+   
+   # Build Java services
+   cd src/ledger/balancereader && mvn compile jib:dockerBuild -Djib.to.image=balancereader:local && cd ../../..
+   cd src/ledger/ledgerwriter && mvn compile jib:dockerBuild -Djib.to.image=ledgerwriter:local && cd ../../..
+   cd src/ledger/transactionhistory && mvn compile jib:dockerBuild -Djib.to.image=transactionhistory:local && cd ../../..
    ```
 
-   Substitute `<PROJECT_ID>` with the ID of your Google Cloud project.
-
-4. Create a GKE cluster and get the credentials for it.
-
-   ```sh
-   gcloud container clusters create-auto bank-of-anthos \
-     --project=${PROJECT_ID} --region=${REGION}
-   ```
-
-   Creating the cluster may take a few minutes.
-
-5. Deploy Bank of Anthos to the cluster.
-
+3. Apply the Kubernetes manifests:
    ```sh
    kubectl apply -f ./extras/jwt/jwt-secret.yaml
    kubectl apply -f ./kubernetes-manifests
    ```
 
-6. Wait for the pods to be ready.
-
+4. Wait for the pods to be ready:
    ```sh
    kubectl get pods
    ```
 
-   After a few minutes, you should see the Pods in a `Running` state:
-
-   ```
-   NAME                                  READY   STATUS    RESTARTS   AGE
-   accounts-db-6f589464bc-6r7b7          1/1     Running   0          99s
-   balancereader-797bf6d7c5-8xvp6        1/1     Running   0          99s
-   contacts-769c4fb556-25pg2             1/1     Running   0          98s
-   frontend-7c96b54f6b-zkdbz             1/1     Running   0          98s
-   ledger-db-5b78474d4f-p6xcb            1/1     Running   0          98s
-   ledgerwriter-84bf44b95d-65mqf         1/1     Running   0          97s
-   loadgenerator-559667b6ff-4zsvb        1/1     Running   0          97s
-   transactionhistory-5569754896-z94cn   1/1     Running   0          97s
-   userservice-78dc876bff-pdhtl          1/1     Running   0          96s
-   ```
-
-7. Access the web frontend in a browser using the frontend's external IP.
-
-   ```sh
-   kubectl get service frontend | awk '{print $4}'
-   ```
-
-   Visit `http://EXTERNAL_IP` in a web browser to access your instance of Bank of Anthos.
-
-8. Once you are done with it, delete the GKE cluster.
-
-   ```sh
-   gcloud container clusters delete bank-of-anthos \
-     --project=${PROJECT_ID} --region=${REGION}
-   ```
-
-   Deleting the cluster may take a few minutes.
+5. Access the web frontend:
+   - If using Minikube:
+     ```sh
+     minikube service frontend
+     ```
+   - For other Kubernetes clusters, find the frontend service's NodePort:
+     ```sh
+     kubectl get service frontend
+     ```
+     Then access `http://<NODE_IP>:<NODE_PORT>` in your browser.
 
 ## Additional deployment options
 

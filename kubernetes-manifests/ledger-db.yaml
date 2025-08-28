@@ -88,7 +88,7 @@ spec:
                 name: ledger-db-config
             - configMapRef:
                 name: demo-data-config
-          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/ledger-db:v0.6.7@sha256:5e7c7cada87746ceafb6db5b409ce18b849f682ae64b88b0a77b4a9c189b38c0
+          image: ledger-db:local
           name: postgres
           ports:
             - containerPort: 5432

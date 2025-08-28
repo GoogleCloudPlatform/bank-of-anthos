@@ -69,9 +69,17 @@ spec:
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
-              value: "true"
+              value: "false"
             - name: ENABLE_METRICS
+              value: "false"
+            - name: DISABLE_CLOUD_TRACING
               value: "true"
+            - name: DISABLE_CLOUD_PROFILER
+              value: "true"
+            - name: DISABLE_CLOUD_MONITORING
+              value: "true"
+            - name: SPRING_AUTOCONFIGURE_EXCLUDE
+              value: org.springframework.cloud.gcp.autoconfigure.trace.StackdriverTraceAutoConfiguration,org.springframework.cloud.gcp.autoconfigure.core.GcpContextAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.SystemMetricsAutoConfiguration
             - name: POLL_MS
               value: "100"
             - name: CACHE_SIZE
@@ -93,7 +101,7 @@ spec:
                 name: environment-config
             - configMapRef:
                 name: ledger-db-config
-          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/transactionhistory:v0.6.7@sha256:beb44666746140c12d31c9f5c4c94f1c0020200e5142398a4b3c20f2a586d3df
+          image: transactionhistory:local
           livenessProbe:
             httpGet:
               path: /healthy

@@ -69,7 +69,17 @@ spec:
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
+              value: "false"
+            - name: ENABLE_METRICS
+              value: "false"
+            - name: DISABLE_CLOUD_TRACING
               value: "true"
+            - name: DISABLE_CLOUD_PROFILER
+              value: "true"
+            - name: DISABLE_CLOUD_MONITORING
+              value: "true"
+            - name: SPRING_AUTOCONFIGURE_EXCLUDE
+              value: org.springframework.cloud.gcp.autoconfigure.trace.StackdriverTraceAutoConfiguration,org.springframework.cloud.gcp.autoconfigure.core.GcpContextAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.SystemMetricsAutoConfiguration
             - name: LOG_LEVEL
               value: info
           envFrom:
@@ -77,7 +87,7 @@ spec:
                 name: environment-config
             - configMapRef:
                 name: accounts-db-config
-          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/contacts:v0.6.7@sha256:b80bd041b222928573bd3f1fd1cf8475cbc4959dfafe4d68630d94b452b7af2a
+          image: contacts:local
           name: contacts
           readinessProbe:
             httpGet:
