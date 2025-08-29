@@ -1,0 +1,7 @@
+fastapi==0.95.2
+uvicorn[standard]==0.22.0
+requests==2.31.0
+pydantic==1.10.12
+# Vertex AI / Gemini: optional, include if using Vertex
+google-cloud-aiplatform==1.26.0
+vertexai==1.0.0
