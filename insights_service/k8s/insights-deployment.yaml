@@ -1,0 +1,74 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ai-extensions
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: insights-service
+  namespace: ai-extensions
+spec:
+  selector:
+    app: insights-service
+  ports:
+    - port: 80
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: insights-service
+  namespace: ai-extensions
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: insights-service
+  template:
+    metadata:
+      labels:
+        app: insights-service
+    spec:
+      serviceAccountName: insights-sa
+      containers:
+        - name: insights-service
+          image: REGISTRY_PLACEHOLDER/insights-service:0.1
+          ports:
+            - containerPort: 8080
+          env:
+            - name: BOA_BASE_URL
+              value: "http://boa-gateway"
+            - name: GCP_PROJECT
+              value: "YOUR_PROJECT_ID"
+            - name: GCP_LOCATION
+              value: "us-central1"
+            - name: GEMINI_MODEL
+              value: "text-bison@001"
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+---
+# simple ingress rule for demo; if integrating with bank infra, merge paths
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ai-insights-ingress
+  namespace: ai-extensions
+  annotations:
+    kubernetes.io/ingress.class: "gce"
+spec:
+  rules:
+  - http:
+      paths:
+        - path: /ai/insights
+          pathType: Prefix
+          backend:
+            service:
+              name: insights-service
+              port:
+                number: 80
