@@ -65,7 +65,7 @@ limitations under the License.
 
     <!-- Balance / Deposit / Send Payment row -->
     <div class="row col-lg-12 align-items-start">
-      <div class="col-lg-4">
+      <div class="col-lg-3">
           <div class="card">
             <div class="card-body">
               <div class="row align-items-start">
@@ -83,7 +83,7 @@ limitations under the License.
       </div>
 
       <!-- Buttons -->
-      <div class="col-lg-4 deposit-send-payment-div">
+      <div class="col-lg-3 deposit-send-payment-div">
         <div class="card card-button deposit-send-button" data-toggle="modal" data-target="#depositFunds" data-keyboard="false" data-backdrop="static">
           <div class="card-body">
             <div class="row align-items-start">
@@ -99,7 +99,7 @@ limitations under the License.
           </div>
         </div>
       </div>
-      <div class="col-lg-4 deposit-send-payment-div">
+      <div class="col-lg-3 deposit-send-payment-div">
         <div class="card card-button deposit-send-button" data-toggle="modal" data-target="#sendPayment" data-keyboard="false" data-backdrop="static">
           <div class="card-body">
             <div class="row align-items-start">
@@ -110,6 +110,28 @@ limitations under the License.
               </div>
               <div class="button-icon col-auto">
                 <span class="material-icons" id="payment-icon">forward</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3">
+        <div class="card">
+          <div class="card-body">
+            <div class="row align-items-start">
+              <div class="col">
+                <p class="text-uppercase mb-3">
+                  <b class="spending-breakdown">Spending Breakdown</b>
+                </p>
+                <span class="h5 mb-0" id="spending-breakdown">
+                  {% if spending_breakdown is not none and spending_breakdown.data is not none %}
+                    {% for month, spending in spending_breakdown.data.items() %}
+                      {{ month }}: {{ spending }}
+                    {% endfor %}
+                  {% else %}
+                    No spending data available.
+                  {% endif %}
+                </span>
               </div>
             </div>
           </div>

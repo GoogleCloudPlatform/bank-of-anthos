@@ -1,0 +1,53 @@
+# Copyright 2022 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: skaffold/v4beta1
+kind: Config
+metadata:
+  name: spendingbreakdown
+build:
+  artifacts:
+  - image: spendingbreakdown
+    context: ../../
+    jib:
+      project: src/spendingbreakdown
+      type: maven
+  tagPolicy:
+    sha256: {}
+deploy:
+  kubectl: {}
+profiles:
+- name: development
+  activation:
+  - command: dev
+  manifests:
+    kustomize:
+      paths:
+      - k8s/overlays/development
+      - ../../iac/acm-multienv-cicd-anthos-autopilot/overlays/development
+- name: staging
+  manifests:
+    kustomize:
+      paths:
+      - k8s/overlays/staging
+- name: production
+  manifests:
+    kustomize:
+      paths:
+      - k8s/overlays/production
+- name: production-fwi
+  manifests:
+    kustomize:
+      paths:
+      - k8s/overlays/production-fwi

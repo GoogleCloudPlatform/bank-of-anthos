@@ -29,6 +29,9 @@ requires:
   - loadgenerator
   path: src/loadgenerator/skaffold.yaml
 - configs:
+  - spendingbreakdown
+  path: src/spendingbreakdown/skaffold.yaml
+- configs:
   - accounts-db
   path: src/accounts/accounts-db/skaffold.yaml
 - configs:
