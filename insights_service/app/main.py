@@ -12,7 +12,7 @@ try:
 except Exception:
     VERTEX_AVAILABLE = False
 
-app = FastAPI(title="Insights Service")
+app = FastAPI(title="Insights Service", version="1.0")
 logging.basicConfig(level=logging.INFO)
 
 BOA_BASE_URL = os.getenv("BOA_BASE_URL", "http://boa-gateway")
@@ -27,7 +27,9 @@ class InsightsResponse(BaseModel):
     summary: dict
     categories: list
     merchants_top: list
-    credit_utilization: dict
+    spending_breakdown: dict
+    savings_tips: list
+    credit_utilization: float
     narrative: str
 
 # Simple in-memory cache (per-pod). For demo only.
@@ -159,3 +161,17 @@ def insights(user_id: str):
     )
     cache[cache_key] = {'ts': date.today(), 'payload': payload}
     return payload
+
+
+@app.get("/api/v1/insights", response_model=InsightsResponse)
+def get_insights():
+    # TODO: integrate MCP + Gemini
+    return {
+        "spending_breakdown": {"dining": 200, "groceries": 450, "rent": 1200},
+        "savings_tips": [
+            "Cut dining expenses by 10% to save $20/month.",
+            "Increase auto-transfer to savings by $50/month."
+        ],
+        "credit_utilization": 0.32,
+        "narrative": "You spent 20% more on dining this month compared to last. Consider reallocating funds to savings."
+    }
