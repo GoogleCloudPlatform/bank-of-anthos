@@ -5,3 +5,4 @@ pydantic==1.10.12
 # Vertex AI / Gemini: optional, include if using Vertex
 google-cloud-aiplatform==1.26.0
 vertexai==1.0.0
+httpx>=0.24.0
