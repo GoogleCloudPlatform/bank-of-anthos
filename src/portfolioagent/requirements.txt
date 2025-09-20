@@ -3,3 +3,4 @@ grpcio-tools
 protobuf
 PyJWT
 cryptography
+google-cloud-bigquery

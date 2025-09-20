@@ -11,6 +11,8 @@ import agent_gateway_pb2_grpc
 
 import jwt
 
+import bq_logger
+
 # --- Authentication Middleware ---
 
 # In a real application, this should be loaded from a secure configuration (e.g., Secret Manager)
@@ -66,39 +68,40 @@ def load_tool_registry():
 TOOL_REGISTRY = load_tool_registry()
 
 
-def execute_tool(tool_name: str, params: dict):
-    """
-    Executes a tool with retries and a timeout.
-    """
+def execute_tool(user_id: str, tool_name: str, params: dict):
+    """Executes a tool with retries and logs the final result to BigQuery."""
     if tool_name not in TOOL_REGISTRY:
-        return {"status": "error", "message": f"Tool '{tool_name}' not found."}
+        result = {"status": "error", "message": f"Tool '{tool_name}' not found."}
+        bq_logger.log_tool_call(user_id, tool_name, params, result)
+        return result
 
     tool_info = TOOL_REGISTRY[tool_name]
     max_retries = 2
-    timeout_seconds = 5  # Timeout for a single attempt
+    final_result = {}
 
     for attempt in range(max_retries):
         try:
             module = importlib.import_module(tool_info["module"])
             tool_callable = getattr(module, tool_info["callable"])
 
-            # Here we can use a more robust way to handle timeouts in production
-            # For simplicity, we are assuming tools are well-behaved.
             result = tool_callable(**params)
 
             if result.get("status") == "error":
                 raise Exception(result.get("message", "Tool execution failed"))
 
-            return result
+            final_result = result
+            break  # Exit loop on success
 
         except Exception as e:
             print(f"Attempt {attempt + 1} for tool '{tool_name}' failed: {e}")
-            if attempt + 1 == max_retries:
-                return {
-                    "status": "error",
-                    "message": f"Tool '{tool_name}' failed after {max_retries} attempts.",
-                }
-            time.sleep(1)  # Wait before retrying
+            final_result = {
+                "status": "error",
+                "message": f"Tool '{tool_name}' failed after {attempt + 1} attempts.",
+            }
+
+    # Log the final outcome of the tool call to BigQuery
+    bq_logger.log_tool_call(user_id, tool_name, params, final_result)
+    return final_result
 
 
 # --- gRPC Service Implementation ---
@@ -108,41 +111,37 @@ class AgentGatewayServicer(agent_gateway_pb2_grpc.AgentGatewayServicer):
     """Implements the AgentGateway service."""
 
     def ProcessRequest(self, request, context):
-        """Handles the ProcessRequest RPC with tool-calling logic."""
+        """Handles the ProcessRequest RPC with tool-calling and logging logic."""
         print(
             f"Received request from user '{request.user_id}' with query: '{request.query_text}'"
         )
-
         tool_to_call = request.query_text.strip()
 
-        # --- START OF FIX ---
-
+        # This block now also handles logging for tools that aren't found
         if tool_to_call not in TOOL_REGISTRY:
             error_result = {
                 "status": "error",
                 "message": f"Tool '{tool_to_call}' not found.",
             }
+            bq_logger.log_tool_call(request.user_id, tool_to_call, {}, error_result)
             return agent_gateway_pb2.AgentResponse(
                 response_text=json.dumps(error_result)
             )
 
-        # 1. Define all available data the agent has access to.
         available_data = {
             "user_id": request.user_id,
-            "portfolio_assets": ["GOOG", "TSLA"],  # Dummy data for now
+            "portfolio_assets": ["GOOG", "TSLA"],
         }
 
-        # 2. Get the list of required parameters for the specific tool from the registry.
         required_params = TOOL_REGISTRY[tool_to_call].get("parameters", [])
-
-        # 3. Build the final parameters dictionary, only including the required keys.
         final_params = {
             key: available_data[key] for key in required_params if key in available_data
         }
 
-        # --- END OF FIX ---
-
-        result = execute_tool(tool_name=tool_to_call, params=final_params)
+        # We pass the user_id into execute_tool for logging purposes
+        result = execute_tool(
+            user_id=request.user_id, tool_name=tool_to_call, params=final_params
+        )
 
         return agent_gateway_pb2.AgentResponse(response_text=json.dumps(result))
 
