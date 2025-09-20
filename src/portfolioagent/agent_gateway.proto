@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package portfolioagent;
+
+// The agent gateway service definition.
+service AgentGateway {
+  // Processes a user request.
+  rpc ProcessRequest (AgentRequest) returns (AgentResponse) {}
+}
+
+// The request message containing the user's query.
+message AgentRequest {
+  string user_id = 1;
+  string query_text = 2;
+}
+
+// The response message containing the agent's reply.
+message AgentResponse {
+  string response_text = 1;
+}
