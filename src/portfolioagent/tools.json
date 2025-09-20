@@ -1,0 +1,14 @@
+{
+  "read_boa_balances": {
+    "description": "Reads the current balances from the user's Bank of Anthos accounts.",
+    "module": "tools",
+    "callable": "read_boa_balances",
+    "parameters": ["user_id"]
+  },
+  "analyze_portfolio_risk": {
+    "description": "Analyzes the risk of a user's current portfolio and returns a risk score.",
+    "module": "tools",
+    "callable": "analyze_portfolio_risk",
+    "parameters": ["user_id", "portfolio_assets"]
+  }
+}
