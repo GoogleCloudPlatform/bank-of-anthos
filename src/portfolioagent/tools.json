@@ -10,5 +10,17 @@
     "module": "tools",
     "callable": "analyze_portfolio_risk",
     "parameters": ["user_id", "portfolio_assets"]
+  },
+  "check_portfolio_compliance": {
+    "description": "Checks a portfolio against predefined budget and concentration rules.",
+    "module": "tools",
+    "callable": "check_portfolio_compliance",
+    "parameters": ["portfolio_assets", "total_value"]
+  },
+  "execute_trade": {
+    "description": "Executes a buy or sell order for a financial asset.",
+    "module": "tools",
+    "callable": "execute_trade",
+    "parameters": ["user_id", "trade_details"]
   }
 }
