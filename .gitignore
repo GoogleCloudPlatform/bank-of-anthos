@@ -13,6 +13,7 @@ target/
 .vscode
 settings.json
 pyvenv.cfg
+.stfolder
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
