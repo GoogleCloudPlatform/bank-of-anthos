@@ -1,20 +1,40 @@
+// src/portfolioagent/agent_gateway.proto
+
 syntax = "proto3";
 
 package portfolioagent;
 
-// The agent gateway service definition.
+// The agent gateway service definition, now supporting a two-step workflow.
 service AgentGateway {
-  // Processes a user request.
-  rpc ProcessRequest (AgentRequest) returns (AgentResponse) {}
+  // Step 1: Propose a financial action based on a user query.
+  rpc ProposeAction(ProposeActionRequest) returns (ProposeActionResponse) {}
+
+  // Step 2: Execute a previously proposed action after user confirmation.
+  rpc ConfirmAction(ConfirmActionRequest) returns (ConfirmActionResponse) {}
 }
 
-// The request message containing the user's query.
-message AgentRequest {
+// --- Propose Action Messages ---
+
+message ProposeActionRequest {
   string user_id = 1;
-  string query_text = 2;
+  string query_text = 2; // e.g., "rebalance my portfolio" or "analyze risk"
 }
 
-// The response message containing the agent's reply.
-message AgentResponse {
-  string response_text = 1;
+message ProposeActionResponse {
+  string action_id = 1;         // A unique ID for this proposed plan.
+  string explanation = 2;       // The "because..." text for the user.
+  repeated string proposed_changes = 3; // A human-readable list of changes.
+  string status_message = 4;    // e.g., "Plan generated successfully" or "Could not generate plan".
+}
+
+// --- Confirm Action Messages ---
+
+message ConfirmActionRequest {
+  string user_id = 1;
+  string action_id = 2; // The ID from the ProposeActionResponse.
+}
+
+message ConfirmActionResponse {
+  string confirmation_id = 1; // The final trade confirmation ID.
+  string status_message = 2;  // e.g., "Action executed successfully".
 }

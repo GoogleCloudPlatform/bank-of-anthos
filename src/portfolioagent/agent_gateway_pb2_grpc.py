@@ -26,7 +26,7 @@ if _version_not_supported:
 
 
 class AgentGatewayStub(object):
-    """The agent gateway service definition.
+    """The agent gateway service definition, now supporting a two-step workflow.
     """
 
     def __init__(self, channel):
@@ -35,19 +35,31 @@ class AgentGatewayStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.ProcessRequest = channel.unary_unary(
-                '/portfolioagent.AgentGateway/ProcessRequest',
-                request_serializer=agent__gateway__pb2.AgentRequest.SerializeToString,
-                response_deserializer=agent__gateway__pb2.AgentResponse.FromString,
+        self.ProposeAction = channel.unary_unary(
+                '/portfolioagent.AgentGateway/ProposeAction',
+                request_serializer=agent__gateway__pb2.ProposeActionRequest.SerializeToString,
+                response_deserializer=agent__gateway__pb2.ProposeActionResponse.FromString,
+                _registered_method=True)
+        self.ConfirmAction = channel.unary_unary(
+                '/portfolioagent.AgentGateway/ConfirmAction',
+                request_serializer=agent__gateway__pb2.ConfirmActionRequest.SerializeToString,
+                response_deserializer=agent__gateway__pb2.ConfirmActionResponse.FromString,
                 _registered_method=True)
 
 
 class AgentGatewayServicer(object):
-    """The agent gateway service definition.
+    """The agent gateway service definition, now supporting a two-step workflow.
     """
 
-    def ProcessRequest(self, request, context):
-        """Processes a user request.
+    def ProposeAction(self, request, context):
+        """Step 1: Propose a financial action based on a user query.
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def ConfirmAction(self, request, context):
+        """Step 2: Execute a previously proposed action after user confirmation.
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -56,10 +68,15 @@ class AgentGatewayServicer(object):
 
 def add_AgentGatewayServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'ProcessRequest': grpc.unary_unary_rpc_method_handler(
-                    servicer.ProcessRequest,
-                    request_deserializer=agent__gateway__pb2.AgentRequest.FromString,
-                    response_serializer=agent__gateway__pb2.AgentResponse.SerializeToString,
+            'ProposeAction': grpc.unary_unary_rpc_method_handler(
+                    servicer.ProposeAction,
+                    request_deserializer=agent__gateway__pb2.ProposeActionRequest.FromString,
+                    response_serializer=agent__gateway__pb2.ProposeActionResponse.SerializeToString,
+            ),
+            'ConfirmAction': grpc.unary_unary_rpc_method_handler(
+                    servicer.ConfirmAction,
+                    request_deserializer=agent__gateway__pb2.ConfirmActionRequest.FromString,
+                    response_serializer=agent__gateway__pb2.ConfirmActionResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -70,11 +87,11 @@ def add_AgentGatewayServicer_to_server(servicer, server):
 
  # This class is part of an EXPERIMENTAL API.
 class AgentGateway(object):
-    """The agent gateway service definition.
+    """The agent gateway service definition, now supporting a two-step workflow.
     """
 
     @staticmethod
-    def ProcessRequest(request,
+    def ProposeAction(request,
             target,
             options=(),
             channel_credentials=None,
@@ -87,9 +104,36 @@ class AgentGateway(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/portfolioagent.AgentGateway/ProcessRequest',
-            agent__gateway__pb2.AgentRequest.SerializeToString,
-            agent__gateway__pb2.AgentResponse.FromString,
+            '/portfolioagent.AgentGateway/ProposeAction',
+            agent__gateway__pb2.ProposeActionRequest.SerializeToString,
+            agent__gateway__pb2.ProposeActionResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def ConfirmAction(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/portfolioagent.AgentGateway/ConfirmAction',
+            agent__gateway__pb2.ConfirmActionRequest.SerializeToString,
+            agent__gateway__pb2.ConfirmActionResponse.FromString,
             options,
             channel_credentials,
             insecure,

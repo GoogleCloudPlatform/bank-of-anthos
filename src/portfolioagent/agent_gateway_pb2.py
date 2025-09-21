@@ -24,17 +24,21 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x13\x61gent_gateway.proto\x12\x0eportfolioagent\"3\n\x0c\x41gentRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x12\n\nquery_text\x18\x02 \x01(\t\"&\n\rAgentResponse\x12\x15\n\rresponse_text\x18\x01 \x01(\t2_\n\x0c\x41gentGateway\x12O\n\x0eProcessRequest\x12\x1c.portfolioagent.AgentRequest\x1a\x1d.portfolioagent.AgentResponse\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x13\x61gent_gateway.proto\x12\x0eportfolioagent\";\n\x14ProposeActionRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x12\n\nquery_text\x18\x02 \x01(\t\"q\n\x15ProposeActionResponse\x12\x11\n\taction_id\x18\x01 \x01(\t\x12\x13\n\x0b\x65xplanation\x18\x02 \x01(\t\x12\x18\n\x10proposed_changes\x18\x03 \x03(\t\x12\x16\n\x0estatus_message\x18\x04 \x01(\t\":\n\x14\x43onfirmActionRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x11\n\taction_id\x18\x02 \x01(\t\"H\n\x15\x43onfirmActionResponse\x12\x17\n\x0f\x63onfirmation_id\x18\x01 \x01(\t\x12\x16\n\x0estatus_message\x18\x02 \x01(\t2\xce\x01\n\x0c\x41gentGateway\x12^\n\rProposeAction\x12$.portfolioagent.ProposeActionRequest\x1a%.portfolioagent.ProposeActionResponse\"\x00\x12^\n\rConfirmAction\x12$.portfolioagent.ConfirmActionRequest\x1a%.portfolioagent.ConfirmActionResponse\"\x00\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'agent_gateway_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_AGENTREQUEST']._serialized_start=39
-  _globals['_AGENTREQUEST']._serialized_end=90
-  _globals['_AGENTRESPONSE']._serialized_start=92
-  _globals['_AGENTRESPONSE']._serialized_end=130
-  _globals['_AGENTGATEWAY']._serialized_start=132
-  _globals['_AGENTGATEWAY']._serialized_end=227
+  _globals['_PROPOSEACTIONREQUEST']._serialized_start=39
+  _globals['_PROPOSEACTIONREQUEST']._serialized_end=98
+  _globals['_PROPOSEACTIONRESPONSE']._serialized_start=100
+  _globals['_PROPOSEACTIONRESPONSE']._serialized_end=213
+  _globals['_CONFIRMACTIONREQUEST']._serialized_start=215
+  _globals['_CONFIRMACTIONREQUEST']._serialized_end=273
+  _globals['_CONFIRMACTIONRESPONSE']._serialized_start=275
+  _globals['_CONFIRMACTIONRESPONSE']._serialized_end=347
+  _globals['_AGENTGATEWAY']._serialized_start=350
+  _globals['_AGENTGATEWAY']._serialized_end=556
 # @@protoc_insertion_point(module_scope)
