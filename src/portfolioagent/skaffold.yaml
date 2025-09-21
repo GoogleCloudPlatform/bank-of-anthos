@@ -1,0 +1,36 @@
+apiVersion: skaffold/v4beta1
+kind: Config
+metadata:
+  name: portfolioagent
+deploy:
+  kubectl: {}
+profiles:
+  - name: development
+    activation:
+      - command: dev
+    build:
+      artifacts:
+        - image: portfolioagent
+          context: .
+      tagPolicy:
+        sha256: {}
+    manifests:
+      kustomize:
+        paths:
+          - k8s/overlays/development
+          - ../../iac/acm-multienv-cicd-anthos-autopilot/overlays/development
+  - name: staging
+    manifests:
+      kustomize:
+        paths:
+          - k8s/overlays/staging
+  - name: production
+    manifests:
+      kustomize:
+        paths:
+          - k8s/overlays/production
+  - name: production-fwi
+    manifests:
+      kustomize:
+        paths:
+          - k8s/overlays/production-fwi
