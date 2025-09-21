@@ -21,6 +21,28 @@ print_test() {
     fi
 }
 
+# Function to wait for database to be ready
+wait_for_db() {
+    local max_attempts=30
+    local attempt=1
+    
+    echo -e "\n${YELLOW}Waiting for database to be ready...${NC}"
+    
+    while [ $attempt -le $max_attempts ]; do
+        if docker exec assets-db-test pg_isready -U assets-admin -d assets-db >/dev/null 2>&1; then
+            echo -e "${GREEN}Database is ready after $attempt attempts${NC}"
+            return 0
+        fi
+        
+        echo -e "${YELLOW}Attempt $attempt/$max_attempts - Database not ready yet, waiting...${NC}"
+        sleep 2
+        attempt=$((attempt + 1))
+    done
+    
+    echo -e "${RED}Database failed to become ready after $max_attempts attempts${NC}"
+    return 1
+}
+
 # Function to run SQL test
 run_sql_test() {
     local test_name="$1"
@@ -42,28 +64,65 @@ run_sql_test() {
     fi
 }
 
-# Step 1: Build Docker Image
-echo -e "\n${YELLOW}Step 1: Building Docker Image${NC}"
+# Function to check if container is running
+check_container() {
+    if ! docker ps | grep -q assets-db-test; then
+        echo -e "${RED}Container is not running. Checking logs...${NC}"
+        docker logs assets-db-test 2>/dev/null | tail -20
+        return 1
+    fi
+    return 0
+}
+
+# Step 1: Cleanup any existing containers
+echo -e "\n${YELLOW}Step 1: Cleaning up existing containers${NC}"
+docker stop assets-db-test 2>/dev/null
+docker rm assets-db-test 2>/dev/null
+print_test 0 "Cleanup completed"
+
+# Step 2: Build Docker Image
+echo -e "\n${YELLOW}Step 2: Building Docker Image${NC}"
 cd src/assets-db
 docker build -t assets-db-test . 2>/dev/null
 print_test $? "Docker image built successfully"
 
-# Step 2: Start Container
-echo -e "\n${YELLOW}Step 2: Starting Container${NC}"
-docker run -d --name assets-db-test -e POSTGRES_DB=assets-db -e POSTGRES_USER=assets-admin -e POSTGRES_PASSWORD=assets-pwd -e USE_DEMO_DATA=True -p 5433:5432 assets-db-test 2>/dev/null
-print_test $? "Container started successfully"
+# Step 3: Start Container with proper environment
+echo -e "\n${YELLOW}Step 3: Starting Container${NC}"
+docker run -d \
+    --name assets-db-test \
+    -e POSTGRES_DB=assets-db \
+    -e POSTGRES_USER=assets-admin \
+    -e POSTGRES_PASSWORD=assets-pwd \
+    -e USE_DEMO_DATA=True \
+    -p 5433:5432 \
+    assets-db-test 2>/dev/null
 
-# Wait for database to be ready
-echo -e "\n${YELLOW}Waiting for database to initialize...${NC}"
-sleep 10
+if [ $? -eq 0 ]; then
+    print_test 0 "Container started successfully"
+else
+    print_test 1 "Failed to start container"
+    exit 1
+fi
 
-# Step 3: Test Database Connection
-echo -e "\n${YELLOW}Step 3: Testing Database Connection${NC}"
-docker exec assets-db-test pg_isready -U assets-admin -d assets-db 2>/dev/null
-print_test $? "Database connection successful"
+# Step 4: Wait for database to be ready
+if ! wait_for_db; then
+    echo -e "${RED}Database initialization failed. Checking logs...${NC}"
+    docker logs assets-db-test 2>/dev/null | tail -20
+    exit 1
+fi
 
-# Step 4: Test Schema
-echo -e "\n${YELLOW}Step 4: Testing Database Schema${NC}"
+# Step 5: Test Database Connection
+echo -e "\n${YELLOW}Step 5: Testing Database Connection${NC}"
+if check_container; then
+    docker exec assets-db-test pg_isready -U assets-admin -d assets-db 2>/dev/null
+    print_test $? "Database connection successful"
+else
+    print_test 1 "Container not running"
+    exit 1
+fi
+
+# Step 6: Test Schema
+echo -e "\n${YELLOW}Step 6: Testing Database Schema${NC}"
 
 # Test 4.1: Check if assets table exists
 run_sql_test "Table Existence" "\dt assets" "assets"
