@@ -1,0 +1,412 @@
+# Bank of Anthos - LLM Documentation
+
+## Project Overview
+Bank of Anthos is a cloud-native microservices application demonstrating modern banking practices using Google Cloud Platform and Kubernetes. The application consists of multiple microservices including user management, transaction processing, portfolio management, and investment services.
+
+## Architecture
+- **Microservices**: Each service has its own database and API
+- **Containerized**: All services run in Docker containers
+- **Kubernetes**: Orchestrated using Kubernetes with Skaffold
+- **Database Services**: PostgreSQL databases for data persistence
+- **Authentication**: JWT-based authentication for application services
+- **No Authentication**: Database services don't require JWT tokens
+
+## Database Services
+
+### 1. Accounts Database (`src/accounts/accounts-db/`)
+**Purpose**: User account management and authentication
+- **Service**: `accounts-db`
+- **Port**: `5432`
+- **Database**: `accounts-db`
+- **Tables**: `users`, `contacts`
+- **Key Features**: User registration, authentication, contact management
+- **Documentation**: `src/accounts/accounts-db/llm.txt`
+
+### 2. Ledger Database (`src/ledger/ledger-db/`)
+**Purpose**: Transaction ledger (append-only)
+- **Service**: `ledger-db`
+- **Port**: `5432`
+- **Database**: `postgresdb`
+- **Tables**: `transactions`
+- **Key Features**: Immutable transaction records, audit trail
+- **Documentation**: `src/ledger/ledger-db/llm.txt`
+
+### 3. Assets Database (`src/assets-db/`)
+**Purpose**: Investment asset information
+- **Service**: `assets-db`
+- **Port**: `5432`
+- **Database**: `assets-db`
+- **Tables**: `assets`
+- **Key Features**: Asset prices, availability, tier classification
+- **Documentation**: `src/assets-db/llm.txt`
+
+### 4. Queue Database (`src/queue-db/`)
+**Purpose**: Investment/withdrawal request queue
+- **Service**: `queue-db`
+- **Port**: `5432`
+- **Database**: `queue-db`
+- **Tables**: `investment_queue`
+- **Key Features**: Request queuing, status tracking, tier-based operations
+- **Documentation**: `src/queue-db/llm.txt`
+
+### 5. User Portfolio Database (`src/user-portfolio-db/`)
+**Purpose**: User portfolio management
+- **Service**: `user-portfolio-db`
+- **Port**: `5432`
+- **Database**: `user-portfolio-db`
+- **Tables**: `user_portfolios`, `portfolio_transactions`, `portfolio_analytics`
+- **Key Features**: Tier-based allocation, transaction tracking, analytics
+- **Documentation**: `src/user-portfolio-db/llm.txt`
+
+## Application Services
+
+### 1. User Service (`src/accounts/userservice/`)
+**Purpose**: User authentication and JWT token generation
+- **Port**: `8080`
+- **Authentication**: JWT token creation and validation
+- **Database**: `accounts-db`
+
+### 2. Frontend (`src/frontend/`)
+**Purpose**: Web user interface
+- **Port**: `8080`
+- **Authentication**: JWT token validation
+- **Features**: User login, account management, transaction interface
+
+### 3. Ledger Services (`src/ledger/`)
+**Purpose**: Transaction processing
+- **Services**: `balancereader`, `ledgerwriter`, `transactionhistory`
+- **Port**: `8080`
+- **Authentication**: JWT token validation
+- **Database**: `ledger-db`
+
+### 4. Portfolio Agent (`src/portfolioagent/`)
+**Purpose**: AI-powered portfolio management
+- **Port**: `8080`
+- **Authentication**: JWT token validation
+- **Databases**: `assets-db`, `queue-db`
+
+## Database Connection Patterns
+
+### Environment Variables
+Each database service uses environment variables for connection:
+```bash
+# Database connection URI
+{DB_NAME}_DB_URI=postgresql://username:password@service-name:5432/database-name
+
+# Individual connection parameters
+POSTGRES_DB=database-name
+POSTGRES_USER=username
+POSTGRES_PASSWORD=password
+```
+
+### Connection Examples
+```python
+# Using SQLAlchemy
+from sqlalchemy import create_engine
+import os
+
+# Get connection URI from environment
+DATABASE_URI = os.environ.get('ASSETS_DB_URI')
+engine = create_engine(DATABASE_URI)
+
+# Using psycopg2
+import psycopg2
+import os
+
+conn = psycopg2.connect(os.environ.get('ACCOUNTS_DB_URI'))
+```
+
+## Authentication Patterns
+
+### Application Services (JWT Required)
+- User authentication via JWT tokens
+- Token validation in request headers
+- User context extraction from token claims
+
+### Database Services (No JWT Required)
+- Direct database connections
+- No authentication layer
+- Network-level security via Kubernetes services
+
+## Common Development Patterns
+
+### 1. Database Service Creation
+```bash
+# Directory structure
+src/new-db/
+├── Dockerfile
+├── initdb/
+│   ├── 0-schema.sql
+│   └── 1-load-testdata.sh
+├── k8s/
+│   ├── base/
+│   │   ├── config.yaml
+│   │   └── kustomization.yaml
+│   └── overlays/development/
+│       ├── new-db.yaml
+│       └── kustomization.yaml
+├── tests/
+│   ├── run_tests.sh
+│   ├── test_new_db_docker.sh
+│   └── test_new_db_sql.sh
+├── README.md
+├── requirements.txt
+├── skaffold.yaml
+└── llm.txt
+```
+
+### 2. Database Schema Patterns
+```sql
+-- Standard table structure
+CREATE TABLE IF NOT EXISTS table_name (
+    id SERIAL PRIMARY KEY,
+    field1 VARCHAR(64) NOT NULL,
+    field2 DECIMAL(20, 8) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Indexes for performance
+CREATE INDEX IF NOT EXISTS idx_table_field1 ON table_name (field1);
+CREATE INDEX IF NOT EXISTS idx_table_field2 ON table_name (field2);
+
+-- Constraints for data integrity
+ALTER TABLE table_name 
+ADD CONSTRAINT chk_field2_positive CHECK (field2 > 0);
+
+-- Auto-update timestamp trigger
+CREATE TRIGGER update_table_updated_at 
+    BEFORE UPDATE ON table_name 
+    FOR EACH ROW 
+    EXECUTE FUNCTION update_updated_at_column();
+```
+
+### 3. Python Integration Patterns
+```python
+# SQLAlchemy model
+from sqlalchemy import create_engine, Column, Integer, String, Numeric, DateTime
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+import os
+
+DATABASE_URI = os.environ.get('DB_URI')
+engine = create_engine(DATABASE_URI)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
+
+class ModelName(Base):
+    __tablename__ = "table_name"
+    
+    id = Column(Integer, primary_key=True)
+    field1 = Column(String(64), nullable=False)
+    field2 = Column(Numeric(20, 8), nullable=False)
+    created_at = Column(DateTime(timezone=True))
+    updated_at = Column(DateTime(timezone=True))
+
+# Usage
+def get_records():
+    session = SessionLocal()
+    try:
+        records = session.query(ModelName).all()
+        return records
+    finally:
+        session.close()
+```
+
+### 4. Kubernetes Configuration Patterns
+```yaml
+# ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db-config
+data:
+  POSTGRES_DB: database-name
+  POSTGRES_USER: username
+  POSTGRES_PASSWORD: password
+  DB_URI: postgresql://username:password@service-name:5432/database-name
+
+# Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-name
+spec:
+  ports:
+    - port: 5432
+      targetPort: 5432
+  selector:
+    app: service-name
+
+# StatefulSet
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: service-name
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: service-name
+  template:
+    spec:
+      containers:
+        - name: service-name
+          image: postgres:16.6-alpine
+          envFrom:
+            - configMapRef:
+                name: db-config
+          ports:
+            - containerPort: 5432
+```
+
+## Testing Patterns
+
+### Docker-based Testing
+```bash
+# Test script structure
+#!/bin/bash
+# 1. Build Docker image
+# 2. Start container
+# 3. Wait for database ready
+# 4. Run schema tests
+# 5. Run data tests
+# 6. Run constraint tests
+# 7. Run performance tests
+# 8. Cleanup
+```
+
+### SQL Testing
+```bash
+# Manual SQL testing
+psql -U username -d database-name -c "SELECT * FROM table_name;"
+```
+
+## Deployment Patterns
+
+### Skaffold Development
+```bash
+# Deploy specific service
+skaffold dev --module service-name
+
+# Deploy all services
+skaffold dev
+```
+
+### Kubernetes Direct
+```bash
+# Apply configurations
+kubectl apply -f k8s/overlays/development/
+
+# Check status
+kubectl get pods
+kubectl get services
+```
+
+## Security Considerations
+
+### Database Services
+- No JWT authentication required
+- Network-level security via Kubernetes
+- Parameterized queries to prevent SQL injection
+- Environment variables for sensitive data
+
+### Application Services
+- JWT token validation required
+- User context extraction from tokens
+- Input validation and sanitization
+- Proper error handling
+
+## Performance Considerations
+
+### Database Optimization
+- Use indexes for frequently queried columns
+- Implement connection pooling
+- Use prepared statements
+- Monitor query performance
+
+### Application Optimization
+- Implement caching where appropriate
+- Use async operations for I/O
+- Monitor resource usage
+- Implement proper error handling
+
+## Monitoring and Observability
+
+### Database Monitoring
+- Connection pool metrics
+- Query performance metrics
+- Database size and growth
+- Error rates and patterns
+
+### Application Monitoring
+- Request/response metrics
+- Error rates and patterns
+- Resource utilization
+- User activity patterns
+
+## Troubleshooting
+
+### Common Issues
+1. **Connection Issues**: Check environment variables and network connectivity
+2. **Authentication Issues**: Verify JWT token validity and user permissions
+3. **Performance Issues**: Check indexes and query optimization
+4. **Data Issues**: Validate constraints and data integrity
+
+### Debugging Steps
+1. Check service logs: `kubectl logs <pod-name>`
+2. Verify environment variables: `kubectl describe pod <pod-name>`
+3. Test database connectivity: `kubectl exec -it <pod-name> -- psql -U username -d database`
+4. Check service status: `kubectl get services`
+
+## Development Guidelines
+
+### Code Standards
+- Use consistent naming conventions
+- Implement proper error handling
+- Add comprehensive logging
+- Write unit tests for all functions
+
+### Database Standards
+- Use parameterized queries
+- Implement proper constraints
+- Add indexes for performance
+- Use transactions for multi-step operations
+
+### Documentation Standards
+- Update llm.txt files for all database services
+- Include connection examples
+- Document common queries
+- Provide troubleshooting guides
+
+## Getting Started
+
+### Prerequisites
+- Docker and Kubernetes installed
+- Skaffold installed
+- Access to Google Cloud Platform (optional)
+
+### Quick Start
+```bash
+# Clone repository
+git clone <repository-url>
+cd bank-of-anthos
+
+# Deploy with Skaffold
+skaffold dev
+
+# Or deploy specific service
+skaffold dev --module assets-db
+```
+
+### Testing
+```bash
+# Run database tests
+cd src/assets-db/tests
+./run_tests.sh
+
+# Run all tests
+find . -name "run_tests.sh" -exec {} \;
+```
+
+This documentation provides comprehensive guidance for working with the Bank of Anthos database services and creating new microservices. Each database service has its own detailed `llm.txt` file with specific implementation examples and patterns.
