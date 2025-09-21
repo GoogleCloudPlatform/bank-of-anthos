@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  test-db:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    environment:
+      POSTGRES_DB: test_user_portfolio_db
+      POSTGRES_USER: test_admin
+      POSTGRES_PASSWORD: test_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - test_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U test_admin -d test_user_portfolio_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  test_data:

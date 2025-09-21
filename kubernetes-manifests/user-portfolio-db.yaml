@@ -1,0 +1,100 @@
+# Copyright 2024 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    application: bank-of-anthos
+    environment: development
+    team: portfolio
+    tier: db
+  name: user-portfolio-db
+spec:
+  ports:
+    - name: tcp
+      port: 5432
+      targetPort: 5432
+      protocol: TCP
+  selector:
+    app: user-portfolio-db
+    application: bank-of-anthos
+    environment: development
+    team: portfolio
+    tier: db
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    application: bank-of-anthos
+    environment: development
+    team: portfolio
+    tier: db
+  name: user-portfolio-db
+spec:
+  serviceName: "user-portfolio-db"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-portfolio-db
+      application: bank-of-anthos
+      environment: development
+      team: portfolio
+      tier: db
+  template:
+    metadata:
+      labels:
+        app: user-portfolio-db
+        application: bank-of-anthos
+        environment: development
+        team: portfolio
+        tier: db
+    spec:
+      serviceAccountName: default
+      containers:
+        - env:
+            - name: POSTGRES_DB
+              value: user-portfolio-db
+            - name: POSTGRES_USER
+              value: portfolio-admin
+            - name: POSTGRES_PASSWORD
+              value: portfolio-pwd
+            - name: USER_PORTFOLIO_DB_URI
+              value: postgresql://portfolio-admin:portfolio-pwd@user-portfolio-db:5432/user-portfolio-db
+          envFrom:
+            - configMapRef:
+                name: environment-config
+            - configMapRef:
+                name: demo-data-config
+          image: user-portfolio-db
+          name: user-portfolio-db
+          ports:
+            - containerPort: 5432
+              name: tcp
+          resources:
+            limits:
+              cpu: 250m
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          volumeMounts:
+            - name: postgresdb
+              mountPath: /var/lib/postgresql/data
+              subPath: postgres
+      volumes:
+        - name: postgresdb
+          emptyDir: {}
