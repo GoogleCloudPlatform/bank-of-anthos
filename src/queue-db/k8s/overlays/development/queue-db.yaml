@@ -1,0 +1,109 @@
+# Copyright 2024 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: v1
+data:
+  QUEUE_DB_URI: postgresql://queue-admin:queue-pwd@queue-db:5432/queue-db
+  POSTGRES_DB: queue-db
+  POSTGRES_PASSWORD: queue-pwd
+  POSTGRES_USER: queue-admin
+kind: ConfigMap
+metadata:
+  labels:
+    app: queue-db
+    application: bank-of-anthos
+    environment: development
+    team: queue
+    tier: db
+  name: queue-db-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    application: bank-of-anthos
+    environment: development
+    team: queue
+    tier: db
+  name: queue-db
+spec:
+  ports:
+    - name: tcp
+      port: 5432
+      protocol: TCP
+      targetPort: 5432
+  selector:
+    app: queue-db
+    application: bank-of-anthos
+    environment: development
+    team: queue
+    tier: db
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    application: bank-of-anthos
+    environment: development
+    team: queue
+    tier: db
+  name: queue-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: queue-db
+      application: bank-of-anthos
+      environment: development
+      team: queue
+      tier: db
+  serviceName: queue-db
+  template:
+    metadata:
+      labels:
+        app: queue-db
+        application: bank-of-anthos
+        environment: development
+        team: queue
+        tier: db
+    spec:
+      containers:
+        - envFrom:
+            - configMapRef:
+                name: environment-config
+            - configMapRef:
+                name: queue-db-config
+            - configMapRef:
+                name: demo-data-config
+          image: postgres:16.6-alpine
+          name: queue-db
+          ports:
+            - containerPort: 5432
+          resources:
+            limits:
+              cpu: 250m
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgresdb
+              subPath: postgres
+      serviceAccount: bank-of-anthos
+      serviceAccountName: default
+      volumes:
+        - emptyDir: {}
+          name: postgresdb

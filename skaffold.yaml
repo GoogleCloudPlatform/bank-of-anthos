@@ -40,5 +40,8 @@ requires:
 - configs:
   - assets-db
   path: src/assets-db/skaffold.yaml
+- configs:
+  - queue-db
+  path: src/queue-db/skaffold.yaml
 deploy:
   tolerateFailuresUntilDeadline: true

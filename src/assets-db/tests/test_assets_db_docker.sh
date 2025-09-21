@@ -82,7 +82,7 @@ print_test 0 "Cleanup completed"
 
 # Step 2: Build Docker Image
 echo -e "\n${YELLOW}Step 2: Building Docker Image${NC}"
-cd src/assets-db
+cd "$(dirname "$0")/.."
 docker build -t assets-db-test . 2>/dev/null
 print_test $? "Docker image built successfully"
 
