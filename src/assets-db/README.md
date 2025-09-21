@@ -55,6 +55,24 @@ The assets-db service provides a PostgreSQL database that can be accessed by oth
 in the Bank of Anthos ecosystem. Services can connect using the `ASSETS_DB_URI` environment
 variable or by connecting to the `assets-db` service on port 5432.
 
+## Testing
+
+Comprehensive unit tests are available in the `tests/` directory:
+
+```bash
+# Run all tests
+cd tests
+./run_tests.sh
+
+# Run Docker-based tests
+./test_assets_db_docker.sh
+
+# View SQL test commands
+./test_assets_db_sql.sh
+```
+
+See [tests/README.md](tests/README.md) for detailed testing documentation.
+
 ## Development
 
 To run the assets-db service locally:
