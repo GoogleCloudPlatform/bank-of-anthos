@@ -1,0 +1,70 @@
+# Copyright 2019 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+kind: StatefulSet
+apiVersion: apps/v1
+metadata:
+  name: user-portfolio-db
+spec:
+  serviceName: "user-portfolio-db"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-portfolio-db
+  template:
+    metadata:
+      labels:
+        app: user-portfolio-db
+    spec:
+      serviceAccountName: default
+      containers:
+      - name: user-portfolio-db
+        image: user-portfolio-db
+        envFrom:
+          - configMapRef:
+              name: environment-config
+          - configMapRef:
+              name: user-portfolio-db-config
+          - configMapRef:
+              name: demo-data-config
+        ports:
+          - containerPort: 5432
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 250m
+            memory: 512Mi
+        volumeMounts:
+        - name: postgresdb
+          mountPath: /var/lib/postgresql/data
+          subPath: postgres
+      volumes:
+      - name: postgresdb
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-portfolio-db
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5432
+      name: tcp
+      targetPort: 5432
+      protocol: TCP
+  selector:
+    app: user-portfolio-db

@@ -1,0 +1,34 @@
+# Test Dockerfile for User Portfolio Database
+FROM postgres:16.6-alpine
+
+# Install additional tools for testing
+RUN apk add --no-cache postgresql-client
+
+# Copy test files
+COPY . /tests/
+WORKDIR /tests
+
+# Copy schema and test data (these should be in the tests directory)
+COPY initdb/0-user-portfolio-schema.sql /docker-entrypoint-initdb.d/0-user-portfolio-schema.sql
+COPY initdb/1-load-testdata.sh /docker-entrypoint-initdb.d/1-load-testdata.sh
+COPY initdb/1-load-testdata.sql /docker-entrypoint-initdb.d/1-load-testdata.sql
+
+# Set up test environment
+ENV POSTGRES_DB=test_user_portfolio_db
+ENV POSTGRES_USER=test_admin
+ENV POSTGRES_PASSWORD=test_password
+
+# Create test runner script
+RUN echo '#!/bin/bash' > /run_tests.sh && \
+    echo 'set -e' >> /run_tests.sh && \
+    echo 'echo "Waiting for database to be ready..."' >> /run_tests.sh && \
+    echo 'until pg_isready -h localhost -p 5432 -U test_admin; do' >> /run_tests.sh && \
+    echo '  echo "Waiting for database..."' >> /run_tests.sh && \
+    echo '  sleep 2' >> /run_tests.sh && \
+    echo 'done' >> /run_tests.sh && \
+    echo 'echo "Database is ready! Running tests..."' >> /run_tests.sh && \
+    echo 'psql -h localhost -U test_admin -d test_user_portfolio_db -f run_all_tests.sql' >> /run_tests.sh && \
+    echo 'echo "Tests completed!"' >> /run_tests.sh && \
+    chmod +x /run_tests.sh
+
+CMD ["/run_tests.sh"]
