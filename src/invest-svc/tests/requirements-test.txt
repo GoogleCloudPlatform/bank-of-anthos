@@ -1,0 +1,20 @@
+# Test dependencies for invest-svc microservice
+pytest>=7.0.0
+pytest-cov>=4.0.0
+pytest-mock>=3.10.0
+pytest-html>=3.1.0
+
+# Testing utilities
+responses>=0.23.0
+freezegun>=1.2.0
+
+# HTTP testing
+requests-mock>=1.10.0
+
+# Code quality
+flake8>=6.0.0
+black>=23.0.0
+isort>=5.12.0
+
+# Coverage reporting
+coverage>=7.0.0

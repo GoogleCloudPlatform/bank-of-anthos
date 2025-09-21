@@ -1,0 +1,36 @@
+# Dockerfile for testing invest-svc microservice
+FROM python:3.11-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    postgresql-client \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy test requirements
+COPY requirements-test.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements-test.txt
+
+# Copy source code
+COPY ../invest_src.py .
+COPY ../requirements.txt .
+
+# Copy test files
+COPY . .
+
+# Set environment variables
+ENV PYTHONPATH=/app
+ENV TEST_DB_URI=postgresql://test:test@test-db:5432/test_invest_db
+ENV TEST_TIER_AGENT_URL=http://test-tier-agent:8081
+
+# Create test user
+RUN useradd -m -u 1000 testuser && chown -R testuser:testuser /app
+USER testuser
+
+# Default command
+CMD ["python", "run_tests.py", "--all"]

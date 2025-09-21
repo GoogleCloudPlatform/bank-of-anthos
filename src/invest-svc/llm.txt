@@ -1,0 +1,306 @@
+# Invest Service (invest-svc) - AI Agent Documentation
+
+## Service Overview
+The invest-svc microservice is a critical component of the Bank of Anthos portfolio management system. It handles investment processing by integrating with the user-tier-agent and updating the user-portfolio-db database.
+
+## Core Functionality
+- **Investment Processing**: Accepts investment requests with account number and amount
+- **Tier Allocation**: Calls user-tier-agent to determine tier1, tier2, tier3 fund allocations
+- **Portfolio Management**: Creates or updates user portfolios in user-portfolio-db
+- **Transaction Recording**: Maintains audit trail of all investment transactions
+
+## Service Architecture
+```
+Client Request → invest-svc → user-tier-agent → user-portfolio-db
+                     ↓              ↓              ↓
+              Process Investment → Get Allocations → Update Portfolio
+```
+
+## API Endpoints
+
+### POST /invest
+**Purpose**: Process an investment request
+**Method**: POST
+**Content-Type**: application/json
+
+**Request Body**:
+```json
+{
+  "account_number": "string (required)",
+  "amount": "float (required, must be > 0)"
+}
+```
+
+**Success Response (200)**:
+```json
+{
+  "status": "success",
+  "portfolio_id": "uuid",
+  "total_invested": 1000.0,
+  "tier1_amount": 600.0,
+  "tier2_amount": 300.0,
+  "tier3_amount": 100.0,
+  "message": "Investment processed successfully"
+}
+```
+
+**Error Responses**:
+- 400: Invalid input (missing account_number or amount ≤ 0)
+- 500: Processing error (database or user-tier-agent unavailable)
+
+### GET /portfolio/{user_id}
+**Purpose**: Retrieve user portfolio information
+**Method**: GET
+
+**Success Response (200)**:
+```json
+{
+  "id": "uuid",
+  "user_id": "string",
+  "total_value": 1000.0,
+  "currency": "USD",
+  "tier1_allocation": 60.0,
+  "tier2_allocation": 30.0,
+  "tier3_allocation": 10.0,
+  "tier1_value": 600.0,
+  "tier2_value": 300.0,
+  "tier3_value": 100.0,
+  "created_at": "timestamp",
+  "updated_at": "timestamp"
+}
+```
+
+**Error Responses**:
+- 404: Portfolio not found
+- 500: Internal server error
+
+### GET /health
+**Purpose**: Health check endpoint
+**Method**: GET
+**Response**: `{"status": "healthy"}`
+
+### GET /ready
+**Purpose**: Readiness check endpoint
+**Method**: GET
+**Response**: `{"status": "ready"}` or `{"status": "not ready", "error": "..."}`
+
+## Database Schema Integration
+
+### Tables Used
+1. **user_portfolios**: Main portfolio data storage
+   - Stores user investment allocations across tier1, tier2, tier3
+   - Tracks total portfolio value and individual tier values
+   - Maintains allocation percentages (must sum to 100%)
+
+2. **portfolio_transactions**: Transaction audit trail
+   - Records all investment transactions
+   - Tracks tier allocation changes
+   - Maintains transaction status and timestamps
+
+### Database Operations
+- **Portfolio Creation**: Creates new portfolio for first-time investors
+- **Portfolio Updates**: Adds new investments to existing portfolios
+- **Transaction Recording**: Logs all investment activities
+- **Allocation Calculation**: Automatically calculates tier percentages
+
+## Service Dependencies
+
+### Required Services
+1. **user-portfolio-db**: PostgreSQL database
+   - Connection: `USER_PORTFOLIO_DB_URI` environment variable
+   - Purpose: Portfolio data storage and retrieval
+
+2. **user-tier-agent**: Tier allocation service
+   - Connection: `USER_TIER_AGENT_URL` environment variable
+   - Endpoint: `POST /allocate`
+   - Purpose: Determines fund tier allocations
+
+### Environment Variables
+- `USER_PORTFOLIO_DB_URI`: Database connection string
+- `USER_TIER_AGENT_URL`: User tier agent service URL
+- `PORT`: Service port (default: 8080)
+
+## Business Logic
+
+### Investment Processing Flow
+1. **Validation**: Validate account_number and amount parameters
+2. **Tier Allocation**: Call user-tier-agent with account_number and amount
+3. **Portfolio Lookup**: Check if user has existing portfolio
+4. **Portfolio Update**: Create new or update existing portfolio
+5. **Transaction Recording**: Log the investment transaction
+6. **Response**: Return investment result with allocation details
+
+### Tier Allocation Rules
+- All investments are allocated across three tiers: tier1, tier2, tier3
+- Allocation percentages must sum to exactly 100%
+- Tier amounts are calculated by user-tier-agent based on user profile
+- Portfolio values are updated by adding new tier amounts to existing values
+
+### Error Handling
+- **Input Validation**: Rejects invalid account numbers or amounts
+- **Service Dependencies**: Handles user-tier-agent unavailability
+- **Database Errors**: Manages database connection and transaction failures
+- **Data Consistency**: Ensures portfolio data integrity
+
+## Deployment Information
+
+### Container Details
+- **Base Image**: python:3.11-slim
+- **Port**: 8080
+- **Health Checks**: /health and /ready endpoints
+- **Security**: Non-root user, read-only filesystem
+
+### Kubernetes Configuration
+- **Service Type**: ClusterIP
+- **Replicas**: 1 (configurable)
+- **Resources**: 100m CPU, 128Mi memory (requests)
+- **Security Context**: Non-root user (1000:1000)
+
+### Deployment Commands
+```bash
+# Using Kubernetes manifests
+kubectl apply -f kubernetes-manifests/invest-svc.yaml
+
+# Using Skaffold (development)
+cd src/invest-svc && skaffold run
+
+# Using Kustomize
+kubectl apply -k src/invest-svc/k8s/overlays/development
+```
+
+## Testing
+
+### Manual Testing
+```bash
+# Health check
+curl http://invest-svc:8080/health
+
+# Process investment
+curl -X POST http://invest-svc:8080/invest \
+  -H "Content-Type: application/json" \
+  -d '{"account_number": "1234567890", "amount": 1000.0}'
+
+# Get portfolio
+curl http://invest-svc:8080/portfolio/1234567890
+```
+
+### Automated Testing
+```bash
+# Run test script
+python src/invest-svc/test_invest_src.py
+```
+
+## Integration Patterns
+
+### For New Microservices
+When creating microservices that need to process investments:
+
+1. **Use invest-svc API**: Call POST /invest endpoint
+2. **Handle Responses**: Process success/error responses appropriately
+3. **Error Handling**: Implement retry logic for service unavailability
+4. **Data Validation**: Validate inputs before calling invest-svc
+
+### For Frontend Applications
+- **Investment Forms**: Submit to invest-svc /invest endpoint
+- **Portfolio Display**: Fetch data from /portfolio/{user_id} endpoint
+- **Error Handling**: Display appropriate error messages to users
+- **Loading States**: Handle async investment processing
+
+### For Backend Services
+- **Service Discovery**: Use Kubernetes service name 'invest-svc'
+- **Circuit Breaker**: Implement circuit breaker pattern for reliability
+- **Monitoring**: Add metrics for investment processing success/failure rates
+- **Logging**: Include correlation IDs for request tracing
+
+## Security Considerations
+
+### Authentication
+- Service uses internal cluster communication
+- No external authentication required
+- JWT tokens handled by upstream services
+
+### Data Protection
+- Database connections use encrypted connections
+- Sensitive data (account numbers) logged minimally
+- Input validation prevents injection attacks
+
+### Network Security
+- Service exposed only within cluster (ClusterIP)
+- No external access without ingress configuration
+- Communication with dependencies over internal network
+
+## Monitoring and Observability
+
+### Health Checks
+- **Liveness Probe**: /health endpoint
+- **Readiness Probe**: /ready endpoint (includes database connectivity)
+
+### Logging
+- Structured logging with service name
+- Request/response logging for audit
+- Error logging with stack traces
+
+### Metrics
+- Investment processing success/failure rates
+- Database connection health
+- User-tier-agent response times
+- Portfolio creation/update counts
+
+## Troubleshooting
+
+### Common Issues
+1. **Database Connection Failed**: Check USER_PORTFOLIO_DB_URI configuration
+2. **User Tier Agent Unavailable**: Verify USER_TIER_AGENT_URL and service status
+3. **Portfolio Not Found**: Ensure user has existing portfolio or create new one
+4. **Invalid Allocation**: Verify tier allocations sum to 100%
+
+### Debug Commands
+```bash
+# Check service status
+kubectl get pods -l app=invest-svc
+
+# View logs
+kubectl logs -l app=invest-svc
+
+# Check service endpoints
+kubectl get svc invest-svc
+
+# Test connectivity
+kubectl exec -it <pod-name> -- curl http://localhost:8080/health
+```
+
+## Future Enhancements
+
+### Planned Features
+- **Batch Processing**: Support multiple investments in single request
+- **Investment History**: Enhanced transaction history queries
+- **Portfolio Analytics**: Advanced portfolio performance metrics
+- **Notification Service**: Investment confirmation notifications
+
+### Extension Points
+- **Custom Tier Logic**: Pluggable tier allocation algorithms
+- **Multi-Currency Support**: Support for different currencies
+- **Risk Assessment**: Integration with risk analysis services
+- **Compliance Checks**: Regulatory compliance validation
+
+## Contact and Support
+
+### Service Owner
+- **Team**: Portfolio Management
+- **Tier**: Backend
+- **Application**: bank-of-anthos
+
+### Documentation
+- **README**: src/invest-svc/README.md
+- **API Docs**: This file (llm.txt)
+- **Code**: src/invest-svc/invest_src.py
+
+### Related Services
+- **user-portfolio-db**: Portfolio data storage
+- **user-tier-agent**: Tier allocation service
+- **frontend**: User interface
+- **userservice**: User authentication
+
+---
+
+*This documentation is designed for AI agents to understand and integrate with the invest-svc microservice. For human developers, refer to the README.md file in the service directory.*

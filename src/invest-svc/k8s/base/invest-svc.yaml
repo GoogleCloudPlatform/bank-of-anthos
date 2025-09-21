@@ -1,0 +1,120 @@
+# Copyright 2024 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    application: bank-of-anthos
+    environment: development
+    team: portfolio
+    tier: backend
+  name: invest-svc
+spec:
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+  selector:
+    app: invest-svc
+    application: bank-of-anthos
+    environment: development
+    team: portfolio
+    tier: backend
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    application: bank-of-anthos
+    environment: development
+    team: portfolio
+    tier: backend
+  name: invest-svc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: invest-svc
+      application: bank-of-anthos
+      environment: development
+      team: portfolio
+      tier: backend
+  template:
+    metadata:
+      labels:
+        app: invest-svc
+        application: bank-of-anthos
+        environment: development
+        team: portfolio
+        tier: backend
+    spec:
+      containers:
+        - env:
+            - name: PORT
+              value: "8080"
+            - name: USER_PORTFOLIO_DB_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: user-portfolio-db-config
+                  key: USER_PORTFOLIO_DB_URI
+            - name: USER_TIER_AGENT_URL
+              value: "http://user-tier-agent:8080"
+          image: invest-svc
+          name: invest-svc
+          ports:
+            - containerPort: 8080
+              name: http-server
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - all
+            privileged: false
+            readOnlyRootFilesystem: true
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+      serviceAccountName: bank-of-anthos
+      terminationGracePeriodSeconds: 5
+      volumes:
+        - emptyDir: {}
+          name: tmp
