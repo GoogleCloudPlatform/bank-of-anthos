@@ -1,0 +1,23 @@
+# Caller json like format
+
+[
+	"loadgen" : [ "frontend" ],
+	"frontend" : [ "userservice", "contacts", "ledger writer", "balance reader", "transaction history", "investment-manager-svc" ],
+	"userservice" : [ "account-db" ],
+	"contacts" : [ "account-db" ],
+	"ledger writer" : [ "ledger-db" ],
+	"balance reader" : [ "ledger-db", "user-tier-agent" ],
+	"transaction history" : [ "ledger-db", "user-tier-agent" ],
+	"bank-asset-agent" : [ "market-reader-svc", "rule-checker-svc", "execute-order-svc", "assets-db" ],
+	"assets-db" : [ "bank-asset-agent", "rule-checker-svc" ],
+	"user-tier-agent" : [ "user-request-queue-svc" ],
+	"investments-record-reader-svc" : [ "portfolio-transaction-table" ],
+	"investment-manager-svc" : [ "investments-record-reader-svc", "user-portfolio-svc", "invest-svc", "withdraw-svc" ],
+	"execute-order-svc" : [ "bank-asset-agent", "rule-checker-svc" ],
+	"user-request-queue-svc" : [ "bank-asset-agent", "rule-checker-svc", "queue-db" ],
+	"user-portfolio-svc" : [ "user-portfolio-table" ],
+	"invest-svc" : [ "user-portfolio-table", "user-tier-agent", "portfolio-transaction-table" ],
+	"withdraw-svc" : [ "portfolio-transaction-table", "user-portfolio-table", "user-request-queue-svc", "user-return-rules-agent" ],
+	"rule-checker-svc" : [ "bank-asset-agent", "execute-order-svc" ],
+	"portfolio-transaction-table" : [ "user-return-rules-agent" ]
+]

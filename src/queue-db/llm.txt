@@ -1,0 +1,322 @@
+# Queue Database Service - LLM Documentation
+
+## Overview
+The `queue-db` service is a PostgreSQL database that stores investment and withdrawal requests for the Bank of Anthos portfolio management system. It acts as a queue for processing tier-based investment operations.
+
+## Database Connection
+- **Service Name**: `queue-db`
+- **Port**: `5432`
+- **Database**: `queue-db`
+- **Username**: `queue-admin`
+- **Password**: `queue-pwd`
+- **Connection URI**: `postgresql://queue-admin:queue-pwd@queue-db:5432/queue-db`
+
+## Environment Variables
+- `QUEUE_DB_URI`: Full database connection URI
+- `POSTGRES_DB`: Database name (queue-db)
+- `POSTGRES_USER`: Database username (queue-admin)
+- `POSTGRES_PASSWORD`: Database password (queue-pwd)
+
+## Database Schema
+
+### Table: `investment_queue`
+Primary table storing investment and withdrawal requests.
+
+#### Columns:
+- `queue_id` (SERIAL PRIMARY KEY): Auto-incrementing unique identifier
+- `account_number` (VARCHAR(20) NOT NULL): Bank account number making the request
+- `tier_1` (DECIMAL(20, 8) NOT NULL): Amount to add/remove from Tier 1
+- `tier_2` (DECIMAL(20, 8) NOT NULL): Amount to add/remove from Tier 2
+- `tier_3` (DECIMAL(20, 8) NOT NULL): Amount to add/remove from Tier 3
+- `uuid` (VARCHAR(36) UNIQUE NOT NULL): Unique identifier for the queue entry
+- `status` (VARCHAR(20) NOT NULL): Processing status
+- `created_at` (TIMESTAMP WITH TIME ZONE): When request was created
+- `updated_at` (TIMESTAMP WITH TIME ZONE): When request was last updated
+- `processed_at` (TIMESTAMP WITH TIME ZONE): When request was processed
+
+#### Constraints:
+- `status` must be one of: PENDING, PROCESSING, COMPLETED, FAILED, CANCELLED
+- `uuid` must match UUID format regex
+- `uuid` must be unique
+
+#### Indexes:
+- `idx_queue_account`: Index on account_number for account-based queries
+- `idx_queue_uuid`: Index on uuid for UUID lookups
+- `idx_queue_status`: Index on status for status-based queries
+- `idx_queue_created`: Index on created_at for time-based queries
+
+## Status Values
+- **PENDING**: Request is waiting to be processed
+- **PROCESSING**: Request is currently being processed
+- **COMPLETED**: Request has been successfully processed
+- **FAILED**: Request processing failed
+- **CANCELLED**: Request was cancelled
+
+## Tier Investment Types
+- **Tier 1**: Cryptocurrencies - Immediate settlement
+- **Tier 2**: ETFs/Stocks - 36-48 hour settlement
+- **Tier 3**: Alternative Investments - Longer settlement
+
+## Common SQL Queries
+
+### Add New Queue Entry
+```sql
+INSERT INTO investment_queue (account_number, tier_1, tier_2, tier_3, uuid, status) 
+VALUES (?, ?, ?, ?, ?, 'PENDING');
+```
+
+### Get Pending Requests
+```sql
+SELECT queue_id, account_number, tier_1, tier_2, tier_3, uuid, created_at 
+FROM investment_queue 
+WHERE status = 'PENDING' 
+ORDER BY created_at ASC;
+```
+
+### Update Request Status
+```sql
+UPDATE investment_queue 
+SET status = ?, updated_at = CURRENT_TIMESTAMP, processed_at = ? 
+WHERE uuid = ?;
+```
+
+### Get Requests by Account
+```sql
+SELECT queue_id, tier_1, tier_2, tier_3, status, created_at, processed_at 
+FROM investment_queue 
+WHERE account_number = ? 
+ORDER BY created_at DESC;
+```
+
+### Get Request by UUID
+```sql
+SELECT queue_id, account_number, tier_1, tier_2, tier_3, status, created_at, updated_at, processed_at 
+FROM investment_queue 
+WHERE uuid = ?;
+```
+
+### Get Queue Statistics
+```sql
+SELECT 
+    status,
+    COUNT(*) as count,
+    SUM(ABS(tier_1) + ABS(tier_2) + ABS(tier_3)) as total_amount
+FROM investment_queue 
+GROUP BY status 
+ORDER BY status;
+```
+
+### Get Processing History
+```sql
+SELECT 
+    account_number,
+    tier_1,
+    tier_2,
+    tier_3,
+    status,
+    created_at,
+    processed_at,
+    EXTRACT(EPOCH FROM (processed_at - created_at)) as processing_time_seconds
+FROM investment_queue 
+WHERE status IN ('COMPLETED', 'FAILED')
+ORDER BY processed_at DESC;
+```
+
+## Python Integration Examples
+
+### Using SQLAlchemy
+```python
+from sqlalchemy import create_engine, Column, Integer, String, Numeric, DateTime
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+import os
+import uuid
+
+# Database connection
+DATABASE_URI = os.environ.get('QUEUE_DB_URI', 'postgresql://queue-admin:queue-pwd@queue-db:5432/queue-db')
+engine = create_engine(DATABASE_URI)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
+
+class InvestmentQueue(Base):
+    __tablename__ = "investment_queue"
+    
+    queue_id = Column(Integer, primary_key=True)
+    account_number = Column(String(20), nullable=False)
+    tier_1 = Column(Numeric(20, 8), nullable=False)
+    tier_2 = Column(Numeric(20, 8), nullable=False)
+    tier_3 = Column(Numeric(20, 8), nullable=False)
+    uuid = Column(String(36), unique=True, nullable=False)
+    status = Column(String(20), nullable=False, default='PENDING')
+    created_at = Column(DateTime(timezone=True))
+    updated_at = Column(DateTime(timezone=True))
+    processed_at = Column(DateTime(timezone=True))
+
+# Usage
+def add_investment_request(account_number, tier_1, tier_2, tier_3):
+    session = SessionLocal()
+    try:
+        request_uuid = str(uuid.uuid4())
+        request = InvestmentQueue(
+            account_number=account_number,
+            tier_1=tier_1,
+            tier_2=tier_2,
+            tier_3=tier_3,
+            uuid=request_uuid
+        )
+        session.add(request)
+        session.commit()
+        return request_uuid
+    finally:
+        session.close()
+
+def get_pending_requests():
+    session = SessionLocal()
+    try:
+        requests = session.query(InvestmentQueue).filter(
+            InvestmentQueue.status == 'PENDING'
+        ).order_by(InvestmentQueue.created_at.asc()).all()
+        return requests
+    finally:
+        session.close()
+
+def update_request_status(request_uuid, new_status):
+    session = SessionLocal()
+    try:
+        request = session.query(InvestmentQueue).filter(
+            InvestmentQueue.uuid == request_uuid
+        ).first()
+        if request:
+            request.status = new_status
+            if new_status in ['COMPLETED', 'FAILED', 'CANCELLED']:
+                request.processed_at = datetime.utcnow()
+            session.commit()
+            return True
+        return False
+    finally:
+        session.close()
+```
+
+### Using psycopg2
+```python
+import psycopg2
+import os
+import uuid
+
+def add_withdrawal_request(account_number, tier_1, tier_2, tier_3):
+    conn = psycopg2.connect(os.environ.get('QUEUE_DB_URI'))
+    cursor = conn.cursor()
+    
+    request_uuid = str(uuid.uuid4())
+    cursor.execute("""
+        INSERT INTO investment_queue (account_number, tier_1, tier_2, tier_3, uuid, status) 
+        VALUES (%s, %s, %s, %s, %s, 'PENDING')
+    """, (account_number, tier_1, tier_2, tier_3, request_uuid))
+    
+    conn.commit()
+    cursor.close()
+    conn.close()
+    
+    return request_uuid
+
+def process_next_request():
+    conn = psycopg2.connect(os.environ.get('QUEUE_DB_URI'))
+    cursor = conn.cursor()
+    
+    # Get next pending request
+    cursor.execute("""
+        SELECT queue_id, account_number, tier_1, tier_2, tier_3, uuid 
+        FROM investment_queue 
+        WHERE status = 'PENDING' 
+        ORDER BY created_at ASC 
+        LIMIT 1
+    """)
+    
+    request = cursor.fetchone()
+    if request:
+        queue_id, account_number, tier_1, tier_2, tier_3, request_uuid = request
+        
+        # Update status to PROCESSING
+        cursor.execute("""
+            UPDATE investment_queue 
+            SET status = 'PROCESSING', updated_at = CURRENT_TIMESTAMP 
+            WHERE queue_id = %s
+        """, (queue_id,))
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        return {
+            'queue_id': queue_id,
+            'account_number': account_number,
+            'tier_1': float(tier_1),
+            'tier_2': float(tier_2),
+            'tier_3': float(tier_3),
+            'uuid': request_uuid
+        }
+    
+    cursor.close()
+    conn.close()
+    return None
+```
+
+## Queue Processing Patterns
+
+### FIFO Processing
+```python
+def process_queue_fifo():
+    """Process requests in First-In-First-Out order"""
+    requests = get_pending_requests()
+    for request in requests:
+        try:
+            # Process the request
+            result = process_investment_request(request)
+            update_request_status(request.uuid, 'COMPLETED')
+        except Exception as e:
+            update_request_status(request.uuid, 'FAILED')
+            # Log error
+```
+
+### Batch Processing
+```python
+def process_queue_batch(batch_size=10):
+    """Process multiple requests in batches"""
+    requests = get_pending_requests()[:batch_size]
+    for request in requests:
+        update_request_status(request.uuid, 'PROCESSING')
+    
+    # Process all requests in batch
+    # Update statuses based on results
+```
+
+## Error Handling
+- Always handle `psycopg2.OperationalError` for connection issues
+- Handle `psycopg2.IntegrityError` for constraint violations
+- Use transactions for multi-step operations
+- Implement retry logic for failed requests
+- Log all status changes for audit trails
+
+## Performance Considerations
+- Use indexes for status, account_number, and created_at queries
+- Consider connection pooling for high-traffic applications
+- Monitor queue length and processing times
+- Use prepared statements for repeated queries
+- Consider partitioning for large datasets
+
+## Security Notes
+- No JWT authentication required (database service)
+- Use parameterized queries to prevent SQL injection
+- Validate input data before database operations
+- Use environment variables for sensitive configuration
+- Implement proper UUID generation
+
+## Testing
+- Run tests: `cd tests && ./run_tests.sh`
+- Docker tests: `./test_queue_db_docker.sh`
+- SQL tests: `./test_queue_db_sql.sh`
+
+## Deployment
+- Kubernetes: `kubectl apply -f k8s/overlays/development/`
+- Skaffold: `skaffold dev --module queue-db`
+- Docker: `docker build -t queue-db .`

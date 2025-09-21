@@ -1,0 +1,459 @@
+# Bank of Anthos - Master Microservices Architecture
+
+## Project Overview
+Bank of Anthos is a comprehensive cloud-native banking platform with AI-powered portfolio management, investment services, and traditional banking operations. The system consists of multiple microservices organized in a sophisticated architecture supporting real-time investment decisions, user portfolio management, and financial transactions.
+
+## Architecture Flow
+The system follows a hierarchical architecture where services communicate through well-defined interfaces:
+
+```
+loadgen → frontend → [userservice, contacts, ledger writer, balance reader, transaction history, investment-manager-svc]
+                    ↓
+            [account-db, ledger-db, user-tier-agent, investments-record-reader-svc, user-portfolio-svc, invest-svc, withdraw-svc]
+                    ↓
+            [assets-db, queue-db, user-portfolio-table, portfolio-transaction-table, bank-asset-agent, rule-checker-svc, execute-order-svc, user-request-queue-svc, user-return-rules-agent, market-reader-svc]
+```
+
+## Microservices Catalog
+
+### 1. EXISTING SERVICES (Implemented)
+
+#### 1.1 Load Generator (`loadgen`)
+**Status**: ✅ Implemented
+**Purpose**: Performance testing and load generation
+**Port**: `8080`
+**Dependencies**: `frontend`
+**Location**: `src/loadgenerator/`
+**Description**: Generates synthetic load for testing the frontend and overall system performance.
+
+#### 1.2 Frontend (`frontend`)
+**Status**: ✅ Implemented
+**Purpose**: Web user interface and API gateway
+**Port**: `8080`
+**Dependencies**: `userservice`, `contacts`, `ledger writer`, `balance reader`, `transaction history`, `investment-manager-svc`
+**Location**: `src/frontend/`
+**Description**: Main web interface providing user authentication, account management, transaction history, and investment management features.
+
+#### 1.3 User Service (`userservice`)
+**Status**: ✅ Implemented
+**Purpose**: User authentication and JWT token management
+**Port**: `8080`
+**Dependencies**: `account-db`
+**Location**: `src/accounts/userservice/`
+**Description**: Handles user registration, authentication, JWT token generation and validation.
+
+#### 1.4 Contacts Service (`contacts`)
+**Status**: ✅ Implemented
+**Purpose**: User contact management for transfers
+**Port**: `8080`
+**Dependencies**: `account-db`
+**Location**: `src/accounts/contacts/`
+**Description**: Manages user contacts for quick transfers and external account references.
+
+#### 1.5 Ledger Writer (`ledger writer`)
+**Status**: ✅ Implemented
+**Purpose**: Transaction recording and ledger management
+**Port**: `8080`
+**Dependencies**: `ledger-db`
+**Location**: `src/ledger/ledgerwriter/`
+**Description**: Records all financial transactions in the immutable ledger database.
+
+#### 1.6 Balance Reader (`balance reader`)
+**Status**: ✅ Implemented
+**Purpose**: Account balance retrieval and calculation
+**Port**: `8080`
+**Dependencies**: `ledger-db`, `user-tier-agent`
+**Location**: `src/ledger/balancereader/`
+**Description**: Calculates and retrieves account balances from transaction history.
+
+#### 1.7 Transaction History (`transaction history`)
+**Status**: ✅ Implemented
+**Purpose**: Transaction history retrieval and reporting
+**Port**: `8080`
+**Dependencies**: `ledger-db`, `user-tier-agent`
+**Location**: `src/ledger/transactionhistory/`
+**Description**: Provides transaction history and reporting capabilities.
+
+#### 1.8 Portfolio Agent (`portfolioagent`)
+**Status**: ✅ Implemented
+**Purpose**: AI-powered portfolio management and investment recommendations
+**Port**: `8080`
+**Dependencies**: `assets-db`, `queue-db`
+**Location**: `src/portfolioagent/`
+**Description**: AI agent that provides investment recommendations and portfolio management tools.
+
+### 2. DATABASE SERVICES (Implemented)
+
+#### 2.1 Accounts Database (`account-db`)
+**Status**: ✅ Implemented
+**Purpose**: User account data storage
+**Port**: `5432`
+**Dependencies**: None (Database service)
+**Location**: `src/accounts/accounts-db/`
+**Description**: PostgreSQL database storing user accounts, authentication data, and contacts.
+
+#### 2.2 Ledger Database (`ledger-db`)
+**Status**: ✅ Implemented
+**Purpose**: Transaction ledger storage (append-only)
+**Port**: `5432`
+**Dependencies**: None (Database service)
+**Location**: `src/ledger/ledger-db/`
+**Description**: Immutable PostgreSQL database storing all financial transactions.
+
+#### 2.3 Assets Database (`assets-db`)
+**Status**: ✅ Implemented
+**Purpose**: Investment asset information storage
+**Port**: `5432`
+**Dependencies**: None (Database service)
+**Location**: `src/assets-db/`
+**Description**: PostgreSQL database storing investment assets, prices, and availability.
+
+#### 2.4 Queue Database (`queue-db`)
+**Status**: ✅ Implemented
+**Purpose**: Investment/withdrawal request queue storage
+**Port**: `5432`
+**Dependencies**: None (Database service)
+**Location**: `src/queue-db/`
+**Description**: PostgreSQL database managing investment and withdrawal request queues.
+
+#### 2.5 User Portfolio Database (`user-portfolio-table`)
+**Status**: ✅ Implemented
+**Purpose**: User portfolio data storage
+**Port**: `5432`
+**Dependencies**: None (Database service)
+**Location**: `src/user-portfolio-db/`
+**Description**: PostgreSQL database storing user portfolios, allocations, and analytics.
+
+### 3. PLANNED SERVICES (To Be Implemented)
+
+#### 3.1 Investment Manager Service (`investment-manager-svc`)
+**Status**: 🚧 Planned
+**Purpose**: Central investment management orchestration
+**Port**: `8080`
+**Dependencies**: `investments-record-reader-svc`, `user-portfolio-svc`, `invest-svc`, `withdraw-svc`
+**Location**: `src/investment-manager/` (to be created)
+**Description**: Orchestrates investment operations, manages investment workflows, and coordinates between investment services.
+
+#### 3.2 Bank Asset Agent (`bank-asset-agent`)
+**Status**: 🚧 Planned
+**Purpose**: AI agent for asset management and market analysis
+**Port**: `8080`
+**Dependencies**: `market-reader-svc`, `rule-checker-svc`, `execute-order-svc`, `assets-db`
+**Location**: `src/bank-asset-agent/` (to be created)
+**Description**: AI agent responsible for asset management, market analysis, and investment decision making.
+
+#### 3.3 User Tier Agent (`user-tier-agent`)
+**Status**: 🚧 Planned
+**Purpose**: User tier classification and management
+**Port**: `8080`
+**Dependencies**: `user-request-queue-svc`
+**Location**: `src/user-tier-agent/` (to be created)
+**Description**: Manages user tier classifications and determines investment eligibility and limits.
+
+#### 3.4 Investments Record Reader Service (`investments-record-reader-svc`)
+**Status**: 🚧 Planned
+**Purpose**: Investment transaction history and reporting
+**Port**: `8080`
+**Dependencies**: `portfolio-transaction-table`
+**Location**: `src/investments-record-reader/` (to be created)
+**Description**: Reads and provides investment transaction history and reporting capabilities.
+
+#### 3.5 Execute Order Service (`execute-order-svc`)
+**Status**: 🚧 Planned
+**Purpose**: Investment order execution
+**Port**: `8080`
+**Dependencies**: `bank-asset-agent`, `rule-checker-svc`
+**Location**: `src/execute-order/` (to be created)
+**Description**: Executes investment orders and manages order lifecycle.
+
+#### 3.6 User Request Queue Service (`user-request-queue-svc`)
+**Status**: 🚧 Planned
+**Purpose**: Investment request processing and queuing
+**Port**: `8080`
+**Dependencies**: `bank-asset-agent`, `rule-checker-svc`, `queue-db`
+**Location**: `src/user-request-queue/` (to be created)
+**Description**: Processes investment and withdrawal requests from the queue database.
+
+#### 3.7 User Portfolio Service (`user-portfolio-svc`)
+**Status**: 🚧 Planned
+**Purpose**: Portfolio management operations
+**Port**: `8080`
+**Dependencies**: `user-portfolio-table`
+**Location**: `src/user-portfolio/` (to be created)
+**Description**: Manages user portfolio operations, allocations, and updates.
+
+#### 3.8 Invest Service (`invest-svc`)
+**Status**: 🚧 Planned
+**Purpose**: Investment processing and execution
+**Port**: `8080`
+**Dependencies**: `user-portfolio-table`, `user-tier-agent`, `portfolio-transaction-table`
+**Location**: `src/invest/` (to be created)
+**Description**: Processes investment requests and updates portfolio allocations.
+
+#### 3.9 Withdraw Service (`withdraw-svc`)
+**Status**: 🚧 Planned
+**Purpose**: Withdrawal processing and execution
+**Port**: `8080`
+**Dependencies**: `portfolio-transaction-table`, `user-portfolio-table`, `user-request-queue-svc`, `user-return-rules-agent`
+**Location**: `src/withdraw/` (to be created)
+**Description**: Processes withdrawal requests and manages fund extraction.
+
+#### 3.10 Rule Checker Service (`rule-checker-svc`)
+**Status**: 🚧 Planned
+**Purpose**: Business rule validation and compliance
+**Port**: `8080`
+**Dependencies**: `bank-asset-agent`, `execute-order-svc`
+**Location**: `src/rule-checker/` (to be created)
+**Description**: Validates business rules, compliance requirements, and investment constraints.
+
+#### 3.11 Market Reader Service (`market-reader-svc`)
+**Status**: 🚧 Planned
+**Purpose**: Real-time market data integration
+**Port**: `8080`
+**Dependencies**: None (External API service)
+**Location**: `src/market-reader/` (to be created)
+**Description**: Integrates with external market data providers for real-time asset pricing.
+
+#### 3.12 User Return Rules Agent (`user-return-rules-agent`)
+**Status**: 🚧 Planned
+**Purpose**: Return calculation and rule management
+**Port**: `8080`
+**Dependencies**: None (Standalone service)
+**Location**: `src/user-return-rules-agent/` (to be created)
+**Description**: Calculates investment returns and manages return-related business rules.
+
+#### 3.13 Portfolio Transaction Table (`portfolio-transaction-table`)
+**Status**: 🚧 Planned
+**Purpose**: Portfolio transaction storage
+**Port**: `5432`
+**Dependencies**: None (Database service)
+**Location**: `src/portfolio-transaction-db/` (to be created)
+**Description**: PostgreSQL database storing portfolio-specific transactions and changes.
+
+## Service Communication Patterns
+
+### 1. HTTP REST APIs
+- **Authentication**: JWT tokens for application services
+- **Database Services**: Direct PostgreSQL connections (no JWT required)
+- **Ports**: Application services use 8080, Database services use 5432
+
+### 2. Database Connections
+- **Connection Pattern**: `postgresql://username:password@service-name:5432/database-name`
+- **Environment Variables**: `{SERVICE_NAME}_DB_URI`
+- **Connection Pooling**: Recommended for high-traffic services
+
+### 3. Service Discovery
+- **Kubernetes Services**: Services discover each other via Kubernetes service names
+- **Internal Communication**: Services communicate within the cluster
+- **External APIs**: Market data and external services via HTTP
+
+## Development Guidelines
+
+### 1. Service Creation Template
+```bash
+src/new-service/
+├── Dockerfile
+├── k8s/
+│   ├── base/
+│   │   ├── config.yaml
+│   │   └── kustomization.yaml
+│   └── overlays/development/
+│       ├── new-service.yaml
+│       └── kustomization.yaml
+├── tests/
+│   ├── run_tests.sh
+│   ├── test_new_service.py
+│   └── test_new_service_integration.py
+├── README.md
+├── requirements.txt
+├── skaffold.yaml
+└── llm.txt
+```
+
+### 2. Database Service Template
+```bash
+src/new-db/
+├── Dockerfile
+├── initdb/
+│   ├── 0-schema.sql
+│   └── 1-load-testdata.sh
+├── k8s/
+│   ├── base/
+│   │   ├── config.yaml
+│   │   └── kustomization.yaml
+│   └── overlays/development/
+│       ├── new-db.yaml
+│       └── kustomization.yaml
+├── tests/
+│   ├── run_tests.sh
+│   ├── test_new_db_docker.sh
+│   └── test_new_db_sql.sh
+├── README.md
+├── requirements.txt
+├── skaffold.yaml
+└── llm.txt
+```
+
+### 3. Common Patterns
+
+#### 3.1 Application Service Pattern
+```python
+# Standard Flask/FastAPI service structure
+from flask import Flask, request, jsonify
+import jwt
+import os
+
+app = Flask(__name__)
+
+def verify_jwt_token(token):
+    # JWT verification logic
+    pass
+
+@app.route('/api/endpoint', methods=['POST'])
+def endpoint():
+    # Verify JWT token
+    auth_header = request.headers.get('Authorization')
+    if not verify_jwt_token(auth_header):
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    # Process request
+    return jsonify({'result': 'success'})
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8080)
+```
+
+#### 3.2 Database Service Pattern
+```python
+# Standard database service structure
+import psycopg2
+import os
+
+def get_db_connection():
+    return psycopg2.connect(os.environ.get('DB_URI'))
+
+def execute_query(query, params=None):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(query, params)
+        result = cursor.fetchall()
+        conn.commit()
+        return result
+    finally:
+        cursor.close()
+        conn.close()
+```
+
+## Implementation Priority
+
+### Phase 1: Core Investment Services
+1. `user-portfolio-svc` - Portfolio management
+2. `invest-svc` - Investment processing
+3. `withdraw-svc` - Withdrawal processing
+4. `portfolio-transaction-table` - Transaction storage
+
+### Phase 2: AI and Decision Services
+1. `bank-asset-agent` - Asset management AI
+2. `user-tier-agent` - User classification
+3. `rule-checker-svc` - Business rules
+4. `user-return-rules-agent` - Return calculations
+
+### Phase 3: Market and Execution
+1. `market-reader-svc` - Market data
+2. `execute-order-svc` - Order execution
+3. `user-request-queue-svc` - Request processing
+4. `investments-record-reader-svc` - Record management
+
+### Phase 4: Orchestration
+1. `investment-manager-svc` - Central orchestration
+
+## Testing Strategy
+
+### 1. Unit Tests
+- Each service has comprehensive unit tests
+- Database services include schema validation tests
+- Application services include API endpoint tests
+
+### 2. Integration Tests
+- Service-to-service communication tests
+- Database integration tests
+- End-to-end workflow tests
+
+### 3. Performance Tests
+- Load testing with `loadgen`
+- Database performance monitoring
+- Service response time monitoring
+
+## Deployment Strategy
+
+### 1. Development
+```bash
+# Deploy specific service
+skaffold dev --module service-name
+
+# Deploy all services
+skaffold dev
+```
+
+### 2. Production
+```bash
+# Deploy to production
+skaffold run --profile production
+
+# Deploy specific service
+skaffold run --module service-name --profile production
+```
+
+## Monitoring and Observability
+
+### 1. Service Health
+- Health check endpoints for all services
+- Kubernetes liveness and readiness probes
+- Service dependency monitoring
+
+### 2. Performance Metrics
+- Request/response times
+- Database query performance
+- Service resource utilization
+
+### 3. Business Metrics
+- Investment transaction volumes
+- Portfolio performance tracking
+- User activity monitoring
+
+## Security Considerations
+
+### 1. Authentication
+- JWT tokens for all application services
+- Database services use network-level security
+- Service-to-service authentication
+
+### 2. Data Protection
+- Encrypted data in transit
+- Secure database connections
+- Input validation and sanitization
+
+### 3. Compliance
+- Financial data audit trails
+- Transaction immutability
+- Regulatory compliance features
+
+## Future Enhancements
+
+### 1. Advanced AI Features
+- Machine learning models for investment recommendations
+- Predictive analytics for market trends
+- Automated portfolio rebalancing
+
+### 2. Real-time Capabilities
+- WebSocket connections for real-time updates
+- Event-driven architecture
+- Real-time market data streaming
+
+### 3. Scalability Improvements
+- Horizontal scaling capabilities
+- Database sharding strategies
+- Caching layers for performance
+
+This master architecture provides a comprehensive blueprint for building and extending the Bank of Anthos platform with clear service definitions, dependencies, and implementation guidelines.

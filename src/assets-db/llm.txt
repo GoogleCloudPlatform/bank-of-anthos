@@ -1,0 +1,201 @@
+# Assets Database Service - LLM Documentation
+
+## Overview
+The `assets-db` service is a PostgreSQL database that stores investment asset data for the Bank of Anthos portfolio management system. It provides real-time asset information including prices, availability, and tier classifications.
+
+## Database Connection
+- **Service Name**: `assets-db`
+- **Port**: `5432`
+- **Database**: `assets-db`
+- **Username**: `assets-admin`
+- **Password**: `assets-pwd`
+- **Connection URI**: `postgresql://assets-admin:assets-pwd@assets-db:5432/assets-db`
+
+## Environment Variables
+- `ASSETS_DB_URI`: Full database connection URI
+- `POSTGRES_DB`: Database name (assets-db)
+- `POSTGRES_USER`: Database username (assets-admin)
+- `POSTGRES_PASSWORD`: Database password (assets-pwd)
+
+## Database Schema
+
+### Table: `assets`
+Primary table storing investment asset information.
+
+#### Columns:
+- `asset_id` (SERIAL PRIMARY KEY): Auto-incrementing unique identifier
+- `tier_number` (INTEGER NOT NULL): Investment tier (1, 2, or 3)
+- `asset_name` (VARCHAR(64) UNIQUE NOT NULL): Unique asset identifier
+- `amount` (DECIMAL(20, 8) NOT NULL): Available units for investment
+- `price_per_unit` (DECIMAL(20, 2) NOT NULL): Current price per unit in USD
+- `last_updated` (TIMESTAMP WITH TIME ZONE): Timestamp of last update
+
+#### Constraints:
+- `tier_number` must be 1, 2, or 3
+- `amount` must be >= 0
+- `price_per_unit` must be > 0
+- `asset_name` must be unique
+
+#### Indexes:
+- `idx_assets_tier`: Index on tier_number for fast tier-based queries
+- `idx_assets_name`: Index on asset_name for fast name lookups
+
+## Asset Tiers
+- **Tier 1**: Most liquid assets (Cryptocurrencies) - Immediate settlement
+- **Tier 2**: Medium liquidity (ETFs, Stocks) - 36-48 hour settlement  
+- **Tier 3**: Less liquid investments (Real Estate, Private Equity) - Longer settlement
+
+## Common SQL Queries
+
+### Get All Assets
+```sql
+SELECT asset_id, tier_number, asset_name, amount, price_per_unit, last_updated 
+FROM assets 
+ORDER BY tier_number, asset_name;
+```
+
+### Get Assets by Tier
+```sql
+SELECT asset_id, asset_name, amount, price_per_unit, last_updated 
+FROM assets 
+WHERE tier_number = ? 
+ORDER BY asset_name;
+```
+
+### Get Specific Asset
+```sql
+SELECT asset_id, tier_number, asset_name, amount, price_per_unit, last_updated 
+FROM assets 
+WHERE asset_name = ?;
+```
+
+### Check Asset Availability
+```sql
+SELECT asset_name, amount, price_per_unit 
+FROM assets 
+WHERE asset_name = ? AND amount >= ?;
+```
+
+### Update Asset Amount
+```sql
+UPDATE assets 
+SET amount = ?, last_updated = CURRENT_TIMESTAMP 
+WHERE asset_name = ?;
+```
+
+### Update Asset Price
+```sql
+UPDATE assets 
+SET price_per_unit = ?, last_updated = CURRENT_TIMESTAMP 
+WHERE asset_name = ?;
+```
+
+### Get Asset Statistics by Tier
+```sql
+SELECT 
+    tier_number,
+    COUNT(*) as asset_count,
+    SUM(amount * price_per_unit) as total_value,
+    AVG(price_per_unit) as avg_price
+FROM assets 
+GROUP BY tier_number 
+ORDER BY tier_number;
+```
+
+## Python Integration Examples
+
+### Using SQLAlchemy
+```python
+from sqlalchemy import create_engine, Column, Integer, String, Numeric, DateTime
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+import os
+
+# Database connection
+DATABASE_URI = os.environ.get('ASSETS_DB_URI', 'postgresql://assets-admin:assets-pwd@assets-db:5432/assets-db')
+engine = create_engine(DATABASE_URI)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
+
+class Asset(Base):
+    __tablename__ = "assets"
+    
+    asset_id = Column(Integer, primary_key=True)
+    tier_number = Column(Integer, nullable=False)
+    asset_name = Column(String(64), unique=True, nullable=False)
+    amount = Column(Numeric(20, 8), nullable=False)
+    price_per_unit = Column(Numeric(20, 2), nullable=False)
+    last_updated = Column(DateTime(timezone=True))
+
+# Usage
+def get_assets_by_tier(tier_number):
+    session = SessionLocal()
+    try:
+        assets = session.query(Asset).filter(Asset.tier_number == tier_number).all()
+        return assets
+    finally:
+        session.close()
+
+def update_asset_amount(asset_name, new_amount):
+    session = SessionLocal()
+    try:
+        asset = session.query(Asset).filter(Asset.asset_name == asset_name).first()
+        if asset:
+            asset.amount = new_amount
+            asset.last_updated = datetime.utcnow()
+            session.commit()
+            return True
+        return False
+    finally:
+        session.close()
+```
+
+### Using psycopg2
+```python
+import psycopg2
+import os
+
+def get_asset_info(asset_name):
+    conn = psycopg2.connect(os.environ.get('ASSETS_DB_URI'))
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        SELECT asset_id, tier_number, asset_name, amount, price_per_unit, last_updated 
+        FROM assets 
+        WHERE asset_name = %s
+    """, (asset_name,))
+    
+    result = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    
+    return result
+```
+
+## Error Handling
+- Always handle `psycopg2.OperationalError` for connection issues
+- Handle `psycopg2.IntegrityError` for constraint violations
+- Use transactions for multi-step operations
+- Implement proper connection pooling for production
+
+## Performance Considerations
+- Use indexes for tier_number and asset_name queries
+- Consider connection pooling for high-traffic applications
+- Monitor query performance with EXPLAIN ANALYZE
+- Use prepared statements for repeated queries
+
+## Security Notes
+- No JWT authentication required (database service)
+- Use parameterized queries to prevent SQL injection
+- Validate input data before database operations
+- Use environment variables for sensitive configuration
+
+## Testing
+- Run tests: `cd tests && ./run_tests.sh`
+- Docker tests: `./test_assets_db_docker.sh`
+- SQL tests: `./test_assets_db_sql.sh`
+
+## Deployment
+- Kubernetes: `kubectl apply -f k8s/overlays/development/`
+- Skaffold: `skaffold dev --module assets-db`
+- Docker: `docker build -t assets-db .`

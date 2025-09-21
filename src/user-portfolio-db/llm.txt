@@ -1,0 +1,473 @@
+# User Portfolio Database Service - LLM Documentation
+
+## Overview
+The `user-portfolio-db` service is a PostgreSQL database that manages user portfolios with tier-based fund allocation for the Bank of Anthos application. It supports three-tier investment allocation with transaction tracking and analytics.
+
+## Database Connection
+- **Service Name**: `user-portfolio-db`
+- **Port**: `5432`
+- **Database**: `user-portfolio-db`
+- **Username**: `portfolio-admin`
+- **Password**: `portfolio-pwd`
+- **Connection URI**: `postgresql://portfolio-admin:portfolio-pwd@user-portfolio-db:5432/user-portfolio-db`
+
+## Environment Variables
+- `USER_PORTFOLIO_DB_URI`: Full database connection URI
+- `POSTGRES_DB`: Database name (user-portfolio-db)
+- `POSTGRES_USER`: Database username (portfolio-admin)
+- `POSTGRES_PASSWORD`: Database password (portfolio-pwd)
+
+## Database Schema
+
+### Table: `users`
+User account information (shared with accounts-db).
+
+#### Columns:
+- `accountid` (CHAR(10) PRIMARY KEY): Bank account number
+- `username` (VARCHAR(64) UNIQUE NOT NULL): Unique username
+- `passhash` (BYTEA NOT NULL): Hashed password
+- `firstname` (VARCHAR(64) NOT NULL): User's first name
+- `lastname` (VARCHAR(64) NOT NULL): User's last name
+- `birthday` (DATE NOT NULL): User's birth date
+- `timezone` (VARCHAR(8) NOT NULL): User's timezone
+- `address` (VARCHAR(64) NOT NULL): User's address
+- `state` (CHAR(2) NOT NULL): User's state
+- `zip` (VARCHAR(5) NOT NULL): User's ZIP code
+- `ssn` (CHAR(11) NOT NULL): Social Security Number
+
+### Table: `user_portfolios`
+Primary table storing user portfolio information with tier-based allocation.
+
+#### Columns:
+- `id` (UUID PRIMARY KEY): Unique portfolio identifier
+- `user_id` (UUID NOT NULL): Reference to user
+- `total_value` (NUMERIC(15,2) NOT NULL): Total portfolio value
+- `currency` (TEXT NOT NULL): Currency code (default: USD)
+- `tier1_allocation` (NUMERIC(5,2) NOT NULL): Tier 1 allocation percentage (0-100)
+- `tier2_allocation` (NUMERIC(5,2) NOT NULL): Tier 2 allocation percentage (0-100)
+- `tier3_allocation` (NUMERIC(5,2) NOT NULL): Tier 3 allocation percentage (0-100)
+- `tier1_value` (NUMERIC(15,2) NOT NULL): Tier 1 monetary value
+- `tier2_value` (NUMERIC(15,2) NOT NULL): Tier 2 monetary value
+- `tier3_value` (NUMERIC(15,2) NOT NULL): Tier 3 monetary value
+- `created_at` (TIMESTAMPTZ NOT NULL): Portfolio creation timestamp
+- `updated_at` (TIMESTAMPTZ NOT NULL): Last update timestamp
+
+#### Constraints:
+- `tier1_allocation + tier2_allocation + tier3_allocation = 100`
+- Each tier allocation must be between 0 and 100
+- Auto-updated timestamps
+
+### Table: `portfolio_transactions`
+Table tracking portfolio allocation changes and deposits/withdrawals.
+
+#### Columns:
+- `id` (UUID PRIMARY KEY): Unique transaction identifier
+- `portfolio_id` (UUID NOT NULL): Reference to user_portfolios
+- `transaction_type` (VARCHAR(20) NOT NULL): Type of transaction
+- `tier1_change` (NUMERIC(5,2) DEFAULT 0): Tier 1 allocation change
+- `tier2_change` (NUMERIC(5,2) DEFAULT 0): Tier 2 allocation change
+- `tier3_change` (NUMERIC(5,2) DEFAULT 0): Tier 3 allocation change
+- `total_amount` (NUMERIC(15,2) NOT NULL): Total transaction amount
+- `fees` (NUMERIC(10,2) DEFAULT 0): Transaction fees
+- `status` (VARCHAR(20) NOT NULL): Transaction status
+- `created_at` (TIMESTAMPTZ NOT NULL): Transaction creation timestamp
+- `updated_at` (TIMESTAMPTZ NOT NULL): Last update timestamp
+
+#### Transaction Types:
+- `ALLOCATION_CHANGE`: Change in tier allocation percentages
+- `DEPOSIT`: Add money to portfolio
+- `WITHDRAWAL`: Remove money from portfolio
+
+#### Status Values:
+- `PENDING`: Transaction is pending
+- `COMPLETED`: Transaction completed successfully
+- `FAILED`: Transaction failed
+- `CANCELLED`: Transaction was cancelled
+
+### Table: `portfolio_analytics`
+Table storing calculated portfolio metrics and analytics.
+
+#### Columns:
+- `id` (UUID PRIMARY KEY): Unique analytics record identifier
+- `portfolio_id` (UUID NOT NULL): Reference to user_portfolios
+- `total_value` (NUMERIC(15,2) NOT NULL): Total portfolio value
+- `total_invested` (NUMERIC(15,2) NOT NULL): Total amount invested
+- `total_gain_loss` (NUMERIC(15,2) NOT NULL): Total gain/loss
+- `gain_loss_percentage` (NUMERIC(8,4) NOT NULL): Gain/loss percentage
+- `risk_score` (NUMERIC(5,4) DEFAULT 0): Portfolio risk score
+- `calculated_at` (TIMESTAMPTZ NOT NULL): Analytics calculation timestamp
+
+### View: `portfolio_summary`
+Convenience view for portfolio information.
+
+## Common SQL Queries
+
+### Create User Portfolio
+```sql
+INSERT INTO user_portfolios (user_id, total_value, tier1_allocation, tier2_allocation, tier3_allocation, tier1_value, tier2_value, tier3_value) 
+VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+```
+
+### Get User Portfolio
+```sql
+SELECT id, user_id, total_value, currency, tier1_allocation, tier2_allocation, tier3_allocation, tier1_value, tier2_value, tier3_value, created_at, updated_at 
+FROM user_portfolios 
+WHERE user_id = ?;
+```
+
+### Update Portfolio Allocation
+```sql
+UPDATE user_portfolios 
+SET tier1_allocation = ?, tier2_allocation = ?, tier3_allocation = ?, 
+    tier1_value = ?, tier2_value = ?, tier3_value = ?, 
+    total_value = ?, updated_at = CURRENT_TIMESTAMP 
+WHERE id = ?;
+```
+
+### Add Portfolio Transaction
+```sql
+INSERT INTO portfolio_transactions (portfolio_id, transaction_type, tier1_change, tier2_change, tier3_change, total_amount, fees, status) 
+VALUES (?, ?, ?, ?, ?, ?, ?, 'PENDING');
+```
+
+### Get Portfolio Transactions
+```sql
+SELECT id, transaction_type, tier1_change, tier2_change, tier3_change, total_amount, fees, status, created_at 
+FROM portfolio_transactions 
+WHERE portfolio_id = ? 
+ORDER BY created_at DESC;
+```
+
+### Update Transaction Status
+```sql
+UPDATE portfolio_transactions 
+SET status = ?, updated_at = CURRENT_TIMESTAMP 
+WHERE id = ?;
+```
+
+### Get Portfolio Analytics
+```sql
+SELECT total_value, total_invested, total_gain_loss, gain_loss_percentage, risk_score, calculated_at 
+FROM portfolio_analytics 
+WHERE portfolio_id = ? 
+ORDER BY calculated_at DESC 
+LIMIT 1;
+```
+
+### Calculate Portfolio Balance
+```sql
+SELECT 
+    SUM(CASE WHEN transaction_type = 'DEPOSIT' THEN total_amount ELSE 0 END) as total_deposits,
+    SUM(CASE WHEN transaction_type = 'WITHDRAWAL' THEN total_amount ELSE 0 END) as total_withdrawals,
+    SUM(CASE WHEN transaction_type = 'DEPOSIT' THEN total_amount ELSE -total_amount END) as net_balance
+FROM portfolio_transactions 
+WHERE portfolio_id = ? AND status = 'COMPLETED';
+```
+
+## Python Integration Examples
+
+### Using SQLAlchemy
+```python
+from sqlalchemy import create_engine, Column, String, Numeric, DateTime, ForeignKey
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.dialects.postgresql import UUID
+import uuid
+import os
+
+# Database connection
+DATABASE_URI = os.environ.get('USER_PORTFOLIO_DB_URI', 'postgresql://portfolio-admin:portfolio-pwd@user-portfolio-db:5432/user-portfolio-db')
+engine = create_engine(DATABASE_URI)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
+
+class UserPortfolio(Base):
+    __tablename__ = "user_portfolios"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(UUID(as_uuid=True), nullable=False)
+    total_value = Column(Numeric(15, 2), nullable=False, default=0)
+    currency = Column(String, nullable=False, default='USD')
+    tier1_allocation = Column(Numeric(5, 2), nullable=False, default=0)
+    tier2_allocation = Column(Numeric(5, 2), nullable=False, default=0)
+    tier3_allocation = Column(Numeric(5, 2), nullable=False, default=0)
+    tier1_value = Column(Numeric(15, 2), nullable=False, default=0)
+    tier2_value = Column(Numeric(15, 2), nullable=False, default=0)
+    tier3_value = Column(Numeric(15, 2), nullable=False, default=0)
+    created_at = Column(DateTime(timezone=True))
+    updated_at = Column(DateTime(timezone=True))
+    
+    # Relationships
+    transactions = relationship("PortfolioTransaction", back_populates="portfolio")
+    analytics = relationship("PortfolioAnalytics", back_populates="portfolio")
+
+class PortfolioTransaction(Base):
+    __tablename__ = "portfolio_transactions"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    portfolio_id = Column(UUID(as_uuid=True), ForeignKey('user_portfolios.id'), nullable=False)
+    transaction_type = Column(String(20), nullable=False)
+    tier1_change = Column(Numeric(5, 2), default=0)
+    tier2_change = Column(Numeric(5, 2), default=0)
+    tier3_change = Column(Numeric(5, 2), default=0)
+    total_amount = Column(Numeric(15, 2), nullable=False)
+    fees = Column(Numeric(10, 2), default=0)
+    status = Column(String(20), nullable=False, default='PENDING')
+    created_at = Column(DateTime(timezone=True))
+    updated_at = Column(DateTime(timezone=True))
+    
+    # Relationships
+    portfolio = relationship("UserPortfolio", back_populates="transactions")
+
+class PortfolioAnalytics(Base):
+    __tablename__ = "portfolio_analytics"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    portfolio_id = Column(UUID(as_uuid=True), ForeignKey('user_portfolios.id'), nullable=False)
+    total_value = Column(Numeric(15, 2), nullable=False, default=0)
+    total_invested = Column(Numeric(15, 2), nullable=False, default=0)
+    total_gain_loss = Column(Numeric(15, 2), nullable=False, default=0)
+    gain_loss_percentage = Column(Numeric(8, 4), nullable=False, default=0)
+    risk_score = Column(Numeric(5, 4), default=0)
+    calculated_at = Column(DateTime(timezone=True))
+    
+    # Relationships
+    portfolio = relationship("UserPortfolio", back_populates="analytics")
+
+# Usage
+def create_portfolio(user_id, initial_allocation):
+    session = SessionLocal()
+    try:
+        portfolio = UserPortfolio(
+            user_id=user_id,
+            tier1_allocation=initial_allocation['tier1'],
+            tier2_allocation=initial_allocation['tier2'],
+            tier3_allocation=initial_allocation['tier3'],
+            total_value=0
+        )
+        session.add(portfolio)
+        session.commit()
+        return portfolio.id
+    finally:
+        session.close()
+
+def update_portfolio_allocation(portfolio_id, new_allocation, total_value):
+    session = SessionLocal()
+    try:
+        portfolio = session.query(UserPortfolio).filter(UserPortfolio.id == portfolio_id).first()
+        if portfolio:
+            # Calculate tier values based on new allocation
+            tier1_value = total_value * (new_allocation['tier1'] / 100)
+            tier2_value = total_value * (new_allocation['tier2'] / 100)
+            tier3_value = total_value * (new_allocation['tier3'] / 100)
+            
+            portfolio.tier1_allocation = new_allocation['tier1']
+            portfolio.tier2_allocation = new_allocation['tier2']
+            portfolio.tier3_allocation = new_allocation['tier3']
+            portfolio.tier1_value = tier1_value
+            portfolio.tier2_value = tier2_value
+            portfolio.tier3_value = tier3_value
+            portfolio.total_value = total_value
+            
+            session.commit()
+            return True
+        return False
+    finally:
+        session.close()
+
+def add_portfolio_transaction(portfolio_id, transaction_type, amount, tier_changes=None):
+    session = SessionLocal()
+    try:
+        transaction = PortfolioTransaction(
+            portfolio_id=portfolio_id,
+            transaction_type=transaction_type,
+            total_amount=amount,
+            tier1_change=tier_changes.get('tier1', 0) if tier_changes else 0,
+            tier2_change=tier_changes.get('tier2', 0) if tier_changes else 0,
+            tier3_change=tier_changes.get('tier3', 0) if tier_changes else 0
+        )
+        session.add(transaction)
+        session.commit()
+        return transaction.id
+    finally:
+        session.close()
+```
+
+### Using psycopg2
+```python
+import psycopg2
+import os
+import uuid
+from decimal import Decimal
+
+def get_user_portfolio(user_id):
+    conn = psycopg2.connect(os.environ.get('USER_PORTFOLIO_DB_URI'))
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        SELECT id, total_value, currency, tier1_allocation, tier2_allocation, tier3_allocation, 
+               tier1_value, tier2_value, tier3_value, created_at, updated_at 
+        FROM user_portfolios 
+        WHERE user_id = %s
+    """, (user_id,))
+    
+    result = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    
+    if result:
+        return {
+            'id': str(result[0]),
+            'total_value': float(result[1]),
+            'currency': result[2],
+            'tier1_allocation': float(result[3]),
+            'tier2_allocation': float(result[4]),
+            'tier3_allocation': float(result[5]),
+            'tier1_value': float(result[6]),
+            'tier2_value': float(result[7]),
+            'tier3_value': float(result[8]),
+            'created_at': result[9],
+            'updated_at': result[10]
+        }
+    return None
+
+def update_portfolio_allocation(portfolio_id, tier1_allocation, tier2_allocation, tier3_allocation, total_value):
+    conn = psycopg2.connect(os.environ.get('USER_PORTFOLIO_DB_URI'))
+    cursor = conn.cursor()
+    
+    try:
+        # Calculate tier values
+        tier1_value = total_value * (tier1_allocation / 100)
+        tier2_value = total_value * (tier2_allocation / 100)
+        tier3_value = total_value * (tier3_allocation / 100)
+        
+        cursor.execute("""
+            UPDATE user_portfolios 
+            SET tier1_allocation = %s, tier2_allocation = %s, tier3_allocation = %s,
+                tier1_value = %s, tier2_value = %s, tier3_value = %s,
+                total_value = %s, updated_at = CURRENT_TIMESTAMP 
+            WHERE id = %s
+        """, (tier1_allocation, tier2_allocation, tier3_allocation,
+              tier1_value, tier2_value, tier3_value, total_value, portfolio_id))
+        
+        conn.commit()
+        return cursor.rowcount > 0
+    except Exception as e:
+        conn.rollback()
+        raise e
+    finally:
+        cursor.close()
+        conn.close()
+
+def get_portfolio_transactions(portfolio_id, limit=50, offset=0):
+    conn = psycopg2.connect(os.environ.get('USER_PORTFOLIO_DB_URI'))
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        SELECT id, transaction_type, tier1_change, tier2_change, tier3_change, 
+               total_amount, fees, status, created_at 
+        FROM portfolio_transactions 
+        WHERE portfolio_id = %s 
+        ORDER BY created_at DESC 
+        LIMIT %s OFFSET %s
+    """, (portfolio_id, limit, offset))
+    
+    results = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    
+    return [{
+        'id': str(row[0]),
+        'transaction_type': row[1],
+        'tier1_change': float(row[2]),
+        'tier2_change': float(row[3]),
+        'tier3_change': float(row[4]),
+        'total_amount': float(row[5]),
+        'fees': float(row[6]),
+        'status': row[7],
+        'created_at': row[8]
+    } for row in results]
+```
+
+## Portfolio Management Patterns
+
+### Rebalance Portfolio
+```python
+def rebalance_portfolio(portfolio_id, new_allocation, total_value):
+    """Rebalance portfolio allocation while maintaining total value"""
+    # Validate allocation sums to 100%
+    if sum(new_allocation.values()) != 100:
+        raise ValueError("Allocation percentages must sum to 100%")
+    
+    # Update portfolio
+    success = update_portfolio_allocation(
+        portfolio_id, 
+        new_allocation['tier1'], 
+        new_allocation['tier2'], 
+        new_allocation['tier3'], 
+        total_value
+    )
+    
+    if success:
+        # Record allocation change transaction
+        add_portfolio_transaction(
+            portfolio_id, 
+            'ALLOCATION_CHANGE', 
+            total_value, 
+            new_allocation
+        )
+    
+    return success
+```
+
+### Process Deposit
+```python
+def process_deposit(portfolio_id, amount, allocation):
+    """Process a deposit with specified tier allocation"""
+    # Add transaction record
+    transaction_id = add_portfolio_transaction(
+        portfolio_id, 
+        'DEPOSIT', 
+        amount, 
+        allocation
+    )
+    
+    # Update portfolio values
+    # This would typically involve updating the portfolio's total_value
+    # and recalculating tier values based on the new allocation
+    
+    return transaction_id
+```
+
+## Error Handling
+- Always handle `psycopg2.OperationalError` for connection issues
+- Handle `psycopg2.IntegrityError` for constraint violations
+- Use transactions for multi-step operations
+- Validate allocation percentages sum to 100%
+- Implement proper rollback on failures
+
+## Performance Considerations
+- Use indexes for user_id and portfolio_id queries
+- Consider connection pooling for high-traffic applications
+- Use prepared statements for repeated queries
+- Monitor query performance with EXPLAIN ANALYZE
+- Consider caching for frequently accessed portfolio data
+
+## Security Notes
+- No JWT authentication required (database service)
+- Use parameterized queries to prevent SQL injection
+- Validate input data before database operations
+- Use environment variables for sensitive configuration
+- Implement proper UUID generation
+- Validate allocation constraints
+
+## Testing
+- Test portfolio creation and updates
+- Test transaction processing
+- Test allocation validation
+- Test analytics calculations
+
+## Deployment
+- Kubernetes: `kubectl apply -f k8s/overlays/development/`
+- Skaffold: `skaffold dev --module user-portfolio-db`
+- Docker: `docker build -t user-portfolio-db .`

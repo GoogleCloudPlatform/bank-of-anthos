@@ -1,0 +1,359 @@
+# Accounts Database Service - LLM Documentation
+
+## Overview
+The `accounts-db` service is a PostgreSQL database that stores bank user account data for the Bank of Anthos application. It manages user accounts, authentication, and contact information.
+
+## Database Connection
+- **Service Name**: `accounts-db`
+- **Port**: `5432`
+- **Database**: `accounts-db`
+- **Username**: `accounts-admin`
+- **Password**: `accounts-pwd`
+- **Connection URI**: `postgresql://accounts-admin:accounts-pwd@accounts-db:5432/accounts-db`
+
+## Environment Variables
+- `ACCOUNTS_DB_URI`: Full database connection URI
+- `POSTGRES_DB`: Database name (accounts-db)
+- `POSTGRES_USER`: Database username (accounts-admin)
+- `POSTGRES_PASSWORD`: Database password (accounts-pwd)
+
+## Database Schema
+
+### Table: `users`
+Primary table storing user account information.
+
+#### Columns:
+- `accountid` (CHAR(10) PRIMARY KEY): Bank account number
+- `username` (VARCHAR(64) UNIQUE NOT NULL): Unique username
+- `passhash` (BYTEA NOT NULL): Hashed password
+- `firstname` (VARCHAR(64) NOT NULL): User's first name
+- `lastname` (VARCHAR(64) NOT NULL): User's last name
+- `birthday` (DATE NOT NULL): User's birth date
+- `timezone` (VARCHAR(8) NOT NULL): User's timezone
+- `address` (VARCHAR(64) NOT NULL): User's address
+- `state` (CHAR(2) NOT NULL): User's state
+- `zip` (VARCHAR(5) NOT NULL): User's ZIP code
+- `ssn` (CHAR(11) NOT NULL): Social Security Number
+
+#### Indexes:
+- `idx_users_accountid`: Index on accountid for account lookups
+- `idx_users_username`: Index on username for username lookups
+
+### Table: `contacts`
+Table storing user contact information for transfers.
+
+#### Columns:
+- `username` (VARCHAR(64) NOT NULL): Reference to users.username
+- `label` (VARCHAR(128) NOT NULL): Contact label/name
+- `account_num` (CHAR(10) NOT NULL): Contact's account number
+- `routing_num` (CHAR(9) NOT NULL): Contact's routing number
+- `is_external` (BOOLEAN NOT NULL): Whether contact is external
+
+#### Foreign Keys:
+- `username` references `users(username)`
+
+#### Indexes:
+- `idx_contacts_username`: Index on username for user's contacts
+
+## Common SQL Queries
+
+### Get User by Username
+```sql
+SELECT accountid, username, firstname, lastname, birthday, timezone, address, state, zip, ssn 
+FROM users 
+WHERE username = ?;
+```
+
+### Get User by Account ID
+```sql
+SELECT accountid, username, firstname, lastname, birthday, timezone, address, state, zip, ssn 
+FROM users 
+WHERE accountid = ?;
+```
+
+### Verify User Credentials
+```sql
+SELECT accountid, username, passhash, firstname, lastname 
+FROM users 
+WHERE username = ?;
+```
+
+### Get User Contacts
+```sql
+SELECT label, account_num, routing_num, is_external 
+FROM contacts 
+WHERE username = ? 
+ORDER BY label;
+```
+
+### Add New Contact
+```sql
+INSERT INTO contacts (username, label, account_num, routing_num, is_external) 
+VALUES (?, ?, ?, ?, ?);
+```
+
+### Update User Information
+```sql
+UPDATE users 
+SET firstname = ?, lastname = ?, address = ?, state = ?, zip = ? 
+WHERE username = ?;
+```
+
+### Create New User
+```sql
+INSERT INTO users (accountid, username, passhash, firstname, lastname, birthday, timezone, address, state, zip, ssn) 
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+```
+
+### Delete Contact
+```sql
+DELETE FROM contacts 
+WHERE username = ? AND label = ? AND account_num = ?;
+```
+
+### Search Users by Name
+```sql
+SELECT accountid, username, firstname, lastname 
+FROM users 
+WHERE firstname ILIKE ? OR lastname ILIKE ?;
+```
+
+## Python Integration Examples
+
+### Using SQLAlchemy
+```python
+from sqlalchemy import create_engine, Column, String, Date, Boolean, ForeignKey
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker, relationship
+import os
+import bcrypt
+
+# Database connection
+DATABASE_URI = os.environ.get('ACCOUNTS_DB_URI', 'postgresql://accounts-admin:accounts-pwd@accounts-db:5432/accounts-db')
+engine = create_engine(DATABASE_URI)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
+
+class User(Base):
+    __tablename__ = "users"
+    
+    accountid = Column(String(10), primary_key=True)
+    username = Column(String(64), unique=True, nullable=False)
+    passhash = Column(String, nullable=False)  # BYTEA in PostgreSQL
+    firstname = Column(String(64), nullable=False)
+    lastname = Column(String(64), nullable=False)
+    birthday = Column(Date, nullable=False)
+    timezone = Column(String(8), nullable=False)
+    address = Column(String(64), nullable=False)
+    state = Column(String(2), nullable=False)
+    zip = Column(String(5), nullable=False)
+    ssn = Column(String(11), nullable=False)
+    
+    # Relationship
+    contacts = relationship("Contact", back_populates="user")
+
+class Contact(Base):
+    __tablename__ = "contacts"
+    
+    username = Column(String(64), ForeignKey('users.username'), nullable=False)
+    label = Column(String(128), nullable=False)
+    account_num = Column(String(10), nullable=False)
+    routing_num = Column(String(9), nullable=False)
+    is_external = Column(Boolean, nullable=False)
+    
+    # Relationship
+    user = relationship("User", back_populates="contacts")
+
+# Usage
+def authenticate_user(username, password):
+    session = SessionLocal()
+    try:
+        user = session.query(User).filter(User.username == username).first()
+        if user and bcrypt.checkpw(password.encode('utf-8'), user.passhash):
+            return {
+                'accountid': user.accountid,
+                'username': user.username,
+                'firstname': user.firstname,
+                'lastname': user.lastname
+            }
+        return None
+    finally:
+        session.close()
+
+def get_user_contacts(username):
+    session = SessionLocal()
+    try:
+        contacts = session.query(Contact).filter(Contact.username == username).all()
+        return [{
+            'label': c.label,
+            'account_num': c.account_num,
+            'routing_num': c.routing_num,
+            'is_external': c.is_external
+        } for c in contacts]
+    finally:
+        session.close()
+
+def create_user(accountid, username, password, firstname, lastname, birthday, timezone, address, state, zip_code, ssn):
+    session = SessionLocal()
+    try:
+        passhash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+        user = User(
+            accountid=accountid,
+            username=username,
+            passhash=passhash,
+            firstname=firstname,
+            lastname=lastname,
+            birthday=birthday,
+            timezone=timezone,
+            address=address,
+            state=state,
+            zip=zip_code,
+            ssn=ssn
+        )
+        session.add(user)
+        session.commit()
+        return True
+    except Exception as e:
+        session.rollback()
+        return False
+    finally:
+        session.close()
+```
+
+### Using psycopg2
+```python
+import psycopg2
+import os
+import bcrypt
+
+def get_user_by_username(username):
+    conn = psycopg2.connect(os.environ.get('ACCOUNTS_DB_URI'))
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        SELECT accountid, username, firstname, lastname, birthday, timezone, address, state, zip, ssn 
+        FROM users 
+        WHERE username = %s
+    """, (username,))
+    
+    result = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    
+    if result:
+        return {
+            'accountid': result[0],
+            'username': result[1],
+            'firstname': result[2],
+            'lastname': result[3],
+            'birthday': result[4],
+            'timezone': result[5],
+            'address': result[6],
+            'state': result[7],
+            'zip': result[8],
+            'ssn': result[9]
+        }
+    return None
+
+def add_contact(username, label, account_num, routing_num, is_external):
+    conn = psycopg2.connect(os.environ.get('ACCOUNTS_DB_URI'))
+    cursor = conn.cursor()
+    
+    try:
+        cursor.execute("""
+            INSERT INTO contacts (username, label, account_num, routing_num, is_external) 
+            VALUES (%s, %s, %s, %s, %s)
+        """, (username, label, account_num, routing_num, is_external))
+        
+        conn.commit()
+        return True
+    except psycopg2.IntegrityError:
+        conn.rollback()
+        return False
+    finally:
+        cursor.close()
+        conn.close()
+
+def verify_password(username, password):
+    conn = psycopg2.connect(os.environ.get('ACCOUNTS_DB_URI'))
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        SELECT passhash FROM users WHERE username = %s
+    """, (username,))
+    
+    result = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    
+    if result:
+        stored_hash = result[0]
+        return bcrypt.checkpw(password.encode('utf-8'), stored_hash)
+    return False
+```
+
+## Authentication Patterns
+
+### Password Hashing
+```python
+import bcrypt
+
+def hash_password(password):
+    """Hash a password for storing"""
+    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
+def verify_password(password, hashed):
+    """Verify a password against its hash"""
+    return bcrypt.checkpw(password.encode('utf-8'), hashed)
+```
+
+### User Registration
+```python
+def register_user(user_data):
+    """Register a new user with validation"""
+    # Validate required fields
+    required_fields = ['accountid', 'username', 'password', 'firstname', 'lastname', 'birthday', 'timezone', 'address', 'state', 'zip', 'ssn']
+    for field in required_fields:
+        if not user_data.get(field):
+            raise ValueError(f"Missing required field: {field}")
+    
+    # Hash password
+    user_data['passhash'] = hash_password(user_data['password'])
+    del user_data['password']  # Remove plaintext password
+    
+    # Create user
+    return create_user(**user_data)
+```
+
+## Error Handling
+- Always handle `psycopg2.OperationalError` for connection issues
+- Handle `psycopg2.IntegrityError` for constraint violations (duplicate username, etc.)
+- Use transactions for multi-step operations
+- Implement proper password hashing and verification
+- Validate input data before database operations
+
+## Performance Considerations
+- Use indexes for username and accountid queries
+- Consider connection pooling for high-traffic applications
+- Use prepared statements for repeated queries
+- Implement proper password hashing (bcrypt with appropriate rounds)
+- Consider caching for frequently accessed user data
+
+## Security Notes
+- No JWT authentication required (database service)
+- Use parameterized queries to prevent SQL injection
+- Always hash passwords before storing
+- Validate and sanitize all input data
+- Use environment variables for sensitive configuration
+- Implement proper password policies
+
+## Testing
+- Run tests: `cd tests && ./run_tests.sh`
+- Test user creation and authentication
+- Test contact management
+- Test data validation and constraints
+
+## Deployment
+- Kubernetes: `kubectl apply -f k8s/overlays/development/`
+- Skaffold: `skaffold dev --module accounts-db`
+- Docker: `docker build -t accounts-db .`
