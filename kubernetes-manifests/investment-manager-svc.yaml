@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: investment-manager-svc
+  labels:
+    app: investment-manager-svc
+spec:
+  selector:
+    app: investment-manager-svc
+  ports:
+  - port: 8080
+    targetPort: 8080
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: investment-manager-svc
+  labels:
+    app: investment-manager-svc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: investment-manager-svc
+  template:
+    metadata:
+      labels:
+        app: investment-manager-svc
+    spec:
+      containers:
+      - name: investment-manager-svc
+        image: investment-manager-svc:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: PORT
+          value: "8080"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5

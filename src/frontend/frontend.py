@@ -613,6 +613,186 @@ def create_app():
         resp.delete_cookie(app.config['CONSENT_COOKIE'])
         return resp
 
+    @app.route('/portfolio')
+    def portfolio():
+        """
+        Renders portfolio page. Redirects to /login if token is not valid
+        """
+        token = request.cookies.get(app.config['TOKEN_NAME'])
+        if not verify_token(token):
+            # user isn't authenticated
+            app.logger.debug('User isn\'t authenticated. Redirecting to login page.')
+            return redirect(url_for('login_page',
+                                    _external=True,
+                                    _scheme=app.config['SCHEME']))
+        
+        token_data = decode_token(token)
+        display_name = token_data['name']
+        username = token_data['user']
+        account_id = token_data['acct']
+
+        hed = {'Authorization': 'Bearer ' + token}
+
+        # Fetch portfolio data from investment-manager-svc
+        portfolio_data = None
+        portfolio_transactions = []
+        
+        try:
+            # Get portfolio information
+            portfolio_response = requests.get(
+                f'{app.config["INVESTMENT_MANAGER_URI"]}/portfolio/{account_id}',
+                headers=hed,
+                timeout=app.config['BACKEND_TIMEOUT']
+            )
+            if portfolio_response.status_code == 200:
+                portfolio_data = portfolio_response.json()
+            
+            # Get portfolio transactions
+            transactions_response = requests.get(
+                f'{app.config["INVESTMENT_MANAGER_URI"]}/portfolio/{account_id}/transactions',
+                headers=hed,
+                timeout=app.config['BACKEND_TIMEOUT']
+            )
+            if transactions_response.status_code == 200:
+                portfolio_transactions = transactions_response.json()
+                
+        except requests.exceptions.RequestException as err:
+            app.logger.error('Error fetching portfolio data: %s', str(err))
+
+        return render_template('portfolio.html',
+                               account_id=account_id,
+                               portfolio=portfolio_data,
+                               transactions=portfolio_transactions,
+                               bank_name=os.getenv('BANK_NAME', 'Bank of Anthos'),
+                               cluster_name=cluster_name,
+                               cymbal_logo=os.getenv('CYMBAL_LOGO', 'false'),
+                               message=request.args.get('msg', None),
+                               name=display_name,
+                               platform=platform,
+                               platform_display_name=platform_display_name,
+                               pod_name=pod_name,
+                               pod_zone=pod_zone)
+
+    @app.route('/portfolio/invest', methods=['POST'])
+    def portfolio_invest():
+        """
+        Handles investment requests
+        """
+        token = request.cookies.get(app.config['TOKEN_NAME'])
+        if not verify_token(token):
+            app.logger.error('Error processing investment: user is not authenticated.')
+            return abort(401)
+        
+        try:
+            account_id = decode_token(token)['acct']
+            amount = float(request.form['amount'])
+            
+            if amount <= 0:
+                return redirect(url_for('portfolio',
+                                        msg='Invalid investment amount',
+                                        _external=True,
+                                        _scheme=app.config['SCHEME']))
+            
+            hed = {'Authorization': 'Bearer ' + token}
+            investment_data = {
+                "account_number": account_id,
+                "amount": amount
+            }
+            
+            # Call investment-manager-svc to process investment
+            response = requests.post(
+                f'{app.config["INVESTMENT_MANAGER_URI"]}/invest',
+                json=investment_data,
+                headers=hed,
+                timeout=app.config['BACKEND_TIMEOUT']
+            )
+            
+            if response.status_code == 200:
+                app.logger.info('Investment processed successfully.')
+                return redirect(url_for('portfolio',
+                                        msg='Investment successful',
+                                        _external=True,
+                                        _scheme=app.config['SCHEME']))
+            else:
+                app.logger.error('Investment failed: %s', response.text)
+                return redirect(url_for('portfolio',
+                                        msg='Investment failed',
+                                        _external=True,
+                                        _scheme=app.config['SCHEME']))
+                                        
+        except requests.exceptions.RequestException as err:
+            app.logger.error('Error processing investment: %s', str(err))
+            return redirect(url_for('portfolio',
+                                    msg='Investment processing error',
+                                    _external=True,
+                                    _scheme=app.config['SCHEME']))
+        except (ValueError, KeyError) as err:
+            app.logger.error('Invalid investment data: %s', str(err))
+            return redirect(url_for('portfolio',
+                                    msg='Invalid investment data',
+                                    _external=True,
+                                    _scheme=app.config['SCHEME']))
+
+    @app.route('/portfolio/withdraw', methods=['POST'])
+    def portfolio_withdraw():
+        """
+        Handles withdrawal requests
+        """
+        token = request.cookies.get(app.config['TOKEN_NAME'])
+        if not verify_token(token):
+            app.logger.error('Error processing withdrawal: user is not authenticated.')
+            return abort(401)
+        
+        try:
+            account_id = decode_token(token)['acct']
+            amount = float(request.form['amount'])
+            
+            if amount <= 0:
+                return redirect(url_for('portfolio',
+                                        msg='Invalid withdrawal amount',
+                                        _external=True,
+                                        _scheme=app.config['SCHEME']))
+            
+            hed = {'Authorization': 'Bearer ' + token}
+            withdrawal_data = {
+                "account_number": account_id,
+                "amount": amount
+            }
+            
+            # Call investment-manager-svc to process withdrawal
+            response = requests.post(
+                f'{app.config["INVESTMENT_MANAGER_URI"]}/withdraw',
+                json=withdrawal_data,
+                headers=hed,
+                timeout=app.config['BACKEND_TIMEOUT']
+            )
+            
+            if response.status_code == 200:
+                app.logger.info('Withdrawal processed successfully.')
+                return redirect(url_for('portfolio',
+                                        msg='Withdrawal successful',
+                                        _external=True,
+                                        _scheme=app.config['SCHEME']))
+            else:
+                app.logger.error('Withdrawal failed: %s', response.text)
+                return redirect(url_for('portfolio',
+                                        msg='Withdrawal failed',
+                                        _external=True,
+                                        _scheme=app.config['SCHEME']))
+                                        
+        except requests.exceptions.RequestException as err:
+            app.logger.error('Error processing withdrawal: %s', str(err))
+            return redirect(url_for('portfolio',
+                                    msg='Withdrawal processing error',
+                                    _external=True,
+                                    _scheme=app.config['SCHEME']))
+        except (ValueError, KeyError) as err:
+            app.logger.error('Invalid withdrawal data: %s', str(err))
+            return redirect(url_for('portfolio',
+                                    msg='Invalid withdrawal data',
+                                    _external=True,
+                                    _scheme=app.config['SCHEME']))
+
     def decode_token(token):
         return jwt.decode(algorithms='RS256',
                           jwt=token,
@@ -671,6 +851,8 @@ def create_app():
         os.environ.get('USERSERVICE_API_ADDR'))
     app.config["CONTACTS_URI"] = 'http://{}/contacts'.format(
         os.environ.get('CONTACTS_API_ADDR'))
+    app.config["INVESTMENT_MANAGER_URI"] = 'http://{}/api/v1'.format(
+        os.environ.get('INVESTMENT_MANAGER_API_ADDR', 'investment-manager-svc:8080'))
     app.config['PUBLIC_KEY'] = open(os.environ.get('PUB_KEY_PATH'), 'r').read()
     app.config['LOCAL_ROUTING'] = os.getenv('LOCAL_ROUTING_NUM')
     # timeout in seconds for calls to the backend

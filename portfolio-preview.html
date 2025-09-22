@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank of Anthos - Portfolio Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        .card-button { 
+            cursor: pointer; 
+            transition: all 0.3s; 
+            border: 1px solid #dee2e6;
+        }
+        .card-button:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
+        }
+        .tier-card { 
+            border-left: 4px solid; 
+        }
+        .tier-1 { border-left-color: #007bff; }
+        .tier-2 { border-left-color: #ffc107; }
+        .tier-3 { border-left-color: #dc3545; }
+        .navbar-brand { font-weight: bold; }
+        .portfolio-value { font-size: 2.5rem; font-weight: bold; color: #007bff; }
+        .tier-value { font-size: 1.5rem; font-weight: bold; }
+        .tier-allocation { color: #6c757d; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">account_balance</span>
+                Bank of Anthos
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="#home">
+                    <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">home</span>
+                    Home
+                </a>
+                <a class="nav-link active" href="#portfolio">
+                    <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">trending_up</span>
+                    Portfolio
+                </a>
+                <a class="nav-link" href="#logout">
+                    <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">logout</span>
+                    Sign Out
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mt-4">
+        <!-- Portfolio Overview -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h4 class="card-title">Portfolio Overview</h4>
+                                <p class="text-muted">Total Portfolio Value: <span class="portfolio-value">$10,000.00</span></p>
+                            </div>
+                            <div class="col-auto">
+                                <span class="material-icons text-primary" style="font-size: 3rem;">account_balance</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tier Allocations -->
+        <div class="row mb-4">
+            <div class="col-lg-4 mb-3">
+                <div class="card tier-card tier-1">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h5 class="card-title text-primary">Tier 1 (Conservative)</h5>
+                                <p class="tier-allocation">Allocation: 60.0%</p>
+                                <p class="tier-value text-primary">$6,000.00</p>
+                            </div>
+                            <div class="col-auto">
+                                <span class="material-icons text-primary" style="font-size: 2rem;">security</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 mb-3">
+                <div class="card tier-card tier-2">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h5 class="card-title text-warning">Tier 2 (Moderate)</h5>
+                                <p class="tier-allocation">Allocation: 30.0%</p>
+                                <p class="tier-value text-warning">$3,000.00</p>
+                            </div>
+                            <div class="col-auto">
+                                <span class="material-icons text-warning" style="font-size: 2rem;">trending_up</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 mb-3">
+                <div class="card tier-card tier-3">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h5 class="card-title text-danger">Tier 3 (Aggressive)</h5>
+                                <p class="tier-allocation">Allocation: 10.0%</p>
+                                <p class="tier-value text-danger">$1,000.00</p>
+                            </div>
+                            <div class="col-auto">
+                                <span class="material-icons text-danger" style="font-size: 2rem;">rocket_launch</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="row mb-4">
+            <div class="col-lg-6 mb-3">
+                <div class="card card-button" data-bs-toggle="modal" data-bs-target="#investModal">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h5 class="mb-0">Invest More</h5>
+                                <small class="text-muted">Add funds to your portfolio</small>
+                            </div>
+                            <div class="col-auto">
+                                <span class="material-icons text-success" style="font-size: 2rem;">add_circle</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6 mb-3">
+                <div class="card card-button" data-bs-toggle="modal" data-bs-target="#withdrawModal">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h5 class="mb-0">Withdraw Funds</h5>
+                                <small class="text-muted">Remove funds from your portfolio</small>
+                            </div>
+                            <div class="col-auto">
+                                <span class="material-icons text-warning" style="font-size: 2rem;">remove_circle</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transaction History -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title mb-0">Portfolio Transactions</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Type</th>
+                                        <th>Amount</th>
+                                        <th>Tier 1</th>
+                                        <th>Tier 2</th>
+                                        <th>Tier 3</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Jan 02</td>
+                                        <td><span class="text-success">●</span> Investment</td>
+                                        <td><span class="text-success">+$5,000.00</span></td>
+                                        <td class="text-muted">$3,000.00</td>
+                                        <td class="text-muted">$1,500.00</td>
+                                        <td class="text-muted">$500.00</td>
+                                        <td><span class="badge bg-success">Completed</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Jan 01</td>
+                                        <td><span class="text-success">●</span> Investment</td>
+                                        <td><span class="text-success">+$5,000.00</span></td>
+                                        <td class="text-muted">$3,000.00</td>
+                                        <td class="text-muted">$1,500.00</td>
+                                        <td class="text-muted">$500.00</td>
+                                        <td><span class="badge bg-success">Completed</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Invest Modal -->
+    <div class="modal fade" id="investModal" tabindex="-1" aria-labelledby="investModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="investModalLabel">Invest Funds</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="investAmount" class="form-label">Investment Amount</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" class="form-control" id="investAmount" step="0.01" min="0.01" placeholder="1000.00">
+                        </div>
+                        <div class="form-text">Enter the amount you want to invest. Funds will be allocated across tiers based on your risk profile.</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" onclick="showAlert('Investment submitted! (Demo mode)')">Invest</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Withdraw Modal -->
+    <div class="modal fade" id="withdrawModal" tabindex="-1" aria-labelledby="withdrawModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="withdrawModalLabel">Withdraw Funds</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="withdrawAmount" class="form-label">Withdrawal Amount</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" class="form-control" id="withdrawAmount" step="0.01" min="0.01" placeholder="500.00">
+                        </div>
+                        <div class="form-text">Enter the amount you want to withdraw from your portfolio.</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-warning" onclick="showAlert('Withdrawal submitted! (Demo mode)')">Withdraw</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Toast -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="alertToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <span class="material-icons text-success me-2">check_circle</span>
+                <strong class="me-auto">Success</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body" id="toastMessage">
+                Action completed successfully!
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function showAlert(message) {
+            document.getElementById('toastMessage').textContent = message;
+            const toast = new bootstrap.Toast(document.getElementById('alertToast'));
+            toast.show();
+        }
+    </script>
+</body>
+</html>

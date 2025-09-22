@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  investment-manager-svc:
+    build:
+      context: ./src/investment-manager-svc
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8080"
+    environment:
+      - PORT=8080
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./src/frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - INVESTMENT_MANAGER_API_ADDR=investment-manager-svc:8080
+      - BALANCES_API_ADDR=localhost:8080
+      - HISTORY_API_ADDR=localhost:8080
+      - CONTACTS_API_ADDR=localhost:8080
+      - USERSERVICE_API_ADDR=localhost:8080
+      - TRANSACTIONS_API_ADDR=localhost:8080
+      - LOCAL_ROUTING_NUM=123456789
+      - SCHEME=http
+      - BANK_NAME=Bank of Anthos
+      - CYMBAL_LOGO=false
+      - CLUSTER_NAME=local
+      - PLATFORM=gcp
+      - PLATFORM_DISPLAY_NAME=Google Cloud Platform
+      - POD_NAME=frontend-local
+      - POD_ZONE=local
+      - METADATA_SERVER=metadata.google.internal
+      - PUB_KEY_PATH=/app/keys/jwtRS256.key.pub
+    depends_on:
+      investment-manager-svc:
+        condition: service_healthy
+    volumes:
+      - ./keys:/app/keys:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 3

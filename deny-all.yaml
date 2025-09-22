@@ -1,9 +1,0 @@
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: deny-all
-  namespace: bank-of-anthos
-spec:
-  podSelector: {}     # applies to ALL pods in this namespace
-  policyTypes:
-  - Ingress           # affects incoming traffic
