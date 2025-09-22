@@ -1,0 +1,15 @@
+FROM postgres:16.6-alpine
+
+# Install postgresql-client for testing
+RUN apk add --no-cache postgresql-client
+
+# Copy schema files
+COPY initdb/0-queue-schema.sql /docker-entrypoint-initdb.d/0-queue-schema.sql
+
+# Set environment variables
+ENV POSTGRES_DB=queue-db
+ENV POSTGRES_USER=queue-admin
+ENV POSTGRES_PASSWORD=queue-pwd
+
+# Expose port
+EXPOSE 5432

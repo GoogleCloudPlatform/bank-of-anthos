@@ -1,7 +1,7 @@
 # Queue Database Service - LLM Documentation
 
 ## Overview
-The `queue-db` service is a PostgreSQL database that stores investment and withdrawal requests for the Bank of Anthos portfolio management system. It acts as a queue for processing tier-based investment operations.
+The `queue-db` service is a PostgreSQL database that stores investment and withdrawal requests for the Bank of Anthos portfolio management system. It provides separate queues for investment and withdrawal operations with UUID consistency across both queues.
 
 ## Database Connection
 - **Service Name**: `queue-db`
@@ -20,30 +20,52 @@ The `queue-db` service is a PostgreSQL database that stores investment and withd
 ## Database Schema
 
 ### Table: `investment_queue`
-Primary table storing investment and withdrawal requests.
+Primary table storing investment requests.
 
-#### Columns:
+### Table: `withdrawal_queue`
+Primary table storing withdrawal requests.
+
+Both tables have identical structure for consistency.
+
+#### Columns (Both Tables):
 - `queue_id` (SERIAL PRIMARY KEY): Auto-incrementing unique identifier
 - `account_number` (VARCHAR(20) NOT NULL): Bank account number making the request
-- `tier_1` (DECIMAL(20, 8) NOT NULL): Amount to add/remove from Tier 1
-- `tier_2` (DECIMAL(20, 8) NOT NULL): Amount to add/remove from Tier 2
-- `tier_3` (DECIMAL(20, 8) NOT NULL): Amount to add/remove from Tier 3
+- `tier_1` (DECIMAL(20, 8) NOT NULL): Amount for Tier 1 (Conservative investments)
+- `tier_2` (DECIMAL(20, 8) NOT NULL): Amount for Tier 2 (Moderate investments)
+- `tier_3` (DECIMAL(20, 8) NOT NULL): Amount for Tier 3 (Aggressive investments)
 - `uuid` (VARCHAR(36) UNIQUE NOT NULL): Unique identifier for the queue entry
 - `status` (VARCHAR(20) NOT NULL): Processing status
 - `created_at` (TIMESTAMP WITH TIME ZONE): When request was created
 - `updated_at` (TIMESTAMP WITH TIME ZONE): When request was last updated
 - `processed_at` (TIMESTAMP WITH TIME ZONE): When request was processed
 
+#### Investment Queue Specifics:
+- `tier_1`, `tier_2`, `tier_3`: Positive amounts representing investments to add
+- Purpose: Queue for processing investment requests
+
+#### Withdrawal Queue Specifics:
+- `tier_1`, `tier_2`, `tier_3`: Positive amounts representing withdrawals to process
+- Purpose: Queue for processing withdrawal requests
+
 #### Constraints:
 - `status` must be one of: PENDING, PROCESSING, COMPLETED, FAILED, CANCELLED
 - `uuid` must match UUID format regex
-- `uuid` must be unique
+- `uuid` must be unique within each table
+- UUID consistency validation across both tables
+- Tier amounts must be non-negative (positive values only)
 
 #### Indexes:
-- `idx_queue_account`: Index on account_number for account-based queries
-- `idx_queue_uuid`: Index on uuid for UUID lookups
-- `idx_queue_status`: Index on status for status-based queries
-- `idx_queue_created`: Index on created_at for time-based queries
+**Investment Queue:**
+- `idx_investment_queue_account`: Index on account_number for account-based queries
+- `idx_investment_queue_uuid`: Index on uuid for UUID lookups
+- `idx_investment_queue_status`: Index on status for status-based queries
+- `idx_investment_queue_created`: Index on created_at for time-based queries
+
+**Withdrawal Queue:**
+- `idx_withdrawal_queue_account`: Index on account_number for account-based queries
+- `idx_withdrawal_queue_uuid`: Index on uuid for UUID lookups
+- `idx_withdrawal_queue_status`: Index on status for status-based queries
+- `idx_withdrawal_queue_created`: Index on created_at for time-based queries
 
 ## Status Values
 - **PENDING**: Request is waiting to be processed
@@ -53,19 +75,43 @@ Primary table storing investment and withdrawal requests.
 - **CANCELLED**: Request was cancelled
 
 ## Tier Investment Types
-- **Tier 1**: Cryptocurrencies - Immediate settlement
-- **Tier 2**: ETFs/Stocks - 36-48 hour settlement
-- **Tier 3**: Alternative Investments - Longer settlement
+- **Tier 1**: Conservative investments - Immediate settlement
+- **Tier 2**: Moderate investments - 36-48 hour settlement
+- **Tier 3**: Aggressive investments - Longer settlement
+
+## UUID Consistency
+The database ensures UUID consistency across both investment and withdrawal queues:
+
+### UUID Generation
+- Use `generate_queue_uuid()` function for consistent UUID generation
+- UUIDs are unique across both tables
+- UUID format validation ensures proper structure
+
+### UUID Validation
+- `validate_uuid_consistency()` function checks UUID uniqueness
+- Prevents duplicate UUIDs across different queue types
+- Ensures proper queue type association
+
+### Best Practices
+- Generate UUID at request origination point
+- Use same UUID for related investment/withdrawal operations
+- Validate UUID before inserting into queues
 
 ## Common SQL Queries
 
-### Add New Queue Entry
+### Add New Investment Entry
 ```sql
 INSERT INTO investment_queue (account_number, tier_1, tier_2, tier_3, uuid, status) 
 VALUES (?, ?, ?, ?, ?, 'PENDING');
 ```
 
-### Get Pending Requests
+### Add New Withdrawal Entry
+```sql
+INSERT INTO withdrawal_queue (account_number, tier_1, tier_2, tier_3, uuid, status) 
+VALUES (?, ?, ?, ?, ?, 'PENDING');
+```
+
+### Get Pending Investment Requests
 ```sql
 SELECT queue_id, account_number, tier_1, tier_2, tier_3, uuid, created_at 
 FROM investment_queue 
@@ -73,14 +119,29 @@ WHERE status = 'PENDING'
 ORDER BY created_at ASC;
 ```
 
-### Update Request Status
+### Get Pending Withdrawal Requests
+```sql
+SELECT queue_id, account_number, tier_1, tier_2, tier_3, uuid, created_at 
+FROM withdrawal_queue 
+WHERE status = 'PENDING' 
+ORDER BY created_at ASC;
+```
+
+### Update Investment Request Status
 ```sql
 UPDATE investment_queue 
 SET status = ?, updated_at = CURRENT_TIMESTAMP, processed_at = ? 
 WHERE uuid = ?;
 ```
 
-### Get Requests by Account
+### Update Withdrawal Request Status
+```sql
+UPDATE withdrawal_queue 
+SET status = ?, updated_at = CURRENT_TIMESTAMP, processed_at = ? 
+WHERE uuid = ?;
+```
+
+### Get Investment Requests by Account
 ```sql
 SELECT queue_id, tier_1, tier_2, tier_3, status, created_at, processed_at 
 FROM investment_queue 
@@ -88,27 +149,51 @@ WHERE account_number = ?
 ORDER BY created_at DESC;
 ```
 
-### Get Request by UUID
+### Get Withdrawal Requests by Account
 ```sql
-SELECT queue_id, account_number, tier_1, tier_2, tier_3, status, created_at, updated_at, processed_at 
+SELECT queue_id, tier_1, tier_2, tier_3, status, created_at, processed_at 
+FROM withdrawal_queue 
+WHERE account_number = ? 
+ORDER BY created_at DESC;
+```
+
+### Get Request by UUID (Both Tables)
+```sql
+-- Check investment queue first
+SELECT 'investment' as queue_type, queue_id, account_number, tier_1, tier_2, tier_3, status, created_at, updated_at, processed_at 
 FROM investment_queue 
+WHERE uuid = ?
+UNION ALL
+-- Check withdrawal queue
+SELECT 'withdrawal' as queue_type, queue_id, account_number, tier_1, tier_2, tier_3, status, created_at, updated_at, processed_at 
+FROM withdrawal_queue 
 WHERE uuid = ?;
 ```
 
-### Get Queue Statistics
+### Get Combined Queue Statistics
 ```sql
 SELECT 
+    'investment' as queue_type,
     status,
     COUNT(*) as count,
-    SUM(ABS(tier_1) + ABS(tier_2) + ABS(tier_3)) as total_amount
+    SUM(tier_1 + tier_2 + tier_3) as total_amount
 FROM investment_queue 
 GROUP BY status 
-ORDER BY status;
+UNION ALL
+SELECT 
+    'withdrawal' as queue_type,
+    status,
+    COUNT(*) as count,
+    SUM(tier_1 + tier_2 + tier_3) as total_amount
+FROM withdrawal_queue 
+GROUP BY status 
+ORDER BY queue_type, status;
 ```
 
-### Get Processing History
+### Get Processing History (Both Queues)
 ```sql
 SELECT 
+    'investment' as queue_type,
     account_number,
     tier_1,
     tier_2,
@@ -118,6 +203,19 @@ SELECT
     processed_at,
     EXTRACT(EPOCH FROM (processed_at - created_at)) as processing_time_seconds
 FROM investment_queue 
+WHERE status IN ('COMPLETED', 'FAILED')
+UNION ALL
+SELECT 
+    'withdrawal' as queue_type,
+    account_number,
+    tier_1,
+    tier_2,
+    tier_3,
+    status,
+    created_at,
+    processed_at,
+    EXTRACT(EPOCH FROM (processed_at - created_at)) as processing_time_seconds
+FROM withdrawal_queue 
 WHERE status IN ('COMPLETED', 'FAILED')
 ORDER BY processed_at DESC;
 ```
@@ -131,6 +229,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import os
 import uuid
+from datetime import datetime
 
 # Database connection
 DATABASE_URI = os.environ.get('QUEUE_DB_URI', 'postgresql://queue-admin:queue-pwd@queue-db:5432/queue-db')
@@ -140,6 +239,20 @@ Base = declarative_base()
 
 class InvestmentQueue(Base):
     __tablename__ = "investment_queue"
+    
+    queue_id = Column(Integer, primary_key=True)
+    account_number = Column(String(20), nullable=False)
+    tier_1 = Column(Numeric(20, 8), nullable=False)
+    tier_2 = Column(Numeric(20, 8), nullable=False)
+    tier_3 = Column(Numeric(20, 8), nullable=False)
+    uuid = Column(String(36), unique=True, nullable=False)
+    status = Column(String(20), nullable=False, default='PENDING')
+    created_at = Column(DateTime(timezone=True))
+    updated_at = Column(DateTime(timezone=True))
+    processed_at = Column(DateTime(timezone=True))
+
+class WithdrawalQueue(Base):
+    __tablename__ = "withdrawal_queue"
     
     queue_id = Column(Integer, primary_key=True)
     account_number = Column(String(20), nullable=False)
@@ -170,7 +283,24 @@ def add_investment_request(account_number, tier_1, tier_2, tier_3):
     finally:
         session.close()
 
-def get_pending_requests():
+def add_withdrawal_request(account_number, tier_1, tier_2, tier_3):
+    session = SessionLocal()
+    try:
+        request_uuid = str(uuid.uuid4())
+        request = WithdrawalQueue(
+            account_number=account_number,
+            tier_1=tier_1,
+            tier_2=tier_2,
+            tier_3=tier_3,
+            uuid=request_uuid
+        )
+        session.add(request)
+        session.commit()
+        return request_uuid
+    finally:
+        session.close()
+
+def get_pending_investment_requests():
     session = SessionLocal()
     try:
         requests = session.query(InvestmentQueue).filter(
@@ -180,11 +310,37 @@ def get_pending_requests():
     finally:
         session.close()
 
-def update_request_status(request_uuid, new_status):
+def get_pending_withdrawal_requests():
+    session = SessionLocal()
+    try:
+        requests = session.query(WithdrawalQueue).filter(
+            WithdrawalQueue.status == 'PENDING'
+        ).order_by(WithdrawalQueue.created_at.asc()).all()
+        return requests
+    finally:
+        session.close()
+
+def update_investment_status(request_uuid, new_status):
     session = SessionLocal()
     try:
         request = session.query(InvestmentQueue).filter(
             InvestmentQueue.uuid == request_uuid
+        ).first()
+        if request:
+            request.status = new_status
+            if new_status in ['COMPLETED', 'FAILED', 'CANCELLED']:
+                request.processed_at = datetime.utcnow()
+            session.commit()
+            return True
+        return False
+    finally:
+        session.close()
+
+def update_withdrawal_status(request_uuid, new_status):
+    session = SessionLocal()
+    try:
+        request = session.query(WithdrawalQueue).filter(
+            WithdrawalQueue.uuid == request_uuid
         ).first()
         if request:
             request.status = new_status
@@ -203,7 +359,7 @@ import psycopg2
 import os
 import uuid
 
-def add_withdrawal_request(account_number, tier_1, tier_2, tier_3):
+def add_investment_request(account_number, tier_1, tier_2, tier_3):
     conn = psycopg2.connect(os.environ.get('QUEUE_DB_URI'))
     cursor = conn.cursor()
     
@@ -219,11 +375,27 @@ def add_withdrawal_request(account_number, tier_1, tier_2, tier_3):
     
     return request_uuid
 
-def process_next_request():
+def add_withdrawal_request(account_number, tier_1, tier_2, tier_3):
     conn = psycopg2.connect(os.environ.get('QUEUE_DB_URI'))
     cursor = conn.cursor()
     
-    # Get next pending request
+    request_uuid = str(uuid.uuid4())
+    cursor.execute("""
+        INSERT INTO withdrawal_queue (account_number, tier_1, tier_2, tier_3, uuid, status) 
+        VALUES (%s, %s, %s, %s, %s, 'PENDING')
+    """, (account_number, tier_1, tier_2, tier_3, request_uuid))
+    
+    conn.commit()
+    cursor.close()
+    conn.close()
+    
+    return request_uuid
+
+def process_next_investment_request():
+    conn = psycopg2.connect(os.environ.get('QUEUE_DB_URI'))
+    cursor = conn.cursor()
+    
+    # Get next pending investment request
     cursor.execute("""
         SELECT queue_id, account_number, tier_1, tier_2, tier_3, uuid 
         FROM investment_queue 
@@ -248,6 +420,7 @@ def process_next_request():
         conn.close()
         
         return {
+            'queue_type': 'investment',
             'queue_id': queue_id,
             'account_number': account_number,
             'tier_1': float(tier_1),
@@ -259,32 +432,154 @@ def process_next_request():
     cursor.close()
     conn.close()
     return None
+
+def process_next_withdrawal_request():
+    conn = psycopg2.connect(os.environ.get('QUEUE_DB_URI'))
+    cursor = conn.cursor()
+    
+    # Get next pending withdrawal request
+    cursor.execute("""
+        SELECT queue_id, account_number, tier_1, tier_2, tier_3, uuid 
+        FROM withdrawal_queue 
+        WHERE status = 'PENDING' 
+        ORDER BY created_at ASC 
+        LIMIT 1
+    """)
+    
+    request = cursor.fetchone()
+    if request:
+        queue_id, account_number, tier_1, tier_2, tier_3, request_uuid = request
+        
+        # Update status to PROCESSING
+        cursor.execute("""
+            UPDATE withdrawal_queue 
+            SET status = 'PROCESSING', updated_at = CURRENT_TIMESTAMP 
+            WHERE queue_id = %s
+        """, (queue_id,))
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        return {
+            'queue_type': 'withdrawal',
+            'queue_id': queue_id,
+            'account_number': account_number,
+            'tier_1': float(tier_1),
+            'tier_2': float(tier_2),
+            'tier_3': float(tier_3),
+            'uuid': request_uuid
+        }
+    
+    cursor.close()
+    conn.close()
+    return None
+
+def get_request_by_uuid(request_uuid):
+    conn = psycopg2.connect(os.environ.get('QUEUE_DB_URI'))
+    cursor = conn.cursor()
+    
+    # Check both tables for the UUID
+    cursor.execute("""
+        SELECT 'investment' as queue_type, queue_id, account_number, tier_1, tier_2, tier_3, status, created_at, updated_at, processed_at 
+        FROM investment_queue 
+        WHERE uuid = %s
+        UNION ALL
+        SELECT 'withdrawal' as queue_type, queue_id, account_number, tier_1, tier_2, tier_3, status, created_at, updated_at, processed_at 
+        FROM withdrawal_queue 
+        WHERE uuid = %s
+    """, (request_uuid, request_uuid))
+    
+    result = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    
+    if result:
+        return {
+            'queue_type': result[0],
+            'queue_id': result[1],
+            'account_number': result[2],
+            'tier_1': float(result[3]),
+            'tier_2': float(result[4]),
+            'tier_3': float(result[5]),
+            'status': result[6],
+            'created_at': result[7],
+            'updated_at': result[8],
+            'processed_at': result[9],
+            'uuid': request_uuid
+        }
+    
+    return None
 ```
 
 ## Queue Processing Patterns
 
-### FIFO Processing
+### FIFO Processing (Investment Queue)
 ```python
-def process_queue_fifo():
-    """Process requests in First-In-First-Out order"""
-    requests = get_pending_requests()
+def process_investment_queue_fifo():
+    """Process investment requests in First-In-First-Out order"""
+    requests = get_pending_investment_requests()
     for request in requests:
         try:
-            # Process the request
+            # Process the investment request
             result = process_investment_request(request)
-            update_request_status(request.uuid, 'COMPLETED')
+            update_investment_status(request.uuid, 'COMPLETED')
         except Exception as e:
-            update_request_status(request.uuid, 'FAILED')
+            update_investment_status(request.uuid, 'FAILED')
             # Log error
+```
+
+### FIFO Processing (Withdrawal Queue)
+```python
+def process_withdrawal_queue_fifo():
+    """Process withdrawal requests in First-In-First-Out order"""
+    requests = get_pending_withdrawal_requests()
+    for request in requests:
+        try:
+            # Process the withdrawal request
+            result = process_withdrawal_request(request)
+            update_withdrawal_status(request.uuid, 'COMPLETED')
+        except Exception as e:
+            update_withdrawal_status(request.uuid, 'FAILED')
+            # Log error
+```
+
+### Combined Queue Processing
+```python
+def process_combined_queues():
+    """Process both investment and withdrawal queues"""
+    # Process investment requests first
+    investment_requests = get_pending_investment_requests()
+    for request in investment_requests:
+        try:
+            result = process_investment_request(request)
+            update_investment_status(request.uuid, 'COMPLETED')
+        except Exception as e:
+            update_investment_status(request.uuid, 'FAILED')
+    
+    # Process withdrawal requests
+    withdrawal_requests = get_pending_withdrawal_requests()
+    for request in withdrawal_requests:
+        try:
+            result = process_withdrawal_request(request)
+            update_withdrawal_status(request.uuid, 'COMPLETED')
+        except Exception as e:
+            update_withdrawal_status(request.uuid, 'FAILED')
 ```
 
 ### Batch Processing
 ```python
-def process_queue_batch(batch_size=10):
-    """Process multiple requests in batches"""
-    requests = get_pending_requests()[:batch_size]
-    for request in requests:
-        update_request_status(request.uuid, 'PROCESSING')
+def process_queues_batch(batch_size=10):
+    """Process multiple requests in batches for both queues"""
+    # Investment batch
+    investment_requests = get_pending_investment_requests()[:batch_size]
+    for request in investment_requests:
+        update_investment_status(request.uuid, 'PROCESSING')
+    
+    # Withdrawal batch
+    withdrawal_requests = get_pending_withdrawal_requests()[:batch_size]
+    for request in withdrawal_requests:
+        update_withdrawal_status(request.uuid, 'PROCESSING')
     
     # Process all requests in batch
     # Update statuses based on results
