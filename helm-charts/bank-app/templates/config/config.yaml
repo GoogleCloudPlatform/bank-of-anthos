@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: environment-config
+data:
+  LOCAL_ROUTING_NUM: "883745000"
+  PUB_KEY_PATH: "/tmp/.ssh/publickey"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: service-api-config
+data:
+  TRANSACTIONS_API_ADDR: "ledgerwriter:8080"
+  BALANCES_API_ADDR: "balancereader:8080"
+  HISTORY_API_ADDR: "transactionhistory:8080"
+  CONTACTS_API_ADDR: "contacts:8080"
+  USERSERVICE_API_ADDR: "userservice:8080"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: demo-data-config
+data:
+  USE_DEMO_DATA: "True"
+  DEMO_LOGIN_USERNAME: "testuser"
+  # All demo user accounts are hardcoded to use the login password 'bankofanthos'
+  DEMO_LOGIN_PASSWORD: "bankofanthos"
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: bank-of-anthos
+  annotations:
+    # Disable Google Cloud autoconfiguration for local development
+    # In production, this should be replaced with proper workload identity annotation:
+    # iam.gke.io/gcp-service-account: <your-gsa>@<project-id>.iam.gserviceaccount.com

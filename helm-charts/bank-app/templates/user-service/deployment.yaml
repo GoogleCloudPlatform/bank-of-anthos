@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    application: bank-of-anthos
+    environment: development
+    team: accounts
+    tier: backend
+  name: userservice
+spec:
+  selector:
+    matchLabels:
+      app: userservice
+      application: bank-of-anthos
+      environment: development
+      team: accounts
+      tier: backend
+  template:
+    metadata:
+      annotations:
+        proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
+      labels:
+        app: userservice
+        application: bank-of-anthos
+        environment: development
+        team: accounts
+        tier: backend
+    spec:
+      containers:
+        - env:
+            - name: VERSION
+              value: v0.6.7
+            - name: PORT
+              value: "8080"
+            - name: ENABLE_TRACING
+              value: "false"
+            - name: TOKEN_EXPIRY_SECONDS
+              value: "3600"
+            - name: PRIV_KEY_PATH
+              value: /tmp/.ssh/privatekey
+            - name: LOG_LEVEL
+              value: info
+          envFrom:
+            - configMapRef:
+                name: environment-config
+            - configMapRef:
+                name: accounts-db-config
+          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/userservice:v0.6.7@sha256:932045a3bdba7b32fffe4087b544f4aa8e2952f3440ecaa92142c13407249732
+          name: userservice
+          ports:
+            - containerPort: 8080
+              name: http-server
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 10
+          resources:
+            limits:
+              cpu: 500m
+              ephemeral-storage: 0.25Gi
+              memory: 256Mi
+            requests:
+              cpu: 260m
+              ephemeral-storage: 0.25Gi
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - all
+            privileged: false
+            readOnlyRootFilesystem: true
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /tmp/.ssh
+              name: keys
+              readOnly: true
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+      serviceAccountName: bank-of-anthos
+      terminationGracePeriodSeconds: 5
+      volumes:
+        - emptyDir: {}
+          name: tmp
+        - name: keys
+          secret:
+            items:
+              - key: jwtRS256.key
+                path: privatekey
+              - key: jwtRS256.key.pub
+                path: publickey
+            secretName: jwt-key

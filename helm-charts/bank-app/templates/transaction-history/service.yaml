@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    application: bank-of-anthos
+    environment: development
+    team: ledger
+    tier: backend
+  name: transactionhistory
+spec:
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+  selector:
+    app: transactionhistory
+    application: bank-of-anthos
+    environment: development
+    team: ledger
+    tier: backend
+  type: ClusterIP
