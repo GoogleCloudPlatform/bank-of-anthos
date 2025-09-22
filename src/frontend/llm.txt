@@ -1,0 +1,291 @@
+# Frontend Service (frontend) - AI Agent Documentation
+
+## Service Overview
+The frontend service is the main web interface for the Bank of Anthos platform, providing a comprehensive user experience for traditional banking operations and advanced portfolio management features.
+
+## Core Functionality
+- **User Authentication**: JWT-based authentication and session management
+- **Account Management**: Account overview, balance display, and account information
+- **Transaction Management**: Send payments, deposit funds, and view transaction history
+- **Portfolio Management**: Investment portfolio overview, tier-based allocation display, investment and withdrawal operations
+- **Contact Management**: User contacts for quick transfers and external account references
+
+## Service Architecture
+```
+User Browser → frontend → [userservice, contacts, ledger writer, balance reader, transaction history, investment-manager-svc]
+                     ↓
+              [account-db, ledger-db, user-portfolio-db]
+```
+
+## API Endpoints
+
+### Authentication & Navigation
+- **GET /**: Root page (redirects to login or home)
+- **GET /home**: Main dashboard with account overview and portfolio access
+- **GET /login**: Login page
+- **POST /login**: User authentication
+- **POST /logout**: User logout
+- **GET /signup**: User registration page
+- **POST /signup**: User registration
+- **GET /consent**: Privacy consent page
+- **POST /consent**: Privacy consent submission
+
+### Traditional Banking
+- **POST /payment**: Send payment to another account
+- **POST /deposit**: Deposit funds to account
+
+### Portfolio Management
+- **GET /portfolio**: Portfolio overview page with tier allocations and transaction history
+- **POST /portfolio/invest**: Process investment requests
+- **POST /portfolio/withdraw**: Process withdrawal requests
+
+### Health & Monitoring
+- **GET /version**: Service version information
+- **GET /ready**: Readiness check
+- **GET /whereami**: Cluster and pod information
+
+## Portfolio Management Features
+
+### Portfolio Overview
+- **Total Portfolio Value**: Display of current portfolio value
+- **Tier Allocations**: Visual breakdown of investments across three tiers:
+  - **Tier 1 (Conservative)**: 60% allocation with security icon
+  - **Tier 2 (Moderate)**: 30% allocation with trending icon
+  - **Tier 3 (Aggressive)**: 10% allocation with rocket icon
+- **Account Information**: User account details and portfolio ID
+
+### Investment Operations
+- **Invest More**: Modal-based investment interface
+  - Amount input with validation
+  - Automatic tier allocation based on user profile
+  - Real-time portfolio updates
+- **Withdraw Funds**: Modal-based withdrawal interface
+  - Amount input with validation
+  - Proportional withdrawal from all tiers
+  - Balance verification
+
+### Transaction History
+- **Portfolio Transactions**: Complete transaction log
+- **Transaction Details**: Date, type, amount, tier breakdown
+- **Status Tracking**: Transaction status indicators
+- **Real-time Updates**: Live transaction history updates
+
+## Frontend Architecture
+
+### Template Structure
+```
+templates/
+├── index.html              # Main dashboard
+├── portfolio.html          # Portfolio management page
+├── login.html              # Authentication page
+├── signup.html             # Registration page
+├── consent.html            # Privacy consent page
+└── shared/
+    ├── html_head.html      # Common head elements
+    ├── navigation.html     # Navigation bar
+    ├── footer.html         # Footer elements
+    ├── scripts.html        # JavaScript includes
+    └── platform_banner.html # Platform information
+```
+
+### Navigation Features
+- **Portfolio Link**: Direct access to portfolio management
+- **User Dropdown**: Account information and logout
+- **Responsive Design**: Mobile-friendly navigation
+- **Material Icons**: Consistent iconography
+
+### UI Components
+- **Bootstrap Integration**: Responsive grid system and components
+- **Material Design**: Google Material Icons and design patterns
+- **Card-based Layout**: Clean, organized information display
+- **Modal Dialogs**: Investment and withdrawal interfaces
+- **Form Validation**: Client-side and server-side validation
+
+## Service Dependencies
+
+### Required Services
+1. **userservice**: User authentication and JWT token management
+2. **contacts**: User contact management for transfers
+3. **ledger writer**: Transaction recording and ledger management
+4. **balance reader**: Account balance retrieval and calculation
+5. **transaction history**: Transaction history retrieval and reporting
+6. **investment-manager-svc**: Portfolio management and investment operations
+
+### Database Dependencies
+1. **account-db**: User account data storage
+2. **ledger-db**: Transaction ledger storage
+3. **user-portfolio-db**: Portfolio data storage (via investment-manager-svc)
+
+### Environment Variables
+- `USERSERVICE_API_ADDR`: User service API address
+- `CONTACTS_API_ADDR`: Contacts service API address
+- `BALANCES_API_ADDR`: Balance reader service API address
+- `HISTORY_API_ADDR`: Transaction history service API address
+- `TRANSACTIONS_API_ADDR`: Ledger writer service API address
+- `INVESTMENT_MANAGER_API_ADDR`: Investment manager service API address
+- `LOCAL_ROUTING_NUM`: Local routing number for transfers
+- `PUB_KEY_PATH`: Path to JWT public key
+- `BANK_NAME`: Bank name for display
+- `CYMBAL_LOGO`: Enable/disable Cymbal logo
+- `SCHEME`: HTTP scheme (http/https)
+
+## Business Logic
+
+### Authentication Flow
+1. **Token Validation**: Verify JWT token on each request
+2. **User Data Extraction**: Extract user information from token
+3. **Service Authorization**: Pass JWT token to backend services
+4. **Session Management**: Handle login/logout operations
+
+### Portfolio Management Flow
+1. **Portfolio Data Retrieval**: Fetch portfolio information from investment-manager-svc
+2. **Tier Allocation Display**: Present tier-based investment breakdown
+3. **Transaction History**: Display portfolio transaction history
+4. **Investment Processing**: Handle investment requests via investment-manager-svc
+5. **Withdrawal Processing**: Handle withdrawal requests via investment-manager-svc
+
+### Error Handling
+- **Service Unavailability**: Graceful handling of backend service failures
+- **Authentication Errors**: Redirect to login page
+- **Validation Errors**: User-friendly error messages
+- **Network Errors**: Retry logic and fallback displays
+
+## Security Considerations
+
+### Authentication
+- **JWT Token Validation**: Verify tokens on all protected routes
+- **Token Refresh**: Handle token expiration gracefully
+- **Secure Cookies**: Use secure cookie settings for production
+
+### Data Protection
+- **Input Validation**: Validate all user inputs
+- **XSS Prevention**: Sanitize user-generated content
+- **CSRF Protection**: Implement CSRF tokens for forms
+
+### Service Communication
+- **HTTPS**: Use HTTPS for all service communications
+- **Token Forwarding**: Forward JWT tokens to backend services
+- **Error Sanitization**: Don't expose internal service errors
+
+## Performance Optimization
+
+### Frontend Performance
+- **Static Asset Optimization**: Minified CSS and JavaScript
+- **Image Optimization**: Compressed images and icons
+- **Caching**: Browser caching for static assets
+- **Lazy Loading**: Defer non-critical resource loading
+
+### Backend Integration
+- **Parallel API Calls**: Concurrent requests to multiple services
+- **Connection Pooling**: Efficient database connections
+- **Timeout Management**: Appropriate timeout settings
+- **Error Recovery**: Graceful degradation on service failures
+
+## Monitoring and Observability
+
+### Health Checks
+- **Readiness Probe**: `/ready` endpoint for Kubernetes
+- **Version Information**: `/version` endpoint for deployment tracking
+- **Cluster Information**: `/whereami` endpoint for debugging
+
+### Logging
+- **Request Logging**: Log all incoming requests
+- **Error Logging**: Detailed error logging with stack traces
+- **Performance Logging**: Track response times and resource usage
+- **Business Logging**: Log user actions and transactions
+
+### Metrics
+- **Request Metrics**: Request count, response time, error rate
+- **User Metrics**: Active users, session duration
+- **Portfolio Metrics**: Investment/withdrawal volumes
+- **Service Dependencies**: Backend service health and performance
+
+## Development Guidelines
+
+### Code Structure
+- **Flask Application**: Main application factory pattern
+- **Route Organization**: Logical grouping of related routes
+- **Template Inheritance**: Reusable template components
+- **Static Assets**: Organized CSS and JavaScript files
+
+### Testing
+- **Unit Tests**: Test individual functions and routes
+- **Integration Tests**: Test service interactions
+- **UI Tests**: Test user interface functionality
+- **Performance Tests**: Load testing with loadgen
+
+### Deployment
+- **Docker**: Containerized deployment
+- **Kubernetes**: Orchestrated deployment with health checks
+- **Skaffold**: Local development and deployment
+- **Environment Configuration**: Environment-specific settings
+
+## Future Enhancements
+
+### Advanced Portfolio Features
+- **Real-time Updates**: WebSocket connections for live portfolio updates
+- **Advanced Analytics**: Portfolio performance metrics and charts
+- **Risk Assessment**: User risk profile visualization
+- **Goal Setting**: Investment goal tracking and progress
+
+### User Experience
+- **Mobile App**: Native mobile application
+- **Progressive Web App**: Offline capabilities
+- **Dark Mode**: Theme customization
+- **Accessibility**: Enhanced accessibility features
+
+### Integration
+- **External APIs**: Market data integration
+- **Notification Service**: Real-time notifications
+- **Document Management**: Document upload and management
+- **Multi-language Support**: Internationalization
+
+## Troubleshooting
+
+### Common Issues
+1. **Authentication Failures**: Check JWT token validity and user service connectivity
+2. **Portfolio Data Missing**: Verify investment-manager-svc availability
+3. **Transaction Errors**: Check ledger writer and balance reader services
+4. **UI Rendering Issues**: Verify template syntax and static asset loading
+
+### Debug Commands
+```bash
+# Check service health
+curl http://frontend:8080/ready
+
+# Check version
+curl http://frontend:8080/version
+
+# Check cluster information
+curl http://frontend:8080/whereami
+```
+
+### Log Analysis
+- **Authentication Logs**: Look for JWT validation errors
+- **Service Call Logs**: Check backend service response times
+- **Error Logs**: Review error patterns and frequency
+- **Performance Logs**: Monitor response times and resource usage
+
+## Contact and Support
+
+### Service Owner
+- **Team**: Frontend Development
+- **Tier**: Presentation
+- **Application**: bank-of-anthos
+
+### Documentation
+- **README**: src/frontend/README.md
+- **API Docs**: This file (llm.txt)
+- **Code**: src/frontend/frontend.py
+
+### Related Services
+- **userservice**: User authentication
+- **investment-manager-svc**: Portfolio management
+- **contacts**: Contact management
+- **ledger writer**: Transaction processing
+- **balance reader**: Balance management
+- **transaction history**: Transaction reporting
+
+---
+
+*This documentation is designed for AI agents to understand and integrate with the frontend service. For human developers, refer to the README.md file in the service directory.*

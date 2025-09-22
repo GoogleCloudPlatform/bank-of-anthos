@@ -130,9 +130,9 @@ loadgen → frontend → [userservice, contacts, ledger writer, balance reader, 
 **Status**: 🚧 Planned
 **Purpose**: Central investment management orchestration
 **Port**: `8080`
-**Dependencies**: `investments-record-reader-svc`, `user-portfolio-svc`, `invest-svc`, `withdraw-svc`
-**Location**: `src/investment-manager/` (to be created)
-**Description**: Orchestrates investment operations, manages investment workflows, and coordinates between investment services.
+**Dependencies**: `invest-svc`, `user-portfolio-db` (future integration)
+**Location**: `src/investment-manager-svc/`
+**Description**: Frontend-facing API that orchestrates investment operations, manages investment workflows, and provides portfolio management capabilities. Currently includes mock functionality for portfolio display, investment processing, and withdrawal operations.
 
 #### 3.2 Bank Asset Agent (`bank-asset-agent`)
 **Status**: 🚧 Planned

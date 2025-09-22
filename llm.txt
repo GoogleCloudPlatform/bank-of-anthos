@@ -50,13 +50,62 @@ Bank of Anthos is a cloud-native microservices application demonstrating modern 
 - **Documentation**: `src/queue-db/llm.txt`
 
 ### 5. User Portfolio Database (`src/user-portfolio-db/`)
-**Purpose**: User portfolio management
+**Purpose**: User portfolio data storage
 - **Service**: `user-portfolio-db`
 - **Port**: `5432`
 - **Database**: `user-portfolio-db`
-- **Tables**: `user_portfolios`, `portfolio_transactions`, `portfolio_analytics`
-- **Key Features**: Tier-based allocation, transaction tracking, analytics
+- **Tables**: `user_portfolios`, `portfolio_transactions`
+- **Key Features**: Portfolio management, tier allocations, transaction history
 - **Documentation**: `src/user-portfolio-db/llm.txt`
+
+## Application Services
+
+### 1. Frontend (`src/frontend/`)
+**Purpose**: Web user interface and API gateway
+- **Service**: `frontend`
+- **Port**: `8080`
+- **Dependencies**: `userservice`, `contacts`, `ledger writer`, `balance reader`, `transaction history`, `investment-manager-svc`
+- **Key Features**: User authentication, account management, transaction history, portfolio management
+- **Documentation**: `src/frontend/llm.txt`
+
+### 2. Investment Manager Service (`src/investment-manager-svc/`)
+**Purpose**: Portfolio management orchestration
+- **Service**: `investment-manager-svc`
+- **Port**: `8080`
+- **Dependencies**: `invest-svc`, `user-portfolio-db` (future integration)
+- **Key Features**: Portfolio API, investment processing, withdrawal processing, transaction history
+- **Documentation**: `src/investment-manager-svc/llm.txt`
+
+### 3. Invest Service (`src/invest-svc/`)
+**Purpose**: Investment processing and execution
+- **Service**: `invest-svc`
+- **Port**: `8080`
+- **Dependencies**: `user-portfolio-db`, `user-tier-agent`
+- **Key Features**: Investment processing, tier allocation, portfolio updates
+- **Documentation**: `src/invest-svc/llm.txt`
+
+## Portfolio Management Features
+
+### Frontend Portfolio Interface
+- **Portfolio Overview**: Total portfolio value and account information
+- **Tier Allocations**: Visual display of Conservative (60%), Moderate (30%), and Aggressive (10%) investments
+- **Investment Operations**: Invest more funds with automatic tier allocation
+- **Withdrawal Operations**: Withdraw funds with proportional tier distribution
+- **Transaction History**: Complete portfolio transaction log with tier breakdown
+- **Responsive Design**: Mobile-friendly interface matching Bank of Anthos design
+
+### Investment Manager Service
+- **Portfolio API**: RESTful API for portfolio operations
+- **Mock Implementation**: Current demo implementation with in-memory storage
+- **Tier Management**: Fixed allocation strategy (60/30/10)
+- **Transaction Recording**: Complete transaction audit trail
+- **Future Integration**: Ready for invest-svc and user-portfolio-db integration
+
+### Database Schema
+- **User Portfolios**: Portfolio data with tier allocations and values
+- **Portfolio Transactions**: Transaction history with tier breakdown
+- **Analytics**: Portfolio performance and analytics data
+- **Constraints**: Data integrity and validation rules
 
 ## Application Services
 

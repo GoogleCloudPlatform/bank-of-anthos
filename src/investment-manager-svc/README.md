@@ -136,9 +136,18 @@ kubectl apply -f ../../kubernetes-manifests/investment-manager-svc.yaml
 
 - `PORT`: Service port (default: 8080)
 
+## Current Implementation Status
+
+This service currently provides mock functionality for demonstration purposes. The implementation includes:
+
+1. **Mock Portfolio Management**: In-memory portfolio storage for demo purposes
+2. **Fixed Tier Allocation**: 60% Conservative, 30% Moderate, 10% Aggressive
+3. **Basic Transaction Recording**: Simple transaction logging
+4. **REST API**: Complete API interface for frontend integration
+
 ## Future Enhancements
 
-This is currently a placeholder service. Future versions will:
+Production versions will include:
 
 1. **Integrate with invest-svc**: Use the actual investment processing service
 2. **Database Integration**: Connect to user-portfolio-db for persistent storage
