@@ -1,21 +1,23 @@
+{{- if .Values.frontend.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
   labels:
-    application: bank-of-anthos
-    environment: development
+    application: {{ .Values.global.application }}
+    environment: {{ .Values.global.environment }}
     team: frontend
     tier: web
   name: frontend
 spec:
   ports:
     - name: http
-      port: 80
-      targetPort: 8080
+      port: {{ .Values.frontend.service.port }}
+      targetPort: {{ .Values.frontend.service.targetPort }}
   selector:
     app: frontend
-    application: bank-of-anthos
-    environment: development
+    application: {{ .Values.global.application }}
+    environment: {{ .Values.global.environment }}
     team: frontend
     tier: web
-  type: LoadBalancer
+  type: {{ .Values.frontend.service.type }}
+{{- end }}

@@ -1,43 +1,48 @@
+{{- if .Values.frontend.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    application: bank-of-anthos
-    environment: development
+    application: {{ .Values.global.application }}
+    environment: {{ .Values.global.environment }}
     team: frontend
     tier: web
   name: frontend
 spec:
+  replicas: {{ .Values.frontend.replicaCount }}
   selector:
     matchLabels:
       app: frontend
-      application: bank-of-anthos
-      environment: development
+      application: {{ .Values.global.application }}
+      environment: {{ .Values.global.environment }}
       team: frontend
       tier: web
   template:
     metadata:
       annotations:
-        proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
+        {{- if .Values.istio.enabled }}
+        proxy.istio.io/config: {{ dict "holdApplicationUntilProxyStarts" .Values.istio.proxy.holdApplicationUntilProxyStarts | toJson | quote }}
+        {{- end }}
       labels:
         app: frontend
-        application: bank-of-anthos
-        environment: development
+        application: {{ .Values.global.application }}
+        environment: {{ .Values.global.environment }}
         team: frontend
         tier: web
     spec:
       containers:
         - env:
             - name: VERSION
-              value: v0.6.7
+              value: {{ .Values.frontend.image.tag | default .Values.global.version | quote }}
             - name: PORT
-              value: "8080"
+              value: {{ .Values.frontend.env.port | quote }}
             - name: ENABLE_TRACING
-              value: "false"
+              value: {{ .Values.frontend.env.enableTracing | quote }}
             - name: SCHEME
-              value: http
+              value: {{ .Values.frontend.env.scheme | quote }}
             - name: LOG_LEVEL
-              value: info
+              value: {{ .Values.frontend.env.logLevel | quote }}
+            {{- if .Values.config.demo.enabled }}
             - name: DEFAULT_USERNAME
               valueFrom:
                 configMapKeyRef:
@@ -48,6 +53,8 @@ spec:
                 configMapKeyRef:
                   key: DEMO_LOGIN_PASSWORD
                   name: demo-data-config
+            {{- end }}
+            {{- if .Values.config.demo.oauth.clientId }}
             - name: REGISTERED_OAUTH_CLIENT_ID
               valueFrom:
                 configMapKeyRef:
@@ -60,41 +67,32 @@ spec:
                   key: DEMO_OAUTH_REDIRECT_URI
                   name: oauth-config
                   optional: true
+            {{- end }}
           envFrom:
             - configMapRef:
                 name: environment-config
             - configMapRef:
                 name: service-api-config
-          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/frontend:v0.6.7@sha256:6d92f3ce81a389738baf236477c6795831a0802c7a007697d7121f10eab9a2cc
+          image: "{{ .Values.global.imageRegistry }}/{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag | default .Values.global.version }}{{- if .Values.frontend.image.digest }}@{{ .Values.frontend.image.digest }}{{- end }}"
           livenessProbe:
             httpGet:
-              path: /ready
-              port: 8080
-            initialDelaySeconds: 60
-            periodSeconds: 15
-            timeoutSeconds: 30
+              path: {{ .Values.frontend.livenessProbe.httpGet.path }}
+              port: {{ .Values.frontend.livenessProbe.httpGet.port }}
+            initialDelaySeconds: {{ .Values.frontend.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.frontend.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.frontend.livenessProbe.timeoutSeconds }}
           name: front
           readinessProbe:
             httpGet:
-              path: /ready
-              port: 8080
-            initialDelaySeconds: 10
-            periodSeconds: 5
-            timeoutSeconds: 10
+              path: {{ .Values.frontend.readinessProbe.httpGet.path }}
+              port: {{ .Values.frontend.readinessProbe.httpGet.port }}
+            initialDelaySeconds: {{ .Values.frontend.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.frontend.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.frontend.readinessProbe.timeoutSeconds }}
           resources:
-            limits:
-              cpu: 250m
-              memory: 128Mi
-            requests:
-              cpu: 100m
-              memory: 64Mi
+            {{- toYaml .Values.frontend.resources | nindent 12 }}
           securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-                - all
-            privileged: false
-            readOnlyRootFilesystem: true
+            {{- toYaml .Values.global.containerSecurityContext | nindent 12 }}
           volumeMounts:
             - mountPath: /tmp
               name: tmp
@@ -102,11 +100,8 @@ spec:
               name: publickey
               readOnly: true
       securityContext:
-        fsGroup: 1000
-        runAsGroup: 1000
-        runAsNonRoot: true
-        runAsUser: 1000
-      serviceAccountName: bank-of-anthos
+        {{- toYaml .Values.global.securityContext | nindent 8 }}
+      serviceAccountName: {{ .Values.global.serviceAccountName }}
       terminationGracePeriodSeconds: 5
       volumes:
         - emptyDir: {}
@@ -114,6 +109,7 @@ spec:
         - name: publickey
           secret:
             items:
-              - key: jwtRS256.key.pub
+              - key: {{ .Values.jwt.keyName }}
                 path: publickey
-            secretName: jwt-key
+            secretName: {{ .Values.jwt.secretName }}
+{{- end }}

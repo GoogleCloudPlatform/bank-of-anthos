@@ -1,21 +1,23 @@
+{{- if .Values.transactionHistory.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
   labels:
-    application: bank-of-anthos
-    environment: development
-    team: ledger
-    tier: backend
+    application: {{ .Values.global.application }}
+    environment: {{ .Values.global.environment }}
+    team: {{ .Values.transactionHistory.team }}
+    tier: {{ .Values.transactionHistory.tier }}
   name: transactionhistory
 spec:
   ports:
     - name: http
-      port: 8080
-      targetPort: 8080
+      port: {{ .Values.transactionHistory.service.port }}
+      targetPort: {{ .Values.transactionHistory.service.port }}
   selector:
     app: transactionhistory
-    application: bank-of-anthos
-    environment: development
-    team: ledger
-    tier: backend
-  type: ClusterIP
+    application: {{ .Values.global.application }}
+    environment: {{ .Values.global.environment }}
+    team: {{ .Values.transactionHistory.team }}
+    tier: {{ .Values.transactionHistory.tier }}
+  type: {{ .Values.transactionHistory.service.type }}
+{{- end }}

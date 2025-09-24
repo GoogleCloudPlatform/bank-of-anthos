@@ -1,22 +1,24 @@
+{{- if .Values.accountsDb.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
   labels:
-    application: bank-of-anthos
-    environment: development
-    team: accounts
-    tier: db
+    application: {{ .Values.global.application }}
+    environment: {{ .Values.global.environment }}
+    team: {{ .Values.accountsDb.team }}
+    tier: {{ .Values.accountsDb.tier }}
   name: accounts-db
 spec:
   ports:
     - name: tcp
-      port: 5432
+      port: {{ .Values.accountsDb.service.port }}
       protocol: TCP
-      targetPort: 5432
+      targetPort: {{ .Values.accountsDb.service.port }}
   selector:
     app: accounts-db
-    application: bank-of-anthos
-    environment: development
-    team: accounts
-    tier: db
-  type: ClusterIP
+    application: {{ .Values.global.application }}
+    environment: {{ .Values.global.environment }}
+    team: {{ .Values.accountsDb.team }}
+    tier: {{ .Values.accountsDb.tier }}
+  type: {{ .Values.accountsDb.service.type }}
+{{- end }}

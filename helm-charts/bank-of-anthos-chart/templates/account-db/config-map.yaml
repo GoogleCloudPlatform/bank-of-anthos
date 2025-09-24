@@ -1,15 +1,17 @@
+{{- if .Values.accountsDb.enabled }}
 apiVersion: v1
-data:
-  ACCOUNTS_DB_URI: postgresql://accounts-admin:accounts-pwd@accounts-db:5432/accounts-db
-  POSTGRES_DB: accounts-db
-  POSTGRES_PASSWORD: accounts-pwd
-  POSTGRES_USER: accounts-admin
 kind: ConfigMap
 metadata:
+  name: accounts-db-config
   labels:
     app: accounts-db
-    application: bank-of-anthos
-    environment: development
-    team: accounts
-    tier: db
-  name: accounts-db-config
+    application: {{ .Values.global.application }}
+    environment: {{ .Values.global.environment }}
+    team: {{ .Values.accountsDb.team }}
+    tier: {{ .Values.accountsDb.tier }}
+data:
+  ACCOUNTS_DB_URI: {{ .Values.accountsDb.database.uri | quote }}
+  POSTGRES_DB: {{ .Values.accountsDb.database.name | quote }}
+  POSTGRES_PASSWORD: {{ .Values.accountsDb.database.password | quote }}
+  POSTGRES_USER: {{ .Values.accountsDb.database.username | quote }}
+{{- end }}

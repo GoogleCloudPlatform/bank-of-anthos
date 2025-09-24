@@ -1,21 +1,23 @@
+{{- if .Values.userService.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
   labels:
-    application: bank-of-anthos
-    environment: development
-    team: accounts
-    tier: backend
+    application: {{ .Values.global.application }}
+    environment: {{ .Values.global.environment }}
+    team: {{ .Values.userService.team }}
+    tier: {{ .Values.userService.tier }}
   name: userservice
 spec:
   ports:
     - name: http
-      port: 8080
-      targetPort: 8080
+      port: {{ .Values.userService.service.port }}
+      targetPort: {{ .Values.userService.service.port }}
   selector:
     app: userservice
-    application: bank-of-anthos
-    environment: development
-    team: accounts
-    tier: backend
-  type: ClusterIP
+    application: {{ .Values.global.application }}
+    environment: {{ .Values.global.environment }}
+    team: {{ .Values.userService.team }}
+    tier: {{ .Values.userService.tier }}
+  type: {{ .Values.userService.service.type }}
+{{- end }}

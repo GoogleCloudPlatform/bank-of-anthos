@@ -1,71 +1,63 @@
+{{- if .Values.contacts.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    application: bank-of-anthos
-    environment: development
-    team: accounts
-    tier: backend
+    application: {{ .Values.global.application }}
+    environment: {{ .Values.global.environment }}
+    team: {{ .Values.contacts.team }}
+    tier: {{ .Values.contacts.tier }}
   name: contacts
 spec:
+  replicas: {{ .Values.contacts.replicaCount }}
   selector:
     matchLabels:
       app: contacts
-      application: bank-of-anthos
-      environment: development
-      team: accounts
-      tier: backend
+      application: {{ .Values.global.application }}
+      environment: {{ .Values.global.environment }}
+      team: {{ .Values.contacts.team }}
+      tier: {{ .Values.contacts.tier }}
   template:
     metadata:
       annotations:
-        proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
+        {{- if .Values.istio.enabled }}
+        proxy.istio.io/config: {{ dict "holdApplicationUntilProxyStarts" .Values.istio.proxy.holdApplicationUntilProxyStarts | toJson | quote }}
+        {{- end }}
       labels:
         app: contacts
-        application: bank-of-anthos
-        environment: development
-        team: accounts
-        tier: backend
+        application: {{ .Values.global.application }}
+        environment: {{ .Values.global.environment }}
+        team: {{ .Values.contacts.team }}
+        tier: {{ .Values.contacts.tier }}
     spec:
       containers:
         - env:
             - name: VERSION
-              value: v0.6.7
+              value: {{ .Values.contacts.image.tag | default .Values.global.version | quote }}
             - name: PORT
-              value: "8080"
+              value: {{ .Values.contacts.env.port | quote }}
             - name: ENABLE_TRACING
-              value: "false"
+              value: {{ .Values.contacts.env.enableTracing | quote }}
             - name: LOG_LEVEL
-              value: info
+              value: {{ .Values.contacts.env.logLevel | quote }}
           envFrom:
             - configMapRef:
                 name: environment-config
             - configMapRef:
                 name: accounts-db-config
-          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/contacts:v0.6.7@sha256:f8ff8a077eee05cfa330f269dd550844cf5a1e4c6f3cdfad6c6483e27da5400f
+          image: "{{ .Values.global.imageRegistry }}/{{ .Values.contacts.image.repository }}:{{ .Values.contacts.image.tag | default .Values.global.version }}{{- if .Values.contacts.image.digest }}@{{ .Values.contacts.image.digest }}{{- end }}"
           name: contacts
           readinessProbe:
             httpGet:
-              path: /ready
-              port: 8080
-            initialDelaySeconds: 10
-            periodSeconds: 5
-            timeoutSeconds: 10
+              path: {{ .Values.contacts.readinessProbe.httpGet.path }}
+              port: {{ .Values.contacts.readinessProbe.httpGet.port }}
+            initialDelaySeconds: {{ .Values.contacts.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.contacts.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.contacts.readinessProbe.timeoutSeconds }}
           resources:
-            limits:
-              cpu: 250m
-              ephemeral-storage: 0.25Gi
-              memory: 128Mi
-            requests:
-              cpu: 100m
-              ephemeral-storage: 0.25Gi
-              memory: 64Mi
+            {{- toYaml .Values.contacts.resources | nindent 12 }}
           securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-                - all
-            privileged: false
-            readOnlyRootFilesystem: true
+            {{- toYaml .Values.global.containerSecurityContext | nindent 12 }}
           volumeMounts:
             - mountPath: /tmp
               name: tmp
@@ -73,11 +65,8 @@ spec:
               name: publickey
               readOnly: true
       securityContext:
-        fsGroup: 1000
-        runAsGroup: 1000
-        runAsNonRoot: true
-        runAsUser: 1000
-      serviceAccountName: bank-of-anthos
+        {{- toYaml .Values.global.securityContext | nindent 8 }}
+      serviceAccountName: {{ .Values.global.serviceAccountName }}
       terminationGracePeriodSeconds: 5
       volumes:
         - emptyDir: {}
@@ -85,6 +74,7 @@ spec:
         - name: publickey
           secret:
             items:
-              - key: jwtRS256.key.pub
+              - key: {{ .Values.jwt.keyName }}
                 path: publickey
-            secretName: jwt-key
+            secretName: {{ .Values.jwt.secretName }}
+{{- end }}

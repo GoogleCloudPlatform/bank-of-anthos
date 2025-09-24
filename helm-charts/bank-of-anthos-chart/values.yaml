@@ -1,161 +1,424 @@
-# Default values for bank-app.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
+# Global configuration
+global:
+  # Application metadata
+  application: bank-of-anthos
+  environment: development
+  version: v0.6.7
+  
+  # Container registry settings
+  imageRegistry: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos
+  
+  # Security settings
+  serviceAccountName: bank-of-anthos
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+  
+  # Common container security settings
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    privileged: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - all
 
-# This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
-replicaCount: 1
+# JWT configuration
+jwt:
+  secretName: jwt-key
+  keyName: jwtRS256.key.pub
 
-# This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
-image:
-  repository: nginx
-  # This sets the pull policy for images.
-  pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+# Environment configuration
+config:
+  environment:
+    localRoutingNum: "883745000"
+    pubKeyPath: "/tmp/.ssh/publickey"
+  
+  # Demo data configuration
+  demo:
+    enabled: true
+    username: "testuser"
+    password: "bankofanthos"
+    # OAuth configuration (optional)
+    oauth:
+      clientId: ""
+      redirectUri: ""
 
-# This is for the secrets for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
-imagePullSecrets: []
-# This is to override the chart name.
-nameOverride: ""
-fullnameOverride: ""
+# Service API endpoints configuration
+serviceApi:
+  transactionsApiAddr: "ledgerwriter:8080"
+  balancesApiAddr: "balancereader:8080"
+  historyApiAddr: "transactionhistory:8080"
+  contactsApiAddr: "contacts:8080"
+  userserviceApiAddr: "userservice:8080"
 
-# This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
-serviceAccount:
-  # Specifies whether a service account should be created
-  create: true
-  # Automatically mount a ServiceAccount's API credentials?
-  automount: true
-  # Annotations to add to the service account
-  annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
-  name: ""
+# Frontend service configuration
+frontend:
+  enabled: true
+  replicaCount: 1
+  
+  image:
+    repository: frontend
+    tag: ""  # Uses global.version if empty
+    digest: "sha256:6d92f3ce81a389738baf236477c6795831a0802c7a007697d7121f10eab9a2cc"
+  
+  service:
+    type: LoadBalancer
+    port: 80
+    targetPort: 8080
+  
+  env:
+    port: "8080"
+    enableTracing: "false"
+    scheme: "http"
+    logLevel: "info"
+  
+  resources:
+    requests:
+      cpu: 100m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 128Mi
+  
+  # Health check configuration
+  livenessProbe:
+    httpGet:
+      path: /ready
+      port: 8080
+    initialDelaySeconds: 60
+    periodSeconds: 15
+    timeoutSeconds: 30
+  
+  readinessProbe:
+    httpGet:
+      path: /ready
+      port: 8080
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 10
 
-# This is for setting Kubernetes Annotations to a Pod.
-# For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
-podAnnotations: {}
-# This is for setting Kubernetes Labels to a Pod.
-# For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
-podLabels: {}
+# Balance Reader service configuration
+balanceReader:
+  enabled: true
+  replicaCount: 1
+  team: ledger
+  tier: backend
+  
+  image:
+    repository: balancereader
+    tag: ""  # Uses global.version if empty
+    digest: "sha256:3b46d0274fb47a99415678aefcc55d2844d87e694c5ae4a796da8719c08e9ef0"
+  
+  service:
+    port: 8080
+    type: ClusterIP
+  
+  env:
+    port: "8080"
+    enableTracing: "false"
+    enableMetrics: "false"
+    pollMs: "100"
+    cacheSize: "1000000"
+    jvmOpts: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Xms256m -Xmx512m"
+    logLevel: "info"
+    springAutoconfigureExclude: "com.google.cloud.spring.autoconfigure.core.GcpContextAutoConfiguration,com.google.cloud.spring.autoconfigure.metrics.GcpStackdriverMetricsAutoConfiguration,com.google.cloud.spring.autoconfigure.trace.StackdriverTraceAutoConfiguration"
+  
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+      ephemeral-storage: 0.5Gi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+      ephemeral-storage: 0.5Gi
+  
+  # Health check configuration
+  livenessProbe:
+    httpGet:
+      path: /healthy
+      port: 8080
+    initialDelaySeconds: 120
+    periodSeconds: 5
+    timeoutSeconds: 10
+  
+  readinessProbe:
+    httpGet:
+      path: /ready
+      port: 8080
+    initialDelaySeconds: 60
+    periodSeconds: 5
+    timeoutSeconds: 10
+  
+  startupProbe:
+    httpGet:
+      path: /healthy
+      port: 8080
+    failureThreshold: 30
+    periodSeconds: 10
 
-podSecurityContext: {}
-  # fsGroup: 2000
+# Ledger Writer service configuration
+ledgerWriter:
+  enabled: true
+  replicaCount: 1
+  team: ledger
+  tier: backend
+  
+  image:
+    repository: ledgerwriter
+    tag: ""  # Uses global.version if empty
+    digest: "sha256:28eebe04f9cdcf89e4a75693485f0150f44a1383a9e85eb01e82ee5415c4828e"
+  
+  service:
+    port: 8080
+    type: ClusterIP
+  
+  env:
+    port: "8080"
+    enableTracing: "false"
+    enableMetrics: "false"
+    jvmOpts: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Xms256m -Xmx512m"
+    logLevel: "info"
+  
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+      ephemeral-storage: 0.5Gi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+      ephemeral-storage: 0.5Gi
+  
+  # Health check configuration
+  readinessProbe:
+    httpGet:
+      path: /ready
+      port: 8080
+    initialDelaySeconds: 60
+    periodSeconds: 5
+    timeoutSeconds: 10
+  
+  startupProbe:
+    httpGet:
+      path: /ready
+      port: 8080
+    failureThreshold: 30
+    periodSeconds: 10
 
-securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
+# Transaction History service configuration
+transactionHistory:
+  enabled: true
+  replicaCount: 1
+  team: ledger
+  tier: backend
+  
+  image:
+    repository: transactionhistory
+    tag: ""  # Uses global.version if empty
+    digest: "sha256:8822d9130bd21895e453f88c0bf4eda3c8e23ce17f9eaefe8c3f71afe09bea7c"
+  
+  service:
+    port: 8080
+    type: ClusterIP
+  
+  env:
+    port: "8080"
+    enableTracing: "false"
+    enableMetrics: "false"
+    pollMs: "100"
+    cacheSize: "1000"
+    cacheMinutes: "60"
+    historyLimit: "100"
+    jvmOpts: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Xms256m -Xmx512m"
+    logLevel: "info"
+  
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+      ephemeral-storage: 0.5Gi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+      ephemeral-storage: 0.5Gi
+  
+  # Health check configuration
+  livenessProbe:
+    httpGet:
+      path: /healthy
+      port: 8080
+    initialDelaySeconds: 120
+    periodSeconds: 5
+    timeoutSeconds: 10
+  
+  readinessProbe:
+    httpGet:
+      path: /ready
+      port: 8080
+    initialDelaySeconds: 60
+    periodSeconds: 5
+    timeoutSeconds: 10
+  
+  startupProbe:
+    httpGet:
+      path: /healthy
+      port: 8080
+    failureThreshold: 30
+    periodSeconds: 10
 
-# This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
-service:
-  # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
-  type: ClusterIP
-  # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
-  port: 80
+# Contacts service configuration
+contacts:
+  enabled: true
+  replicaCount: 1
+  team: accounts
+  tier: backend
+  
+  image:
+    repository: contacts
+    tag: ""  # Uses global.version if empty
+    digest: "sha256:f8ff8a077eee05cfa330f269dd550844cf5a1e4c6f3cdfad6c6483e27da5400f"
+  
+  service:
+    port: 8080
+    type: ClusterIP
+  
+  env:
+    port: "8080"
+    enableTracing: "false"
+    logLevel: "info"
+  
+  resources:
+    requests:
+      cpu: 100m
+      memory: 64Mi
+      ephemeral-storage: 0.25Gi
+    limits:
+      cpu: 250m
+      memory: 128Mi
+      ephemeral-storage: 0.25Gi
+  
+  readinessProbe:
+    httpGet:
+      path: /ready
+      port: 8080
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 10
 
-# This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
-ingress:
+# User Service configuration
+userService:
+  enabled: true
+  replicaCount: 1
+  team: accounts
+  tier: backend
+  
+  image:
+    repository: userservice
+    tag: ""  # Uses global.version if empty
+  
+  service:
+    port: 8080
+    type: ClusterIP
+
+# Accounts Database configuration
+accountsDb:
+  enabled: true
+  team: accounts
+  tier: db
+  
+  image:
+    repository: accounts-db
+    tag: ""  # Uses global.version if empty
+    digest: "sha256:d1f7b4b42fbbad5b3f8c85c67a15f4e27cc9a054ae8bc2379e3f0319e313ce9d"
+  
+  service:
+    port: 5432
+    type: ClusterIP
+  
+  # Database configuration
+  database:
+    name: accounts-db
+    username: accounts-admin
+    password: accounts-pwd
+    uri: "postgresql://accounts-admin:accounts-pwd@accounts-db:5432/accounts-db"
+  
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 512Mi
+  
+  # Storage configuration
+  persistence:
+    enabled: false  # Using emptyDir for demo purposes
+    size: 8Gi
+    storageClass: ""
+
+# Ledger Database configuration
+ledgerDb:
+  enabled: true
+  team: ledger
+  tier: db
+  
+  image:
+    repository: ledger-db
+    tag: ""  # Uses global.version if empty
+    digest: "sha256:9b4009cfd17929ee165d55326bcf8ccf0f65039b1a467b847197c8404f462b7d"
+  
+  service:
+    port: 5432
+    type: ClusterIP
+  
+  # Database configuration
+  database:
+    name: postgresdb
+    username: admin
+    password: password
+    springUrl: "jdbc:postgresql://ledger-db:5432/postgresdb"
+  
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      cpu: 250m
+      memory: 1Gi
+  
+  # Storage configuration
+  persistence:
+    enabled: false  # Using emptyDir for demo purposes
+    size: 8Gi
+    storageClass: ""
+
+# Load Generator configuration
+loadGenerator:
+  enabled: true
+  
+  image:
+    repository: loadgenerator
+    tag: ""  # Uses global.version if empty
+  
+  # Load generation settings
+  env:
+    frontendAddr: "frontend:80"
+    users: "5"
+    duration: "0"  # 0 means run indefinitely
+
+# Istio configuration
+istio:
   enabled: false
-  className: ""
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  hosts:
-    - host: chart-example.local
-      paths:
-        - path: /
-          pathType: ImplementationSpecific
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
+  proxy:
+    holdApplicationUntilProxyStarts: true
 
-# -- Expose the service via gateway-api HTTPRoute
-# Requires Gateway API resources and suitable controller installed within the cluster
-# (see: https://gateway-api.sigs.k8s.io/guides/)
-httpRoute:
-  # HTTPRoute enabled.
-  enabled: false
-  # HTTPRoute annotations.
-  annotations: {}
-  # Which Gateways this Route is attached to.
-  parentRefs:
-  - name: gateway
-    sectionName: http
-    # namespace: default
-  # Hostnames matching HTTP header.
-  hostnames:
-  - chart-example.local
-  # List of rules and filters applied.
-  rules:
-  - matches:
-    - path:
-        type: PathPrefix
-        value: /headers
-  #   filters:
-  #   - type: RequestHeaderModifier
-  #     requestHeaderModifier:
-  #       set:
-  #       - name: My-Overwrite-Header
-  #         value: this-is-the-only-value
-  #       remove:
-  #       - User-Agent
-  # - matches:
-  #   - path:
-  #       type: PathPrefix
-  #       value: /echo
-  #     headers:
-  #     - name: version
-  #       value: v2
-
-resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
-
-# This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
-livenessProbe:
-  httpGet:
-    path: /
-    port: http
-readinessProbe:
-  httpGet:
-    path: /
-    port: http
-
-# This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
-autoscaling:
-  enabled: false
-  minReplicas: 1
-  maxReplicas: 100
-  targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
-
-# Additional volumes on the output Deployment definition.
-volumes: []
-# - name: foo
-#   secret:
-#     secretName: mysecret
-#     optional: false
-
-# Additional volumeMounts on the output Deployment definition.
-volumeMounts: []
-# - name: foo
-#   mountPath: "/etc/foo"
-#   readOnly: true
-
-nodeSelector: {}
-
-tolerations: []
-
-affinity: {}
+# Monitoring and observability
+monitoring:
+  tracing:
+    enabled: false
+  metrics:
+    enabled: false

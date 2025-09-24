@@ -1,21 +1,23 @@
+{{- if .Values.contacts.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
   labels:
-    application: bank-of-anthos
-    environment: development
-    team: accounts
-    tier: backend
+    application: {{ .Values.global.application }}
+    environment: {{ .Values.global.environment }}
+    team: {{ .Values.contacts.team }}
+    tier: {{ .Values.contacts.tier }}
   name: contacts
 spec:
   ports:
     - name: http
-      port: 8080
-      targetPort: 8080
+      port: {{ .Values.contacts.service.port }}
+      targetPort: {{ .Values.contacts.service.port }}
   selector:
     app: contacts
-    application: bank-of-anthos
-    environment: development
-    team: accounts
-    tier: backend
-  type: ClusterIP
+    application: {{ .Values.global.application }}
+    environment: {{ .Values.global.environment }}
+    team: {{ .Values.contacts.team }}
+    tier: {{ .Values.contacts.tier }}
+  type: {{ .Values.contacts.service.type }}
+{{- end }}

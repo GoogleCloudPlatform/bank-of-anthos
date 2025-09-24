@@ -1,98 +1,90 @@
+{{- if .Values.balanceReader.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    application: bank-of-anthos
-    environment: development
-    team: ledger
-    tier: backend
+    application: {{ .Values.global.application }}
+    environment: {{ .Values.global.environment }}
+    team: {{ .Values.balanceReader.team }}
+    tier: {{ .Values.balanceReader.tier }}
   name: balancereader
 spec:
+  replicas: {{ .Values.balanceReader.replicaCount }}
   selector:
     matchLabels:
       app: balancereader
-      application: bank-of-anthos
-      environment: development
-      team: ledger
-      tier: backend
+      application: {{ .Values.global.application }}
+      environment: {{ .Values.global.environment }}
+      team: {{ .Values.balanceReader.team }}
+      tier: {{ .Values.balanceReader.tier }}
   template:
     metadata:
       annotations:
-        proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
+        {{- if .Values.istio.enabled }}
+        proxy.istio.io/config: {{ dict "holdApplicationUntilProxyStarts" .Values.istio.proxy.holdApplicationUntilProxyStarts | toJson | quote }}
+        {{- end }}
       labels:
         app: balancereader
-        application: bank-of-anthos
-        environment: development
-        team: ledger
-        tier: backend
+        application: {{ .Values.global.application }}
+        environment: {{ .Values.global.environment }}
+        team: {{ .Values.balanceReader.team }}
+        tier: {{ .Values.balanceReader.tier }}
     spec:
       containers:
         - env:
             - name: VERSION
-              value: v0.6.7
+              value: {{ .Values.balanceReader.image.tag | default .Values.global.version | quote }}
             - name: PORT
-              value: "8080"
+              value: {{ .Values.balanceReader.env.port | quote }}
             - name: ENABLE_TRACING
-              value: "false"
+              value: {{ .Values.balanceReader.env.enableTracing | quote }}
             - name: ENABLE_METRICS
-              value: "false"
+              value: {{ .Values.balanceReader.env.enableMetrics | quote }}
             - name: POLL_MS
-              value: "100"
+              value: {{ .Values.balanceReader.env.pollMs | quote }}
             - name: CACHE_SIZE
-              value: "1000000"
+              value: {{ .Values.balanceReader.env.cacheSize | quote }}
             - name: JVM_OPTS
-              value: -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Xms256m -Xmx512m
+              value: {{ .Values.balanceReader.env.jvmOpts | quote }}
             - name: LOG_LEVEL
-              value: info
+              value: {{ .Values.balanceReader.env.logLevel | quote }}
             - name: NAMESPACE
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
-            - name: SPRING_AUTOCONFIGURE_EXCLUDE
-              value: "com.google.cloud.spring.autoconfigure.core.GcpContextAutoConfiguration,com.google.cloud.spring.autoconfigure.metrics.GcpStackdriverMetricsAutoConfiguration,com.google.cloud.spring.autoconfigure.trace.StackdriverTraceAutoConfiguration"
+            - name: SPRING_AUTOCONFIGURE_EXCLUDE ## TODO: This is a hack to exclude the GCP autoconfiguration for straightforward local development
+              value: {{ .Values.balanceReader.env.springAutoconfigureExclude | quote }}
           envFrom:
             - configMapRef:
                 name: environment-config
             - configMapRef:
                 name: ledger-db-config
-          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/balancereader:v0.6.7@sha256:3b46d0274fb47a99415678aefcc55d2844d87e694c5ae4a796da8719c08e9ef0
+          image: "{{ .Values.global.imageRegistry }}/{{ .Values.balanceReader.image.repository }}:{{ .Values.balanceReader.image.tag | default .Values.global.version }}{{- if .Values.balanceReader.image.digest }}@{{ .Values.balanceReader.image.digest }}{{- end }}"
           livenessProbe:
             httpGet:
-              path: /healthy
-              port: 8080
-            initialDelaySeconds: 120
-            periodSeconds: 5
-            timeoutSeconds: 10
+              path: {{ .Values.balanceReader.livenessProbe.httpGet.path }}
+              port: {{ .Values.balanceReader.livenessProbe.httpGet.port }}
+            initialDelaySeconds: {{ .Values.balanceReader.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.balanceReader.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.balanceReader.livenessProbe.timeoutSeconds }}
           name: balancereader
           readinessProbe:
             httpGet:
-              path: /ready
-              port: 8080
-            initialDelaySeconds: 60
-            periodSeconds: 5
-            timeoutSeconds: 10
+              path: {{ .Values.balanceReader.readinessProbe.httpGet.path }}
+              port: {{ .Values.balanceReader.readinessProbe.httpGet.port }}
+            initialDelaySeconds: {{ .Values.balanceReader.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.balanceReader.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.balanceReader.readinessProbe.timeoutSeconds }}
           resources:
-            limits:
-              cpu: 500m
-              ephemeral-storage: 0.5Gi
-              memory: 512Mi
-            requests:
-              cpu: 100m
-              ephemeral-storage: 0.5Gi
-              memory: 256Mi
+            {{- toYaml .Values.balanceReader.resources | nindent 12 }}
           securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-                - all
-            privileged: false
-            readOnlyRootFilesystem: true
+            {{- toYaml .Values.global.containerSecurityContext | nindent 12 }}
           startupProbe:
-            failureThreshold: 30
             httpGet:
-              path: /healthy
-              port: 8080
-            periodSeconds: 10
+              path: {{ .Values.balanceReader.startupProbe.httpGet.path }}
+              port: {{ .Values.balanceReader.startupProbe.httpGet.port }}
+            failureThreshold: {{ .Values.balanceReader.startupProbe.failureThreshold }}
+            periodSeconds: {{ .Values.balanceReader.startupProbe.periodSeconds }}
           volumeMounts:
             - mountPath: /tmp
               name: tmp
@@ -100,11 +92,8 @@ spec:
               name: publickey
               readOnly: true
       securityContext:
-        fsGroup: 1000
-        runAsGroup: 1000
-        runAsNonRoot: true
-        runAsUser: 1000
-      serviceAccountName: bank-of-anthos
+        {{- toYaml .Values.global.securityContext | nindent 8 }}
+      serviceAccountName: {{ .Values.global.serviceAccountName }}
       terminationGracePeriodSeconds: 5
       volumes:
         - emptyDir: {}
@@ -112,6 +101,7 @@ spec:
         - name: publickey
           secret:
             items:
-              - key: jwtRS256.key.pub
+              - key: {{ .Values.jwt.keyName }}
                 path: publickey
-            secretName: jwt-key
+            secretName: {{ .Values.jwt.secretName }}
+{{- end }}

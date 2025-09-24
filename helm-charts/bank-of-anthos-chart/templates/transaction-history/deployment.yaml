@@ -1,53 +1,57 @@
+{{- if .Values.transactionHistory.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    application: bank-of-anthos
-    environment: development
-    team: ledger
-    tier: backend
+    application: {{ .Values.global.application }}
+    environment: {{ .Values.global.environment }}
+    team: {{ .Values.transactionHistory.team }}
+    tier: {{ .Values.transactionHistory.tier }}
   name: transactionhistory
 spec:
+  replicas: {{ .Values.transactionHistory.replicaCount }}
   selector:
     matchLabels:
       app: transactionhistory
-      application: bank-of-anthos
-      environment: development
-      team: ledger
-      tier: backend
+      application: {{ .Values.global.application }}
+      environment: {{ .Values.global.environment }}
+      team: {{ .Values.transactionHistory.team }}
+      tier: {{ .Values.transactionHistory.tier }}
   template:
     metadata:
       annotations:
-        proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
+        {{- if .Values.istio.enabled }}
+        proxy.istio.io/config: {{ dict "holdApplicationUntilProxyStarts" .Values.istio.proxy.holdApplicationUntilProxyStarts | toJson | quote }}
+        {{- end }}
       labels:
         app: transactionhistory
-        application: bank-of-anthos
-        environment: development
-        team: ledger
-        tier: backend
+        application: {{ .Values.global.application }}
+        environment: {{ .Values.global.environment }}
+        team: {{ .Values.transactionHistory.team }}
+        tier: {{ .Values.transactionHistory.tier }}
     spec:
       containers:
         - env:
             - name: VERSION
-              value: v0.6.7
+              value: {{ .Values.transactionHistory.image.tag | default .Values.global.version | quote }}
             - name: PORT
-              value: "8080"
+              value: {{ .Values.transactionHistory.env.port | quote }}
             - name: ENABLE_TRACING
-              value: "false"
+              value: {{ .Values.transactionHistory.env.enableTracing | quote }}
             - name: ENABLE_METRICS
-              value: "false"
+              value: {{ .Values.transactionHistory.env.enableMetrics | quote }}
             - name: POLL_MS
-              value: "100"
+              value: {{ .Values.transactionHistory.env.pollMs | quote }}
             - name: CACHE_SIZE
-              value: "1000"
+              value: {{ .Values.transactionHistory.env.cacheSize | quote }}
             - name: CACHE_MINUTES
-              value: "60"
+              value: {{ .Values.transactionHistory.env.cacheMinutes | quote }}
             - name: HISTORY_LIMIT
-              value: "100"
+              value: {{ .Values.transactionHistory.env.historyLimit | quote }}
             - name: JVM_OPTS
-              value: -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Xms256m -Xmx512m
+              value: {{ .Values.transactionHistory.env.jvmOpts | quote }}
             - name: LOG_LEVEL
-              value: info
+              value: {{ .Values.transactionHistory.env.logLevel | quote }}
             - name: NAMESPACE
               valueFrom:
                 fieldRef:
@@ -57,44 +61,32 @@ spec:
                 name: environment-config
             - configMapRef:
                 name: ledger-db-config
-          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/transactionhistory:v0.6.7@sha256:8822d9130bd21895e453f88c0bf4eda3c8e23ce17f9eaefe8c3f71afe09bea7c
+          image: "{{ .Values.global.imageRegistry }}/{{ .Values.transactionHistory.image.repository }}:{{ .Values.transactionHistory.image.tag | default .Values.global.version }}{{- if .Values.transactionHistory.image.digest }}@{{ .Values.transactionHistory.image.digest }}{{- end }}"
           livenessProbe:
             httpGet:
-              path: /healthy
-              port: 8080
-            initialDelaySeconds: 120
-            periodSeconds: 5
-            timeoutSeconds: 10
+              path: {{ .Values.transactionHistory.livenessProbe.httpGet.path }}
+              port: {{ .Values.transactionHistory.livenessProbe.httpGet.port }}
+            initialDelaySeconds: {{ .Values.transactionHistory.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.transactionHistory.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.transactionHistory.livenessProbe.timeoutSeconds }}
           name: transactionhistory
           readinessProbe:
             httpGet:
-              path: /ready
-              port: 8080
-            initialDelaySeconds: 60
-            periodSeconds: 5
-            timeoutSeconds: 10
+              path: {{ .Values.transactionHistory.readinessProbe.httpGet.path }}
+              port: {{ .Values.transactionHistory.readinessProbe.httpGet.port }}
+            initialDelaySeconds: {{ .Values.transactionHistory.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.transactionHistory.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.transactionHistory.readinessProbe.timeoutSeconds }}
           resources:
-            limits:
-              cpu: 500m
-              ephemeral-storage: 0.5Gi
-              memory: 512Mi
-            requests:
-              cpu: 100m
-              ephemeral-storage: 0.5Gi
-              memory: 256Mi
+            {{- toYaml .Values.transactionHistory.resources | nindent 12 }}
           securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-                - all
-            privileged: false
-            readOnlyRootFilesystem: true
+            {{- toYaml .Values.global.containerSecurityContext | nindent 12 }}
           startupProbe:
-            failureThreshold: 30
             httpGet:
-              path: /healthy
-              port: 8080
-            periodSeconds: 10
+              path: {{ .Values.transactionHistory.startupProbe.httpGet.path }}
+              port: {{ .Values.transactionHistory.startupProbe.httpGet.port }}
+            failureThreshold: {{ .Values.transactionHistory.startupProbe.failureThreshold }}
+            periodSeconds: {{ .Values.transactionHistory.startupProbe.periodSeconds }}
           volumeMounts:
             - mountPath: /tmp
               name: tmp
@@ -102,11 +94,8 @@ spec:
               name: publickey
               readOnly: true
       securityContext:
-        fsGroup: 1000
-        runAsGroup: 1000
-        runAsNonRoot: true
-        runAsUser: 1000
-      serviceAccountName: bank-of-anthos
+        {{- toYaml .Values.global.securityContext | nindent 8 }}
+      serviceAccountName: {{ .Values.global.serviceAccountName }}
       terminationGracePeriodSeconds: 5
       volumes:
         - emptyDir: {}
@@ -114,6 +103,7 @@ spec:
         - name: publickey
           secret:
             items:
-              - key: jwtRS256.key.pub
+              - key: {{ .Values.jwt.keyName }}
                 path: publickey
-            secretName: jwt-key
+            secretName: {{ .Values.jwt.secretName }}
+{{- end }}

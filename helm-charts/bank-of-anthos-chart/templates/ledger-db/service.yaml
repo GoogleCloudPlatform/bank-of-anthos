@@ -1,22 +1,23 @@
----
+{{- if .Values.ledgerDb.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
   labels:
-    application: bank-of-anthos
-    environment: development
-    team: ledger
-    tier: db
+    application: {{ .Values.global.application }}
+    environment: {{ .Values.global.environment }}
+    team: {{ .Values.ledgerDb.team }}
+    tier: {{ .Values.ledgerDb.tier }}
   name: ledger-db
 spec:
   ports:
     - name: tcp
-      port: 5432
-      targetPort: 5432
+      port: {{ .Values.ledgerDb.service.port }}
+      targetPort: {{ .Values.ledgerDb.service.port }}
   selector:
     app: ledger-db
-    application: bank-of-anthos
-    environment: development
-    team: ledger
-    tier: db
-  type: ClusterIP
+    application: {{ .Values.global.application }}
+    environment: {{ .Values.global.environment }}
+    team: {{ .Values.ledgerDb.team }}
+    tier: {{ .Values.ledgerDb.tier }}
+  type: {{ .Values.ledgerDb.service.type }}
+{{- end }}

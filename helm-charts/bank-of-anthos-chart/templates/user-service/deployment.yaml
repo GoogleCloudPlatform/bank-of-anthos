@@ -1,35 +1,39 @@
+{{- if .Values.userService.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    application: bank-of-anthos
-    environment: development
-    team: accounts
-    tier: backend
+    application: {{ .Values.global.application }}
+    environment: {{ .Values.global.environment }}
+    team: {{ .Values.userService.team }}
+    tier: {{ .Values.userService.tier }}
   name: userservice
 spec:
+  replicas: {{ .Values.userService.replicaCount }}
   selector:
     matchLabels:
       app: userservice
-      application: bank-of-anthos
-      environment: development
-      team: accounts
-      tier: backend
+      application: {{ .Values.global.application }}
+      environment: {{ .Values.global.environment }}
+      team: {{ .Values.userService.team }}
+      tier: {{ .Values.userService.tier }}
   template:
     metadata:
       annotations:
-        proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
+        {{- if .Values.istio.enabled }}
+        proxy.istio.io/config: {{ dict "holdApplicationUntilProxyStarts" .Values.istio.proxy.holdApplicationUntilProxyStarts | toJson | quote }}
+        {{- end }}
       labels:
         app: userservice
-        application: bank-of-anthos
-        environment: development
-        team: accounts
-        tier: backend
+        application: {{ .Values.global.application }}
+        environment: {{ .Values.global.environment }}
+        team: {{ .Values.userService.team }}
+        tier: {{ .Values.userService.tier }}
     spec:
       containers:
         - env:
             - name: VERSION
-              value: v0.6.7
+              value: {{ .Values.userService.image.tag | default .Values.global.version | quote }}
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
@@ -45,15 +49,15 @@ spec:
                 name: environment-config
             - configMapRef:
                 name: accounts-db-config
-          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/userservice:v0.6.7@sha256:932045a3bdba7b32fffe4087b544f4aa8e2952f3440ecaa92142c13407249732
+          image: "{{ .Values.global.imageRegistry }}/{{ .Values.userService.image.repository }}:{{ .Values.userService.image.tag | default .Values.global.version }}"
           name: userservice
           ports:
-            - containerPort: 8080
+            - containerPort: {{ .Values.userService.service.port }}
               name: http-server
           readinessProbe:
             httpGet:
               path: /ready
-              port: 8080
+              port: {{ .Values.userService.service.port }}
             initialDelaySeconds: 10
             periodSeconds: 5
             timeoutSeconds: 10
@@ -67,12 +71,7 @@ spec:
               ephemeral-storage: 0.25Gi
               memory: 128Mi
           securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-                - all
-            privileged: false
-            readOnlyRootFilesystem: true
+            {{- toYaml .Values.global.containerSecurityContext | nindent 12 }}
           volumeMounts:
             - mountPath: /tmp
               name: tmp
@@ -80,11 +79,8 @@ spec:
               name: keys
               readOnly: true
       securityContext:
-        fsGroup: 1000
-        runAsGroup: 1000
-        runAsNonRoot: true
-        runAsUser: 1000
-      serviceAccountName: bank-of-anthos
+        {{- toYaml .Values.global.securityContext | nindent 8 }}
+      serviceAccountName: {{ .Values.global.serviceAccountName }}
       terminationGracePeriodSeconds: 5
       volumes:
         - emptyDir: {}
@@ -94,6 +90,7 @@ spec:
             items:
               - key: jwtRS256.key
                 path: privatekey
-              - key: jwtRS256.key.pub
+              - key: {{ .Values.jwt.keyName }}
                 path: publickey
-            secretName: jwt-key
+            secretName: {{ .Values.jwt.secretName }}
+{{- end }}

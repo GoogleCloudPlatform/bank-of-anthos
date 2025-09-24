@@ -1,45 +1,49 @@
+{{- if .Values.ledgerWriter.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    application: bank-of-anthos
-    environment: development
-    team: ledger
-    tier: backend
+    application: {{ .Values.global.application }}
+    environment: {{ .Values.global.environment }}
+    team: {{ .Values.ledgerWriter.team }}
+    tier: {{ .Values.ledgerWriter.tier }}
   name: ledgerwriter
 spec:
+  replicas: {{ .Values.ledgerWriter.replicaCount }}
   selector:
     matchLabels:
       app: ledgerwriter
-      application: bank-of-anthos
-      environment: development
-      team: ledger
-      tier: backend
+      application: {{ .Values.global.application }}
+      environment: {{ .Values.global.environment }}
+      team: {{ .Values.ledgerWriter.team }}
+      tier: {{ .Values.ledgerWriter.tier }}
   template:
     metadata:
       annotations:
-        proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
+        {{- if .Values.istio.enabled }}
+        proxy.istio.io/config: {{ dict "holdApplicationUntilProxyStarts" .Values.istio.proxy.holdApplicationUntilProxyStarts | toJson | quote }}
+        {{- end }}
       labels:
         app: ledgerwriter
-        application: bank-of-anthos
-        environment: development
-        team: ledger
-        tier: backend
+        application: {{ .Values.global.application }}
+        environment: {{ .Values.global.environment }}
+        team: {{ .Values.ledgerWriter.team }}
+        tier: {{ .Values.ledgerWriter.tier }}
     spec:
       containers:
         - env:
             - name: VERSION
-              value: v0.6.7
+              value: {{ .Values.ledgerWriter.image.tag | default .Values.global.version | quote }}
             - name: PORT
-              value: "8080"
+              value: {{ .Values.ledgerWriter.env.port | quote }}
             - name: ENABLE_TRACING
-              value: "false"
+              value: {{ .Values.ledgerWriter.env.enableTracing | quote }}
             - name: ENABLE_METRICS
-              value: "false"
+              value: {{ .Values.ledgerWriter.env.enableMetrics | quote }}
             - name: JVM_OPTS
-              value: -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Xms256m -Xmx512m
+              value: {{ .Values.ledgerWriter.env.jvmOpts | quote }}
             - name: LOG_LEVEL
-              value: info
+              value: {{ .Values.ledgerWriter.env.logLevel | quote }}
             - name: NAMESPACE
               valueFrom:
                 fieldRef:
@@ -51,37 +55,25 @@ spec:
                 name: service-api-config
             - configMapRef:
                 name: ledger-db-config
-          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/ledgerwriter:v0.6.7@sha256:28eebe04f9cdcf89e4a75693485f0150f44a1383a9e85eb01e82ee5415c4828e
+          image: "{{ .Values.global.imageRegistry }}/{{ .Values.ledgerWriter.image.repository }}:{{ .Values.ledgerWriter.image.tag | default .Values.global.version }}{{- if .Values.ledgerWriter.image.digest }}@{{ .Values.ledgerWriter.image.digest }}{{- end }}"
           name: ledgerwriter
           readinessProbe:
             httpGet:
-              path: /ready
-              port: 8080
-            initialDelaySeconds: 60
-            periodSeconds: 5
-            timeoutSeconds: 10
+              path: {{ .Values.ledgerWriter.readinessProbe.httpGet.path }}
+              port: {{ .Values.ledgerWriter.readinessProbe.httpGet.port }}
+            initialDelaySeconds: {{ .Values.ledgerWriter.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.ledgerWriter.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.ledgerWriter.readinessProbe.timeoutSeconds }}
           resources:
-            limits:
-              cpu: 500m
-              ephemeral-storage: 0.5Gi
-              memory: 512Mi
-            requests:
-              cpu: 100m
-              ephemeral-storage: 0.5Gi
-              memory: 256Mi
+            {{- toYaml .Values.ledgerWriter.resources | nindent 12 }}
           securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-                - all
-            privileged: false
-            readOnlyRootFilesystem: true
+            {{- toYaml .Values.global.containerSecurityContext | nindent 12 }}
           startupProbe:
-            failureThreshold: 30
             httpGet:
-              path: /ready
-              port: 8080
-            periodSeconds: 10
+              path: {{ .Values.ledgerWriter.startupProbe.httpGet.path }}
+              port: {{ .Values.ledgerWriter.startupProbe.httpGet.port }}
+            failureThreshold: {{ .Values.ledgerWriter.startupProbe.failureThreshold }}
+            periodSeconds: {{ .Values.ledgerWriter.startupProbe.periodSeconds }}
           volumeMounts:
             - mountPath: /tmp
               name: tmp
@@ -89,11 +81,8 @@ spec:
               name: publickey
               readOnly: true
       securityContext:
-        fsGroup: 1000
-        runAsGroup: 1000
-        runAsNonRoot: true
-        runAsUser: 1000
-      serviceAccountName: bank-of-anthos
+        {{- toYaml .Values.global.securityContext | nindent 8 }}
+      serviceAccountName: {{ .Values.global.serviceAccountName }}
       terminationGracePeriodSeconds: 5
       volumes:
         - emptyDir: {}
@@ -101,6 +90,7 @@ spec:
         - name: publickey
           secret:
             items:
-              - key: jwtRS256.key.pub
+              - key: {{ .Values.jwt.keyName }}
                 path: publickey
-            secretName: jwt-key
+            secretName: {{ .Values.jwt.secretName }}
+{{- end }}

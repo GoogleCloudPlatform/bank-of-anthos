@@ -1,30 +1,31 @@
+{{- if .Values.ledgerDb.enabled }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   labels:
-    application: bank-of-anthos
-    environment: development
-    team: ledger
-    tier: db
+    application: {{ .Values.global.application }}
+    environment: {{ .Values.global.environment }}
+    team: {{ .Values.ledgerDb.team }}
+    tier: {{ .Values.ledgerDb.tier }}
   name: ledger-db
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: ledger-db
-      application: bank-of-anthos
-      environment: development
-      team: ledger
-      tier: db
+      application: {{ .Values.global.application }}
+      environment: {{ .Values.global.environment }}
+      team: {{ .Values.ledgerDb.team }}
+      tier: {{ .Values.ledgerDb.tier }}
   serviceName: ledger-db
   template:
     metadata:
       labels:
         app: ledger-db
-        application: bank-of-anthos
-        environment: development
-        team: ledger
-        tier: db
+        application: {{ .Values.global.application }}
+        environment: {{ .Values.global.environment }}
+        team: {{ .Values.ledgerDb.team }}
+        tier: {{ .Values.ledgerDb.tier }}
     spec:
       containers:
         - envFrom:
@@ -32,25 +33,28 @@ spec:
                 name: environment-config
             - configMapRef:
                 name: ledger-db-config
+            {{- if .Values.config.demo.enabled }}
             - configMapRef:
                 name: demo-data-config
-          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/ledger-db:v0.6.7@sha256:9b4009cfd17929ee165d55326bcf8ccf0f65039b1a467b847197c8404f462b7d
+            {{- end }}
+          image: "{{ .Values.global.imageRegistry }}/{{ .Values.ledgerDb.image.repository }}:{{ .Values.ledgerDb.image.tag | default .Values.global.version }}{{- if .Values.ledgerDb.image.digest }}@{{ .Values.ledgerDb.image.digest }}{{- end }}"
           name: postgres
           ports:
-            - containerPort: 5432
+            - containerPort: {{ .Values.ledgerDb.service.port }}
           resources:
-            limits:
-              cpu: 250m
-              memory: 1Gi
-            requests:
-              cpu: 100m
-              memory: 512Mi
+            {{- toYaml .Values.ledgerDb.resources | nindent 12 }}
           volumeMounts:
             - mountPath: /var/lib/postgresql/data
               name: postgresdb
               subPath: postgres
-      serviceAccount: bank-of-anthos
-      serviceAccountName: default
+      serviceAccountName: {{ .Values.global.serviceAccountName }}
       volumes:
+        {{- if .Values.ledgerDb.persistence.enabled }}
+        - name: postgresdb
+          persistentVolumeClaim:
+            claimName: ledger-db-pvc
+        {{- else }}
         - emptyDir: {}
           name: postgresdb
+        {{- end }}
+{{- end }}

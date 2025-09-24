@@ -1,21 +1,23 @@
+{{- if .Values.balanceReader.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
   labels:
-    application: bank-of-anthos
-    environment: development
-    team: ledger
-    tier: backend
+    application: {{ .Values.global.application }}
+    environment: {{ .Values.global.environment }}
+    team: {{ .Values.balanceReader.team }}
+    tier: {{ .Values.balanceReader.tier }}
   name: balancereader
 spec:
   ports:
     - name: http
-      port: 8080
-      targetPort: 8080
+      port: {{ .Values.balanceReader.service.port }}
+      targetPort: {{ .Values.balanceReader.service.port }}
   selector:
     app: balancereader
-    application: bank-of-anthos
-    environment: development
-    team: ledger
-    tier: backend
-  type: ClusterIP
+    application: {{ .Values.global.application }}
+    environment: {{ .Values.global.environment }}
+    team: {{ .Values.balanceReader.team }}
+    tier: {{ .Values.balanceReader.tier }}
+  type: {{ .Values.balanceReader.service.type }}
+{{- end }}
