@@ -1,0 +1,78 @@
+name: Deploy Bank of Anthos to GKE
+
+on:
+  push:
+    branches:
+      - simple-deploy
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  GKE_CLUSTER: bank-of-anthos
+  GKE_ZONE: us-central1
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Google Cloud CLI
+      uses: google-github-actions/setup-gcloud@v2
+      with:
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+    - name: Configure Docker for GCR
+      run: gcloud auth configure-docker
+
+    - name: Get GKE credentials
+      run: gcloud container clusters get-credentials ${{ env.GKE_CLUSTER }} --zone ${{ env.GKE_ZONE }}
+
+    - name: Deploy JWT Secret
+      run: kubectl apply -f ./extras/jwt/jwt-secret.yaml
+
+    - name: Deploy Bank of Anthos (Rolling Update)
+      run: |
+        # Apply configurations first (these don't cause downtime)
+        kubectl apply -f ./kubernetes-manifests/config.yaml
+        
+        # Apply databases (these are stateful and should be updated carefully)
+        kubectl apply -f ./kubernetes-manifests/accounts-db.yaml
+        kubectl apply -f ./kubernetes-manifests/ledger-db.yaml
+        
+        # Apply services with rolling updates (zero downtime)
+        kubectl apply -f ./kubernetes-manifests/frontend.yaml
+        kubectl apply -f ./kubernetes-manifests/userservice.yaml
+        kubectl apply -f ./kubernetes-manifests/contacts.yaml
+        kubectl apply -f ./kubernetes-manifests/ledger-writer.yaml
+        kubectl apply -f ./kubernetes-manifests/balance-reader.yaml
+        kubectl apply -f ./kubernetes-manifests/transaction-history.yaml
+        kubectl apply -f ./kubernetes-manifests/loadgenerator.yaml
+
+    - name: Wait for rolling updates to complete
+      run: |
+        echo "Waiting for rolling updates to complete..."
+        kubectl rollout status deployment/frontend --timeout=300s
+        kubectl rollout status deployment/userservice --timeout=300s
+        kubectl rollout status deployment/contacts --timeout=300s
+        kubectl rollout status deployment/ledgerwriter --timeout=300s
+        kubectl rollout status deployment/balancereader --timeout=300s
+        kubectl rollout status deployment/transactionhistory --timeout=300s
+        kubectl rollout status deployment/loadgenerator --timeout=300s
+        echo "✅ All rolling updates completed successfully!"
+
+    - name: Verify deployment
+      run: |
+        echo "=== Pod Status ==="
+        kubectl get pods
+        echo ""
+        echo "=== Service Status ==="
+        kubectl get services
+        echo ""
+        echo "=== Frontend Service Details ==="
+        kubectl get service frontend
+        echo ""
+        echo "🎉 Deployment completed! Use the EXTERNAL-IP above to access the application."

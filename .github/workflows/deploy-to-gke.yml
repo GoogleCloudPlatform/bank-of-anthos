@@ -1,0 +1,56 @@
+name: Deploy to GKE
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  GKE_CLUSTER: bank-of-anthos
+  GKE_ZONE: us-central1
+  DEPLOYMENT_NAME: bank-of-anthos
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Google Cloud CLI
+      uses: google-github-actions/setup-gcloud@v2
+      with:
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+    - name: Configure Docker for GCR
+      run: gcloud auth configure-docker
+
+    - name: Get GKE credentials
+      run: gcloud container clusters get-credentials ${{ env.GKE_CLUSTER }} --zone ${{ env.GKE_ZONE }}
+
+    - name: Deploy JWT Secret
+      run: kubectl apply -f ./extras/jwt/jwt-secret.yaml
+
+    - name: Deploy Bank of Anthos
+      run: kubectl apply -f ./kubernetes-manifests
+
+    - name: Wait for deployment to complete
+      run: |
+        kubectl rollout status deployment/frontend
+        kubectl rollout status deployment/userservice
+        kubectl rollout status deployment/contacts
+        kubectl rollout status deployment/ledgerwriter
+        kubectl rollout status deployment/balancereader
+        kubectl rollout status deployment/transactionhistory
+        kubectl rollout status deployment/loadgenerator
+
+    - name: Get frontend service info
+      run: |
+        echo "Frontend service details:"
+        kubectl get service frontend
+        echo ""
+        echo "To access the application, use the EXTERNAL-IP shown above"

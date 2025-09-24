@@ -1,0 +1,116 @@
+name: Build and Deploy to GKE
+
+on:
+  push:
+    branches:
+      - advanced-deploy
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  GKE_CLUSTER: bank-of-anthos
+  GKE_ZONE: us-central1
+  REGISTRY: gcr.io
+  IMAGE_NAME: bank-of-anthos
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Google Cloud CLI
+      uses: google-github-actions/setup-gcloud@v2
+      with:
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+    - name: Configure Docker for GCR
+      run: gcloud auth configure-docker
+
+    - name: Get GKE credentials
+      run: gcloud container clusters get-credentials ${{ env.GKE_CLUSTER }} --zone ${{ env.GKE_ZONE }}
+
+    - name: Build and push frontend image
+      run: |
+        cd src/frontend
+        docker build -t ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.IMAGE_NAME }}-frontend:${{ github.sha }} .
+        docker push ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.IMAGE_NAME }}-frontend:${{ github.sha }}
+
+    - name: Build and push userservice image
+      run: |
+        cd src/accounts/userservice
+        docker build -t ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.IMAGE_NAME }}-userservice:${{ github.sha }} .
+        docker push ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.IMAGE_NAME }}-userservice:${{ github.sha }}
+
+    - name: Build and push contacts image
+      run: |
+        cd src/accounts/contacts
+        docker build -t ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.IMAGE_NAME }}-contacts:${{ github.sha }} .
+        docker push ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.IMAGE_NAME }}-contacts:${{ github.sha }}
+
+    - name: Build and push ledgerwriter image
+      run: |
+        cd src/ledger/ledgerwriter
+        docker build -t ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.IMAGE_NAME }}-ledgerwriter:${{ github.sha }} .
+        docker push ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.IMAGE_NAME }}-ledgerwriter:${{ github.sha }}
+
+    - name: Build and push balancereader image
+      run: |
+        cd src/ledger/balancereader
+        docker build -t ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.IMAGE_NAME }}-balancereader:${{ github.sha }} .
+        docker push ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.IMAGE_NAME }}-balancereader:${{ github.sha }}
+
+    - name: Build and push transactionhistory image
+      run: |
+        cd src/ledger/transactionhistory
+        docker build -t ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.IMAGE_NAME }}-transactionhistory:${{ github.sha }} .
+        docker push ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.IMAGE_NAME }}-transactionhistory:${{ github.sha }}
+
+    - name: Build and push loadgenerator image
+      run: |
+        cd src/loadgenerator
+        docker build -t ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.IMAGE_NAME }}-loadgenerator:${{ github.sha }} .
+        docker push ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.IMAGE_NAME }}-loadgenerator:${{ github.sha }}
+
+    - name: Update deployment images
+      run: |
+        # Update the image tags in the deployment files
+        sed -i "s|gcr.io/bank-of-anthos/frontend:.*|${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.IMAGE_NAME }}-frontend:${{ github.sha }}|g" kubernetes-manifests/frontend.yaml
+        sed -i "s|gcr.io/bank-of-anthos/userservice:.*|${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.IMAGE_NAME }}-userservice:${{ github.sha }}|g" kubernetes-manifests/userservice.yaml
+        sed -i "s|gcr.io/bank-of-anthos/contacts:.*|${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.IMAGE_NAME }}-contacts:${{ github.sha }}|g" kubernetes-manifests/contacts.yaml
+        sed -i "s|gcr.io/bank-of-anthos/ledgerwriter:.*|${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.IMAGE_NAME }}-ledgerwriter:${{ github.sha }}|g" kubernetes-manifests/ledger-writer.yaml
+        sed -i "s|gcr.io/bank-of-anthos/balancereader:.*|${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.IMAGE_NAME }}-balancereader:${{ github.sha }}|g" kubernetes-manifests/balance-reader.yaml
+        sed -i "s|gcr.io/bank-of-anthos/transactionhistory:.*|${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.IMAGE_NAME }}-transactionhistory:${{ github.sha }}|g" kubernetes-manifests/transaction-history.yaml
+        sed -i "s|gcr.io/bank-of-anthos/loadgenerator:.*|${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.IMAGE_NAME }}-loadgenerator:${{ github.sha }}|g" kubernetes-manifests/loadgenerator.yaml
+
+    - name: Deploy JWT Secret
+      run: kubectl apply -f ./extras/jwt/jwt-secret.yaml
+
+    - name: Deploy Bank of Anthos
+      run: kubectl apply -f ./kubernetes-manifests
+
+    - name: Wait for deployment to complete
+      run: |
+        kubectl rollout status deployment/frontend --timeout=300s
+        kubectl rollout status deployment/userservice --timeout=300s
+        kubectl rollout status deployment/contacts --timeout=300s
+        kubectl rollout status deployment/ledgerwriter --timeout=300s
+        kubectl rollout status deployment/balancereader --timeout=300s
+        kubectl rollout status deployment/transactionhistory --timeout=300s
+        kubectl rollout status deployment/loadgenerator --timeout=300s
+
+    - name: Verify deployment
+      run: |
+        echo "=== Pod Status ==="
+        kubectl get pods
+        echo ""
+        echo "=== Service Status ==="
+        kubectl get services
+        echo ""
+        echo "=== Frontend Service Details ==="
+        kubectl get service frontend
+        echo ""
+        echo "To access the application, use the EXTERNAL-IP shown above"
