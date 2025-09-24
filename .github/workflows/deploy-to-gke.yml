@@ -1,5 +1,4 @@
 name: Deploy to GKE
-# Test deployment workflow
 
 on:
   push:
@@ -21,14 +20,17 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Setup Google Cloud CLI
-      uses: google-github-actions/setup-gcloud@v2
+    - name: Google Auth
+      id: auth
+      uses: google-github-actions/auth@v2
       with:
-        service_account_key: ${{ secrets.GCP_SA_KEY }}
-        project_id: ${{ secrets.GCP_PROJECT_ID }}
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-    - name: Configure Docker for GCR
-      run: gcloud auth configure-docker
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+
+    - name: Configure Docker
+      run: gcloud auth configure-docker $REGION-docker.pkg.dev
 
     - name: Get GKE credentials
       run: gcloud container clusters get-credentials ${{ env.GKE_CLUSTER }} --zone ${{ env.GKE_ZONE }}
