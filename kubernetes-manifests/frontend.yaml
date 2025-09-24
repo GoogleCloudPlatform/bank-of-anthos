@@ -101,7 +101,7 @@ spec:
                 name: environment-config
             - configMapRef:
                 name: service-api-config
-          image: gcr.io/ffd-gke10/bank-of-anthos-frontend:latest
+          image: gcr.io/ffd-gke10/bank-of-anthos-frontend:test001
           livenessProbe:
             httpGet:
               path: /ready
