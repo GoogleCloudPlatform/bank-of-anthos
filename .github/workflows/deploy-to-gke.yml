@@ -29,9 +29,6 @@ jobs:
     - name: Set up Cloud SDK
       uses: google-github-actions/setup-gcloud@v2
 
-    - name: Configure Docker
-      run: gcloud auth configure-docker $REGION-docker.pkg.dev
-
     - name: Get GKE credentials
       run: gcloud container clusters get-credentials ${{ env.GKE_CLUSTER }} --zone ${{ env.GKE_ZONE }}
 
