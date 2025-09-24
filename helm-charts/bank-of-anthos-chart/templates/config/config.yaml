@@ -1,0 +1,78 @@
+# Copyright 2025 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: environment-config
+  labels:
+    application: {{ .Values.global.application }}
+    environment: {{ .Values.global.environment }}
+data:
+  LOCAL_ROUTING_NUM: {{ .Values.config.environment.localRoutingNum | quote }}
+  PUB_KEY_PATH: {{ .Values.config.environment.pubKeyPath | quote }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: service-api-config
+  labels:
+    application: {{ .Values.global.application }}
+    environment: {{ .Values.global.environment }}
+data:
+  TRANSACTIONS_API_ADDR: {{ .Values.serviceApi.transactionsApiAddr | quote }}
+  BALANCES_API_ADDR: {{ .Values.serviceApi.balancesApiAddr | quote }}
+  HISTORY_API_ADDR: {{ .Values.serviceApi.historyApiAddr | quote }}
+  CONTACTS_API_ADDR: {{ .Values.serviceApi.contactsApiAddr | quote }}
+  USERSERVICE_API_ADDR: {{ .Values.serviceApi.userserviceApiAddr | quote }}
+---
+{{- if .Values.config.demo.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: demo-data-config
+  labels:
+    application: {{ .Values.global.application }}
+    environment: {{ .Values.global.environment }}
+data:
+  USE_DEMO_DATA: "True"
+  DEMO_LOGIN_USERNAME: {{ .Values.config.demo.username | quote }}
+  # All demo user accounts are hardcoded to use the login password 'bankofanthos'
+  DEMO_LOGIN_PASSWORD: {{ .Values.config.demo.password | quote }}
+{{- end }}
+---
+{{- if .Values.config.demo.oauth.clientId }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: oauth-config
+  labels:
+    application: {{ .Values.global.application }}
+    environment: {{ .Values.global.environment }}
+data:
+  DEMO_OAUTH_CLIENT_ID: {{ .Values.config.demo.oauth.clientId | quote }}
+  DEMO_OAUTH_REDIRECT_URI: {{ .Values.config.demo.oauth.redirectUri | quote }}
+---
+{{- end }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ .Values.global.serviceAccountName }}
+  labels:
+    application: {{ .Values.global.application }}
+    environment: {{ .Values.global.environment }}
+  annotations:
+    # Disable Google Cloud autoconfiguration for local development
+    # In production, this should be replaced with proper workload identity annotation:
+    # iam.gke.io/gcp-service-account: <your-gsa>@<project-id>.iam.gserviceaccount.com

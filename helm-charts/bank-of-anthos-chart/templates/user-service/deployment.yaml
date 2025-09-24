@@ -1,0 +1,110 @@
+# Copyright 2025 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+{{- if .Values.userService.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    application: {{ .Values.global.application }}
+    environment: {{ .Values.global.environment }}
+    team: {{ .Values.userService.team }}
+    tier: {{ .Values.userService.tier }}
+  name: userservice
+spec:
+  replicas: {{ .Values.userService.replicaCount }}
+  selector:
+    matchLabels:
+      app: userservice
+      application: {{ .Values.global.application }}
+      environment: {{ .Values.global.environment }}
+      team: {{ .Values.userService.team }}
+      tier: {{ .Values.userService.tier }}
+  template:
+    metadata:
+      annotations:
+        {{- if .Values.istio.enabled }}
+        proxy.istio.io/config: {{ dict "holdApplicationUntilProxyStarts" .Values.istio.proxy.holdApplicationUntilProxyStarts | toJson | quote }}
+        {{- end }}
+      labels:
+        app: userservice
+        application: {{ .Values.global.application }}
+        environment: {{ .Values.global.environment }}
+        team: {{ .Values.userService.team }}
+        tier: {{ .Values.userService.tier }}
+    spec:
+      containers:
+        - env:
+            - name: VERSION
+              value: {{ .Values.userService.image.tag | default .Values.global.version | quote }}
+            - name: PORT
+              value: "8080"
+            - name: ENABLE_TRACING
+              value: "false"
+            - name: TOKEN_EXPIRY_SECONDS
+              value: "3600"
+            - name: PRIV_KEY_PATH
+              value: /tmp/.ssh/privatekey
+            - name: LOG_LEVEL
+              value: info
+          envFrom:
+            - configMapRef:
+                name: environment-config
+            - configMapRef:
+                name: accounts-db-config
+          image: "{{ .Values.global.imageRegistry }}/{{ .Values.userService.image.repository }}:{{ .Values.userService.image.tag | default .Values.global.version }}"
+          name: userservice
+          ports:
+            - containerPort: {{ .Values.userService.service.port }}
+              name: http-server
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: {{ .Values.userService.service.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 10
+          resources:
+            limits:
+              cpu: 500m
+              ephemeral-storage: 0.25Gi
+              memory: 256Mi
+            requests:
+              cpu: 260m
+              ephemeral-storage: 0.25Gi
+              memory: 128Mi
+          securityContext:
+            {{- toYaml .Values.global.containerSecurityContext | nindent 12 }}
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /tmp/.ssh
+              name: keys
+              readOnly: true
+      securityContext:
+        {{- toYaml .Values.global.securityContext | nindent 8 }}
+      serviceAccountName: {{ .Values.global.serviceAccountName }}
+      terminationGracePeriodSeconds: 5
+      volumes:
+        - emptyDir: {}
+          name: tmp
+        - name: keys
+          secret:
+            items:
+              - key: jwtRS256.key
+                path: privatekey
+              - key: {{ .Values.jwt.keyName }}
+                path: publickey
+            secretName: {{ .Values.jwt.secretName }}
+{{- end }}

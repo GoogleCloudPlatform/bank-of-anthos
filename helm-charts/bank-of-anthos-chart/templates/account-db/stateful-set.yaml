@@ -1,0 +1,74 @@
+# Copyright 2025 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+{{- if .Values.accountsDb.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    application: {{ .Values.global.application }}
+    environment: {{ .Values.global.environment }}
+    team: {{ .Values.accountsDb.team }}
+    tier: {{ .Values.accountsDb.tier }}
+  name: accounts-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: accounts-db
+      application: {{ .Values.global.application }}
+      environment: {{ .Values.global.environment }}
+      team: {{ .Values.accountsDb.team }}
+      tier: {{ .Values.accountsDb.tier }}
+  serviceName: accounts-db
+  template:
+    metadata:
+      labels:
+        app: accounts-db
+        application: {{ .Values.global.application }}
+        environment: {{ .Values.global.environment }}
+        team: {{ .Values.accountsDb.team }}
+        tier: {{ .Values.accountsDb.tier }}
+    spec:
+      containers:
+        - envFrom:
+            - configMapRef:
+                name: environment-config
+            - configMapRef:
+                name: accounts-db-config
+            {{- if .Values.config.demo.enabled }}
+            - configMapRef:
+                name: demo-data-config
+            {{- end }}
+          image: "{{ .Values.global.imageRegistry }}/{{ .Values.accountsDb.image.repository }}:{{ .Values.accountsDb.image.tag | default .Values.global.version }}{{- if .Values.accountsDb.image.digest }}@{{ .Values.accountsDb.image.digest }}{{- end }}"
+          name: accounts-db
+          ports:
+            - containerPort: {{ .Values.accountsDb.service.port }}
+          resources:
+            {{- toYaml .Values.accountsDb.resources | nindent 12 }}
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgresdb
+              subPath: postgres
+      serviceAccountName: {{ .Values.global.serviceAccountName }}
+      volumes:
+        {{- if .Values.accountsDb.persistence.enabled }}
+        - name: postgresdb
+          persistentVolumeClaim:
+            claimName: accounts-db-pvc
+        {{- else }}
+        - emptyDir: {}
+          name: postgresdb
+        {{- end }}
+{{- end }}
