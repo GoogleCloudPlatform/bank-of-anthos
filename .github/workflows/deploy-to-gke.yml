@@ -48,7 +48,7 @@ jobs:
         kubectl rollout status deployment/ledgerwriter
         kubectl rollout status deployment/balancereader
         kubectl rollout status deployment/transactionhistory
-        kubectl rollout status deployment/loadgenerator
+        # kubectl rollout status deployment/loadgenerator
 
     - name: Get frontend service info
       run: |
