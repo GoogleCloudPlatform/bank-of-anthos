@@ -30,8 +30,7 @@ spec:
       tier: test
   template:
     metadata:
-      annotations:
-        sidecar.istio.io/rewriteAppHTTPProbers: "true"
+      annotations: {}
       labels:
         app: loadgenerator
         environment: development

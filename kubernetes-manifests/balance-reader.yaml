@@ -53,8 +53,7 @@ spec:
       tier: backend
   template:
     metadata:
-      annotations:
-        proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
+      annotations: {}
       labels:
         app: balancereader
         application: bank-of-anthos
@@ -69,15 +68,19 @@ spec:
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
-              value: "true"
+              value: "false"
             - name: ENABLE_METRICS
-              value: "true"
+              value: "false"
+            - name: MANAGEMENT_METRICS_ENABLED
+              value: "false"
+            - name: SPRING_AUTOCONFIGURE_EXCLUDE
+              value: "org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.SystemMetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.export.simple.SimpleMetricsExportAutoConfiguration"
             - name: POLL_MS
               value: "100"
             - name: CACHE_SIZE
               value: "1000000"
             - name: JVM_OPTS
-              value: -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Xms256m -Xmx512m
+              value: -XX:+UnlockExperimentalVMOptions -Xms256m -Xmx512m -Djava.awt.headless=true -Djava.security.egd=file:/dev/./urandom
             - name: LOG_LEVEL
               value: info
             - name: NAMESPACE
@@ -138,7 +141,7 @@ spec:
         runAsGroup: 1000
         runAsNonRoot: true
         runAsUser: 1000
-      serviceAccountName: bank-of-anthos
+      serviceAccountName: default
       terminationGracePeriodSeconds: 5
       volumes:
         - emptyDir: {}

@@ -53,8 +53,7 @@ spec:
       tier: backend
   template:
     metadata:
-      annotations:
-        proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
+      annotations: {}
       labels:
         app: ledgerwriter
         application: bank-of-anthos
@@ -69,11 +68,15 @@ spec:
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
-              value: "true"
+              value: "false"
             - name: ENABLE_METRICS
-              value: "true"
+              value: "false"
+            - name: MANAGEMENT_METRICS_ENABLED
+              value: "false"
+            - name: SPRING_AUTOCONFIGURE_EXCLUDE
+              value: "org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.SystemMetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.export.simple.SimpleMetricsExportAutoConfiguration"
             - name: JVM_OPTS
-              value: -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Xms256m -Xmx512m
+              value: -XX:+UnlockExperimentalVMOptions -Xms256m -Xmx512m
             - name: LOG_LEVEL
               value: info
             - name: NAMESPACE
@@ -129,7 +132,7 @@ spec:
         runAsGroup: 1000
         runAsNonRoot: true
         runAsUser: 1000
-      serviceAccountName: bank-of-anthos
+      serviceAccountName: default
       terminationGracePeriodSeconds: 5
       volumes:
         - emptyDir: {}
