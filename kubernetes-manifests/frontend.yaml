@@ -26,13 +26,14 @@ spec:
     - name: http
       port: 80
       targetPort: 8080
+      nodePort: 30001
   selector:
     app: frontend
     application: bank-of-anthos
     environment: development
     team: frontend
     tier: web
-  type: LoadBalancer
+  type: NodePort
 ---
 apiVersion: apps/v1
 kind: Deployment
