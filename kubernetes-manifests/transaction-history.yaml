@@ -74,7 +74,7 @@ spec:
             - name: MANAGEMENT_METRICS_ENABLED
               value: "false"
             - name: SPRING_AUTOCONFIGURE_EXCLUDE
-              value: "org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration"
+              value: "org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.SystemMetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.export.simple.SimpleMetricsExportAutoConfiguration"
             - name: POLL_MS
               value: "100"
             - name: CACHE_SIZE
