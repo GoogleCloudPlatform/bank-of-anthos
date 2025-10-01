@@ -53,8 +53,7 @@ spec:
       tier: backend
   template:
     metadata:
-      annotations:
-        proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
+      annotations: {}
       labels:
         app: contacts
         application: bank-of-anthos
@@ -113,7 +112,7 @@ spec:
         runAsGroup: 1000
         runAsNonRoot: true
         runAsUser: 1000
-      serviceAccountName: bank-of-anthos
+      serviceAccountName: default
       terminationGracePeriodSeconds: 5
       volumes:
         - emptyDir: {}

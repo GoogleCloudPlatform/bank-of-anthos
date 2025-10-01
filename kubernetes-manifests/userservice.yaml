@@ -53,8 +53,7 @@ spec:
       tier: backend
   template:
     metadata:
-      annotations:
-        proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
+      annotations: {}
       labels:
         app: userservice
         application: bank-of-anthos
@@ -113,19 +112,19 @@ spec:
             - mountPath: /tmp
               name: tmp
             - mountPath: /tmp/.ssh
-              name: keys
+              name: publickey
               readOnly: true
       securityContext:
         fsGroup: 1000
         runAsGroup: 1000
         runAsNonRoot: true
         runAsUser: 1000
-      serviceAccountName: bank-of-anthos
+      serviceAccountName: default
       terminationGracePeriodSeconds: 5
       volumes:
         - emptyDir: {}
           name: tmp
-        - name: keys
+        - name: publickey
           secret:
             items:
               - key: jwtRS256.key
