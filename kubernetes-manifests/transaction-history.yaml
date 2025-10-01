@@ -71,6 +71,10 @@ spec:
               value: "false"
             - name: ENABLE_METRICS
               value: "false"
+            - name: MANAGEMENT_METRICS_ENABLED
+              value: "false"
+            - name: SPRING_AUTOCONFIGURE_EXCLUDE
+              value: "org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration"
             - name: POLL_MS
               value: "100"
             - name: CACHE_SIZE
