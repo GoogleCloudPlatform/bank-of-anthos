@@ -72,7 +72,7 @@ spec:
             - name: ENABLE_METRICS
               value: "false"
             - name: JVM_OPTS
-              value: -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Xms256m -Xmx512m
+              value: -XX:+UnlockExperimentalVMOptions -Xms256m -Xmx512m
             - name: LOG_LEVEL
               value: info
             - name: NAMESPACE
