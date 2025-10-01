@@ -68,7 +68,7 @@ spec:
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
-              value: "true"
+              value: "false"
             - name: TOKEN_EXPIRY_SECONDS
               value: "3600"
             - name: PRIV_KEY_PATH
