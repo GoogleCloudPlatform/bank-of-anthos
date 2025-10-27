@@ -264,7 +264,7 @@ spec:
             name: demo-data-config
         - configMapRef:
             name: environment-config
-        image: postgres:16.10-alpine@sha256:1c6d2f6e4d30d49c529e09a627e8178db5011dde88d955eb08db2e135e64aa09
+        image: postgres:16.10-alpine@sha256:029660641a0cfc575b14f336ba448fb8a75fd595d42e1fa316b9fb4378742297
         name: populate-accounts-db
         resources:
           limits:
