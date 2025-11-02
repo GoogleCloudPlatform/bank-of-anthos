@@ -19,9 +19,14 @@ metadata:
   labels:
     app: ledger-db
 data:
-  POSTGRES_DB: postgresdb
-  POSTGRES_USER: admin
-  POSTGRES_PASSWORD: password
-  SPRING_DATASOURCE_URL: jdbc:postgresql://ledger-db:5432/postgresdb
-  SPRING_DATASOURCE_USERNAME: admin # should match POSTGRES_USER
-  SPRING_DATASOURCE_PASSWORD: password # should match POSTGRES_PASSWORD
+  # Spanner Configuration
+  # Update these values with your actual GCP project, instance, and database IDs
+  SPANNER_PROJECT_ID: "your-gcp-project-id"
+  SPANNER_INSTANCE_ID: "bank-of-anthos-ledger"
+  SPANNER_DATABASE_ID: "ledger-db"
+  # Spanner JDBC URL format: jdbc:cloudspanner:/projects/{project}/instances/{instance}/databases/{database}
+  SPRING_DATASOURCE_URL: "jdbc:cloudspanner:/projects/your-gcp-project-id/instances/bank-of-anthos-ledger/databases/ledger-db"
+  # Spanner uses IAM authentication by default, but username/password can be left empty for compatibility
+  SPRING_DATASOURCE_USERNAME: ""
+  SPRING_DATASOURCE_PASSWORD: ""
+  LOCAL_ROUTING_NUM: "883745000" # Default routing number for demo data

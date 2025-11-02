@@ -30,22 +30,27 @@ if [ -z "$USE_DEMO_DATA" ] && [ "$USE_DEMO_DATA" != "True"  ]; then
 fi
 
 
-# Expected environment variables
+# Expected environment variables for Spanner
 readonly ENV_VARS=(
-  "POSTGRES_DB"
-  "POSTGRES_USER"
-  "POSTGRES_PASSWORD"
+  "SPANNER_PROJECT_ID"
+  "SPANNER_INSTANCE_ID"
+  "SPANNER_DATABASE_ID"
   "LOCAL_ROUTING_NUM"
 )
 
 
 add_transaction() {
-    DATE=$(date -u +"%Y-%m-%d %H:%M:%S.%3N%z" --date="@$(($6))")
-    echo "adding demo transaction: $1 -> $2"
-    PGPASSWORD="$POSTGRES_PASSWORD" psql -X -v ON_ERROR_STOP=1 -v fromacct="$1" -v toacct="$2" -v fromroute="$3" -v toroute="$4" -v amount="$5" --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
-        INSERT INTO TRANSACTIONS (FROM_ACCT, TO_ACCT, FROM_ROUTE, TO_ROUTE, AMOUNT, TIMESTAMP)
-        VALUES (:'fromacct', :'toacct', :'fromroute', :'toroute', :'amount', '$DATE');
-EOSQL
+    TRANSACTION_ID=$7
+    DATE=$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ" --date="@$(($6))")
+    echo "adding demo transaction: $1 -> $2 (ID: $TRANSACTION_ID)"
+
+    # Use gcloud spanner to insert row
+    gcloud spanner rows insert \
+        --project="$SPANNER_PROJECT_ID" \
+        --instance="$SPANNER_INSTANCE_ID" \
+        --database="$SPANNER_DATABASE_ID" \
+        --table=TRANSACTIONS \
+        --data=TRANSACTION_ID="$TRANSACTION_ID",FROM_ACCT="$1",TO_ACCT="$2",FROM_ROUTE="$3",TO_ROUTE="$4",AMOUNT="$5",TIMESTAMP="$DATE"
 }
 
 
@@ -58,10 +63,14 @@ create_transactions() {
     # create a UNIX timestamp in seconds since the Epoch
     START_TIMESTAMP=$(( $(date +%s) - $(( $(($PAY_PERIODS+1)) * $SECONDS_IN_PAY_PERIOD  ))  ))
 
+    # Transaction ID counter (Spanner sequence will be used in application, but for demo data we use sequential IDs)
+    TRANSACTION_ID=1
+
     for i in $(seq 1 $PAY_PERIODS); do
         # create deposit transaction for each user
         for account in ${USER_ACCOUNTS[@]}; do
-            add_transaction "$EXTERNAL_ACCOUNT" "$account" "$EXTERNAL_ROUTING" "$LOCAL_ROUTING_NUM" $DEPOSIT_AMOUNT $START_TIMESTAMP
+            add_transaction "$EXTERNAL_ACCOUNT" "$account" "$EXTERNAL_ROUTING" "$LOCAL_ROUTING_NUM" $DEPOSIT_AMOUNT $START_TIMESTAMP $TRANSACTION_ID
+            TRANSACTION_ID=$((TRANSACTION_ID + 1))
         done
 
         # create 15-20 payments between users
@@ -80,7 +89,8 @@ create_transactions() {
 
             TIMESTAMP=$(( $START_TIMESTAMP + $(( $SECONDS_IN_PAY_PERIOD * $p / $(($TRANSACTIONS_PER_PERIOD + 1 )) )) ))
 
-            add_transaction "$SENDER_ACCOUNT" "$RECIPIENT_ACCOUNT" "$LOCAL_ROUTING_NUM" "$LOCAL_ROUTING_NUM" $AMOUNT $TIMESTAMP
+            add_transaction "$SENDER_ACCOUNT" "$RECIPIENT_ACCOUNT" "$LOCAL_ROUTING_NUM" "$LOCAL_ROUTING_NUM" $AMOUNT $TIMESTAMP $TRANSACTION_ID
+            TRANSACTION_ID=$((TRANSACTION_ID + 1))
         done
 
         START_TIMESTAMP=$(( $START_TIMESTAMP + $(( $i * $SECONDS_IN_PAY_PERIOD  )) ))

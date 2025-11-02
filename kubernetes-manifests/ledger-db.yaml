@@ -12,14 +12,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Ledger Database Configuration for Google Cloud Spanner
+#
+# The ledger database now uses Google Cloud Spanner, a fully managed,
+# globally distributed, and horizontally scalable relational database service.
+# No StatefulSet or Service is required as Spanner is a managed service.
+#
+# Prerequisites:
+# 1. Create a Spanner instance and database using the init-spanner.sh script
+# 2. Update the configuration below with your GCP project, instance, and database IDs
+# 3. Ensure your GKE cluster has Workload Identity or appropriate service account
+#    credentials to access Spanner
+
 apiVersion: v1
 data:
-  POSTGRES_DB: postgresdb
-  POSTGRES_PASSWORD: password
-  POSTGRES_USER: admin
-  SPRING_DATASOURCE_PASSWORD: password
-  SPRING_DATASOURCE_URL: jdbc:postgresql://ledger-db:5432/postgresdb
-  SPRING_DATASOURCE_USERNAME: admin
+  # Spanner Configuration
+  # Update these values with your actual GCP project, instance, and database IDs
+  SPANNER_PROJECT_ID: "your-gcp-project-id"
+  SPANNER_INSTANCE_ID: "bank-of-anthos-ledger"
+  SPANNER_DATABASE_ID: "ledger-db"
+  # Spanner JDBC URL format: jdbc:cloudspanner:/projects/{project}/instances/{instance}/databases/{database}
+  SPRING_DATASOURCE_URL: "jdbc:cloudspanner:/projects/your-gcp-project-id/instances/bank-of-anthos-ledger/databases/ledger-db"
+  # Spanner uses IAM authentication by default, but username/password can be left empty for compatibility
+  SPRING_DATASOURCE_USERNAME: ""
+  SPRING_DATASOURCE_PASSWORD: ""
+  LOCAL_ROUTING_NUM: "883745000" # Default routing number for demo data
 kind: ConfigMap
 metadata:
   labels:
@@ -29,82 +46,3 @@ metadata:
     team: ledger
     tier: db
   name: ledger-db-config
----
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    application: bank-of-anthos
-    environment: development
-    team: ledger
-    tier: db
-  name: ledger-db
-spec:
-  ports:
-    - name: tcp
-      port: 5432
-      targetPort: 5432
-  selector:
-    app: ledger-db
-    application: bank-of-anthos
-    environment: development
-    team: ledger
-    tier: db
-  type: ClusterIP
----
-apiVersion: apps/v1
-kind: StatefulSet
-metadata:
-  labels:
-    application: bank-of-anthos
-    environment: development
-    team: ledger
-    tier: db
-  name: ledger-db
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: ledger-db
-      application: bank-of-anthos
-      environment: development
-      team: ledger
-      tier: db
-  serviceName: ledger-db
-  template:
-    metadata:
-      labels:
-        app: ledger-db
-        application: bank-of-anthos
-        environment: development
-        team: ledger
-        tier: db
-    spec:
-      containers:
-        - envFrom:
-            - configMapRef:
-                name: environment-config
-            - configMapRef:
-                name: ledger-db-config
-            - configMapRef:
-                name: demo-data-config
-          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/ledger-db:v0.6.7@sha256:9b4009cfd17929ee165d55326bcf8ccf0f65039b1a467b847197c8404f462b7d
-          name: postgres
-          ports:
-            - containerPort: 5432
-          resources:
-            limits:
-              cpu: 250m
-              memory: 1Gi
-            requests:
-              cpu: 100m
-              memory: 512Mi
-          volumeMounts:
-            - mountPath: /var/lib/postgresql/data
-              name: postgresdb
-              subPath: postgres
-      serviceAccount: bank-of-anthos
-      serviceAccountName: default
-      volumes:
-        - emptyDir: {}
-          name: postgresdb
