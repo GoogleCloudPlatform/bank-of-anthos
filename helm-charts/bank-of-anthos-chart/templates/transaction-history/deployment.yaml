@@ -1,0 +1,123 @@
+# Copyright 2025 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+{{- if .Values.transactionHistory.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    application: {{ .Values.global.application }}
+    environment: {{ .Values.global.environment }}
+    team: {{ .Values.transactionHistory.team }}
+    tier: {{ .Values.transactionHistory.tier }}
+  name: transactionhistory
+spec:
+  replicas: {{ .Values.transactionHistory.replicaCount }}
+  selector:
+    matchLabels:
+      app: transactionhistory
+      application: {{ .Values.global.application }}
+      environment: {{ .Values.global.environment }}
+      team: {{ .Values.transactionHistory.team }}
+      tier: {{ .Values.transactionHistory.tier }}
+  template:
+    metadata:
+      annotations:
+        {{- if .Values.istio.enabled }}
+        proxy.istio.io/config: {{ dict "holdApplicationUntilProxyStarts" .Values.istio.proxy.holdApplicationUntilProxyStarts | toJson | quote }}
+        {{- end }}
+      labels:
+        app: transactionhistory
+        application: {{ .Values.global.application }}
+        environment: {{ .Values.global.environment }}
+        team: {{ .Values.transactionHistory.team }}
+        tier: {{ .Values.transactionHistory.tier }}
+    spec:
+      containers:
+        - env:
+            - name: VERSION
+              value: {{ .Values.transactionHistory.image.tag | default .Values.global.version | quote }}
+            - name: PORT
+              value: {{ .Values.transactionHistory.env.port | quote }}
+            - name: ENABLE_TRACING
+              value: {{ .Values.transactionHistory.env.enableTracing | quote }}
+            - name: ENABLE_METRICS
+              value: {{ .Values.transactionHistory.env.enableMetrics | quote }}
+            - name: POLL_MS
+              value: {{ .Values.transactionHistory.env.pollMs | quote }}
+            - name: CACHE_SIZE
+              value: {{ .Values.transactionHistory.env.cacheSize | quote }}
+            - name: CACHE_MINUTES
+              value: {{ .Values.transactionHistory.env.cacheMinutes | quote }}
+            - name: HISTORY_LIMIT
+              value: {{ .Values.transactionHistory.env.historyLimit | quote }}
+            - name: JVM_OPTS
+              value: {{ .Values.transactionHistory.env.jvmOpts | quote }}
+            - name: LOG_LEVEL
+              value: {{ .Values.transactionHistory.env.logLevel | quote }}
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          envFrom:
+            - configMapRef:
+                name: environment-config
+            - configMapRef:
+                name: ledger-db-config
+          image: "{{ .Values.global.imageRegistry }}/{{ .Values.transactionHistory.image.repository }}:{{ .Values.transactionHistory.image.tag | default .Values.global.version }}{{- if .Values.transactionHistory.image.digest }}@{{ .Values.transactionHistory.image.digest }}{{- end }}"
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.transactionHistory.livenessProbe.httpGet.path }}
+              port: {{ .Values.transactionHistory.livenessProbe.httpGet.port }}
+            initialDelaySeconds: {{ .Values.transactionHistory.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.transactionHistory.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.transactionHistory.livenessProbe.timeoutSeconds }}
+          name: transactionhistory
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.transactionHistory.readinessProbe.httpGet.path }}
+              port: {{ .Values.transactionHistory.readinessProbe.httpGet.port }}
+            initialDelaySeconds: {{ .Values.transactionHistory.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.transactionHistory.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.transactionHistory.readinessProbe.timeoutSeconds }}
+          resources:
+            {{- toYaml .Values.transactionHistory.resources | nindent 12 }}
+          securityContext:
+            {{- toYaml .Values.global.containerSecurityContext | nindent 12 }}
+          startupProbe:
+            httpGet:
+              path: {{ .Values.transactionHistory.startupProbe.httpGet.path }}
+              port: {{ .Values.transactionHistory.startupProbe.httpGet.port }}
+            failureThreshold: {{ .Values.transactionHistory.startupProbe.failureThreshold }}
+            periodSeconds: {{ .Values.transactionHistory.startupProbe.periodSeconds }}
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /tmp/.ssh
+              name: publickey
+              readOnly: true
+      securityContext:
+        {{- toYaml .Values.global.securityContext | nindent 8 }}
+      serviceAccountName: {{ .Values.global.serviceAccountName }}
+      terminationGracePeriodSeconds: 5
+      volumes:
+        - emptyDir: {}
+          name: tmp
+        - name: publickey
+          secret:
+            items:
+              - key: {{ .Values.jwt.keyName }}
+                path: publickey
+            secretName: {{ .Values.jwt.secretName }}
+{{- end }}

@@ -1,0 +1,33 @@
+# Copyright 2025 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+{{- if .Values.ledgerDb.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ledger-db-config
+  labels:
+    app: ledger-db
+    application: {{ .Values.global.application }}
+    environment: {{ .Values.global.environment }}
+    team: {{ .Values.ledgerDb.team }}
+    tier: {{ .Values.ledgerDb.tier }}
+data:
+  POSTGRES_DB: {{ .Values.ledgerDb.database.name | quote }}
+  POSTGRES_PASSWORD: {{ .Values.ledgerDb.database.password | quote }}
+  POSTGRES_USER: {{ .Values.ledgerDb.database.username | quote }}
+  SPRING_DATASOURCE_PASSWORD: {{ .Values.ledgerDb.database.password | quote }}
+  SPRING_DATASOURCE_URL: {{ .Values.ledgerDb.database.springUrl | quote }}
+  SPRING_DATASOURCE_USERNAME: {{ .Values.ledgerDb.database.username | quote }}
+{{- end }}

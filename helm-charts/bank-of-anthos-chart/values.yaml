@@ -1,0 +1,438 @@
+# Copyright 2025 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Global configuration
+global:
+  # Application metadata
+  application: bank-of-anthos
+  environment: development
+  version: v0.6.7
+  
+  # Container registry settings
+  imageRegistry: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos
+  
+  # Security settings
+  serviceAccountName: bank-of-anthos
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+  
+  # Common container security settings
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    privileged: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - all
+
+# JWT configuration
+jwt:
+  secretName: jwt-key
+  keyName: jwtRS256.key.pub
+
+# Environment configuration
+config:
+  environment:
+    localRoutingNum: "883745000"
+    pubKeyPath: "/tmp/.ssh/publickey"
+  
+  # Demo data configuration
+  demo:
+    enabled: true
+    username: "testuser"
+    password: "bankofanthos"
+    # OAuth configuration (optional)
+    oauth:
+      clientId: ""
+      redirectUri: ""
+
+# Service API endpoints configuration
+serviceApi:
+  transactionsApiAddr: "ledgerwriter:8080"
+  balancesApiAddr: "balancereader:8080"
+  historyApiAddr: "transactionhistory:8080"
+  contactsApiAddr: "contacts:8080"
+  userserviceApiAddr: "userservice:8080"
+
+# Frontend service configuration
+frontend:
+  enabled: true
+  replicaCount: 1
+  
+  image:
+    repository: frontend
+    tag: ""  # Uses global.version if empty
+    digest: "sha256:6d92f3ce81a389738baf236477c6795831a0802c7a007697d7121f10eab9a2cc"
+  
+  service:
+    type: LoadBalancer
+    port: 80
+    targetPort: 8080
+  
+  env:
+    port: "8080"
+    enableTracing: "false"
+    scheme: "http"
+    logLevel: "info"
+  
+  resources:
+    requests:
+      cpu: 100m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 128Mi
+  
+  # Health check configuration
+  livenessProbe:
+    httpGet:
+      path: /ready
+      port: 8080
+    initialDelaySeconds: 60
+    periodSeconds: 15
+    timeoutSeconds: 30
+  
+  readinessProbe:
+    httpGet:
+      path: /ready
+      port: 8080
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 10
+
+# Balance Reader service configuration
+balanceReader:
+  enabled: true
+  replicaCount: 1
+  team: ledger
+  tier: backend
+  
+  image:
+    repository: balancereader
+    tag: ""  # Uses global.version if empty
+    digest: "sha256:3b46d0274fb47a99415678aefcc55d2844d87e694c5ae4a796da8719c08e9ef0"
+  
+  service:
+    port: 8080
+    type: ClusterIP
+  
+  env:
+    port: "8080"
+    enableTracing: "false"
+    enableMetrics: "false"
+    pollMs: "100"
+    cacheSize: "1000000"
+    jvmOpts: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Xms256m -Xmx512m"
+    logLevel: "info"
+    springAutoconfigureExclude: "com.google.cloud.spring.autoconfigure.core.GcpContextAutoConfiguration,com.google.cloud.spring.autoconfigure.metrics.GcpStackdriverMetricsAutoConfiguration,com.google.cloud.spring.autoconfigure.trace.StackdriverTraceAutoConfiguration"
+  
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+      ephemeral-storage: 0.5Gi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+      ephemeral-storage: 0.5Gi
+  
+  # Health check configuration
+  livenessProbe:
+    httpGet:
+      path: /healthy
+      port: 8080
+    initialDelaySeconds: 120
+    periodSeconds: 5
+    timeoutSeconds: 10
+  
+  readinessProbe:
+    httpGet:
+      path: /ready
+      port: 8080
+    initialDelaySeconds: 60
+    periodSeconds: 5
+    timeoutSeconds: 10
+  
+  startupProbe:
+    httpGet:
+      path: /healthy
+      port: 8080
+    failureThreshold: 30
+    periodSeconds: 10
+
+# Ledger Writer service configuration
+ledgerWriter:
+  enabled: true
+  replicaCount: 1
+  team: ledger
+  tier: backend
+  
+  image:
+    repository: ledgerwriter
+    tag: ""  # Uses global.version if empty
+    digest: "sha256:28eebe04f9cdcf89e4a75693485f0150f44a1383a9e85eb01e82ee5415c4828e"
+  
+  service:
+    port: 8080
+    type: ClusterIP
+  
+  env:
+    port: "8080"
+    enableTracing: "false"
+    enableMetrics: "false"
+    jvmOpts: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Xms256m -Xmx512m"
+    logLevel: "info"
+  
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+      ephemeral-storage: 0.5Gi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+      ephemeral-storage: 0.5Gi
+  
+  # Health check configuration
+  readinessProbe:
+    httpGet:
+      path: /ready
+      port: 8080
+    initialDelaySeconds: 60
+    periodSeconds: 5
+    timeoutSeconds: 10
+  
+  startupProbe:
+    httpGet:
+      path: /ready
+      port: 8080
+    failureThreshold: 30
+    periodSeconds: 10
+
+# Transaction History service configuration
+transactionHistory:
+  enabled: true
+  replicaCount: 1
+  team: ledger
+  tier: backend
+  
+  image:
+    repository: transactionhistory
+    tag: ""  # Uses global.version if empty
+    digest: "sha256:8822d9130bd21895e453f88c0bf4eda3c8e23ce17f9eaefe8c3f71afe09bea7c"
+  
+  service:
+    port: 8080
+    type: ClusterIP
+  
+  env:
+    port: "8080"
+    enableTracing: "false"
+    enableMetrics: "false"
+    pollMs: "100"
+    cacheSize: "1000"
+    cacheMinutes: "60"
+    historyLimit: "100"
+    jvmOpts: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Xms256m -Xmx512m"
+    logLevel: "info"
+  
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+      ephemeral-storage: 0.5Gi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+      ephemeral-storage: 0.5Gi
+  
+  # Health check configuration
+  livenessProbe:
+    httpGet:
+      path: /healthy
+      port: 8080
+    initialDelaySeconds: 120
+    periodSeconds: 5
+    timeoutSeconds: 10
+  
+  readinessProbe:
+    httpGet:
+      path: /ready
+      port: 8080
+    initialDelaySeconds: 60
+    periodSeconds: 5
+    timeoutSeconds: 10
+  
+  startupProbe:
+    httpGet:
+      path: /healthy
+      port: 8080
+    failureThreshold: 30
+    periodSeconds: 10
+
+# Contacts service configuration
+contacts:
+  enabled: true
+  replicaCount: 1
+  team: accounts
+  tier: backend
+  
+  image:
+    repository: contacts
+    tag: ""  # Uses global.version if empty
+    digest: "sha256:f8ff8a077eee05cfa330f269dd550844cf5a1e4c6f3cdfad6c6483e27da5400f"
+  
+  service:
+    port: 8080
+    type: ClusterIP
+  
+  env:
+    port: "8080"
+    enableTracing: "false"
+    logLevel: "info"
+  
+  resources:
+    requests:
+      cpu: 100m
+      memory: 64Mi
+      ephemeral-storage: 0.25Gi
+    limits:
+      cpu: 250m
+      memory: 128Mi
+      ephemeral-storage: 0.25Gi
+  
+  readinessProbe:
+    httpGet:
+      path: /ready
+      port: 8080
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 10
+
+# User Service configuration
+userService:
+  enabled: true
+  replicaCount: 1
+  team: accounts
+  tier: backend
+  
+  image:
+    repository: userservice
+    tag: ""  # Uses global.version if empty
+  
+  service:
+    port: 8080
+    type: ClusterIP
+
+# Accounts Database configuration
+accountsDb:
+  enabled: true
+  team: accounts
+  tier: db
+  
+  image:
+    repository: accounts-db
+    tag: ""  # Uses global.version if empty
+    digest: "sha256:d1f7b4b42fbbad5b3f8c85c67a15f4e27cc9a054ae8bc2379e3f0319e313ce9d"
+  
+  service:
+    port: 5432
+    type: ClusterIP
+  
+  # Database configuration
+  database:
+    name: accounts-db
+    username: accounts-admin
+    password: accounts-pwd
+    uri: "postgresql://accounts-admin:accounts-pwd@accounts-db:5432/accounts-db"
+  
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 512Mi
+  
+  # Storage configuration
+  persistence:
+    enabled: false  # Using emptyDir for demo purposes
+    size: 8Gi
+    storageClass: ""
+
+# Ledger Database configuration
+ledgerDb:
+  enabled: true
+  team: ledger
+  tier: db
+  
+  image:
+    repository: ledger-db
+    tag: ""  # Uses global.version if empty
+    digest: "sha256:9b4009cfd17929ee165d55326bcf8ccf0f65039b1a467b847197c8404f462b7d"
+  
+  service:
+    port: 5432
+    type: ClusterIP
+  
+  # Database configuration
+  database:
+    name: postgresdb
+    username: admin
+    password: password
+    springUrl: "jdbc:postgresql://ledger-db:5432/postgresdb"
+  
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      cpu: 250m
+      memory: 1Gi
+  
+  # Storage configuration
+  persistence:
+    enabled: false  # Using emptyDir for demo purposes
+    size: 8Gi
+    storageClass: ""
+
+# Load Generator configuration
+loadGenerator:
+  enabled: true
+  
+  image:
+    repository: loadgenerator
+    tag: ""  # Uses global.version if empty
+  
+  # Load generation settings
+  env:
+    frontendAddr: "frontend:80"
+    users: "5"
+    duration: "0"  # 0 means run indefinitely
+
+# Istio configuration
+istio:
+  enabled: false
+  proxy:
+    holdApplicationUntilProxyStarts: true
+
+# Monitoring and observability
+monitoring:
+  tracing:
+    enabled: false
+  metrics:
+    enabled: false

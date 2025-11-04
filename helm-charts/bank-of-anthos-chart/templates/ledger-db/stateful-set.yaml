@@ -1,0 +1,74 @@
+# Copyright 2025 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+{{- if .Values.ledgerDb.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    application: {{ .Values.global.application }}
+    environment: {{ .Values.global.environment }}
+    team: {{ .Values.ledgerDb.team }}
+    tier: {{ .Values.ledgerDb.tier }}
+  name: ledger-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ledger-db
+      application: {{ .Values.global.application }}
+      environment: {{ .Values.global.environment }}
+      team: {{ .Values.ledgerDb.team }}
+      tier: {{ .Values.ledgerDb.tier }}
+  serviceName: ledger-db
+  template:
+    metadata:
+      labels:
+        app: ledger-db
+        application: {{ .Values.global.application }}
+        environment: {{ .Values.global.environment }}
+        team: {{ .Values.ledgerDb.team }}
+        tier: {{ .Values.ledgerDb.tier }}
+    spec:
+      containers:
+        - envFrom:
+            - configMapRef:
+                name: environment-config
+            - configMapRef:
+                name: ledger-db-config
+            {{- if .Values.config.demo.enabled }}
+            - configMapRef:
+                name: demo-data-config
+            {{- end }}
+          image: "{{ .Values.global.imageRegistry }}/{{ .Values.ledgerDb.image.repository }}:{{ .Values.ledgerDb.image.tag | default .Values.global.version }}{{- if .Values.ledgerDb.image.digest }}@{{ .Values.ledgerDb.image.digest }}{{- end }}"
+          name: postgres
+          ports:
+            - containerPort: {{ .Values.ledgerDb.service.port }}
+          resources:
+            {{- toYaml .Values.ledgerDb.resources | nindent 12 }}
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgresdb
+              subPath: postgres
+      serviceAccountName: {{ .Values.global.serviceAccountName }}
+      volumes:
+        {{- if .Values.ledgerDb.persistence.enabled }}
+        - name: postgresdb
+          persistentVolumeClaim:
+            claimName: ledger-db-pvc
+        {{- else }}
+        - emptyDir: {}
+          name: postgresdb
+        {{- end }}
+{{- end }}

@@ -1,0 +1,110 @@
+# Copyright 2025 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+{{- if .Values.ledgerWriter.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    application: {{ .Values.global.application }}
+    environment: {{ .Values.global.environment }}
+    team: {{ .Values.ledgerWriter.team }}
+    tier: {{ .Values.ledgerWriter.tier }}
+  name: ledgerwriter
+spec:
+  replicas: {{ .Values.ledgerWriter.replicaCount }}
+  selector:
+    matchLabels:
+      app: ledgerwriter
+      application: {{ .Values.global.application }}
+      environment: {{ .Values.global.environment }}
+      team: {{ .Values.ledgerWriter.team }}
+      tier: {{ .Values.ledgerWriter.tier }}
+  template:
+    metadata:
+      annotations:
+        {{- if .Values.istio.enabled }}
+        proxy.istio.io/config: {{ dict "holdApplicationUntilProxyStarts" .Values.istio.proxy.holdApplicationUntilProxyStarts | toJson | quote }}
+        {{- end }}
+      labels:
+        app: ledgerwriter
+        application: {{ .Values.global.application }}
+        environment: {{ .Values.global.environment }}
+        team: {{ .Values.ledgerWriter.team }}
+        tier: {{ .Values.ledgerWriter.tier }}
+    spec:
+      containers:
+        - env:
+            - name: VERSION
+              value: {{ .Values.ledgerWriter.image.tag | default .Values.global.version | quote }}
+            - name: PORT
+              value: {{ .Values.ledgerWriter.env.port | quote }}
+            - name: ENABLE_TRACING
+              value: {{ .Values.ledgerWriter.env.enableTracing | quote }}
+            - name: ENABLE_METRICS
+              value: {{ .Values.ledgerWriter.env.enableMetrics | quote }}
+            - name: JVM_OPTS
+              value: {{ .Values.ledgerWriter.env.jvmOpts | quote }}
+            - name: LOG_LEVEL
+              value: {{ .Values.ledgerWriter.env.logLevel | quote }}
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          envFrom:
+            - configMapRef:
+                name: environment-config
+            - configMapRef:
+                name: service-api-config
+            - configMapRef:
+                name: ledger-db-config
+          image: "{{ .Values.global.imageRegistry }}/{{ .Values.ledgerWriter.image.repository }}:{{ .Values.ledgerWriter.image.tag | default .Values.global.version }}{{- if .Values.ledgerWriter.image.digest }}@{{ .Values.ledgerWriter.image.digest }}{{- end }}"
+          name: ledgerwriter
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.ledgerWriter.readinessProbe.httpGet.path }}
+              port: {{ .Values.ledgerWriter.readinessProbe.httpGet.port }}
+            initialDelaySeconds: {{ .Values.ledgerWriter.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.ledgerWriter.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.ledgerWriter.readinessProbe.timeoutSeconds }}
+          resources:
+            {{- toYaml .Values.ledgerWriter.resources | nindent 12 }}
+          securityContext:
+            {{- toYaml .Values.global.containerSecurityContext | nindent 12 }}
+          startupProbe:
+            httpGet:
+              path: {{ .Values.ledgerWriter.startupProbe.httpGet.path }}
+              port: {{ .Values.ledgerWriter.startupProbe.httpGet.port }}
+            failureThreshold: {{ .Values.ledgerWriter.startupProbe.failureThreshold }}
+            periodSeconds: {{ .Values.ledgerWriter.startupProbe.periodSeconds }}
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /tmp/.ssh
+              name: publickey
+              readOnly: true
+      securityContext:
+        {{- toYaml .Values.global.securityContext | nindent 8 }}
+      serviceAccountName: {{ .Values.global.serviceAccountName }}
+      terminationGracePeriodSeconds: 5
+      volumes:
+        - emptyDir: {}
+          name: tmp
+        - name: publickey
+          secret:
+            items:
+              - key: {{ .Values.jwt.keyName }}
+                path: publickey
+            secretName: {{ .Values.jwt.secretName }}
+{{- end }}

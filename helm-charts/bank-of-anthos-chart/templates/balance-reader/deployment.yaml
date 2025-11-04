@@ -1,0 +1,121 @@
+# Copyright 2025 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+{{- if .Values.balanceReader.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    application: {{ .Values.global.application }}
+    environment: {{ .Values.global.environment }}
+    team: {{ .Values.balanceReader.team }}
+    tier: {{ .Values.balanceReader.tier }}
+  name: balancereader
+spec:
+  replicas: {{ .Values.balanceReader.replicaCount }}
+  selector:
+    matchLabels:
+      app: balancereader
+      application: {{ .Values.global.application }}
+      environment: {{ .Values.global.environment }}
+      team: {{ .Values.balanceReader.team }}
+      tier: {{ .Values.balanceReader.tier }}
+  template:
+    metadata:
+      annotations:
+        {{- if .Values.istio.enabled }}
+        proxy.istio.io/config: {{ dict "holdApplicationUntilProxyStarts" .Values.istio.proxy.holdApplicationUntilProxyStarts | toJson | quote }}
+        {{- end }}
+      labels:
+        app: balancereader
+        application: {{ .Values.global.application }}
+        environment: {{ .Values.global.environment }}
+        team: {{ .Values.balanceReader.team }}
+        tier: {{ .Values.balanceReader.tier }}
+    spec:
+      containers:
+        - env:
+            - name: VERSION
+              value: {{ .Values.balanceReader.image.tag | default .Values.global.version | quote }}
+            - name: PORT
+              value: {{ .Values.balanceReader.env.port | quote }}
+            - name: ENABLE_TRACING
+              value: {{ .Values.balanceReader.env.enableTracing | quote }}
+            - name: ENABLE_METRICS
+              value: {{ .Values.balanceReader.env.enableMetrics | quote }}
+            - name: POLL_MS
+              value: {{ .Values.balanceReader.env.pollMs | quote }}
+            - name: CACHE_SIZE
+              value: {{ .Values.balanceReader.env.cacheSize | quote }}
+            - name: JVM_OPTS
+              value: {{ .Values.balanceReader.env.jvmOpts | quote }}
+            - name: LOG_LEVEL
+              value: {{ .Values.balanceReader.env.logLevel | quote }}
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: SPRING_AUTOCONFIGURE_EXCLUDE ## TODO: This is a hack to exclude the GCP autoconfiguration for straightforward local development
+              value: {{ .Values.balanceReader.env.springAutoconfigureExclude | quote }}
+          envFrom:
+            - configMapRef:
+                name: environment-config
+            - configMapRef:
+                name: ledger-db-config
+          image: "{{ .Values.global.imageRegistry }}/{{ .Values.balanceReader.image.repository }}:{{ .Values.balanceReader.image.tag | default .Values.global.version }}{{- if .Values.balanceReader.image.digest }}@{{ .Values.balanceReader.image.digest }}{{- end }}"
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.balanceReader.livenessProbe.httpGet.path }}
+              port: {{ .Values.balanceReader.livenessProbe.httpGet.port }}
+            initialDelaySeconds: {{ .Values.balanceReader.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.balanceReader.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.balanceReader.livenessProbe.timeoutSeconds }}
+          name: balancereader
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.balanceReader.readinessProbe.httpGet.path }}
+              port: {{ .Values.balanceReader.readinessProbe.httpGet.port }}
+            initialDelaySeconds: {{ .Values.balanceReader.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.balanceReader.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.balanceReader.readinessProbe.timeoutSeconds }}
+          resources:
+            {{- toYaml .Values.balanceReader.resources | nindent 12 }}
+          securityContext:
+            {{- toYaml .Values.global.containerSecurityContext | nindent 12 }}
+          startupProbe:
+            httpGet:
+              path: {{ .Values.balanceReader.startupProbe.httpGet.path }}
+              port: {{ .Values.balanceReader.startupProbe.httpGet.port }}
+            failureThreshold: {{ .Values.balanceReader.startupProbe.failureThreshold }}
+            periodSeconds: {{ .Values.balanceReader.startupProbe.periodSeconds }}
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /tmp/.ssh
+              name: publickey
+              readOnly: true
+      securityContext:
+        {{- toYaml .Values.global.securityContext | nindent 8 }}
+      serviceAccountName: {{ .Values.global.serviceAccountName }}
+      terminationGracePeriodSeconds: 5
+      volumes:
+        - emptyDir: {}
+          name: tmp
+        - name: publickey
+          secret:
+            items:
+              - key: {{ .Values.jwt.keyName }}
+                path: publickey
+            secretName: {{ .Values.jwt.secretName }}
+{{- end }}

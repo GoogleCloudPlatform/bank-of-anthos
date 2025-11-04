@@ -1,0 +1,94 @@
+# Copyright 2025 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+{{- if .Values.contacts.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    application: {{ .Values.global.application }}
+    environment: {{ .Values.global.environment }}
+    team: {{ .Values.contacts.team }}
+    tier: {{ .Values.contacts.tier }}
+  name: contacts
+spec:
+  replicas: {{ .Values.contacts.replicaCount }}
+  selector:
+    matchLabels:
+      app: contacts
+      application: {{ .Values.global.application }}
+      environment: {{ .Values.global.environment }}
+      team: {{ .Values.contacts.team }}
+      tier: {{ .Values.contacts.tier }}
+  template:
+    metadata:
+      annotations:
+        {{- if .Values.istio.enabled }}
+        proxy.istio.io/config: {{ dict "holdApplicationUntilProxyStarts" .Values.istio.proxy.holdApplicationUntilProxyStarts | toJson | quote }}
+        {{- end }}
+      labels:
+        app: contacts
+        application: {{ .Values.global.application }}
+        environment: {{ .Values.global.environment }}
+        team: {{ .Values.contacts.team }}
+        tier: {{ .Values.contacts.tier }}
+    spec:
+      containers:
+        - env:
+            - name: VERSION
+              value: {{ .Values.contacts.image.tag | default .Values.global.version | quote }}
+            - name: PORT
+              value: {{ .Values.contacts.env.port | quote }}
+            - name: ENABLE_TRACING
+              value: {{ .Values.contacts.env.enableTracing | quote }}
+            - name: LOG_LEVEL
+              value: {{ .Values.contacts.env.logLevel | quote }}
+          envFrom:
+            - configMapRef:
+                name: environment-config
+            - configMapRef:
+                name: accounts-db-config
+          image: "{{ .Values.global.imageRegistry }}/{{ .Values.contacts.image.repository }}:{{ .Values.contacts.image.tag | default .Values.global.version }}{{- if .Values.contacts.image.digest }}@{{ .Values.contacts.image.digest }}{{- end }}"
+          name: contacts
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.contacts.readinessProbe.httpGet.path }}
+              port: {{ .Values.contacts.readinessProbe.httpGet.port }}
+            initialDelaySeconds: {{ .Values.contacts.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.contacts.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.contacts.readinessProbe.timeoutSeconds }}
+          resources:
+            {{- toYaml .Values.contacts.resources | nindent 12 }}
+          securityContext:
+            {{- toYaml .Values.global.containerSecurityContext | nindent 12 }}
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /tmp/.ssh
+              name: publickey
+              readOnly: true
+      securityContext:
+        {{- toYaml .Values.global.securityContext | nindent 8 }}
+      serviceAccountName: {{ .Values.global.serviceAccountName }}
+      terminationGracePeriodSeconds: 5
+      volumes:
+        - emptyDir: {}
+          name: tmp
+        - name: publickey
+          secret:
+            items:
+              - key: {{ .Values.jwt.keyName }}
+                path: publickey
+            secretName: {{ .Values.jwt.secretName }}
+{{- end }}
