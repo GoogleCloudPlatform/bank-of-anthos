@@ -1,4 +1,4 @@
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@ spec:
       containers:
         - env:
             - name: VERSION
-              value: v0.6.7
+              value: v0.6.8
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
@@ -89,7 +89,7 @@ spec:
                 name: environment-config
             - configMapRef:
                 name: ledger-db-config
-          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/balancereader:v0.6.7@sha256:3b46d0274fb47a99415678aefcc55d2844d87e694c5ae4a796da8719c08e9ef0
+          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/balancereader:v0.6.8@sha256:7668390ec0a89f885e85604b741d861e47e115365224644d4c045868100c7265
           livenessProbe:
             httpGet:
               path: /healthy

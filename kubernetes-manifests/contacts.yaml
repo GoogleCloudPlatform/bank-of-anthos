@@ -1,4 +1,4 @@
-# Copyright 2024 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@ spec:
       containers:
         - env:
             - name: VERSION
-              value: v0.6.7
+              value: v0.6.8
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
@@ -77,7 +77,7 @@ spec:
                 name: environment-config
             - configMapRef:
                 name: accounts-db-config
-          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/contacts:v0.6.7@sha256:f8ff8a077eee05cfa330f269dd550844cf5a1e4c6f3cdfad6c6483e27da5400f
+          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/contacts:v0.6.8@sha256:37bfa4be29464316a3a097d5e6700465d4aeacc9673fb570e19378891cc2d199
           name: contacts
           readinessProbe:
             httpGet:
