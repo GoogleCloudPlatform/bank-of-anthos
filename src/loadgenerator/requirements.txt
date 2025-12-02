@@ -59,7 +59,7 @@ urllib3==2.5.0
     # via
     #   geventhttpclient
     #   requests
-werkzeug==3.0.4
+werkzeug==3.1.4
     # via
     #   flask
     #   flask-cors
