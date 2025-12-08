@@ -20,16 +20,16 @@ terraform {
   required_providers {
     google = {
       source  = "hashicorp/google"
-      version = "~> 5.40.0"
+      version = "~> 5.43.0"
     }
     google-beta = {
       source  = "hashicorp/google-beta"
-      version = "~> 5.40.0"
+      version = "~> 5.43.0"
     }
   }
 }
 
-# google-beta provider for fleet API, artifact registry
+# google-beta provider retained for version pinning
 provider "google-beta" {
   project = var.project_id
   region  = var.region
