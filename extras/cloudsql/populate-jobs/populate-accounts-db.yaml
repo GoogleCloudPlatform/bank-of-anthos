@@ -269,7 +269,7 @@ spec:
             cpu: "200m"
             memory: "100Mi"
       - name: populate-accounts-db
-        image: postgres:16.11-alpine@sha256:79c06d285ed9186efbbc45c73413b3c3510c3c94ffede2f25d1e523f74d07f28
+        image: postgres:16.11-alpine@sha256:a5074487380d4e686036ce61ed6f2d363939ae9a0c40123d1a9e3bb3a5f344b4
         command: ['bash', '-c','. /scripts/initialize-database.sh 127.0.0.1 5432 accounts-db']
         volumeMounts:
         - name: scripts
