@@ -1,6 +1,6 @@
 flask==3.0.3
 requests==2.32.4
-urllib3==2.2.3
+urllib3==2.6.0
 pyjwt==2.9.0
 cryptography==44.0.1
 gunicorn==23.0.0
