@@ -55,7 +55,7 @@ pyzmq==26.2.0
     # via locust
 requests==2.32.4
     # via locust
-urllib3==2.5.0
+urllib3==2.6.0
     # via
     #   geventhttpclient
     #   requests
