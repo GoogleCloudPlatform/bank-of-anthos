@@ -255,7 +255,7 @@ spec:
       serviceAccountName: boa-ksa
       containers:
       - name: sidecar-controller
-        image: bash@sha256:df9684c6e2a1fdc5f99ce7472de257d3d26d052547481fb00341d0d0df291e8d
+        image: bash@sha256:32ca1653c68dd414bbdcdb9d5dc811010022b04e37bfcc886a5d052fc0c56656
         command: ['bash', '-c', '. /scripts/wait-to-complete-sidecar.sh "initialize-database.sh" "cloud_sql_proxy"']
         volumeMounts:
         - name: scripts
