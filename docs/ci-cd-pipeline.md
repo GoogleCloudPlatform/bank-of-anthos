@@ -120,8 +120,8 @@ These steps are necessary for all Google Cloud projects that are _not_ `bank-of-
 
 1. Create a Cloud Storage bucket in your project to hold your Terraform state.
    ```sh
-   gsutil mb gs://${PROJECT_ID}-boa-tf-state
-   gsutil versioning set on gs://${PROJECT_ID}-boa-tf-state
+   gcloud storage buckets create gs://${PROJECT_ID}-boa-tf-state
+   gcloud storage buckets update --versioning gs://${PROJECT_ID}-boa-tf-state
    ```
 1. Verify the Terraform variables in `iac/tf-multienv-cicd-anthos-autopilot/terraform.tfvars`. In particular, `project_id` and `region` are set to the same values you used earlier.
 1. Provision the infrastructure with Terraform.
