@@ -73,7 +73,7 @@ steps:
       #!/bin/bash
       set -x
       cat <<EOT >> .env
-      CYPRESS_baseUrl=http://$(kubectl get service frontend --namespace $NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+      CYPRESS_baseUrl=http://$(kubectl get service frontend --namespace $NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
       ROLLOUT=$ROLLOUT
       EOT
       skaffold verify --build-artifacts=/workspace/artifacts.json --profile=development -m frontend --env-file=.env
