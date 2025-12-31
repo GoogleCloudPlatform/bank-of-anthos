@@ -33,9 +33,9 @@
 
     <properties>
         <java.version>17</java.version>
-        <bootstrap.version>4.2.1</bootstrap.version>
+        <bootstrap.version>4.6.2</bootstrap.version>
         <checkstyle.config.location>./checkstyle.xml</checkstyle.config.location>
-        <spring-cloud.version>2022.0.5</spring-cloud.version>
+        <spring-cloud.version>2025.0.1</spring-cloud.version>
     </properties>
 
     <dependencyManagement>
@@ -68,6 +68,10 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <dependency>
+                <groupId>io.micrometer</groupId>
+                <artifactId>micrometer-core</artifactId>
+            </dependency>
        </dependencies>
     </dependencyManagement>
 
@@ -95,7 +99,6 @@
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-stackdriver</artifactId>
-            <version>1.16.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>ch.qos.logback</groupId>
