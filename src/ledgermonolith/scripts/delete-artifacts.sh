@@ -27,5 +27,5 @@ GCS_PATH=${GCS_BUCKET}/monolith
 
 
 # Delete the artifacts in GCS
-gsutil -m rm -r gs://${GCS_PATH}
+gcloud storage rm --recursive gs://${GCS_PATH}
 echo "Deleted $GCS_PATH from Google Cloud Storage"

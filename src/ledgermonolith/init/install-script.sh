@@ -165,7 +165,7 @@ GCS_PATH=${GCS_BUCKET}/monolith
 mkdir -p ${MONOLITH_DIR}
 
 # Pull build artifacts
-gsutil -m cp -r gs://${GCS_PATH}/* ${MONOLITH_DIR}
+gcloud storage cp --recursive gs://${GCS_PATH}/* ${MONOLITH_DIR}
 
 # Query the Metadata Service for the environment config
 # If no value was found, use the default configuration from the storage bucket

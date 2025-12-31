@@ -34,20 +34,20 @@ GCS_PATH=${GCS_BUCKET}/monolith
 
 # If the GCS bucket doesn't exist, then create it
 echo "Creating GCS bucket..."
-gsutil ls -p $PROJECT_ID gs://${GCS_BUCKET} &> /dev/null
+gcloud storage ls --project $PROJECT_ID gs://${GCS_BUCKET} &> /dev/null
 if [ $? -ne 0 ]; then
-  gsutil mb -p $PROJECT_ID gs://${GCS_BUCKET}
+  gcloud storage buckets create --project $PROJECT_ID gs://${GCS_BUCKET}
 fi
 
 # Push application initialization artifacts
 echo "Pushing .jar initialization artifacts to GCS..."
-gsutil cp $CWD/../target/ledgermonolith-1.0.jar gs://${GCS_PATH}/${APP_JAR}
-gsutil -m cp -r $CWD/../init/* gs://${GCS_PATH}
+gcloud storage cp $CWD/../target/ledgermonolith-1.0.jar gs://${GCS_PATH}/${APP_JAR}
+gcloud storage cp --recursive $CWD/../init/* gs://${GCS_PATH}
 
 # Push database initialization scripts
 echo "Pushing database initialization artifacts to GCS..."
-gsutil -m cp -r $CWD/../../ledger-db/initdb gs://${GCS_PATH}
+gcloud storage cp --recursive $CWD/../../ledger-db/initdb gs://${GCS_PATH}
 
 # Push JWT authentication keys
 echo "Pushing sample JWT key..." 
-gsutil cp $CWD/../../../extras/jwt/jwt-secret.yaml gs://${GCS_PATH}/jwt-secret.yaml
+gcloud storage cp $CWD/../../../extras/jwt/jwt-secret.yaml gs://${GCS_PATH}/jwt-secret.yaml
