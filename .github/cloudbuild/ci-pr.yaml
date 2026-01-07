@@ -35,9 +35,9 @@ steps:
         exit 1
       fi
     timeout: 120s
-  - name: gcr.io/cloud-builders/gsutil # get skaffold build cache
+  - name: gcr.io/cloud-builders/gcloud # get skaffold build cache
     id: download-skaffold-cache
-    args: ['cp', $_CACHE_URI, '/workspace/cache']
+    args: ['storage', 'cp', $_CACHE_URI, '/workspace/cache']
     timeout: 120s
   - name: gcr.io/k8s-skaffold/skaffold:v2.17.0
     id: build-and-push-images
@@ -45,9 +45,9 @@ steps:
       MAVEN_USER_HOME=$MAVEN_USER_HOME ./mvnw jib:_skaffold-fail-if-jib-out-of-date -Djib.requiredVersion=1.4.0 --projects src/ledger/balancereader --also-make jib:_skaffold-files-v2 --quiet --batch-mode
       MAVEN_USER_HOME=$MAVEN_USER_HOME skaffold build --file-output=/workspace/artifacts.json --default-repo=$CONTAINER_REGISTRY --cache-file=/workspace/$CACHE --profile=development
     #args: ['skaffold', 'build', '--file-output=/workspace/artifacts.json', '--default-repo=$_CONTAINER_REGISTRY', '--cache-file=/workspace/$_CACHE', '--profile=development'] # set _CACHE to anything other than "cache" e.g. "no-cache" to reset skaffold cache
-  - name: gcr.io/cloud-builders/gsutil # upload skaffold build cache
+  - name: gcr.io/cloud-builders/gcloud # upload skaffold build cache
     id: upload-skaffold-cache
-    args: ['cp', '/workspace/$_CACHE',  $_CACHE_URI]
+    args: ['storage', 'cp', '/workspace/$_CACHE',  $_CACHE_URI]
     timeout: 120s
   - name: gcr.io/k8s-skaffold/skaffold:v2.17.0
     id: run-tests
