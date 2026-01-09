@@ -40,4 +40,11 @@ COPY . .
 # Ensure files are readable for non-root users
 RUN chmod a+r *
 
+# Create a non-root user (Issue #517)
+RUN useradd -m -u 1000 appuser
+
+# Switch to the non-root user
+USER appuser
+
+# Start server using gunicorn
 CMD gunicorn -b :$PORT --threads 4 --log-config logging.conf --log-level=$LOG_LEVEL "contacts:create_app()"
