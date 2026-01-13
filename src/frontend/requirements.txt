@@ -16,7 +16,7 @@ cryptography==46.0.3
     # via -r requirements.in
 flask==3.1.2
     # via -r requirements.in
-google-api-core==2.28.1
+google-api-core[grpc]==2.28.1
     # via google-cloud-trace
 google-auth==2.45.0
     # via
@@ -144,7 +144,7 @@ urllib3==2.6.0
     # via
     #   -r requirements.in
     #   requests
-werkzeug==3.1.4
+werkzeug==3.1.5
     # via flask
 wrapt==1.17.3
     # via
