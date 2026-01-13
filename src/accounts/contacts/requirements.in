@@ -42,7 +42,7 @@ requests==2.32.5
 rsa==4.9.1
 six==1.17.0
 sqlalchemy==1.4.54
-urllib3==2.6.0
+urllib3==2.6.3
 wcwidth==0.2.14
 webencodings==0.5.1
 wrapt==1.17.3

@@ -26,13 +26,13 @@ click==8.3.1
     # via
     #   -r requirements.in
     #   flask
-coverage==7.13.1
+coverage[toml]==7.13.1
     # via pytest-cov
 cryptography==46.0.3
     # via -r requirements.in
 flask==3.1.2
     # via -r requirements.in
-google-api-core==2.28.1
+google-api-core[grpc]==2.28.1
     # via
     #   -r requirements.in
     #   google-cloud-core
@@ -54,6 +54,8 @@ googleapis-common-protos==1.72.0
     #   -r requirements.in
     #   google-api-core
     #   grpcio-status
+greenlet==3.3.0
+    # via sqlalchemy
 grpcio==1.76.0
     # via
     #   -r requirements.in
@@ -208,7 +210,7 @@ typing-extensions==4.15.0
     #   opentelemetry-resourcedetector-gcp
     #   opentelemetry-sdk
     #   opentelemetry-semantic-conventions
-urllib3==2.6.0
+urllib3==2.6.3
     # via
     #   -r requirements.in
     #   requests
