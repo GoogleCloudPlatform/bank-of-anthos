@@ -27,7 +27,7 @@ resource "google_artifact_registry_repository_iam_member" "cloud_build" {
   role   = "roles/artifactregistry.writer"
   member = "serviceAccount:${google_service_account.cloud_build.email}"
 
-  provider = google-beta
+  depends_on = [ google_service_account.cloud_build ]
 }
 
 resource "google_service_account_iam_member" "cloud_build_impersonate_cloud_deploy" {
@@ -35,4 +35,3 @@ resource "google_service_account_iam_member" "cloud_build_impersonate_cloud_depl
   role               = "roles/iam.serviceAccountUser"
   member             = "serviceAccount:${google_service_account.cloud_build.email}"
 }
-
