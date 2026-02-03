@@ -20,8 +20,6 @@ resource "google_artifact_registry_repository" "container_registry" {
   description   = "Bank of Anthos docker repository"
   project       = var.project_id
 
-  provider = google-beta
-
   depends_on = [
     module.enabled_google_apis
   ]
