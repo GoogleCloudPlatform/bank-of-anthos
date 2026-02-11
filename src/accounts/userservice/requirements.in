@@ -5,7 +5,7 @@ cachetools==5.5.2
 certifi==2024.12.14
 chardet==5.2.0
 click==8.3.1
-cryptography==46.0.3
+cryptography==46.0.5
 flask==3.1.2
 google-api-core==2.28.1
 google-auth==2.45.0
