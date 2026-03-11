@@ -1,4 +1,4 @@
-# Copyright 2025 Google LLC
+# Copyright 2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@ spec:
       containers:
         - env:
             - name: VERSION
-              value: v0.6.8
+              value: v0.6.9
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
@@ -87,7 +87,7 @@ spec:
                 name: service-api-config
             - configMapRef:
                 name: ledger-db-config
-          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/ledgerwriter:v0.6.8@sha256:aa1a38f0a68cb12a724fe27da69e1bf4a25d445a1793b8bb9ae7d17a1be90d17
+          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/ledgerwriter:v0.6.9@sha256:72509132f868a3d592cb734a7bd410b1bf69d55d38c413279b18e8265f9d98f8
           name: ledgerwriter
           readinessProbe:
             httpGet:
