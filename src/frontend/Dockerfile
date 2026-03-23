@@ -28,10 +28,10 @@ WORKDIR /app
 
 COPY --from=builder /install /usr/local
 
-# show python logs as they occur
+# Show python logs as they occur
 ENV PYTHONUNBUFFERED=0
 
-# explicitly set a fallback log level in case no log level is defined by Kubernetes
+# Explicitly set a fallback log level in case no log level is defined by Kubernetes
 ENV LOG_LEVEL info
 
 # Add application code.
@@ -39,6 +39,19 @@ COPY . .
 
 # Ensure files are readable for non-root users
 RUN find . -type f -name '*' -exec chmod a+r '{}' ';'
+
+# --- START OF CORRECTION FOR ISSUE #517 ---
+
+# Create a non-root user and group
+RUN useradd -m -u 1000 appuser
+
+# Change ownership of the application directory to the new user
+RUN chown -R appuser:appuser /app
+
+# Switch to the non-root user
+USER appuser
+
+# --- END OF CORRECTION ---
 
 # Start server using gunicorn
 CMD gunicorn -b :$PORT --threads 4 --log-config logging.conf --log-level=$LOG_LEVEL "frontend:create_app()"
