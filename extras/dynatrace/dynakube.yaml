@@ -1,0 +1,82 @@
+apiVersion: v1
+data:
+  apiToken: ZHQwYzAxLlc1SUMzMjMyQVRWVlM2Q0VEM1M1T0IzRi5TR1c0TDJIUjM3SU1ZUk5JUExQTkhJT0lXVVVaUE80T0xKWlJaRE9MNkNBM1JQQllPVVpER1NJS0ZNN0JZM0k0
+  dataIngestToken: ZHQwYzAxLk1PRVhUVEFXN0lWRlNLMlg2WFBHNU03VC5RWExRRUdWSkpTVUFSNEZMVDJXSU1ISUtXR1dTTkZWSU1WSk8ySVZQM1NVTUdMRElRNlhZRUVSVEVMRUhNWUZJ
+kind: Secret
+metadata:
+  name: thesis-lab
+  namespace: dynatrace
+  labels:
+    dynatrace.com/created-by: "dynatrace.kubernetes"
+type: Opaque
+---
+apiVersion: dynatrace.com/v1beta6
+kind: DynaKube
+metadata:
+  name: thesis-lab
+  namespace: dynatrace
+  labels:
+    dynatrace.com/created-by: "dynatrace.kubernetes"
+# Link to api reference for further information: https://docs.dynatrace.com/docs/ingest-from/setup-on-k8s/reference/dynakube-parameters
+spec:
+  apiUrl: https://ewf41414.live.dynatrace.com/api
+  tokens: thesis-lab
+  activeGate:
+    capabilities:
+      - kubernetes-monitoring
+    resources:
+      requests:
+        cpu: 200m
+        memory: 512Mi
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+    replicas: 1
+  templates:
+    otelCollector:
+      imageRef:
+        repository: public.ecr.aws/dynatrace/dynatrace-otel-collector
+        tag: latest
+  telemetryIngest:
+    protocols:
+      - jaeger
+      - otlp
+      - statsd
+      - zipkin
+    serviceName: telemetry-ingest
+---
+apiVersion: dynatrace.com/v1beta6
+kind: DynaKube
+metadata:
+  name: thesis-lab-agents
+  namespace: dynatrace
+  labels:
+    dynatrace.com/created-by: "dynatrace.kubernetes"
+# Link to api reference for further information: https://docs.dynatrace.com/docs/ingest-from/setup-on-k8s/reference/dynakube-parameters
+spec:
+  apiUrl: https://ewf41414.live.dynatrace.com/api
+  tokens: thesis-lab
+  metadataEnrichment:
+    enabled: true
+  oneAgent:
+    cloudNativeFullStack:
+      tolerations:
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/master
+          operator: Exists
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/control-plane
+          operator: Exists
+  activeGate:
+    capabilities:
+      - routing
+      - debugging
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+    replicas: 1
+  logMonitoring: {}
