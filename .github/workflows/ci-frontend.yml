@@ -1,16 +1,16 @@
 name: ci-frontend
-run-name: ${{ github.actor }} is testing GitHub Actions 🚀
-on: [push]
-
+run-name: ${{ github.actor }} is testing GitHub Actions
+on: 
+  push:
     branches: [main]
     paths:
       - "src/frontend/**"
       - ".github/workflows/ci-frontend.yml"
 
-    pull_request:
-      branches: [main]
-      paths:
-        - "src/frontend/**"
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/frontend/**"
 
 jobs:
   build:
