@@ -1,10 +1,23 @@
-name: GitHub Actions Demo
+name: ci-frontend
 run-name: ${{ github.actor }} is testing GitHub Actions 🚀
 on: [push]
 
+    branches: [main]
+    paths:
+      - "src/frontend/**"
+      - ".github/workflows/ci-frontend.yml"
+
+    pull_request:
+      branches: [main]
+      paths:
+        - "src/frontend/**"
+
 jobs:
-  Explore-GitHub-Actions:
+  build:
+    name: Build frontend
     runs-on: ubuntu-latest
+    outputs:
+      image_tag: "test-image-tag"
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
@@ -12,5 +25,14 @@ jobs:
       - name: List files in the repository
         run: ls ${{ github.workspace }}
 
-      - name: Print a greeting
-        run: echo "Hello World! The job status is ${{ job.status }}."
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with: 
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependancy-path: src/frontend/requirements.txt
+
+      - name: Intall dependancy
+        run: | 
+          pip install -r src/frontend/requirements.txt
+          pip install flake8 pytest
