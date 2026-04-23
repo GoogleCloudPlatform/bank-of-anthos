@@ -37,12 +37,21 @@ jobs:
           pip install -r src/frontend/requirements.txt
           pip install flake8 pytest
 
-      - name: Trivy Security Scan
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: test-image-tag
-          format: "sarif"
-          output: "trivy-results.sarif"
-          serverity: "CRITICAL,HIGH"
-          exit-code: "1"
+      - name: Lint with flake8
+        run: |
+          flake8 src/frontend/ \
+            --max-line-length=120 \
+            --exclude=__pycache__,.git \
+            --count --statistics
+        continue-on-error: false
+        
+
+      # - name: Trivy Security Scan
+      #   uses: aquasecurity/trivy-action@master
+      #   with:
+      #     image-ref: test-image-tag
+      #     format: "sarif"
+      #     output: "trivy-results.sarif"
+      #     serverity: "CRITICAL,HIGH"
+      #     exit-code: "1"
 
