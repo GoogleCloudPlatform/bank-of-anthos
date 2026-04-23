@@ -13,3 +13,13 @@ on:
     branches: [main]
     paths:
       - "src/frontend/**"
+
+env:
+  SERVICE_NAME: frontend
+  SERVICE_PATH: src/frontend
+  ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}
+
+jobs:
+  # ── Build ─────────────────────────────────────────────────
+  build:
+    name: Build
