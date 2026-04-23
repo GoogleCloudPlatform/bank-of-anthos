@@ -1,0 +1,15 @@
+# Ci Piepline - frontend - (Python Flask)
+# Trigger: Push to src/frontend/** on main branch
+#          PR to main touching src/frontend
+
+name: CI - frontend
+on:
+  push: 
+    branches: [main]
+    paths: 
+      - "src/frontend/**"
+
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/frontend/**"
