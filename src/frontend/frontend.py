@@ -52,6 +52,7 @@ TRANSACTION_LIST_NAME = "transaction_list"
 
 # pylint: disable-msg=too-many-locals
 # pylint: disable-msg=too-many-branches
+
 def create_app():
     """Flask application factory to create instances
     of the Frontend Flask App
