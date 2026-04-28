@@ -89,16 +89,18 @@ jobs:
   sonar:
     runs-on: ubuntu-latest
     needs: lint-test
+
     steps:
       - uses: actions/checkout@v4
         with:
+          # Recommended by Sonar for proper blame info
           fetch-depth: 0
 
       - uses: actions/download-artifact@v4
         with:
           name: coverage-${{ env.SERVICE_NAME }}
           path: ${{ env.SERVICE_PATH }}
-          
+
       - name: Debug — verify secret length
         env:
           T: ${{ secrets.SONAR_TOKEN }}
@@ -113,16 +115,24 @@ jobs:
           SONAR_HOST_URL: https://sonarcloud.io
         with:
           projectBaseDir: ${{ env.SERVICE_PATH }}
+          # Optional but recommended to be explicit; mirror your sonar-project.properties
+          args: >
+            -Dsonar.organization=boa-sonar-token
+            -Dsonar.projectKey=bank-of-anthos-frontend-project-key
 
       - name: SonarCloud quality gate
-        uses: SonarSource/sonarqube-quality-gate-action@v1.2.0
-        timeout-minutes: 5
+        id: sonar-quality-gate
+        uses: SonarSource/sonarqube-quality-gate-action@master
+        timeout-minutes: 10
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
         with:
-          pollingTimeoutSec: 300
+          # Let the action auto-detect the metadata from the v4 scan (recommended).
+          # Only specify scanMetadataReportFile if you really need a non-standard location.
+          pollingTimeoutSec: 600
           scanMetadataReportFile: ${{ env.SERVICE_PATH }}/.scannerwork/report-task.txt
+
   # ────────────────────────────────────────────────────────────
   # Job 3: Build + Trivy scan
   # Always runs (PR + push). Push happens only on main.
