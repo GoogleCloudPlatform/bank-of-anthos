@@ -143,7 +143,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=${{ env.SERVICE_NAME }}
 
       - name: Trivy scan (CRITICAL only)
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@0.36.0
         with:
           image-ref: ${{ env.SERVICE_NAME }}:${{ needs.lint-test.outputs.short-sha }}
           format: sarif
