@@ -100,21 +100,22 @@ jobs:
           path: ${{ env.SERVICE_PATH }}
 
       - name: SonarCloud scan
-        uses: SonarSource/sonarcloud-github-action@v3
+        uses: SonarSource/sonarqube-scan-action@v4
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_HOST_URL: https://sonarcloud.io
         with:
           projectBaseDir: ${{ env.SERVICE_PATH }}
 
       - name: SonarCloud quality gate
-        uses: SonarSource/sonarqube-quality-gate-action@v1
+        uses: SonarSource/sonarqube-quality-gate-action@v1.2.0
         timeout-minutes: 5
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: https://sonarcloud.io
         with:
+          pollingTimeoutSec: 300
           scanMetadataReportFile: ${{ env.SERVICE_PATH }}/.scannerwork/report-task.txt
-
   # ────────────────────────────────────────────────────────────
   # Job 3: Build + Trivy scan
   # Always runs (PR + push). Push happens only on main.
