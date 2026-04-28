@@ -98,6 +98,13 @@ jobs:
         with:
           name: coverage-${{ env.SERVICE_NAME }}
           path: ${{ env.SERVICE_PATH }}
+          
+      - name: Debug — verify secret length
+        env:
+          T: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          echo "Token length: ${#T}"
+          echo "First char masked: ${T:0:0}***"
 
       - name: SonarCloud scan
         uses: SonarSource/sonarqube-scan-action@v4
