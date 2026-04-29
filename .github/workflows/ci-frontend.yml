@@ -93,7 +93,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # Recommended by Sonar for proper blame info
           fetch-depth: 0
 
       - uses: actions/download-artifact@v4
@@ -108,30 +107,18 @@ jobs:
           echo "Token length: ${#T}"
           echo "First char masked: ${T:0:0}***"
 
-      - name: SonarCloud scan
-        uses: SonarSource/sonarqube-scan-action@v4
+      - name: SonarCloud scan (includes Quality Gate)
+        uses: sonarsource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
         with:
           projectBaseDir: ${{ env.SERVICE_PATH }}
-          # Optional but recommended to be explicit; mirror your sonar-project.properties
           args: >
             -Dsonar.organization=boa-sonar-token
             -Dsonar.projectKey=bank-of-anthos-frontend-project-key
-
-      - name: SonarCloud quality gate
-        id: sonar-quality-gate
-        uses: SonarSource/sonarqube-quality-gate-action@master
-        timeout-minutes: 10
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: https://sonarcloud.io
-        with:
-          # Let the action auto-detect the metadata from the v4 scan (recommended).
-          # Only specify scanMetadataReportFile if you really need a non-standard location.
-          pollingTimeoutSec: 600
-          scanMetadataReportFile: ${{ env.SERVICE_PATH }}/.scannerwork/report-task.txt
+            -Dsonar.qualitygate.wait=true
+            -Dsonar.qualitygate.timeout=600
 
   # ────────────────────────────────────────────────────────────
   # Job 3: Build + Trivy scan
