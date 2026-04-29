@@ -252,8 +252,11 @@ jobs:
       - name: Update image tag
         run: |
           yq eval -i \
-            '.image.tag = "${{ needs.build-scan.outputs.short-sha }}"' \
+            '.frontend.image.tag = "${{ needs.build-scan.outputs.short-sha }}"' \
             helm/boa-frontend/values.yaml
+
+          # Sanity check — show what we're about to commit
+          grep -A 3 "image:" helm/boa-frontend/values.yaml
 
       - name: Commit and push
         run: |
