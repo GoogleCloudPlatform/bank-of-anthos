@@ -107,6 +107,12 @@ jobs:
           echo "Token length: ${#T}"
           echo "First char masked: ${T:0:0}***"
 
+      - name: Show sonar-project.properties
+        working-directory: ${{ env.SERVICE_PATH }}
+        run: |
+          echo "=== sonar-project.properties ==="
+          cat sonar-project.properties
+
       - name: SonarCloud scan (includes Quality Gate)
         uses: sonarsource/sonarqube-scan-action@v6
         env:
@@ -115,8 +121,6 @@ jobs:
         with:
           projectBaseDir: ${{ env.SERVICE_PATH }}
           args: >
-            -Dsonar.organization=boa-sonar-token
-            -Dsonar.projectKey=bank-of-anthos-frontend-project-key
             -Dsonar.qualitygate.wait=true
             -Dsonar.qualitygate.timeout=600
 
