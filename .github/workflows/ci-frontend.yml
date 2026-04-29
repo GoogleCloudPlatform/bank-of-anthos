@@ -189,9 +189,20 @@ jobs:
           # subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           allow-no-subscriptions: true
 
+      - name: Show Azure account (debug)
+        run: az account show --output table
 
-      - name: ACR login
-        run: az acr login --name $(echo "${{ secrets.ACR_LOGIN_SERVER }}" | cut -d. -f1)
+
+      # - name: ACR login
+      #   run: az acr login --name $(echo "${{ secrets.ACR_LOGIN_SERVER }}" | cut -d. -f1)
+
+      - name: ACR login (token-based, no subscription needed)\
+        run: |
+          ACR_NAME=$(echo "${{ secrets.ACR_LOGIN_SERVER }}" | cut -d. -f1)\
+          TOKEN=$(az acr login --name "$ACR_NAME" --expose-token --output tsv --query accessToken)\
+          echo "$TOKEN" | docker login "${{ secrets.ACR_LOGIN_SERVER }}" \\\
+            --username 00000000-0000-0000-0000-000000000000 \\\
+            --password-stdin
 
       - name: Build and push image
         id: push
