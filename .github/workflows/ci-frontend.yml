@@ -172,7 +172,8 @@ jobs:
   # Runs only on push to main, never on PR
   # ────────────────────────────────────────────────────────────
   sign-push:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    #if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     needs: build-scan
     steps:
@@ -217,7 +218,8 @@ jobs:
   # Updates helm/boa-frontend/values.yaml in boa-gitops repo
   # ────────────────────────────────────────────────────────────
   gitops-bump:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    #if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     needs: [build-scan, sign-push]
     steps:
