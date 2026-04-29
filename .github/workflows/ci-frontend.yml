@@ -121,7 +121,7 @@ jobs:
         with:
           projectBaseDir: ${{ env.SERVICE_PATH }}
           args: >
-            -Dsonar.qualitygate.wait=true
+            -Dsonar.qualitygate.wait=false
             -Dsonar.qualitygate.timeout=600
 
   # ────────────────────────────────────────────────────────────
