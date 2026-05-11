@@ -210,7 +210,7 @@ typing-extensions==4.15.0
     #   opentelemetry-resourcedetector-gcp
     #   opentelemetry-sdk
     #   opentelemetry-semantic-conventions
-urllib3==2.6.0
+urllib3==2.7.0
     # via
     #   -r requirements.in
     #   requests
