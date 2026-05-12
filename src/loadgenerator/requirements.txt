@@ -86,7 +86,7 @@ requests==2.32.4
     #   python-socketio
 simple-websocket==1.1.0
     # via python-engineio
-urllib3==2.6.3
+urllib3==2.7.0
     # via
     #   geventhttpclient
     #   requests
