@@ -38,7 +38,7 @@ grpcio-status==1.76.0
     # via google-api-core
 gunicorn==23.0.0
     # via -r requirements.in
-idna==3.11
+idna==3.15
     # via requests
 importlib-metadata==8.7.1
     # via opentelemetry-api
