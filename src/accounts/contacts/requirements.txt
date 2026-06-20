@@ -4,7 +4,7 @@ attrs==23.2.0
     # via -r requirements.in
 bcrypt==4.3.0
     # via -r requirements.in
-bleach==6.3.0
+bleach==6.4.0
     # via -r requirements.in
 blinker==1.9.0
     # via flask

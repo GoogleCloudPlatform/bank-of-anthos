@@ -1,6 +1,6 @@
 attrs==23.2.0
 bcrypt==4.3.0
-bleach==6.3.0
+bleach==6.4.0
 cachetools==5.5.2
 certifi==2024.12.14
 chardet==5.2.0
