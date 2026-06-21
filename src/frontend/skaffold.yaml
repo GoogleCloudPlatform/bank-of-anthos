@@ -41,6 +41,18 @@ test:
             - "**/*.py"
             - "../../.pylintrc"
             - "requirements.txt"
+  - image: frontend # unit tests
+    context: .
+    custom:
+      - command: |
+          pip install --upgrade pip
+          pip install -r requirements.txt --quiet --no-cache-dir
+          python -m unittest discover -s tests -v
+        timeoutSeconds: 180
+        dependencies:
+          paths:
+            - "**/*.py"
+            - "requirements.txt"
 deploy:
   kubectl: {}
   tolerateFailuresUntilDeadline: true
