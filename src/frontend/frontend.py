@@ -94,7 +94,7 @@ def create_app():
         return home()
 
     @app.route("/home")
-    def home():
+    def home(message=None):
         """
         Renders home page. Redirects to /login if token is not valid
         """
@@ -163,12 +163,16 @@ def create_app():
                                contacts=api_response[CONTACTS_NAME],
                                cymbal_logo=os.getenv('CYMBAL_LOGO', 'false'),
                                history=api_response[TRANSACTION_LIST_NAME],
-                               message=request.args.get('msg', None),
+                               message=message or request.args.get('msg', None),
                                name=display_name,
                                platform=platform,
                                platform_display_name=platform_display_name,
                                pod_name=pod_name,
                                pod_zone=pod_zone)
+
+    def _home_with_status(message, status_code):
+        """Render home while preserving the failing request's status code."""
+        return make_response(home(message), status_code)
 
     def _populate_contact_labels(account_id, transactions, contacts):
         """
@@ -246,21 +250,17 @@ def create_app():
 
         except requests.exceptions.RequestException as err:
             app.logger.error('Error submitting payment: %s', str(err))
+            return _home_with_status('Payment failed', 503)
         except UserWarning as warn:
             app.logger.error('Error submitting payment: %s', str(warn))
             msg = 'Payment failed: {}'.format(str(warn))
-            return redirect(url_for('home',
-                                    msg=msg,
-                                    _external=True,
-                                    _scheme=app.config['SCHEME']))
+            return _home_with_status(msg, 400)
         except (ValueError, DecimalException) as num_err:
             app.logger.error('Error submitting payment: %s', str(num_err))
             msg = 'Payment failed: {} is not a valid number'.format(user_input)
+            return _home_with_status(msg, 400)
 
-        return redirect(url_for('home',
-                                msg='Payment failed',
-                                _external=True,
-                                _scheme=app.config['SCHEME']))
+        return _home_with_status('Payment failed', 400)
 
     @app.route('/deposit', methods=['POST'])
     def deposit():
@@ -313,18 +313,18 @@ def create_app():
 
         except requests.exceptions.RequestException as err:
             app.logger.error('Error submitting deposit: %s', str(err))
+            return _home_with_status('Deposit failed', 503)
         except UserWarning as warn:
             app.logger.error('Error submitting deposit: %s', str(warn))
             msg = 'Deposit failed: {}'.format(str(warn))
-            return redirect(url_for('home',
-                                    msg=msg,
-                                    _external=True,
-                                    _scheme=app.config['SCHEME']))
+            return _home_with_status(msg, 400)
+        except (ValueError, DecimalException) as num_err:
+            app.logger.error('Error submitting deposit: %s', str(num_err))
+            msg = 'Deposit failed: {} is not a valid number'.format(
+                request.form.get('amount'))
+            return _home_with_status(msg, 400)
 
-        return redirect(url_for('home',
-                                msg='Deposit failed',
-                                _external=True,
-                                _scheme=app.config['SCHEME']))
+        return _home_with_status('Deposit failed', 400)
 
     def _submit_transaction(transaction_data):
         app.logger.debug('Submitting transaction.')
