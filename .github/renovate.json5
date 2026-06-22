@@ -5,17 +5,8 @@
     ':approveMajorUpdates',
     'schedule:earlyMondays',
   ],
-  'pip-compile': {
+  lockFileMaintenance: {
     enabled: true,
-    managerFilePatterns: [
-      '/(^|/)requirements\\.txt$/',
-    ],
-  },
-  pip_requirements: {
-    enabled: false,
-  },
-  constraints: {
-    python: '~=3.11.0',
   },
   kubernetes: {
     managerFilePatterns: [
@@ -26,4 +17,5 @@
     ],
   },
   packageRules: [],
+  minimumReleaseAge: "1 week",
 }
