@@ -14,19 +14,24 @@
 
 # Use the official Python docker container, slim version, running Debian
 FROM python:3.14.4-slim@sha256:2ca02f32b4d9d893863367ce07ec1972819f476dd38d8612f2a9cb6a41cbb727 AS base
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 
 FROM base AS builder
 
+# Set working directory
+WORKDIR /app
+
 # Install dependencies.
-COPY requirements.txt .
-RUN pip install --prefix="/install" -r requirements.txt
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --no-dev --no-install-project
 
 FROM base
 
 # Set our working directory
 WORKDIR /app
 
-COPY --from=builder /install /usr/local
+COPY --from=builder /app/.venv /app/.venv
+ENV PATH="/app/.venv/bin:$PATH"
 
 # Add application code.
 COPY locustfile.py .

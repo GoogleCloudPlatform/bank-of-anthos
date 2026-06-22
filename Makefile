@@ -75,7 +75,9 @@ endif
 checkstyle:
 	mvn checkstyle:check
 	# disable warnings: import loading, todos, function members, duplicate code, public methods
-	pylint --rcfile=./.pylintrc ./src/*/*.py
+	(cd src/frontend && uv run pylint --rcfile=../../.pylintrc *.py)
+	(cd src/accounts/contacts && uv run pylint --rcfile=../../../.pylintrc *.py)
+	(cd src/accounts/userservice && uv run pylint --rcfile=../../../.pylintrc *.py)
 
 test-e2e:
 	E2E_URL="http://$(shell kubectl get service frontend -o jsonpath='{.status.loadBalancer.ingress[0].ip}')" && \
@@ -83,15 +85,16 @@ test-e2e:
 
 test-unit:
 	mvn test
-	for SERVICE in "contacts" "userservice"; \
+	for SERVICE in "accounts/contacts" "accounts/userservice"; \
 	do \
-		pushd src/$$SERVICE;\
-			python3 -m venv $$HOME/venv-$$SERVICE; \
-			source $$HOME/venv-$$SERVICE/bin/activate; \
-			pip install -r requirements.txt; \
-			python -m pytest -v -p no:warnings; \
-			deactivate; \
-		popd; \
+		(cd src/$$SERVICE && uv run pytest -v -p no:warnings); \
+	done
+
+upgrade-py-deps:
+	for SERVICE in "frontend" "accounts/contacts" "accounts/userservice" "loadgenerator"; \
+	do \
+		echo "Upgrading dependencies in src/$$SERVICE..."; \
+		(cd src/$$SERVICE && uv lock --upgrade); \
 	done
 
 check-env:

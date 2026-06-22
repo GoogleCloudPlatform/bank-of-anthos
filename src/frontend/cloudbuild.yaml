@@ -15,7 +15,7 @@
 steps:
   - name: gcr.io/cloud-builders/gcloud
     args: ['storage', 'cp', $_CACHE_URI, '/workspace/cache'] # always write skaffold cache to filename cache in workspace
-  - name: gcr.io/k8s-skaffold/skaffold:v2.17.0
+  - name: gcr.io/k8s-skaffold/skaffold:v2.22.0
     args:
       - "skaffold"
       - "build"
@@ -25,15 +25,12 @@ steps:
       - "--module=$_TEAM"
   - name: gcr.io/cloud-builders/gcloud
     args: ['storage', 'cp', '/workspace/$_CACHE',  $_CACHE_URI]
-  - name: gcr.io/k8s-skaffold/skaffold:v2.17.0 # python set up should be baked into a custom builder image to speed up build times
+  - name: gcr.io/k8s-skaffold/skaffold:v2.22.0 # python set up should be baked into a custom builder image to speed up build times
     script: |
       #!/bin/bash
-      apt-get update
-      apt-get -y install python3-venv
-      python3 -m venv $HOME/venv-python-tests
-      . $HOME/venv-python-tests/bin/activate
-      pip install --upgrade pip
-      pip install pylint --no-cache-dir
+      apt-get update && apt-get -y install curl
+      curl -LsSf https://astral.sh/uv/install.sh | sh
+      mv $HOME/.local/bin/uv* /usr/local/bin/
       cd /workspace/src/$TEAM
       skaffold test --build-artifacts=/workspace/artifacts.json --assume-yes
     env:
