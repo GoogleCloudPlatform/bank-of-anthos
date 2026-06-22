@@ -18,8 +18,8 @@ required tools built-in.
 1. [skaffold **2.9+**](https://skaffold.dev/docs/install/) (latest version recommended)
 1. [OpenJDK **21+**](https://openjdk.java.net/projects/jdk/21/) (newer versions not tested)
 1. [Maven **3.9+**](https://downloads.apache.org/maven/maven-3/) (newer versions not tested)
-1. [Python **3.12+**](https://www.python.org/downloads/)
-1. [piptools](https://pypi.org/project/pip-tools/)
+1. [Python **3.14+**](https://www.python.org/downloads/)
+1. [uv](https://docs.astral.sh/uv/)
 
 ### Installing JDK 21 and Maven 3.9
 
@@ -61,19 +61,21 @@ mvn -version
 
 ### Python 
 
-If you're adding a new feature that requires a new external Python package in one or more services (`frontend`, `contacts`, `userservice`), you must regenerate the `requirements.txt` file using `piptools`. This is what the Python images will use to install external packages inside the containers.
+If you're adding a new feature that requires a new external Python package in one or more services (`frontend`, `contacts`, `userservice`, `loadgenerator`), you must update the `pyproject.toml` file and regenerate `uv.lock` using `uv`. This is what the Python images will use to install external packages inside the containers.
 
-To add a package: 
+To add or upgrade a package: 
 
-1. Add the package name to `requirements.in` within the `src/<service>` directory:
-
-2. From inside that directory, run: 
-```
-python3 -m pip install pip-tools
-python3 -m piptools compile --output-file=requirements.txt requirements.in
+1. From inside the service directory (e.g., `src/frontend`), run `uv add`:
+```bash
+uv add <package-name>
 ```
 
-3. Re-run `skaffold dev` or `skaffold run` to trigger a Docker build using the updated `requirements.txt`.  
+2. To upgrade all existing dependencies across all services to their latest compatible versions, run from the root:
+```bash
+make upgrade-py-deps
+```
+
+3. Re-run `skaffold dev` or `skaffold run` to trigger a Docker build using the updated `uv.lock`.  
 
 
 ### Java 

@@ -1,0 +1,9 @@
+[project]
+name = "loadgenerator"
+version = "0.1.0"
+description = "Load generator service for Bank of Anthos"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "locust>=2.42.6",
+]

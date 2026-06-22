@@ -1,12 +1,12 @@
 [MESSAGES CONTROL]
 
-disable=F0401,  # import loading
-        W0511,  # todos
-        E1101,  # function members
-        R0801,  # duplicate code
-        R0903,  # public methods
-        R0915,  # too many statements
-        R1732,  # consider-using-with
-        W1514,  # unspecified-encoding 
-        C0209,  # consider-using-f-string 
-        R1734   # use-list-literal
+disable=import-error,
+        fixme,
+        no-member,
+        duplicate-code,
+        too-few-public-methods,
+        too-many-statements,
+        consider-using-with,
+        unspecified-encoding,
+        consider-using-f-string,
+        use-list-literal

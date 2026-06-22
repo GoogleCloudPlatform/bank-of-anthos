@@ -32,12 +32,9 @@ steps:
     id: run-tests
     script: |
       #!/bin/bash
-      apt-get update
-      apt-get -y install python3-venv
-      python3 -m venv $HOME/venv-python-tests
-      . $HOME/venv-python-tests/bin/activate
-      pip install --upgrade pip
-      pip install pylint --no-cache-dir
+      apt-get update && apt-get -y install curl
+      curl -LsSf https://astral.sh/uv/install.sh | sh
+      export PATH="$HOME/.local/bin:$PATH"
       skaffold test --build-artifacts=/workspace/artifacts.json --module=$SERVICE --assume-yes
     env:
       - 'TEAM=$_TEAM'

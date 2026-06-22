@@ -34,38 +34,36 @@ test:
     context: .
     custom:
       - command: |
-          pip install --upgrade pip
-          pip install pylint --quiet --no-cache-dir
-          pip install -r requirements.txt --quiet --no-cache-dir
-          pylint --rcfile=../../../.pylintrc *.py
+          uv run pylint --rcfile=../../../.pylintrc *.py
         timeoutSeconds: 1200
         dependencies: 
           paths:
             - "**/*.py"
             - "../../../.pylintrc"
-            - "requirements.txt"
+            - "pyproject.toml"
+            - "uv.lock"
   - image: userservice # unit tests
     context: .
     custom:
       - command: |
-          pip install -r requirements.txt --quiet
-          python3 -m pytest -v -p no:warnings
+          uv run pytest -v -p no:warnings
         timeoutSeconds: 1200
         dependencies: 
           paths:
             - "**/*.py"
-            - "requirements.txt"
+            - "pyproject.toml"
+            - "uv.lock"
   - image: userservice # code coverage
     context: .
     custom:
       - command: |
-          pip install -r requirements.txt --quiet
-          python3 -m pytest --cov=./ tests/
+          uv run pytest --cov=./ tests/
         timeoutSeconds: 1200
         dependencies: 
           paths:
             - "**/*.py"
-            - "requirements.txt"
+            - "pyproject.toml"
+            - "uv.lock"
 deploy:
   kubectl: {}
 profiles:

@@ -31,16 +31,14 @@ test:
     context: .
     custom:
       - command: |
-          pip install --upgrade pip
-          pip install pylint --quiet --no-cache-dir
-          pip install -r requirements.txt --quiet --no-cache-dir
-          pylint --rcfile=../../.pylintrc *.py
+          uv run pylint --rcfile=../../.pylintrc *.py
         timeoutSeconds: 180
         dependencies: 
           paths:
             - "**/*.py"
             - "../../.pylintrc"
-            - "requirements.txt"
+            - "pyproject.toml"
+            - "uv.lock"
 deploy:
   kubectl: {}
   tolerateFailuresUntilDeadline: true

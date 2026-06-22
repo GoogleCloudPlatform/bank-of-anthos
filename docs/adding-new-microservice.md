@@ -12,7 +12,8 @@ Place your microservice's source code inside the newly created directory. The st
 
 - `README.md`: The service's description and documentation.
 - `main.py`: The application's entry point.
-- `requirements.in`: A list of Python dependencies.
+- `pyproject.toml`: Python project and dependency manifest.
+- `uv.lock`: Deterministic cross-platform dependency lockfile.
 - `Dockerfile`: To containerize the application.
 - `skaffold.yaml`: For local development with Skaffold.
 - `cloudbuild.yaml`: For continuous integration with Google Cloud Build.
