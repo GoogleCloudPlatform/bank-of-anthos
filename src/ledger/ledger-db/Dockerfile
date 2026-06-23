@@ -20,3 +20,6 @@ RUN apk add --no-cache coreutils && rm -rf /var/cache/apk/*
 # Files for initializing the database.
 COPY initdb/0_init_tables.sql initdb/1_create_transactions.sh /docker-entrypoint-initdb.d/
 RUN chmod 755  /docker-entrypoint-initdb.d/0_init_tables.sql /docker-entrypoint-initdb.d/1_create_transactions.sh
+
+# Run as the postgres user (Issue #517)
+USER 999
