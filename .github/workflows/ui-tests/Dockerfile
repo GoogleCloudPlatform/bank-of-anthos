@@ -14,18 +14,19 @@ FROM cypress/included:13.17.0@sha256:128490f34f1f2f7c0bab4dd1dbc4eaf0435ba99fe3e
 WORKDIR /e2e
 COPY . .
 
-# install curl and gpg which are needed for fetching the Google Cloud GPG key
-RUN apt-get update
-RUN apt-get install -y curl gpg
+RUN rm -f /etc/apt/sources.list.d/google-chrome.list \
+    && rm -f /etc/apt/sources.list.d/microsoft-edge-stable.list \
+    && apt-get update \
+    && apt-get install -y curl gpg
 
-# install gcloud cli tools to get kubectl context and service/ingress endpoint ip to test
-RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg  add - && apt-get update -y && apt-get install google-cloud-cli -y
+RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list \
+    && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add - \
+    && apt-get update -y \
+    && apt-get install google-cloud-cli -y
 
-# RUN apt-get update
-RUN apt-get install -y google-cloud-sdk-gke-gcloud-auth-plugin kubectl curl
+RUN apt-get install -y google-cloud-sdk-gke-gcloud-auth-plugin kubectl
 
 ENV USE_GKE_GCLOUD_AUTH_PLUGIN=True
 ENV XDG_CONFIG_HOME=/e2e
 
-# run custom bash script to set CYPRESS_baseUrl and execute tests
 ENTRYPOINT [ "/bin/bash", "-c", "./run_for_env.sh" ]
