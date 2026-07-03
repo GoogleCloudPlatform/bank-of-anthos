@@ -33,8 +33,9 @@ WORKDIR /app
 COPY --from=builder /app/.venv /app/.venv
 ENV PATH="/app/.venv/bin:$PATH"
 
-# show python logs as they occur
-ENV PYTHONUNBUFFERED=0
+# show python logs as they occur (any non-empty value enables unbuffered
+# mode in Python, but use "1" so it doesn't read as "disabled" at a glance)
+ENV PYTHONUNBUFFERED=1
 
 # explicitly set a fallback log level in case no log level is defined by Kubernetes
 ENV LOG_LEVEL info
@@ -42,7 +43,14 @@ ENV LOG_LEVEL info
 # Add application code.
 COPY . .
 
-# Ensure files are readable for non-root users
-RUN chmod a+r *
+# Create the same non-root UID/GID that the Kubernetes securityContext uses
+# (runAsUser/runAsGroup: 1000 in kubernetes-manifests/contacts.yaml), and make
+# app files readable by it, so `docker run` locally behaves the same as it
+# does in the cluster.
+RUN groupadd --gid 1000 appuser \
+    && useradd --uid 1000 --gid appuser --no-create-home --shell /usr/sbin/nologin appuser \
+    && chmod -R a+rX .
+
+USER 1000:1000
 
 CMD gunicorn -b :$PORT --threads 4 --log-config logging.conf --log-level=$LOG_LEVEL "contacts:create_app()"
