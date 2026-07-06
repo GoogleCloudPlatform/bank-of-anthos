@@ -69,7 +69,7 @@ spec:
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
-              value: "true"
+              value: "false"
             - name: SCHEME
               value: http
             - name: LOG_LEVEL
@@ -101,7 +101,7 @@ spec:
                 name: environment-config
             - configMapRef:
                 name: service-api-config
-          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/frontend:v0.6.9@sha256:70d8db0c0d9edfd9c40e3508265d3addf007187ed30a2c48cd7f30d40e428f13
+          image: 826113468369.dkr.ecr.us-east-1.amazonaws.com/frontend:latest
           livenessProbe:
             httpGet:
               path: /ready

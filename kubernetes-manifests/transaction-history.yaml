@@ -69,7 +69,7 @@ spec:
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
-              value: "true"
+              value: "false"
             - name: ENABLE_METRICS
               value: "true"
             - name: POLL_MS
@@ -93,7 +93,7 @@ spec:
                 name: environment-config
             - configMapRef:
                 name: ledger-db-config
-          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/transactionhistory:v0.6.9@sha256:1fa3150e4d43d2645ce8a76640050c3a1aeeec1bc0731dbb2957f8db7a27f321
+          image: 826113468369.dkr.ecr.us-east-1.amazonaws.com/transactionhistory:latest
           livenessProbe:
             httpGet:
               path: /healthy

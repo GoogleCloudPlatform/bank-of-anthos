@@ -69,7 +69,7 @@ spec:
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
-              value: "true"
+              value: "false"
             - name: TOKEN_EXPIRY_SECONDS
               value: "3600"
             - name: PRIV_KEY_PATH
@@ -81,7 +81,7 @@ spec:
                 name: environment-config
             - configMapRef:
                 name: accounts-db-config
-          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/userservice:v0.6.9@sha256:5e2357fb2e429588b2afa497afc6e948b87f050481041b273f1c8b97003620c2
+          image: 826113468369.dkr.ecr.us-east-1.amazonaws.com/userservice:latest
           name: userservice
           ports:
             - containerPort: 8080
