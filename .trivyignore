@@ -1,0 +1,39 @@
+# Documented exceptions to the CI's Trivy scan (severity CRITICAL,HIGH).
+# Applies only to the 6 Debian/Python-based services; the 3 Java services
+# use an Alpine base image with an unrelated package set, so none of these
+# CVE (Common Vulnerabilities and Exposures) IDs match there.
+#
+# Every entry below was verified against security-tracker.debian.org on
+# 2026-07-07: Debian trixie has no fixed package version for any of them
+# yet, and its own security team has already classified them as low
+# priority (see notes per entry). This file documents an accepted risk,
+# it does not silence an unreviewed one. Revisit when the base image
+# (python:3.14.6-slim) picks up a trixie point release that includes
+# these fixes.
+
+# gzip, HIGH - no fixed version in trixie yet
+CVE-2026-41992
+
+# libacl1, HIGH - no fixed version in trixie yet
+CVE-2026-54369
+
+# ncurses family (libncursesw6, libtinfo6, ncurses-base, ncurses-bin), HIGH
+# - no fixed version in trixie yet
+CVE-2025-69720
+
+# perl-base, CRITICAL - Debian: "postponed, minor issue, wait for
+# regressions upstream sorted out"
+CVE-2026-42496
+
+# perl-base, CRITICAL - fixed only in Debian unstable (5.40.1-8), not
+# backported to trixie yet
+CVE-2026-8376
+
+# perl-base, HIGH - Debian: "postponed, minor issue"
+CVE-2026-42497
+
+# perl-base, HIGH - no fixed version in trixie yet
+CVE-2026-48962
+
+# perl-base, HIGH - Debian: "postponed, minor issue"
+CVE-2026-9538

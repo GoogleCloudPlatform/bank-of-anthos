@@ -81,6 +81,7 @@ jobs:
           image-ref: ci-${{ inputs.service_name }}:${{ github.sha }}
           severity: CRITICAL,HIGH
           exit-code: "1"
+          trivyignores: .trivyignore
 
       # Everything past this point only runs for a push to main (the
       # per-service workflow only triggers this for paths under this
