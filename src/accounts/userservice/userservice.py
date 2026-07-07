@@ -15,6 +15,7 @@
 """
 Userservice manages user account creation, user login, and related tasks
 """
+# CI test: trivial comment to trigger the userservice workflow (paths filter).
 
 import atexit
 from datetime import datetime, timedelta
