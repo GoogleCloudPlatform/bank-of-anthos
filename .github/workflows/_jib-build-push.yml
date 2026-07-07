@@ -1,0 +1,86 @@
+name: Reusable - Jib build, scan, and push
+
+# Called by the per-service workflows for the 3 Java services, which have
+# no Dockerfile: balancereader, ledgerwriter, transactionhistory. See
+# _docker-build-push.yml for the 6 services with a Dockerfile.
+on:
+  workflow_call:
+    inputs:
+      service_name:
+        description: Name of the service, matches its ECR (Elastic Container Registry) repository name.
+        required: true
+        type: string
+      module_path:
+        description: Path to the service's Maven module (for example src/ledger/balancereader).
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Same Java version already pinned in every pom.xml (<java.version>).
+      # cache: maven caches ~/.m2/repository between runs, keyed on the
+      # pom.xml files, so dependencies are not re-downloaded on every run.
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Checkstyle
+        run: mvn checkstyle:check -pl ${{ inputs.module_path }}
+
+      - name: Run unit tests
+        run: mvn test -pl ${{ inputs.module_path }}
+
+      # jib:dockerBuild (not jib:build) builds the image and loads it into
+      # the runner's local Docker daemon without publishing it anywhere.
+      # jib:build would push directly to whatever -Dimage= points at, with
+      # no local image left to scan first — dockerBuild is what makes it
+      # possible to run Trivy before anything is published, the same
+      # guarantee the Docker-based workflow gets from build-push-action's
+      # push: false.
+      - name: Build image locally with Jib
+        run: >
+          mvn -pl ${{ inputs.module_path }} compile jib:dockerBuild
+          -Dimage=ci-${{ inputs.service_name }}:${{ github.sha }}
+
+      - name: Scan image with Trivy
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: ci-${{ inputs.service_name }}:${{ github.sha }}
+          severity: CRITICAL,HIGH
+          exit-code: "1"
+
+      # Everything past this point only runs for a push to main, identical
+      # to the Docker-based reusable workflow.
+      - name: Configure AWS credentials
+        if: github.event_name == 'push'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Log in to ECR
+        if: github.event_name == 'push'
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # Re-tags the exact image Jib already built and scanned above; Jib is
+      # not invoked a second time, so what was scanned and what gets
+      # published are provably the same image.
+      - name: Tag and push image
+        if: github.event_name == 'push'
+        run: |
+          ECR_IMAGE="${{ steps.login-ecr.outputs.registry }}/${{ inputs.service_name }}:${{ github.sha }}"
+          docker tag "ci-${{ inputs.service_name }}:${{ github.sha }}" "$ECR_IMAGE"
+          docker push "$ECR_IMAGE"

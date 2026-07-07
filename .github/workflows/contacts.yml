@@ -1,0 +1,23 @@
+name: contacts
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/accounts/contacts/**"
+  pull_request:
+    paths:
+      - "src/accounts/contacts/**"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  ci:
+    uses: ./.github/workflows/_docker-build-push.yml
+    with:
+      service_name: contacts
+      service_path: src/accounts/contacts
+      run_lint: true
+      run_tests: true

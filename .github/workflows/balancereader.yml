@@ -1,0 +1,21 @@
+name: balancereader
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/ledger/balancereader/**"
+  pull_request:
+    paths:
+      - "src/ledger/balancereader/**"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  ci:
+    uses: ./.github/workflows/_jib-build-push.yml
+    with:
+      service_name: balancereader
+      module_path: src/ledger/balancereader

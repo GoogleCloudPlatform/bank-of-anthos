@@ -1,0 +1,21 @@
+name: ledgerwriter
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/ledger/ledgerwriter/**"
+  pull_request:
+    paths:
+      - "src/ledger/ledgerwriter/**"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  ci:
+    uses: ./.github/workflows/_jib-build-push.yml
+    with:
+      service_name: ledgerwriter
+      module_path: src/ledger/ledgerwriter

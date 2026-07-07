@@ -1,0 +1,21 @@
+name: transactionhistory
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/ledger/transactionhistory/**"
+  pull_request:
+    paths:
+      - "src/ledger/transactionhistory/**"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  ci:
+    uses: ./.github/workflows/_jib-build-push.yml
+    with:
+      service_name: transactionhistory
+      module_path: src/ledger/transactionhistory

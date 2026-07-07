@@ -1,0 +1,23 @@
+name: loadgenerator
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/loadgenerator/**"
+  pull_request:
+    paths:
+      - "src/loadgenerator/**"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  ci:
+    uses: ./.github/workflows/_docker-build-push.yml
+    with:
+      service_name: loadgenerator
+      service_path: src/loadgenerator
+      run_lint: false
+      run_tests: false

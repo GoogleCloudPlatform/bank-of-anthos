@@ -1,0 +1,23 @@
+name: accounts-db
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/accounts/accounts-db/**"
+  pull_request:
+    paths:
+      - "src/accounts/accounts-db/**"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  ci:
+    uses: ./.github/workflows/_docker-build-push.yml
+    with:
+      service_name: accounts-db
+      service_path: src/accounts/accounts-db
+      run_lint: false
+      run_tests: false

@@ -1,0 +1,23 @@
+name: userservice
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/accounts/userservice/**"
+  pull_request:
+    paths:
+      - "src/accounts/userservice/**"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  ci:
+    uses: ./.github/workflows/_docker-build-push.yml
+    with:
+      service_name: userservice
+      service_path: src/accounts/userservice
+      run_lint: true
+      run_tests: true

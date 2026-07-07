@@ -1,0 +1,23 @@
+name: ledger-db
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/ledger/ledger-db/**"
+  pull_request:
+    paths:
+      - "src/ledger/ledger-db/**"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  ci:
+    uses: ./.github/workflows/_docker-build-push.yml
+    with:
+      service_name: ledger-db
+      service_path: src/ledger/ledger-db
+      run_lint: false
+      run_tests: false

@@ -1,0 +1,108 @@
+name: Reusable - Docker build, scan, and push
+
+# Called by the per-service workflows for the 6 services that build with a
+# plain Dockerfile (frontend, userservice, contacts, loadgenerator,
+# accounts-db, ledger-db). See _jib-build-push.yml for the 3 Java services.
+on:
+  workflow_call:
+    inputs:
+      service_name:
+        description: Name of the service, matches its ECR (Elastic Container Registry) repository name.
+        required: true
+        type: string
+      service_path:
+        description: Path to the service's directory, containing its Dockerfile.
+        required: true
+        type: string
+      run_lint:
+        description: Whether to run pylint against this service's Python code.
+        required: false
+        type: boolean
+        default: false
+      run_tests:
+        description: Whether to run this service's pytest suite.
+        required: false
+        type: boolean
+        default: false
+
+# id-token: write is required for the OIDC (OpenID Connect) exchange with
+# AWS; contents: read is the default checkout permission. Harmless on a
+# pull_request run, since the steps that actually use it only execute
+# when github.event_name == 'push'.
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up uv
+        if: inputs.run_lint || inputs.run_tests
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      # --rcfile uses an absolute path from the repo root instead of the
+      # relative path the local Makefile uses (../../.pylintrc vs
+      # ../../../.pylintrc depending on folder depth), so this same step
+      # works unmodified regardless of how deep service_path is nested.
+      - name: Lint with pylint
+        if: inputs.run_lint
+        working-directory: ${{ inputs.service_path }}
+        run: uv run pylint --rcfile="$GITHUB_WORKSPACE/.pylintrc" *.py
+
+      - name: Run unit tests
+        if: inputs.run_tests
+        working-directory: ${{ inputs.service_path }}
+        run: uv run pytest -v -p no:warnings
+
+      # Builds and loads the image into the runner's local Docker daemon
+      # only; push is always false here. Nothing is published to any
+      # registry yet, so a pull_request run never needs AWS credentials at
+      # this point, and the image scanned in the next step below is
+      # exactly what would be pushed later, not a separate rebuild.
+      - name: Build image locally
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ inputs.service_path }}
+          push: false
+          load: true
+          tags: ci-${{ inputs.service_name }}:${{ github.sha }}
+
+      # Fails the job on any CRITICAL or HIGH vulnerability found in the
+      # image just built, before it can reach ECR.
+      - name: Scan image with Trivy
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: ci-${{ inputs.service_name }}:${{ github.sha }}
+          severity: CRITICAL,HIGH
+          exit-code: "1"
+
+      # Everything past this point only runs for a push to main (the
+      # per-service workflow only triggers this for paths under this
+      # service). A pull_request run stops after the Trivy step above.
+      - name: Configure AWS credentials
+        if: github.event_name == 'push'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Log in to ECR
+        if: github.event_name == 'push'
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # Re-tags the exact image already scanned above and pushes that, so
+      # what was scanned and what gets published are provably the same
+      # image, not two separate builds.
+      - name: Tag and push image
+        if: github.event_name == 'push'
+        run: |
+          ECR_IMAGE="${{ steps.login-ecr.outputs.registry }}/${{ inputs.service_name }}:${{ github.sha }}"
+          docker tag "ci-${{ inputs.service_name }}:${{ github.sha }}" "$ECR_IMAGE"
+          docker push "$ECR_IMAGE"
