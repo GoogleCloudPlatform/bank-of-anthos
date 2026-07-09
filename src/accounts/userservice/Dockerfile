@@ -37,7 +37,7 @@ ENV PATH="/app/.venv/bin:$PATH"
 ENV PYTHONUNBUFFERED=0
 
 # explicitly set a fallback log level in case no log level is defined by Kubernetes
-ENV LOG_LEVEL info
+ENV LOG_LEVEL=info
 
 # Add application code.
 COPY . .
