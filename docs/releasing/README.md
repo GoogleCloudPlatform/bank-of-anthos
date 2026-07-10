@@ -4,7 +4,9 @@ This document describes how maintainers can tag and push a new release of Bank o
 
 ## Prerequisites for tagging a release
 
-1. Manually test the latest main commit by verifying the user journeys below:
+### General prerequisites (Required for all releases)
+
+1. **Verify user journeys**: Manually test the latest main commit by verifying the user journeys below:
 
    - User can deploy Bank of Anthos on a new GCP project/GKE cluster following README instructions.
    - User can deploy Bank of Anthos on a GKE cluster with the latest Anthos Service Mesh enabled, by deploying `extras/istio/` on top of the kubernetes manifests.
@@ -20,16 +22,20 @@ This document describes how maintainers can tag and push a new release of Bank o
    - User is redirected from `/home` to `/login` when not authenticated.
    - User is redirected from `/login` and `/signup` to `/home` when already authenticated.
 
-2. Choose the logical [next release tag](https://github.com/GoogleCloudPlatform/bank-of-anthos/releases), using [semantic versioning](https://semver.org/): `vX.Y.Z`.
+2. **Choose the next release tag**: Choose the logical [next release tag](https://github.com/GoogleCloudPlatform/bank-of-anthos/releases), using [semantic versioning](https://semver.org/): `vX.Y.Z`.
 
-   If this release includes significant feature changes, update the minor version (`Y`). Otherwise, for bug-fix releases or standard quarterly release, update the patch version `Z`).
+   If this release includes significant feature changes, update the minor version (`Y`). Otherwise, for bug-fix releases or standard quarterly release, update the patch version (`Z`).
+
+### Local run prerequisites (Required only if running locally)
+
+If you plan to run the release script locally rather than using the GitHub Actions workflow, you must also satisfy the following:
 
 3. Ensure that the following commands are in your `PATH`:
    - `realpath` (found in the `coreutils` package)
    - `skaffold`
    - `gcloud`
 
-4. Make sure that your `gcloud` is authenticated:
+4. Make sure that your local `gcloud` is authenticated:
 
    ```sh
    gcloud auth login
@@ -37,6 +43,20 @@ This document describes how maintainers can tag and push a new release of Bank o
    ```
 
 ## Create and tag the new release
+
+You can run this process either automatically via GitHub Actions (recommended) or manually from your local machine.
+
+### Option A: Trigger via GitHub Actions (Recommended)
+
+A manually triggered GitHub Actions workflow automates building the release, tagging the repo, pushing the release branch/tag, and opening the release Pull Request.
+
+1. Go to your repository on GitHub.
+2. Navigate to the **Actions** tab.
+3. Select the **Manual Release Builder** workflow.
+4. Click the **Run workflow** dropdown, input the new version (e.g. `v0.6.0`), and run the workflow.
+5. Once the run completes, a release Pull Request will be opened automatically targeting `main`.
+
+### Option B: Run locally
 
 Run the `make-release.sh` script found inside the `docs/releasing` directory:
 
@@ -67,7 +87,9 @@ git tag -d $NEW_VERSION
 
 ## Create the PR
 
-Now that the release branch has been created, you can find it in the [list of branches](https://github.com/GoogleCloudPlatform/bank-of-anthos/branches) and create a pull request targeting `main` (the default branch).
+If you ran the release script locally, you now need to open the Pull Request. Find the new branch in the [list of branches](https://github.com/GoogleCloudPlatform/bank-of-anthos/branches) and create a pull request targeting `main` (the default branch).
+
+*(If you used the GitHub Actions workflow, the PR was created automatically).*
 
 This process is going to trigger multiple CI checks as well as stage the release onto a temporary cluster. Once the PR has been approved and all checks are successfully passing, you can now merge the branch.
 
