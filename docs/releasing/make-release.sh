@@ -40,10 +40,10 @@ if [[ ! "${NEW_VERSION}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
     exit 1
 fi
 
-# ensure there are no uncommitted changes
-if [[ $(git status -s | wc -l) -gt 0 ]]; then
+# ensure there are no uncommitted changes in tracked files
+if [[ $(git status -s -uno | wc -l) -gt 0 ]]; then
     echo "error: can't have uncommitted changes. Current status:"
-    git status
+    git status -uno
     exit 1
 fi
 
