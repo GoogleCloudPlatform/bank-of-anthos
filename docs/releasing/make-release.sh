@@ -42,7 +42,8 @@ fi
 
 # ensure there are no uncommitted changes
 if [[ $(git status -s | wc -l) -gt 0 ]]; then
-    echo "error: can't have uncommitted changes"
+    echo "error: can't have uncommitted changes. Current status:"
+    git status
     exit 1
 fi
 
