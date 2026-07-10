@@ -211,3 +211,6 @@ venv-*
 
 # go for ci
 go/
+
+# GitHub Actions Google Cloud credentials JSON
+gha-creds-*.json
