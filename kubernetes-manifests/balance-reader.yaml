@@ -65,7 +65,7 @@ spec:
       containers:
         - env:
             - name: VERSION
-              value: v0.6.9
+              value: v0.6.10
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
@@ -89,7 +89,7 @@ spec:
                 name: environment-config
             - configMapRef:
                 name: ledger-db-config
-          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/balancereader:v0.6.9@sha256:6e4b48918d624f17653f230b53bbddf6c23da45606a89297d2eec72a46c830f9
+          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/balancereader:v0.6.10@sha256:feae443c650786c253bbfa3447d0902dd1689122c13962f97ccc37068d73733b
           livenessProbe:
             httpGet:
               path: /healthy

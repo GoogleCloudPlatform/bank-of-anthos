@@ -65,7 +65,7 @@ spec:
       containers:
         - env:
             - name: VERSION
-              value: v0.6.9
+              value: v0.6.10
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
@@ -77,7 +77,7 @@ spec:
                 name: environment-config
             - configMapRef:
                 name: accounts-db-config
-          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/contacts:v0.6.9@sha256:986fda4ca6779ef6f2a98c43c38beb1959118d3001ebb138f3dcb0a274b6a68e
+          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/contacts:v0.6.10@sha256:90d47594270e64f8dafa6da52c89ff70c2483cca0821dff2cc38b1450ac7a6b9
           name: contacts
           readinessProbe:
             httpGet:
