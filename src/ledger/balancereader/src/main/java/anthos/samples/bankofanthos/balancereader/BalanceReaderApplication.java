@@ -14,6 +14,22 @@
  * limitations under the License.
  */
 
+/*
+ * Copyright 2025 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package anthos.samples.bankofanthos.balancereader;
 
 import com.google.cloud.MetadataConfig;
@@ -38,17 +54,16 @@ import org.springframework.context.annotation.Bean;
 @SpringBootApplication(exclude = ZipkinAutoConfiguration.class)
 public class BalanceReaderApplication {
 
-    private static final Logger LOGGER =
-        LogManager.getLogger(BalanceReaderApplication.class);
+    private static final Logger LOGGER = LogManager.getLogger(BalanceReaderApplication.class);
 
     private static final String[] EXPECTED_ENV_VARS = {
-        "VERSION",
-        "PORT",
-        "LOCAL_ROUTING_NUM",
-        "PUB_KEY_PATH",
-        "SPRING_DATASOURCE_URL",
-        "SPRING_DATASOURCE_USERNAME",
-        "SPRING_DATASOURCE_PASSWORD"
+            "VERSION",
+            "PORT",
+            "LOCAL_ROUTING_NUM",
+            "PUB_KEY_PATH",
+            "SPRING_DATASOURCE_URL",
+            "SPRING_DATASOURCE_USERNAME",
+            "SPRING_DATASOURCE_PASSWORD"
     };
 
     public static void main(String[] args) {
@@ -57,14 +72,14 @@ public class BalanceReaderApplication {
             String value = System.getenv(v);
             if (value == null) {
                 LOGGER.fatal(String.format(
-                    "%s environment variable not set", v));
+                        "%s environment variable not set", v));
                 System.exit(1);
             }
         }
         SpringApplication.run(BalanceReaderApplication.class, args);
         LOGGER.log(Level.forName("STARTUP", Level.FATAL.intLevel()),
-            String.format("Started BalanceReader service. Log level is: %s",
-                LOGGER.getLevel().toString()));
+                String.format("Started BalanceReader service. Log level is: %s",
+                        LOGGER.getLevel().toString()));
 
     }
 
@@ -86,29 +101,27 @@ public class BalanceReaderApplication {
                 boolean enableMetricsExport = true;
 
                 if (System.getenv("ENABLE_METRICS") != null
-                    && System.getenv("ENABLE_METRICS").equals("false")) {
+                        && System.getenv("ENABLE_METRICS").equals("false")) {
                     enableMetricsExport = false;
                 }
 
                 LOGGER.info(String.format("Enable metrics export: %b",
-                    enableMetricsExport));
+                        enableMetricsExport));
                 return enableMetricsExport;
             }
 
-
             @Override
             public String projectId() {
-                String id = MetadataConfig.getProjectId();
-                if (id == null) {
-                    id = "";
-                }
-                return id;
+                return resolveProjectId(
+                        System.getenv("GOOGLE_CLOUD_PROJECT"),
+                        MetadataConfig.getProjectId());
             }
 
             @Override
             public String get(String key) {
                 return null;
             }
+
             @Override
             public String resourceType() {
                 return "k8s_container";
@@ -119,7 +132,7 @@ public class BalanceReaderApplication {
                 Map<String, String> map = new HashMap<>();
                 String podName = System.getenv("HOSTNAME");
                 String containerName = podName.substring(0,
-                    podName.indexOf("-"));
+                        podName.indexOf("-"));
                 map.put("location", MetadataConfig.getZone());
                 map.put("container_name", containerName);
                 map.put("pod_name", podName);
@@ -128,5 +141,25 @@ public class BalanceReaderApplication {
                 return map;
             }
         }).build();
+    }
+
+    /**
+     * Resolves the GCP project ID for metrics export.
+     * Prefers the GOOGLE_CLOUD_PROJECT env var over the GCE metadata server
+     * to support cross-project Workload Identity setups (issue #2309).
+     *
+     * @param envProjectId      value of GOOGLE_CLOUD_PROJECT env var (may be null)
+     * @param metadataProjectId value from GCE metadata server (may be null)
+     * @return resolved project ID, or empty string if both are null
+     */
+    static String resolveProjectId(String envProjectId,
+            String metadataProjectId) {
+        if (envProjectId != null && !envProjectId.isEmpty()) {
+            return envProjectId;
+        }
+        if (metadataProjectId != null) {
+            return metadataProjectId;
+        }
+        return "";
     }
 }
