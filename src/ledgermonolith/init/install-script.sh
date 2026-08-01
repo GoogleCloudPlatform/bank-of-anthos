@@ -91,8 +91,8 @@ function install_service() {
     return
   fi
 
-  # Install Java 17
-  wget --no-verbose https://download.java.net/java/GA/jdk17.0.1/2a2082e5a09d4267845be086888add4f/12/GPL/openjdk-17.0.1_linux-x64_bin.tar.gz
+  # Install Java 25
+  wget --no-verbose https://download.java.net/java/GA/jdk25/bd75d5f9689641da8e1daabeccb5528b/36/GPL/openjdk-25_linux-x64_bin.tar.gz
   tar xf openjdk-*.tar.gz -C /opt
 
   # Install gcloud if not already installed
@@ -113,7 +113,7 @@ function install_service() {
   cat <<EOF >${MONOLITH_DIR}/ledgermonolith-service.sh
 #!/bin/bash
 source <(sed -E -n 's/[^#]+/export &/ p' ${MONOLITH_DIR}/${APP_ENV})
-export JAVA_HOME=/opt/jdk-17.0.1
+export JAVA_HOME=/opt/jdk-25
 export PATH=\$JAVA_HOME/bin:\$PATH
 java -jar ${MONOLITH_DIR}/${APP_JAR} > ${MONOLITH_LOG}
 EOF
