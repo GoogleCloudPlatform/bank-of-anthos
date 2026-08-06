@@ -31,5 +31,4 @@ resource "google_clouddeploy_delivery_pipeline" "delivery-pipeline" {
       }
     }
   }
-  provider = google-beta
 }
