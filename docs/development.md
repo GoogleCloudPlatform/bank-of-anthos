@@ -16,20 +16,20 @@ required tools built-in.
 1. [Docker Engine or Docker Desktop](https://www.docker.com/)
 1. [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) (can be installed separately or via [gcloud](https://cloud.google.com/sdk/install))
 1. [skaffold **2.9+**](https://skaffold.dev/docs/install/) (latest version recommended)
-1. [OpenJDK **21+**](https://openjdk.java.net/projects/jdk/21/) (newer versions not tested)
+1. [OpenJDK **25+**](https://openjdk.java.net/projects/jdk/25/) (newer versions not tested)
 1. [Maven **3.9+**](https://downloads.apache.org/maven/maven-3/) (newer versions not tested)
 1. [Python **3.14+**](https://www.python.org/downloads/)
 1. [uv](https://docs.astral.sh/uv/)
 
-### Installing JDK 21 and Maven 3.9
+### Installing JDK 25 and Maven 3.9
 
-If your package manager doesn't allow you to install JDK 17 or Maven 3.8 (for example, if you're on an older version of Ubuntu), you can follow the following instructions.
+If your package manager doesn't allow you to install JDK 25 or Maven 3.9 (for example, if you're on an older version of Ubuntu), you can follow the following instructions.
 
-Find the [latest release of JDK 21](https://jdk.java.net/21/) and extract it to the `/opt` directory:
+Find the [latest release of JDK 25](https://jdk.java.net/25/) and extract it to the `/opt` directory:
 ```
-wget https://download.java.net/java/GA/jdk21.0.1/415e3f918a1f4062a0074a2794853d0d/12/GPL/openjdk-21.0.1_linux-x64_bin.tar.gz
-tar xvf openjdk-21.0.1_linux-x64_bin.tar.gz
-sudo mv jdk-21.*/ /opt/jdk21
+wget https://download.java.net/java/GA/jdk25/bd75d5f9689641da8e1daabeccb5528b/36/GPL/openjdk-25_linux-x64_bin.tar.gz
+tar xvf openjdk-25_linux-x64_bin.tar.gz
+sudo mv jdk-25*/ /opt/jdk25
 ```
 
 Find the [latest release of Maven 3.9](https://maven.apache.org/download.cgi) and
@@ -42,7 +42,7 @@ sudo tar xf apache-maven-*.tar.gz -C /opt
 Create a profile containing the paths of the newly extracted JDK and Maven directories:
 ```
 sudo tee /etc/profile.d/java.sh <<EOF
-export JAVA_HOME=/opt/jdk21
+export JAVA_HOME=/opt/jdk25
 export M2_HOME=/opt/apache-maven-3.9.5
 export MAVEN_HOME=/opt/apache-maven-3.9.5
 export PATH=\$JAVA_HOME/bin:\$M2_HOME/bin:\$PATH

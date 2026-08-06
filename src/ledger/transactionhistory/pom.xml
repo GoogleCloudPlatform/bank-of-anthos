@@ -32,7 +32,7 @@
     </parent>
 
     <properties>
-        <java.version>17</java.version>
+        <java.version>25</java.version>
         <bootstrap.version>4.6.2</bootstrap.version>
         <checkstyle.config.location>./checkstyle.xml</checkstyle.config.location>
         <spring-cloud.version>2025.1.2</spring-cloud.version>
@@ -181,7 +181,7 @@
                 <version>3.5.1</version>
                 <configuration>
                     <from>
-                        <image>eclipse-temurin:17.0.4.1_1-jre-alpine@sha256:e1506ba20f0cb2af6f23e24c7f8855b417f0b085708acd9b85344a884ba77767</image>
+                        <image>eclipse-temurin:25-jre-alpine@sha256:28db6fdf60e38945e43d840c0333aeaec66c15943070104f7586fd3c9d1665b0</image>
                     </from>
                 </configuration>
             </plugin>

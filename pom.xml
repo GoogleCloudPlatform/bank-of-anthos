@@ -31,6 +31,9 @@
         <module>src/ledger/balancereader</module>
         <module>src/ledgermonolith</module>
     </modules>
+    <properties>
+        <maven.compiler.release>25</maven.compiler.release>
+    </properties>
 
     <build>
         <pluginManagement>
