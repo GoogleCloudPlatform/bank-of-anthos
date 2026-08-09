@@ -30,7 +30,7 @@ jobs:
         run: uv sync --group dev
 
       - name: Static analysis (pylint)
-        run: uv run pylint --fail-under=7 *.py
+        run: uv run pylint --fail-under=9 *.py
 
-      - name: Unit tests with coverage
-        run: uv run pytest --cov=. --cov-report=term-missing
+      - name: Unit tests with coverage gate
+        run: uv run pytest --cov=. --cov-report=term-missing --cov-fail-under=90
