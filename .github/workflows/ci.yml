@@ -1,7 +1,6 @@
 name: CI - userservice
 
 on:
-  workflow_dispatch:
   pull_request:
     branches: [main]
     paths:
@@ -10,6 +9,7 @@ on:
     branches: [main]
     paths:
       - 'src/accounts/userservice/**'
+  workflow_dispatch:
 
 jobs:
   test-and-lint:
@@ -21,19 +21,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
         with:
-          python-version: '3.11'
+          python-version: '3.14'
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install flake8 pytest pytest-cov
+      - name: Install dependencies (incl. dev group)
+        run: uv sync --group dev
 
-      - name: Static analysis (flake8)
-        run: flake8 . --max-line-length=100 --exclude=tests
+      - name: Static analysis (pylint)
+        run: uv run pylint --fail-under=7 *.py
 
       - name: Unit tests with coverage
-        run: pytest --cov=. --cov-report=term-missing --cov-fail-under=50
+        run: uv run pytest --cov=. --cov-report=term-missing
