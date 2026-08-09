@@ -1,0 +1,38 @@
+name: CI - userservice
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/accounts/userservice/**'
+  push:
+    branches: [main]
+    paths:
+      - 'src/accounts/userservice/**'
+
+jobs:
+  test-and-lint:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/accounts/userservice
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install flake8 pytest pytest-cov
+
+      - name: Static analysis (flake8)
+        run: flake8 . --max-line-length=100 --exclude=tests
+
+      - name: Unit tests with coverage
+        run: pytest --cov=. --cov-report=term-missing --cov-fail-under=50
