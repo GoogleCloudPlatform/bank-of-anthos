@@ -1,0 +1,32 @@
+# Maps Artifact Registry image names to source files updated by the remediation job.
+images:
+  frontend:
+    service: frontend
+    dockerfile: src/frontend/Dockerfile
+    requirements_in: src/frontend/requirements.in
+  contacts:
+    service: contacts
+    dockerfile: src/accounts/contacts/Dockerfile
+    requirements_in: src/accounts/contacts/requirements.in
+  userservice:
+    service: userservice
+    dockerfile: src/accounts/userservice/Dockerfile
+    requirements_in: src/accounts/userservice/requirements.in
+  balancereader:
+    service: balancereader
+    pom: src/ledger/balancereader/pom.xml
+  ledgerwriter:
+    service: ledgerwriter
+    pom: src/ledger/ledgerwriter/pom.xml
+  transactionhistory:
+    service: transactionhistory
+    pom: src/ledger/transactionhistory/pom.xml
+  accounts-db:
+    service: accounts-db
+    dockerfile: src/accounts/accounts-db/Dockerfile
+  ledger-db:
+    service: ledger-db
+    dockerfile: src/ledger/ledger-db/Dockerfile
+  loadgenerator:
+    service: loadgenerator
+    dockerfile: src/loadgenerator/Dockerfile

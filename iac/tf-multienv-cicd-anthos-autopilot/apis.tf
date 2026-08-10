@@ -36,6 +36,11 @@ module "enabled_google_apis" {
     "meshconfig.googleapis.com",
     "meshtelemetry.googleapis.com",
     "iam.googleapis.com",
-    "sqladmin.googleapis.com"
+    "sqladmin.googleapis.com",
+    "containeranalysis.googleapis.com",
+    "containerscanning.googleapis.com",
+    "pubsub.googleapis.com",
+    "cloudscheduler.googleapis.com",
+    "secretmanager.googleapis.com"
   ]
 }

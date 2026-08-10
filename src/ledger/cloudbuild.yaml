@@ -25,6 +25,14 @@ steps:
       - "--default-repo=$_CONTAINER_REGISTRY"
       - "--cache-file=/workspace/$_CACHE" # set _CACHE to anything other than "cache" e.g. "no-cache" to reset skaffold cache
       - "--module=$_SERVICE"
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    id: container-scan-gate
+    entrypoint: bash
+    args:
+      - security/scripts/container-scan-gate.sh
+      - /workspace/artifacts.json
+    env:
+      - MIN_SEVERITY=HIGH
   - name: gcr.io/cloud-builders/gcloud
     id: upload-skaffold-cache
     args: ['storage', 'cp', '/workspace/$_CACHE',  $_CACHE_URI]

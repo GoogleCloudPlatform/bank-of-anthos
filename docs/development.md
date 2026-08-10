@@ -162,3 +162,7 @@ skaffold delete --profile development
 ## Continuous integration
 
 When you're ready to create a Pull Request for your branch, you will notice that the Github Actions CI workflows run on your branch. This includes both code and deploy tests into a separate GKE cluster owned by the maintainers. The GitHub Actions CI workflows are [described here](../.github/workflows).
+
+## Security-driven image releases
+
+When fixable container vulnerabilities are found in maintained images, remediation PRs are opened automatically and merged releases flow through the normal Cloud Build pipeline. See the [security image releases guide](security-image-releases.md) for detection, review, and deployment details.

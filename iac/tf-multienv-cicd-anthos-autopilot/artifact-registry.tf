@@ -39,7 +39,8 @@ module "artifact-registry-repository-iam-bindings" {
   bindings = {
     "roles/artifactregistry.reader" = [
       "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com",
-      "serviceAccount:${google_service_account.cloud_deploy.email}"
+      "serviceAccount:${google_service_account.cloud_deploy.email}",
+      "serviceAccount:${google_service_account.security_remediation.email}",
     ],
     "roles/artifactregistry.writer" = [
       "serviceAccount:${google_service_account.cloud_build_pr.email}"

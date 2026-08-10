@@ -1,0 +1,54 @@
+# Copyright 2026 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+steps:
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    id: run-remediation
+    entrypoint: bash
+    secretEnv:
+      - GITHUB_APP_JSON
+    args:
+      - -c
+      - |
+        set -euo pipefail
+        apt-get update && apt-get install -y python3-pip git
+        pip3 install --no-cache-dir -r security/remediate/requirements.txt
+        python3 security/remediate/remediate.py \
+          --project="${PROJECT_ID}" \
+          --location="${LOCATION}" \
+          --repository="${_ARTIFACT_REPO}" \
+          --min-severity="${_MIN_SEVERITY}" \
+          --target-branch="${_TARGET_BRANCH}" \
+          --github-owner="${_GITHUB_REPO_OWNER}" \
+          --github-repo="${_GITHUB_REPO_NAME}" \
+          --github-secret="${_GITHUB_SECRET}" \
+          --workspace="/workspace"
+    env:
+      - PROJECT_ID=$PROJECT_ID
+      - LOCATION=$LOCATION
+      - _ARTIFACT_REPO=bank-of-anthos
+availableSecrets:
+  secretManager:
+    - versionName: projects/$PROJECT_ID/secrets/${_GITHUB_SECRET}/versions/latest
+      env: GITHUB_APP_JSON
+options:
+  logging: CLOUD_LOGGING_ONLY
+substitutions:
+  _CONTAINER_REGISTRY: ""
+  _TARGET_BRANCH: cursor-test
+  _MIN_SEVERITY: HIGH
+  _GITHUB_REPO_OWNER: ""
+  _GITHUB_REPO_NAME: ""
+  _GITHUB_SECRET: security-remediation-github-app
+  _ARTIFACT_REPO: bank-of-anthos
