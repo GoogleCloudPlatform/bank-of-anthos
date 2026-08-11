@@ -1,0 +1,8 @@
+# .cursorrules §1.1 — pod-level PSS on all Deployments (CIS 4.6.2)
+spec:
+  template:
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault

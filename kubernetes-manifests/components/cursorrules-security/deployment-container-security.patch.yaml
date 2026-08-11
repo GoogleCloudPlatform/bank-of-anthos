@@ -1,0 +1,12 @@
+# .cursorrules §1.1 — container-level PSS on primary container (index 0)
+- op: add
+  path: /spec/template/spec/containers/0/securityContext/runAsNonRoot
+  value: true
+- op: add
+  path: /spec/template/spec/containers/0/securityContext/seccompProfile
+  value:
+    type: RuntimeDefault
+- op: replace
+  path: /spec/template/spec/containers/0/securityContext/capabilities/drop
+  value:
+    - ALL

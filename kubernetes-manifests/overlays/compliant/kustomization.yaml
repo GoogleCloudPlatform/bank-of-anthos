@@ -1,0 +1,35 @@
+# Compliant overlay — base manifests + cursorrules-security component.
+# Deploy: kubectl apply -k kubernetes-manifests/
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../userservice.yaml
+  - ../../ledger-writer.yaml
+  - ../../frontend.yaml
+  - ../../balance-reader.yaml
+  - ../../contacts.yaml
+  - ../../transaction-history.yaml
+  - ../../loadgenerator.yaml
+  - ../../ledger-db.yaml
+  - ../../accounts-db.yaml
+  - ../../config.yaml
+components:
+  - ../../components/cursorrules-security
+replacements:
+  # §1.3 — dedicated ServiceAccount name matches workload name
+  - source:
+      kind: Deployment
+      fieldPath: metadata.name
+    targets:
+      - select:
+          kind: Deployment
+        fieldPaths:
+          - spec.template.spec.serviceAccountName
+  - source:
+      kind: StatefulSet
+      fieldPath: metadata.name
+    targets:
+      - select:
+          kind: StatefulSet
+        fieldPaths:
+          - spec.template.spec.serviceAccountName

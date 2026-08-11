@@ -17,3 +17,6 @@ metadata:
   name: bank-of-anthos-staging
   labels:
     istio-injection: enabled # enable ASM sidecar injection on namespace
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted

@@ -1,0 +1,6 @@
+# Canonical deploy entry point — applies .cursorrules compliance via overlay.
+# Usage: kubectl apply -k kubernetes-manifests/
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - overlays/compliant

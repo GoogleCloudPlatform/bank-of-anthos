@@ -1,0 +1,42 @@
+# .cursorrules §1.1 — container-level PSS on postgres StatefulSets
+- op: add
+  path: /spec/template/spec/containers/0/imagePullPolicy
+  value: IfNotPresent
+- op: add
+  path: /spec/template/spec/containers/0/securityContext
+  value:
+    allowPrivilegeEscalation: false
+    privileged: false
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    capabilities:
+      drop:
+        - ALL
+    seccompProfile:
+      type: RuntimeDefault
+- op: add
+  path: /spec/template/spec/containers/0/resources/limits/ephemeral-storage
+  value: 1Gi
+- op: add
+  path: /spec/template/spec/containers/0/resources/requests/ephemeral-storage
+  value: 1Gi
+- op: add
+  path: /spec/template/spec/volumes/-
+  value:
+    name: tmp
+    emptyDir: {}
+- op: add
+  path: /spec/template/spec/volumes/-
+  value:
+    name: run
+    emptyDir: {}
+- op: add
+  path: /spec/template/spec/containers/0/volumeMounts/-
+  value:
+    mountPath: /tmp
+    name: tmp
+- op: add
+  path: /spec/template/spec/containers/0/volumeMounts/-
+  value:
+    mountPath: /var/run/postgresql
+    name: run

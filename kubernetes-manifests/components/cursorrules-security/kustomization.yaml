@@ -1,0 +1,24 @@
+# Reusable .cursorrules security component.
+# Edit patches here when global compliance rules change — overlays stay thin.
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+resources:
+  - serviceaccounts.yaml
+patches:
+  - target:
+      kind: Deployment
+    path: deployment-pod-security.patch.yaml
+  - target:
+      kind: Deployment
+    path: deployment-container-security.patch.yaml
+  - target:
+      kind: Deployment
+    path: deployment-image-pull-policy.patch.yaml
+  - target:
+      kind: StatefulSet
+    path: statefulset-pod-security.patch.yaml
+  - target:
+      kind: StatefulSet
+    path: statefulset-container-security.patch.yaml
+  - path: frontend-ephemeral-storage.patch.yaml
+  - path: loadgenerator-tmp-volume.patch.yaml

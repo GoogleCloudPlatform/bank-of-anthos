@@ -14,7 +14,7 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: bank-of-anthos-production
+  name: bank-of-anthos-development
   labels:
     istio-injection: enabled # enable ASM sidecar injection on namespace
     pod-security.kubernetes.io/enforce: restricted

@@ -1,0 +1,328 @@
+# Kubernetes Security — CIS GKE Benchmark + Pod Security Standards
+
+All Kubernetes workloads, cluster infrastructure, and CI/CD pipelines in this repository MUST align with the [CIS GKE Benchmark](https://cloud.google.com/kubernetes-engine/docs/concepts/cis-benchmarks). Prioritize the CIS GKE Benchmark over the generic CIS Kubernetes Benchmark (many upstream controls are managed by GKE).
+
+- **L1 controls**: mandatory unless the user explicitly approves a documented exception.
+- **L2 controls**: mandatory for production; optional for local/dev overlays with documented justification.
+
+Treat any deviation as a blocking defect unless explicitly approved.
+
+---
+
+## Scope
+
+| Area | Paths |
+|------|-------|
+| Workload manifests | `kubernetes-manifests/` (deploy via Kustomize overlay), `src/**/k8s/`, `extras/**/kubernetes-manifests/`, `iac/acm-**/` |
+| Cluster IaC | `iac/tf-multienv-cicd-anthos-autopilot/`, `iac/acm-multienv-cicd-anthos-autopilot/` |
+| CI/CD & images | `src/**/cloudbuild.yaml`, `security/`, Dockerfiles |
+
+---
+
+## kubernetes-manifests/ layout (Kustomize)
+
+Compliance is applied via overlay — **do not** bake security patches into base YAML. Edit the component when global rules change:
+
+```
+kubernetes-manifests/
+  kustomization.yaml                      # entry point: kubectl apply -k kubernetes-manifests/
+  *.yaml                                  # base manifests (upstream-friendly)
+  components/cursorrules-security/        # global .cursorrules patches — edit here
+  overlays/compliant/kustomization.yaml   # wires base + component + replacements
+```
+
+Deploy: `kubectl apply -k kubernetes-manifests/`
+
+Preview: `kubectl kustomize kubernetes-manifests/`
+
+---
+
+# Part 1 — Workload Manifests
+
+## 1.1 Pod Security Standards (Restricted) — CIS 4.2.1, 4.6.2, 4.6.3
+
+All Pods MUST comply with the Kubernetes **Pod Security Standards Restricted** profile (stricter than CIS L1 Baseline).
+
+### Pod-level `securityContext`
+
+Every Pod spec (`spec.template.spec` for controllers) MUST include:
+
+```yaml
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000        # MUST NOT be 0; use 1000 unless the image documents another non-root UID
+  runAsGroup: 1000
+  fsGroup: 1000
+  seccompProfile:
+    type: RuntimeDefault
+```
+
+Prohibited at pod scope: `runAsUser: 0`, `hostNetwork`, `hostPID`, `hostIPC`, `hostPath` volumes.
+
+### Container-level `securityContext`
+
+Every container (including init containers and sidecars) MUST include:
+
+```yaml
+securityContext:
+  allowPrivilegeEscalation: false
+  privileged: false
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  capabilities:
+    drop:
+      - ALL
+  seccompProfile:
+    type: RuntimeDefault
+```
+
+Prohibited: `privileged: true`, `allowPrivilegeEscalation: true`, `capabilities.add`, `runAsUser: 0`, `readOnlyRootFilesystem: false`.
+
+### Writable paths
+
+Use explicit writable volumes instead of disabling read-only root:
+
+```yaml
+volumes:
+  - name: tmp
+    emptyDir: {}
+volumeMounts:
+  - name: tmp
+    mountPath: /tmp
+```
+
+Prefer `src/components/add-tmp-dir/` for `/tmp`. Scope additional `emptyDir` mounts to the minimum path required.
+
+## 1.2 Namespaces — CIS 4.6.1, 4.6.4 (L2)
+
+- Deploy workloads only into dedicated namespaces (e.g. `bank-of-anthos-production`, `bank-of-anthos-staging`).
+- **Never** create Deployments, StatefulSets, Jobs, or CronJobs in the `default` namespace.
+- Every new Namespace MUST enforce Restricted PSS:
+
+```yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: bank-of-anthos-<env>
+  labels:
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted
+```
+
+## 1.3 Service accounts — CIS 4.1.4, 4.1.5
+
+- Create a dedicated Kubernetes `ServiceAccount` per workload; **never** use `default`.
+- Set `automountServiceAccountToken: false` on Pods that do not call the Kubernetes API.
+- Name the ServiceAccount after the workload (e.g. `userservice`, `ledgerwriter`).
+
+```yaml
+spec:
+  serviceAccountName: userservice
+  automountServiceAccountToken: false
+```
+
+When a pod requires API access, create an explicit `Role` + `RoleBinding` with least privilege (see §1.4).
+
+## 1.4 RBAC least privilege — CIS 4.1.1–4.1.3, 4.1.7
+
+When granting Kubernetes API access:
+
+- Scope permissions to a single namespace via `Role`/`RoleBinding` (not `ClusterRole` unless cluster-scoped resource is required).
+- **No wildcards** in `resources`, `verbs`, or `apiGroups`.
+- Minimize access to Secrets (`get`/`list`/`watch` only where necessary) — CIS 4.1.2.
+- Prohibit `cluster-admin`, `bind`, `impersonate`, and `escalate` unless the user explicitly approves.
+- Never bind `system:anonymous`, `system:unauthenticated`, or non-default bindings to `system:authenticated` — CIS 4.1.8–4.1.10.
+
+## 1.5 Workload Identity — CIS 5.2.2 (L2)
+
+For workloads that call GCP APIs, use Workload Identity instead of exporting GCP service account keys:
+
+```yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: userservice
+  annotations:
+    iam.gke.io/gcp-service-account: gke-workload-<env>@<project>.iam.gserviceaccount.com
+```
+
+Follow the pattern in `iac/acm-multienv-cicd-anthos-autopilot/overlays/production/kustomization.yaml`. Never mount GCP JSON key files as Secrets.
+
+## 1.6 Network policies — CIS 4.3.1, 4.3.2 (L2)
+
+Every application namespace MUST define NetworkPolicies. GKE Autopilot supports NetworkPolicy via Dataplane V2.
+
+Minimum pattern per namespace:
+
+1. **Default deny** all ingress and egress.
+2. **Allow** only required pod-to-service traffic (label selectors + ports).
+3. **Allow** DNS egress to `kube-system` (UDP/TCP 53) where needed.
+4. **Allow** Istio/ASM sidecar traffic when `istio-injection: enabled`.
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+```
+
+Add explicit allow policies for each service dependency. Do not deploy a new namespace without at least a default-deny policy.
+
+## 1.7 Secrets — CIS 4.4.1 (L2), 4.4.2 (L2)
+
+- **Prefer volume mounts** over environment variables for Secrets in production overlays.
+- Mount Secrets read-only at a dedicated path (e.g. `/var/secrets/<name>`).
+- Do not log or expose secret values in ConfigMaps, annotations, or container args.
+- For external secret storage, use Secret Manager via External Secrets Operator or equivalent — CIS 4.4.2.
+
+```yaml
+# Preferred
+env:
+  - name: DB_PASSWORD_FILE
+    value: /var/secrets/db/password
+volumes:
+  - name: db-credentials
+    secret:
+      secretName: cloud-sql-credentials
+volumeMounts:
+  - name: db-credentials
+    mountPath: /var/secrets/db
+    readOnly: true
+```
+
+## 1.8 Resource limits
+
+Every container MUST define `resources.requests` and `resources.limits` for CPU and memory. Include `ephemeral-storage` where the workload writes temp data. Match conventions in `src/accounts/userservice/k8s/base/userservice.yaml`.
+
+## 1.9 Container images in manifests — CIS 5.1.4 (L2)
+
+GKE disables the `AlwaysPullImages` admission controller; enforce supply-chain controls in manifests:
+
+```yaml
+image: us-central1-docker.pkg.dev/<project>/<repo>/<service>:<tag>@sha256:<digest>
+imagePullPolicy: Always   # use IfNotPresent only when image is pinned by immutable digest
+```
+
+- **Production overlays**: pin images by digest (`@sha256:...`).
+- **Prohibit** `:latest` and floating tags in production/staging.
+- Reference trusted registries only (project Artifact Registry).
+
+## 1.10 Ingress and TLS — CIS 5.6.7 (L2)
+
+External-facing Ingress resources MUST:
+
+- Terminate TLS (GKE ManagedCertificate, cert-manager, or equivalent).
+- Set `kubernetes.io/ingress.allow-http: "false"`.
+- Use `ClusterIP` Services behind Ingress; avoid `LoadBalancer`/`NodePort` for application tiers unless explicitly required.
+- Follow patterns in `src/frontend/k8s/overlays/production/frontend-ingress.yaml` and `extras/tls-domain-managedcerts/`.
+
+## 1.11 Container images and Dockerfiles
+
+- Images MUST run as a non-root user (`USER 1000` or the documented service UID).
+- Do not bind privileged ports (< 1024) at runtime; configure apps to listen on ports ≥ 1024.
+- Minimize filesystem mutability in the image; runtime writes belong on mounted volumes.
+
+---
+
+# Part 2 — Cluster Infrastructure (IaC)
+
+Applies when editing `iac/tf-multienv-cicd-anthos-autopilot/` or ACM base/overlays.
+
+## 2.1 GKE cluster hardening — CIS Section 5 (L1)
+
+New or modified cluster modules MUST maintain these settings (follow `env-production.tf` as the reference):
+
+| Control | Requirement |
+|---------|-------------|
+| 5.2.1 | Do not use the Compute Engine default service account for nodes |
+| 5.5.4 | Use release channels for version management |
+| 5.5.5 / 5.5.6 | Shielded GKE nodes with integrity monitoring |
+| 5.6.2 | VPC-native (alias IP) clusters |
+| 5.6.5 | Private nodes (`enable_private_nodes = true`) |
+| 5.7.1 | Cloud Logging and Cloud Monitoring enabled |
+| 5.8.1 | Client certificate authentication disabled |
+| 5.8.3 | Legacy ABAC disabled |
+| 5.10.1 | Kubernetes Dashboard disabled |
+
+## 2.2 GKE cluster hardening — CIS Section 5 (L2, production)
+
+Production clusters MUST additionally enforce:
+
+| Control | Requirement |
+|---------|-------------|
+| 5.6.3 | Control plane authorized networks configured |
+| 5.6.4 | Private endpoint enabled; restrict public access |
+| 5.6.1 | VPC Flow Logs and intranode visibility where applicable |
+| 5.5.7 | Secure Boot for Shielded nodes |
+| 5.3.1 / 5.9.1 / 5.9.2 | CMEK for secrets and persistent disks where supported |
+| 5.10.4 | Binary Authorization enforced |
+| 5.10.5 | GKE Security Posture enabled |
+| 5.8.2 | Google Groups for GKE RBAC where applicable |
+
+## 2.3 Workload Identity at cluster level — CIS 5.2.2 (L2)
+
+- Enable Workload Identity on all clusters.
+- Bind each Kubernetes ServiceAccount to a dedicated GCP service account via `roles/iam.workloadIdentityUser`.
+- Follow binding patterns in `env-production.tf` and ACM overlay patches.
+
+## 2.4 Network infrastructure
+
+- Use private subnets with `subnet_private_access = true` (see `network.tf`).
+- Restrict master authorized networks to known CIDR ranges.
+- Do not expose the control plane to `0.0.0.0/0`.
+
+---
+
+# Part 3 — CI/CD and Supply Chain
+
+Applies when editing Cloud Build configs, security scripts, and Dockerfiles.
+
+## 3.1 Vulnerability scanning — CIS 5.1.1 (L2)
+
+- All service `cloudbuild.yaml` files MUST run container scanning before push/deploy.
+- Follow the pattern in `src/accounts/cloudbuild.yaml` (`security/scripts/container-scan-gate.sh`).
+- Fail builds on vulnerabilities at or above `MIN_SEVERITY=HIGH` unless the user explicitly approves an exception.
+
+## 3.2 Trusted images — CIS 5.1.3, 5.1.4 (L2)
+
+- Push images only to project Artifact Registry.
+- Production deploys MUST use digest-pinned, scanned images.
+- Integrate Binary Authorization attestations for production clusters — CIS 5.10.4.
+
+## 3.3 Image build hygiene
+
+- Dockerfiles MUST end with a non-root `USER` directive.
+- Do not embed secrets, credentials, or private keys in image layers.
+- Use multi-stage builds to exclude build tooling from runtime images.
+
+---
+
+# Agent Behavior
+
+When creating or editing files in scope:
+
+1. **Apply the full security context** (pod + container) on every Pod template.
+2. **Create dedicated ServiceAccounts**; never use `default`; set `automountServiceAccountToken: false` unless API access is required.
+3. **Add NetworkPolicies** when creating or modifying a namespace.
+4. **Pin production images by digest**; prohibit `:latest` in production/staging overlays.
+5. **Mount secrets as files** in production; avoid `secretKeyRef` in `env`.
+6. **Set resource requests/limits** on every container.
+7. **Match existing conventions** in this repo (e.g. `src/accounts/userservice/k8s/base/userservice.yaml`, `kubernetes-manifests/components/cursorrules-security/`, `iac/acm-multienv-cicd-anthos-autopilot/overlays/production/`).
+8. **For `kubernetes-manifests/`**, add new global compliance rules to `components/cursorrules-security/`; keep base `*.yaml` files free of policy patches so rule changes stay centralized.
+9. **Flag violations** in existing files when touched and fix them in the same change when feasible.
+10. **Preserve cluster hardening** in Terraform; never weaken private nodes, authorized networks, or Workload Identity bindings.
+11. **Run or preserve container scan gates** in Cloud Build pipelines.
+
+When reviewing changes, reject any diff that:
+
+- Weakens pod security (root user, privileged mode, capability adds, writable root FS).
+- Introduces `serviceAccountName: default` or deploys to the `default` namespace.
+- Removes NetworkPolicies, resource limits, or scan gates.
+- Uses floating image tags or unauthenticated registries in production.
+- Exposes secrets via environment variables in production overlays.

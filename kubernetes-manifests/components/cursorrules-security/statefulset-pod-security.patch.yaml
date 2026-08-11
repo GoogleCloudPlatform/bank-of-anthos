@@ -1,0 +1,12 @@
+# .cursorrules §1.1 — pod-level PSS on postgres StatefulSets (UID/GID 70)
+spec:
+  template:
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 70
+        runAsGroup: 70
+        runAsNonRoot: true
+        runAsUser: 70
+        seccompProfile:
+          type: RuntimeDefault

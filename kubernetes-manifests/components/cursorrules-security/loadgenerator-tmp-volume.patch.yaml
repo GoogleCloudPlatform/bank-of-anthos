@@ -1,0 +1,21 @@
+# .cursorrules §1.1 — writable /tmp for readOnlyRootFilesystem
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loadgenerator
+spec:
+  template:
+    spec:
+      containers:
+        - name: loadgenerator
+          resources:
+            limits:
+              ephemeral-storage: 0.25Gi
+            requests:
+              ephemeral-storage: 0.25Gi
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
