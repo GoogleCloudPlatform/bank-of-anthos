@@ -19,6 +19,10 @@ metadata:
 data:
   LOCAL_ROUTING_NUM: "883745000"
   PUB_KEY_PATH: "/tmp/.ssh/publickey"
+  # Set to target GCP project for metrics/tracing when using cross-project
+  # Workload Identity (e.g. cluster in Project A, SA in Project B).
+  # If unset, the GCE metadata server project is used.
+  # GOOGLE_CLOUD_PROJECT: "your-target-project-id"
 ---
 apiVersion: v1
 kind: ConfigMap
