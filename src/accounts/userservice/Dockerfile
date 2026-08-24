@@ -1,49 +1,38 @@
-# Copyright 2021 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+FROM python:3.14-slim AS builder
 
-# Use the official Python docker container, slim version, running Debian
-FROM python:3.14.6-slim@sha256:44dd04494ee8f3b538294360e7c4b3acb87c8268e4d0a4828a6500b1eff50061 AS base
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy
 
-FROM base AS builder
+COPY --from=ghcr.io/astral-sh/uv:0.12.5 /uv /uvx /bin/
 
-# Set working directory
 WORKDIR /app
 
-# Install dependencies.
 COPY pyproject.toml uv.lock ./
+
 RUN uv sync --frozen --no-dev --no-install-project
 
-FROM base
-
-# Set our working directory
-WORKDIR /app
-
-COPY --from=builder /app/.venv /app/.venv
-ENV PATH="/app/.venv/bin:$PATH"
-
-# show python logs as they occur
-ENV PYTHONUNBUFFERED=0
-
-# explicitly set a fallback log level in case no log level is defined by Kubernetes
-ENV LOG_LEVEL=info
-
-# Add application code.
 COPY . .
 
-# Ensure files are readable for non-root users
-RUN chmod a+r *
+RUN uv sync --frozen --no-dev
 
-# Start server using gunicorn
-CMD gunicorn -b :$PORT --threads 2 --log-config logging.conf --log-level=$LOG_LEVEL "userservice:create_app()"
+FROM python:3.14-slim AS runtime
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PATH="/app/.venv/bin:$PATH" \
+    PORT=8080
+
+WORKDIR /app
+
+RUN groupadd --system app && \
+    useradd --system --gid app --create-home --home-dir /home/app app
+
+COPY --from=builder --chown=app:app /app /app
+
+USER app
+
+EXPOSE 8080
+
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "1", "--threads", "8", "--access-logfile", "-", "--error-logfile", "-", "userservice:create_app()"]
