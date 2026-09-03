@@ -55,12 +55,14 @@ gcloud services enable container.googleapis.com --project=${PROJECT_ID}
 gcloud container clusters create ${CLUSTER_1_NAME} \
 	--project=${PROJECT_ID} --zone=${CLUSTER_1_ZONE} \
 	--machine-type=e2-standard-4 --num-nodes=4 \
-	--workload-pool="${PROJECT_ID}.svc.id.goog" --enable-ip-alias
+	--workload-pool="${PROJECT_ID}.svc.id.goog" --enable-ip-alias \
+  --labels dev-tutorial=bank-of-anthos
 
 gcloud container clusters create ${CLUSTER_2_NAME} \
 	--project=${PROJECT_ID} --zone=${CLUSTER_2_ZONE} \
 	--machine-type=e2-standard-4 --num-nodes=4 \
-	--workload-pool="${PROJECT_ID}.svc.id.goog" --enable-ip-alias
+	--workload-pool="${PROJECT_ID}.svc.id.goog" --enable-ip-alias \
+  --labels dev-tutorial=bank-of-anthos
 ```
 
 > Note: It can take more than **10 minutes** for both clusters to get created.

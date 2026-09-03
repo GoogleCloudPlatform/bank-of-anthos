@@ -5,7 +5,14 @@ This document describes how to develop and add features to the Bank of Anthos ap
 ## Prerequisites 
 
 1. [A Google Cloud project](https://cloud.google.com/resource-manager/docs/creating-managing-projects), connected to your billing account. 
-2. [A GKE cluster in your project](https://cloud.google.com/kubernetes-engine/docs/how-to/creating-an-autopilot-cluster).
+2. [A GKE cluster in your project](https://cloud.google.com/kubernetes-engine/docs/how-to/creating-an-autopilot-cluster):
+```sh
+export PROJECT_ID=your-project-id # Replace this with your Google Cloud project ID
+export REGION=us-central1
+gcloud container clusters create-auto bank-of-anthos \
+  --project=${PROJECT_ID} --region=${REGION} \
+  --labels dev-tutorial=bank-of-anthos
+```
 
 ## Installing required tools
 

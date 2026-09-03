@@ -22,7 +22,7 @@ cluster: check-env
 		--project=${PROJECT_ID} --zone=${ZONE} \
 		--machine-type=e2-standard-4 --num-nodes=4 \
 		--enable-stackdriver-kubernetes --subnetwork=default \
-		--labels csm=
+		--labels dev-tutorial=bank-of-anthos
 
 deploy: check-env
 	echo ${CLUSTER}

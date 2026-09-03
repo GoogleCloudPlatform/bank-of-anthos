@@ -38,7 +38,8 @@ gcloud services enable container.googleapis.com
 gcloud container clusters create $CLUSTER \
 	--project=$PROJECT_ID --zone=$ZONE \
 	--machine-type=e2-standard-4 --num-nodes=4 \
-	--workload-pool="$PROJECT_ID.svc.id.goog"
+	--workload-pool="$PROJECT_ID.svc.id.goog" \
+	--labels dev-tutorial=bank-of-anthos
 ```
 
 5. **Run the Workload Identity setup script** for your new cluster. This script creates a Google Service Account (GSA) and Kubernetes Service Account (KSA), associates them together, then grants the service account permission to access Cloud SQL.

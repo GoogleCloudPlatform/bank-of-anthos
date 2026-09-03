@@ -180,7 +180,8 @@ gcloud container clusters create ${CLUSTER} \
   --num-nodes=4 \
   --project=${PROJECT_ID} \
   --subnetwork=default \
-  --zone=${ZONE}
+  --zone=${ZONE} \
+  --labels dev-tutorial=bank-of-anthos
 ```
 
 3. Create a firewall rule to allow the cluster to talk to the monolith.

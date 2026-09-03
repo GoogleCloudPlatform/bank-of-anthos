@@ -53,7 +53,8 @@ gcloud container clusters create ${CLUSTER_1_NAME} \
   --image-type cos_containerd \
   --machine-type=e2-standard-4 \
   --num-nodes=4 \
-  --workload-pool=${PROJECT_ID}.svc.id.goog
+  --workload-pool=${PROJECT_ID}.svc.id.goog \
+  --labels dev-tutorial=bank-of-anthos
 
 gcloud container clusters create ${CLUSTER_2_NAME} \
   --async \
@@ -63,7 +64,8 @@ gcloud container clusters create ${CLUSTER_2_NAME} \
   --image-type cos_containerd \
   --machine-type=e2-standard-4 \
   --num-nodes=4 \
-  --workload-pool=${PROJECT_ID}.svc.id.goog
+  --workload-pool=${PROJECT_ID}.svc.id.goog \
+  --labels dev-tutorial=bank-of-anthos
 
 echo "☸️ Waiting for clusters to be created..."
 while [[ 

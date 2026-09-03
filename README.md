@@ -70,7 +70,8 @@ The following button opens up an interactive tutorial showing how to deploy Bank
 
    ```sh
    gcloud container clusters create-auto bank-of-anthos \
-     --project=${PROJECT_ID} --region=${REGION}
+     --project=${PROJECT_ID} --region=${REGION} \
+     --labels dev-tutorial=bank-of-anthos
    ```
 
    Creating the cluster may take a few minutes.
