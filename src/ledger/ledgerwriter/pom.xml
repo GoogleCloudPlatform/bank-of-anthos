@@ -137,7 +137,7 @@
         <dependency>
             <groupId>io.lettuce</groupId>
             <artifactId>lettuce-core</artifactId>
-            <version>6.8.2.RELEASE</version>
+            <version>7.7.0.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>com.auth0</groupId>
