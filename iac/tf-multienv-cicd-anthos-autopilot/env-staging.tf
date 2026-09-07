@@ -23,7 +23,7 @@ provider "kubernetes" {
 # staging autopilot cluster
 module "gke_staging" {
   source = "terraform-google-modules/kubernetes-engine/google//modules/beta-autopilot-private-cluster"
-  version = "29.0.0"
+  version = "44.3.0"
 
   project_id              = var.project_id
   name                    = "staging"
