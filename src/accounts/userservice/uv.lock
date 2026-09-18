@@ -1143,7 +1143,7 @@ requires-dist = [
     { name = "pluggy", specifier = ">=1.6.0" },
     { name = "psycopg2-binary", specifier = ">=2.9.11" },
     { name = "py", specifier = ">=1.11.0" },
-    { name = "pyasn1", specifier = ">=0.6.1" },
+    { name = "pyasn1", specifier = ">=0.6.4" },
     { name = "pyasn1-modules", specifier = ">=0.4.2" },
     { name = "pycparser", specifier = ">=2.23" },
     { name = "pycryptodome", specifier = ">=3.23.0" },
