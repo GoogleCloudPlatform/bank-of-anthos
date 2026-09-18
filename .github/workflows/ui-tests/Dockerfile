@@ -24,7 +24,7 @@ RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.
     && apt-get update -y \
     && apt-get install google-cloud-cli -y
 
-RUN apt-get install -y google-cloud-sdk-gke-gcloud-auth-plugin kubectl
+RUN apt-get install -y google-cloud-cli-gke-gcloud-auth-plugin kubectl
 
 ENV USE_GKE_GCLOUD_AUTH_PLUGIN=True
 ENV XDG_CONFIG_HOME=/e2e
