@@ -65,7 +65,7 @@ spec:
       containers:
         - env:
             - name: VERSION
-              value: v0.6.10
+              value: v0.6.11
             - name: PORT
               value: "8080"
             - name: ENABLE_TRACING
@@ -101,7 +101,7 @@ spec:
                 name: environment-config
             - configMapRef:
                 name: service-api-config
-          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/frontend:v0.6.10@sha256:076294ce717309f711743fa3b72a9809c7f156edf1c4fa58505fd9f436d65345
+          image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/frontend:v0.6.11@sha256:5746f018f3d85475e25b8283bf8fb476e2501196bbe71e3ce144527e7280e7ae
           livenessProbe:
             httpGet:
               path: /ready
