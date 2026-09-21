@@ -403,4 +403,31 @@ class LedgerWriterControllerTest {
                 duplicateResult.getBody());
         assertEquals(HttpStatus.BAD_REQUEST, duplicateResult.getStatusCode());
     }
+
+    @Test
+    @DisplayName("When transactions without a UUID are sent, " +
+            "they are not treated as duplicates of each other")
+    void addTransactionWithoutUuidIsNotDuplicate() {
+        // Given a client that omits the optional uuid field, so that
+        // getRequestUuid() returns the empty string like the entity does
+        when(transaction.getFromRoutingNum()).thenReturn(NON_LOCAL_ROUTING_NUM);
+        when(transaction.getRequestUuid()).thenReturn("");
+
+        // When
+        final ResponseEntity firstResult =
+                ledgerWriterController.addTransaction(
+                        BEARER_TOKEN, transaction);
+        final ResponseEntity secondResult =
+                ledgerWriterController.addTransaction(
+                        BEARER_TOKEN, transaction);
+
+        // Then
+        assertNotNull(firstResult);
+        assertEquals(HttpStatus.CREATED, firstResult.getStatusCode());
+
+        assertNotNull(secondResult);
+        assertEquals(ledgerWriterController.READINESS_CODE,
+                secondResult.getBody());
+        assertEquals(HttpStatus.CREATED, secondResult.getStatusCode());
+    }
 }
