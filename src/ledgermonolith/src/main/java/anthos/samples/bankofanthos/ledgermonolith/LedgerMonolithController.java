@@ -23,6 +23,7 @@ import static anthos.samples.bankofanthos.ledgermonolith.ExceptionMessages.EXCEP
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.LoadingCache;
@@ -244,8 +245,13 @@ public final class LedgerMonolithController {
             }
             final DecodedJWT jwt = this.verifier.verify(bearerToken);
 
+            // The uuid is optional, so a request without one can't be
+            // matched against the cache. Don't let those share an entry.
+            final String requestUuid = transaction.getRequestUuid();
+
             // Check against cache for duplicate transactions
-            if (this.ledgerWriterCache.asMap().containsKey(transaction.getRequestUuid())) {
+            if (!Strings.isNullOrEmpty(requestUuid)
+                    && this.ledgerWriterCache.asMap().containsKey(requestUuid)) {
                 throw new IllegalStateException(
                         EXCEPTION_MESSAGE_DUPLICATE_TRANSACTION);
             }
@@ -265,8 +271,10 @@ public final class LedgerMonolithController {
             }
             // No exceptions thrown. Add to ledger
             transactionRepository.save(transaction);
-            this.ledgerWriterCache.put(transaction.getRequestUuid(),
-                    transaction.getTransactionId());
+            if (!Strings.isNullOrEmpty(requestUuid)) {
+                this.ledgerWriterCache.put(requestUuid,
+                        transaction.getTransactionId());
+            }
             LOGGER.info("Submitted transaction successfully");
             return new ResponseEntity<>(READINESS_CODE,
                     HttpStatus.CREATED);
