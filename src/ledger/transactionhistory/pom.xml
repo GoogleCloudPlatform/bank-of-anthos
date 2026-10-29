@@ -35,7 +35,7 @@
         <java.version>17</java.version>
         <bootstrap.version>4.6.2</bootstrap.version>
         <checkstyle.config.location>./checkstyle.xml</checkstyle.config.location>
-        <spring-cloud.version>2025.1.3</spring-cloud.version>
+        <spring-cloud.version>2025.1.4</spring-cloud.version>
     </properties>
 
     <dependencyManagement>
@@ -57,14 +57,14 @@
             <dependency>
                 <groupId>com.google.cloud</groupId>
                 <artifactId>libraries-bom</artifactId>
-                <version>26.88.1</version>
+                <version>26.90.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>io.micrometer</groupId>
                 <artifactId>micrometer-bom</artifactId>
-                <version>1.17.1</version>
+                <version>1.17.2</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -137,7 +137,7 @@
         <dependency>
           <groupId>com.google.guava</groupId>
           <artifactId>guava</artifactId>
-          <version>33.7.1-jre</version>
+          <version>33.7.2-jre</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -147,12 +147,12 @@
         <dependency>
             <groupId>io.lettuce</groupId>
             <artifactId>lettuce-core</artifactId>
-            <version>7.7.0.RELEASE</version>
+            <version>7.9.0.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>com.auth0</groupId>
             <artifactId>java-jwt</artifactId>
-            <version>4.6.1</version>
+            <version>4.6.2</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -163,7 +163,7 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>5.23.0</version>
+            <version>5.24.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -196,7 +196,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.6.0</version>
+                <version>3.6.1</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
