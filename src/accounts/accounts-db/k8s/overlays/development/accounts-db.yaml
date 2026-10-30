@@ -28,6 +28,10 @@ spec:
         app: accounts-db
     spec:
       serviceAccountName: default
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 70
+        runAsGroup: 70
       containers:
       - name: accounts-db
         image: accounts-db
