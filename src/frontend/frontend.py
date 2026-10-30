@@ -155,6 +155,11 @@ def create_app():
                                  api_response[TRANSACTION_LIST_NAME],
                                  api_response[CONTACTS_NAME])
 
+        # A prior /payment or /deposit redirect here carries success='false' when
+        # that transaction failed, so a caller that doesn't inspect the rendered
+        # HTML can still tell from the status code alone (see #2144).
+        status_code = 400 if request.args.get('success') == 'false' else 200
+
         return render_template('index.html',
                                account_id=account_id,
                                balance=api_response[BALANCE_NAME],
@@ -168,7 +173,7 @@ def create_app():
                                platform=platform,
                                platform_display_name=platform_display_name,
                                pod_name=pod_name,
-                               pod_zone=pod_zone)
+                               pod_zone=pod_zone), status_code
 
     def _populate_contact_labels(account_id, transactions, contacts):
         """
@@ -241,6 +246,7 @@ def create_app():
             return redirect(code=303,
                             location=url_for('home',
                                              msg='Payment successful',
+                                             success='true',
                                              _external=True,
                                              _scheme=app.config['SCHEME']))
 
@@ -251,6 +257,7 @@ def create_app():
             msg = 'Payment failed: {}'.format(str(warn))
             return redirect(url_for('home',
                                     msg=msg,
+                                    success='false',
                                     _external=True,
                                     _scheme=app.config['SCHEME']))
         except (ValueError, DecimalException) as num_err:
@@ -259,6 +266,7 @@ def create_app():
 
         return redirect(url_for('home',
                                 msg='Payment failed',
+                                success='false',
                                 _external=True,
                                 _scheme=app.config['SCHEME']))
 
@@ -308,6 +316,7 @@ def create_app():
             return redirect(code=303,
                             location=url_for('home',
                                              msg='Deposit successful',
+                                             success='true',
                                              _external=True,
                                              _scheme=app.config['SCHEME']))
 
@@ -318,11 +327,13 @@ def create_app():
             msg = 'Deposit failed: {}'.format(str(warn))
             return redirect(url_for('home',
                                     msg=msg,
+                                    success='false',
                                     _external=True,
                                     _scheme=app.config['SCHEME']))
 
         return redirect(url_for('home',
                                 msg='Deposit failed',
+                                success='false',
                                 _external=True,
                                 _scheme=app.config['SCHEME']))
 
