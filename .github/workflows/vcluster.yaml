@@ -1,0 +1,114 @@
+name: vCluster Deploy & Test
+
+# Spins up an ephemeral Kubernetes cluster with vCluster in Docker (vind)
+# on the GitHub-hosted runner, deploys Bank of Anthos into it, and runs the
+# Cypress UI tests against it. Replaces the previous EKS deployment, so no
+# cloud credentials are required.
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: vcluster-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  VCLUSTER_NAME: boa
+  NAMESPACE: bank-of-anthos
+
+jobs:
+  deploy-and-test:
+    name: Deploy & Test Bank of Anthos on vCluster
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+
+    - name: Checkout Repo
+      uses: actions/checkout@v4
+
+    # Installs the vCluster CLI, switches it to the Docker driver and creates
+    # the cluster. The post step exports cluster logs as a workflow artifact
+    # and deletes the cluster.
+    - name: Create vCluster in Docker
+      uses: loft-sh/setup-vind@v1
+      with:
+        version: v0.36.1
+        name: ${{ env.VCLUSTER_NAME }}
+
+    - name: Verify Cluster
+      run: |
+        kubectl cluster-info
+        kubectl wait --for=condition=Ready nodes --all --timeout=180s
+        kubectl get nodes -o wide
+
+    - name: Deploy Bank of Anthos
+      run: |
+        kubectl create namespace "$NAMESPACE"
+        kubectl config set-context --current --namespace="$NAMESPACE"
+        kubectl apply -f extras/jwt/jwt-secret.yaml
+        # The load generator is skipped so it doesn't change account data
+        # while the UI tests run, and to leave the runner more CPU headroom.
+        for manifest in kubernetes-manifests/*.yaml; do
+          [[ "$manifest" == *loadgenerator.yaml ]] && continue
+          kubectl apply -f "$manifest"
+        done
+
+    - name: Wait For Pods
+      run: |
+        kubectl rollout status statefulset/accounts-db --timeout=300s
+        kubectl rollout status statefulset/ledger-db --timeout=300s
+        for deploy in frontend contacts userservice ledgerwriter transactionhistory balancereader; do
+          kubectl wait --for=condition=available --timeout=300s "deployment/$deploy"
+        done
+        kubectl get pods -o wide
+
+    # The frontend Service is type LoadBalancer, but port-forwarding avoids
+    # depending on vind's sudo-based load balancer support.
+    - name: Expose Frontend
+      run: |
+        nohup kubectl port-forward svc/frontend 8080:80 > port-forward.log 2>&1 &
+        for i in $(seq 1 30); do
+          if curl -fsS -o /dev/null http://localhost:8080/ready; then
+            echo "Frontend is reachable"; exit 0
+          fi
+          sleep 2
+        done
+        echo "Frontend did not become reachable"; cat port-forward.log; exit 1
+
+    - name: Smoke Test
+      run: |
+        curl -fsS http://localhost:8080/login | grep -qi "bank of anthos"
+
+    - name: Run UI Tests (Cypress)
+      run: |
+        docker run --rm -t --network host \
+          -v "$PWD/.github/bac/ui-tests:/e2e" -w /e2e \
+          -e CYPRESS_baseUrl=http://localhost:8080 \
+          cypress/included:5.0.0
+
+    - name: Collect Diagnostics
+      if: failure()
+      run: |
+        kubectl get all -o wide || true
+        kubectl get events --sort-by=.lastTimestamp || true
+        kubectl describe pods || true
+        for pod in $(kubectl get pods -o name); do
+          echo "::group::logs $pod"
+          kubectl logs "$pod" --all-containers --tail=200 || true
+          echo "::endgroup::"
+        done
+        cat port-forward.log || true
+
+    - name: Upload Cypress Screenshots
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: cypress-screenshots
+        path: .github/bac/ui-tests/cypress/screenshots
+        if-no-files-found: ignore
