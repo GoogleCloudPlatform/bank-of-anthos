@@ -11,12 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 ######################################################################
 # Configure the Ingress to use the FrontendConfig that takes care of
 # redirecting HTTP requests to HTTPS
 ######################################################################
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: frontend-ingress
@@ -27,6 +26,8 @@ metadata:
 spec:
   tls:
   - secretName: frontend-tls
-  backend:
-    serviceName: frontend
-    servicePort: 80
+  defaultBackend:
+    service:
+      name: frontend
+      port:
+        number: 80
